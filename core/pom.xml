@@ -12,7 +12,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>core</artifactId>
+    <artifactId>morabehe-loan-core</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -20,6 +20,6 @@
     <modules>
         <module>domain</module>
         <module>application</module>
-        <module>sharedkernel</module>
     </modules>
+
 </project>
