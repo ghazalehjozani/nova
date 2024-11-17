@@ -29,6 +29,8 @@
         <spring-boot.version>3.3.5</spring-boot.version>
         <spring-cloud.version>2023.0.3</spring-cloud.version>
 
+        <platform.ddd-common.version>0.0.1-SNAPSHOT</platform.ddd-common.version>
+
         <fasterxml.uuid.version>5.1.0</fasterxml.uuid.version>
         <apache.commons-lang3.version>3.17.0</apache.commons-lang3.version>
 
