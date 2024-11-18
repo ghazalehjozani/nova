@@ -1,0 +1,8 @@
+package ir.dotin.loan.core.domain.config.service;
+
+import ir.dotin.loan.core.domain.config.entity.loanrule.MorabeheLoanRule;
+
+public interface MorabeheLoanRuleUpdateService {
+
+    MorabeheLoanRule update(MorabeheLoanRule newLoanRule, MorabeheLoanRule oldLoanType);
+}

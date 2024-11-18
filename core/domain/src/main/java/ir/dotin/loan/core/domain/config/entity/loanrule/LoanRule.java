@@ -2,7 +2,7 @@ package ir.dotin.loan.core.domain.config.entity.loanrule;
 
 import ir.dotin.loan.baseloan.domain.config.entity.loanrule.BaseLoanRule;
 import ir.dotin.loan.baseloan.domain.config.exception.LoanRuleException;
-import ir.dotin.loan.baseloan.domain.config.exception.LoanTypeException;
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
 import ir.dotin.loan.core.domain.config.entity.loantype.LoanType;
 import ir.dotin.platform.ddd.common.exception.DomainError;
 import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
@@ -26,7 +26,6 @@ public class LoanRule extends BaseLoanRule {
     }
 
 
-
     @Override
     protected void activate() {
         super.activate();
@@ -36,6 +35,26 @@ public class LoanRule extends BaseLoanRule {
     @Override
     protected void deactivate() {
         super.deactivate();
+    }
+
+    @Override
+    protected void markAsDisabled() {
+        super.markAsDisabled();
+    }
+
+    @Override
+    protected void validateIsEnable() {
+        super.validateIsEnable();
+    }
+
+    @Override
+    protected void setPreviousVersion(LoanRuleId id) {
+        super.setPreviousVersion(id);
+    }
+
+    @Override
+    protected void validateIsActive() {
+        super.validateIsActive();
     }
 
 

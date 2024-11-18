@@ -1,8 +1,12 @@
 package ir.dotin.loan.core.domain.config.entity.loanrule;
 
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
 import ir.dotin.loan.core.domain.config.entity.exception.MorabeheLoanRuleException;
 import ir.dotin.loan.core.domain.config.entity.loantype.MorabeheLoanType;
 import ir.dotin.loan.core.domain.config.event.MorabeheLoanRuleCreatedEvent;
+import ir.dotin.loan.core.domain.config.event.MorabeheLoanRuleDisabledEvent;
+import ir.dotin.loan.core.domain.config.event.MorabeheLoanTypeDisabledEvent;
 import ir.dotin.loan.core.domain.config.valueobject.MorabeheLoanRuleId;
 import ir.dotin.platform.ddd.common.entity.AggregateRoot;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -37,6 +41,26 @@ public class MorabeheLoanRule extends AggregateRoot<MorabeheLoanRuleId> {
         loanRule.deactivate();
     }
 
+    public void validateIsEnable() {
+        loanRule.validateIsEnable();
+    }
+
+    public void setPreviousVersion(LoanRuleId id) {
+        loanRule.setPreviousVersion(id);
+    }
+
+    public void validateIsActive() {
+        loanRule.validateIsActive();
+    }
+
+    public void markAsDisabled() {
+        loanRule.markAsDisabled();
+        registerEvent(MorabeheLoanRuleDisabledEvent.of(getId()));
+    }
+
+    public LoanRule getLoanRule() {
+        return loanRule;
+    }
 
     @Override
     public boolean equals(Object object) {

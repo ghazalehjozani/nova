@@ -1,0 +1,37 @@
+package ir.dotin.loan.core.domain.config.service.impl;
+
+
+import ir.dotin.loan.baseloan.domain.config.service.AbstractLoanRuleUpdatedService;
+import ir.dotin.loan.core.domain.config.entity.loanrule.MorabeheLoanRule;
+import ir.dotin.loan.core.domain.config.service.MorabeheLoanRuleUpdateService;
+
+public class MorabeheLoanRuleUpdateServiceImpl extends
+        AbstractLoanRuleUpdatedService<MorabeheLoanRule> implements MorabeheLoanRuleUpdateService {
+
+    @Override
+    protected void validateIsEnabled(MorabeheLoanRule oldLoanRule) {
+        oldLoanRule.validateIsEnable();
+    }
+
+    @Override
+    protected void validateIsActive(MorabeheLoanRule oldLoanRule) {
+        oldLoanRule.validateIsActive();
+
+    }
+
+    @Override
+    protected void createLoanRule(MorabeheLoanRule newLoanRule) {
+        newLoanRule.createLoanRule();
+    }
+
+    @Override
+    protected void setPreviousVersion(MorabeheLoanRule newLoanRule, MorabeheLoanRule oldLoanRule) {
+        newLoanRule.setPreviousVersion(oldLoanRule.getLoanRule().getId());
+    }
+
+    @Override
+    protected void markAsDisabled(MorabeheLoanRule oldLoanRule) {
+        oldLoanRule.markAsDisabled();
+
+    }
+}
