@@ -7,16 +7,42 @@ import ir.dotin.platform.ddd.common.exception.DomainError;
 import ir.dotin.platform.ddd.common.util.Validator;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class LoanType extends BaseLoanType {
+@SuppressWarnings("FieldMayBeFinal")
+public final class LoanType extends BaseLoanType {
 
     private Boolean hasIssueMerchandiseDocument;
     private Set<MorabeheLoanRuleId> loanRuleIds;
 
-    protected LoanType(LoanTypeBuilder builder) {
+    LoanType(LoanTypeBuilder builder) {
         super(builder);
         this.hasIssueMerchandiseDocument = builder.hasIssueMerchandiseDocument;
         this.loanRuleIds = builder.loanRuleIds;
+    }
+
+    @Override
+    protected void createLoanType() {
+        super.createLoanType();
+    }
+
+
+    @Override
+    protected void markAsDisabled() {
+        super.markAsDisabled();
+    }
+
+
+    @Override
+    protected void activate() {
+        super.activate();
+    }
+
+
+    @Override
+    protected void deactivate() {
+        super.deactivate();
     }
 
 
@@ -76,4 +102,23 @@ public class LoanType extends BaseLoanType {
     public Boolean getHasIssueMerchandiseDocument() {
         return hasIssueMerchandiseDocument;
     }
+
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof LoanType that)) {
+            return false;
+        }
+        return new EqualsBuilder().append(getId(), that.getId()).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(getId()).toHashCode();
+    }
+
+
 }
