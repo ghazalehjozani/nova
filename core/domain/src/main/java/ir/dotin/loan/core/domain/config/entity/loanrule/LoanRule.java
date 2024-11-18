@@ -24,12 +24,10 @@ public class LoanRule extends BaseLoanRule {
         super.createLoanRule();
     }
 
-
     @Override
     protected void activate() {
         super.activate();
     }
-
 
     @Override
     protected void deactivate() {
