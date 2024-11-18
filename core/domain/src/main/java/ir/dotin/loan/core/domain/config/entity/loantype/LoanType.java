@@ -2,6 +2,7 @@ package ir.dotin.loan.core.domain.config.entity.loantype;
 
 import ir.dotin.loan.baseloan.domain.config.entity.loantype.BaseLoanType;
 import ir.dotin.loan.baseloan.domain.config.exception.LoanTypeException;
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
 import ir.dotin.loan.core.domain.config.valueobject.MorabeheLoanRuleId;
 import ir.dotin.platform.ddd.common.exception.DomainError;
 import ir.dotin.platform.ddd.common.util.Validator;
@@ -45,6 +46,20 @@ public final class LoanType extends BaseLoanType {
         super.deactivate();
     }
 
+    @Override
+    protected void validateIsEnable() {
+        super.validateIsEnable();
+    }
+
+    @Override
+    protected void setPreviousVersion(LoanTypeId id) {
+        super.setPreviousVersion(id);
+    }
+
+    @Override
+    protected void validateIsActive() {
+        super.validateIsActive();
+    }
 
     public static class LoanTypeBuilder extends BaseLoanTypeBuilder<LoanTypeBuilder> {
 

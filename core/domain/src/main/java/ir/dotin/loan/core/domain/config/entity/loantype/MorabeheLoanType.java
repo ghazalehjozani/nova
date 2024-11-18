@@ -1,6 +1,8 @@
 package ir.dotin.loan.core.domain.config.entity.loantype;
 
 
+import ir.dotin.loan.baseloan.domain.config.exception.LoanTypeException;
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
 import ir.dotin.loan.core.domain.config.entity.exception.MorabeheLoanTypeException;
 import ir.dotin.loan.core.domain.config.entity.loantype.LoanType.LoanTypeBuilder;
 import ir.dotin.loan.core.domain.config.event.MorabeheLoanTypeCreatedEvent;
@@ -42,6 +44,18 @@ public class MorabeheLoanType extends AggregateRoot<MorabeheLoanTypeId> {
 
     public void deactivate() {
         loanType.deactivate();
+    }
+
+    public void validateIsEnable() {
+        loanType.validateIsEnable();
+    }
+
+    public void setPreviousVersion(LoanTypeId id) {
+        loanType.setPreviousVersion(id);
+    }
+
+    public void validateIsActive() {
+        loanType.validateIsActive();
     }
 
 
