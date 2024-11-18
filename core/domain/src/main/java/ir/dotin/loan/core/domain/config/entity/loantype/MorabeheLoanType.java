@@ -1,12 +1,12 @@
 package ir.dotin.loan.core.domain.config.entity.loantype;
 
 
-import ir.dotin.loan.baseloan.domain.config.exception.LoanTypeException;
 import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
 import ir.dotin.loan.core.domain.config.entity.exception.MorabeheLoanTypeException;
 import ir.dotin.loan.core.domain.config.entity.loantype.LoanType.LoanTypeBuilder;
 import ir.dotin.loan.core.domain.config.event.MorabeheLoanTypeCreatedEvent;
 import ir.dotin.loan.core.domain.config.event.MorabeheLoanTypeDisabledEvent;
+import ir.dotin.loan.core.domain.config.event.MorabeheLoanTypeUpdatedEvent;
 import ir.dotin.loan.core.domain.config.valueobject.MorabeheLoanTypeId;
 import ir.dotin.platform.ddd.common.entity.AggregateRoot;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -24,7 +24,7 @@ public class MorabeheLoanType extends AggregateRoot<MorabeheLoanTypeId> {
         super(morabeheLoanTypeId);
         validate(v -> v.checkNotNull(loanTypeBuilder, "loanTypeBuilder"),
                  MorabeheLoanTypeException::new);
-        this.loanType = loanTypeBuilder.validateAndBuild();
+        loanType = loanTypeBuilder.validateAndBuild();
     }
 
     public void createLoanType() {
@@ -52,6 +52,7 @@ public class MorabeheLoanType extends AggregateRoot<MorabeheLoanTypeId> {
 
     public void setPreviousVersion(LoanTypeId id) {
         loanType.setPreviousVersion(id);
+        registerEvent(MorabeheLoanTypeUpdatedEvent.of(this.getId(), id));
     }
 
     public void validateIsActive() {
