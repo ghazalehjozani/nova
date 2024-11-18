@@ -14,6 +14,8 @@ import ir.dotin.loan.core.domain.loanapplication.event.MorabeheLoanApplicationUp
 import ir.dotin.loan.core.domain.loanapplication.exception.MorabeheLoanApplicationException;
 import ir.dotin.loan.core.domain.loanapplication.valueobject.MorabeheLoanApplicationId;
 import ir.dotin.platform.ddd.common.entity.AggregateRoot;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import static ir.dotin.platform.ddd.common.util.Validator.validate;
 
@@ -69,6 +71,22 @@ public class MorabeheLoanApplication extends AggregateRoot<MorabeheLoanApplicati
 
     public LoanApplication getLoanApplication() {
         return loanApplication;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof MorabeheLoanApplication that)) {
+            return false;
+        }
+        return new EqualsBuilder().append(getId(), that.getId()).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(getId()).toHashCode();
     }
 
 }

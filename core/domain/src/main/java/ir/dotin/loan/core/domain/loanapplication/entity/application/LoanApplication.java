@@ -9,6 +9,8 @@ import ir.dotin.loan.core.domain.config.valueobject.MorabeheLoanTypeId;
 import ir.dotin.loan.core.domain.loanapplication.exception.MorabeheLoanApplicationException;
 import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
 import ir.dotin.platform.ddd.common.util.Validator;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @SuppressWarnings("FieldMayBeFinal")
 public class LoanApplication extends BaseLoanApplication {
@@ -119,5 +121,22 @@ public class LoanApplication extends BaseLoanApplication {
     public MorabeheLoanRuleId getLoanRuleId() {
         return loanRuleId;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof LoanApplication that)) {
+            return false;
+        }
+        return new EqualsBuilder().append(getId(), that.getId()).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(getId()).toHashCode();
+    }
+
 
 }
