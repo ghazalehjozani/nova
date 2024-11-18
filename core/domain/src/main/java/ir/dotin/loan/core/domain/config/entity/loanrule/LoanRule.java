@@ -1,9 +1,8 @@
 package ir.dotin.loan.core.domain.config.entity.loanrule;
 
 import ir.dotin.loan.baseloan.domain.config.entity.loanrule.BaseLoanRule;
-import ir.dotin.loan.baseloan.domain.config.exception.LoanRuleException;
 import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
-import ir.dotin.loan.core.domain.config.entity.loantype.LoanType;
+import ir.dotin.loan.core.domain.config.entity.exception.MorabeheLoanRuleException;
 import ir.dotin.platform.ddd.common.exception.DomainError;
 import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
 import ir.dotin.platform.ddd.common.util.Validator;
@@ -16,7 +15,7 @@ import java.util.List;
 @SuppressWarnings("FieldMayBeFinal")
 public class LoanRule extends BaseLoanRule {
 
-    LoanRule(BaseLoanRuleBuilder<?> builder) {
+    LoanRule(LoanRuleBuilder builder) {
         super(builder);
     }
 
@@ -60,8 +59,12 @@ public class LoanRule extends BaseLoanRule {
 
     public static class LoanRuleBuilder extends BaseLoanRuleBuilder<LoanRuleBuilder> {
 
-        protected LoanRuleBuilder(FeatureConfig featureConfig) {
+        public LoanRuleBuilder(FeatureConfig featureConfig) {
             super(featureConfig);
+        }
+
+        public LoanRuleBuilder(FeatureConfig featureConfig, LoanRule other) {
+            super(featureConfig, other);
         }
 
         @Override
@@ -77,7 +80,7 @@ public class LoanRule extends BaseLoanRule {
 
         private void validateInvariants() {
             List<DomainError> errors = super.validateBaseInvariants();
-            Validator.validate(v -> v.appendErrors(errors), LoanRuleException::new);
+            Validator.validate(v -> v.appendErrors(errors), MorabeheLoanRuleException::new);
         }
 
     }

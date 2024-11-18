@@ -1,12 +1,10 @@
 package ir.dotin.loan.core.domain.config.entity.loanrule;
 
 import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
-import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
 import ir.dotin.loan.core.domain.config.entity.exception.MorabeheLoanRuleException;
-import ir.dotin.loan.core.domain.config.entity.loantype.MorabeheLoanType;
+import ir.dotin.loan.core.domain.config.entity.loanrule.LoanRule.LoanRuleBuilder;
 import ir.dotin.loan.core.domain.config.event.MorabeheLoanRuleCreatedEvent;
 import ir.dotin.loan.core.domain.config.event.MorabeheLoanRuleDisabledEvent;
-import ir.dotin.loan.core.domain.config.event.MorabeheLoanTypeDisabledEvent;
 import ir.dotin.loan.core.domain.config.valueobject.MorabeheLoanRuleId;
 import ir.dotin.platform.ddd.common.entity.AggregateRoot;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -20,10 +18,9 @@ public class MorabeheLoanRule extends AggregateRoot<MorabeheLoanRuleId> {
 
     private LoanRule loanRule;
 
-    public MorabeheLoanRule(MorabeheLoanRuleId morabeheLoanRuleId, LoanRule.LoanRuleBuilder loanRuleBuilder) {
+    public MorabeheLoanRule(MorabeheLoanRuleId morabeheLoanRuleId, LoanRuleBuilder loanRuleBuilder) {
         super(morabeheLoanRuleId);
-        validate(v -> v.checkNotNull(loanRuleBuilder, "loanRuleBuilder"),
-                MorabeheLoanRuleException::new);
+        validate(v -> v.checkNotNull(loanRuleBuilder, "loanRuleBuilder"), MorabeheLoanRuleException::new);
         this.loanRule = loanRuleBuilder.validateAndBuild();
     }
 
