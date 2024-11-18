@@ -87,7 +87,7 @@ public class LoanRule extends BaseLoanRule {
         if (this == object) {
             return true;
         }
-        if (!(object instanceof LoanType that)) {
+        if (!(object instanceof LoanRule that)) {
             return false;
         }
         return new EqualsBuilder().append(getId(), that.getId()).isEquals();

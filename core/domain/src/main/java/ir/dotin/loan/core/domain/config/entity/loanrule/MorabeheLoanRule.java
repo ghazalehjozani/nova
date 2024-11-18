@@ -67,7 +67,7 @@ public class MorabeheLoanRule extends AggregateRoot<MorabeheLoanRuleId> {
         if (this == object) {
             return true;
         }
-        if (!(object instanceof MorabeheLoanType that)) {
+        if (!(object instanceof MorabeheLoanRule that)) {
             return false;
         }
         return new EqualsBuilder().append(getId(), that.getId()).isEquals();
