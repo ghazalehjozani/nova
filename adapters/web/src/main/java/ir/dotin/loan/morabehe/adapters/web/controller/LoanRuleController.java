@@ -1,7 +1,7 @@
 package ir.dotin.loan.morabehe.adapters.web.controller;
 
 
-import ir.dotin.loan.morabehe.core.application.command.CreateLoanRuleCommand;
+import ir.dotin.loan.morabehe.core.application.service.command.CreateLoanRuleCommand;
 import org.apache.camel.ProducerTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

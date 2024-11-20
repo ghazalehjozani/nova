@@ -15,8 +15,14 @@
     <artifactId>morabehe-loan-core-application-ports</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
+  <dependencies>
+    <dependency>
+      <groupId>ir.dotin.loan</groupId>
+      <artifactId>morabehe-loan-core-domain</artifactId>
+    </dependency>
+  </dependencies>
 
-    <!-- Dependencies -->
+  <!-- Dependencies -->
     <!-- Add module-specific dependencies here -->
 
 

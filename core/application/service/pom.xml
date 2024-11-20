@@ -55,6 +55,10 @@
       <groupId>ir.dotin.loan</groupId>
       <artifactId>morabehe-loan-core-domain</artifactId>
     </dependency>
+    <dependency>
+      <groupId>ir.dotin.loan</groupId>
+      <artifactId>morabehe-loan-core-application-ports</artifactId>
+    </dependency>
   </dependencies>
 
 

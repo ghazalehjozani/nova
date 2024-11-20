@@ -16,14 +16,26 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <!-- Dependencies -->
-    <!-- Add module-specific dependencies here -->
 
 
-    <build>
-        <plugins>
-            <!-- Plugin configurations -->
-        </plugins>
-    </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+      <dependency>
+        <groupId>ir.dotin.loan</groupId>
+        <artifactId>common-persistence</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>ir.dotin.loan</groupId>
+        <artifactId>morabehe-loan-core-domain</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>ir.dotin.loan</groupId>
+        <artifactId>morabehe-loan-core-application-ports</artifactId>
+      </dependency>
+    </dependencies>
+
 
 </project>
