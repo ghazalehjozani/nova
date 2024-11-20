@@ -3,7 +3,9 @@ package ir.dotin.loan.morabehe.core.domain.config.service.impl;
 import ir.dotin.loan.baseloan.domain.config.service.AbstractLoanTypeUpdateService;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
 import ir.dotin.loan.morabehe.core.domain.config.service.MorabeheLoanTypeUpdateService;
+import ir.dotin.platform.ddd.common.annotation.DomainService;
 
+@DomainService
 public class MorabeheLoanTypeUpdateServiceImpl extends
         AbstractLoanTypeUpdateService<MorabeheLoanType> implements MorabeheLoanTypeUpdateService {
 

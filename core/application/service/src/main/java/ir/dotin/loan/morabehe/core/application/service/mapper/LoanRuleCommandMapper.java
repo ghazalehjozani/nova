@@ -136,7 +136,7 @@ public class LoanRuleCommandMapper {
     }
 
     private LoanRuleBuilder createLoanRuleBuilder(CreateLoanRuleCommand command) {
-        return new LoanRuleBuilder(new FeatureConfig(Map.of()))
+        return new LoanRuleBuilder(new FeatureConfig(Map.of("feat1", false)))
                 .withCode(new LoanRuleCode(command.code()))
                 .withTitle(new Title(command.title()))
                 .withEconomicSectors(

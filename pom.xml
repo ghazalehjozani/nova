@@ -116,8 +116,18 @@
       <dependency>
         <groupId>ir.dotin.loan</groupId>
         <artifactId>common-persistence</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>${project.version}</version>
         <scope>compile</scope>
+      </dependency>
+      <dependency>
+        <groupId>ir.dotin.loan</groupId>
+        <artifactId>morabehe-loan-adapter-persistence</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ir.dotin.loan</groupId>
+        <artifactId>morabehe-loan-adapter-web</artifactId>
+        <version>${project.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

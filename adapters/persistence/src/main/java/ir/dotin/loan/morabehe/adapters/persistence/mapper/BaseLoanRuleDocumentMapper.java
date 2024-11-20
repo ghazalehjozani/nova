@@ -86,7 +86,9 @@ public abstract class BaseLoanRuleDocumentMapper { // It should move to common p
         document.setRegulatoryCompliancePolicy(
                 mapRegulatoryCompliancePolicy(loanRule.getRegulatoryCompliancePolicy()));
         document.setCollateralPolicy(mapCollateralPolicy(loanRule.getCollateralPolicy()));
-        document.setPreviousVersionId(loanRule.getPreviousVersion().id());
+        if (loanRule.getPreviousVersion() != null) {
+            document.setPreviousVersionId(loanRule.getPreviousVersion().id());
+        }
 
         return document;
     }

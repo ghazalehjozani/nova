@@ -8,7 +8,9 @@ import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.Sanction;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.MorabeheLoanApplication;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.service.ApproveLoanApplicationService;
+import ir.dotin.platform.ddd.common.annotation.DomainService;
 
+@DomainService
 public class ApproveLoanApplicationServiceImpl extends
         AbstractApproveLoanApplicationService<MorabeheLoanApplication, MorabeheLoanRule> implements
         ApproveLoanApplicationService {

@@ -5,5 +5,5 @@ import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRul
 
 public interface CreateLoanRuleUsecase {
 
-    String create(MorabeheLoanRule loanRule);
+    MorabeheLoanRule create(MorabeheLoanRule loanRule);
 }

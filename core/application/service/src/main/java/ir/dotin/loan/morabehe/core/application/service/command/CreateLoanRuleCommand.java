@@ -19,8 +19,8 @@ import java.util.Set;
 
 public record CreateLoanRuleCommand(String code,
                                     String title,
-                                    boolean active,
-                                    boolean disable,
+                                    Boolean active,
+                                    Boolean disable,
                                     Set<EconomicSectors> economicSectors,
                                     Set<Currency> currencies,
                                     MoneyRange amountRange,
