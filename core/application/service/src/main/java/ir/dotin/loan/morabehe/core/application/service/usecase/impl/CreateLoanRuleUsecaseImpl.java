@@ -18,10 +18,10 @@ public class CreateLoanRuleUsecaseImpl implements CreateLoanRuleUsecase {
 
 
     @Override
-    public String create(MorabeheLoanRule loanRule) {
+    public MorabeheLoanRule create(MorabeheLoanRule loanRule) {
         loanRule.createLoanRule();
         persistencePort.save(loanRule);
         // TODO: Publish Event
-        return loanRule.getId().toString();
+        return loanRule;
     }
 }

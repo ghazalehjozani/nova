@@ -12,8 +12,10 @@ import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanTyp
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.MorabeheLoanApplication;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.intraction.loader.MorabeheLoanApplicationLoader;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.service.CreateLoanApplicationService;
+import ir.dotin.platform.ddd.common.annotation.DomainService;
 import ir.dotin.platform.ddd.common.exception.AggregateLoadException;
 
+@DomainService
 public class CreateLoanApplicationServiceImpl extends
         AbstractCreateLoanApplicationService<MorabeheLoanApplication, MorabeheLoanRule, MorabeheLoanType> implements
         CreateLoanApplicationService {

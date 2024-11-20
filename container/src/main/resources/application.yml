@@ -1,0 +1,6 @@
+server:
+  port: 8085
+spring:
+  data:
+    mongodb:
+      uri: mongodb://10.20.151.144:27017/morabehe?retryWrites=false

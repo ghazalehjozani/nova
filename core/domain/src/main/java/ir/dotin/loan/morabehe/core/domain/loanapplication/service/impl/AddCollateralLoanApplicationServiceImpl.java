@@ -7,7 +7,9 @@ import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.CollateralSeria
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.MorabeheLoanApplication;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.service.AddCollateralLoanApplicationService;
+import ir.dotin.platform.ddd.common.annotation.DomainService;
 
+@DomainService
 public class AddCollateralLoanApplicationServiceImpl extends
         AbstractAddCollateralLoanApplicationService<MorabeheLoanApplication, MorabeheLoanRule> implements
         AddCollateralLoanApplicationService {

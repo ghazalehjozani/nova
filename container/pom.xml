@@ -16,8 +16,28 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <!-- Dependencies -->
-    <!-- Add module-specific dependencies here -->
+    <dependencies>
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>morabehe-loan-core-domain</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>morabehe-loan-core-application-service</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>morabehe-loan-core-application-ports</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>morabehe-loan-adapter-persistence</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>morabehe-loan-adapter-web</artifactId>
+        </dependency>
+    </dependencies>
 
 
     <build>
