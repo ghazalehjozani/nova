@@ -2,7 +2,7 @@ package ir.dotin.loan.morabehe.core.domain.config.entity.loanrule;
 
 import ir.dotin.loan.baseloan.domain.config.entity.loanrule.BaseLoanRule;
 import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
-import ir.dotin.loan.morabehe.core.domain.config.entity.exception.MorabeheLoanRuleException;
+import ir.dotin.loan.morabehe.core.domain.config.exception.MorabeheLoanRuleException;
 import ir.dotin.platform.ddd.common.exception.DomainError;
 import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
 import ir.dotin.platform.ddd.common.util.Validator;

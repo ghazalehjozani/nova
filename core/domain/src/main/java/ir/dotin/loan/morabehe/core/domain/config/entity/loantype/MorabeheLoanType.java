@@ -2,7 +2,7 @@ package ir.dotin.loan.morabehe.core.domain.config.entity.loantype;
 
 
 import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
-import ir.dotin.loan.morabehe.core.domain.config.entity.exception.MorabeheLoanTypeException;
+import ir.dotin.loan.morabehe.core.domain.config.exception.MorabeheLoanTypeException;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.LoanType.LoanTypeBuilder;
 import ir.dotin.loan.morabehe.core.domain.config.event.MorabeheLoanTypeCreatedEvent;
 import ir.dotin.loan.morabehe.core.domain.config.event.MorabeheLoanTypeDisabledEvent;
