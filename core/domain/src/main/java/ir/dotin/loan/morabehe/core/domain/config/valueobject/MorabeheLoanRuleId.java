@@ -4,7 +4,7 @@ import ir.dotin.platform.ddd.common.entity.Identity;
 import ir.dotin.platform.ddd.common.entity.TimeBasedUUIDGenerator;
 import java.util.UUID;
 
-public record MorabeheLoanRuleId(UUID id) implements Identity {
+public record MorabeheLoanRuleId(UUID value) implements Identity {
 
     public static MorabeheLoanRuleId generate() {
         return new MorabeheLoanRuleId(TimeBasedUUIDGenerator.generate());

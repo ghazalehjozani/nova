@@ -20,7 +20,7 @@ public class MorabeheLoanRuleDocumentMapper extends
         }
 
         MorabeheLoanRuleDocument morabeheLoanRuleDocument = new MorabeheLoanRuleDocument();
-        morabeheLoanRuleDocument.setId(loanRule.getId().id());
+        morabeheLoanRuleDocument.setId(loanRule.getId().value());
         var baseLoanRuleDocument = super.mapCommonPropertiesToDocument(loanRule.getLoanRule());
         morabeheLoanRuleDocument.setLoanRule(baseLoanRuleDocument);
         return morabeheLoanRuleDocument;
