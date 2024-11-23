@@ -25,7 +25,7 @@
       <dependency>
         <groupId>ir.dotin.loan</groupId>
         <artifactId>morabehe-loan-core-domain</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>${project.version}</version>
         <scope>compile</scope>
       </dependency>
       <dependency>
