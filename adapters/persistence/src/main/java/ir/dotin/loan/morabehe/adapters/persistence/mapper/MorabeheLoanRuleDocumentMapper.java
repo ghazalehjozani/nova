@@ -29,6 +29,6 @@ public class MorabeheLoanRuleDocumentMapper extends BaseLoanRuleDocumentMapper {
         LoanRule.LoanRuleBuilder loanRuleBuilder = createLoanRuleBuilder(
                 loanRuleDocument.getLoanRule());
 
-        return new MorabeheLoanRule(morabeheLoanRuleId, loanRuleBuilder);
+        return new MorabeheLoanRule(morabeheLoanRuleId, loanRuleBuilder.validateAndBuild());
     }
 }

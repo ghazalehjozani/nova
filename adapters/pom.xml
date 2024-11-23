@@ -20,7 +20,6 @@
   <modules>
     <module>web</module>
     <module>messaging</module>
-    <module>common-persistence</module>
     <module>persistence</module>
     <module>client</module>
   </modules>

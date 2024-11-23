@@ -2,7 +2,6 @@ package ir.dotin.loan.morabehe.core.domain.config.entity.loanrule;
 
 import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
 import ir.dotin.loan.morabehe.core.domain.config.entity.exception.MorabeheLoanRuleException;
-import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.LoanRule.LoanRuleBuilder;
 import ir.dotin.loan.morabehe.core.domain.config.event.MorabeheLoanRuleCreatedEvent;
 import ir.dotin.loan.morabehe.core.domain.config.event.MorabeheLoanRuleDisabledEvent;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
@@ -18,10 +17,10 @@ public class MorabeheLoanRule extends AggregateRoot<MorabeheLoanRuleId> {
 
     private LoanRule loanRule;
 
-    public MorabeheLoanRule(MorabeheLoanRuleId morabeheLoanRuleId, LoanRuleBuilder loanRuleBuilder) {
+    public MorabeheLoanRule(MorabeheLoanRuleId morabeheLoanRuleId, LoanRule loanRule) {
         super(morabeheLoanRuleId);
-        validate(v -> v.checkNotNull(loanRuleBuilder, "loanRuleBuilder"), MorabeheLoanRuleException::new);
-        this.loanRule = loanRuleBuilder.validateAndBuild();
+        validate(v -> v.checkNotNull(loanRule, "loanRule"), MorabeheLoanRuleException::new);
+        this.loanRule = loanRule;
     }
 
     public void createLoanRule() {
