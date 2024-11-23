@@ -27,7 +27,10 @@
       <artifactId>ddd-common</artifactId>
       <version>${platform.ddd-common.version}</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
     <!--region Test-->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
