@@ -21,6 +21,10 @@
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven.compiler-plugin.version>3.12.1</maven.compiler-plugin.version>
+
+    <loan-bom.version>0.0.1-SNAPSHOT</loan-bom.version>
+    <loan-bom-morabehe.version>0.0.1-SNAPSHOT</loan-bom-morabehe.version>
   </properties>
 
   <dependencies>
@@ -39,14 +43,14 @@
       <dependency>
         <groupId>ir.dotin.loan</groupId>
         <artifactId>loan-bom</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>${loan-bom.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>ir.dotin.loan</groupId>
         <artifactId>loan-bom-morabehe</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>${loan-bom-morabehe.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -58,6 +62,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven.compiler-plugin.version}</version>
       </plugin>
     </plugins>
   </build>
