@@ -4,12 +4,7 @@
                              https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>ir.dotin.loan</groupId>
-    <artifactId>parent</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-  </parent>
-
+  <groupId>ir.dotin.loan</groupId>
   <artifactId>morabehe-loan</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
@@ -20,38 +15,51 @@
     <module>container</module>
   </modules>
 
+  <properties>
+    <java.version>21</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+  </dependencies>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>ir.dotin.loan</groupId>
-        <artifactId>morabehe-loan-core-domain</artifactId>
-        <version>${project.version}</version>
-        <scope>compile</scope>
+        <artifactId>loan-bom</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>ir.dotin.loan</groupId>
-        <artifactId>morabehe-loan-core-application-ports</artifactId>
-        <version>${project.version}</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>ir.dotin.loan</groupId>
-        <artifactId>morabehe-loan-core-application-service</artifactId>
-        <version>${project.version}</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>ir.dotin.loan</groupId>
-        <artifactId>morabehe-loan-adapter-persistence</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>ir.dotin.loan</groupId>
-        <artifactId>morabehe-loan-adapter-web</artifactId>
-        <version>${project.version}</version>
+        <artifactId>loan-bom-morabehe</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

@@ -56,13 +56,28 @@
       <groupId>ir.dotin.loan</groupId>
       <artifactId>morabehe-loan-core-application-ports</artifactId>
     </dependency>
-
   </dependencies>
 
+  <profiles>
+    <profile>
+      <id>coverage</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
-  <build>
-    <plugins>
-      <!-- Plugin configurations -->
-    </plugins>
-  </build>
 </project>
