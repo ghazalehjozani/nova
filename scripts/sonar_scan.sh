@@ -8,8 +8,8 @@ cd "$PROJECT_ROOT"
 
 source "$SCRIPT_DIR/config.cfg"
 
-if [[ -z "${SONAR_TOKEN}" ]]; then
-  echo "Error: SONAR_TOKEN environment variable is not set."
+if [[ -z "${MORABEHE_LOAN_SONAR_TOKEN}" ]]; then
+  echo "Error: MORABEHE_LOAN_SONAR_TOKEN environment variable is not set."
   exit 1
 fi
 
