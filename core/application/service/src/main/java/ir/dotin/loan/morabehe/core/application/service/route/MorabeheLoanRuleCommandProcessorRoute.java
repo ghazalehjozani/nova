@@ -1,12 +1,11 @@
 package ir.dotin.loan.morabehe.core.application.service.route;
 
-import ir.dotin.loan.morabehe.core.application.service.handler.CreateLoanRuleHandler;
-import ir.dotin.platform.ddd.common.exception.DomainException;
+import ir.dotin.loan.morabehe.core.application.service.handler.MorabeheCreateLoanRuleHandler;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LoanTypeCommandProcessorRoute extends RouteBuilder {
+public class MorabeheLoanRuleCommandProcessorRoute extends RouteBuilder {
 
     @Override
     public void configure() {
@@ -29,6 +28,7 @@ public class LoanTypeCommandProcessorRoute extends RouteBuilder {
                 .bean(CreateMorabeheLoanRuleHandler.class, "handle");
         from("direct:updateLoanRule")
                 .bean(UpdateLoanRuleHandler.class, "handle");
+                .bean(MorabeheCreateLoanRuleHandler.class, "handle");
         // @formatter:on
     }
 }
