@@ -16,15 +16,35 @@
   </modules>
 
   <properties>
+    <loan-bom.version>0.0.1-SNAPSHOT</loan-bom.version>
+    <loan-bom-morabehe.version>0.0.1-SNAPSHOT</loan-bom-morabehe.version>
+
     <java.version>21</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.compiler-plugin.version>3.12.1</maven.compiler-plugin.version>
+    <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
 
-    <loan-bom.version>0.0.1-SNAPSHOT</loan-bom.version>
-    <loan-bom-morabehe.version>0.0.1-SNAPSHOT</loan-bom-morabehe.version>
+    <jacoco.version>0.8.12</jacoco.version>
+    <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+    <maven-surefire.version>2.22.0</maven-surefire.version>
+    <maven-failsafe.version>2.22.0</maven-failsafe.version>
+
+    <sonar.projectKey>ir.dotin.loan:morabehe-loan</sonar.projectKey>
+    <sonar.projectName>Morabehe Loan</sonar.projectName>
+    <sonar.projectVersion>${project.version}</sonar.projectVersion>
+    <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+    <sonar.language>java</sonar.language>
+    <sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
+    <sonar.sources>src</sonar.sources>
+    <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+    <sonar.sources>src/main</sonar.sources>
+    <sonar.tests>src/test/java</sonar.tests>
+    <sonar.binaries>target/classes</sonar.binaries>
+    <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
   </properties>
 
   <dependencies>
