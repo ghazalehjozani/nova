@@ -15,119 +15,64 @@
     <module>container</module>
   </modules>
 
-  <!-- Properties -->
   <properties>
-    <java.version>21</java.version>
-    <spring-boot.version>3.3.5</spring-boot.version>
-    <spring-cloud.version>2023.0.3</spring-cloud.version>
-    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <loan-bom.version>0.0.1-SNAPSHOT</loan-bom.version>
+    <loan-bom-morabehe.version>0.0.1-SNAPSHOT</loan-bom-morabehe.version>
 
+    <java.version>21</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
-    <platform.ddd-common.version>0.0.1-SNAPSHOT</platform.ddd-common.version>
-
-    <fasterxml.uuid.version>5.1.0</fasterxml.uuid.version>
-    <apache.commons-lang3.version>3.17.0</apache.commons-lang3.version>
-    <apache.camel.version>4.8.1</apache.camel.version>
-
     <maven.compiler-plugin.version>3.12.1</maven.compiler-plugin.version>
+    <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+
     <jacoco.version>0.8.12</jacoco.version>
-    <sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
+    <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
     <maven-surefire.version>2.22.0</maven-surefire.version>
     <maven-failsafe.version>2.22.0</maven-failsafe.version>
 
-    <junit-jupiter.version>5.10.3</junit-jupiter.version>
-    <assertj-core.version>3.25.3</assertj-core.version>
-    <mockito.version>5.11.0</mockito.version>
-    <slf4j.version>2.0.16</slf4j.version>
-    <hamcrest.version>3.0</hamcrest.version>
-
     <sonar.projectKey>ir.dotin.loan:morabehe-loan</sonar.projectKey>
-    <sonar.projectName>MorabeheLoan</sonar.projectName>
-    <sonar.projectVersion>0.0.1-SNAPSHOT</sonar.projectVersion>
+    <sonar.projectName>Morabehe Loan</sonar.projectName>
+    <sonar.projectVersion>${project.version}</sonar.projectVersion>
+    <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+    <sonar.language>java</sonar.language>
     <sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
+    <sonar.sources>src</sonar.sources>
+    <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+    <sonar.sources>src/main</sonar.sources>
+    <sonar.tests>src/test/java</sonar.tests>
+    <sonar.binaries>target/classes</sonar.binaries>
+    <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-      <version>${apache.commons-lang3.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.uuid</groupId>
-      <artifactId>java-uuid-generator</artifactId>
-      <version>${fasterxml.uuid.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
     </dependency>
   </dependencies>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-dependencies</artifactId>
-        <version>${spring-cloud.version}</version>
+        <groupId>ir.dotin.loan</groupId>
+        <artifactId>loan-bom</artifactId>
+        <version>${loan-bom.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-dependencies</artifactId>
-        <version>${spring-boot.version}</version>
+        <groupId>ir.dotin.loan</groupId>
+        <artifactId>loan-bom-morabehe</artifactId>
+        <version>${loan-bom-morabehe.version}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-bom</artifactId>
-        <version>${apache.camel.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.camel.springboot</groupId>
-        <artifactId>camel-spring-boot-starter</artifactId>
-        <version>${apache.camel.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>ir.dotin.loan</groupId>
-        <artifactId>morabehe-loan-core-domain</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>ir.dotin.loan</groupId>
-        <artifactId>morabehe-loan-core-application-ports</artifactId>
-        <version>${project.version}</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>ir.dotin.loan</groupId>
-        <artifactId>morabehe-loan-core-application-service</artifactId>
-        <version>${project.version}</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>ir.dotin.loan</groupId>
-        <artifactId>common-persistence</artifactId>
-        <version>${project.version}</version>
-        <scope>compile</scope>
-      </dependency>
-      <dependency>
-        <groupId>ir.dotin.loan</groupId>
-        <artifactId>morabehe-loan-adapter-persistence</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>ir.dotin.loan</groupId>
-        <artifactId>morabehe-loan-adapter-web</artifactId>
-        <version>${project.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -138,10 +83,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven.compiler-plugin.version}</version>
-        <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
-        </configuration>
       </plugin>
     </plugins>
   </build>

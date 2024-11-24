@@ -1,6 +1,6 @@
 package ir.dotin.loan.morabehe.adapters.persistence.document;
 
-import ir.dotin.loan.adapters.persistance.document.loanrule.BaseLoanRuleDocument;
+import ir.dotin.loan.baseloan.adapters.persistence.document.loanrule.BaseLoanRuleDocument;
 import java.util.UUID;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

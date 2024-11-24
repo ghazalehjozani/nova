@@ -1,24 +1,31 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                              https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
 
-    <parent>
-        <groupId>ir.dotin.loan</groupId>
-        <artifactId>morabehe-loan-core</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
-
-    <artifactId>morabehe-loan-core-application</artifactId>
+  <parent>
+    <groupId>ir.dotin.loan</groupId>
+    <artifactId>morabehe-loan-core</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
 
+  <artifactId>morabehe-loan-core-application</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
-    <modules>
-        <module>ports</module>
-        <module>service</module>
-    </modules>
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <modules>
+    <module>ports</module>
+    <module>service</module>
+  </modules>
 </project>

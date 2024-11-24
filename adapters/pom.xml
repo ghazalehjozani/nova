@@ -20,9 +20,16 @@
   <modules>
     <module>web</module>
     <module>messaging</module>
-    <module>common-persistence</module>
     <module>persistence</module>
     <module>client</module>
   </modules>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
 </project>

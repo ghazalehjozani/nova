@@ -1,4 +1,4 @@
-package ir.dotin.loan.morabehe.core.domain.config.entity.exception;
+package ir.dotin.loan.morabehe.core.domain.config.exception;
 
 import ir.dotin.loan.baseloan.domain.config.exception.LoanRuleException;
 import ir.dotin.platform.ddd.common.exception.DomainError;

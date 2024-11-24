@@ -4,7 +4,6 @@
                              https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-
   <parent>
     <groupId>ir.dotin.loan</groupId>
     <artifactId>morabehe-loan-adapters</artifactId>
@@ -27,10 +26,13 @@
     </dependency>
     <dependency>
       <groupId>ir.dotin.loan</groupId>
+      <artifactId>base-loan-adapters-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ir.dotin.loan</groupId>
       <artifactId>morabehe-loan-core-application-service</artifactId>
     </dependency>
   </dependencies>
-
 
   <build>
     <plugins>
