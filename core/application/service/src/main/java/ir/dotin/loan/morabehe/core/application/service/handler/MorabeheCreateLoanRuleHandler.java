@@ -8,12 +8,12 @@ import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRul
 import org.springframework.stereotype.Component;
 
 @Component
-public class CreateMorabeheLoanRuleHandler {
+public class MorabeheCreateLoanRuleHandler {
 
     private final MorabeheLoanRuleCommandMapper loanRuleCommandMapper;
     private final CreateLoanRuleUsecase createLoanRuleUsecase;
 
-    public CreateMorabeheLoanRuleHandler(MorabeheLoanRuleCommandMapper loanRuleCommandMapper,
+    public MorabeheCreateLoanRuleHandler(MorabeheLoanRuleCommandMapper loanRuleCommandMapper,
                                          CreateLoanRuleUsecase createLoanRuleUsecase) {
         this.loanRuleCommandMapper = loanRuleCommandMapper;
         this.createLoanRuleUsecase = createLoanRuleUsecase;
