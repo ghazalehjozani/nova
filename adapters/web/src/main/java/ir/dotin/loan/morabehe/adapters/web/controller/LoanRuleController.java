@@ -1,11 +1,13 @@
 package ir.dotin.loan.morabehe.adapters.web.controller;
 
 
-import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanRuleCommand;
+import ir.dotin.loan.morabehe.core.application.service.command.CreateLoanRuleCommand;
+import ir.dotin.loan.morabehe.core.application.service.command.UpdateLoanRuleCommand;
 import ir.dotin.loan.morabehe.core.application.service.response.LoanRuleResponse;
 import org.apache.camel.ProducerTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,10 +24,16 @@ public class LoanRuleController {
     }
 
     @PostMapping("create")
-    public ResponseEntity<LoanRuleResponse> create(
-            @RequestBody MorabeheCreateLoanRuleCommand command) {
-        LoanRuleResponse response = producerTemplate
-                .requestBody("direct:morabeheLoanRuleCommandProcessor",
+    public ResponseEntity<LoanRuleResponse> create(@RequestBody CreateLoanRuleCommand command) {
+        LoanRuleResponse response = producerTemplate.requestBody("direct:loanRuleCommandProcessor",
+                command, LoanRuleResponse.class);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @PutMapping("update")
+    public ResponseEntity<LoanRuleResponse> update(@RequestBody UpdateLoanRuleCommand command) {
+        LoanRuleResponse response = producerTemplate.requestBody("direct:loanRuleCommandProcessor",
                 command, LoanRuleResponse.class);
         return ResponseEntity.ok(response);
     }

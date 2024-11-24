@@ -1,28 +1,28 @@
 package ir.dotin.loan.morabehe.core.application.service.handler;
 
-import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanRuleCommand;
-import ir.dotin.loan.morabehe.core.application.service.mapper.MorabeheLoanRuleCommandMapper;
+import ir.dotin.loan.morabehe.core.application.service.command.CreateLoanRuleCommand;
+import ir.dotin.loan.morabehe.core.application.service.mapper.CreateLoanRuleCommandMapper;
 import ir.dotin.loan.morabehe.core.application.service.response.LoanRuleResponse;
 import ir.dotin.loan.morabehe.core.application.service.usecase.CreateLoanRuleUsecase;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CreateMorabeheLoanRuleHandler {
+public class CreateLoanRuleHandler {
 
-    private final MorabeheLoanRuleCommandMapper loanRuleCommandMapper;
+    private final CreateLoanRuleCommandMapper createLoanRuleCommandMapper;
     private final CreateLoanRuleUsecase createLoanRuleUsecase;
 
-    public CreateMorabeheLoanRuleHandler(MorabeheLoanRuleCommandMapper loanRuleCommandMapper,
-                                         CreateLoanRuleUsecase createLoanRuleUsecase) {
-        this.loanRuleCommandMapper = loanRuleCommandMapper;
+    public CreateLoanRuleHandler(CreateLoanRuleCommandMapper createLoanRuleCommandMapper,
+                                 CreateLoanRuleUsecase createLoanRuleUsecase) {
+        this.createLoanRuleCommandMapper = createLoanRuleCommandMapper;
         this.createLoanRuleUsecase = createLoanRuleUsecase;
     }
 
-    public LoanRuleResponse handle(MorabeheCreateLoanRuleCommand command) {
-        MorabeheLoanRule morabeheLoanRule = loanRuleCommandMapper.mapToAggregateRoot(command);
+    public LoanRuleResponse handle(CreateLoanRuleCommand command) {
+        MorabeheLoanRule morabeheLoanRule = createLoanRuleCommandMapper.mapToAggregateRoot(command);
         MorabeheLoanRule savedLoanRule = createLoanRuleUsecase.create(morabeheLoanRule);
-        return loanRuleCommandMapper.mapToResponse(savedLoanRule);
+        return createLoanRuleCommandMapper.mapToResponse(savedLoanRule);
     }
 
 }
