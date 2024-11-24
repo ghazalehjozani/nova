@@ -6,5 +6,5 @@ import java.util.UUID;
 
 public interface UpdateLoanRuleUseCase {
 
-    String update(MorabeheLoanRule newMorabeheLoanRule, UUID oldLoanRuleId);
+    MorabeheLoanRule update(UUID loanRuleId, MorabeheLoanRule newMorabeheLoanRule);
 }

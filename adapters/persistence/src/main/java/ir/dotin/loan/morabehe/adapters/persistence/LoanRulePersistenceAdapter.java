@@ -7,6 +7,8 @@ import ir.dotin.loan.morabehe.core.application.ports.secondary.MorabeheLoanRuleP
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import java.util.Optional;
 import java.util.UUID;
+
+import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,8 +33,8 @@ public class LoanRulePersistenceAdapter implements MorabeheLoanRulePersistencePo
     }
 
     @Override
-    public Optional<MorabeheLoanRule> findById(UUID id) {
-        return repository.findById(id).map(mapper::mapToAggregate);
+    public Optional<MorabeheLoanRule> findById(MorabeheLoanRuleId id) {
+        return repository.findById(id.value()).map(mapper::mapToAggregate);
     }
 
 }
