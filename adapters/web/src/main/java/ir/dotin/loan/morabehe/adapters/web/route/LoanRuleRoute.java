@@ -17,9 +17,11 @@ import org.springframework.stereotype.Component;
 public class LoanRuleRoute extends RouteBuilder {
 
     private final Environment env;
+    private final GlobalExceptionHandler globalExceptionHandler;
 
-    public LoanRuleRoute(Environment env) {
+    public LoanRuleRoute(Environment env, GlobalExceptionHandler globalExceptionHandler) {
         this.env = env;
+        this.globalExceptionHandler = globalExceptionHandler;
     }
 
 
@@ -39,7 +41,7 @@ public class LoanRuleRoute extends RouteBuilder {
 
         onException(Exception.class)
                 .handled(true)
-                .process(new GlobalExceptionHandler());
+                .process(globalExceptionHandler);
 
         rest("/V1/loan-rule")
             .consumes(MediaType.APPLICATION_JSON_VALUE)
