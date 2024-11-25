@@ -43,7 +43,7 @@ public class LoanRuleRoute extends RouteBuilder {
                 .handled(true)
                 .process(globalExceptionHandler);
 
-        rest("/V1/loan-rule")
+        rest("/v1/loan-rule")
             .consumes(MediaType.APPLICATION_JSON_VALUE)
             .produces(MediaType.APPLICATION_JSON_VALUE)
                 .post("/create")
