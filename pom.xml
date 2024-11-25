@@ -17,8 +17,8 @@
   </modules>
 
   <properties>
-    <loan-bom.version>0.0.1-SNAPSHOT</loan-bom.version>
-    <loan-bom-morabehe.version>0.0.1-SNAPSHOT</loan-bom-morabehe.version>
+    <loan-dependencies.version>0.0.1-SNAPSHOT</loan-dependencies.version>
+    <loan-dependencies-morabehe.version>0.0.1-SNAPSHOT</loan-dependencies-morabehe.version>
 
     <java.version>21</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -64,14 +64,14 @@
       <dependency>
         <groupId>ir.dotin.loan</groupId>
         <artifactId>loan-dependencies</artifactId>
-        <version>${loan-bom.version}</version>
+        <version>${loan-dependencies.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>ir.dotin.loan</groupId>
-        <artifactId>loan-bom-morabehe</artifactId>
-        <version>${loan-bom-morabehe.version}</version>
+        <artifactId>loan-dependencies-morabehe</artifactId>
+        <version>${loan-dependencies-morabehe.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
