@@ -12,18 +12,10 @@
   </parent>
 
   <artifactId>morabehe-loan-adapter-web</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <name>Morabehe Loan :: Adapters Web</name>
   <packaging>jar</packaging>
 
   <dependencies>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.camel.springboot</groupId>
-      <artifactId>camel-spring-boot-starter</artifactId>
-    </dependency>
     <dependency>
       <groupId>ir.dotin.loan</groupId>
       <artifactId>base-loan-adapters-web</artifactId>

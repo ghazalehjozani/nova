@@ -13,7 +13,7 @@
     </parent>
 
     <artifactId>morabehe-loan-adapter-client</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <name>Morabehe Loan :: Adapters Client</name>
     <packaging>jar</packaging>
 
     <!-- Dependencies -->

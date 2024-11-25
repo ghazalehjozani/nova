@@ -12,7 +12,7 @@
   </parent>
 
   <artifactId>morabehe-loan-container</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <name>Morabehe Loan :: Container</name>
   <packaging>jar</packaging>
 
   <dependencies>

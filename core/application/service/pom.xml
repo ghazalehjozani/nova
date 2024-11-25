@@ -13,7 +13,7 @@
   </parent>
 
   <artifactId>morabehe-loan-core-application-service</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <name>Morabehe Loan :: Core Application Service</name>
   <packaging>jar</packaging>
 
 
