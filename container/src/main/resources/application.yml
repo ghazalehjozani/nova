@@ -1,15 +1,34 @@
 server:
   port: 8085
+# region App config
+app:
+  api:
+    open-api:
+      title: Morabehe Rest API.
+      host: 127.0.0.1
+      port: 8085
+      version: 0.0.1-SNAPSHOT
+      contextPath: /api-doc
+      enable-cors: false
+    binding-mode: auto
+    context-path: /api
+    enable-cors: false
+    component: servlet
+# region Spring config
 spring:
   data:
     mongodb:
       uri: mongodb://root:password123@10.20.151.144:27017/morabehe?authSource=admin
+  application:
+    name: Morabehe
+# region Camel config
 camel:
   servlet:
     mapping:
       context-path: /api/*
       enabled: true
+# region log config
 logging:
   level:
-   ir.dotin.loan: DEBUG
+    ir.dotin.loan: DEBUG
 

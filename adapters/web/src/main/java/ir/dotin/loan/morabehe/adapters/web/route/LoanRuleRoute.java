@@ -8,37 +8,21 @@ import ir.dotin.loan.morabehe.core.application.service.handler.MorabeheCreateLoa
 import ir.dotin.loan.morabehe.core.application.service.handler.MorabeheUpdateLoanRuleHandler;
 import ir.dotin.loan.morabehe.core.application.service.response.LoanRuleResponse;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.rest.RestBindingMode;
-import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 @Component
 public class LoanRuleRoute extends RouteBuilder {
 
-    private final Environment env;
     private final GlobalExceptionHandler globalExceptionHandler;
 
-    public LoanRuleRoute(Environment env, GlobalExceptionHandler globalExceptionHandler) {
-        this.env = env;
+    public LoanRuleRoute(GlobalExceptionHandler globalExceptionHandler) {
         this.globalExceptionHandler = globalExceptionHandler;
     }
-
 
     @Override
     public void configure() throws Exception {
         // @formatter:off
-        restConfiguration()
-                .component("servlet")
-                .bindingMode(RestBindingMode.auto)
-                .contextPath("/api")
-                .port(env.getProperty("server.port", "8085"))
-                .apiContextPath("/api-doc")
-                .apiProperty("api.title", "LoanRule Rest API.")
-                .apiProperty("api.version", "1.0")
-                .apiProperty("cors", "false")
-                .apiContextRouteId("doc-api");
-
         onException(Exception.class)
                 .handled(true)
                 .process(globalExceptionHandler);
