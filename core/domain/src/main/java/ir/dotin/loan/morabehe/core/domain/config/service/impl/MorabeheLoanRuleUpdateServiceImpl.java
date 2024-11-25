@@ -3,7 +3,7 @@ package ir.dotin.loan.morabehe.core.domain.config.service.impl;
 
 import ir.dotin.loan.baseloan.domain.config.service.AbstractLoanRuleUpdatedService;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
-import ir.dotin.loan.morabehe.core.domain.config.exception.MorabeheLoanRuleException;
+import ir.dotin.loan.morabehe.core.domain.config.exception.MorabeheLoanRuleValidationException;
 import ir.dotin.loan.morabehe.core.domain.config.service.MorabeheLoanRuleUpdateService;
 import ir.dotin.platform.ddd.common.annotation.DomainService;
 
@@ -43,7 +43,7 @@ public class MorabeheLoanRuleUpdateServiceImpl extends
         boolean notEqual = !oldLoanRule.getLoanRule().getCode()
                 .equals(newLoanRule.getLoanRule().getCode());
         if (notEqual) {
-            throw new MorabeheLoanRuleException("error.validation.base.unchangeable", "code");
+            throw new MorabeheLoanRuleValidationException("error.validation.base.unchangeable", "code");
         }
     }
 

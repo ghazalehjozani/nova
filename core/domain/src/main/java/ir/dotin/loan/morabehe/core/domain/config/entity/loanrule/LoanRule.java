@@ -2,14 +2,13 @@ package ir.dotin.loan.morabehe.core.domain.config.entity.loanrule;
 
 import ir.dotin.loan.baseloan.domain.config.entity.loanrule.BaseLoanRule;
 import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
-import ir.dotin.loan.morabehe.core.domain.config.exception.MorabeheLoanRuleException;
-import ir.dotin.platform.ddd.common.exception.DomainError;
+import ir.dotin.loan.morabehe.core.domain.config.exception.MorabeheLoanRuleValidationException;
+import ir.dotin.platform.ddd.common.exception.ValidationError;
 import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
 import ir.dotin.platform.ddd.common.util.Validator;
+import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-
-import java.util.List;
 
 
 @SuppressWarnings("FieldMayBeFinal")
@@ -77,8 +76,8 @@ public class LoanRule extends BaseLoanRule {
         }
 
         private void validateInvariants() {
-            List<DomainError> errors = super.validateBaseInvariants();
-            Validator.validate(v -> v.appendErrors(errors), MorabeheLoanRuleException::new);
+            List<ValidationError> errors = super.validateBaseInvariants();
+            Validator.validate(v -> v.appendErrors(errors), MorabeheLoanRuleValidationException::new);
         }
 
     }
