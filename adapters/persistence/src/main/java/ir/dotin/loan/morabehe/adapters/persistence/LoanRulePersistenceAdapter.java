@@ -8,6 +8,11 @@ import ir.dotin.loan.morabehe.core.application.ports.secondary.MorabeheLoanRuleP
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,11 +20,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class LoanRulePersistenceAdapter implements MorabeheLoanRulePersistencePort {
 
+    private static final Logger logger = LoggerFactory.getLogger(LoanRulePersistenceAdapter.class);
+    private final MongoTemplate mongoTemplate;
     private final MorabeheLoanRuleRepository repository;
     private final MorabeheLoanRuleDocumentMapper mapper;
 
-    public LoanRulePersistenceAdapter(MorabeheLoanRuleRepository repository,
+    public LoanRulePersistenceAdapter(MongoTemplate mongoTemplate,
+                                      MorabeheLoanRuleRepository repository,
                                       MorabeheLoanRuleDocumentMapper mapper) {
+        this.mongoTemplate = mongoTemplate;
         this.repository = repository;
         this.mapper = mapper;
     }
@@ -28,6 +37,16 @@ public class LoanRulePersistenceAdapter implements MorabeheLoanRulePersistencePo
     @Override
     public void save(MorabeheLoanRule rule) {
         MorabeheLoanRuleDocument loanRuleDocument = mapper.mapToDocument(rule);
+        repository.save(loanRuleDocument);
+    }
+
+    @Override
+    public void update(MorabeheLoanRule loanRule) {
+        Query query = new Query(Criteria.where("_id").is(loanRule.getId().value()));
+        query.fields().include("version").include("createDate").include("updateDate");
+        MorabeheLoanRuleDocument document = mongoTemplate
+                .findOne(query, MorabeheLoanRuleDocument.class);
+        MorabeheLoanRuleDocument loanRuleDocument = mapper.update(loanRule, document);
         repository.save(loanRuleDocument);
     }
 

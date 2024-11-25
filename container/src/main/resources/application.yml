@@ -4,3 +4,12 @@ spring:
   data:
     mongodb:
       uri: mongodb://root:password123@10.20.151.144:27017/morabehe?authSource=admin
+camel:
+  servlet:
+    mapping:
+      context-path: /api/*
+      enabled: true
+logging:
+  level:
+   ir.dotin.loan: DEBUG
+

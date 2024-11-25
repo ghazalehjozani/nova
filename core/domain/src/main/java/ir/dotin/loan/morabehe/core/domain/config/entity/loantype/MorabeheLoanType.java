@@ -2,11 +2,11 @@ package ir.dotin.loan.morabehe.core.domain.config.entity.loantype;
 
 
 import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
-import ir.dotin.loan.morabehe.core.domain.config.exception.MorabeheLoanTypeException;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.LoanType.LoanTypeBuilder;
 import ir.dotin.loan.morabehe.core.domain.config.event.MorabeheLoanTypeCreatedEvent;
 import ir.dotin.loan.morabehe.core.domain.config.event.MorabeheLoanTypeDisabledEvent;
 import ir.dotin.loan.morabehe.core.domain.config.event.MorabeheLoanTypeUpdatedEvent;
+import ir.dotin.loan.morabehe.core.domain.config.exception.MorabeheLoanTypeValidationException;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanTypeId;
 import ir.dotin.platform.ddd.common.entity.AggregateRoot;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -23,7 +23,7 @@ public class MorabeheLoanType extends AggregateRoot<MorabeheLoanTypeId> {
                             LoanTypeBuilder loanTypeBuilder) {
         super(morabeheLoanTypeId);
         validate(v -> v.checkNotNull(loanTypeBuilder, "loanTypeBuilder"),
-                 MorabeheLoanTypeException::new);
+                 MorabeheLoanTypeValidationException::new);
         loanType = loanTypeBuilder.validateAndBuild();
     }
 

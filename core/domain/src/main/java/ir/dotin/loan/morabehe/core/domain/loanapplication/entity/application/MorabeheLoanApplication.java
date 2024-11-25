@@ -11,7 +11,7 @@ import ir.dotin.loan.morabehe.core.domain.loanapplication.event.MorabeheLoanAppl
 import ir.dotin.loan.morabehe.core.domain.loanapplication.event.MorabeheLoanApplicationRequestedEvent;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.event.MorabeheLoanApplicationRevokedEvent;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.event.MorabeheLoanApplicationUpdatedEvent;
-import ir.dotin.loan.morabehe.core.domain.loanapplication.exception.MorabeheLoanApplicationException;
+import ir.dotin.loan.morabehe.core.domain.loanapplication.exception.MorabeheLoanApplicationValidationException;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.valueobject.MorabeheLoanApplicationId;
 import ir.dotin.platform.ddd.common.entity.AggregateRoot;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -28,7 +28,7 @@ public class MorabeheLoanApplication extends AggregateRoot<MorabeheLoanApplicati
                                    LoanApplicationBuilder loanApplicationBuilder) {
         super(morabeheLoanApplicationId);
         validate(v -> v.checkNotNull(loanApplicationBuilder, "loanApplicationBuilder"),
-                 MorabeheLoanApplicationException::new);
+                 MorabeheLoanApplicationValidationException::new);
         loanApplication = loanApplicationBuilder.validateAndBuild();
     }
 

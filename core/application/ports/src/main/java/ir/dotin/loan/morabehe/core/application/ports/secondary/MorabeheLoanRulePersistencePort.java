@@ -9,6 +9,8 @@ public interface MorabeheLoanRulePersistencePort {
 
     void save(MorabeheLoanRule rule);
 
+    void update(MorabeheLoanRule newRule);
+
     Optional<MorabeheLoanRule> findById(MorabeheLoanRuleId id);
 
     boolean existsByCode(LoanRuleCode code);

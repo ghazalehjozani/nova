@@ -1,10 +1,10 @@
 package ir.dotin.loan.morabehe.core.domain.config.entity.loantype;
 
 import ir.dotin.loan.baseloan.domain.config.entity.loantype.BaseLoanType;
-import ir.dotin.loan.baseloan.domain.config.exception.LoanTypeException;
+import ir.dotin.loan.baseloan.domain.config.exception.LoanTypeValidationException;
 import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
-import ir.dotin.platform.ddd.common.exception.DomainError;
+import ir.dotin.platform.ddd.common.exception.ValidationError;
 import ir.dotin.platform.ddd.common.util.Validator;
 import java.util.List;
 import java.util.Set;
@@ -97,12 +97,12 @@ public final class LoanType extends BaseLoanType {
         }
 
         private void validateInvariants() {
-            List<DomainError> errors = super.validateBaseInvariants();
+            List<ValidationError> errors = super.validateBaseInvariants();
             Validator.validate(
                     v -> v.checkNotNull(hasIssueMerchandiseDocument, "hasIssueMerchandiseDocument")
                             .checkNotEmpty(loanRuleIds, "loanRuleIds")
                             .appendErrors(errors),
-                    LoanTypeException::new
+                    LoanTypeValidationException::new
             );
         }
 

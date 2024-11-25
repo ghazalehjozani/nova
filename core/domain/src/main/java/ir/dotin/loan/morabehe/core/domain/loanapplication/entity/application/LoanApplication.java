@@ -6,7 +6,7 @@ import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.CollateralSeria
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.SanctionSerial;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanTypeId;
-import ir.dotin.loan.morabehe.core.domain.loanapplication.exception.MorabeheLoanApplicationException;
+import ir.dotin.loan.morabehe.core.domain.loanapplication.exception.MorabeheLoanApplicationValidationException;
 import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
 import ir.dotin.platform.ddd.common.util.Validator;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -104,7 +104,7 @@ public class LoanApplication extends BaseLoanApplication {
                     v -> v.checkNotNull(loanTypeId, "loanTypeId")
                             .checkNotNull(loanRuleId, "loanRuleId")
                             .appendErrors(validateBaseInvariants()),
-                    MorabeheLoanApplicationException::new
+                    MorabeheLoanApplicationValidationException::new
             );
         }
 
