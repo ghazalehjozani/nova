@@ -4,5 +4,5 @@ import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRul
 
 public interface MorabeheLoanRuleUpdateService {
 
-    MorabeheLoanRule update(MorabeheLoanRule newLoanRule, MorabeheLoanRule oldLoanRule);
+    MorabeheLoanRule update(MorabeheLoanRule oldLoanRule, MorabeheLoanRule newLoanRule);
 }

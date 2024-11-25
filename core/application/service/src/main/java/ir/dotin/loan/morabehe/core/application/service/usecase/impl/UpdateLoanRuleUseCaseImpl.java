@@ -5,10 +5,9 @@ import ir.dotin.loan.morabehe.core.application.service.usecase.UpdateLoanRuleUse
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import ir.dotin.loan.morabehe.core.domain.config.service.MorabeheLoanRuleUpdateService;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Service
 @Transactional
@@ -17,7 +16,8 @@ public class UpdateLoanRuleUseCaseImpl implements UpdateLoanRuleUseCase {
     private final MorabeheLoanRulePersistencePort persistencePort;
     private final MorabeheLoanRuleUpdateService morabeheLoanRuleUpdateService;
 
-    public UpdateLoanRuleUseCaseImpl(MorabeheLoanRulePersistencePort persistencePort, MorabeheLoanRuleUpdateService morabeheLoanRuleUpdateService) {
+    public UpdateLoanRuleUseCaseImpl(MorabeheLoanRulePersistencePort persistencePort,
+                                     MorabeheLoanRuleUpdateService morabeheLoanRuleUpdateService) {
         this.persistencePort = persistencePort;
         this.morabeheLoanRuleUpdateService = morabeheLoanRuleUpdateService;
     }
@@ -25,9 +25,12 @@ public class UpdateLoanRuleUseCaseImpl implements UpdateLoanRuleUseCase {
 
     @Override
     public MorabeheLoanRule update(UUID loanRuleId, MorabeheLoanRule newMorabeheLoanRule) {
-        MorabeheLoanRule oldMorabeheLoanRule = persistencePort.findById(new MorabeheLoanRuleId(loanRuleId))
+        MorabeheLoanRuleId morabeheLoanRuleId = new MorabeheLoanRuleId(loanRuleId);
+        MorabeheLoanRule oldMorabeheLoanRule = persistencePort
+                .findById(morabeheLoanRuleId)
                 .orElseThrow(() -> new IllegalArgumentException("MorabeheLoanRule not found"));
-        morabeheLoanRuleUpdateService.update(newMorabeheLoanRule, oldMorabeheLoanRule);
+        morabeheLoanRuleUpdateService.update(oldMorabeheLoanRule, newMorabeheLoanRule);
+        persistencePort.update(oldMorabeheLoanRule);
         persistencePort.save(newMorabeheLoanRule);
         // TODO: Publish Event
         return newMorabeheLoanRule;

@@ -7,9 +7,4 @@ import java.util.UUID;
 
 public record MorabeheUpdateLoanRuleCommand(UUID loanRuleId, BaseCreateLoanRuleCommand loanRule) implements Command {
 
-    @Override
-    public String type() {
-        return "MorabeheUpdateLoanRuleCommand";
-    }
-
 }

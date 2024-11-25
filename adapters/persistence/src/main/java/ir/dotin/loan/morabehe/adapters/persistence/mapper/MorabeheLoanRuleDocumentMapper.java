@@ -36,4 +36,17 @@ public class MorabeheLoanRuleDocumentMapper extends
         super.mapCommonPropertiesToBuilder(loanRuleDocument.getLoanRule(), loanRuleBuilder);
         return new MorabeheLoanRule(morabeheLoanRuleId, loanRuleBuilder.validateAndBuild());
     }
+
+    public MorabeheLoanRuleDocument update(MorabeheLoanRule loanRule,
+                                           MorabeheLoanRuleDocument loanRuleDocument) {
+        if (loanRule == null || loanRuleDocument == null) {
+            return null;
+        }
+        loanRuleDocument.setId(loanRule.getId().value());
+        var baseLoanRuleDocument = super.mapCommonPropertiesToDocument(loanRule.getLoanRule());
+        loanRuleDocument.setLoanRule(baseLoanRuleDocument);
+        return loanRuleDocument;
+    }
+
+
 }

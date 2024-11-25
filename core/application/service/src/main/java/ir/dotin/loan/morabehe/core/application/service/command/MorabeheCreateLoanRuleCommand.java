@@ -5,9 +5,4 @@ import ir.dotin.loan.baseloan.application.service.command.Command;
 
 public record MorabeheCreateLoanRuleCommand(BaseCreateLoanRuleCommand loanRule) implements Command {
 
-    @Override
-    public String type() {
-        return "MorabeheCreateLoanRuleCommand";
-    }
-
 }

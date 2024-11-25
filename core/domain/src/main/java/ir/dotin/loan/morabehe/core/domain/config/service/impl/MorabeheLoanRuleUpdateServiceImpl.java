@@ -28,14 +28,13 @@ public class MorabeheLoanRuleUpdateServiceImpl extends
     }
 
     @Override
-    protected void setPreviousVersion(MorabeheLoanRule newLoanRule, MorabeheLoanRule oldLoanRule) {
+    protected void setPreviousVersion(MorabeheLoanRule oldLoanRule, MorabeheLoanRule newLoanRule) {
         newLoanRule.setPreviousVersion(oldLoanRule.getLoanRule().getId());
     }
 
     @Override
     protected void markAsDisabled(MorabeheLoanRule oldLoanRule) {
         oldLoanRule.markAsDisabled();
-
     }
 
     @Override
