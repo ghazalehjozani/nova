@@ -2,8 +2,11 @@ package ir.dotin.loan.morabehe.core.application.service.usecase.impl;
 
 import ir.dotin.loan.morabehe.core.application.ports.secondary.MorabeheLoanRulePersistencePort;
 import ir.dotin.loan.morabehe.core.application.service.usecase.CreateLoanRuleUseCase;
+import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.LoanRule.LoanRuleBuilder;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import ir.dotin.loan.morabehe.core.domain.config.exception.MorabeheLoanRuleValidationException;
+import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +24,8 @@ public class CreateLoanRuleUseCaseImpl implements CreateLoanRuleUseCase {
     @Override
     public MorabeheLoanRule create(MorabeheLoanRule loanRule) {
         boolean existsByCode = persistencePort.existsByCode(loanRule.getLoanRule().getCode());
+        new MorabeheLoanRule(null, new LoanRuleBuilder(new FeatureConfig(Map.of("Str",false)))
+                .validateAndBuild());
         if (existsByCode) {
             throw new MorabeheLoanRuleValidationException("Duplicate loan rule code", "code");
         }
