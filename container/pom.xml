@@ -37,8 +37,8 @@
       <artifactId>morabehe-loan-adapter-web</artifactId>
     </dependency>
     <dependency>
-      <artifactId>base-loan-container</artifactId>
       <groupId>ir.dotin.loan</groupId>
+      <artifactId>base-loan-container</artifactId>
     </dependency>
   </dependencies>
 
