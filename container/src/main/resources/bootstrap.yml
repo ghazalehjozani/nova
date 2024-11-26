@@ -22,3 +22,13 @@ spring:
       discovery:
         enabled: true
         prefer-ip-address: true
+        health-check-interval: 30s
+        health-check-critical-timeout: 90s
+        health-check-path: /actuator/health
+        instance-id: ${spring.application.name}-${spring.application.instance_id:${random.value}}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
