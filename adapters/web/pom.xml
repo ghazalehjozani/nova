@@ -24,16 +24,12 @@
       <groupId>ir.dotin.loan</groupId>
       <artifactId>morabehe-loan-core-application-service</artifactId>
     </dependency>
+
     <dependency>
-      <artifactId>spring-cloud-context</artifactId>
-      <groupId>org.springframework.cloud</groupId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <!-- Plugin configurations -->
-    </plugins>
-  </build>
 
 </project>
