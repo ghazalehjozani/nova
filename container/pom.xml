@@ -17,6 +17,15 @@
 
   <dependencies>
     <dependency>
+      <artifactId>spring-cloud-starter-consul-config</artifactId>
+      <groupId>org.springframework.cloud</groupId>
+    </dependency>
+    <!-- Spring Boot Actuator for /refresh endpoint -->
+    <dependency>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
       <groupId>ir.dotin.loan</groupId>
       <artifactId>morabehe-loan-core-domain</artifactId>
     </dependency>
