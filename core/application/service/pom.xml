@@ -4,7 +4,6 @@
                              https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-
   <parent>
     <groupId>ir.dotin.loan</groupId>
     <artifactId>morabehe-loan-core-application</artifactId>
@@ -16,38 +15,11 @@
   <name>Morabehe Loan :: Core Application Service</name>
   <packaging>jar</packaging>
 
-
   <dependencies>
-    <!-- Spring Core -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter</artifactId>
-    </dependency>
-    <!-- Transaction Management -->
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-tx</artifactId>
-    </dependency>
-    <!-- Component and Service Annotations -->
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.camel.springboot</groupId>
-      <artifactId>camel-spring-boot-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-log</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>ir.dotin.loan</groupId>
       <artifactId>base-loan-core-application-service</artifactId>
     </dependency>
-
     <dependency>
       <groupId>ir.dotin.loan</groupId>
       <artifactId>morabehe-loan-core-domain</artifactId>
@@ -56,52 +28,18 @@
       <groupId>ir.dotin.loan</groupId>
       <artifactId>morabehe-loan-core-application-ports</artifactId>
     </dependency>
-  </dependencies>
 
-  <profiles>
-    <profile>
-      <id>coverage</id>
-      <build>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <groupId>org.jacoco</groupId>
-              <artifactId>jacoco-maven-plugin</artifactId>
-              <version>${jacoco.version}</version>
-              <executions>
-                <execution>
-                  <id>prepare-agent</id>
-                  <goals>
-                    <goal>prepare-agent</goal>
-                  </goals>
-                </execution>
-                <execution>
-                  <id>report</id>
-                  <goals>
-                    <goal>report</goal>
-                  </goals>
-                  <configuration>
-                    <formats>
-                      <format>XML</format>
-                    </formats>
-                  </configuration>
-                </execution>
-              </executions>
-            </plugin>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-surefire-plugin</artifactId>
-              <version>${maven-surefire.version}</version>
-            </plugin>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-failsafe-plugin</artifactId>
-              <version>${maven-failsafe.version}</version>
-            </plugin>
-          </plugins>
-        </pluginManagement>
-      </build>
-    </profile>
-  </profiles>
+    <!-- Transaction Management -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
 </project>

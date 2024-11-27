@@ -4,7 +4,6 @@
                              https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-
   <parent>
     <groupId>ir.dotin.loan</groupId>
     <artifactId>morabehe-loan-adapters</artifactId>
@@ -16,7 +15,6 @@
   <name>Morabehe Loan :: Adapters Persistence</name>
   <packaging>jar</packaging>
 
-
   <dependencies>
     <dependency>
       <groupId>ir.dotin.loan</groupId>
@@ -24,13 +22,14 @@
     </dependency>
     <dependency>
       <groupId>ir.dotin.loan</groupId>
-      <artifactId>morabehe-loan-core-domain</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>ir.dotin.loan</groupId>
       <artifactId>morabehe-loan-core-application-ports</artifactId>
     </dependency>
-  </dependencies>
 
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
 </project>

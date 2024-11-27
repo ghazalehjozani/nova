@@ -18,16 +18,10 @@
   <dependencies>
     <dependency>
       <groupId>ir.dotin.loan</groupId>
-      <artifactId>morabehe-loan-core-domain</artifactId>
+      <artifactId>base-loan-container</artifactId>
     </dependency>
-    <dependency>
-      <groupId>ir.dotin.loan</groupId>
-      <artifactId>morabehe-loan-core-application-service</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>ir.dotin.loan</groupId>
-      <artifactId>morabehe-loan-core-application-ports</artifactId>
-    </dependency>
+
+    <!-- Adapters -->
     <dependency>
       <groupId>ir.dotin.loan</groupId>
       <artifactId>morabehe-loan-adapter-persistence</artifactId>
@@ -36,16 +30,12 @@
       <groupId>ir.dotin.loan</groupId>
       <artifactId>morabehe-loan-adapter-web</artifactId>
     </dependency>
+
     <dependency>
-      <groupId>ir.dotin.loan</groupId>
-      <artifactId>base-loan-container</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <!-- Plugin configurations -->
-    </plugins>
-  </build>
 
 </project>
