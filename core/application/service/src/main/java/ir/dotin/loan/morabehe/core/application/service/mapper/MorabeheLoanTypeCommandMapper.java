@@ -1,6 +1,6 @@
 package ir.dotin.loan.morabehe.core.application.service.mapper;
 
-import ir.dotin.loan.baseloan.application.service.mapper.BaseLoanTypeCommandMapper;
+import ir.dotin.loan.baseloan.application.service.config.mapper.BaseLoanTypeCommandMapper;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanTypeCommand;
 import ir.dotin.loan.morabehe.core.application.service.response.LoanTypeResponse;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.LoanType;

@@ -48,5 +48,5 @@ public class LoanRuleRoute extends RouteBuilder {
                 .bean(MorabeheUpdateLoanRuleHandler.class, "handle");
         // @formatter:on
     }
-}
 
+}

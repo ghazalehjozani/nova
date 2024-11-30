@@ -25,11 +25,11 @@ public class MorabeheLoanApplication extends AggregateRoot<MorabeheLoanApplicati
     private LoanApplication loanApplication;
 
     public MorabeheLoanApplication(MorabeheLoanApplicationId morabeheLoanApplicationId,
-                                   LoanApplicationBuilder loanApplicationBuilder) {
+                                   LoanApplication loanApplication) {
         super(morabeheLoanApplicationId);
-        validate(v -> v.checkNotNull(loanApplicationBuilder, "loanApplicationBuilder"),
+        validate(v -> v.checkNotNull(loanApplication, "loanApplicationBuilder"),
                  MorabeheLoanApplicationValidationException::new);
-        loanApplication = loanApplicationBuilder.validateAndBuild();
+        this.loanApplication = loanApplication;
     }
 
     public void request(ApplicationNumber applicationNumber) {
