@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class MorabeheLoanRuleDocumentMapper extends
-        BaseLoanRuleDocumentMapper<LoanRuleBuilder, LoanRule> {
+        BaseLoanRuleDocumentMapper<LoanRule, LoanRuleBuilder> {
 
     public MorabeheLoanRuleDocument mapToDocument(MorabeheLoanRule loanRule) {
         if (loanRule == null) {
@@ -21,7 +21,7 @@ public class MorabeheLoanRuleDocumentMapper extends
 
         MorabeheLoanRuleDocument morabeheLoanRuleDocument = new MorabeheLoanRuleDocument();
         morabeheLoanRuleDocument.setId(loanRule.getId().value());
-        var baseLoanRuleDocument = super.mapCommonPropertiesToDocument(loanRule.getLoanRule());
+        var baseLoanRuleDocument = super.mapToDocument(loanRule.getLoanRule());
         morabeheLoanRuleDocument.setLoanRule(baseLoanRuleDocument);
         return morabeheLoanRuleDocument;
     }
@@ -33,17 +33,17 @@ public class MorabeheLoanRuleDocumentMapper extends
 
         var loanRuleBuilder = new LoanRuleBuilder(new FeatureConfig(Map.of("feat1", false)));
         var morabeheLoanRuleId = new MorabeheLoanRuleId(loanRuleDocument.getId());
-        super.mapCommonPropertiesToBuilder(loanRuleDocument.getLoanRule(), loanRuleBuilder);
+        super.mapFromDocument(loanRuleDocument.getLoanRule(), loanRuleBuilder);
         return new MorabeheLoanRule(morabeheLoanRuleId, loanRuleBuilder.validateAndBuild());
     }
 
-    public MorabeheLoanRuleDocument update(MorabeheLoanRule loanRule,
-                                           MorabeheLoanRuleDocument loanRuleDocument) {
+    public MorabeheLoanRuleDocument updateDocument(MorabeheLoanRule loanRule,
+                                                   MorabeheLoanRuleDocument loanRuleDocument) {
         if (loanRule == null || loanRuleDocument == null) {
             return null;
         }
         loanRuleDocument.setId(loanRule.getId().value());
-        var baseLoanRuleDocument = super.mapCommonPropertiesToDocument(loanRule.getLoanRule());
+        var baseLoanRuleDocument = super.mapToDocument(loanRule.getLoanRule());
         loanRuleDocument.setLoanRule(baseLoanRuleDocument);
         return loanRuleDocument;
     }
