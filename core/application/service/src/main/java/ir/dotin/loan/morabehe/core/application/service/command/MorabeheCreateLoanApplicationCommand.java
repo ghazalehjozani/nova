@@ -4,8 +4,8 @@ import ir.dotin.loan.baseloan.application.service.loanapplication.command.BaseCr
 import java.util.UUID;
 
 public record MorabeheCreateLoanApplicationCommand(
-        UUID loanTypeId,
-        UUID loanRuleId,
+        String loanTypeId,
+        String loanRuleId,
         BaseCreateLoanApplicationCommand loanApplication) {
 
 }

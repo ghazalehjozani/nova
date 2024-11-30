@@ -9,6 +9,7 @@ import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.Loa
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.MorabeheLoanApplication;
 import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
 import java.util.Map;
+import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,8 +21,8 @@ public class MorabeheLoanApplicationCommandMapper extends
             MorabeheCreateLoanApplicationCommand command) {
         var builder = new LoanApplicationBuilder(new FeatureConfig(Map.of("Key1", false)));
         super.mapCommonFields(command.loanApplication(), builder);
-        builder.withLoanRuleId(new MorabeheLoanRuleId(command.loanRuleId()));
-        builder.withLoanTypeId(new MorabeheLoanTypeId(command.loanTypeId()));
+        builder.withLoanRuleId(new MorabeheLoanRuleId(UUID.fromString(command.loanRuleId())));
+        builder.withLoanTypeId(new MorabeheLoanTypeId(UUID.fromString(command.loanTypeId())));
         return new MorabeheLoanApplication(null, builder.validateAndBuild());
     }
 
