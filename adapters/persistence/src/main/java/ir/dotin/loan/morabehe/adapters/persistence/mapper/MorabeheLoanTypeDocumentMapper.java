@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-public class MorabeheLoanTypeDocumentMapper extends BaseLoanTypeDocumentMapper<LoanType.LoanTypeBuilder, LoanType> {
+public class MorabeheLoanTypeDocumentMapper extends BaseLoanTypeDocumentMapper<LoanType, LoanType.LoanTypeBuilder> {
 
     public MorabeheLoanTypeDocument mapToDocument(MorabeheLoanType loanType) {
         if (loanType == null) {
@@ -18,7 +18,7 @@ public class MorabeheLoanTypeDocumentMapper extends BaseLoanTypeDocumentMapper<L
 
         MorabeheLoanTypeDocument morabeheLoanTypeDocument = new MorabeheLoanTypeDocument();
         morabeheLoanTypeDocument.setId(loanType.getId().value());
-        var baseLoanTypeDocument = super.mapCommonPropertiesToDocument(loanType.getLoanType());
+        var baseLoanTypeDocument = super.mapToDocument(loanType.getLoanType());
         morabeheLoanTypeDocument.setLoanType(baseLoanTypeDocument);
         return morabeheLoanTypeDocument;
     }
@@ -30,7 +30,7 @@ public class MorabeheLoanTypeDocumentMapper extends BaseLoanTypeDocumentMapper<L
 
         var loanTypeBuilder = new LoanType.LoanTypeBuilder();
         var morabeheLoanTypeId = new MorabeheLoanTypeId(loanTypeDocument.getId());
-        super.mapCommonPropertiesToBuilder(loanTypeDocument.getLoanType(), loanTypeBuilder);
+        super.mapFromDocument(loanTypeDocument.getLoanType(), loanTypeBuilder);
         return new MorabeheLoanType(morabeheLoanTypeId, loanTypeBuilder);
     }
 }
