@@ -8,9 +8,8 @@ import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.LoanRule.LoanRu
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
 import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
-import org.springframework.stereotype.Component;
-
 import java.util.Map;
+import org.springframework.stereotype.Component;
 
 @Component
 public class MorabeheLoanRuleCommandMapper extends BaseLoanRuleCommandMapper<LoanRuleBuilder> {

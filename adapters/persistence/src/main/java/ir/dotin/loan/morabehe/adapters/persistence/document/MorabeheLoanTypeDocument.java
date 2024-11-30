@@ -3,8 +3,6 @@ package ir.dotin.loan.morabehe.adapters.persistence.document;
 
 import ir.dotin.loan.baseloan.adapters.persistence.document.AuditableDocument;
 import ir.dotin.loan.baseloan.adapters.persistence.document.loantype.BaseLoanTypeDocument;
-import java.util.Set;
-import java.util.UUID;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -15,8 +13,6 @@ public class MorabeheLoanTypeDocument extends AuditableDocument {
     private BaseLoanTypeDocument loanType;
     @Field("has_issue_merchandise_document")
     private Boolean hasIssueMerchandiseDocument;
-    @Field("loan_rule_ids")
-    private Set<String> loanRuleIds;
 
     public MorabeheLoanTypeDocument() {
     }
@@ -41,14 +37,6 @@ public class MorabeheLoanTypeDocument extends AuditableDocument {
 
     public void setHasIssueMerchandiseDocument(Boolean hasIssueMerchandiseDocument) {
         this.hasIssueMerchandiseDocument = hasIssueMerchandiseDocument;
-    }
-
-    public Set<String> getLoanRuleIds() {
-        return loanRuleIds;
-    }
-
-    public void setLoanRuleIds(Set<String> loanRuleIds) {
-        this.loanRuleIds = loanRuleIds;
     }
 
 }

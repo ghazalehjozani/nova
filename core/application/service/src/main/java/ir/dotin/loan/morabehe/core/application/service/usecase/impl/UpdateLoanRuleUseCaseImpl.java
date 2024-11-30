@@ -5,7 +5,6 @@ import ir.dotin.loan.morabehe.core.application.ports.secondary.MorabeheLoanRuleP
 import ir.dotin.loan.morabehe.core.application.service.usecase.UpdateLoanRuleUseCase;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import ir.dotin.loan.morabehe.core.domain.config.service.MorabeheLoanRuleUpdateService;
-import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

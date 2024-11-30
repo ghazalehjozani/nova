@@ -2,7 +2,6 @@ package ir.dotin.loan.morabehe.adapters.persistence.document;
 
 import ir.dotin.loan.baseloan.adapters.persistence.document.AuditableDocument;
 import ir.dotin.loan.baseloan.adapters.persistence.document.loanrule.BaseLoanRuleDocument;
-import java.util.UUID;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document("morabehe_loan_rule")

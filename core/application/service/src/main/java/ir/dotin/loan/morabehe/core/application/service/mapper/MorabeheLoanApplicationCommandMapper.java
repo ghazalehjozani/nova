@@ -1,17 +1,12 @@
 package ir.dotin.loan.morabehe.core.application.service.mapper;
 
 import ir.dotin.loan.baseloan.application.service.loanapplication.mapper.BaseLoanApplicationCommandMapper;
-import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
-import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanApplicationCommand;
 import ir.dotin.loan.morabehe.core.application.service.response.LoanApplicationResponse;
-import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
-import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanTypeId;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.LoanApplication.LoanApplicationBuilder;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.MorabeheLoanApplication;
 import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
 import java.util.Map;
-import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -23,8 +18,6 @@ public class MorabeheLoanApplicationCommandMapper extends
             MorabeheCreateLoanApplicationCommand command) {
         var builder = new LoanApplicationBuilder(new FeatureConfig(Map.of("Key1", false)));
         super.mapCommonFields(command.loanApplication(), builder);
-        builder.withLoanRuleId(new LoanRuleId(UUID.fromString(command.loanRuleId())));
-        builder.withLoanTypeId(new LoanTypeId(UUID.fromString(command.loanTypeId())));
         return new MorabeheLoanApplication(null, builder.validateAndBuild());
     }
 

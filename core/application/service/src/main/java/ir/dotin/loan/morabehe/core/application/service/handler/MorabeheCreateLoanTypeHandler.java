@@ -5,7 +5,6 @@ import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoa
 import ir.dotin.loan.morabehe.core.application.service.mapper.MorabeheLoanTypeCommandMapper;
 import ir.dotin.loan.morabehe.core.application.service.response.LoanTypeResponse;
 import ir.dotin.loan.morabehe.core.application.service.usecase.CreateLoanTypeUseCase;
-import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
 import org.springframework.stereotype.Component;
 

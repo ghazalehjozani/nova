@@ -1,7 +1,5 @@
 package ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application;
 
-import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
-import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
 import ir.dotin.loan.baseloan.domain.loanapplication.entity.application.BaseLoanApplication;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.ApplicationNumber;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.CollateralSerial;
@@ -15,14 +13,9 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 @SuppressWarnings("FieldMayBeFinal")
 public class LoanApplication extends BaseLoanApplication {
 
-    private LoanTypeId loanTypeId;
-    private LoanRuleId loanRuleId;
-
 
     LoanApplication(LoanApplicationBuilder builder) {
         super(builder);
-        this.loanTypeId = builder.loanTypeId;
-        this.loanRuleId = builder.loanRuleId;
     }
 
 
@@ -65,8 +58,6 @@ public class LoanApplication extends BaseLoanApplication {
     public static final class LoanApplicationBuilder extends
             BaseLoanApplicationBuilder<LoanApplicationBuilder> {
 
-        private LoanTypeId loanTypeId;
-        private LoanRuleId loanRuleId;
 
         public LoanApplicationBuilder(FeatureConfig featureConfig) {
             super(featureConfig);
@@ -74,18 +65,6 @@ public class LoanApplication extends BaseLoanApplication {
 
         public LoanApplicationBuilder(FeatureConfig featureConfig, LoanApplication other) {
             super(featureConfig, other);
-            this.loanRuleId = other.loanRuleId;
-            this.loanTypeId = other.loanTypeId;
-        }
-
-        public LoanApplicationBuilder withLoanTypeId(LoanTypeId loanTypeId) {
-            this.loanTypeId = loanTypeId;
-            return this;
-        }
-
-        public LoanApplicationBuilder withLoanRuleId(LoanRuleId loanRuleId) {
-            this.loanRuleId = loanRuleId;
-            return this;
         }
 
         @Override
@@ -100,26 +79,11 @@ public class LoanApplication extends BaseLoanApplication {
         }
 
         private void validateInvariants() {
-            Validator.validate(
-                    v -> v.checkNotNull(loanTypeId, "loanTypeId")
-                            .checkNotNull(loanRuleId, "loanRuleId")
-                            .appendErrors(validateBaseInvariants()),
-                    MorabeheLoanApplicationValidationException::new
+            Validator.validate(v -> v.appendErrors(validateBaseInvariants()),
+                               MorabeheLoanApplicationValidationException::new
             );
         }
 
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public LoanTypeId getLoanTypeId() {
-        return loanTypeId;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public LoanRuleId getLoanRuleId() {
-        return loanRuleId;
     }
 
     @Override
