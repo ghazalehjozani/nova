@@ -7,25 +7,24 @@ import ir.dotin.loan.morabehe.adapters.persistence.mapper.MorabeheLoanTypeDocume
 import ir.dotin.loan.morabehe.adapters.persistence.repository.MorabeheLoanTypeRepository;
 import ir.dotin.loan.morabehe.core.application.ports.secondary.MorabeheLoanTypePersistencePort;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
+import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanTypeId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Optional;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Component
 @Transactional(readOnly = true)
 public class LoanTypePersistenceAdapter implements MorabeheLoanTypePersistencePort {
 
-    private static final Logger logger = LoggerFactory.getLogger(LoanTypePersistenceAdapter.class);
     private final MongoTemplate mongoTemplate;
     private final MorabeheLoanTypeRepository repository;
     private final MorabeheLoanTypeDocumentMapper mapper;
 
-    public LoanTypePersistenceAdapter(MongoTemplate mongoTemplate, MorabeheLoanTypeRepository repository, MorabeheLoanTypeDocumentMapper mapper) {
+    public LoanTypePersistenceAdapter(MongoTemplate mongoTemplate,
+                                      MorabeheLoanTypeRepository repository,
+                                      MorabeheLoanTypeDocumentMapper mapper) {
         this.mongoTemplate = mongoTemplate;
         this.repository = repository;
         this.mapper = mapper;
@@ -41,6 +40,14 @@ public class LoanTypePersistenceAdapter implements MorabeheLoanTypePersistencePo
     @Override
     public Optional<MorabeheLoanType> findById(MorabeheLoanTypeId id) {
         return repository.findById(id.value()).map(mapper::mapToAggregate);
+    }
+
+    @Override
+    public Optional<MorabeheLoanType> findByIdAndLoanRuleId(MorabeheLoanTypeId id,
+                                                            MorabeheLoanRuleId loanRuleId) {
+        return repository.findByIdAndLoanRuleIdAndLoanType_DisableFalse(id.value(),
+                                                                        loanRuleId.value())
+                .map(mapper::mapToAggregate);
     }
 
     @Override

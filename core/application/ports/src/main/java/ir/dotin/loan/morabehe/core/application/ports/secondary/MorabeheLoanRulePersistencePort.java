@@ -15,4 +15,5 @@ public interface MorabeheLoanRulePersistencePort {
 
     boolean existsByCode(LoanRuleCode code);
 
+    boolean existsByIdAndEnable(MorabeheLoanRuleId id);
 }

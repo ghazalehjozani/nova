@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class LoanRulePersistenceAdapter implements MorabeheLoanRulePersistencePort {
 
-    private static final Logger logger = LoggerFactory.getLogger(LoanRulePersistenceAdapter.class);
     private final MongoTemplate mongoTemplate;
     private final MorabeheLoanRuleRepository repository;
     private final MorabeheLoanRuleDocumentMapper mapper;
@@ -58,6 +57,11 @@ public class LoanRulePersistenceAdapter implements MorabeheLoanRulePersistencePo
     @Override
     public boolean existsByCode(LoanRuleCode code) {
         return repository.existsByLoanRule_Code(code.value());
+    }
+
+    @Override
+    public boolean existsByIdAndEnable(MorabeheLoanRuleId id) {
+        return repository.existsByIdAndLoanRule_DisableFalse(id.value());
     }
 
 }

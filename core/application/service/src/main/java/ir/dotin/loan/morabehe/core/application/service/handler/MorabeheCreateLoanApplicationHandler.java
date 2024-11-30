@@ -23,8 +23,7 @@ public class MorabeheCreateLoanApplicationHandler {
     public LoanApplicationResponse handle(MorabeheCreateLoanApplicationCommand command) {
         MorabeheLoanApplication morabeheLoanRule = loanApplicationCommandMapper
                 .mapToAggregateRoot(command);
-        MorabeheLoanApplication savedLoanRule = createLoanApplicationUseCase.create(
-                morabeheLoanRule);
+        MorabeheLoanApplication savedLoanRule = createLoanApplicationUseCase.create(morabeheLoanRule);
         return loanApplicationCommandMapper.mapToResponse(savedLoanRule);
     }
 

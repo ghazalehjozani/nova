@@ -3,14 +3,20 @@ package ir.dotin.loan.morabehe.adapters.persistence.document;
 
 import ir.dotin.loan.baseloan.adapters.persistence.document.AuditableDocument;
 import ir.dotin.loan.baseloan.adapters.persistence.document.loantype.BaseLoanTypeDocument;
-import org.springframework.data.mongodb.core.mapping.Document;
-
+import java.util.Set;
 import java.util.UUID;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document("morabehe_loan_type")
 public class MorabeheLoanTypeDocument extends AuditableDocument {
 
+    @Field("loan_type")
     private BaseLoanTypeDocument loanType;
+    @Field("has_issue_merchandise_document")
+    private Boolean hasIssueMerchandiseDocument;
+    @Field("loan_rule_ids")
+    private Set<UUID> loanRuleIds;
 
     public MorabeheLoanTypeDocument() {
     }
@@ -24,7 +30,25 @@ public class MorabeheLoanTypeDocument extends AuditableDocument {
         return loanType;
     }
 
-    public void setLoanType(BaseLoanTypeDocument loanType) {
+    public void setLoanType(
+            BaseLoanTypeDocument loanType) {
         this.loanType = loanType;
     }
+
+    public Boolean getHasIssueMerchandiseDocument() {
+        return hasIssueMerchandiseDocument;
+    }
+
+    public void setHasIssueMerchandiseDocument(Boolean hasIssueMerchandiseDocument) {
+        this.hasIssueMerchandiseDocument = hasIssueMerchandiseDocument;
+    }
+
+    public Set<UUID> getLoanRuleIds() {
+        return loanRuleIds;
+    }
+
+    public void setLoanRuleIds(Set<UUID> loanRuleIds) {
+        this.loanRuleIds = loanRuleIds;
+    }
+
 }

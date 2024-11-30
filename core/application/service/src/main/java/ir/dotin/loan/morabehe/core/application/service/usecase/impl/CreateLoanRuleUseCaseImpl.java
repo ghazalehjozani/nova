@@ -24,8 +24,6 @@ public class CreateLoanRuleUseCaseImpl implements CreateLoanRuleUseCase {
     @Override
     public MorabeheLoanRule create(MorabeheLoanRule loanRule) {
         boolean existsByCode = persistencePort.existsByCode(loanRule.getLoanRule().getCode());
-        new MorabeheLoanRule(null, new LoanRuleBuilder(new FeatureConfig(Map.of("Str",false)))
-                .validateAndBuild());
         if (existsByCode) {
             throw new MorabeheLoanRuleValidationException("Duplicate loan rule code", "code");
         }
