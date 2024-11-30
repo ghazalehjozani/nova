@@ -16,12 +16,12 @@ public class MorabeheLoanTypeDocument extends AuditableDocument {
     @Field("has_issue_merchandise_document")
     private Boolean hasIssueMerchandiseDocument;
     @Field("loan_rule_ids")
-    private Set<UUID> loanRuleIds;
+    private Set<String> loanRuleIds;
 
     public MorabeheLoanTypeDocument() {
     }
 
-    public MorabeheLoanTypeDocument(UUID id, BaseLoanTypeDocument loanType) {
+    public MorabeheLoanTypeDocument(String id, BaseLoanTypeDocument loanType) {
         super(id);
         this.loanType = loanType;
     }
@@ -43,11 +43,11 @@ public class MorabeheLoanTypeDocument extends AuditableDocument {
         this.hasIssueMerchandiseDocument = hasIssueMerchandiseDocument;
     }
 
-    public Set<UUID> getLoanRuleIds() {
+    public Set<String> getLoanRuleIds() {
         return loanRuleIds;
     }
 
-    public void setLoanRuleIds(Set<UUID> loanRuleIds) {
+    public void setLoanRuleIds(Set<String> loanRuleIds) {
         this.loanRuleIds = loanRuleIds;
     }
 

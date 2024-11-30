@@ -19,14 +19,14 @@ public class MorabeheLoanTypeCommandMapper extends BaseLoanTypeCommandMapper<Loa
         loanTypeBuilder.withHasIssueMerchandiseDocument(command.hasIssueMerchandiseDocument());
         loanTypeBuilder.withLoanRuleIds(command.loanRuleIds()
                                                 .stream()
-                                                .map(MorabeheLoanRuleId::new)
+                                                .map(LoanRuleId::new)
                                                 .collect(Collectors.toSet()));
         super.mapCommonFields(command.loanType(), loanTypeBuilder);
         return new MorabeheLoanType(null, loanTypeBuilder);
     }
 
     public LoanTypeResponse mapToResponse(MorabeheLoanType loanType) {
-        return new LoanTypeResponse(loanType.getId().value());
+        return new LoanTypeResponse(loanType.getLoanType().getId().value());
     }
 
 }

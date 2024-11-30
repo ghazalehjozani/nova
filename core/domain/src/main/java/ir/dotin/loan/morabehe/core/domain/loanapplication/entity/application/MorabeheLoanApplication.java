@@ -3,7 +3,6 @@ package ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.ApplicationNumber;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.CollateralSerial;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.SanctionSerial;
-import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.LoanApplication.LoanApplicationBuilder;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.event.MorabeheLoanApplicationApprovedEvent;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.event.MorabeheLoanApplicationCollateralAddedEvent;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.event.MorabeheLoanApplicationContractIssuedEvent;

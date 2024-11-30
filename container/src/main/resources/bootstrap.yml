@@ -30,3 +30,7 @@ logging:
       springframework:
         cloud:
           consul: INFO
+        data:
+          mongodb:
+            core:
+              MongoTemplate: DEBUG

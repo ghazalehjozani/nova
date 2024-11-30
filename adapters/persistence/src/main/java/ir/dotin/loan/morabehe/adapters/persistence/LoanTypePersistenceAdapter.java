@@ -1,16 +1,18 @@
 package ir.dotin.loan.morabehe.adapters.persistence;
 
 
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.LoanTypeCode;
 import ir.dotin.loan.morabehe.adapters.persistence.document.MorabeheLoanTypeDocument;
 import ir.dotin.loan.morabehe.adapters.persistence.mapper.MorabeheLoanTypeDocumentMapper;
 import ir.dotin.loan.morabehe.adapters.persistence.repository.MorabeheLoanTypeRepository;
 import ir.dotin.loan.morabehe.core.application.ports.secondary.MorabeheLoanTypePersistencePort;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
-import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
-import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanTypeId;
 import java.util.Optional;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,20 +40,31 @@ public class LoanTypePersistenceAdapter implements MorabeheLoanTypePersistencePo
     }
 
     @Override
-    public Optional<MorabeheLoanType> findById(MorabeheLoanTypeId id) {
-        return repository.findById(id.value()).map(mapper::mapToAggregate);
+    public Optional<MorabeheLoanType> findById(LoanTypeId id) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("loanType._id").is(id.value().toString())
+                                  .and("loanType.disable").is(false));
+        MorabeheLoanTypeDocument result = mongoTemplate.findOne(query,
+                                                                MorabeheLoanTypeDocument.class);
+        return Optional.ofNullable(result).map(mapper::mapToAggregate);
     }
 
     @Override
-    public Optional<MorabeheLoanType> findByIdAndLoanRuleId(MorabeheLoanTypeId id,
-                                                            MorabeheLoanRuleId loanRuleId) {
-        return repository.findByIdAndLoanRuleIdAndLoanType_DisableFalse(id.value(),
-                                                                        loanRuleId.value())
-                .map(mapper::mapToAggregate);
+    public Optional<MorabeheLoanType> findByIdAndLoanRuleId(LoanTypeId id, LoanRuleId loanRuleId) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("loanType._id").is(id.value().toString())
+                                  .and("loanRuleIds").in(loanRuleId.value().toString())
+                                  .and("loanType.disable").is(false));
+        MorabeheLoanTypeDocument result = mongoTemplate.findOne(query,
+                                                                MorabeheLoanTypeDocument.class);
+        return Optional.ofNullable(result).map(mapper::mapToAggregate);
     }
 
     @Override
     public boolean existsByCode(LoanTypeCode code) {
-        return repository.existsByLoanType_Code(code.value());
+        Query query = new Query();
+        query.addCriteria(Criteria.where("loanType.code").is(code.value()));
+        long count = mongoTemplate.count(query, MorabeheLoanTypeDocument.class);
+        return count > 0;
     }
 }

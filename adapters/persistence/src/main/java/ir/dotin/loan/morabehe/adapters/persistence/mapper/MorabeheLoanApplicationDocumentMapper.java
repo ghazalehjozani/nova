@@ -1,56 +1,54 @@
 package ir.dotin.loan.morabehe.adapters.persistence.mapper;
 
 import ir.dotin.loan.baseloan.adapters.persistence.mapper.BaseLoanApplicationDocumentMapper;
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
 import ir.dotin.loan.morabehe.adapters.persistence.document.MorabeheLoanApplicationDocument;
+import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
+import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanTypeId;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.LoanApplication;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.LoanApplication.LoanApplicationBuilder;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.MorabeheLoanApplication;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.valueobject.MorabeheLoanApplicationId;
 import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
 import java.util.Map;
+import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MorabeheLoanApplicationDocumentMapper extends
         BaseLoanApplicationDocumentMapper<LoanApplication, LoanApplicationBuilder> {
 
-    public MorabeheLoanApplicationDocument mapToDocument(MorabeheLoanApplication loanApplication) {
-        if (loanApplication == null) {
-            return null;
-        }
 
-        MorabeheLoanApplicationDocument morabeheLoanApplicationDocument = new MorabeheLoanApplicationDocument();
-        morabeheLoanApplicationDocument.setId(loanApplication.getId().value());
-        var baseLoanApplicationDocument = super.mapToDocument(loanApplication.getLoanApplication());
-        morabeheLoanApplicationDocument.setLoanApplicationDocument(baseLoanApplicationDocument);
-        return morabeheLoanApplicationDocument;
-    }
-
-    public MorabeheLoanApplication mapToAggregate(
-            MorabeheLoanApplicationDocument loanApplicationDocument) {
+    public MorabeheLoanApplication mapToAggregate(MorabeheLoanApplicationDocument loanApplicationDocument) {
         if (loanApplicationDocument == null) {
             return null;
         }
-        var loanApplicationBuilder = new LoanApplicationBuilder(
-                new FeatureConfig(Map.of("feat1", false)));
-        var morabeheLoanApplicationId = new MorabeheLoanApplicationId(
-                loanApplicationDocument.getId());
-        super.mapFromDocument(loanApplicationDocument.getLoanApplicationDocument(),
-                              loanApplicationBuilder);
-        return new MorabeheLoanApplication(morabeheLoanApplicationId,
-                                           loanApplicationBuilder.validateAndBuild());
+        var builder = new LoanApplicationBuilder(new FeatureConfig(Map.of("feat1", false)));
+        var morabeheLoanApplicationId = new MorabeheLoanApplicationId(UUID.fromString(loanApplicationDocument.getId()));
+        builder.withLoanRuleId(new LoanRuleId(UUID.fromString(loanApplicationDocument.getLoanRuleId())));
+        builder.withLoanTypeId(new LoanTypeId(UUID.fromString(loanApplicationDocument.getLoanTypeId())));
+        super.mapFromDocument(loanApplicationDocument.getLoanApplication(), builder);
+        return new MorabeheLoanApplication(morabeheLoanApplicationId, builder.validateAndBuild());
     }
 
-    public MorabeheLoanApplicationDocument updateDocument(MorabeheLoanApplication loanApplication,
-                                                          MorabeheLoanApplicationDocument loanApplicationDocument) {
-        if (loanApplication == null || loanApplicationDocument == null) {
+    public MorabeheLoanApplicationDocument mapToDocument(MorabeheLoanApplication loanApplication,
+                                                         MorabeheLoanApplicationDocument document) {
+        if (loanApplication == null || document == null) {
             return null;
         }
-        loanApplicationDocument.setId(loanApplication.getId().value());
+        document.setId(loanApplication.getId().value().toString());
+        document.setLoanRuleId(loanApplication.getLoanApplication().getLoanRuleId().value().toString());
+        document.setLoanTypeId(loanApplication.getLoanApplication().getLoanTypeId().value().toString());
         var baseLoanApplicationDocument = super.mapToDocument(loanApplication.getLoanApplication());
-        loanApplicationDocument.setLoanApplicationDocument(baseLoanApplicationDocument);
-        return loanApplicationDocument;
+        document.setLoanApplication(baseLoanApplicationDocument);
+        return document;
 
     }
+
+    public MorabeheLoanApplicationDocument mapToDocument(MorabeheLoanApplication loanApplication) {
+        return mapToDocument(loanApplication, new MorabeheLoanApplicationDocument());
+    }
+
 
 }

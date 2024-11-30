@@ -1,11 +1,11 @@
 package ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application;
 
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
 import ir.dotin.loan.baseloan.domain.loanapplication.entity.application.BaseLoanApplication;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.ApplicationNumber;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.CollateralSerial;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.SanctionSerial;
-import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
-import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanTypeId;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.exception.MorabeheLoanApplicationValidationException;
 import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
 import ir.dotin.platform.ddd.common.util.Validator;
@@ -15,8 +15,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 @SuppressWarnings("FieldMayBeFinal")
 public class LoanApplication extends BaseLoanApplication {
 
-    private MorabeheLoanTypeId loanTypeId;
-    private MorabeheLoanRuleId loanRuleId;
+    private LoanTypeId loanTypeId;
+    private LoanRuleId loanRuleId;
 
 
     LoanApplication(LoanApplicationBuilder builder) {
@@ -65,8 +65,8 @@ public class LoanApplication extends BaseLoanApplication {
     public static final class LoanApplicationBuilder extends
             BaseLoanApplicationBuilder<LoanApplicationBuilder> {
 
-        private MorabeheLoanTypeId loanTypeId;
-        private MorabeheLoanRuleId loanRuleId;
+        private LoanTypeId loanTypeId;
+        private LoanRuleId loanRuleId;
 
         public LoanApplicationBuilder(FeatureConfig featureConfig) {
             super(featureConfig);
@@ -78,12 +78,12 @@ public class LoanApplication extends BaseLoanApplication {
             this.loanTypeId = other.loanTypeId;
         }
 
-        public LoanApplicationBuilder withLoanTypeId(MorabeheLoanTypeId loanTypeId) {
+        public LoanApplicationBuilder withLoanTypeId(LoanTypeId loanTypeId) {
             this.loanTypeId = loanTypeId;
             return this;
         }
 
-        public LoanApplicationBuilder withLoanRuleId(MorabeheLoanRuleId loanRuleId) {
+        public LoanApplicationBuilder withLoanRuleId(LoanRuleId loanRuleId) {
             this.loanRuleId = loanRuleId;
             return this;
         }
@@ -112,13 +112,13 @@ public class LoanApplication extends BaseLoanApplication {
 
     @SuppressWarnings("unchecked")
     @Override
-    public MorabeheLoanTypeId getLoanTypeId() {
+    public LoanTypeId getLoanTypeId() {
         return loanTypeId;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public MorabeheLoanRuleId getLoanRuleId() {
+    public LoanRuleId getLoanRuleId() {
         return loanRuleId;
     }
 

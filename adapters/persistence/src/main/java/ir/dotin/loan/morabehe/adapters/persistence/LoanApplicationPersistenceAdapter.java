@@ -2,12 +2,16 @@ package ir.dotin.loan.morabehe.adapters.persistence;
 
 
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.ApplicationNumber;
+import ir.dotin.loan.morabehe.adapters.persistence.document.MorabeheLoanApplicationDocument;
 import ir.dotin.loan.morabehe.adapters.persistence.mapper.MorabeheLoanApplicationDocumentMapper;
 import ir.dotin.loan.morabehe.adapters.persistence.repository.MorabeheLoanApplicationRepository;
 import ir.dotin.loan.morabehe.core.application.ports.secondary.MorabeheLoanApplicationPersistencePort;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.MorabeheLoanApplication;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.valueobject.MorabeheLoanApplicationId;
 import java.util.Optional;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,11 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class LoanApplicationPersistenceAdapter implements MorabeheLoanApplicationPersistencePort {
 
+    private final MongoTemplate mongoTemplate;
     private final MorabeheLoanApplicationRepository repository;
     private final MorabeheLoanApplicationDocumentMapper mapper;
 
-    public LoanApplicationPersistenceAdapter(MorabeheLoanApplicationRepository repository,
+    public LoanApplicationPersistenceAdapter(MongoTemplate mongoTemplate,
+                                             MorabeheLoanApplicationRepository repository,
                                              MorabeheLoanApplicationDocumentMapper mapper) {
+        this.mongoTemplate = mongoTemplate;
         this.repository = repository;
         this.mapper = mapper;
     }
@@ -33,12 +40,18 @@ public class LoanApplicationPersistenceAdapter implements MorabeheLoanApplicatio
 
     @Override
     public Optional<MorabeheLoanApplication> findById(MorabeheLoanApplicationId id) {
-        return repository.findById(id.value()).map(mapper::mapToAggregate);
+        Query query = new Query();
+        query.addCriteria(Criteria.where("loanApplication._id").is(id.value().toString()));
+        return Optional.ofNullable(mongoTemplate.findOne(query, MorabeheLoanApplicationDocument.class))
+                .map(mapper::mapToAggregate);
     }
 
     @Override
     public boolean existsByApplicationNumber(ApplicationNumber applicationNumber) {
-        return repository.existsByLoanApplicationDocument_NumberIgnoreCase(
-                applicationNumber.value());
+        Query query = new Query();
+        query.addCriteria(Criteria.where("loanApplication.number").is(applicationNumber.value()));
+        long count = mongoTemplate.count(query, MorabeheLoanApplicationDocument.class);
+        return count > 0;
     }
+
 }

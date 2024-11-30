@@ -2,8 +2,8 @@ package ir.dotin.loan.morabehe.core.domain.config.entity.loantype;
 
 import ir.dotin.loan.baseloan.domain.config.entity.loantype.BaseLoanType;
 import ir.dotin.loan.baseloan.domain.config.exception.LoanTypeValidationException;
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
 import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
-import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
 import ir.dotin.platform.ddd.common.exception.ValidationError;
 import ir.dotin.platform.ddd.common.util.Validator;
 import java.util.List;
@@ -15,7 +15,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 public final class LoanType extends BaseLoanType {
 
     private Boolean hasIssueMerchandiseDocument;
-    private Set<MorabeheLoanRuleId> loanRuleIds;
+    private Set<LoanRuleId> loanRuleIds;
 
     LoanType(LoanTypeBuilder builder) {
         super(builder);
@@ -64,7 +64,7 @@ public final class LoanType extends BaseLoanType {
     public static class LoanTypeBuilder extends BaseLoanTypeBuilder<LoanTypeBuilder> {
 
         private Boolean hasIssueMerchandiseDocument;
-        private Set<MorabeheLoanRuleId> loanRuleIds;
+        private Set<LoanRuleId> loanRuleIds;
 
         public LoanTypeBuilder() {
         }
@@ -80,7 +80,7 @@ public final class LoanType extends BaseLoanType {
             return this;
         }
 
-        public LoanTypeBuilder withLoanRuleIds(Set<MorabeheLoanRuleId> loanRuleIds) {
+        public LoanTypeBuilder withLoanRuleIds(Set<LoanRuleId> loanRuleIds) {
             this.loanRuleIds = loanRuleIds;
             return this;
         }
@@ -110,7 +110,7 @@ public final class LoanType extends BaseLoanType {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Set<MorabeheLoanRuleId> getLoanRuleIds() {
+    public Set<LoanRuleId> getLoanRuleIds() {
         return loanRuleIds;
     }
 

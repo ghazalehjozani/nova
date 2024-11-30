@@ -13,7 +13,7 @@ public class MorabeheLoanRuleDocument extends AuditableDocument {
     public MorabeheLoanRuleDocument() {
     }
 
-    public MorabeheLoanRuleDocument(UUID id, BaseLoanRuleDocument loanRule) {
+    public MorabeheLoanRuleDocument(String id, BaseLoanRuleDocument loanRule) {
         super(id);
         this.loanRule = loanRule;
     }

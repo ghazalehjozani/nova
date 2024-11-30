@@ -1,11 +1,11 @@
 package ir.dotin.loan.morabehe.core.application.service.usecase.impl;
 
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
 import ir.dotin.loan.morabehe.core.application.ports.secondary.MorabeheLoanRulePersistencePort;
 import ir.dotin.loan.morabehe.core.application.ports.secondary.MorabeheLoanTypePersistencePort;
 import ir.dotin.loan.morabehe.core.application.service.usecase.CreateLoanTypeUseCase;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
 import ir.dotin.loan.morabehe.core.domain.config.exception.MorabeheLoanTypeValidationException;
-import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,13 +29,11 @@ public class CreateLoanTypeUseCaseImpl implements CreateLoanTypeUseCase {
         if (existsByCode) {
             throw new MorabeheLoanTypeValidationException("Duplicate loan type code", "code");
         }
-        for (MorabeheLoanRuleId morabeheLoanRuleId : morabeheLoanType.getLoanType()
-                .getLoanRuleIds()) {
-            boolean exists = morabeheLoanRulePersistencePort
-                    .existsByIdAndEnable(morabeheLoanRuleId);
+        for (LoanRuleId loanRuleId : morabeheLoanType.getLoanType().getLoanRuleIds()) {
+            boolean exists = morabeheLoanRulePersistencePort.existsByIdAndEnable(loanRuleId);
             if (!exists) {
                 throw new MorabeheLoanTypeValidationException("loan rule not exist with Id:", "id",
-                                                              morabeheLoanRuleId);
+                                                              loanRuleId);
             }
         }
         morabeheLoanType.createLoanType();

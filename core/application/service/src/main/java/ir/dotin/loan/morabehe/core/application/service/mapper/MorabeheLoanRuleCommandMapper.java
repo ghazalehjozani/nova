@@ -32,7 +32,7 @@ public class MorabeheLoanRuleCommandMapper extends BaseLoanRuleCommandMapper<Loa
     }
 
     public LoanRuleResponse mapToResponse(MorabeheLoanRule loanRule) {
-        return new LoanRuleResponse(loanRule.getId().value());
+        return new LoanRuleResponse(loanRule.getLoanRule().getId().value());
     }
 
 }

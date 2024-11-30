@@ -1,11 +1,13 @@
 package ir.dotin.loan.morabehe.adapters.persistence.mapper;
 
 import ir.dotin.loan.baseloan.adapters.persistence.mapper.BaseLoanTypeDocumentMapper;
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
 import ir.dotin.loan.morabehe.adapters.persistence.document.MorabeheLoanTypeDocument;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.LoanType;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanTypeId;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
@@ -20,12 +22,13 @@ public class MorabeheLoanTypeDocumentMapper extends
         }
 
         MorabeheLoanTypeDocument morabeheLoanTypeDocument = new MorabeheLoanTypeDocument();
-        morabeheLoanTypeDocument.setId(loanType.getId().value());
+        morabeheLoanTypeDocument.setId(loanType.getId().value().toString());
         morabeheLoanTypeDocument.setHasIssueMerchandiseDocument(loanType.getLoanType()
                                                                         .getHasIssueMerchandiseDocument());
         morabeheLoanTypeDocument.setLoanRuleIds(loanType.getLoanType().getLoanRuleIds()
                                                         .stream()
-                                                        .map(MorabeheLoanRuleId::value)
+                                                        .map(morabeheLoanRuleId -> morabeheLoanRuleId.value()
+                                                                .toString())
                                                         .collect(Collectors.toSet()));
         var baseLoanTypeDocument = super.mapToDocument(loanType.getLoanType());
         morabeheLoanTypeDocument.setLoanType(baseLoanTypeDocument);
@@ -38,11 +41,11 @@ public class MorabeheLoanTypeDocumentMapper extends
         }
 
         var loanTypeBuilder = new LoanType.LoanTypeBuilder();
-        var morabeheLoanTypeId = new MorabeheLoanTypeId(loanTypeDocument.getId());
+        var morabeheLoanTypeId = new MorabeheLoanTypeId(UUID.fromString(loanTypeDocument.getId()));
         loanTypeBuilder.withLoanRuleIds(
                 loanTypeDocument.getLoanRuleIds()
                         .stream()
-                        .map(MorabeheLoanRuleId::new)
+                        .map(value -> new LoanRuleId(UUID.fromString(value)))
                         .collect(Collectors.toSet()));
         loanTypeBuilder.withHasIssueMerchandiseDocument(
                 loanTypeDocument.getHasIssueMerchandiseDocument());

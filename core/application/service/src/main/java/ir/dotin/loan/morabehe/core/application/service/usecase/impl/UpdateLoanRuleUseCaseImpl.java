@@ -1,5 +1,6 @@
 package ir.dotin.loan.morabehe.core.application.service.usecase.impl;
 
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
 import ir.dotin.loan.morabehe.core.application.ports.secondary.MorabeheLoanRulePersistencePort;
 import ir.dotin.loan.morabehe.core.application.service.usecase.UpdateLoanRuleUseCase;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
@@ -25,7 +26,7 @@ public class UpdateLoanRuleUseCaseImpl implements UpdateLoanRuleUseCase {
 
     @Override
     public MorabeheLoanRule update(UUID loanRuleId, MorabeheLoanRule newMorabeheLoanRule) {
-        MorabeheLoanRuleId morabeheLoanRuleId = new MorabeheLoanRuleId(loanRuleId);
+        LoanRuleId morabeheLoanRuleId = new LoanRuleId(loanRuleId);
         MorabeheLoanRule oldMorabeheLoanRule = persistencePort
                 .findById(morabeheLoanRuleId)
                 .orElseThrow(() -> new IllegalArgumentException("MorabeheLoanRule not found"));
