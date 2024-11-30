@@ -46,7 +46,7 @@ public class LoanRulePersistenceAdapter implements MorabeheLoanRulePersistencePo
         query.fields().include("version").include("createDate").include("updateDate");
         MorabeheLoanRuleDocument document = mongoTemplate
                 .findOne(query, MorabeheLoanRuleDocument.class);
-        MorabeheLoanRuleDocument loanRuleDocument = mapper.update(loanRule, document);
+        MorabeheLoanRuleDocument loanRuleDocument = mapper.updateDocument(loanRule, document);
         repository.save(loanRuleDocument);
     }
 
