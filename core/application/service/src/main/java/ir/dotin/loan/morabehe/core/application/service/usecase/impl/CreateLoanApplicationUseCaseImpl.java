@@ -36,9 +36,8 @@ public class CreateLoanApplicationUseCaseImpl implements CreateLoanApplicationUs
                         loanApplication.getLoanApplication().getLoanRuleId())
                 .orElseThrow(() -> new RuntimeException("Loan Rule not found"));
 
-        MorabeheLoanType loanType = morabeheLoanTypePersistencePort.findByIdAndLoanRuleId(
-                        loanApplication.getLoanApplication().getLoanTypeId(),
-                        loanApplication.getLoanApplication().getLoanRuleId())
+        MorabeheLoanType loanType = morabeheLoanTypePersistencePort.findById(
+                        loanApplication.getLoanApplication().getLoanTypeId())
                 .orElseThrow(() -> new RuntimeException("Loan Type not found"));
 
         createLoanApplicationService.create(loanApplication, loanRule, loanType);
