@@ -1,6 +1,6 @@
 package ir.dotin.loan.morabehe.core.application.service.mapper;
 
-import ir.dotin.loan.baseloan.application.service.config.mapper.BaseLoanRuleCommandMapper;
+import ir.dotin.loan.baseloan.application.service.mapper.config.BaseLoanRuleCommandMapper;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanRuleCommand;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheUpdateLoanRuleCommand;
 import ir.dotin.loan.morabehe.core.application.service.response.LoanRuleResponse;
@@ -18,7 +18,7 @@ public class MorabeheLoanRuleCommandMapper extends BaseLoanRuleCommandMapper<Loa
     public MorabeheLoanRule mapToAggregateRoot(MorabeheCreateLoanRuleCommand command) {
         LoanRuleBuilder loanRuleBuilder = new LoanRuleBuilder(
                 new FeatureConfig(Map.of("Key1", false)));
-        super.mapCommonFields(command.loanRule(), loanRuleBuilder);
+        super.mapFromCommand(command.loanRule(), loanRuleBuilder);
         return new MorabeheLoanRule(null, loanRuleBuilder.validateAndBuild());
     }
 
@@ -26,7 +26,7 @@ public class MorabeheLoanRuleCommandMapper extends BaseLoanRuleCommandMapper<Loa
     public MorabeheLoanRule mapToAggregateRoot(MorabeheUpdateLoanRuleCommand command) {
         LoanRuleBuilder loanRuleBuilder = new LoanRuleBuilder(
                 new FeatureConfig(Map.of("Key1", false)));
-        super.mapCommonFields(command.loanRule(), loanRuleBuilder);
+        super.mapFromCommand(command.loanRule(), loanRuleBuilder);
         return new MorabeheLoanRule(new MorabeheLoanRuleId(command.loanRuleId()), loanRuleBuilder.validateAndBuild());
     }
 
