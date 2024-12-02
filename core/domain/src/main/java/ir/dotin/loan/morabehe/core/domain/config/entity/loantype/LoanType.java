@@ -2,10 +2,12 @@ package ir.dotin.loan.morabehe.core.domain.config.entity.loantype;
 
 import ir.dotin.loan.baseloan.domain.config.entity.loantype.BaseLoanType;
 import ir.dotin.loan.baseloan.domain.config.exception.LoanTypeValidationException;
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
 import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
 import ir.dotin.platform.ddd.common.exception.ValidationError;
 import ir.dotin.platform.ddd.common.util.Validator;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -13,10 +15,12 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 public final class LoanType extends BaseLoanType {
 
     private Boolean hasIssueMerchandiseDocument;
+    private Set<LoanRuleId> loanRuleIds;
 
     LoanType(LoanTypeBuilder builder) {
         super(builder);
         this.hasIssueMerchandiseDocument = builder.hasIssueMerchandiseDocument;
+        this.loanRuleIds = builder.loanRuleIds;
     }
 
     @Override
@@ -60,17 +64,24 @@ public final class LoanType extends BaseLoanType {
     public static class LoanTypeBuilder extends BaseLoanTypeBuilder<LoanTypeBuilder> {
 
         private Boolean hasIssueMerchandiseDocument;
+        private Set<LoanRuleId> loanRuleIds;
 
         public LoanTypeBuilder() {
         }
 
         public LoanTypeBuilder(LoanType other) {
             this.hasIssueMerchandiseDocument = other.hasIssueMerchandiseDocument;
+            this.loanRuleIds = other.loanRuleIds;
         }
 
         public LoanTypeBuilder withHasIssueMerchandiseDocument(
                 Boolean hasIssueMerchandiseDocument) {
             this.hasIssueMerchandiseDocument = hasIssueMerchandiseDocument;
+            return this;
+        }
+
+        public LoanTypeBuilder withLoanRuleIds(Set<LoanRuleId> loanRuleIds) {
+            this.loanRuleIds = loanRuleIds;
             return this;
         }
 
@@ -89,11 +100,18 @@ public final class LoanType extends BaseLoanType {
             List<ValidationError> errors = super.validateBaseInvariants();
             Validator.validate(
                     v -> v.checkNotNull(hasIssueMerchandiseDocument, "hasIssueMerchandiseDocument")
+                            .checkNotEmpty(loanRuleIds, "loanRuleIds")
                             .appendErrors(errors),
                     LoanTypeValidationException::new
             );
         }
 
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Set<LoanRuleId> getLoanRuleIds() {
+        return loanRuleIds;
     }
 
     public Boolean getHasIssueMerchandiseDocument() {

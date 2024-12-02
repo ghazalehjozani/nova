@@ -11,6 +11,11 @@ public class MorabeheLoanApplicationDocument extends AuditableDocument {
     @Field("loan_application")
     private BaseLoanApplicationDocument loanApplication;
 
+    @Field("loan_type_id")
+    private String loanTypeId;
+
+    @Field("loan_rule_id")
+    private String loanRuleId;
 
     public MorabeheLoanApplicationDocument() {
     }
@@ -27,6 +32,22 @@ public class MorabeheLoanApplicationDocument extends AuditableDocument {
 
     public void setLoanApplication(BaseLoanApplicationDocument loanApplication) {
         this.loanApplication = loanApplication;
+    }
+
+    public String getLoanTypeId() {
+        return loanTypeId;
+    }
+
+    public void setLoanTypeId(String loanTypeId) {
+        this.loanTypeId = loanTypeId;
+    }
+
+    public String getLoanRuleId() {
+        return loanRuleId;
+    }
+
+    public void setLoanRuleId(String loanRuleId) {
+        this.loanRuleId = loanRuleId;
     }
 
 }

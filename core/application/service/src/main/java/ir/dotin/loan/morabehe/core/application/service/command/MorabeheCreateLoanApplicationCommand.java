@@ -4,6 +4,8 @@ import ir.dotin.loan.baseloan.application.service.command.loanapplication.BaseCr
 import java.io.Serializable;
 
 public record MorabeheCreateLoanApplicationCommand(
+        String loanTypeId,
+        String loanRuleId,
         BaseCreateLoanApplicationCommand loanApplication) implements Serializable {
 
 }
