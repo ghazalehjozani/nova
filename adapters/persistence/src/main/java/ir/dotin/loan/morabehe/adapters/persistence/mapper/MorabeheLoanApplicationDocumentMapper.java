@@ -1,9 +1,9 @@
 package ir.dotin.loan.morabehe.adapters.persistence.mapper;
 
 import ir.dotin.loan.baseloan.adapters.persistence.mapper.BaseLoanApplicationDocumentMapper;
-import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
-import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
 import ir.dotin.loan.morabehe.adapters.persistence.document.MorabeheLoanApplicationDocument;
+import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
+import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanTypeId;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.LoanApplication;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.LoanApplication.LoanApplicationBuilder;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.MorabeheLoanApplication;
@@ -24,8 +24,8 @@ public class MorabeheLoanApplicationDocumentMapper extends
         }
         var builder = new LoanApplicationBuilder(new FeatureConfig(Map.of("feat1", false)));
         var morabeheLoanApplicationId = new MorabeheLoanApplicationId(UUID.fromString(loanApplicationDocument.getId()));
-        builder.withLoanRuleId(new LoanRuleId(UUID.fromString(loanApplicationDocument.getLoanRuleId())));
-        builder.withLoanTypeId(new LoanTypeId(UUID.fromString(loanApplicationDocument.getLoanTypeId())));
+        builder.withLoanRuleId(new MorabeheLoanRuleId(UUID.fromString(loanApplicationDocument.getLoanRuleId())));
+        builder.withLoanTypeId(new MorabeheLoanTypeId(UUID.fromString(loanApplicationDocument.getLoanTypeId())));
         super.mapFromDocument(loanApplicationDocument.getLoanApplication(), builder);
         return new MorabeheLoanApplication(morabeheLoanApplicationId, builder.validateAndBuild());
     }

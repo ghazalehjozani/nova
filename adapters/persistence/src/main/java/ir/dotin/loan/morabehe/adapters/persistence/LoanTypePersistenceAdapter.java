@@ -1,14 +1,14 @@
 package ir.dotin.loan.morabehe.adapters.persistence;
 
 
-import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
-import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.LoanTypeCode;
 import ir.dotin.loan.morabehe.adapters.persistence.document.MorabeheLoanTypeDocument;
 import ir.dotin.loan.morabehe.adapters.persistence.mapper.MorabeheLoanTypeDocumentMapper;
 import ir.dotin.loan.morabehe.adapters.persistence.repository.MorabeheLoanTypeRepository;
 import ir.dotin.loan.morabehe.core.application.ports.secondary.MorabeheLoanTypePersistencePort;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
+import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
+import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanTypeId;
 import java.util.Optional;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -40,9 +40,9 @@ public class LoanTypePersistenceAdapter implements MorabeheLoanTypePersistencePo
     }
 
     @Override
-    public Optional<MorabeheLoanType> findById(LoanTypeId id) {
+    public Optional<MorabeheLoanType> findById(MorabeheLoanTypeId id) {
         Query query = new Query();
-        query.addCriteria(Criteria.where("loanType._id").is(id.value().toString())
+        query.addCriteria(Criteria.where("_id").is(id.value().toString())
                                   .and("loanType.disable").is(false));
         MorabeheLoanTypeDocument result = mongoTemplate.findOne(query,
                                                                 MorabeheLoanTypeDocument.class);
@@ -50,9 +50,10 @@ public class LoanTypePersistenceAdapter implements MorabeheLoanTypePersistencePo
     }
 
     @Override
-    public Optional<MorabeheLoanType> findByIdAndLoanRuleId(LoanTypeId id, LoanRuleId loanRuleId) {
+    public Optional<MorabeheLoanType> findByIdAndLoanRuleId(MorabeheLoanTypeId id,
+                                                            MorabeheLoanRuleId loanRuleId) {
         Query query = new Query();
-        query.addCriteria(Criteria.where("loanType._id").is(id.value().toString())
+        query.addCriteria(Criteria.where("_id").is(id.value().toString())
                                   .and("loanRuleIds").in(loanRuleId.value().toString())
                                   .and("loanType.disable").is(false));
         MorabeheLoanTypeDocument result = mongoTemplate.findOne(query,
