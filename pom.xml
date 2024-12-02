@@ -69,6 +69,12 @@
         <version>${project.version}</version>
         <scope>compile</scope>
       </dependency>
+      <dependency>
+        <groupId>ir.dotin.loan</groupId>
+        <artifactId>morabehe-loan-adapter-client</artifactId>
+        <version>${project.version}</version>
+        <scope>compile</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
