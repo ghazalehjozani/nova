@@ -1,16 +1,17 @@
 package ir.dotin.loan.morabehe.adapters.persistence.mapper;
 
 import ir.dotin.loan.baseloan.adapters.persistence.mapper.BaseLoanApplicationDocumentMapper;
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
 import ir.dotin.loan.morabehe.adapters.persistence.document.MorabeheLoanApplicationDocument;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.LoanApplication;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.LoanApplication.LoanApplicationBuilder;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.MorabeheLoanApplication;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.valueobject.MorabeheLoanApplicationId;
 import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
-import org.springframework.stereotype.Component;
-
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.stereotype.Component;
 
 @Component
 public class MorabeheLoanApplicationDocumentMapper extends
@@ -23,8 +24,8 @@ public class MorabeheLoanApplicationDocumentMapper extends
         }
         var builder = new LoanApplicationBuilder(new FeatureConfig(Map.of("feat1", false)));
         var morabeheLoanApplicationId = new MorabeheLoanApplicationId(UUID.fromString(loanApplicationDocument.getId()));
-        builder.withPrePaymentAmount(loanApplicationDocument.getPrePaymentAmount());
-        builder.withPrePaymentDepositNumber(loanApplicationDocument.getPrePaymentDepositNumber());
+        builder.withLoanRuleId(new LoanRuleId(UUID.fromString(loanApplicationDocument.getLoanRuleId())));
+        builder.withLoanTypeId(new LoanTypeId(UUID.fromString(loanApplicationDocument.getLoanTypeId())));
         super.mapFromDocument(loanApplicationDocument.getLoanApplication(), builder);
         return new MorabeheLoanApplication(morabeheLoanApplicationId, builder.validateAndBuild());
     }
@@ -35,8 +36,8 @@ public class MorabeheLoanApplicationDocumentMapper extends
             return null;
         }
         document.setId(loanApplication.getId().value().toString());
-        document.setPrePaymentAmount(loanApplication.getLoanApplication().getPrePaymentAmount());
-        document.setPrePaymentDepositNumber(loanApplication.getLoanApplication().getPrePaymentDepositNumber());
+        document.setLoanRuleId(loanApplication.getLoanApplication().getLoanRuleId().value().toString());
+        document.setLoanTypeId(loanApplication.getLoanApplication().getLoanTypeId().value().toString());
         var baseLoanApplicationDocument = super.mapToDocument(loanApplication.getLoanApplication());
         document.setLoanApplication(baseLoanApplicationDocument);
         return document;

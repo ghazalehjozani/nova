@@ -1,32 +1,28 @@
 package ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application;
 
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
 import ir.dotin.loan.baseloan.domain.loanapplication.entity.application.BaseLoanApplication;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.ApplicationNumber;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.CollateralSerial;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.SanctionSerial;
-import ir.dotin.loan.baseloan.domain.shared.exception.BaseErrorMessages;
-import ir.dotin.loan.baseloan.domain.shared.valueobject.Money;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.exception.MorabeheLoanApplicationValidationException;
-import ir.dotin.platform.ddd.common.exception.ValidationError;
 import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
 import ir.dotin.platform.ddd.common.util.Validator;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @SuppressWarnings("FieldMayBeFinal")
 public class LoanApplication extends BaseLoanApplication {
 
-    private Money prePaymentAmount;
-    private String prePaymentDepositNumber;
+    private LoanTypeId loanTypeId;
+    private LoanRuleId loanRuleId;
 
 
     LoanApplication(LoanApplicationBuilder builder) {
         super(builder);
-        this.prePaymentAmount = builder.prePaymentAmount;
-        this.prePaymentDepositNumber = builder.prePaymentDepositNumber;
+        this.loanTypeId = builder.loanTypeId;
+        this.loanRuleId = builder.loanRuleId;
     }
 
 
@@ -69,28 +65,27 @@ public class LoanApplication extends BaseLoanApplication {
     public static final class LoanApplicationBuilder extends
             BaseLoanApplicationBuilder<LoanApplicationBuilder> {
 
-        private Money prePaymentAmount;
-        private String prePaymentDepositNumber;
-
-        public LoanApplicationBuilder withPrePaymentAmount(Money prePaymentAmount) {
-            this.prePaymentAmount = prePaymentAmount;
-            return this;
-        }
-
-        public LoanApplicationBuilder withPrePaymentDepositNumber(String prePaymentDepositNumber) {
-            this.prePaymentDepositNumber = prePaymentDepositNumber;
-            return this;
-        }
+        private LoanTypeId loanTypeId;
+        private LoanRuleId loanRuleId;
 
         public LoanApplicationBuilder(FeatureConfig featureConfig) {
             super(featureConfig);
         }
 
-        public LoanApplicationBuilder(FeatureConfig featureConfig, LoanApplication other,
-                                      Money prePaymentAmount, String prePaymentDepositNumber) {
+        public LoanApplicationBuilder(FeatureConfig featureConfig, LoanApplication other) {
             super(featureConfig, other);
-            this.prePaymentAmount = prePaymentAmount;
-            this.prePaymentDepositNumber = prePaymentDepositNumber;
+            this.loanRuleId = other.loanRuleId;
+            this.loanTypeId = other.loanTypeId;
+        }
+
+        public LoanApplicationBuilder withLoanTypeId(LoanTypeId loanTypeId) {
+            this.loanTypeId = loanTypeId;
+            return this;
+        }
+
+        public LoanApplicationBuilder withLoanRuleId(LoanRuleId loanRuleId) {
+            this.loanRuleId = loanRuleId;
+            return this;
         }
 
         @Override
@@ -105,29 +100,26 @@ public class LoanApplication extends BaseLoanApplication {
         }
 
         private void validateInvariants() {
-            Validator.validate(v -> v.appendErrors(validateBaseInvariants())
-                            .appendErrors(validateMorabeheInvariants()),
+            Validator.validate(
+                    v -> v.checkNotNull(loanTypeId, "loanTypeId")
+                            .checkNotNull(loanRuleId, "loanRuleId")
+                            .appendErrors(validateBaseInvariants()),
                     MorabeheLoanApplicationValidationException::new
             );
         }
 
-        private List<ValidationError> validateMorabeheInvariants() {
-            List<ValidationError> errors = new ArrayList<>();
-            if (prePaymentAmount != null && prePaymentAmount.isGreaterThan(Money.zero())
-                    && prePaymentDepositNumber == null) {
-                errors.add(new ValidationError(BaseErrorMessages.ValidationErrors.NOT_NULL,
-                        "prePaymentDepositNumber"));
-            }
-            return errors;
-        }
     }
 
-    public Money getPrePaymentAmount() {
-        return prePaymentAmount;
+    @SuppressWarnings("unchecked")
+    @Override
+    public LoanTypeId getLoanTypeId() {
+        return loanTypeId;
     }
 
-    public String getPrePaymentDepositNumber() {
-        return prePaymentDepositNumber;
+    @SuppressWarnings("unchecked")
+    @Override
+    public LoanRuleId getLoanRuleId() {
+        return loanRuleId;
     }
 
     @Override

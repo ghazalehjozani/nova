@@ -2,7 +2,6 @@ package ir.dotin.loan.morabehe.adapters.persistence.document;
 
 import ir.dotin.loan.baseloan.adapters.persistence.document.AuditableDocument;
 import ir.dotin.loan.baseloan.adapters.persistence.document.loanaplication.BaseLoanApplicationDocument;
-import ir.dotin.loan.baseloan.domain.shared.valueobject.Money;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -12,12 +11,11 @@ public class MorabeheLoanApplicationDocument extends AuditableDocument {
     @Field("loan_application")
     private BaseLoanApplicationDocument loanApplication;
 
-    @Field("prepayment_amount")
-    private Money prePaymentAmount;
+    @Field("loan_type_id")
+    private String loanTypeId;
 
-    @Field("prepayment_deposit_number")
-    private String prePaymentDepositNumber;
-
+    @Field("loan_rule_id")
+    private String loanRuleId;
 
     public MorabeheLoanApplicationDocument() {
     }
@@ -36,19 +34,20 @@ public class MorabeheLoanApplicationDocument extends AuditableDocument {
         this.loanApplication = loanApplication;
     }
 
-    public Money getPrePaymentAmount() {
-        return prePaymentAmount;
+    public String getLoanTypeId() {
+        return loanTypeId;
     }
 
-    public void setPrePaymentAmount(Money prePaymentAmount) {
-        this.prePaymentAmount = prePaymentAmount;
+    public void setLoanTypeId(String loanTypeId) {
+        this.loanTypeId = loanTypeId;
     }
 
-    public String getPrePaymentDepositNumber() {
-        return prePaymentDepositNumber;
+    public String getLoanRuleId() {
+        return loanRuleId;
     }
 
-    public void setPrePaymentDepositNumber(String prePaymentDepositNumber) {
-        this.prePaymentDepositNumber = prePaymentDepositNumber;
+    public void setLoanRuleId(String loanRuleId) {
+        this.loanRuleId = loanRuleId;
     }
+
 }

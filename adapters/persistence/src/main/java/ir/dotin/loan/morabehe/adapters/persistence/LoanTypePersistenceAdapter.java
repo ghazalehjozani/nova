@@ -53,7 +53,7 @@ public class LoanTypePersistenceAdapter implements MorabeheLoanTypePersistencePo
     public Optional<MorabeheLoanType> findByIdAndLoanRuleId(LoanTypeId id, LoanRuleId loanRuleId) {
         Query query = new Query();
         query.addCriteria(Criteria.where("loanType._id").is(id.value().toString())
-                                  .and("loanType.loanRuleIds").in(loanRuleId.value().toString())
+                                  .and("loanRuleIds").in(loanRuleId.value().toString())
                                   .and("loanType.disable").is(false));
         MorabeheLoanTypeDocument result = mongoTemplate.findOne(query,
                                                                 MorabeheLoanTypeDocument.class);

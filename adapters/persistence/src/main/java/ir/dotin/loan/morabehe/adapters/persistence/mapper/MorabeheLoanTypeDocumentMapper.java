@@ -1,6 +1,7 @@
 package ir.dotin.loan.morabehe.adapters.persistence.mapper;
 
 import ir.dotin.loan.baseloan.adapters.persistence.mapper.BaseLoanTypeDocumentMapper;
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
 import ir.dotin.loan.morabehe.adapters.persistence.document.MorabeheLoanTypeDocument;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.LoanType;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
@@ -18,25 +19,29 @@ public class MorabeheLoanTypeDocumentMapper extends
             return null;
         }
 
-        MorabeheLoanTypeDocument morabeheLoanTypeDocument = new MorabeheLoanTypeDocument();
-        morabeheLoanTypeDocument.setId(loanType.getId().value().toString());
-        morabeheLoanTypeDocument.setHasIssueMerchandiseDocument(loanType.getLoanType()
-                                                                        .getHasIssueMerchandiseDocument());
+        MorabeheLoanTypeDocument document = new MorabeheLoanTypeDocument();
+        document.setId(loanType.getId().value().toString());
+        document.setHasIssueMerchandiseDocument(loanType.getLoanType()
+                                                        .getHasIssueMerchandiseDocument());
+        document.setLoanRuleIds(mapSet(loanType.getLoanType().getLoanRuleIds(),
+                                       id -> id.value().toString()));
         var baseLoanTypeDocument = super.mapToDocument(loanType.getLoanType());
-        morabeheLoanTypeDocument.setLoanType(baseLoanTypeDocument);
-        return morabeheLoanTypeDocument;
+        document.setLoanType(baseLoanTypeDocument);
+        return document;
     }
 
-    public MorabeheLoanType mapToAggregate(MorabeheLoanTypeDocument loanTypeDocument) {
-        if (loanTypeDocument == null) {
+    public MorabeheLoanType mapToAggregate(MorabeheLoanTypeDocument document) {
+        if (document == null) {
             return null;
         }
 
-        var loanTypeBuilder = new LoanType.LoanTypeBuilder();
-        var morabeheLoanTypeId = new MorabeheLoanTypeId(UUID.fromString(loanTypeDocument.getId()));
+        var morabeheLoanTypeId = new MorabeheLoanTypeId(UUID.fromString(document.getId()));
+        var loanTypeBuilder = new LoanType.LoanTypeBuilder()
+                .withLoanRuleIds(mapSet(document.getLoanRuleIds(),
+                                        id -> new LoanRuleId(UUID.fromString(id))));
         loanTypeBuilder.withHasIssueMerchandiseDocument(
-                loanTypeDocument.getHasIssueMerchandiseDocument());
-        super.mapFromDocument(loanTypeDocument.getLoanType(), loanTypeBuilder);
+                document.getHasIssueMerchandiseDocument());
+        super.mapFromDocument(document.getLoanType(), loanTypeBuilder);
         return new MorabeheLoanType(morabeheLoanTypeId, loanTypeBuilder);
     }
 }
