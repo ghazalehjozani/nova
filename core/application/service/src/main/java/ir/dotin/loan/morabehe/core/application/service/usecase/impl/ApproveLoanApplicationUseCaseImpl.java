@@ -9,7 +9,6 @@ import ir.dotin.loan.morabehe.core.application.service.usecase.ApproveLoanApplic
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.MorabeheLoanApplication;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.service.ApproveLoanApplicationService;
-import ir.dotin.loan.morabehe.core.domain.loanapplication.valueobject.MorabeheLoanApplicationId;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -32,17 +31,13 @@ public class ApproveLoanApplicationUseCaseImpl implements ApproveLoanApplication
     }
 
     @Override
-    public MorabeheLoanApplication approve(MorabeheLoanApplicationId loanApplicationId, SanctionSerial serial) {
-
-        MorabeheLoanApplication morabeheLoanApplication = morabeheLoanApplicationPersistencePort.findById(
-                        loanApplicationId)
-                .orElseThrow(() -> new RuntimeException("Loan Application not found"));
+    public MorabeheLoanApplication approve(MorabeheLoanApplication loanApplication, SanctionSerial serial) {
         MorabeheLoanRule morabeheLoanRule = morabeheLoanRulePersistencePort.findById(
-                        morabeheLoanApplication.getLoanApplication().getLoanRuleId())
+                        loanApplication.getLoanApplication().getLoanRuleId())
                 .orElseThrow(() -> new RuntimeException("Loan Rule not found"));
         Sanction morabeheSanction = morabeheSanctionClientPort.getBySerial(serial);
-        approveLoanApplicationService.approved(morabeheLoanApplication, morabeheLoanRule, morabeheSanction);
-        morabeheLoanApplicationPersistencePort.save(morabeheLoanApplication);
-        return morabeheLoanApplication;
+        approveLoanApplicationService.approved(loanApplication, morabeheLoanRule, morabeheSanction);
+        morabeheLoanApplicationPersistencePort.update(loanApplication);
+        return loanApplication;
     }
 }

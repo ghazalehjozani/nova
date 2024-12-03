@@ -18,7 +18,7 @@ public class MorabeheSanctionClientAdapter implements MorabeheSanctionClientPort
 
     @Override
     public Sanction getBySerial(SanctionSerial serial) {
-        return Sanction.valueOf(serial, Money.valueOf(100), Duration.ofDays(2), Duration.ofDays(60),
+        return Sanction.valueOf(serial, Money.valueOf(100), Duration.ofDays(8), Duration.ofDays(8),
                 Rate.of(20), Set.of(Collateral.valueOf(new CollateralType("658", "check"),
                         25, "check-1",
                         new CollateralSerial("56"))));

@@ -13,4 +13,6 @@ public interface MorabeheLoanApplicationPersistencePort {
     Optional<MorabeheLoanApplication> findById(MorabeheLoanApplicationId id);
 
     boolean existsByApplicationNumber(ApplicationNumber applicationNumber);
+
+    void update(MorabeheLoanApplication loanApplication);
 }
