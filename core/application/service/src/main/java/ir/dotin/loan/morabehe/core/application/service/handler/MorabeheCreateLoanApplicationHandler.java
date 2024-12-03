@@ -21,10 +21,10 @@ public class MorabeheCreateLoanApplicationHandler {
     }
 
     public LoanApplicationResponse handle(MorabeheCreateLoanApplicationCommand command) {
-        MorabeheLoanApplication morabeheLoanRule = loanApplicationCommandMapper
+        MorabeheLoanApplication morabeheLoanApplication = loanApplicationCommandMapper
                 .mapToAggregateRoot(command);
-        MorabeheLoanApplication savedLoanRule = createLoanApplicationUseCase.create(morabeheLoanRule);
-        return loanApplicationCommandMapper.mapToResponse(savedLoanRule);
+        MorabeheLoanApplication savedLoanApplication = createLoanApplicationUseCase.create(morabeheLoanApplication);
+        return loanApplicationCommandMapper.mapToResponse(savedLoanApplication);
     }
 
 }

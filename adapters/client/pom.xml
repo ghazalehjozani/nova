@@ -1,18 +1,35 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                              https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>ir.dotin.loan</groupId>
-    <artifactId>morabehe-loan-adapters</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
+    <parent>
+        <groupId>ir.dotin.loan</groupId>
+        <artifactId>morabehe-loan-adapters</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-  <artifactId>morabehe-loan-adapter-client</artifactId>
-  <name>Morabehe Loan :: Adapters Client</name>
-  <packaging>jar</packaging>
+    <artifactId>morabehe-loan-adapter-client</artifactId>
+    <name>Morabehe Loan :: Adapters Client</name>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>morabehe-loan-core-application-ports</artifactId>
+        </dependency>
+        <!-- TODO: Move to base loan client-->
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>base-loan-core-application-service</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
 </project>

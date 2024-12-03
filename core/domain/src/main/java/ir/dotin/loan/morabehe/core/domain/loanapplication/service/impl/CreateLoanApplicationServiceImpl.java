@@ -41,14 +41,12 @@ public class CreateLoanApplicationServiceImpl extends
     }
 
     @Override
-    protected BaseLoanApplication getBaseLoanApplication(
-            MorabeheLoanApplication loanApplicationRoot) {
+    protected BaseLoanApplication getBaseLoanApplication(MorabeheLoanApplication loanApplicationRoot) {
         return loanApplicationRoot.getLoanApplication();
     }
 
     @Override
-    protected void request(MorabeheLoanApplication loanTypeRoot,
-                           ApplicationNumber applicationNumber) {
+    protected void request(MorabeheLoanApplication loanTypeRoot, ApplicationNumber applicationNumber) {
         loanTypeRoot.request(applicationNumber);
     }
 

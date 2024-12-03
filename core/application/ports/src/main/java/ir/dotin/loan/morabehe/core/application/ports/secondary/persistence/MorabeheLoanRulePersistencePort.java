@@ -1,8 +1,9 @@
-package ir.dotin.loan.morabehe.core.application.ports.secondary;
+package ir.dotin.loan.morabehe.core.application.ports.secondary.persistence;
 
 import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleCode;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
+
 import java.util.Optional;
 
 public interface MorabeheLoanRulePersistencePort {

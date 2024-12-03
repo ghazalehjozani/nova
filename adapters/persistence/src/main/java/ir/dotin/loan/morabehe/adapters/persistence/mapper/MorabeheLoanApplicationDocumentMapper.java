@@ -9,9 +9,10 @@ import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.Loa
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.MorabeheLoanApplication;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.valueobject.MorabeheLoanApplicationId;
 import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
+import org.springframework.stereotype.Component;
+
 import java.util.Map;
 import java.util.UUID;
-import org.springframework.stereotype.Component;
 
 @Component
 public class MorabeheLoanApplicationDocumentMapper extends
@@ -46,6 +47,17 @@ public class MorabeheLoanApplicationDocumentMapper extends
 
     public MorabeheLoanApplicationDocument mapToDocument(MorabeheLoanApplication loanApplication) {
         return mapToDocument(loanApplication, new MorabeheLoanApplicationDocument());
+    }
+
+    public MorabeheLoanApplicationDocument updateDocument(MorabeheLoanApplication loanApplication,
+                                                   MorabeheLoanApplicationDocument loanApplicationDocument) {
+        if (loanApplication == null || loanApplicationDocument == null) {
+            return null;
+        }
+        loanApplicationDocument.setId(loanApplication.getId().value().toString());
+        var baseLoanApplicationDocument = super.mapToDocument(loanApplication.getLoanApplication());
+        loanApplicationDocument.setLoanApplication(baseLoanApplicationDocument);
+        return loanApplicationDocument;
     }
 
 

@@ -1,7 +1,7 @@
 package ir.dotin.loan.morabehe.core.application.service.usecase.impl;
 
-import ir.dotin.loan.morabehe.core.application.ports.secondary.MorabeheLoanRulePersistencePort;
-import ir.dotin.loan.morabehe.core.application.ports.secondary.MorabeheLoanTypePersistencePort;
+import ir.dotin.loan.morabehe.core.application.ports.secondary.persistence.MorabeheLoanRulePersistencePort;
+import ir.dotin.loan.morabehe.core.application.ports.secondary.persistence.MorabeheLoanTypePersistencePort;
 import ir.dotin.loan.morabehe.core.application.service.usecase.CreateLoanTypeUseCase;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
 import ir.dotin.loan.morabehe.core.domain.config.exception.MorabeheLoanTypeValidationException;

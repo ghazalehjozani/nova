@@ -24,6 +24,7 @@ public class ApproveLoanApplicationServiceImpl extends
         loanApplicationRoot.approve(sanction.serial());
     }
 
+
     @Override
     protected BaseLoanApplication getLoanApplication(MorabeheLoanApplication loanApplicationRoot) {
         return loanApplicationRoot.getLoanApplication();
@@ -33,5 +34,6 @@ public class ApproveLoanApplicationServiceImpl extends
     protected BaseLoanRule getLoanRule(MorabeheLoanRule loanApplicationRoot) {
         return loanApplicationRoot.getLoanRule();
     }
+
 
 }

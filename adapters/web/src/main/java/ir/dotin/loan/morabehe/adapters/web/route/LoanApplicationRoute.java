@@ -2,7 +2,9 @@ package ir.dotin.loan.morabehe.adapters.web.route;
 
 
 import ir.dotin.loan.morabehe.adapters.web.exception.GlobalExceptionHandler;
+import ir.dotin.loan.morabehe.core.application.service.command.MorabeheApproveLoanApplicationCommand;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanApplicationCommand;
+import ir.dotin.loan.morabehe.core.application.service.handler.MorabeheApproveLoanApplicationHandler;
 import ir.dotin.loan.morabehe.core.application.service.handler.MorabeheCreateLoanApplicationHandler;
 import ir.dotin.loan.morabehe.core.application.service.response.LoanApplicationResponse;
 import org.apache.camel.builder.RouteBuilder;
@@ -32,10 +34,18 @@ public class LoanApplicationRoute extends RouteBuilder {
                     .routeId("LoanApplication.create.post")
                     .type(MorabeheCreateLoanApplicationCommand.class)
                     .outType(LoanApplicationResponse.class)
-                    .to("direct:createMorabeheLoanApplication");
+                    .to("direct:createMorabeheLoanApplication")
+                .post("/approve")
+                .routeId("LoanApplication.approve.post")
+                .type(MorabeheApproveLoanApplicationCommand.class)
+                .outType(LoanApplicationResponse.class)
+                .to("direct:approveMorabeheLoanApplication");
 
         from("direct:createMorabeheLoanApplication")
                 .bean(MorabeheCreateLoanApplicationHandler.class, "handle");
+
+        from("direct:approveMorabeheLoanApplication")
+                .bean(MorabeheApproveLoanApplicationHandler.class, "handle");
         // @formatter:on
     }
 
