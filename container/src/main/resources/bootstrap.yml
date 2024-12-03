@@ -5,12 +5,14 @@ spring:
     active: dev
   cloud:
     consul:
-      host: 10.20.151.144
+      host: 10.100.7.20
       port: 8500
       config:
         enabled: true
         format: FILES
         fail-fast: true
+        profileSeparator: '::'
+        prefixes: config/${spring.application.name}
         watch:
           enabled: true
           delay: 1000
