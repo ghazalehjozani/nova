@@ -1,6 +1,6 @@
-package ir.dotin.loan.morabehe.core.application.service.mapper;
+package ir.dotin.loan.morabehe.core.application.service.aggregateassembler;
 
-import ir.dotin.loan.baseloan.application.service.mapper.config.BaseLoanTypeCommandMapper;
+import ir.dotin.loan.baseloan.application.service.aggregateassembler.config.BaseLoanTypeAssembler;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanTypeCommand;
 import ir.dotin.loan.morabehe.core.application.service.response.LoanTypeResponse;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.LoanType;
@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-public class MorabeheLoanTypeCommandMapper extends
-        BaseLoanTypeCommandMapper<LoanType.LoanTypeBuilder> {
+public class MorabeheLoanTypeAssembler extends
+        BaseLoanTypeAssembler<LoanType.LoanTypeBuilder> {
 
     public MorabeheLoanType mapToAggregateRoot(MorabeheCreateLoanTypeCommand command) {
         LoanType.LoanTypeBuilder loanTypeBuilder = new LoanType.LoanTypeBuilder()

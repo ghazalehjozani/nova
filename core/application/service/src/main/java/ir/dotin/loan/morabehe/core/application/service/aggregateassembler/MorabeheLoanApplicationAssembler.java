@@ -1,6 +1,6 @@
-package ir.dotin.loan.morabehe.core.application.service.mapper;
+package ir.dotin.loan.morabehe.core.application.service.aggregateassembler;
 
-import ir.dotin.loan.baseloan.application.service.mapper.loanapplication.BaseLoanApplicationCommandMapper;
+import ir.dotin.loan.baseloan.application.service.aggregateassembler.loanapplication.BaseLoanApplicationAssembler;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheApproveLoanApplicationCommand;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanApplicationCommand;
 import ir.dotin.loan.morabehe.core.application.service.response.LoanApplicationResponse;
@@ -16,8 +16,8 @@ import java.util.Map;
 import java.util.UUID;
 
 @Component
-public class MorabeheLoanApplicationCommandMapper extends
-        BaseLoanApplicationCommandMapper<LoanApplicationBuilder> {
+public class MorabeheLoanApplicationAssembler extends
+        BaseLoanApplicationAssembler<LoanApplicationBuilder> {
 
 
     public MorabeheLoanApplication mapToAggregateRoot(

@@ -1,6 +1,6 @@
-package ir.dotin.loan.morabehe.core.application.service.mapper;
+package ir.dotin.loan.morabehe.core.application.service.aggregateassembler;
 
-import ir.dotin.loan.baseloan.application.service.mapper.config.BaseLoanRuleCommandMapper;
+import ir.dotin.loan.baseloan.application.service.aggregateassembler.config.BaseLoanRuleAssembler;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanRuleCommand;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheUpdateLoanRuleCommand;
 import ir.dotin.loan.morabehe.core.application.service.response.LoanRuleResponse;
@@ -8,11 +8,12 @@ import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.LoanRule.LoanRu
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
 import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
-import java.util.Map;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Component
-public class MorabeheLoanRuleCommandMapper extends BaseLoanRuleCommandMapper<LoanRuleBuilder> {
+public class MorabeheLoanRuleAssembler extends BaseLoanRuleAssembler<LoanRuleBuilder> {
 
 
     public MorabeheLoanRule mapToAggregateRoot(MorabeheCreateLoanRuleCommand command) {

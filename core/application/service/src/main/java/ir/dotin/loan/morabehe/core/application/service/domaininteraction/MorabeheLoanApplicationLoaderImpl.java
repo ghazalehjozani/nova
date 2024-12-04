@@ -1,4 +1,4 @@
-package ir.dotin.loan.morabehe.core.application.service.loader;
+package ir.dotin.loan.morabehe.core.application.service.domaininteraction;
 
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.ApplicationNumber;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.intraction.loader.MorabeheLoanApplicationLoader;
