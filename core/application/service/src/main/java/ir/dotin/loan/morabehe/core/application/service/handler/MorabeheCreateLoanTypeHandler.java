@@ -1,7 +1,7 @@
 package ir.dotin.loan.morabehe.core.application.service.handler;
 
 
-import ir.dotin.loan.morabehe.core.application.service.aggregateassembler.MorabeheLoanTypeAssembler;
+import ir.dotin.loan.morabehe.core.application.service.assembler.MorabeheLoanTypeAssembler;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanTypeCommand;
 import ir.dotin.loan.morabehe.core.application.service.response.LoanTypeResponse;
 import ir.dotin.loan.morabehe.core.application.service.usecase.CreateLoanTypeUseCase;
