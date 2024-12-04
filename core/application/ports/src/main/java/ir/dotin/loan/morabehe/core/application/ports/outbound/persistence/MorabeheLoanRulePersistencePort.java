@@ -1,4 +1,4 @@
-package ir.dotin.loan.morabehe.core.application.ports.secondary.persistence;
+package ir.dotin.loan.morabehe.core.application.ports.outbound.persistence;
 
 import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleCode;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;

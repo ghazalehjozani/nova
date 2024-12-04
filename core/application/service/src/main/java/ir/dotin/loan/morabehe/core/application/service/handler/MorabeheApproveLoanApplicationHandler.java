@@ -1,6 +1,6 @@
 package ir.dotin.loan.morabehe.core.application.service.handler;
 
-import ir.dotin.loan.morabehe.core.application.ports.secondary.persistence.MorabeheLoanApplicationPersistencePort;
+import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanApplicationPersistencePort;
 import ir.dotin.loan.morabehe.core.application.service.aggregateassembler.MorabeheLoanApplicationAssembler;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheApproveLoanApplicationCommand;
 import ir.dotin.loan.morabehe.core.application.service.response.LoanApplicationResponse;

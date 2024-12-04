@@ -7,7 +7,7 @@ import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.Sanction;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.SanctionSerial;
 import ir.dotin.loan.baseloan.domain.shared.valueobject.Money;
 import ir.dotin.loan.baseloan.domain.shared.valueobject.Rate;
-import ir.dotin.loan.morabehe.core.application.ports.secondary.client.MorabeheSanctionClientPort;
+import ir.dotin.loan.morabehe.core.application.ports.outbound.client.MorabeheSanctionClientPort;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
