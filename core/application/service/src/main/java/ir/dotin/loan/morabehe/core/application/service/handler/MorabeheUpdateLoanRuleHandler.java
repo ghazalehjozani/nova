@@ -8,6 +8,7 @@ import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRul
 import org.springframework.stereotype.Component;
 
 @Component
+@Deprecated(forRemoval = true)
 public class MorabeheUpdateLoanRuleHandler {
 
     private final MorabeheLoanRuleAssembler morabeheLoanRuleCommandMapper;

@@ -20,7 +20,7 @@ public class ApproveLoanApplicationServiceImpl extends
     }
 
     @Override
-    protected void approve(MorabeheLoanApplication loanApplicationRoot, Sanction sanction) {
+    protected void approveApplication(MorabeheLoanApplication loanApplicationRoot, Sanction sanction) {
         loanApplicationRoot.approve(sanction.serial());
     }
 

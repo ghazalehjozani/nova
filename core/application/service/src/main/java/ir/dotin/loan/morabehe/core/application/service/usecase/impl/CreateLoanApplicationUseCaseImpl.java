@@ -3,46 +3,71 @@ package ir.dotin.loan.morabehe.core.application.service.usecase.impl;
 import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanApplicationPersistencePort;
 import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanRulePersistencePort;
 import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanTypePersistencePort;
+import ir.dotin.loan.morabehe.core.application.service.assembler.MorabeheLoanApplicationAssembler;
+import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanApplicationCommand;
+import ir.dotin.loan.morabehe.core.application.service.exception.LoanRuleNotFoundException;
+import ir.dotin.loan.morabehe.core.application.service.exception.LoanTypeNotFoundException;
+import ir.dotin.loan.morabehe.core.application.service.response.LoanApplicationResponse;
 import ir.dotin.loan.morabehe.core.application.service.usecase.CreateLoanApplicationUseCase;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.MorabeheLoanApplication;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.service.CreateLoanApplicationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
 
 @Service
 public class CreateLoanApplicationUseCaseImpl implements CreateLoanApplicationUseCase {
 
+    private static final Logger logger = LoggerFactory.getLogger(CreateLoanApplicationUseCaseImpl.class);
 
-    private final MorabeheLoanApplicationPersistencePort morabeheLoanApplicationPersistencePort;
-    private final CreateLoanApplicationService createLoanApplicationService;
-    private final MorabeheLoanRulePersistencePort morabeheLoanRulePersistencePort;
-    private final MorabeheLoanTypePersistencePort morabeheLoanTypePersistencePort;
+    private final MorabeheLoanApplicationPersistencePort loanApplicationPersistencePort;
+    private final CreateLoanApplicationService createService;
+    private final MorabeheLoanRulePersistencePort loanRulePersistencePort;
+    private final MorabeheLoanTypePersistencePort loanTypePersistencePort;
+    private final MorabeheLoanApplicationAssembler assembler;
 
     public CreateLoanApplicationUseCaseImpl(
-            MorabeheLoanApplicationPersistencePort morabeheLoanApplicationPersistencePort,
-            CreateLoanApplicationService createLoanApplicationService,
-            MorabeheLoanRulePersistencePort morabeheLoanRulePersistencePort,
-            MorabeheLoanTypePersistencePort morabeheLoanTypePersistencePort) {
-        this.morabeheLoanApplicationPersistencePort = morabeheLoanApplicationPersistencePort;
-        this.createLoanApplicationService = createLoanApplicationService;
-        this.morabeheLoanRulePersistencePort = morabeheLoanRulePersistencePort;
-        this.morabeheLoanTypePersistencePort = morabeheLoanTypePersistencePort;
+            MorabeheLoanApplicationPersistencePort loanApplicationPersistencePort,
+            @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+            CreateLoanApplicationService createService,
+            MorabeheLoanRulePersistencePort loanRulePersistencePort,
+            MorabeheLoanTypePersistencePort loanTypePersistencePort,
+            MorabeheLoanApplicationAssembler assembler) {
+        this.loanApplicationPersistencePort = loanApplicationPersistencePort;
+        this.createService = createService;
+        this.loanRulePersistencePort = loanRulePersistencePort;
+        this.loanTypePersistencePort = loanTypePersistencePort;
+        this.assembler = assembler;
     }
 
     @Override
-    public MorabeheLoanApplication create(MorabeheLoanApplication loanApplication) {
-        MorabeheLoanRule loanRule = morabeheLoanRulePersistencePort.findById(
-                        loanApplication.getLoanApplication().getLoanRuleId())
-                .orElseThrow(() -> new RuntimeException("Loan Rule not found"));
+    public LoanApplicationResponse execute(MorabeheCreateLoanApplicationCommand command) {
+        logger.debug("Executing CreateLoanApplicationUseCase with command: {}", command);
 
-        MorabeheLoanType loanType = morabeheLoanTypePersistencePort.findById(
-                        loanApplication.getLoanApplication().getLoanTypeId())
-                .orElseThrow(() -> new RuntimeException("Loan Type not found"));
+        MorabeheLoanApplication loanApplication = assembler.mapToAggregateRoot(command);
 
-        createLoanApplicationService.create(loanApplication, loanRule, loanType);
-        morabeheLoanApplicationPersistencePort.save(loanApplication);
-        return loanApplication;
+        MorabeheLoanRule loanRule = loanRulePersistencePort
+                .findById(loanApplication.getLoanApplication().getLoanRuleId())
+                .orElseThrow(() -> new LoanRuleNotFoundException(loanApplication.getLoanApplication().getLoanRuleId()));
+
+        MorabeheLoanType loanType = loanTypePersistencePort
+                .findById(loanApplication.getLoanApplication().getLoanTypeId())
+                .orElseThrow(() -> new LoanTypeNotFoundException(loanApplication.getLoanApplication().getLoanTypeId()));
+
+        createService.create(loanApplication, loanRule, loanType);
+
+        loanApplicationPersistencePort.save(loanApplication);
+
+        return assembler.mapToResponse(loanApplication);
+    }
+
+    @Override
+    public LoanApplicationResponse compensate(MorabeheCreateLoanApplicationCommand command) {
+        // TODO
+        return null;
     }
 
 }

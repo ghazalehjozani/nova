@@ -6,7 +6,7 @@ import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.Mor
 
 public interface ApproveLoanApplicationService {
 
-    void approved(MorabeheLoanApplication loanApplication,
+    void approve(MorabeheLoanApplication loanApplication,
                   MorabeheLoanRule baseLoanRule,
                   Sanction sanction);
 

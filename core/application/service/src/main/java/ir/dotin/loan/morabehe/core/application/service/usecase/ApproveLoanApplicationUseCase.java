@@ -1,10 +1,9 @@
 package ir.dotin.loan.morabehe.core.application.service.usecase;
 
-import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.SanctionSerial;
-import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.MorabeheLoanApplication;
+import ir.dotin.loan.baseloan.application.service.usecase.UseCase;
+import ir.dotin.loan.morabehe.core.application.service.command.MorabeheApproveLoanApplicationCommand;
+import ir.dotin.loan.morabehe.core.application.service.response.LoanApplicationResponse;
 
-public interface ApproveLoanApplicationUseCase {
+public interface ApproveLoanApplicationUseCase extends UseCase<MorabeheApproveLoanApplicationCommand, LoanApplicationResponse> { // TODO: Move To BaseLoan
 
-    MorabeheLoanApplication approve(MorabeheLoanApplication loanApplication,
-                                    SanctionSerial sanctionSerial);
 }

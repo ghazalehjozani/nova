@@ -1,10 +1,10 @@
 package ir.dotin.loan.morabehe.core.application.service.usecase;
 
 
-import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.MorabeheLoanApplication;
+import ir.dotin.loan.baseloan.application.service.usecase.UseCase;
+import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanApplicationCommand;
+import ir.dotin.loan.morabehe.core.application.service.response.LoanApplicationResponse;
 
-public interface CreateLoanApplicationUseCase {
-
-    MorabeheLoanApplication create(MorabeheLoanApplication loanApplication);
+public interface CreateLoanApplicationUseCase extends UseCase<MorabeheCreateLoanApplicationCommand, LoanApplicationResponse> {
 
 }

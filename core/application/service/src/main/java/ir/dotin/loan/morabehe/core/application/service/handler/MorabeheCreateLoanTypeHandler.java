@@ -9,6 +9,7 @@ import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanTyp
 import org.springframework.stereotype.Component;
 
 @Component
+@Deprecated(forRemoval = true)
 public class MorabeheCreateLoanTypeHandler {
 
     private final MorabeheLoanTypeAssembler loanTypeCommandMapper;
