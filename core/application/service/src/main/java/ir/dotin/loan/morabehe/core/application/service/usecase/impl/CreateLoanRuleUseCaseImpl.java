@@ -1,9 +1,14 @@
 package ir.dotin.loan.morabehe.core.application.service.usecase.impl;
 
 import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanRulePersistencePort;
+import ir.dotin.loan.morabehe.core.application.service.assembler.MorabeheLoanRuleAssembler;
+import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanRuleCommand;
+import ir.dotin.loan.morabehe.core.application.service.response.LoanRuleResponse;
 import ir.dotin.loan.morabehe.core.application.service.usecase.CreateLoanRuleUseCase;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import ir.dotin.loan.morabehe.core.domain.config.exception.MorabeheLoanRuleValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,15 +16,25 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class CreateLoanRuleUseCaseImpl implements CreateLoanRuleUseCase {
 
-    private final MorabeheLoanRulePersistencePort persistencePort;
+    private static final Logger logger = LoggerFactory.getLogger(CreateLoanRuleUseCaseImpl.class);
 
-    public CreateLoanRuleUseCaseImpl(MorabeheLoanRulePersistencePort persistencePort) {
+    private final MorabeheLoanRulePersistencePort persistencePort;
+    private final MorabeheLoanRuleAssembler assembler;
+
+    public CreateLoanRuleUseCaseImpl(MorabeheLoanRulePersistencePort persistencePort,
+                                     MorabeheLoanRuleAssembler assembler) {
         this.persistencePort = persistencePort;
+        this.assembler = assembler;
     }
 
 
     @Override
-    public MorabeheLoanRule create(MorabeheLoanRule loanRule) {
+    public LoanRuleResponse execute(MorabeheCreateLoanRuleCommand command) {
+
+        logger.debug("Executing CreateLoanRuleUseCase with command: {}", command);
+
+        MorabeheLoanRule loanRule = assembler.mapToAggregateRoot(command);
+
         boolean existsByCode = persistencePort.existsByCode(loanRule.getLoanRule().getCode());
         if (existsByCode) {
             throw new MorabeheLoanRuleValidationException("Duplicate loan rule code", "code");
@@ -27,6 +42,12 @@ public class CreateLoanRuleUseCaseImpl implements CreateLoanRuleUseCase {
         loanRule.createLoanRule();
         persistencePort.save(loanRule);
         // TODO: Publish Event
-        return loanRule;
+        return assembler.mapToResponse(loanRule);
+    }
+
+    @Override
+    public LoanRuleResponse compensate(MorabeheCreateLoanRuleCommand command) {
+        // TODO
+        return null;
     }
 }
