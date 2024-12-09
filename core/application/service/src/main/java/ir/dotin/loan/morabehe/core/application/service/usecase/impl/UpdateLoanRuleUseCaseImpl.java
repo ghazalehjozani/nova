@@ -18,6 +18,7 @@ public class UpdateLoanRuleUseCaseImpl implements UpdateLoanRuleUseCase {
     private final MorabeheLoanRuleUpdateService morabeheLoanRuleUpdateService;
 
     public UpdateLoanRuleUseCaseImpl(MorabeheLoanRulePersistencePort persistencePort,
+                                     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
                                      MorabeheLoanRuleUpdateService morabeheLoanRuleUpdateService) {
         this.persistencePort = persistencePort;
         this.morabeheLoanRuleUpdateService = morabeheLoanRuleUpdateService;
