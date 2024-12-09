@@ -23,16 +23,3 @@ spring:
         health-check-critical-timeout: 90s
         health-check-path: /actuator/health
         instance-id: ${spring.application.name}-${spring.application.instance_id:${random.value}}
-
-logging:
-  level:
-    org:
-      apache:
-        camel: INFO
-      springframework:
-        cloud:
-          consul: INFO
-        data:
-          mongodb:
-            core:
-              MongoTemplate: DEBUG

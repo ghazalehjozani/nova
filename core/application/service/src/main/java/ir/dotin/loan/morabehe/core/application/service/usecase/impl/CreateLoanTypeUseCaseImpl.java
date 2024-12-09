@@ -3,7 +3,9 @@ package ir.dotin.loan.morabehe.core.application.service.usecase.impl;
 import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanRulePersistencePort;
 import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanTypePersistencePort;
 import ir.dotin.loan.morabehe.core.application.service.assembler.MorabeheLoanTypeAssembler;
+import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanApplicationCommand;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanTypeCommand;
+import ir.dotin.loan.morabehe.core.application.service.response.LoanApplicationResponse;
 import ir.dotin.loan.morabehe.core.application.service.response.LoanTypeResponse;
 import ir.dotin.loan.morabehe.core.application.service.usecase.CreateLoanTypeUseCase;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
@@ -33,7 +35,7 @@ public class CreateLoanTypeUseCaseImpl implements CreateLoanTypeUseCase {
     }
 
     @Override
-    public LoanTypeResponse create(MorabeheCreateLoanTypeCommand command) {
+    public LoanTypeResponse execute(MorabeheCreateLoanTypeCommand command) {
         logger.debug("Executing CreateLoanTypeUseCase with command: {}", command);
 
         MorabeheLoanType morabeheLoanType = assembler.mapToAggregateRoot(command);
@@ -53,5 +55,11 @@ public class CreateLoanTypeUseCaseImpl implements CreateLoanTypeUseCase {
         loanTypePersistencePort.save(morabeheLoanType);
         // TODO: Publish Event
         return assembler.mapToResponse(morabeheLoanType);
+    }
+
+    @Override
+    public LoanTypeResponse compensate(MorabeheCreateLoanTypeCommand command) {
+        // TODO
+        return null;
     }
 }

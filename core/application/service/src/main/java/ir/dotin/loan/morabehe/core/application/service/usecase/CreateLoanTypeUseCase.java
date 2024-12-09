@@ -5,5 +5,7 @@ import ir.dotin.loan.morabehe.core.application.service.response.LoanTypeResponse
 
 public interface CreateLoanTypeUseCase {
 
-    LoanTypeResponse create(MorabeheCreateLoanTypeCommand command);
+    LoanTypeResponse execute(MorabeheCreateLoanTypeCommand command);
+
+    LoanTypeResponse compensate(MorabeheCreateLoanTypeCommand command);
 }

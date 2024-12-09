@@ -4,7 +4,9 @@ import ir.dotin.loan.morabehe.core.application.service.config.route.LoanTypeRout
 import ir.dotin.loan.morabehe.core.application.service.usecase.CreateLoanTypeUseCase;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.SagaPropagation;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CreateLoanTypeSagaConfigurator extends RouteBuilder {
     
     private final CreateLoanTypeUseCase createLoanTypeUseCase;
