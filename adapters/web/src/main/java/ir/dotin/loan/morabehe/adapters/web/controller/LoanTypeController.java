@@ -25,6 +25,7 @@ public class LoanTypeController {
     public ResponseEntity<LoanTypeResponse> createLoanType(@RequestBody MorabeheCreateLoanTypeCommand command){
         LoanTypeResponse response = producerTemplate.requestBody(
                 LoanTypeRoutes.CREATE_LOAN_TYPE_URI, command, LoanTypeResponse.class);
+
         return ResponseEntity.ok(response);
     }
 
