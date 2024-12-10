@@ -5,7 +5,7 @@ spring:
     active: dev
   cloud:
     consul:
-      host: 10.100.7.20
+      host: 10.100.7.21
       port: 8500
       config:
         enabled: true
