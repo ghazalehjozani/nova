@@ -1,9 +1,11 @@
 package ir.dotin.loan.morabehe.core.application.service.usecase;
 
-import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
-import java.util.UUID;
+import ir.dotin.loan.morabehe.core.application.service.command.MorabeheUpdateLoanRuleCommand;
+import ir.dotin.loan.morabehe.core.application.service.response.LoanRuleResponse;
 
 public interface UpdateLoanRuleUseCase {
 
-    MorabeheLoanRule update(UUID loanRuleId, MorabeheLoanRule newMorabeheLoanRule);
+    LoanRuleResponse execute(MorabeheUpdateLoanRuleCommand command);
+
+    LoanRuleResponse compensate(MorabeheUpdateLoanRuleCommand command);
 }

@@ -1,9 +1,11 @@
 package ir.dotin.loan.morabehe.core.application.service.usecase;
 
 
-import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
+import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanRuleCommand;
+import ir.dotin.loan.morabehe.core.application.service.response.LoanRuleResponse;
 
 public interface CreateLoanRuleUseCase {
 
-    MorabeheLoanRule create(MorabeheLoanRule loanRule);
+    LoanRuleResponse execute(MorabeheCreateLoanRuleCommand command);
+    LoanRuleResponse compensate(MorabeheCreateLoanRuleCommand command);
 }
