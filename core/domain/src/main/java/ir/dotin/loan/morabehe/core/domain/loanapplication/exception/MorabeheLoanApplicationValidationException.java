@@ -1,7 +1,8 @@
 package ir.dotin.loan.morabehe.core.domain.loanapplication.exception;
 
 import ir.dotin.loan.baseloan.domain.loanapplication.exception.LoanApplicationValidationException;
-import ir.dotin.platform.ddd.common.exception.ValidationError;
+import ir.dotin.platform.ddd.common.exception.DomainError;
+
 import java.util.List;
 
 public final class MorabeheLoanApplicationValidationException extends
@@ -9,11 +10,11 @@ public final class MorabeheLoanApplicationValidationException extends
 
 
     public MorabeheLoanApplicationValidationException(
-            List<ValidationError> errors) {
+            List<DomainError> errors) {
         super(errors);
     }
 
-    public MorabeheLoanApplicationValidationException(List<ValidationError> errors,
+    public MorabeheLoanApplicationValidationException(List<DomainError> errors,
                                                       Throwable cause) {
         super(errors, cause);
     }

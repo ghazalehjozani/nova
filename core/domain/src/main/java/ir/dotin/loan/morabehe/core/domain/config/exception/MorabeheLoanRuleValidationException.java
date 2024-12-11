@@ -1,17 +1,18 @@
 package ir.dotin.loan.morabehe.core.domain.config.exception;
 
 import ir.dotin.loan.baseloan.domain.config.exception.LoanRuleException;
-import ir.dotin.platform.ddd.common.exception.ValidationError;
+import ir.dotin.platform.ddd.common.exception.DomainError;
+
 import java.util.List;
 
 public final class MorabeheLoanRuleValidationException extends LoanRuleException {
 
 
-    public MorabeheLoanRuleValidationException(List<ValidationError> errors) {
+    public MorabeheLoanRuleValidationException(List<DomainError> errors) {
         super(errors);
     }
 
-    public MorabeheLoanRuleValidationException(List<ValidationError> errors, Throwable cause) {
+    public MorabeheLoanRuleValidationException(List<DomainError> errors, Throwable cause) {
         super(errors, cause);
     }
 

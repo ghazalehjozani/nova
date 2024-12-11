@@ -1,17 +1,18 @@
 package ir.dotin.loan.morabehe.core.domain.config.exception;
 
-import ir.dotin.platform.ddd.common.exception.AggregateValidationException;
-import ir.dotin.platform.ddd.common.exception.ValidationError;
+import ir.dotin.platform.ddd.common.exception.AggregateException;
+import ir.dotin.platform.ddd.common.exception.DomainError;
+
 import java.util.List;
 
-public final class MorabeheLoanTypeValidationException extends AggregateValidationException {
+public final class MorabeheLoanTypeValidationException extends AggregateException {
 
     public MorabeheLoanTypeValidationException(
-            List<ValidationError> errors) {
+            List<DomainError> errors) {
         super(errors);
     }
 
-    public MorabeheLoanTypeValidationException(List<ValidationError> errors, Throwable cause) {
+    public MorabeheLoanTypeValidationException(List<DomainError> errors, Throwable cause) {
         super(errors, cause);
     }
 
