@@ -37,6 +37,7 @@ public class LoanApplicationPersistenceAdapter implements MorabeheLoanApplicatio
     @Transactional
     public void save(MorabeheLoanApplication loanApplication) {
         Optional.ofNullable(loanApplication).map(mapper::mapToDocument).ifPresent(repository::save);
+        //TODO: Save To outbox
     }
 
     @Override

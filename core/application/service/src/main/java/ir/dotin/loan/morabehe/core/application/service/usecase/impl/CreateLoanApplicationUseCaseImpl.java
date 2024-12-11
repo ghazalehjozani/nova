@@ -16,9 +16,11 @@ import ir.dotin.loan.morabehe.core.domain.loanapplication.service.CreateLoanAppl
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
+@Transactional
 public class CreateLoanApplicationUseCaseImpl implements CreateLoanApplicationUseCase {
 
     private static final Logger logger = LoggerFactory.getLogger(CreateLoanApplicationUseCaseImpl.class);
@@ -47,19 +49,19 @@ public class CreateLoanApplicationUseCaseImpl implements CreateLoanApplicationUs
     public LoanApplicationResponse execute(MorabeheCreateLoanApplicationCommand command) {
         logger.debug("Executing CreateLoanApplicationUseCase with command: {}", command);
 
-        MorabeheLoanApplication loanApplication = assembler.mapToAggregateRoot(command);
+        final MorabeheLoanApplication loanApplication = assembler.mapToAggregateRoot(command);
 
-        MorabeheLoanRule loanRule = loanRulePersistencePort
+        final MorabeheLoanRule loanRule = loanRulePersistencePort
                 .findById(loanApplication.getLoanApplication().getLoanRuleId())
                 .orElseThrow(() -> new LoanRuleNotFoundException(loanApplication.getLoanApplication().getLoanRuleId()));
 
-        MorabeheLoanType loanType = loanTypePersistencePort
+        final MorabeheLoanType loanType = loanTypePersistencePort
                 .findById(loanApplication.getLoanApplication().getLoanTypeId())
                 .orElseThrow(() -> new LoanTypeNotFoundException(loanApplication.getLoanApplication().getLoanTypeId()));
 
-        createService.create(loanApplication, loanRule, loanType);
+        createService.create(loanApplication, loanRule, loanType);//TODO: return
 
-        loanApplicationPersistencePort.save(loanApplication);
+        loanApplicationPersistencePort.save(loanApplication);//TODO: Rename To Repository and remove Port
 
         return assembler.mapToResponse(loanApplication);
     }

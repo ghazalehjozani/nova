@@ -8,6 +8,7 @@ import ir.dotin.loan.morabehe.core.application.service.assembler.MorabeheLoanApp
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheApproveLoanApplicationCommand;
 import ir.dotin.loan.morabehe.core.application.service.exception.LoanApplicationNotFoundException;
 import ir.dotin.loan.morabehe.core.application.service.exception.LoanRuleNotFoundException;
+import ir.dotin.loan.morabehe.core.application.service.exception.SanctionNotFoundException;
 import ir.dotin.loan.morabehe.core.application.service.response.LoanApplicationResponse;
 import ir.dotin.loan.morabehe.core.application.service.usecase.ApproveLoanApplicationUseCase;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
@@ -52,18 +53,19 @@ public class ApproveLoanApplicationUseCaseImpl implements ApproveLoanApplication
         logger.debug("Executing ApproveLoanApplicationUseCase with command: {}", command);
 
         var applicationId = new MorabeheLoanApplicationId(command.loanApplication().loanApplicationId());
-        MorabeheLoanApplication existingApplication = loanApplicationPersistencePort
+        final MorabeheLoanApplication existingApplication = loanApplicationPersistencePort
                 .findById(applicationId)
                 .orElseThrow(() -> new LoanApplicationNotFoundException(applicationId));
 
-        MorabeheLoanApplication morabeheLoanApplication = assembler.mapToAggregateRoot(command, existingApplication);
+        final MorabeheLoanApplication morabeheLoanApplication = assembler.mapToAggregateRoot(command, existingApplication);
 
-        LoanApplication loanApplication = morabeheLoanApplication.getLoanApplication();
-        MorabeheLoanRule loanRule = loanRulePersistencePort
+        final LoanApplication loanApplication = morabeheLoanApplication.getLoanApplication();
+        final MorabeheLoanRule loanRule = loanRulePersistencePort
                 .findById(loanApplication.getLoanRuleId())
                 .orElseThrow(() -> new LoanRuleNotFoundException(loanApplication.getLoanRuleId()));
 
-        Sanction sanction = sanctionClientPort.getBySerial(loanApplication.getSanctionSerial());
+        final Sanction sanction = sanctionClientPort.getBySerial(loanApplication.getSanctionSerial())
+                .orElseThrow(() -> new SanctionNotFoundException(loanApplication.getSanctionSerial()));
 
         approveService.approve(morabeheLoanApplication, loanRule, sanction);
 

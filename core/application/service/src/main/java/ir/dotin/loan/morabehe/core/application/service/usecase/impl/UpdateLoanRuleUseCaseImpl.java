@@ -3,6 +3,7 @@ package ir.dotin.loan.morabehe.core.application.service.usecase.impl;
 import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanRulePersistencePort;
 import ir.dotin.loan.morabehe.core.application.service.assembler.MorabeheLoanRuleAssembler;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheUpdateLoanRuleCommand;
+import ir.dotin.loan.morabehe.core.application.service.exception.LoanRuleNotFoundException;
 import ir.dotin.loan.morabehe.core.application.service.response.LoanRuleResponse;
 import ir.dotin.loan.morabehe.core.application.service.usecase.UpdateLoanRuleUseCase;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
@@ -20,39 +21,40 @@ public class UpdateLoanRuleUseCaseImpl implements UpdateLoanRuleUseCase {
     private static final Logger logger = LoggerFactory.getLogger(UpdateLoanRuleUseCaseImpl.class);
 
     private final MorabeheLoanRulePersistencePort persistencePort;
-    private final MorabeheLoanRuleUpdateService morabeheLoanRuleUpdateService;
+    private final MorabeheLoanRuleUpdateService updateService;
     private final MorabeheLoanRuleAssembler assembler;
 
-    public UpdateLoanRuleUseCaseImpl(MorabeheLoanRulePersistencePort persistencePort,
-                                     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-                                     MorabeheLoanRuleUpdateService morabeheLoanRuleUpdateService,
-                                     MorabeheLoanRuleAssembler assembler) {
+    public UpdateLoanRuleUseCaseImpl(
+            final MorabeheLoanRulePersistencePort persistencePort,
+            @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") final MorabeheLoanRuleUpdateService updateService,
+            final MorabeheLoanRuleAssembler assembler
+    ) {
         this.persistencePort = persistencePort;
-        this.morabeheLoanRuleUpdateService = morabeheLoanRuleUpdateService;
+        this.updateService = updateService;
         this.assembler = assembler;
     }
 
-
     @Override
-    public LoanRuleResponse execute(MorabeheUpdateLoanRuleCommand command) {
+    public LoanRuleResponse execute(final MorabeheUpdateLoanRuleCommand command) {
         logger.debug("Executing UpdateLoanRuleUseCase with command: {}", command);
 
-        MorabeheLoanRule newMorabeheLoanRule = assembler.mapToAggregateRoot(command);
+        final MorabeheLoanRule updatedRule = assembler.mapToAggregateRoot(command);
 
-        MorabeheLoanRuleId morabeheLoanRuleId = new MorabeheLoanRuleId(command.loanRuleId());
+        final MorabeheLoanRuleId ruleId = new MorabeheLoanRuleId(command.loanRule().loanRuleId());
+        final MorabeheLoanRule oldRule = persistencePort.findById(ruleId)
+                .orElseThrow(() -> new LoanRuleNotFoundException(ruleId));
 
-        MorabeheLoanRule oldMorabeheLoanRule = persistencePort
-                .findById(morabeheLoanRuleId)
-                .orElseThrow(() -> new IllegalArgumentException("MorabeheLoanRule not found"));
+        updateService.update(oldRule, updatedRule);
 
-        morabeheLoanRuleUpdateService.update(oldMorabeheLoanRule, newMorabeheLoanRule);
+        persistencePort.update(oldRule);
 
-        persistencePort.update(oldMorabeheLoanRule);
+        persistencePort.save(updatedRule);
 
-        persistencePort.save(newMorabeheLoanRule);
         // TODO: Publish Event
-        return assembler.mapToResponse(newMorabeheLoanRule);
+
+        return assembler.mapToResponse(updatedRule);
     }
+
 
     @Override
     public LoanRuleResponse compensate(MorabeheUpdateLoanRuleCommand command) {

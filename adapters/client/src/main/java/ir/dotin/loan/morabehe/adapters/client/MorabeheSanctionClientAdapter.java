@@ -11,16 +11,18 @@ import ir.dotin.loan.morabehe.core.application.ports.outbound.client.MorabeheSan
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.Optional;
 import java.util.Set;
 
 @Component
 public class MorabeheSanctionClientAdapter implements MorabeheSanctionClientPort {
 
     @Override
-    public Sanction getBySerial(SanctionSerial serial) {
-        return Sanction.valueOf(serial, Money.valueOf(100), Duration.ofDays(8), Duration.ofDays(8),
+    public Optional<Sanction> getBySerial(SanctionSerial serial) {
+        return Optional.of(Sanction.valueOf(serial, Money.valueOf(100), Duration.ofDays(8), Duration.ofDays(8),
                 Rate.of(20), Set.of(Collateral.valueOf(new CollateralType("658", "check"),
                         25, "check-1",
-                        new CollateralSerial("56"))));
+                        new CollateralSerial("56")))));
     }
+
 }

@@ -13,7 +13,6 @@ import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
-import java.util.UUID;
 
 @Component
 public class MorabeheLoanApplicationAssembler extends
@@ -23,10 +22,8 @@ public class MorabeheLoanApplicationAssembler extends
     public MorabeheLoanApplication mapToAggregateRoot(
             MorabeheCreateLoanApplicationCommand command) {
         var builder = new LoanApplicationBuilder(new FeatureConfig(Map.of("Key1", false)))
-                .withLoanRuleId(mapOptional(command.loanRuleId(),
-                                            id -> new MorabeheLoanRuleId(UUID.fromString(id))))
-                .withLoanTypeId(mapOptional(command.loanTypeId(),
-                                            id -> new MorabeheLoanTypeId(UUID.fromString(id))))
+                .withLoanRuleId(mapOptional(command.loanApplication().loanRuleId(), MorabeheLoanRuleId::new))
+                .withLoanTypeId(mapOptional(command.loanApplication().loanTypeId(), MorabeheLoanTypeId::new))
                 .withCurrentState(command.loanApplication().getState());
         super.mapFromCommand(command.loanApplication(), builder);
         return new MorabeheLoanApplication(null, builder.validateAndBuild());

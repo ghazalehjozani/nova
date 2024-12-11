@@ -21,27 +21,30 @@ public class CreateLoanRuleUseCaseImpl implements CreateLoanRuleUseCase {
     private final MorabeheLoanRulePersistencePort persistencePort;
     private final MorabeheLoanRuleAssembler assembler;
 
-    public CreateLoanRuleUseCaseImpl(MorabeheLoanRulePersistencePort persistencePort,
-                                     MorabeheLoanRuleAssembler assembler) {
+    public CreateLoanRuleUseCaseImpl(
+            final MorabeheLoanRulePersistencePort persistencePort,
+            final MorabeheLoanRuleAssembler assembler
+    ) {
         this.persistencePort = persistencePort;
         this.assembler = assembler;
     }
 
-
     @Override
-    public LoanRuleResponse execute(MorabeheCreateLoanRuleCommand command) {
-
+    public LoanRuleResponse execute(final MorabeheCreateLoanRuleCommand command) {
         logger.debug("Executing CreateLoanRuleUseCase with command: {}", command);
 
-        MorabeheLoanRule loanRule = assembler.mapToAggregateRoot(command);
+        final MorabeheLoanRule loanRule = assembler.mapToAggregateRoot(command);
 
-        boolean existsByCode = persistencePort.existsByCode(loanRule.getLoanRule().getCode());
+        final boolean existsByCode = persistencePort.existsByCode(loanRule.getLoanRule().getCode());
         if (existsByCode) {
             throw new MorabeheLoanRuleValidationException("Duplicate loan rule code", "code");
         }
+
         loanRule.createLoanRule();
         persistencePort.save(loanRule);
+
         // TODO: Publish Event
+
         return assembler.mapToResponse(loanRule);
     }
 

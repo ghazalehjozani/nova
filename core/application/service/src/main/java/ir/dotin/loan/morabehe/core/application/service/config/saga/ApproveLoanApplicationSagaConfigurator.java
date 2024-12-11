@@ -21,7 +21,7 @@ public class ApproveLoanApplicationSagaConfigurator extends RouteBuilder {
         onException(Exception.class)
                 .handled(true)
                 .log("Exception in ApproveLoanApplicationUseCase: ${exception.message}")
-                .bean("globalExceptionHandler", "process");
+                .bean("globalExceptionHandler", "process"); //TODO: Goft yadam mimone
 
         // Main Saga Route for Approving Loan Application
         from(LoanApplicationRoutes.APPROVE_LOAN_APPLICATION_URI)

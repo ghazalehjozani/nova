@@ -16,7 +16,7 @@ public class MorabeheLoanTypeAssembler extends
     public MorabeheLoanType mapToAggregateRoot(MorabeheCreateLoanTypeCommand command) {
         LoanType.LoanTypeBuilder loanTypeBuilder = new LoanType.LoanTypeBuilder()
                 .withHasIssueMerchandiseDocument(command.hasIssueMerchandiseDocument())
-                .withLoanRuleIds(mapSet(command.loanRuleIds(), MorabeheLoanRuleId::new));
+                .withLoanRuleIds(mapSet(command.loanType().loanRuleIds(), MorabeheLoanRuleId::new));
         super.mapFromCommand(command.loanType(), loanTypeBuilder);
         return new MorabeheLoanType(null, loanTypeBuilder);
     }

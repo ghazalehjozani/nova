@@ -28,7 +28,7 @@ public class MorabeheLoanRuleAssembler extends BaseLoanRuleAssembler<LoanRuleBui
         LoanRuleBuilder loanRuleBuilder = new LoanRuleBuilder(
                 new FeatureConfig(Map.of("Key1", false)));
         super.mapFromCommand(command.loanRule(), loanRuleBuilder);
-        return new MorabeheLoanRule(new MorabeheLoanRuleId(command.loanRuleId()), loanRuleBuilder.validateAndBuild());
+        return new MorabeheLoanRule(new MorabeheLoanRuleId(command.loanRule().loanRuleId()), loanRuleBuilder.validateAndBuild());
     }
 
     public LoanRuleResponse mapToResponse(MorabeheLoanRule loanRule) {
