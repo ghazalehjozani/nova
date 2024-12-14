@@ -1,6 +1,6 @@
 package ir.dotin.loan.morabehe.core.application.service.config.saga;
 
-import ir.dotin.loan.baseloan.application.service.config.route.BaseRoutes;
+import ir.dotin.loan.baseloan.core.application.service.config.route.BaseRoutes;
 import ir.dotin.loan.morabehe.core.application.service.config.route.LoanApplicationRoutes;
 import ir.dotin.loan.morabehe.core.application.service.usecase.ApproveLoanApplicationUseCase;
 import org.apache.camel.builder.RouteBuilder;
@@ -22,6 +22,7 @@ public class ApproveLoanApplicationSagaConfigurator extends RouteBuilder {
 
         // Main Saga Route for Approving Loan Application
         from(LoanApplicationRoutes.APPROVE_LOAN_APPLICATION_URI)
+                .errorHandler(noErrorHandler())
                 .routeId(LoanApplicationRoutes.SagaRoutes.APPROVE_LOAN_APPLICATION_SAGA)
                 .saga()
                     .propagation(SagaPropagation.REQUIRED)

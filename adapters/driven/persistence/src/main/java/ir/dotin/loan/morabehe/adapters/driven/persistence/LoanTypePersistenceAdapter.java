@@ -1,10 +1,10 @@
-package ir.dotin.loan.morabehe.adapters.persistence;
+package ir.dotin.loan.morabehe.adapters.driven.persistence;
 
 
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.LoanTypeCode;
-import ir.dotin.loan.morabehe.adapters.persistence.document.MorabeheLoanTypeDocument;
-import ir.dotin.loan.morabehe.adapters.persistence.mapper.MorabeheLoanTypeDocumentMapper;
-import ir.dotin.loan.morabehe.adapters.persistence.repository.MorabeheLoanTypeRepository;
+import ir.dotin.loan.morabehe.adapters.driven.persistence.document.MorabeheLoanTypeDocument;
+import ir.dotin.loan.morabehe.adapters.driven.persistence.mapper.MorabeheLoanTypeDocumentMapper;
+import ir.dotin.loan.morabehe.adapters.driven.persistence.repository.MorabeheLoanTypeRepository;
 import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanTypePersistencePort;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;

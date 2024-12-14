@@ -1,7 +1,7 @@
 package ir.dotin.loan.morabehe.core.application.service.config.saga;
 
 
-import ir.dotin.loan.baseloan.application.service.config.route.BaseRoutes;
+import ir.dotin.loan.baseloan.core.application.service.config.route.BaseRoutes;
 import ir.dotin.loan.morabehe.core.application.service.config.route.LoanRuleRoutes;
 import ir.dotin.loan.morabehe.core.application.service.usecase.UpdateLoanRuleUseCase;
 import org.apache.camel.builder.RouteBuilder;
@@ -23,6 +23,7 @@ public class UpdateLoanRuleSagaConfigurator extends RouteBuilder {
 
         // Main Saga Route for Updating loan Rule
         from(LoanRuleRoutes.UPDATE_LOAN_RULE_URI)
+                .errorHandler(noErrorHandler())
                 .routeId(LoanRuleRoutes.SagaRoutes.UPDATE_LOAN_RULE_SAGA)
                 .saga()
                     .propagation(SagaPropagation.REQUIRED)

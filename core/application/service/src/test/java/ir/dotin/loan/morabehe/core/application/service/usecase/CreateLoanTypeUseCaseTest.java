@@ -1,6 +1,6 @@
 package ir.dotin.loan.morabehe.core.application.service.usecase;
 
-import ir.dotin.loan.baseloan.application.service.command.config.BaseCreateLoanTypeCommand;
+import ir.dotin.loan.baseloan.core.application.service.command.config.BaseCreateLoanTypeCommand;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.LoanTypeCode;
 import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanRulePersistencePort;
 import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanTypePersistencePort;

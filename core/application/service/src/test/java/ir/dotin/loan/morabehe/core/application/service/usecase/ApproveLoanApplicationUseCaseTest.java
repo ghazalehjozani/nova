@@ -1,6 +1,6 @@
 package ir.dotin.loan.morabehe.core.application.service.usecase;
 
-import ir.dotin.loan.baseloan.application.service.command.loanapplication.BaseApproveLoanApplicationCommand;
+import ir.dotin.loan.baseloan.core.application.service.command.loanapplication.BaseApproveLoanApplicationCommand;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.Sanction;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.SanctionSerial;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.SanctionType;

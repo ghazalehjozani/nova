@@ -1,4 +1,4 @@
-package ir.dotin.loan.morabehe.adapters.rest.controller;
+package ir.dotin.loan.morabehe.adapters.driving.rest.controller;
 
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanTypeCommand;
 import ir.dotin.loan.morabehe.core.application.service.config.route.LoanTypeRoutes;

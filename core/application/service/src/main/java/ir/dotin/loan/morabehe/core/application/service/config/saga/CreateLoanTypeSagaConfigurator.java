@@ -1,6 +1,6 @@
 package ir.dotin.loan.morabehe.core.application.service.config.saga;
 
-import ir.dotin.loan.baseloan.application.service.config.route.BaseRoutes;
+import ir.dotin.loan.baseloan.core.application.service.config.route.BaseRoutes;
 import ir.dotin.loan.morabehe.core.application.service.config.route.LoanTypeRoutes;
 import ir.dotin.loan.morabehe.core.application.service.usecase.CreateLoanTypeUseCase;
 import org.apache.camel.builder.RouteBuilder;
@@ -22,6 +22,7 @@ public class CreateLoanTypeSagaConfigurator extends RouteBuilder {
 
         // Main Saga Route for Creating Loan Type
         from(LoanTypeRoutes.CREATE_LOAN_TYPE_URI)
+                .errorHandler(noErrorHandler())
                 .routeId(LoanTypeRoutes.SagaRoutes.CREATE_LOAN_TYPE_SAGA)
                 .saga()
                     .propagation(SagaPropagation.REQUIRED)

@@ -1,7 +1,7 @@
-package ir.dotin.loan.morabehe.adapters.persistence.document;
+package ir.dotin.loan.morabehe.adapters.driven.persistence.document;
 
-import ir.dotin.loan.baseloan.adapters.persistence.document.AuditableDocument;
-import ir.dotin.loan.baseloan.adapters.persistence.document.loanrule.BaseLoanRuleDocument;
+import ir.dotin.loan.baseloan.adapters.driven.persistence.document.AuditableDocument;
+import ir.dotin.loan.baseloan.adapters.driven.persistence.document.loanrule.BaseLoanRuleDocument;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document("morabehe_loan_rule")

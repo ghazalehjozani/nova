@@ -1,4 +1,4 @@
-package ir.dotin.loan.morabehe.adapters.client;
+package ir.dotin.loan.morabehe.adapters.driven.client;
 
 import ir.dotin.loan.baseloan.domain.config.valueobject.CollateralType;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.Collateral;

@@ -1,7 +1,7 @@
 package ir.dotin.loan.morabehe.core.application.service.config.route;
 
 
-import ir.dotin.loan.baseloan.application.service.config.route.BaseRoutes;
+import ir.dotin.loan.baseloan.core.application.service.config.route.BaseRoutes;
 
 
 public final class LoanApplicationRoutes extends BaseRoutes {

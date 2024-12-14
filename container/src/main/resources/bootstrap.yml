@@ -11,7 +11,7 @@ spring:
         enabled: true
         format: FILES
         fail-fast: true
-        profileSeparator: '::'
+        profileSeparator: '-'
         prefixes: config/${spring.application.name}
         watch:
           enabled: true

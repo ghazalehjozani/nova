@@ -1,7 +1,7 @@
-package ir.dotin.loan.morabehe.adapters.persistence.document;
+package ir.dotin.loan.morabehe.adapters.driven.persistence.document;
 
-import ir.dotin.loan.baseloan.adapters.persistence.document.AuditableDocument;
-import ir.dotin.loan.baseloan.adapters.persistence.document.loanaplication.BaseLoanApplicationDocument;
+import ir.dotin.loan.baseloan.adapters.driven.persistence.document.AuditableDocument;
+import ir.dotin.loan.baseloan.adapters.driven.persistence.document.loanaplication.BaseLoanApplicationDocument;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 

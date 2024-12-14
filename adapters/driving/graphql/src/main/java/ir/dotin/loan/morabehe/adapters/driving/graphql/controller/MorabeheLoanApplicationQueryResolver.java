@@ -1,4 +1,4 @@
-package ir.dotin.loan.morabehe.adapters.graphql.controller;
+package ir.dotin.loan.morabehe.adapters.driving.graphql.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

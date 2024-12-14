@@ -1,6 +1,6 @@
 package ir.dotin.loan.morabehe.core.application.service.assembler;
 
-import ir.dotin.loan.baseloan.application.service.assembler.config.BaseLoanRuleAssembler;
+import ir.dotin.loan.baseloan.core.application.service.assembler.config.BaseLoanRuleAssembler;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanRuleCommand;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheUpdateLoanRuleCommand;
 import ir.dotin.loan.morabehe.core.application.service.response.LoanRuleResponse;

@@ -1,6 +1,6 @@
 package ir.dotin.loan.morabehe.core.application.service.assembler;
 
-import ir.dotin.loan.baseloan.application.service.assembler.loanapplication.BaseLoanApplicationAssembler;
+import ir.dotin.loan.baseloan.core.application.service.assembler.loanapplication.BaseLoanApplicationAssembler;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheApproveLoanApplicationCommand;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanApplicationCommand;
 import ir.dotin.loan.morabehe.core.application.service.response.LoanApplicationResponse;
