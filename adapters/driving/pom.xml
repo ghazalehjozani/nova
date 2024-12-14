@@ -6,18 +6,18 @@
 
   <parent>
     <groupId>ir.dotin.loan</groupId>
-    <artifactId>morabehe-loan</artifactId>
+    <artifactId>morabehe-loan-adapters</artifactId>
     <version>0.0.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>morabehe-loan-adapters</artifactId>
-  <name>Morabehe Loan :: Adapters</name>
+  <artifactId>morabehe-loan-adapters-driving</artifactId>
+  <name>Morabehe Loan :: Adapters :: Driving</name>
   <packaging>pom</packaging>
 
   <modules>
-    <module>driven</module>
-    <module>driving</module>
+    <module>web</module>
+    <module>messaging</module>
   </modules>
 
 </project>

@@ -7,12 +7,12 @@
     <parent>
         <groupId>ir.dotin.loan</groupId>
         <artifactId>morabehe-loan-adapters</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>morabehe-loan-adapter-client</artifactId>
-    <name>Morabehe Loan :: Adapters Client</name>
+    <artifactId>morabehe-loan-adapters-driven-client</artifactId>
+    <name>Morabehe Loan :: Adapters :: Driven :: Client</name>
     <packaging>jar</packaging>
 
     <dependencies>

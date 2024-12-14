@@ -6,13 +6,13 @@
 
   <parent>
     <groupId>ir.dotin.loan</groupId>
-    <artifactId>morabehe-loan-adapters</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>morabehe-loan-adapters-driven</artifactId>
+    <version>0.0.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>morabehe-loan-adapter-messaging</artifactId>
-  <name>Morabehe Loan :: Adapters Messaging</name>
+  <artifactId>morabehe-loan-adapters-driven-messaging</artifactId>
+  <name>Morabehe Loan :: Adapters :: Driven :: Messaging</name>
   <packaging>jar</packaging>
 
 </project>

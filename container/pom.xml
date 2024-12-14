@@ -7,7 +7,7 @@
   <parent>
     <groupId>ir.dotin.loan</groupId>
     <artifactId>morabehe-loan</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -24,15 +24,15 @@
     <!-- Adapters -->
     <dependency>
       <groupId>ir.dotin.loan</groupId>
-      <artifactId>morabehe-loan-adapter-persistence</artifactId>
+      <artifactId>morabehe-loan-adapters-driven-persistence</artifactId>
     </dependency>
     <dependency>
       <groupId>ir.dotin.loan</groupId>
-      <artifactId>morabehe-loan-adapter-web</artifactId>
+      <artifactId>morabehe-loan-adapters-driving-web</artifactId>
     </dependency>
     <dependency>
       <groupId>ir.dotin.loan</groupId>
-      <artifactId>morabehe-loan-adapter-client</artifactId>
+      <artifactId>morabehe-loan-adapters-driven-client</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>

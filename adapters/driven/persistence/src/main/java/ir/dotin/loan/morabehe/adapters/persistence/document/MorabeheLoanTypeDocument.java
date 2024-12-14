@@ -3,9 +3,10 @@ package ir.dotin.loan.morabehe.adapters.persistence.document;
 
 import ir.dotin.loan.baseloan.adapters.persistence.document.AuditableDocument;
 import ir.dotin.loan.baseloan.adapters.persistence.document.loantype.BaseLoanTypeDocument;
-import java.util.Set;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+
+import java.util.Set;
 
 @Document("morabehe_loan_type")
 public class MorabeheLoanTypeDocument extends AuditableDocument {
