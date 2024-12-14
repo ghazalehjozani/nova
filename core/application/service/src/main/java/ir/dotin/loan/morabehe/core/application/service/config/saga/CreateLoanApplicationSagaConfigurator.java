@@ -1,5 +1,6 @@
 package ir.dotin.loan.morabehe.core.application.service.config.saga;
 
+import ir.dotin.loan.baseloan.application.service.config.route.BaseRoutes;
 import ir.dotin.loan.morabehe.core.application.service.config.route.LoanApplicationRoutes;
 import ir.dotin.loan.morabehe.core.application.service.usecase.CreateLoanApplicationUseCase;
 import org.apache.camel.builder.RouteBuilder;
@@ -17,30 +18,28 @@ public class CreateLoanApplicationSagaConfigurator extends RouteBuilder {
 
     @Override
     public void configure() {
-        // Exception Handling
-        onException(Exception.class)
-                .handled(true)
-                .log("Exception in CreateLoanApplicationUseCase: ${exception.message}")
-                .bean("globalExceptionHandler", "process");
+        // @formatter:off
 
         // Main Saga Route for Creating Loan Application
         from(LoanApplicationRoutes.CREATE_LOAN_APPLICATION_URI)
                 .routeId(LoanApplicationRoutes.SagaRoutes.CREATE_LOAN_APPLICATION_SAGA)
                 .saga()
-                .propagation(SagaPropagation.REQUIRED)
-                .log("Starting saga for creating loan application")
-                .log("Processing CreateLoanApplicationCommand: ${body}")
-                .bean(createUseCase, LoanApplicationRoutes.EXECUTE_METHOD)
-                .compensation(LoanApplicationRoutes.COMPENSATE_CREATE_LOAN_APPLICATION_URI)
-                .log("Loan application created with ID: ${body.loanApplicationId}")
+                    .propagation(SagaPropagation.REQUIRED)
+                    .log("Starting saga for creating loan application")
+                    .log("Processing CreateLoanApplicationCommand: ${body}")
+                    .bean(createUseCase, BaseRoutes.EXECUTE_METHOD)
+                    .compensation(LoanApplicationRoutes.COMPENSATE_CREATE_LOAN_APPLICATION_URI)
+                    .log("Loan application created with ID: ${body.loanApplicationId}")
                 .end();
 
         // Compensation Route for Creating Loan Application
         from(LoanApplicationRoutes.COMPENSATE_CREATE_LOAN_APPLICATION_URI)
                 .routeId(LoanApplicationRoutes.SagaRoutes.CREATE_LOAN_APPLICATION_SAGA_COMPENSATION)
                 .log("Compensating loan application creation")
-                .bean(createUseCase, LoanApplicationRoutes.COMPENSATE_METHOD)
+                .bean(createUseCase, BaseRoutes.COMPENSATE_METHOD)
                 .end();
+
+        // @formatter:on
     }
 
 }
