@@ -20,10 +20,6 @@
       <groupId>ir.dotin.loan</groupId>
       <artifactId>base-loan-adapters-driven-persistence</artifactId>
     </dependency>
-    <dependency>
-      <groupId>ir.dotin.loan</groupId>
-      <artifactId>morabehe-loan-core-application-ports</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>

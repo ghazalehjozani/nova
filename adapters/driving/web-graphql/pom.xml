@@ -6,16 +6,26 @@
 
     <parent>
         <groupId>ir.dotin.loan</groupId>
-        <artifactId>morabehe-loan-adapters</artifactId>
+        <artifactId>morabehe-loan-adapters-driving</artifactId>
         <version>0.0.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>morabehe-loan-adapters-driven-client</artifactId>
-    <name>Morabehe Loan :: Adapters :: Driven :: Client</name>
+    <artifactId>morabehe-loan-adapters-driving-web-graphql</artifactId>
+    <name>Morabehe Loan :: Adapters Web</name>
     <packaging>jar</packaging>
 
     <dependencies>
+        <!-- TODO: Can move to base-loan-adapters-driving-web-graphql-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-graphql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>base-loan-adapters-driving-web-rest</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

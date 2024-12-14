@@ -28,7 +28,11 @@
     </dependency>
     <dependency>
       <groupId>ir.dotin.loan</groupId>
-      <artifactId>morabehe-loan-adapters-driving-web</artifactId>
+      <artifactId>morabehe-loan-adapters-driving-web-rest</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ir.dotin.loan</groupId>
+      <artifactId>morabehe-loan-adapters-driving-web-graphql</artifactId>
     </dependency>
     <dependency>
       <groupId>ir.dotin.loan</groupId>

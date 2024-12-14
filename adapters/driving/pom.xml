@@ -16,7 +16,8 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>web</module>
+    <module>web-rest</module>
+    <module>web-graphql</module>
     <module>messaging</module>
   </modules>
 

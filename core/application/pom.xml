@@ -20,4 +20,11 @@
     <module>service</module>
   </modules>
 
+  <dependencies>
+    <dependency>
+      <groupId>ir.dotin.loan</groupId>
+      <artifactId>morabehe-loan-core-domain</artifactId>
+    </dependency>
+  </dependencies>
+
 </project>
