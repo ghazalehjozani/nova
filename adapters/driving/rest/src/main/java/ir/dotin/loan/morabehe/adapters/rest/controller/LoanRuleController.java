@@ -1,4 +1,4 @@
-package ir.dotin.loan.morabehe.adapters.web.controller;
+package ir.dotin.loan.morabehe.adapters.rest.controller;
 
 
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanRuleCommand;

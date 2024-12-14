@@ -11,7 +11,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>morabehe-loan-adapters-driving-web-graphql</artifactId>
+    <artifactId>morabehe-loan-adapters-driving-graphql</artifactId>
     <name>Morabehe Loan :: Adapters Web</name>
     <packaging>jar</packaging>
 
@@ -23,7 +23,7 @@
         </dependency>
         <dependency>
             <groupId>ir.dotin.loan</groupId>
-            <artifactId>base-loan-adapters-driving-web-rest</artifactId>
+            <artifactId>base-loan-adapters-driving-rest</artifactId>
         </dependency>
 
         <dependency>

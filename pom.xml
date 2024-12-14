@@ -65,13 +65,13 @@
             </dependency>
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
-                <artifactId>morabehe-loan-adapters-driving-web-rest</artifactId>
+                <artifactId>morabehe-loan-adapters-driving-rest</artifactId>
                 <version>${project.version}</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
-                <artifactId>morabehe-loan-adapters-driving-web-graphql</artifactId>
+                <artifactId>morabehe-loan-adapters-driving-graphql</artifactId>
                 <version>${project.version}</version>
                 <scope>compile</scope>
             </dependency>
