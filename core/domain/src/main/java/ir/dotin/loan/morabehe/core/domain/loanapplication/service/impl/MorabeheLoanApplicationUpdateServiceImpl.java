@@ -40,7 +40,7 @@ public class MorabeheLoanApplicationUpdateServiceImpl extends
 
     @Override
     protected BaseLoanApplication getBaseLoanApplication(MorabeheLoanApplication loanApplicationRoot) {
-        return loanApplicationRoot.getLoanApplication();
+        return loanApplicationRoot.loanApplication();
     }
 
 }

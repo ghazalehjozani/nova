@@ -22,7 +22,7 @@ public class MorabeheLoanTypeAssembler extends
     }
 
     public LoanTypeResponse mapToResponse(MorabeheLoanType loanType) {
-        return new LoanTypeResponse(loanType.getId().value());
+        return new LoanTypeResponse(loanType.id().value());
     }
 
 }

@@ -3,13 +3,7 @@ package ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.ApplicationNumber;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.CollateralSerial;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.SanctionSerial;
-import ir.dotin.loan.morabehe.core.domain.loanapplication.event.MorabeheLoanApplicationApprovedEvent;
-import ir.dotin.loan.morabehe.core.domain.loanapplication.event.MorabeheLoanApplicationCollateralAddedEvent;
-import ir.dotin.loan.morabehe.core.domain.loanapplication.event.MorabeheLoanApplicationContractIssuedEvent;
-import ir.dotin.loan.morabehe.core.domain.loanapplication.event.MorabeheLoanApplicationDisbursedEvent;
-import ir.dotin.loan.morabehe.core.domain.loanapplication.event.MorabeheLoanApplicationRequestedEvent;
-import ir.dotin.loan.morabehe.core.domain.loanapplication.event.MorabeheLoanApplicationRevokedEvent;
-import ir.dotin.loan.morabehe.core.domain.loanapplication.event.MorabeheLoanApplicationUpdatedEvent;
+import ir.dotin.loan.morabehe.core.domain.loanapplication.event.*;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.exception.MorabeheLoanApplicationValidationException;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.valueobject.MorabeheLoanApplicationId;
 import ir.dotin.platform.ddd.common.entity.AggregateRoot;
@@ -34,41 +28,41 @@ public class MorabeheLoanApplication extends AggregateRoot<MorabeheLoanApplicati
     public void request(ApplicationNumber applicationNumber) {
         loanApplication.request(applicationNumber);
         setId(MorabeheLoanApplicationId.generate());
-        registerEvent(MorabeheLoanApplicationRequestedEvent.of(getId()));
+        registerEvent(MorabeheLoanApplicationRequestedEvent.of(id()));
     }
 
     public void approve(SanctionSerial sanctionSerial) {
         loanApplication.approve(sanctionSerial);
-        registerEvent(MorabeheLoanApplicationApprovedEvent.of(getId()));
+        registerEvent(MorabeheLoanApplicationApprovedEvent.of(id()));
     }
 
     public void addCollateral(CollateralSerial collateralSerial) {
         loanApplication.addCollateral(collateralSerial);
-        registerEvent(MorabeheLoanApplicationCollateralAddedEvent.of(getId()));
+        registerEvent(MorabeheLoanApplicationCollateralAddedEvent.of(id()));
     }
 
     public void issueContract() {
         loanApplication.issueContract();
-        registerEvent(MorabeheLoanApplicationContractIssuedEvent.of(getId()));
+        registerEvent(MorabeheLoanApplicationContractIssuedEvent.of(id()));
     }
 
     public void disburse() {
         loanApplication.disburse();
-        registerEvent(MorabeheLoanApplicationDisbursedEvent.of(getId()));
+        registerEvent(MorabeheLoanApplicationDisbursedEvent.of(id()));
     }
 
     public void revoke() {
         loanApplication.revoke();
-        registerEvent(MorabeheLoanApplicationRevokedEvent.of(getId()));
+        registerEvent(MorabeheLoanApplicationRevokedEvent.of(id()));
     }
 
     public void validateUpdate() {
         loanApplication.validateUpdate();
-        registerEvent(MorabeheLoanApplicationUpdatedEvent.of(getId()));
+        registerEvent(MorabeheLoanApplicationUpdatedEvent.of(id()));
     }
 
 
-    public LoanApplication getLoanApplication() {
+    public LoanApplication loanApplication() {
         return loanApplication;
     }
 
@@ -80,12 +74,12 @@ public class MorabeheLoanApplication extends AggregateRoot<MorabeheLoanApplicati
         if (!(object instanceof MorabeheLoanApplication that)) {
             return false;
         }
-        return new EqualsBuilder().append(getId(), that.getId()).isEquals();
+        return new EqualsBuilder().append(id(), that.id()).isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37).append(getId()).toHashCode();
+        return new HashCodeBuilder(17, 37).append(id()).toHashCode();
     }
 
 }

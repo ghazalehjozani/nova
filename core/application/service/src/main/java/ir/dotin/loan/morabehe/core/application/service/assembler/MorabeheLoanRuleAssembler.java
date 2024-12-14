@@ -32,7 +32,7 @@ public class MorabeheLoanRuleAssembler extends BaseLoanRuleAssembler<LoanRuleBui
     }
 
     public LoanRuleResponse mapToResponse(MorabeheLoanRule loanRule) {
-        return new LoanRuleResponse(loanRule.getId().value());
+        return new LoanRuleResponse(loanRule.id().value());
     }
 
 }

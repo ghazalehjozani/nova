@@ -40,7 +40,7 @@ public class LoanRulePersistenceAdapter implements MorabeheLoanRulePersistencePo
 
     @Override
     public void update(MorabeheLoanRule loanRule) {
-        Query query = new Query(Criteria.where("_id").is(loanRule.getId().value().toString()));
+        Query query = new Query(Criteria.where("_id").is(loanRule.id().value().toString()));
         query.fields().include("version").include("createDate").include("updateDate");
         MorabeheLoanRuleDocument document = mongoTemplate
                 .findOne(query, MorabeheLoanRuleDocument.class);

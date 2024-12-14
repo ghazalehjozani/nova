@@ -42,7 +42,7 @@ public class LoanApplicationPersistenceAdapter implements MorabeheLoanApplicatio
 
     @Override
     public void update(MorabeheLoanApplication loanApplication) {
-        Query query = new Query(Criteria.where("_id").is(loanApplication.getId().value().toString()));
+        Query query = new Query(Criteria.where("_id").is(loanApplication.id().value().toString()));
         query.fields().include("version").include("createDate").include("updateDate");
         MorabeheLoanApplicationDocument document = mongoTemplate
                 .findOne(query, MorabeheLoanApplicationDocument.class);

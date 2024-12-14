@@ -83,8 +83,8 @@ class CreateLoanApplicationUseCaseTest {
         response = new LoanApplicationResponse(UUID.randomUUID());
 
         // Common stubs
-        given(mockApplication.getLoanApplication()).willReturn(mockLoanApplication);
-        given(mockLoanApplication.getLoanRuleId()).willReturn(loanRuleId);
+        given(mockApplication.loanApplication()).willReturn(mockLoanApplication);
+        given(mockLoanApplication.loanRuleId()).willReturn(loanRuleId);
     }
 
     @Nested
@@ -95,7 +95,7 @@ class CreateLoanApplicationUseCaseTest {
         @DisplayName("Should successfully create a loan application")
         void shouldCreateLoanApplication() {
             // Given: All required entities are found
-            given(mockLoanApplication.getLoanTypeId()).willReturn(loanTypeId);
+            given(mockLoanApplication.loanTypeId()).willReturn(loanTypeId);
             given(assembler.mapToAggregateRoot(command)).willReturn(mockApplication);
             given(loanRulePersistencePort.findById(loanRuleId)).willReturn(Optional.of(mockLoanRule));
             given(loanTypePersistencePort.findById(loanTypeId)).willReturn(Optional.of(mockLoanType));
@@ -144,7 +144,7 @@ class CreateLoanApplicationUseCaseTest {
         @DisplayName("Should throw LoanTypeNotFoundException if loan type is missing")
         void shouldThrowIfLoanTypeMissing() {
             // Given: Loan rule found but loan type missing
-            given(mockLoanApplication.getLoanTypeId()).willReturn(loanTypeId);
+            given(mockLoanApplication.loanTypeId()).willReturn(loanTypeId);
             given(assembler.mapToAggregateRoot(command)).willReturn(mockApplication);
             given(loanRulePersistencePort.findById(loanRuleId)).willReturn(Optional.of(mockLoanRule));
             given(loanTypePersistencePort.findById(loanTypeId)).willReturn(Optional.empty());

@@ -29,7 +29,7 @@ public class MorabeheLoanRuleUpdateServiceImpl extends
 
     @Override
     protected void setPreviousVersion(MorabeheLoanRule oldLoanRule, MorabeheLoanRule newLoanRule) {
-        newLoanRule.setPreviousVersion(oldLoanRule.getLoanRule().getId());
+        newLoanRule.setPreviousVersion(oldLoanRule.getLoanRule().id());
     }
 
     @Override
@@ -40,8 +40,8 @@ public class MorabeheLoanRuleUpdateServiceImpl extends
     @Override
     protected void ensureLoanRuleCodeNotChanged(MorabeheLoanRule oldLoanRule,
                                                 MorabeheLoanRule newLoanRule) {
-        boolean notEqual = !oldLoanRule.getLoanRule().getCode()
-                .equals(newLoanRule.getLoanRule().getCode());
+        boolean notEqual = !oldLoanRule.getLoanRule().code()
+                .equals(newLoanRule.getLoanRule().code());
         if (notEqual) {
             throw new MorabeheLoanRuleValidationException("error.validation.base.unchangeable", "code");
         }

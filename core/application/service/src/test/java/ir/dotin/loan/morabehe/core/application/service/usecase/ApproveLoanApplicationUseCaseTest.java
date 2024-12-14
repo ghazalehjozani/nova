@@ -95,15 +95,15 @@ class ApproveLoanApplicationUseCaseTest {
         @DisplayName("Should successfully approve a valid loan application")
         void shouldApproveLoanApplication() {
             // Given
-            given(mockLoanApplication.getLoanRuleId()).willReturn(loanRuleId);
-            given(mockApplication.getLoanApplication()).willReturn(mockLoanApplication);
+            given(mockLoanApplication.loanRuleId()).willReturn(loanRuleId);
+            given(mockApplication.loanApplication()).willReturn(mockLoanApplication);
             given(loanApplicationPersistencePort.findById(applicationId)).willReturn(Optional.of(mockApplication));
             given(assembler.mapToAggregateRoot(command, mockApplication)).willReturn(mockApplication);
 
             given(loanRulePersistencePort.findById(loanRuleId)).willReturn(Optional.of(mockLoanRule));
 
             SanctionSerial sanctionSerial = new SanctionSerial("SANCTION-123", SanctionType.GENERAL);
-            given(mockLoanApplication.getSanctionSerial()).willReturn(sanctionSerial);
+            given(mockLoanApplication.sanctionSerial()).willReturn(sanctionSerial);
             given(sanctionClientPort.getBySerial(sanctionSerial)).willReturn(Optional.of(mockSanction));
 
             given(assembler.mapToResponse(mockApplication)).willReturn(response);
@@ -151,8 +151,8 @@ class ApproveLoanApplicationUseCaseTest {
         @DisplayName("Should throw LoanRuleNotFoundException if loan rule is missing")
         void shouldThrowIfLoanRuleMissing() {
             // Given application found, but loan rule missing
-            given(mockLoanApplication.getLoanRuleId()).willReturn(loanRuleId);
-            given(mockApplication.getLoanApplication()).willReturn(mockLoanApplication);
+            given(mockLoanApplication.loanRuleId()).willReturn(loanRuleId);
+            given(mockApplication.loanApplication()).willReturn(mockLoanApplication);
             given(loanApplicationPersistencePort.findById(applicationId)).willReturn(Optional.of(mockApplication));
             given(assembler.mapToAggregateRoot(command, mockApplication)).willReturn(mockApplication);
 
@@ -174,15 +174,15 @@ class ApproveLoanApplicationUseCaseTest {
         @DisplayName("Should throw SanctionNotFoundException if sanction is missing")
         void shouldThrowIfSanctionMissing() {
             // Given everything found except sanction
-            given(mockLoanApplication.getLoanRuleId()).willReturn(loanRuleId);
-            given(mockApplication.getLoanApplication()).willReturn(mockLoanApplication);
+            given(mockLoanApplication.loanRuleId()).willReturn(loanRuleId);
+            given(mockApplication.loanApplication()).willReturn(mockLoanApplication);
             given(loanApplicationPersistencePort.findById(applicationId)).willReturn(Optional.of(mockApplication));
             given(assembler.mapToAggregateRoot(command, mockApplication)).willReturn(mockApplication);
 
             given(loanRulePersistencePort.findById(loanRuleId)).willReturn(Optional.of(mockLoanRule));
 
             SanctionSerial missingSanction = new SanctionSerial("NO-SANCTION", SanctionType.SPECIAL);
-            given(mockLoanApplication.getSanctionSerial()).willReturn(missingSanction);
+            given(mockLoanApplication.sanctionSerial()).willReturn(missingSanction);
 
             given(sanctionClientPort.getBySerial(missingSanction)).willReturn(Optional.empty());
 

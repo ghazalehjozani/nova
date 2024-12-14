@@ -35,7 +35,7 @@ public class CreateLoanRuleUseCaseImpl implements CreateLoanRuleUseCase {
 
         final MorabeheLoanRule loanRule = assembler.mapToAggregateRoot(command);
 
-        final boolean existsByCode = persistencePort.existsByCode(loanRule.getLoanRule().getCode());
+        final boolean existsByCode = persistencePort.existsByCode(loanRule.getLoanRule().code());
         if (existsByCode) {
             throw new MorabeheLoanRuleValidationException("Duplicate loan rule code", "code");
         }

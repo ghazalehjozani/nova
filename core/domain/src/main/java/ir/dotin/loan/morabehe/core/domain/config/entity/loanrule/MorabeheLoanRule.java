@@ -26,7 +26,7 @@ public class MorabeheLoanRule extends AggregateRoot<MorabeheLoanRuleId> {
     public void createLoanRule() {
         setId(MorabeheLoanRuleId.generate());
         loanRule.createLoanRule();
-        registerEvent(MorabeheLoanRuleCreatedEvent.of(getId()));
+        registerEvent(MorabeheLoanRuleCreatedEvent.of(id()));
     }
 
     public void activate() {
@@ -51,7 +51,7 @@ public class MorabeheLoanRule extends AggregateRoot<MorabeheLoanRuleId> {
 
     public void markAsDisabled() {
         loanRule.markAsDisabled();
-        registerEvent(MorabeheLoanRuleDisabledEvent.of(getId()));
+        registerEvent(MorabeheLoanRuleDisabledEvent.of(id()));
     }
 
     public LoanRule getLoanRule() {
@@ -66,11 +66,11 @@ public class MorabeheLoanRule extends AggregateRoot<MorabeheLoanRuleId> {
         if (!(object instanceof MorabeheLoanRule that)) {
             return false;
         }
-        return new EqualsBuilder().append(getId(), that.getId()).isEquals();
+        return new EqualsBuilder().append(id(), that.id()).isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37).append(getId()).toHashCode();
+        return new HashCodeBuilder(17, 37).append(id()).toHashCode();
     }
 }

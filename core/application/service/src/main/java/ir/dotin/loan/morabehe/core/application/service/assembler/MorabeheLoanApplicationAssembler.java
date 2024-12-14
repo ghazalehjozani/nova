@@ -32,13 +32,13 @@ public class MorabeheLoanApplicationAssembler extends
     public MorabeheLoanApplication mapToAggregateRoot(
             MorabeheApproveLoanApplicationCommand command, MorabeheLoanApplication loanApplication) {
         var builder = new LoanApplication.LoanApplicationBuilder(new FeatureConfig(Map.of("Key1", false)),
-                loanApplication.getLoanApplication());
+                loanApplication.loanApplication());
         super.mapFromCommand(command.loanApplication(), builder);
         return new MorabeheLoanApplication(null, builder.validateAndBuild());
     }
 
     public LoanApplicationResponse mapToResponse(MorabeheLoanApplication loanApplication) {
-        return new LoanApplicationResponse(loanApplication.getId().value());
+        return new LoanApplicationResponse(loanApplication.id().value());
     }
 
 }

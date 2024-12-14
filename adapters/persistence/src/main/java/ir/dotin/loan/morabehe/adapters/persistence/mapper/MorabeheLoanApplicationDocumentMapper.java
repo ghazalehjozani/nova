@@ -36,10 +36,10 @@ public class MorabeheLoanApplicationDocumentMapper extends
         if (loanApplication == null || document == null) {
             return null;
         }
-        document.setId(loanApplication.getId().value().toString());
-        document.setLoanRuleId(loanApplication.getLoanApplication().getLoanRuleId().value().toString());
-        document.setLoanTypeId(loanApplication.getLoanApplication().getLoanTypeId().value().toString());
-        var baseLoanApplicationDocument = super.mapToDocument(loanApplication.getLoanApplication());
+        document.setId(loanApplication.id().value().toString());
+        document.setLoanRuleId(loanApplication.loanApplication().loanRuleId().value().toString());
+        document.setLoanTypeId(loanApplication.loanApplication().loanTypeId().value().toString());
+        var baseLoanApplicationDocument = super.mapToDocument(loanApplication.loanApplication());
         document.setLoanApplication(baseLoanApplicationDocument);
         return document;
 
@@ -54,8 +54,8 @@ public class MorabeheLoanApplicationDocumentMapper extends
         if (loanApplication == null || loanApplicationDocument == null) {
             return null;
         }
-        loanApplicationDocument.setId(loanApplication.getId().value().toString());
-        var baseLoanApplicationDocument = super.mapToDocument(loanApplication.getLoanApplication());
+        loanApplicationDocument.setId(loanApplication.id().value().toString());
+        var baseLoanApplicationDocument = super.mapToDocument(loanApplication.loanApplication());
         loanApplicationDocument.setLoanApplication(baseLoanApplicationDocument);
         return loanApplicationDocument;
     }

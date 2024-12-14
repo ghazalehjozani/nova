@@ -26,7 +26,7 @@ public class MorabeheLoanTypeUpdateServiceImpl extends
 
     @Override
     protected void setPreviousVersion(MorabeheLoanType newLoanType, MorabeheLoanType oldLoanType) {
-        newLoanType.setPreviousVersion(oldLoanType.getLoanType().getId());
+        newLoanType.setPreviousVersion(oldLoanType.getLoanType().id());
     }
 
     @Override

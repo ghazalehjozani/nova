@@ -53,7 +53,7 @@ class CreateLoanRuleUseCaseTest {
 
         // Common stubs
         given(mockLoanRule.getLoanRule()).willReturn(mockInnerLoanRule);
-        given(mockInnerLoanRule.getCode()).willReturn(LoanRuleCode.valueOf("RULE-ABC"));
+        given(mockInnerLoanRule.code()).willReturn(LoanRuleCode.valueOf("RULE-ABC"));
 
         // Mock assembler behavior
         given(assembler.mapToAggregateRoot(command)).willReturn(mockLoanRule);

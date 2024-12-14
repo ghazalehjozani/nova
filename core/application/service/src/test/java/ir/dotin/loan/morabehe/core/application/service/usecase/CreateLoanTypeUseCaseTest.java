@@ -65,7 +65,7 @@ class CreateLoanTypeUseCaseTest {
         mockResponse = new LoanTypeResponse(UUID.randomUUID());
 
         given(mockLoanTypeAggregate.getLoanType()).willReturn(mockLoanType);
-        given(mockLoanType.getCode()).willReturn(loanTypeCode);
+        given(mockLoanType.code()).willReturn(loanTypeCode);
 
         given(assembler.mapToAggregateRoot(command)).willReturn(mockLoanTypeAggregate);
 
@@ -81,7 +81,7 @@ class CreateLoanTypeUseCaseTest {
         void shouldCreateLoanTypeSuccessfully() {
             // Given
             given(assembler.mapToResponse(mockLoanTypeAggregate)).willReturn(mockResponse);
-            given(mockLoanType.getLoanRuleIds()).willReturn(Set.of(existingRuleId));
+            given(mockLoanType.loanRuleIds()).willReturn(Set.of(existingRuleId));
             given(loanRulePersistencePort.existsByIdAndEnable(existingRuleId)).willReturn(true);
             // When
             LoanTypeResponse actualResponse = useCase.execute(command);
@@ -124,7 +124,7 @@ class CreateLoanTypeUseCaseTest {
         @DisplayName("Should throw MorabeheLoanTypeValidationException if a loan rule doesn't exist or is disabled")
         void shouldThrowIfLoanRuleMissingOrDisabled() {
             // Given: Changing command loan rule IDs to include a missing rule
-            given(mockLoanType.getLoanRuleIds()).willReturn(Set.of(existingRuleId, missingRuleId));
+            given(mockLoanType.loanRuleIds()).willReturn(Set.of(existingRuleId, missingRuleId));
             given(loanRulePersistencePort.existsByIdAndEnable(existingRuleId)).willReturn(true);
             given(loanRulePersistencePort.existsByIdAndEnable(missingRuleId)).willReturn(false);
 

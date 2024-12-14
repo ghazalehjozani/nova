@@ -112,13 +112,13 @@ public class LoanApplication extends BaseLoanApplication {
 
     @SuppressWarnings("unchecked")
     @Override
-    public MorabeheLoanTypeId getLoanTypeId() {
+    public MorabeheLoanTypeId loanTypeId() {
         return loanTypeId;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public MorabeheLoanRuleId getLoanRuleId() {
+    public MorabeheLoanRuleId loanRuleId() {
         return loanRuleId;
     }
 
@@ -130,12 +130,12 @@ public class LoanApplication extends BaseLoanApplication {
         if (!(object instanceof LoanApplication that)) {
             return false;
         }
-        return new EqualsBuilder().append(getId(), that.getId()).isEquals();
+        return new EqualsBuilder().append(id(), that.id()).isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37).append(getId()).toHashCode();
+        return new HashCodeBuilder(17, 37).append(id()).toHashCode();
     }
 
 

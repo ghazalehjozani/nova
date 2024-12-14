@@ -6,8 +6,9 @@ import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.LoanType;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanTypeId;
-import java.util.UUID;
 import org.springframework.stereotype.Component;
+
+import java.util.UUID;
 
 
 @Component
@@ -20,10 +21,10 @@ public class MorabeheLoanTypeDocumentMapper extends
         }
 
         MorabeheLoanTypeDocument document = new MorabeheLoanTypeDocument();
-        document.setId(loanType.getId().value().toString());
+        document.setId(loanType.id().value().toString());
         document.setHasIssueMerchandiseDocument(loanType.getLoanType()
-                                                        .getHasIssueMerchandiseDocument());
-        document.setLoanRuleIds(mapSet(loanType.getLoanType().getLoanRuleIds(),
+                                                        .hasIssueMerchandiseDocument());
+        document.setLoanRuleIds(mapSet(loanType.getLoanType().loanRuleIds(),
                                        id -> id.value().toString()));
         var baseLoanTypeDocument = super.mapToDocument(loanType.getLoanType());
         document.setLoanType(baseLoanTypeDocument);

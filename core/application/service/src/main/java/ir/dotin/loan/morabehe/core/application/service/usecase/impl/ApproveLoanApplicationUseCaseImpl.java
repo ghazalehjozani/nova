@@ -59,13 +59,13 @@ public class ApproveLoanApplicationUseCaseImpl implements ApproveLoanApplication
 
         final MorabeheLoanApplication morabeheLoanApplication = assembler.mapToAggregateRoot(command, existingApplication);
 
-        final LoanApplication loanApplication = morabeheLoanApplication.getLoanApplication();
+        final LoanApplication loanApplication = morabeheLoanApplication.loanApplication();
         final MorabeheLoanRule loanRule = loanRulePersistencePort
-                .findById(loanApplication.getLoanRuleId())
-                .orElseThrow(() -> new LoanRuleNotFoundException(loanApplication.getLoanRuleId()));
+                .findById(loanApplication.loanRuleId())
+                .orElseThrow(() -> new LoanRuleNotFoundException(loanApplication.loanRuleId()));
 
-        final Sanction sanction = sanctionClientPort.getBySerial(loanApplication.getSanctionSerial())
-                .orElseThrow(() -> new SanctionNotFoundException(loanApplication.getSanctionSerial()));
+        final Sanction sanction = sanctionClientPort.getBySerial(loanApplication.sanctionSerial())
+                .orElseThrow(() -> new SanctionNotFoundException(loanApplication.sanctionSerial()));
 
         approveService.approve(morabeheLoanApplication, loanRule, sanction);
 

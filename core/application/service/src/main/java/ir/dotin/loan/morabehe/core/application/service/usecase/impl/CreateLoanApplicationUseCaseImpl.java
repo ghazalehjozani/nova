@@ -52,12 +52,12 @@ public class CreateLoanApplicationUseCaseImpl implements CreateLoanApplicationUs
         final MorabeheLoanApplication loanApplication = assembler.mapToAggregateRoot(command);
 
         final MorabeheLoanRule loanRule = loanRulePersistencePort
-                .findById(loanApplication.getLoanApplication().getLoanRuleId())
-                .orElseThrow(() -> new LoanRuleNotFoundException(loanApplication.getLoanApplication().getLoanRuleId()));
+                .findById(loanApplication.loanApplication().loanRuleId())
+                .orElseThrow(() -> new LoanRuleNotFoundException(loanApplication.loanApplication().loanRuleId()));
 
         final MorabeheLoanType loanType = loanTypePersistencePort
-                .findById(loanApplication.getLoanApplication().getLoanTypeId())
-                .orElseThrow(() -> new LoanTypeNotFoundException(loanApplication.getLoanApplication().getLoanTypeId()));
+                .findById(loanApplication.loanApplication().loanTypeId())
+                .orElseThrow(() -> new LoanTypeNotFoundException(loanApplication.loanApplication().loanTypeId()));
 
         createService.create(loanApplication, loanRule, loanType);//TODO: return
 

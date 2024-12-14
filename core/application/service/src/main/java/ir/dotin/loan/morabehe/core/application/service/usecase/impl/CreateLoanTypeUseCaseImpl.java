@@ -42,10 +42,10 @@ public class CreateLoanTypeUseCaseImpl implements CreateLoanTypeUseCase {
         logger.debug("Executing CreateLoanTypeUseCase with command: {}", command);
 
         final MorabeheLoanType loanTypeAggregate = assembler.mapToAggregateRoot(command);
-        final LoanTypeCode loanTypeCode = loanTypeAggregate.getLoanType().getCode();
+        final LoanTypeCode loanTypeCode = loanTypeAggregate.getLoanType().code();
 
         validateLoanTypeCodeUniqueness(loanTypeCode);
-        validateLoanRuleIds(loanTypeAggregate.getLoanType().getLoanRuleIds());
+        validateLoanRuleIds(loanTypeAggregate.getLoanType().loanRuleIds());
 
         loanTypeAggregate.createLoanType();
         loanTypePersistencePort.save(loanTypeAggregate);

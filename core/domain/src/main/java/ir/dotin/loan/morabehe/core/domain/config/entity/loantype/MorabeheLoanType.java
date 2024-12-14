@@ -30,12 +30,12 @@ public class MorabeheLoanType extends AggregateRoot<MorabeheLoanTypeId> {
     public void createLoanType() {
         setId(MorabeheLoanTypeId.generate());
         loanType.createLoanType();
-        registerEvent(MorabeheLoanTypeCreatedEvent.of(getId()));
+        registerEvent(MorabeheLoanTypeCreatedEvent.of(id()));
     }
 
     public void markAsDisabled() {
         loanType.markAsDisabled();
-        registerEvent(MorabeheLoanTypeDisabledEvent.of(getId()));
+        registerEvent(MorabeheLoanTypeDisabledEvent.of(id()));
     }
 
     public void activate() {
@@ -52,7 +52,7 @@ public class MorabeheLoanType extends AggregateRoot<MorabeheLoanTypeId> {
 
     public void setPreviousVersion(LoanTypeId id) {
         loanType.setPreviousVersion(id);
-        registerEvent(MorabeheLoanTypeUpdatedEvent.of(this.getId(), id));
+        registerEvent(MorabeheLoanTypeUpdatedEvent.of(this.id(), id));
     }
 
     public void validateIsActive() {
@@ -72,12 +72,12 @@ public class MorabeheLoanType extends AggregateRoot<MorabeheLoanTypeId> {
         if (!(object instanceof MorabeheLoanType that)) {
             return false;
         }
-        return new EqualsBuilder().append(getId(), that.getId()).isEquals();
+        return new EqualsBuilder().append(id(), that.id()).isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37).append(getId()).toHashCode();
+        return new HashCodeBuilder(17, 37).append(id()).toHashCode();
     }
 
 }

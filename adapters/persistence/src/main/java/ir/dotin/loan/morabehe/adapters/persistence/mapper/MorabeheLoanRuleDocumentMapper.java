@@ -7,9 +7,10 @@ import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.LoanRule.LoanRu
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
 import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
+import org.springframework.stereotype.Component;
+
 import java.util.Map;
 import java.util.UUID;
-import org.springframework.stereotype.Component;
 
 @Component
 public class MorabeheLoanRuleDocumentMapper extends
@@ -21,7 +22,7 @@ public class MorabeheLoanRuleDocumentMapper extends
         }
 
         MorabeheLoanRuleDocument morabeheLoanRuleDocument = new MorabeheLoanRuleDocument();
-        morabeheLoanRuleDocument.setId(loanRule.getId().value().toString());
+        morabeheLoanRuleDocument.setId(loanRule.id().value().toString());
         var baseLoanRuleDocument = super.mapToDocument(loanRule.getLoanRule());
         morabeheLoanRuleDocument.setLoanRule(baseLoanRuleDocument);
         return morabeheLoanRuleDocument;
@@ -43,7 +44,7 @@ public class MorabeheLoanRuleDocumentMapper extends
         if (loanRule == null || loanRuleDocument == null) {
             return null;
         }
-        loanRuleDocument.setId(loanRule.getId().value().toString());
+        loanRuleDocument.setId(loanRule.id().value().toString());
         var baseLoanRuleDocument = super.mapToDocument(loanRule.getLoanRule());
         loanRuleDocument.setLoanRule(baseLoanRuleDocument);
         return loanRuleDocument;

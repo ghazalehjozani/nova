@@ -9,6 +9,7 @@ import ir.dotin.platform.ddd.common.util.Validator;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -111,11 +112,11 @@ public final class LoanType extends BaseLoanType {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Set<MorabeheLoanRuleId> getLoanRuleIds() {
-        return loanRuleIds;
+    public Set<MorabeheLoanRuleId> loanRuleIds() {
+        return Collections.unmodifiableSet(loanRuleIds);
     }
 
-    public Boolean getHasIssueMerchandiseDocument() {
+    public Boolean hasIssueMerchandiseDocument() {
         return hasIssueMerchandiseDocument;
     }
 
@@ -128,12 +129,12 @@ public final class LoanType extends BaseLoanType {
         if (!(object instanceof LoanType that)) {
             return false;
         }
-        return new EqualsBuilder().append(getId(), that.getId()).isEquals();
+        return new EqualsBuilder().append(id(), that.id()).isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37).append(getId()).toHashCode();
+        return new HashCodeBuilder(17, 37).append(id()).toHashCode();
     }
 
 

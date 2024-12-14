@@ -27,7 +27,7 @@ public class ApproveLoanApplicationServiceImpl extends
 
     @Override
     protected BaseLoanApplication getLoanApplication(MorabeheLoanApplication loanApplicationRoot) {
-        return loanApplicationRoot.getLoanApplication();
+        return loanApplicationRoot.loanApplication();
     }
 
     @Override
