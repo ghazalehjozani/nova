@@ -10,11 +10,14 @@ import ir.dotin.loan.morabehe.core.application.service.usecase.CreateLoanTypeUse
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
 import ir.dotin.loan.morabehe.core.domain.config.exception.MorabeheLoanTypeValidationException;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
+import ir.dotin.platform.ddd.common.exception.DomainError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -62,11 +65,15 @@ public class CreateLoanTypeUseCaseImpl implements CreateLoanTypeUseCase {
     }
 
     private void validateLoanRuleIds(Set<MorabeheLoanRuleId> loanRuleIds) {
-        for (MorabeheLoanRuleId loanRuleId : loanRuleIds) {
+        List<DomainError> errors = new ArrayList<>();
+        loanRuleIds.forEach(loanRuleId -> {
             boolean ruleExists = loanRulePersistencePort.existsByIdAndEnable(loanRuleId);
             if (!ruleExists) {
-                throw new MorabeheLoanTypeValidationException("loan rule not exist with Id:", "id", loanRuleId);
+                errors.add(new DomainError("loan rule not exist with Id: {}", loanRuleId));
             }
+        });
+        if (!errors.isEmpty()) {
+            throw new MorabeheLoanTypeValidationException(errors);
         }
     }
 

@@ -27,6 +27,7 @@ public final class LoanApplicationRoutes extends BaseRoutes {
 
     public static final class ApiEndpoints {
         public static final String BASE_PATH = BaseRoutes.ApiEndpoints.BASE_PATH + "/loan-application";
+        public static final String BASE_GRAPHQL_PATH = BaseRoutes.ApiEndpoints.BASE_PATH + BaseRoutes.ApiEndpoints.GRAPHQL_PATH + "/loan-application";
 
         public static final String CREATE = "/create";
         public static final String COMPENSATE_CREATE = BaseRoutes.ApiEndpoints.COMPENSATE + CREATE;

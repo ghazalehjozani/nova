@@ -30,8 +30,7 @@ public class LoanApplicationController {
     }
 
     @PostMapping(LoanApplicationRoutes.ApiEndpoints.APPROVE)
-    public ResponseEntity<LoanApplicationResponse> approveLoanApplication(
-            @RequestBody MorabeheApproveLoanApplicationCommand command) {
+    public ResponseEntity<LoanApplicationResponse> approveLoanApplication(@RequestBody MorabeheApproveLoanApplicationCommand command) {
         LoanApplicationResponse response = producerTemplate.requestBody(
                 LoanApplicationRoutes.APPROVE_LOAN_APPLICATION_URI, command, LoanApplicationResponse.class);
         return ResponseEntity.ok(response);

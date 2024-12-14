@@ -1,0 +1,58 @@
+type MorabeheLoanApplication {
+    id: ID!
+    loanApplication: LoanApplication
+}
+
+type LoanApplication {
+    id: ID!
+    number: String
+    serial: String
+    requestDate: String
+
+    # Customer Info
+    loanCustomer: String
+    applicantChannel: String
+    disburseDestination: String
+    credibilityRank: String
+    economicSector: String
+    branch: String
+    guarantors: [String]
+    certificates: [String]
+
+    # Loan Details
+    amount: Float
+    currency: String
+    gracePeriod: Int
+    installmentCount: Int
+    loanDuration: Int
+    requestReason: String
+    subSource: String
+    description: String
+
+    # Transactions
+    loanApplicationTransactions: [String]
+
+    # Financial Info
+    incomes: [String]
+
+    # State Info
+    currentState: String
+    loanApplicationState: String
+
+    # Relationships
+    sanctionSerial: String
+    lifeInsuranceId: String
+    collateralSerial: String
+
+    # Morabehe-specific fields
+    loanTypeId: String
+    loanRuleId: String
+}
+
+type Query {
+    # Fetch a MorabeheLoanApplication by its ID
+    morabeheLoanApplicationById(id: ID!): MorabeheLoanApplication
+
+    # Fetch all MorabeheLoanApplications (potentially with filters in the future)
+    morabeheLoanApplications: [MorabeheLoanApplication]
+}
