@@ -2,8 +2,8 @@ package ir.dotin.loan.morabehe.adapters.driven.persistence;
 
 
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.LoanTypeCode;
-import ir.dotin.loan.morabehe.adapters.driven.persistence.document.MorabeheLoanTypeDocument;
-import ir.dotin.loan.morabehe.adapters.driven.persistence.mapper.MorabeheLoanTypeDocumentMapper;
+import ir.dotin.loan.morabehe.adapters.driven.persistence.mapper.MorabeheLoanTypeEntryMapper;
+import ir.dotin.loan.morabehe.adapters.driven.persistence.model.MorabeheLoanTypeEntry;
 import ir.dotin.loan.morabehe.adapters.driven.persistence.repository.MorabeheLoanTypeRepository;
 import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanTypePersistencePort;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
@@ -23,11 +23,11 @@ public class LoanTypePersistenceAdapter implements MorabeheLoanTypePersistencePo
 
     private final MongoTemplate mongoTemplate;
     private final MorabeheLoanTypeRepository repository;
-    private final MorabeheLoanTypeDocumentMapper mapper;
+    private final MorabeheLoanTypeEntryMapper mapper;
 
     public LoanTypePersistenceAdapter(MongoTemplate mongoTemplate,
                                       MorabeheLoanTypeRepository repository,
-                                      MorabeheLoanTypeDocumentMapper mapper) {
+                                      MorabeheLoanTypeEntryMapper mapper) {
         this.mongoTemplate = mongoTemplate;
         this.repository = repository;
         this.mapper = mapper;
@@ -36,7 +36,7 @@ public class LoanTypePersistenceAdapter implements MorabeheLoanTypePersistencePo
     @Transactional
     @Override
     public void save(MorabeheLoanType loanType) {
-        MorabeheLoanTypeDocument loanTypeDocument = mapper.mapToDocument(loanType);
+        MorabeheLoanTypeEntry loanTypeDocument = mapper.mapToDocument(loanType);
         repository.save(loanTypeDocument);
     }
 
@@ -45,8 +45,8 @@ public class LoanTypePersistenceAdapter implements MorabeheLoanTypePersistencePo
         Query query = new Query();
         query.addCriteria(Criteria.where("_id").is(id.value().toString())
                                   .and("loanType.disable").is(false));
-        MorabeheLoanTypeDocument result = mongoTemplate.findOne(query,
-                                                                MorabeheLoanTypeDocument.class);
+        MorabeheLoanTypeEntry result = mongoTemplate.findOne(query,
+                                                                MorabeheLoanTypeEntry.class);
         return Optional.ofNullable(result).map(mapper::mapToAggregate);
     }
 
@@ -57,8 +57,8 @@ public class LoanTypePersistenceAdapter implements MorabeheLoanTypePersistencePo
         query.addCriteria(Criteria.where("_id").is(id.value().toString())
                                   .and("loanRuleIds").in(loanRuleId.value().toString())
                                   .and("loanType.disable").is(false));
-        MorabeheLoanTypeDocument result = mongoTemplate.findOne(query,
-                                                                MorabeheLoanTypeDocument.class);
+        MorabeheLoanTypeEntry result = mongoTemplate.findOne(query,
+                                                                MorabeheLoanTypeEntry.class);
         return Optional.ofNullable(result).map(mapper::mapToAggregate);
     }
 
@@ -66,7 +66,7 @@ public class LoanTypePersistenceAdapter implements MorabeheLoanTypePersistencePo
     public boolean existsByCode(LoanTypeCode code) {
         Query query = new Query();
         query.addCriteria(Criteria.where("loanType.code").is(code.value()));
-        long count = mongoTemplate.count(query, MorabeheLoanTypeDocument.class);
+        long count = mongoTemplate.count(query, MorabeheLoanTypeEntry.class);
         return count > 0;
     }
 }

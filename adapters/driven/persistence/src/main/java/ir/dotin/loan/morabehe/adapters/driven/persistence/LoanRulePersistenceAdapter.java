@@ -1,8 +1,8 @@
 package ir.dotin.loan.morabehe.adapters.driven.persistence;
 
 import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleCode;
-import ir.dotin.loan.morabehe.adapters.driven.persistence.document.MorabeheLoanRuleDocument;
-import ir.dotin.loan.morabehe.adapters.driven.persistence.mapper.MorabeheLoanRuleDocumentMapper;
+import ir.dotin.loan.morabehe.adapters.driven.persistence.mapper.MorabeheLoanRuleEntryMapper;
+import ir.dotin.loan.morabehe.adapters.driven.persistence.model.MorabeheLoanRuleEntry;
 import ir.dotin.loan.morabehe.adapters.driven.persistence.repository.MorabeheLoanRuleRepository;
 import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanRulePersistencePort;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
@@ -21,11 +21,11 @@ public class LoanRulePersistenceAdapter implements MorabeheLoanRulePersistencePo
 
     private final MongoTemplate mongoTemplate;
     private final MorabeheLoanRuleRepository repository;
-    private final MorabeheLoanRuleDocumentMapper mapper;
+    private final MorabeheLoanRuleEntryMapper mapper;
 
     public LoanRulePersistenceAdapter(MongoTemplate mongoTemplate,
                                       MorabeheLoanRuleRepository repository,
-                                      MorabeheLoanRuleDocumentMapper mapper) {
+                                      MorabeheLoanRuleEntryMapper mapper) {
         this.mongoTemplate = mongoTemplate;
         this.repository = repository;
         this.mapper = mapper;
@@ -34,7 +34,7 @@ public class LoanRulePersistenceAdapter implements MorabeheLoanRulePersistencePo
     @Transactional
     @Override
     public void save(MorabeheLoanRule rule) {
-        MorabeheLoanRuleDocument loanRuleDocument = mapper.mapToDocument(rule);
+        MorabeheLoanRuleEntry loanRuleDocument = mapper.mapToDocument(rule);
         repository.save(loanRuleDocument);
     }
 
@@ -42,9 +42,9 @@ public class LoanRulePersistenceAdapter implements MorabeheLoanRulePersistencePo
     public void update(MorabeheLoanRule loanRule) {
         Query query = new Query(Criteria.where("_id").is(loanRule.id().value().toString()));
         query.fields().include("version").include("createDate").include("updateDate");
-        MorabeheLoanRuleDocument document = mongoTemplate
-                .findOne(query, MorabeheLoanRuleDocument.class);
-        MorabeheLoanRuleDocument loanRuleDocument = mapper.updateDocument(loanRule, document);
+        MorabeheLoanRuleEntry document = mongoTemplate
+                .findOne(query, MorabeheLoanRuleEntry.class);
+        MorabeheLoanRuleEntry loanRuleDocument = mapper.updateDocument(loanRule, document);
         repository.save(loanRuleDocument);
     }
 
@@ -53,8 +53,8 @@ public class LoanRulePersistenceAdapter implements MorabeheLoanRulePersistencePo
         Query query = new Query();
         query.addCriteria(Criteria.where("_id").is(id.value().toString())
                         .and("loanRule.disable").is(false));
-        MorabeheLoanRuleDocument result = mongoTemplate.findOne(query,
-                                                                MorabeheLoanRuleDocument.class);
+        MorabeheLoanRuleEntry result = mongoTemplate.findOne(query,
+                                                                MorabeheLoanRuleEntry.class);
         return Optional.ofNullable(result).map(mapper::mapToAggregate);
     }
 
@@ -62,7 +62,7 @@ public class LoanRulePersistenceAdapter implements MorabeheLoanRulePersistencePo
     public boolean existsByCode(LoanRuleCode code) {
         Query query = new Query();
         query.addCriteria(Criteria.where("loanRule.code").is(code.value()));
-        long count = mongoTemplate.count(query, MorabeheLoanRuleDocument.class);
+        long count = mongoTemplate.count(query, MorabeheLoanRuleEntry.class);
         return count > 0;
     }
 
@@ -71,7 +71,7 @@ public class LoanRulePersistenceAdapter implements MorabeheLoanRulePersistencePo
         Query query = new Query();
         query.addCriteria(Criteria.where("_id").is(id.value().toString())
                                   .and("loanRule.disable").is(false));
-        long count = mongoTemplate.count(query, MorabeheLoanRuleDocument.class);
+        long count = mongoTemplate.count(query, MorabeheLoanRuleEntry.class);
         return count > 0;
     }
 

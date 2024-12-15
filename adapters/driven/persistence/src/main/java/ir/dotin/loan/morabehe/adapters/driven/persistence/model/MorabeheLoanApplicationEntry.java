@@ -1,15 +1,15 @@
-package ir.dotin.loan.morabehe.adapters.driven.persistence.document;
+package ir.dotin.loan.morabehe.adapters.driven.persistence.model;
 
-import ir.dotin.loan.baseloan.adapters.driven.persistence.document.AuditableDocument;
-import ir.dotin.loan.baseloan.adapters.driven.persistence.document.loanaplication.BaseLoanApplicationDocument;
+import ir.dotin.loan.baseloan.adapters.driven.persistence.loanapplication.model.BaseLoanApplicationEntry;
+import ir.dotin.loan.baseloan.adapters.driven.persistence.model.AuditableEntry;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document("morabehe_loan_application")
-public class MorabeheLoanApplicationDocument extends AuditableDocument {
+public class MorabeheLoanApplicationEntry extends AuditableEntry {
 
     @Field("loan_application")
-    private BaseLoanApplicationDocument loanApplication;
+    private BaseLoanApplicationEntry loanApplication;
 
     @Field("loan_type_id")
     private String loanTypeId;
@@ -17,20 +17,20 @@ public class MorabeheLoanApplicationDocument extends AuditableDocument {
     @Field("loan_rule_id")
     private String loanRuleId;
 
-    public MorabeheLoanApplicationDocument() {
+    public MorabeheLoanApplicationEntry() {
     }
 
-    public MorabeheLoanApplicationDocument(String id,
-                                           BaseLoanApplicationDocument loanApplication) {
+    public MorabeheLoanApplicationEntry(String id,
+                                        BaseLoanApplicationEntry loanApplication) {
         super(id);
         this.loanApplication = loanApplication;
     }
 
-    public BaseLoanApplicationDocument getLoanApplication() {
+    public BaseLoanApplicationEntry getLoanApplication() {
         return loanApplication;
     }
 
-    public void setLoanApplication(BaseLoanApplicationDocument loanApplication) {
+    public void setLoanApplication(BaseLoanApplicationEntry loanApplication) {
         this.loanApplication = loanApplication;
     }
 

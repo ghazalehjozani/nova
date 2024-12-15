@@ -1,7 +1,7 @@
 package ir.dotin.loan.morabehe.adapters.driven.persistence.mapper;
 
-import ir.dotin.loan.baseloan.adapters.driven.persistence.mapper.BaseLoanTypeDocumentMapper;
-import ir.dotin.loan.morabehe.adapters.driven.persistence.document.MorabeheLoanTypeDocument;
+import ir.dotin.loan.baseloan.adapters.driven.persistence.loantype.mapper.BaseLoanTypeEntryMapper;
+import ir.dotin.loan.morabehe.adapters.driven.persistence.model.MorabeheLoanTypeEntry;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.LoanType;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
@@ -12,15 +12,15 @@ import java.util.UUID;
 
 
 @Component
-public class MorabeheLoanTypeDocumentMapper extends
-        BaseLoanTypeDocumentMapper<LoanType, LoanType.LoanTypeBuilder> {
+public class MorabeheLoanTypeEntryMapper extends
+        BaseLoanTypeEntryMapper<LoanType, LoanType.LoanTypeBuilder> {
 
-    public MorabeheLoanTypeDocument mapToDocument(MorabeheLoanType loanType) {
+    public MorabeheLoanTypeEntry mapToDocument(MorabeheLoanType loanType) {
         if (loanType == null) {
             return null;
         }
 
-        MorabeheLoanTypeDocument document = new MorabeheLoanTypeDocument();
+        MorabeheLoanTypeEntry document = new MorabeheLoanTypeEntry();
         document.setId(loanType.id().value().toString());
         document.setHasIssueMerchandiseDocument(loanType.getLoanType()
                                                         .hasIssueMerchandiseDocument());
@@ -31,7 +31,7 @@ public class MorabeheLoanTypeDocumentMapper extends
         return document;
     }
 
-    public MorabeheLoanType mapToAggregate(MorabeheLoanTypeDocument document) {
+    public MorabeheLoanType mapToAggregate(MorabeheLoanTypeEntry document) {
         if (document == null) {
             return null;
         }

@@ -1,7 +1,7 @@
 package ir.dotin.loan.morabehe.adapters.driven.persistence.mapper;
 
-import ir.dotin.loan.baseloan.adapters.driven.persistence.mapper.BaseLoanApplicationDocumentMapper;
-import ir.dotin.loan.morabehe.adapters.driven.persistence.document.MorabeheLoanApplicationDocument;
+import ir.dotin.loan.baseloan.adapters.driven.persistence.loanapplication.mapper.BaseLoanApplicationEntryMapper;
+import ir.dotin.loan.morabehe.adapters.driven.persistence.model.MorabeheLoanApplicationEntry;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanTypeId;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.LoanApplication;
@@ -15,11 +15,11 @@ import java.util.Map;
 import java.util.UUID;
 
 @Component
-public class MorabeheLoanApplicationDocumentMapper extends
-        BaseLoanApplicationDocumentMapper<LoanApplication, LoanApplicationBuilder> {
+public class MorabeheLoanApplicationEntryMapper extends
+        BaseLoanApplicationEntryMapper<LoanApplication, LoanApplicationBuilder> {
 
 
-    public MorabeheLoanApplication mapToAggregate(MorabeheLoanApplicationDocument loanApplicationDocument) {
+    public MorabeheLoanApplication mapToAggregate(MorabeheLoanApplicationEntry loanApplicationDocument) {
         if (loanApplicationDocument == null) {
             return null;
         }
@@ -31,8 +31,8 @@ public class MorabeheLoanApplicationDocumentMapper extends
         return new MorabeheLoanApplication(morabeheLoanApplicationId, builder.validateAndBuild());
     }
 
-    public MorabeheLoanApplicationDocument mapToDocument(MorabeheLoanApplication loanApplication,
-                                                         MorabeheLoanApplicationDocument document) {
+    public MorabeheLoanApplicationEntry mapToDocument(MorabeheLoanApplication loanApplication,
+                                                      MorabeheLoanApplicationEntry document) {
         if (loanApplication == null || document == null) {
             return null;
         }
@@ -45,12 +45,12 @@ public class MorabeheLoanApplicationDocumentMapper extends
 
     }
 
-    public MorabeheLoanApplicationDocument mapToDocument(MorabeheLoanApplication loanApplication) {
-        return mapToDocument(loanApplication, new MorabeheLoanApplicationDocument());
+    public MorabeheLoanApplicationEntry mapToDocument(MorabeheLoanApplication loanApplication) {
+        return mapToDocument(loanApplication, new MorabeheLoanApplicationEntry());
     }
 
-    public MorabeheLoanApplicationDocument updateDocument(MorabeheLoanApplication loanApplication,
-                                                   MorabeheLoanApplicationDocument loanApplicationDocument) {
+    public MorabeheLoanApplicationEntry updateDocument(MorabeheLoanApplication loanApplication,
+                                                       MorabeheLoanApplicationEntry loanApplicationDocument) {
         if (loanApplication == null || loanApplicationDocument == null) {
             return null;
         }

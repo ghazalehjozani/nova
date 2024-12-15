@@ -1,7 +1,7 @@
 package ir.dotin.loan.morabehe.adapters.driven.persistence.mapper;
 
-import ir.dotin.loan.baseloan.adapters.driven.persistence.mapper.BaseLoanRuleDocumentMapper;
-import ir.dotin.loan.morabehe.adapters.driven.persistence.document.MorabeheLoanRuleDocument;
+import ir.dotin.loan.baseloan.adapters.driven.persistence.loanrule.mapper.BaseLoanRuleEntryMapper;
+import ir.dotin.loan.morabehe.adapters.driven.persistence.model.MorabeheLoanRuleEntry;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.LoanRule;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.LoanRule.LoanRuleBuilder;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
@@ -13,22 +13,22 @@ import java.util.Map;
 import java.util.UUID;
 
 @Component
-public class MorabeheLoanRuleDocumentMapper extends
-        BaseLoanRuleDocumentMapper<LoanRule, LoanRuleBuilder> {
+public class MorabeheLoanRuleEntryMapper extends
+        BaseLoanRuleEntryMapper<LoanRule, LoanRuleBuilder> {
 
-    public MorabeheLoanRuleDocument mapToDocument(MorabeheLoanRule loanRule) {
+    public MorabeheLoanRuleEntry mapToDocument(MorabeheLoanRule loanRule) {
         if (loanRule == null) {
             return null;
         }
 
-        MorabeheLoanRuleDocument morabeheLoanRuleDocument = new MorabeheLoanRuleDocument();
+        MorabeheLoanRuleEntry morabeheLoanRuleDocument = new MorabeheLoanRuleEntry();
         morabeheLoanRuleDocument.setId(loanRule.id().value().toString());
         var baseLoanRuleDocument = super.mapToDocument(loanRule.getLoanRule());
         morabeheLoanRuleDocument.setLoanRule(baseLoanRuleDocument);
         return morabeheLoanRuleDocument;
     }
 
-    public MorabeheLoanRule mapToAggregate(MorabeheLoanRuleDocument loanRuleDocument) {
+    public MorabeheLoanRule mapToAggregate(MorabeheLoanRuleEntry loanRuleDocument) {
         if (loanRuleDocument == null) {
             return null;
         }
@@ -39,8 +39,8 @@ public class MorabeheLoanRuleDocumentMapper extends
         return new MorabeheLoanRule(morabeheLoanRuleId, loanRuleBuilder.validateAndBuild());
     }
 
-    public MorabeheLoanRuleDocument updateDocument(MorabeheLoanRule loanRule,
-                                                   MorabeheLoanRuleDocument loanRuleDocument) {
+    public MorabeheLoanRuleEntry updateDocument(MorabeheLoanRule loanRule,
+                                                MorabeheLoanRuleEntry loanRuleDocument) {
         if (loanRule == null || loanRuleDocument == null) {
             return null;
         }
