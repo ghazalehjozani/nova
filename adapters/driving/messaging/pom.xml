@@ -12,7 +12,7 @@
   </parent>
 
   <artifactId>morabehe-loan-adapters-driving-messaging</artifactId>
-  <name>Morabehe Loan :: Adapters Messaging</name>
+  <name>Morabehe Loan :: Adapters :: Driving :: Messaging</name>
   <packaging>jar</packaging>
 
 

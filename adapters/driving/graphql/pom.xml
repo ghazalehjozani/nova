@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>morabehe-loan-adapters-driving-graphql</artifactId>
-    <name>Morabehe Loan :: Adapters Web</name>
+    <name>Morabehe Loan :: Adapters :: Driving :: Graphql</name>
     <packaging>jar</packaging>
 
     <dependencies>

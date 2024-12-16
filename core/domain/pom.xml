@@ -12,7 +12,7 @@
   </parent>
 
   <artifactId>morabehe-loan-core-domain</artifactId>
-  <name>Morabehe Loan :: Core Domain</name>
+  <name>Morabehe Loan :: Core :: Domain</name>
   <packaging>jar</packaging>
 
   <dependencies>

@@ -12,7 +12,7 @@
   </parent>
 
   <artifactId>morabehe-loan-core-application-ports</artifactId>
-  <name>Morabehe Loan :: Core Application Ports</name>
+  <name>Morabehe Loan :: Core :: Application :: Ports</name>
   <packaging>jar</packaging>
 
   <dependencies>
