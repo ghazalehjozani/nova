@@ -12,7 +12,7 @@
   </parent>
 
   <artifactId>morabehe-loan-core-application-service</artifactId>
-  <name>Morabehe Loan :: Core Application Service</name>
+  <name>Morabehe Loan :: Core :: Application :: Service</name>
   <packaging>jar</packaging>
 
   <dependencies>
