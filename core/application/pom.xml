@@ -12,7 +12,7 @@
   </parent>
 
   <artifactId>morabehe-loan-core-application</artifactId>
-  <name>Morabehe Loan :: Core Application</name>
+  <name>Morabehe Loan :: Core :: Application</name>
   <packaging>pom</packaging>
 
   <modules>

@@ -12,7 +12,7 @@
   </parent>
 
   <artifactId>morabehe-loan-adapters-driving-rest</artifactId>
-  <name>Morabehe Loan :: Adapters Web</name>
+  <name>Morabehe Loan :: Adapters :: Driving :: Rest</name>
   <packaging>jar</packaging>
 
   <dependencies>
