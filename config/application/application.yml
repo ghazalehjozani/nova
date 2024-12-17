@@ -1,0 +1,8 @@
+server:
+  port: 8085
+
+management:
+  metrics:
+    tags:
+      app: ${spring.application.name}
+      instance: ${spring.application.name}-${random.uuid}
