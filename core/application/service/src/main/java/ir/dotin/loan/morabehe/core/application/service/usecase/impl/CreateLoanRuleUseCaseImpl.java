@@ -1,6 +1,7 @@
 package ir.dotin.loan.morabehe.core.application.service.usecase.impl;
 
-import ir.dotin.loan.baseloan.core.application.ports.output.messaging.JournalPublisherPort;
+import ir.dotin.loan.baseloan.core.application.ports.output.messaging.EventPublisherPort;
+import ir.dotin.loan.baseloan.core.application.ports.output.persistence.JournalRepositoryPort;
 import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanRulePersistencePort;
 import ir.dotin.loan.morabehe.core.application.service.assembler.MorabeheLoanRuleAssembler;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanRuleCommand;
@@ -20,15 +21,18 @@ public class CreateLoanRuleUseCaseImpl implements CreateLoanRuleUseCase {
     private static final Logger logger = LoggerFactory.getLogger(CreateLoanRuleUseCaseImpl.class);
 
     private final MorabeheLoanRulePersistencePort persistencePort;
-    private final JournalPublisherPort journalPublisherPort;
+    private final JournalRepositoryPort journalRepositoryPort;
+    private final EventPublisherPort journalPublisherPort;
     private final MorabeheLoanRuleAssembler assembler;
 
     public CreateLoanRuleUseCaseImpl(
-            final MorabeheLoanRulePersistencePort persistencePort,
-            JournalPublisherPort journalPublisherPort,
-            final MorabeheLoanRuleAssembler assembler
+            MorabeheLoanRulePersistencePort persistencePort,
+            JournalRepositoryPort journalRepositoryPort,
+            EventPublisherPort journalPublisherPort,
+            MorabeheLoanRuleAssembler assembler
     ) {
         this.persistencePort = persistencePort;
+        this.journalRepositoryPort = journalRepositoryPort;
         this.journalPublisherPort = journalPublisherPort;
         this.assembler = assembler;
     }
@@ -45,7 +49,9 @@ public class CreateLoanRuleUseCaseImpl implements CreateLoanRuleUseCase {
         }
 
         loanRule.createLoanRule();
+
         persistencePort.save(loanRule);
+        journalRepositoryPort.appendEvents(loanRule.domainEvents());
 
         journalPublisherPort.publishEvents(loanRule.domainEvents());
         return assembler.mapToResponse(loanRule);
