@@ -1,4 +1,4 @@
-package ir.dotin.loan.morabehe.adapters.driven.persistence.model;
+package ir.dotin.loan.morabehe.adapters.driven.persistence.loantype.model;
 
 
 import ir.dotin.loan.baseloan.adapters.driven.persistence.loantype.model.BaseLoanTypeEntry;

@@ -1,7 +1,7 @@
-package ir.dotin.loan.morabehe.adapters.driven.persistence.repository;
+package ir.dotin.loan.morabehe.adapters.driven.persistence.loantype.repository;
 
 
-import ir.dotin.loan.morabehe.adapters.driven.persistence.model.MorabeheLoanTypeEntry;
+import ir.dotin.loan.morabehe.adapters.driven.persistence.loantype.model.MorabeheLoanTypeEntry;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

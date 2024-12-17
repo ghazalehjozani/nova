@@ -1,9 +1,9 @@
-package ir.dotin.loan.morabehe.adapters.driven.persistence;
+package ir.dotin.loan.morabehe.adapters.driven.persistence.loanrule;
 
 import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleCode;
-import ir.dotin.loan.morabehe.adapters.driven.persistence.mapper.MorabeheLoanRuleEntryMapper;
-import ir.dotin.loan.morabehe.adapters.driven.persistence.model.MorabeheLoanRuleEntry;
-import ir.dotin.loan.morabehe.adapters.driven.persistence.repository.MorabeheLoanRuleRepository;
+import ir.dotin.loan.morabehe.adapters.driven.persistence.loanrule.mapper.MorabeheLoanRuleEntryMapper;
+import ir.dotin.loan.morabehe.adapters.driven.persistence.loanrule.model.MorabeheLoanRuleEntry;
+import ir.dotin.loan.morabehe.adapters.driven.persistence.loanrule.repository.MorabeheLoanRuleRepository;
 import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanRulePersistencePort;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
@@ -39,6 +39,7 @@ public class LoanRulePersistenceAdapter implements MorabeheLoanRulePersistencePo
     }
 
     @Override
+    @Transactional
     public void update(MorabeheLoanRule loanRule) {
         Query query = new Query(Criteria.where("_id").is(loanRule.id().value().toString()));
         query.fields().include("version").include("createDate").include("updateDate");

@@ -1,4 +1,4 @@
-package ir.dotin.loan.morabehe.adapters.driven.persistence.model;
+package ir.dotin.loan.morabehe.adapters.driven.persistence.loanrule.model;
 
 import ir.dotin.loan.baseloan.adapters.driven.persistence.loanrule.model.BaseLoanRuleEntry;
 import ir.dotin.loan.baseloan.adapters.driven.persistence.model.AuditableEntry;
