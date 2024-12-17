@@ -22,7 +22,6 @@ public class CreateLoanApplicationSagaConfigurator extends RouteBuilder {
 
         // Main Saga Route for Creating Loan Application
         from(LoanApplicationRoutes.CREATE_LOAN_APPLICATION_URI)
-                .errorHandler(noErrorHandler())
                 .routeId(LoanApplicationRoutes.SagaRoutes.CREATE_LOAN_APPLICATION_SAGA)
                 .saga()
                     .propagation(SagaPropagation.REQUIRED)

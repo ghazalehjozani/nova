@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(LoanApplicationRoutes.ApiEndpoints.BASE_PATH)
+@RequestMapping(LoanApplicationRoutes.ApiEndpoints.BASE_PATH) // TODO: Remove
 public class LoanApplicationController {
 
     private final ProducerTemplate producerTemplate;

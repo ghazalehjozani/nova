@@ -23,7 +23,6 @@ public class UpdateLoanRuleSagaConfigurator extends RouteBuilder {
 
         // Main Saga Route for Updating loan Rule
         from(LoanRuleRoutes.UPDATE_LOAN_RULE_URI)
-                .errorHandler(noErrorHandler())
                 .routeId(LoanRuleRoutes.SagaRoutes.UPDATE_LOAN_RULE_SAGA)
                 .saga()
                     .propagation(SagaPropagation.REQUIRED)

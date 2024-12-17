@@ -22,7 +22,6 @@ public class ApproveLoanApplicationSagaConfigurator extends RouteBuilder {
 
         // Main Saga Route for Approving Loan Application
         from(LoanApplicationRoutes.APPROVE_LOAN_APPLICATION_URI)
-                .errorHandler(noErrorHandler())
                 .routeId(LoanApplicationRoutes.SagaRoutes.APPROVE_LOAN_APPLICATION_SAGA)
                 .saga()
                     .propagation(SagaPropagation.REQUIRED)

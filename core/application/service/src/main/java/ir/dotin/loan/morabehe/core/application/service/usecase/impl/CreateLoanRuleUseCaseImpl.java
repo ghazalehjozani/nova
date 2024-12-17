@@ -1,5 +1,6 @@
 package ir.dotin.loan.morabehe.core.application.service.usecase.impl;
 
+import ir.dotin.loan.baseloan.core.application.ports.output.messaging.JournalPublisherPort;
 import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanRulePersistencePort;
 import ir.dotin.loan.morabehe.core.application.service.assembler.MorabeheLoanRuleAssembler;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanRuleCommand;
@@ -19,13 +20,16 @@ public class CreateLoanRuleUseCaseImpl implements CreateLoanRuleUseCase {
     private static final Logger logger = LoggerFactory.getLogger(CreateLoanRuleUseCaseImpl.class);
 
     private final MorabeheLoanRulePersistencePort persistencePort;
+    private final JournalPublisherPort journalPublisherPort;
     private final MorabeheLoanRuleAssembler assembler;
 
     public CreateLoanRuleUseCaseImpl(
             final MorabeheLoanRulePersistencePort persistencePort,
+            JournalPublisherPort journalPublisherPort,
             final MorabeheLoanRuleAssembler assembler
     ) {
         this.persistencePort = persistencePort;
+        this.journalPublisherPort = journalPublisherPort;
         this.assembler = assembler;
     }
 
@@ -43,8 +47,7 @@ public class CreateLoanRuleUseCaseImpl implements CreateLoanRuleUseCase {
         loanRule.createLoanRule();
         persistencePort.save(loanRule);
 
-        // TODO: Publish Event
-
+        journalPublisherPort.publishEvents(loanRule.domainEvents());
         return assembler.mapToResponse(loanRule);
     }
 

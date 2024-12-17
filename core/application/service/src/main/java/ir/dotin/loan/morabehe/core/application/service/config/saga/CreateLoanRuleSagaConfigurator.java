@@ -24,7 +24,6 @@ public class CreateLoanRuleSagaConfigurator extends RouteBuilder {
 
         // Main Saga Route for Creating Loan Rule
         from(LoanRuleRoutes.CREATE_LOAN_RULE_URI)
-                .errorHandler(noErrorHandler())
                 .routeId(LoanRuleRoutes.SagaRoutes.CREATE_LOAN_RULE_SAGA)
                 .saga()
                     .propagation(SagaPropagation.REQUIRED)
@@ -32,7 +31,7 @@ public class CreateLoanRuleSagaConfigurator extends RouteBuilder {
                     .log("Processing CreateLoanRuleCommand: ${body}")
                     .bean(createUseCase, BaseRoutes.EXECUTE_METHOD)
                     .compensation(LoanRuleRoutes.COMPENSATE_CREATE_LOAN_RULE_URI)
-                    .log("Loan rule created with ID: ${body.loanRuleId}")
+                    .log("Loan rule created with ID: ${body.serial}")
                 .end();
 
         // Compensation Route for Creating Loan Rule

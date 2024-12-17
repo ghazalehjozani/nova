@@ -26,7 +26,7 @@ public class MorabeheLoanRule extends AggregateRoot<MorabeheLoanRuleId> {
     public void createLoanRule() {
         setId(MorabeheLoanRuleId.generate());
         loanRule.createLoanRule();
-        registerEvent(MorabeheLoanRuleCreatedEvent.of(id()));
+        registerEvent(MorabeheLoanRuleCreatedEvent.from(id()));
     }
 
     public void activate() {
