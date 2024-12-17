@@ -5,13 +5,14 @@ import ir.dotin.platform.ddd.common.entity.TimeBasedUUIDGenerator;
 import ir.dotin.platform.ddd.common.event.DomainEvent;
 
 import java.time.Instant;
+import java.util.UUID;
 
-public record MorabeheLoanRuleCreatedEvent(String eventId,
+public record MorabeheLoanRuleCreatedEvent(UUID eventId,
                                            Instant createdAt,
-                                           String aggregateId) implements DomainEvent {
+                                           UUID aggregateId) implements DomainEvent<MorabeheLoanRuleCreatedEvent, String> {
 
     public MorabeheLoanRuleCreatedEvent(MorabeheLoanRuleId aggregateId) {
-        this(TimeBasedUUIDGenerator.generate().toString(), Instant.now(), aggregateId.value().toString());
+        this(TimeBasedUUIDGenerator.generate(), Instant.now(), aggregateId.value());
     }
 
     public static MorabeheLoanRuleCreatedEvent from(MorabeheLoanRuleId aggregateId) {
@@ -19,22 +20,13 @@ public record MorabeheLoanRuleCreatedEvent(String eventId,
     }
 
     @Override
+    public String payload() {
+        return "payload";
+    }
+
+    @Override
     public String eventType() {
-        return "eventType";
+        return "MORABEHE_LOAN";
     }
 
-    @Override
-    public Object payload() {
-        return "null";
-    }
-
-    @Override
-    public String correlationId() {
-        return "correlationId";
-    }
-
-    @Override
-    public String useCaseId() {
-        return "useCaseId";
-    }
 }

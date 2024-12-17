@@ -1,27 +1,24 @@
 package ir.dotin.loan.morabehe.core.domain.config.event;
 
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanTypeId;
+import ir.dotin.platform.ddd.common.entity.TimeBasedUUIDGenerator;
 import ir.dotin.platform.ddd.common.event.DomainEvent;
 
 import java.time.Instant;
 import java.util.UUID;
 
-public record MorabeheLoanTypeDisabledEvent(String eventId,
+public record MorabeheLoanTypeDisabledEvent(UUID eventId,
                                             Instant createdAt,
-                                            String aggregateId) implements DomainEvent {
+                                            UUID aggregateId) implements DomainEvent<MorabeheLoanTypeDisabledEvent, Object> {
 
     public MorabeheLoanTypeDisabledEvent(MorabeheLoanTypeId aggregateId) {
-        this(UUID.randomUUID().toString(), Instant.now(),aggregateId.value().toString());
+        this(TimeBasedUUIDGenerator.generate(), Instant.now(),aggregateId.value());
     }
 
     public static MorabeheLoanTypeDisabledEvent of(MorabeheLoanTypeId aggregateId) {
         return new MorabeheLoanTypeDisabledEvent(aggregateId);
     }
 
-    @Override
-    public String eventType() {
-        return "";
-    }
 
     @Override
     public Object payload() {
@@ -29,12 +26,7 @@ public record MorabeheLoanTypeDisabledEvent(String eventId,
     }
 
     @Override
-    public String correlationId() {
-        return "";
-    }
-
-    @Override
-    public String useCaseId() {
+    public String eventType() {
         return "";
     }
 }
