@@ -16,10 +16,6 @@
   <packaging>jar</packaging>
 
   <dependencies>
-    <dependency>
-      <groupId>ir.dotin.loan</groupId>
-      <artifactId>base-loan-core-domain</artifactId>
-    </dependency>
     <!--region Test-->
     <dependency>
       <groupId>org.junit.jupiter</groupId>

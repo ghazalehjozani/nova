@@ -22,6 +22,8 @@
     </modules>
 
     <properties>
+        <loan.base-loan.version>0.0.2-SNAPSHOT</loan.base-loan.version>
+
         <sonar.projectKey>ir.dotin.loan:morabehe-loan</sonar.projectKey>
         <sonar.projectName>Morabehe Loan</sonar.projectName>
         <sonar.projectVersion>${project.version}</sonar.projectVersion>
@@ -37,8 +39,61 @@
         <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit-junit5</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
     <dependencyManagement>
         <dependencies>
+            <!--region base-loan -->
+            <dependency>
+                <groupId>ir.dotin.loan</groupId>
+                <artifactId>base-loan-core-domain</artifactId>
+                <version>${loan.base-loan.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>ir.dotin.loan</groupId>
+                <artifactId>base-loan-core-application-ports</artifactId>
+                <version>${loan.base-loan.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>ir.dotin.loan</groupId>
+                <artifactId>base-loan-core-application-service</artifactId>
+                <version>${loan.base-loan.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>ir.dotin.loan</groupId>
+                <artifactId>base-loan-adapters-driven-persistence</artifactId>
+                <version>${loan.base-loan.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>ir.dotin.loan</groupId>
+                <artifactId>base-loan-adapters-driven-messaging</artifactId>
+                <version>${loan.base-loan.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>ir.dotin.loan</groupId>
+                <artifactId>base-loan-adapters-driving-rest</artifactId>
+                <version>${loan.base-loan.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <artifactId>base-loan-container</artifactId>
+                <groupId>ir.dotin.loan</groupId>
+                <scope>compile</scope>
+                <version>${loan.base-loan.version}</version>
+            </dependency>
+            <!--endregion-->
+
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
                 <artifactId>morabehe-loan-core-domain</artifactId>
