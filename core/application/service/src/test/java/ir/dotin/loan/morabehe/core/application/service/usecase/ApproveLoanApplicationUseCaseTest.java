@@ -1,5 +1,14 @@
 package ir.dotin.loan.morabehe.core.application.service.usecase;
 
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import ir.dotin.loan.baseloan.core.application.service.command.loanapplication.BaseApproveLoanApplicationCommand;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.Sanction;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.SanctionSerial;
@@ -20,14 +29,6 @@ import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.Loa
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.MorabeheLoanApplication;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.service.ApproveLoanApplicationService;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.valueobject.MorabeheLoanApplicationId;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -187,8 +188,7 @@ class ApproveLoanApplicationUseCaseTest {
             given(sanctionClientPort.getBySerial(missingSanction)).willReturn(Optional.empty());
 
             // When / Then
-            assertThatThrownBy(() -> useCase.execute(command))
-                    .isInstanceOf(SanctionNotFoundException.class);
+            assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(SanctionNotFoundException.class);
 
             then(loanApplicationPersistencePort).should().findById(applicationId);
             then(assembler).should().mapToAggregateRoot(command, mockApplication);
@@ -197,5 +197,4 @@ class ApproveLoanApplicationUseCaseTest {
             then(approveService).shouldHaveNoInteractions();
         }
     }
-
 }

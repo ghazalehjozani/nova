@@ -13,14 +13,14 @@ public final class LoanRuleRoutes extends BaseRoutes {
     public static final class SagaRoutes {
 
         public static final String CREATE_LOAN_RULE_SAGA = "CreateLoanRuleSaga";
-        public static final String CREATE_LOAN_RULE_SAGA_COMPENSATION = CREATE_LOAN_RULE_SAGA + BaseRoutes.SagaRoutes.COMPENSATION;
+        public static final String CREATE_LOAN_RULE_SAGA_COMPENSATION =
+                CREATE_LOAN_RULE_SAGA + BaseRoutes.SagaRoutes.COMPENSATION;
 
         public static final String UPDATE_LOAN_RULE_SAGA = "UpdateLoanRuleSaga";
-        public static final String UPDATE_LOAN_RULE_SAGA_COMPENSATION = UPDATE_LOAN_RULE_SAGA + BaseRoutes.SagaRoutes.COMPENSATION;
+        public static final String UPDATE_LOAN_RULE_SAGA_COMPENSATION =
+                UPDATE_LOAN_RULE_SAGA + BaseRoutes.SagaRoutes.COMPENSATION;
 
-        private SagaRoutes() {
-        }
-
+        private SagaRoutes() {}
     }
 
     public static final class ApiEndpoints {
@@ -32,9 +32,7 @@ public final class LoanRuleRoutes extends BaseRoutes {
         public static final String UPDATE = "/update";
         public static final String COMPENSATE_UPDATE = BaseRoutes.ApiEndpoints.COMPENSATE + UPDATE;
 
-        private ApiEndpoints() {
-        }
-
+        private ApiEndpoints() {}
     }
 
     public LoanRuleRoutes() {

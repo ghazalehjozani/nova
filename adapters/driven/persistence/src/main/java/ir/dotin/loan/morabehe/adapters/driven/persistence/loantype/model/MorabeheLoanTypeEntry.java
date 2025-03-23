@@ -1,25 +1,26 @@
 package ir.dotin.loan.morabehe.adapters.driven.persistence.loantype.model;
 
+import java.util.Set;
 
-import ir.dotin.loan.baseloan.adapters.driven.persistence.loantype.model.BaseLoanTypeEntry;
-import ir.dotin.loan.baseloan.adapters.driven.persistence.model.AuditableEntry;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.Set;
+import ir.dotin.loan.baseloan.adapters.driven.persistence.loantype.model.BaseLoanTypeEntry;
+import ir.dotin.loan.baseloan.adapters.driven.persistence.model.AuditableEntry;
 
 @Document("morabehe_loan_type")
 public class MorabeheLoanTypeEntry extends AuditableEntry {
 
     @Field("loan_type")
     private BaseLoanTypeEntry loanType;
+
     @Field("has_issue_merchandise_document")
     private Boolean hasIssueMerchandiseDocument;
+
     @Field("loan_rule_ids")
     private Set<String> loanRuleIds;
 
-    public MorabeheLoanTypeEntry() {
-    }
+    public MorabeheLoanTypeEntry() {}
 
     public MorabeheLoanTypeEntry(String id, BaseLoanTypeEntry loanType) {
         super(id);
@@ -30,8 +31,7 @@ public class MorabeheLoanTypeEntry extends AuditableEntry {
         return loanType;
     }
 
-    public void setLoanType(
-            BaseLoanTypeEntry loanType) {
+    public void setLoanType(BaseLoanTypeEntry loanType) {
         this.loanType = loanType;
     }
 
@@ -50,5 +50,4 @@ public class MorabeheLoanTypeEntry extends AuditableEntry {
     public void setLoanRuleIds(Set<String> loanRuleIds) {
         this.loanRuleIds = loanRuleIds;
     }
-
 }

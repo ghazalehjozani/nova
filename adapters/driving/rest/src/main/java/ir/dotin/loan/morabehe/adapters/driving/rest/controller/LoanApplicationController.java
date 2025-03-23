@@ -1,15 +1,16 @@
 package ir.dotin.loan.morabehe.adapters.driving.rest.controller;
 
-import ir.dotin.loan.morabehe.core.application.service.command.MorabeheApproveLoanApplicationCommand;
-import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanApplicationCommand;
-import ir.dotin.loan.morabehe.core.application.service.config.route.LoanApplicationRoutes;
-import ir.dotin.loan.morabehe.core.application.service.response.LoanApplicationResponse;
 import org.apache.camel.ProducerTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import ir.dotin.loan.morabehe.core.application.service.command.MorabeheApproveLoanApplicationCommand;
+import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanApplicationCommand;
+import ir.dotin.loan.morabehe.core.application.service.config.route.LoanApplicationRoutes;
+import ir.dotin.loan.morabehe.core.application.service.response.LoanApplicationResponse;
 
 @RestController
 @RequestMapping(LoanApplicationRoutes.ApiEndpoints.BASE_PATH) // TODO: Remove
@@ -30,7 +31,8 @@ public class LoanApplicationController {
     }
 
     @PostMapping(LoanApplicationRoutes.ApiEndpoints.APPROVE)
-    public ResponseEntity<LoanApplicationResponse> approveLoanApplication(@RequestBody MorabeheApproveLoanApplicationCommand command) {
+    public ResponseEntity<LoanApplicationResponse> approveLoanApplication(
+            @RequestBody MorabeheApproveLoanApplicationCommand command) {
         LoanApplicationResponse response = producerTemplate.requestBody(
                 LoanApplicationRoutes.APPROVE_LOAN_APPLICATION_URI, command, LoanApplicationResponse.class);
         return ResponseEntity.ok(response);
@@ -54,5 +56,4 @@ public class LoanApplicationController {
                 LoanApplicationRoutes.COMPENSATE_APPROVE_LOAN_APPLICATION_URI, command, LoanApplicationResponse.class);
         return ResponseEntity.ok(response);
     }
-
 }

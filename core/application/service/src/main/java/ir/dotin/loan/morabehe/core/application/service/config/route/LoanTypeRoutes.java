@@ -10,11 +10,10 @@ public final class LoanTypeRoutes extends BaseRoutes {
     public static final class SagaRoutes {
 
         public static final String CREATE_LOAN_TYPE_SAGA = "CreateLoanTypeSaga";
-        public static final String CREATE_LOAN_TYPE_SAGA_COMPENSATION = CREATE_LOAN_TYPE_SAGA + BaseRoutes.SagaRoutes.COMPENSATION;
+        public static final String CREATE_LOAN_TYPE_SAGA_COMPENSATION =
+                CREATE_LOAN_TYPE_SAGA + BaseRoutes.SagaRoutes.COMPENSATION;
 
-        private SagaRoutes() {
-        }
-
+        private SagaRoutes() {}
     }
 
     public static final class ApiEndpoints {
@@ -23,9 +22,7 @@ public final class LoanTypeRoutes extends BaseRoutes {
         public static final String CREATE = "/create";
         public static final String COMPENSATE_CREATE = BaseRoutes.ApiEndpoints.COMPENSATE + CREATE;
 
-        private ApiEndpoints() {
-        }
-
+        private ApiEndpoints() {}
     }
 
     public LoanTypeRoutes() {

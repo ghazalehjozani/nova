@@ -8,5 +8,4 @@ public class LoanApplicationNotFoundException extends AggregateRootNotFoundExcep
     public LoanApplicationNotFoundException(MorabeheLoanApplicationId loanApplicationId) {
         super(loanApplicationId);
     }
-
 }

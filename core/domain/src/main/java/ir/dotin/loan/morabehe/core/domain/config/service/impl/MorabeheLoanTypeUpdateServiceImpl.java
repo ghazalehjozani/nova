@@ -1,13 +1,13 @@
 package ir.dotin.loan.morabehe.core.domain.config.service.impl;
 
+import ir.dotin.platform.ddd.common.annotation.DomainService;
 import ir.dotin.loan.baseloan.domain.config.service.AbstractLoanTypeUpdateService;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
 import ir.dotin.loan.morabehe.core.domain.config.service.MorabeheLoanTypeUpdateService;
-import ir.dotin.platform.ddd.common.annotation.DomainService;
 
 @DomainService
-public class MorabeheLoanTypeUpdateServiceImpl extends
-        AbstractLoanTypeUpdateService<MorabeheLoanType> implements MorabeheLoanTypeUpdateService {
+public class MorabeheLoanTypeUpdateServiceImpl extends AbstractLoanTypeUpdateService<MorabeheLoanType>
+        implements MorabeheLoanTypeUpdateService {
 
     @Override
     protected void validateIsEnabled(MorabeheLoanType oldLoanType) {
@@ -33,5 +33,4 @@ public class MorabeheLoanTypeUpdateServiceImpl extends
     protected void markAsDisabled(MorabeheLoanType oldLoanType) {
         oldLoanType.markAsDisabled();
     }
-
 }

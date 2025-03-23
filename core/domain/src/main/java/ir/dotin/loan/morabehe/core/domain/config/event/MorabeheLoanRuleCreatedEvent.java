@@ -1,15 +1,14 @@
 package ir.dotin.loan.morabehe.core.domain.config.event;
 
-import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
-import ir.dotin.platform.ddd.common.entity.TimeBasedUUIDGenerator;
-import ir.dotin.platform.ddd.common.event.DomainEvent;
-
 import java.time.Instant;
 import java.util.UUID;
 
-public record MorabeheLoanRuleCreatedEvent(UUID eventId,
-                                           Instant createdAt,
-                                           UUID aggregateId) implements DomainEvent<MorabeheLoanRuleCreatedEvent, String> {
+import ir.dotin.platform.ddd.common.entity.TimeBasedUUIDGenerator;
+import ir.dotin.platform.ddd.common.event.DomainEvent;
+import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
+
+public record MorabeheLoanRuleCreatedEvent(UUID eventId, Instant createdAt, UUID aggregateId)
+        implements DomainEvent<MorabeheLoanRuleCreatedEvent, String> {
 
     public MorabeheLoanRuleCreatedEvent(MorabeheLoanRuleId aggregateId) {
         this(TimeBasedUUIDGenerator.generate(), Instant.now(), aggregateId.value());
@@ -28,5 +27,4 @@ public record MorabeheLoanRuleCreatedEvent(UUID eventId,
     public String eventType() {
         return "MORABEHE_LOAN";
     }
-
 }

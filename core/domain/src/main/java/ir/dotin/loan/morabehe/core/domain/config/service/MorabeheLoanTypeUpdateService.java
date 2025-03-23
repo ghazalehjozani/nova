@@ -5,5 +5,4 @@ import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanTyp
 public interface MorabeheLoanTypeUpdateService {
 
     MorabeheLoanType update(MorabeheLoanType newNewType, MorabeheLoanType oldNewType);
-
 }

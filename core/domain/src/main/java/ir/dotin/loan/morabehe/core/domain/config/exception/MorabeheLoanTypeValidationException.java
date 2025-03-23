@@ -1,14 +1,13 @@
 package ir.dotin.loan.morabehe.core.domain.config.exception;
 
+import java.util.List;
+
 import ir.dotin.platform.ddd.common.exception.AggregateException;
 import ir.dotin.platform.ddd.common.exception.DomainError;
 
-import java.util.List;
-
 public final class MorabeheLoanTypeValidationException extends AggregateException {
 
-    public MorabeheLoanTypeValidationException(
-            List<DomainError> errors) {
+    public MorabeheLoanTypeValidationException(List<DomainError> errors) {
         super(errors);
     }
 
@@ -20,8 +19,7 @@ public final class MorabeheLoanTypeValidationException extends AggregateExceptio
         super(messageKey, fieldName, args);
     }
 
-    public MorabeheLoanTypeValidationException(String messageKey, Throwable cause, String fieldName,
-                                               Object... args) {
+    public MorabeheLoanTypeValidationException(String messageKey, Throwable cause, String fieldName, Object... args) {
         super(messageKey, cause, fieldName, args);
     }
 }

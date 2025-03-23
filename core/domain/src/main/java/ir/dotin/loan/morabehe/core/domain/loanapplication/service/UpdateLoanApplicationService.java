@@ -6,8 +6,9 @@ import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.Mor
 
 public interface UpdateLoanApplicationService {
 
-    void update(MorabeheLoanApplication newLoanApplication,
-                MorabeheLoanApplication oldLoanApplication,
-                MorabeheLoanRule loanRule,
-                MorabeheLoanType loanType);
+    void update(
+            MorabeheLoanApplication newLoanApplication,
+            MorabeheLoanApplication oldLoanApplication,
+            MorabeheLoanRule loanRule,
+            MorabeheLoanType loanType);
 }

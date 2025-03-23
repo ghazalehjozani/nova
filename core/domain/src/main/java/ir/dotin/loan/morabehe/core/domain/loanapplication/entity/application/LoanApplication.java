@@ -1,5 +1,10 @@
 package ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
+import ir.dotin.platform.ddd.common.util.Validator;
 import ir.dotin.loan.baseloan.domain.loanapplication.entity.application.BaseLoanApplication;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.ApplicationNumber;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.CollateralSerial;
@@ -7,10 +12,6 @@ import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.SanctionSerial;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanTypeId;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.exception.MorabeheLoanApplicationValidationException;
-import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
-import ir.dotin.platform.ddd.common.util.Validator;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @SuppressWarnings("FieldMayBeFinal")
 public class LoanApplication extends BaseLoanApplication {
@@ -18,13 +19,11 @@ public class LoanApplication extends BaseLoanApplication {
     private MorabeheLoanTypeId loanTypeId;
     private MorabeheLoanRuleId loanRuleId;
 
-
     LoanApplication(LoanApplicationBuilder builder) {
         super(builder);
         this.loanTypeId = builder.loanTypeId;
         this.loanRuleId = builder.loanRuleId;
     }
-
 
     @Override
     protected void request(ApplicationNumber applicationNumber) {
@@ -61,9 +60,7 @@ public class LoanApplication extends BaseLoanApplication {
         super.validateUpdate();
     }
 
-
-    public static final class LoanApplicationBuilder extends
-            BaseLoanApplicationBuilder<LoanApplicationBuilder> {
+    public static final class LoanApplicationBuilder extends BaseLoanApplicationBuilder<LoanApplicationBuilder> {
 
         private MorabeheLoanTypeId loanTypeId;
         private MorabeheLoanRuleId loanRuleId;
@@ -104,10 +101,8 @@ public class LoanApplication extends BaseLoanApplication {
                     v -> v.checkNotNull(loanTypeId, "loanTypeId")
                             .checkNotNull(loanRuleId, "loanRuleId")
                             .appendErrors(validateBaseInvariants()),
-                    MorabeheLoanApplicationValidationException::new
-            );
+                    MorabeheLoanApplicationValidationException::new);
         }
-
     }
 
     @SuppressWarnings("unchecked")
@@ -137,6 +132,4 @@ public class LoanApplication extends BaseLoanApplication {
     public int hashCode() {
         return new HashCodeBuilder(17, 37).append(id()).toHashCode();
     }
-
-
 }

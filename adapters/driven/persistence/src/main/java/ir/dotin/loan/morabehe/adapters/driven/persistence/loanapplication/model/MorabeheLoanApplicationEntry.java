@@ -1,9 +1,10 @@
 package ir.dotin.loan.morabehe.adapters.driven.persistence.loanapplication.model;
 
-import ir.dotin.loan.baseloan.adapters.driven.persistence.loanapplication.model.BaseLoanApplicationEntry;
-import ir.dotin.loan.baseloan.adapters.driven.persistence.model.AuditableEntry;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+
+import ir.dotin.loan.baseloan.adapters.driven.persistence.loanapplication.model.BaseLoanApplicationEntry;
+import ir.dotin.loan.baseloan.adapters.driven.persistence.model.AuditableEntry;
 
 @Document("morabehe_loan_application")
 public class MorabeheLoanApplicationEntry extends AuditableEntry {
@@ -17,11 +18,9 @@ public class MorabeheLoanApplicationEntry extends AuditableEntry {
     @Field("loan_rule_id")
     private String loanRuleId;
 
-    public MorabeheLoanApplicationEntry() {
-    }
+    public MorabeheLoanApplicationEntry() {}
 
-    public MorabeheLoanApplicationEntry(String id,
-                                        BaseLoanApplicationEntry loanApplication) {
+    public MorabeheLoanApplicationEntry(String id, BaseLoanApplicationEntry loanApplication) {
         super(id);
         this.loanApplication = loanApplication;
     }
@@ -49,5 +48,4 @@ public class MorabeheLoanApplicationEntry extends AuditableEntry {
     public void setLoanRuleId(String loanRuleId) {
         this.loanRuleId = loanRuleId;
     }
-
 }

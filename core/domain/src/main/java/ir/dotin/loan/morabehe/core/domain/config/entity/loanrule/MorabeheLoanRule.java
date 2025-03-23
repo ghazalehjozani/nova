@@ -1,16 +1,16 @@
 package ir.dotin.loan.morabehe.core.domain.config.entity.loanrule;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import ir.dotin.platform.ddd.common.entity.AggregateRoot;
 import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
 import ir.dotin.loan.morabehe.core.domain.config.event.MorabeheLoanRuleCreatedEvent;
 import ir.dotin.loan.morabehe.core.domain.config.event.MorabeheLoanRuleDisabledEvent;
 import ir.dotin.loan.morabehe.core.domain.config.exception.MorabeheLoanRuleValidationException;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
-import ir.dotin.platform.ddd.common.entity.AggregateRoot;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import static ir.dotin.platform.ddd.common.util.Validator.validate;
-
 
 @SuppressWarnings("FieldMayBeFinal")
 public class MorabeheLoanRule extends AggregateRoot<MorabeheLoanRuleId> {

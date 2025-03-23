@@ -1,20 +1,20 @@
 package ir.dotin.loan.morabehe.adapters.driven.persistence.loanrule.mapper;
 
+import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.stereotype.Component;
+
+import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
 import ir.dotin.loan.baseloan.adapters.driven.persistence.loanrule.mapper.BaseLoanRuleEntryMapper;
 import ir.dotin.loan.morabehe.adapters.driven.persistence.loanrule.model.MorabeheLoanRuleEntry;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.LoanRule;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.LoanRule.LoanRuleBuilder;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
-import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
-import org.springframework.stereotype.Component;
-
-import java.util.Map;
-import java.util.UUID;
 
 @Component
-public class MorabeheLoanRuleEntryMapper extends
-        BaseLoanRuleEntryMapper<LoanRule, LoanRuleBuilder> {
+public class MorabeheLoanRuleEntryMapper extends BaseLoanRuleEntryMapper<LoanRule, LoanRuleBuilder> {
 
     public MorabeheLoanRuleEntry mapToDocument(MorabeheLoanRule loanRule) {
         if (loanRule == null) {
@@ -39,8 +39,7 @@ public class MorabeheLoanRuleEntryMapper extends
         return new MorabeheLoanRule(morabeheLoanRuleId, loanRuleBuilder.validateAndBuild());
     }
 
-    public MorabeheLoanRuleEntry updateDocument(MorabeheLoanRule loanRule,
-                                                MorabeheLoanRuleEntry loanRuleDocument) {
+    public MorabeheLoanRuleEntry updateDocument(MorabeheLoanRule loanRule, MorabeheLoanRuleEntry loanRuleDocument) {
         if (loanRule == null || loanRuleDocument == null) {
             return null;
         }
@@ -49,6 +48,4 @@ public class MorabeheLoanRuleEntryMapper extends
         loanRuleDocument.setLoanRule(baseLoanRuleDocument);
         return loanRuleDocument;
     }
-
-
 }

@@ -7,8 +7,9 @@ import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.Mor
 
 public interface AddCollateralLoanApplicationService {
 
-    void addCollateral(MorabeheLoanApplication baseLoanApplication,
-                       MorabeheLoanRule baseLoanRule,
-                       Sanction sanction,
-                       Collateral collateral);
+    void addCollateral(
+            MorabeheLoanApplication baseLoanApplication,
+            MorabeheLoanRule baseLoanRule,
+            Sanction sanction,
+            Collateral collateral);
 }

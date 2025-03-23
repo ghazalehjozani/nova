@@ -1,5 +1,12 @@
 package ir.dotin.loan.morabehe.adapters.driven.persistence.loantype;
 
+import java.util.Optional;
+
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.LoanTypeCode;
 import ir.dotin.loan.morabehe.adapters.driven.persistence.loantype.mapper.MorabeheLoanTypeEntryMapper;
@@ -9,13 +16,6 @@ import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.Morabe
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanTypeId;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Component
 @Transactional(readOnly = true)
@@ -25,9 +25,8 @@ public class LoanTypePersistenceAdapter implements MorabeheLoanTypePersistencePo
     private final MorabeheLoanTypeRepository repository;
     private final MorabeheLoanTypeEntryMapper mapper;
 
-    public LoanTypePersistenceAdapter(MongoTemplate mongoTemplate,
-                                      MorabeheLoanTypeRepository repository,
-                                      MorabeheLoanTypeEntryMapper mapper) {
+    public LoanTypePersistenceAdapter(
+            MongoTemplate mongoTemplate, MorabeheLoanTypeRepository repository, MorabeheLoanTypeEntryMapper mapper) {
         this.mongoTemplate = mongoTemplate;
         this.repository = repository;
         this.mapper = mapper;
@@ -43,22 +42,24 @@ public class LoanTypePersistenceAdapter implements MorabeheLoanTypePersistencePo
     @Override
     public Optional<MorabeheLoanType> findById(MorabeheLoanTypeId id) {
         Query query = new Query();
-        query.addCriteria(Criteria.where("_id").is(id.value().toString())
-                                  .and("loanType.disable").is(false));
-        MorabeheLoanTypeEntry result = mongoTemplate.findOne(query,
-                                                                MorabeheLoanTypeEntry.class);
+        query.addCriteria(Criteria.where("_id")
+                .is(id.value().toString())
+                .and("loanType.disable")
+                .is(false));
+        MorabeheLoanTypeEntry result = mongoTemplate.findOne(query, MorabeheLoanTypeEntry.class);
         return Optional.ofNullable(result).map(mapper::mapToAggregate);
     }
 
     @Override
-    public Optional<MorabeheLoanType> findByIdAndLoanRuleId(MorabeheLoanTypeId id,
-                                                            MorabeheLoanRuleId loanRuleId) {
+    public Optional<MorabeheLoanType> findByIdAndLoanRuleId(MorabeheLoanTypeId id, MorabeheLoanRuleId loanRuleId) {
         Query query = new Query();
-        query.addCriteria(Criteria.where("_id").is(id.value().toString())
-                                  .and("loanRuleIds").in(loanRuleId.value().toString())
-                                  .and("loanType.disable").is(false));
-        MorabeheLoanTypeEntry result = mongoTemplate.findOne(query,
-                                                                MorabeheLoanTypeEntry.class);
+        query.addCriteria(Criteria.where("_id")
+                .is(id.value().toString())
+                .and("loanRuleIds")
+                .in(loanRuleId.value().toString())
+                .and("loanType.disable")
+                .is(false));
+        MorabeheLoanTypeEntry result = mongoTemplate.findOne(query, MorabeheLoanTypeEntry.class);
         return Optional.ofNullable(result).map(mapper::mapToAggregate);
     }
 

@@ -1,11 +1,12 @@
 package ir.dotin.loan.morabehe.core.application.service.config.saga;
 
-import ir.dotin.loan.baseloan.core.application.service.config.route.BaseRoutes;
-import ir.dotin.loan.morabehe.core.application.service.config.route.LoanApplicationRoutes;
-import ir.dotin.loan.morabehe.core.application.service.usecase.CreateLoanApplicationUseCase;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.SagaPropagation;
 import org.springframework.stereotype.Component;
+
+import ir.dotin.loan.baseloan.core.application.service.config.route.BaseRoutes;
+import ir.dotin.loan.morabehe.core.application.service.config.route.LoanApplicationRoutes;
+import ir.dotin.loan.morabehe.core.application.service.usecase.CreateLoanApplicationUseCase;
 
 @Component
 public class CreateLoanApplicationSagaConfigurator extends RouteBuilder {
@@ -24,12 +25,12 @@ public class CreateLoanApplicationSagaConfigurator extends RouteBuilder {
         from(LoanApplicationRoutes.CREATE_LOAN_APPLICATION_URI)
                 .routeId(LoanApplicationRoutes.SagaRoutes.CREATE_LOAN_APPLICATION_SAGA)
                 .saga()
-                    .propagation(SagaPropagation.REQUIRED)
-                    .log("Starting saga for creating loan application")
-                    .log("Processing CreateLoanApplicationCommand: ${body}")
-                    .bean(createUseCase, BaseRoutes.EXECUTE_METHOD)
-                    .compensation(LoanApplicationRoutes.COMPENSATE_CREATE_LOAN_APPLICATION_URI)
-                    .log("Loan application created with ID: ${body.loanApplicationId}")
+                .propagation(SagaPropagation.REQUIRED)
+                .log("Starting saga for creating loan application")
+                .log("Processing CreateLoanApplicationCommand: ${body}")
+                .bean(createUseCase, BaseRoutes.EXECUTE_METHOD)
+                .compensation(LoanApplicationRoutes.COMPENSATE_CREATE_LOAN_APPLICATION_URI)
+                .log("Loan application created with ID: ${body.loanApplicationId}")
                 .end();
 
         // Compensation Route for Creating Loan Application
@@ -41,5 +42,4 @@ public class CreateLoanApplicationSagaConfigurator extends RouteBuilder {
 
         // @formatter:on
     }
-
 }

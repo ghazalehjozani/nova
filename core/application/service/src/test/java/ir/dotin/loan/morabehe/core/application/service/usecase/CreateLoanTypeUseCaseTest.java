@@ -1,5 +1,14 @@
 package ir.dotin.loan.morabehe.core.application.service.usecase;
 
+import java.util.Set;
+import java.util.UUID;
+
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import ir.dotin.loan.baseloan.core.application.service.command.config.BaseCreateLoanTypeCommand;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.LoanTypeCode;
 import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanRulePersistencePort;
@@ -12,14 +21,6 @@ import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.LoanType;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
 import ir.dotin.loan.morabehe.core.domain.config.exception.MorabeheLoanTypeValidationException;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Set;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -54,7 +55,6 @@ class CreateLoanTypeUseCaseTest {
     void setUp() {
         existingRuleId = new MorabeheLoanRuleId(UUID.randomUUID());
         missingRuleId = new MorabeheLoanRuleId(UUID.randomUUID());
-
 
         BaseCreateLoanTypeCommand baseCommand = mock(BaseCreateLoanTypeCommand.class);
 
@@ -142,5 +142,4 @@ class CreateLoanTypeUseCaseTest {
             then(assembler).should(never()).mapToResponse(any());
         }
     }
-
 }

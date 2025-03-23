@@ -1,5 +1,10 @@
 package ir.dotin.loan.morabehe.core.application.service.usecase.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.Sanction;
 import ir.dotin.loan.morabehe.core.application.ports.outbound.client.MorabeheSanctionClientPort;
 import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanApplicationPersistencePort;
@@ -16,11 +21,6 @@ import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.Loa
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.MorabeheLoanApplication;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.service.ApproveLoanApplicationService;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.valueobject.MorabeheLoanApplicationId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 
 @Service
 public class ApproveLoanApplicationUseCaseImpl implements ApproveLoanApplicationUseCase {
@@ -36,7 +36,7 @@ public class ApproveLoanApplicationUseCaseImpl implements ApproveLoanApplication
     public ApproveLoanApplicationUseCaseImpl(
             MorabeheLoanApplicationPersistencePort loanApplicationPersistencePort,
             @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
-            ApproveLoanApplicationService approveService,
+                    ApproveLoanApplicationService approveService,
             MorabeheLoanRulePersistencePort loanRulePersistencePort,
             MorabeheSanctionClientPort sanctionClientPort,
             MorabeheLoanApplicationAssembler assembler) {
@@ -52,19 +52,22 @@ public class ApproveLoanApplicationUseCaseImpl implements ApproveLoanApplication
     public LoanApplicationResponse execute(MorabeheApproveLoanApplicationCommand command) {
         logger.debug("Executing ApproveLoanApplicationUseCase with command: {}", command);
 
-        var applicationId = new MorabeheLoanApplicationId(command.loanApplication().loanApplicationId());
+        var applicationId =
+                new MorabeheLoanApplicationId(command.loanApplication().loanApplicationId());
         final MorabeheLoanApplication existingApplication = loanApplicationPersistencePort
                 .findById(applicationId)
                 .orElseThrow(() -> new LoanApplicationNotFoundException(applicationId));
 
-        final MorabeheLoanApplication morabeheLoanApplication = assembler.mapToAggregateRoot(command, existingApplication);
+        final MorabeheLoanApplication morabeheLoanApplication =
+                assembler.mapToAggregateRoot(command, existingApplication);
 
         final LoanApplication loanApplication = morabeheLoanApplication.loanApplication();
         final MorabeheLoanRule loanRule = loanRulePersistencePort
                 .findById(loanApplication.loanRuleId())
                 .orElseThrow(() -> new LoanRuleNotFoundException(loanApplication.loanRuleId()));
 
-        final Sanction sanction = sanctionClientPort.getBySerial(loanApplication.sanctionSerial())
+        final Sanction sanction = sanctionClientPort
+                .getBySerial(loanApplication.sanctionSerial())
                 .orElseThrow(() -> new SanctionNotFoundException(loanApplication.sanctionSerial()));
 
         approveService.approve(morabeheLoanApplication, loanRule, sanction);
@@ -79,5 +82,4 @@ public class ApproveLoanApplicationUseCaseImpl implements ApproveLoanApplication
         // TODO
         return null;
     }
-
 }

@@ -1,6 +1,9 @@
 package ir.dotin.loan.morabehe.core.domain.config.entity.loantype;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import ir.dotin.platform.ddd.common.entity.AggregateRoot;
 import ir.dotin.loan.baseloan.domain.config.valueobject.LoanTypeId;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.LoanType.LoanTypeBuilder;
 import ir.dotin.loan.morabehe.core.domain.config.event.MorabeheLoanTypeCreatedEvent;
@@ -8,9 +11,6 @@ import ir.dotin.loan.morabehe.core.domain.config.event.MorabeheLoanTypeDisabledE
 import ir.dotin.loan.morabehe.core.domain.config.event.MorabeheLoanTypeUpdatedEvent;
 import ir.dotin.loan.morabehe.core.domain.config.exception.MorabeheLoanTypeValidationException;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanTypeId;
-import ir.dotin.platform.ddd.common.entity.AggregateRoot;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import static ir.dotin.platform.ddd.common.util.Validator.validate;
 
@@ -19,11 +19,9 @@ public class MorabeheLoanType extends AggregateRoot<MorabeheLoanTypeId> {
 
     private LoanType loanType;
 
-    public MorabeheLoanType(MorabeheLoanTypeId morabeheLoanTypeId,
-                            LoanTypeBuilder loanTypeBuilder) {
+    public MorabeheLoanType(MorabeheLoanTypeId morabeheLoanTypeId, LoanTypeBuilder loanTypeBuilder) {
         super(morabeheLoanTypeId);
-        validate(v -> v.checkNotNull(loanTypeBuilder, "loanTypeBuilder"),
-                 MorabeheLoanTypeValidationException::new);
+        validate(v -> v.checkNotNull(loanTypeBuilder, "loanTypeBuilder"), MorabeheLoanTypeValidationException::new);
         loanType = loanTypeBuilder.validateAndBuild();
     }
 
@@ -59,7 +57,6 @@ public class MorabeheLoanType extends AggregateRoot<MorabeheLoanTypeId> {
         loanType.validateIsActive();
     }
 
-
     public LoanType getLoanType() {
         return loanType;
     }
@@ -79,5 +76,4 @@ public class MorabeheLoanType extends AggregateRoot<MorabeheLoanTypeId> {
     public int hashCode() {
         return new HashCodeBuilder(17, 37).append(id()).toHashCode();
     }
-
 }

@@ -8,5 +8,4 @@ public class SanctionNotFoundException extends ValueObjectNotFound {
     public SanctionNotFoundException(SanctionSerial serial) {
         super(serial.toString());
     }
-
 }

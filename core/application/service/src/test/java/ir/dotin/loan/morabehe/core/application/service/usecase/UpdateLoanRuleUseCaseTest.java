@@ -1,5 +1,14 @@
 package ir.dotin.loan.morabehe.core.application.service.usecase;
 
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import ir.dotin.loan.baseloan.core.application.service.command.config.BaseCreateLoanRuleCommand;
 import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanRulePersistencePort;
 import ir.dotin.loan.morabehe.core.application.service.assembler.MorabeheLoanRuleAssembler;
@@ -10,14 +19,6 @@ import ir.dotin.loan.morabehe.core.application.service.usecase.impl.UpdateLoanRu
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import ir.dotin.loan.morabehe.core.domain.config.service.MorabeheLoanRuleUpdateService;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -60,7 +61,7 @@ class UpdateLoanRuleUseCaseTest {
         // Mock domain aggregates and DTOs
         oldRule = mock(MorabeheLoanRule.class);
         updatedRule = mock(MorabeheLoanRule.class);
-        response = new LoanRuleResponse(UUID.randomUUID());
+        response = new LoanRuleResponse(UUID.randomUUID().toString());
 
         // Default stubbing
         given(assembler.mapToAggregateRoot(command)).willReturn(updatedRule);

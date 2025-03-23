@@ -1,5 +1,11 @@
 package ir.dotin.loan.morabehe.adapters.driven.persistence.loanapplication.mapper;
 
+import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.stereotype.Component;
+
+import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
 import ir.dotin.loan.baseloan.adapters.driven.persistence.loanapplication.mapper.BaseLoanApplicationEntryMapper;
 import ir.dotin.loan.morabehe.adapters.driven.persistence.loanapplication.model.MorabeheLoanApplicationEntry;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
@@ -8,16 +14,10 @@ import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.Loa
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.LoanApplication.LoanApplicationBuilder;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.MorabeheLoanApplication;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.valueobject.MorabeheLoanApplicationId;
-import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
-import org.springframework.stereotype.Component;
-
-import java.util.Map;
-import java.util.UUID;
 
 @Component
-public class MorabeheLoanApplicationEntryMapper extends
-        BaseLoanApplicationEntryMapper<LoanApplication, LoanApplicationBuilder> {
-
+public class MorabeheLoanApplicationEntryMapper
+        extends BaseLoanApplicationEntryMapper<LoanApplication, LoanApplicationBuilder> {
 
     public MorabeheLoanApplication mapToAggregate(MorabeheLoanApplicationEntry loanApplicationDocument) {
         if (loanApplicationDocument == null) {
@@ -31,26 +31,27 @@ public class MorabeheLoanApplicationEntryMapper extends
         return new MorabeheLoanApplication(morabeheLoanApplicationId, builder.validateAndBuild());
     }
 
-    public MorabeheLoanApplicationEntry mapToDocument(MorabeheLoanApplication loanApplication,
-                                                      MorabeheLoanApplicationEntry document) {
+    public MorabeheLoanApplicationEntry mapToDocument(
+            MorabeheLoanApplication loanApplication, MorabeheLoanApplicationEntry document) {
         if (loanApplication == null || document == null) {
             return null;
         }
         document.setId(loanApplication.id().value().toString());
-        document.setLoanRuleId(loanApplication.loanApplication().loanRuleId().value().toString());
-        document.setLoanTypeId(loanApplication.loanApplication().loanTypeId().value().toString());
+        document.setLoanRuleId(
+                loanApplication.loanApplication().loanRuleId().value().toString());
+        document.setLoanTypeId(
+                loanApplication.loanApplication().loanTypeId().value().toString());
         var baseLoanApplicationDocument = super.mapToDocument(loanApplication.loanApplication());
         document.setLoanApplication(baseLoanApplicationDocument);
         return document;
-
     }
 
     public MorabeheLoanApplicationEntry mapToDocument(MorabeheLoanApplication loanApplication) {
         return mapToDocument(loanApplication, new MorabeheLoanApplicationEntry());
     }
 
-    public MorabeheLoanApplicationEntry updateDocument(MorabeheLoanApplication loanApplication,
-                                                       MorabeheLoanApplicationEntry loanApplicationDocument) {
+    public MorabeheLoanApplicationEntry updateDocument(
+            MorabeheLoanApplication loanApplication, MorabeheLoanApplicationEntry loanApplicationDocument) {
         if (loanApplication == null || loanApplicationDocument == null) {
             return null;
         }
@@ -59,6 +60,4 @@ public class MorabeheLoanApplicationEntryMapper extends
         loanApplicationDocument.setLoanApplication(baseLoanApplicationDocument);
         return loanApplicationDocument;
     }
-
-
 }

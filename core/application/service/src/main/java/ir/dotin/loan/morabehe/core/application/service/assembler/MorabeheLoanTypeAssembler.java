@@ -1,17 +1,16 @@
 package ir.dotin.loan.morabehe.core.application.service.assembler;
 
+import org.springframework.stereotype.Component;
+
 import ir.dotin.loan.baseloan.core.application.service.assembler.config.BaseLoanTypeAssembler;
 import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanTypeCommand;
 import ir.dotin.loan.morabehe.core.application.service.response.LoanTypeResponse;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.LoanType;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
 import ir.dotin.loan.morabehe.core.domain.config.valueobject.MorabeheLoanRuleId;
-import org.springframework.stereotype.Component;
-
 
 @Component
-public class MorabeheLoanTypeAssembler extends
-        BaseLoanTypeAssembler<LoanType.LoanTypeBuilder> {
+public class MorabeheLoanTypeAssembler extends BaseLoanTypeAssembler<LoanType.LoanTypeBuilder> {
 
     public MorabeheLoanType mapToAggregateRoot(MorabeheCreateLoanTypeCommand command) {
         LoanType.LoanTypeBuilder loanTypeBuilder = new LoanType.LoanTypeBuilder()
@@ -24,5 +23,4 @@ public class MorabeheLoanTypeAssembler extends
     public LoanTypeResponse mapToResponse(MorabeheLoanType loanType) {
         return new LoanTypeResponse(loanType.id().value());
     }
-
 }

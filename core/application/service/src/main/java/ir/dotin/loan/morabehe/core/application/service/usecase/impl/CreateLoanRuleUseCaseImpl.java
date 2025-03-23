@@ -1,5 +1,10 @@
 package ir.dotin.loan.morabehe.core.application.service.usecase.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import ir.dotin.loan.baseloan.core.application.ports.output.messaging.EventPublisherPort;
 import ir.dotin.loan.baseloan.core.application.ports.output.persistence.JournalRepositoryPort;
 import ir.dotin.loan.morabehe.core.application.ports.outbound.persistence.MorabeheLoanRulePersistencePort;
@@ -9,10 +14,6 @@ import ir.dotin.loan.morabehe.core.application.service.response.LoanRuleResponse
 import ir.dotin.loan.morabehe.core.application.service.usecase.CreateLoanRuleUseCase;
 import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRule;
 import ir.dotin.loan.morabehe.core.domain.config.exception.MorabeheLoanRuleValidationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -29,8 +30,7 @@ public class CreateLoanRuleUseCaseImpl implements CreateLoanRuleUseCase {
             MorabeheLoanRulePersistencePort persistencePort,
             JournalRepositoryPort journalRepositoryPort,
             EventPublisherPort journalPublisherPort,
-            MorabeheLoanRuleAssembler assembler
-    ) {
+            MorabeheLoanRuleAssembler assembler) {
         this.persistencePort = persistencePort;
         this.journalRepositoryPort = journalRepositoryPort;
         this.journalPublisherPort = journalPublisherPort;
@@ -43,7 +43,8 @@ public class CreateLoanRuleUseCaseImpl implements CreateLoanRuleUseCase {
 
         final MorabeheLoanRule loanRule = assembler.mapToAggregateRoot(command);
 
-        final boolean existsByCode = persistencePort.existsByCode(loanRule.getLoanRule().code());
+        final boolean existsByCode =
+                persistencePort.existsByCode(loanRule.getLoanRule().code());
         if (existsByCode) {
             throw new MorabeheLoanRuleValidationException("Duplicate loan rule code", "code");
         }

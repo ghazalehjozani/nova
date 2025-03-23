@@ -1,16 +1,16 @@
 package ir.dotin.loan.morabehe.core.domain.config.entity.loanrule;
 
-import ir.dotin.loan.baseloan.domain.config.entity.loanrule.BaseLoanRule;
-import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
-import ir.dotin.loan.morabehe.core.domain.config.exception.MorabeheLoanRuleValidationException;
-import ir.dotin.platform.ddd.common.exception.DomainError;
-import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
-import ir.dotin.platform.ddd.common.util.Validator;
+import java.util.List;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import java.util.List;
-
+import ir.dotin.platform.ddd.common.exception.DomainError;
+import ir.dotin.platform.ddd.common.interaction.feature.FeatureConfig;
+import ir.dotin.platform.ddd.common.util.Validator;
+import ir.dotin.loan.baseloan.domain.config.entity.loanrule.BaseLoanRule;
+import ir.dotin.loan.baseloan.domain.config.valueobject.LoanRuleId;
+import ir.dotin.loan.morabehe.core.domain.config.exception.MorabeheLoanRuleValidationException;
 
 @SuppressWarnings("FieldMayBeFinal")
 public class LoanRule extends BaseLoanRule {
@@ -54,7 +54,6 @@ public class LoanRule extends BaseLoanRule {
         super.validateIsActive();
     }
 
-
     public static class LoanRuleBuilder extends BaseLoanRuleBuilder<LoanRuleBuilder> {
 
         public LoanRuleBuilder(FeatureConfig featureConfig) {
@@ -80,7 +79,6 @@ public class LoanRule extends BaseLoanRule {
             List<DomainError> errors = super.validateBaseInvariants();
             Validator.validate(v -> v.appendErrors(errors), MorabeheLoanRuleValidationException::new);
         }
-
     }
 
     @Override
@@ -98,5 +96,4 @@ public class LoanRule extends BaseLoanRule {
     public int hashCode() {
         return new HashCodeBuilder(17, 37).append(id()).toHashCode();
     }
-
 }

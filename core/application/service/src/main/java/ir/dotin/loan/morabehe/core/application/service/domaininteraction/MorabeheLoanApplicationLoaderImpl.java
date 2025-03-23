@@ -1,9 +1,10 @@
 package ir.dotin.loan.morabehe.core.application.service.domaininteraction;
 
-import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.ApplicationNumber;
-import ir.dotin.loan.morabehe.core.domain.loanapplication.intraction.loader.MorabeheLoanApplicationLoader;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.ApplicationNumber;
+import ir.dotin.loan.morabehe.core.domain.loanapplication.intraction.loader.MorabeheLoanApplicationLoader;
 
 @Component
 @Transactional(readOnly = true)

@@ -1,14 +1,15 @@
 package ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import ir.dotin.platform.ddd.common.entity.AggregateRoot;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.ApplicationNumber;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.CollateralSerial;
 import ir.dotin.loan.baseloan.domain.loanapplication.valueobject.SanctionSerial;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.event.*;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.exception.MorabeheLoanApplicationValidationException;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.valueobject.MorabeheLoanApplicationId;
-import ir.dotin.platform.ddd.common.entity.AggregateRoot;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import static ir.dotin.platform.ddd.common.util.Validator.validate;
 
@@ -17,11 +18,12 @@ public class MorabeheLoanApplication extends AggregateRoot<MorabeheLoanApplicati
 
     private LoanApplication loanApplication;
 
-    public MorabeheLoanApplication(MorabeheLoanApplicationId morabeheLoanApplicationId,
-                                   LoanApplication loanApplication) {
+    public MorabeheLoanApplication(
+            MorabeheLoanApplicationId morabeheLoanApplicationId, LoanApplication loanApplication) {
         super(morabeheLoanApplicationId);
-        validate(v -> v.checkNotNull(loanApplication, "loanApplicationBuilder"),
-                 MorabeheLoanApplicationValidationException::new);
+        validate(
+                v -> v.checkNotNull(loanApplication, "loanApplicationBuilder"),
+                MorabeheLoanApplicationValidationException::new);
         this.loanApplication = loanApplication;
     }
 
@@ -61,7 +63,6 @@ public class MorabeheLoanApplication extends AggregateRoot<MorabeheLoanApplicati
         registerEvent(MorabeheLoanApplicationUpdatedEvent.of(id()));
     }
 
-
     public LoanApplication loanApplication() {
         return loanApplication;
     }
@@ -81,5 +82,4 @@ public class MorabeheLoanApplication extends AggregateRoot<MorabeheLoanApplicati
     public int hashCode() {
         return new HashCodeBuilder(17, 37).append(id()).toHashCode();
     }
-
 }

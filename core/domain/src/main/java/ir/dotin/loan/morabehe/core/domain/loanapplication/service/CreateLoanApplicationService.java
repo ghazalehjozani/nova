@@ -6,7 +6,5 @@ import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.Mor
 
 public interface CreateLoanApplicationService {
 
-    void create(MorabeheLoanApplication loanApplication, MorabeheLoanRule loanRule,
-                MorabeheLoanType loanType);
-
+    void create(MorabeheLoanApplication loanApplication, MorabeheLoanRule loanRule, MorabeheLoanType loanType);
 }

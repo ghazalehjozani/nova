@@ -1,5 +1,6 @@
 package ir.dotin.loan.morabehe.core.domain.loanapplication.service.impl;
 
+import ir.dotin.platform.ddd.common.annotation.DomainService;
 import ir.dotin.loan.baseloan.domain.config.entity.loanrule.BaseLoanRule;
 import ir.dotin.loan.baseloan.domain.config.entity.loantype.BaseLoanType;
 import ir.dotin.loan.baseloan.domain.loanapplication.businessrule.validator.LoanApplicationValidator;
@@ -10,16 +11,14 @@ import ir.dotin.loan.morabehe.core.domain.config.entity.loanrule.MorabeheLoanRul
 import ir.dotin.loan.morabehe.core.domain.config.entity.loantype.MorabeheLoanType;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application.MorabeheLoanApplication;
 import ir.dotin.loan.morabehe.core.domain.loanapplication.service.UpdateLoanApplicationService;
-import ir.dotin.platform.ddd.common.annotation.DomainService;
 
 @DomainService
-public class MorabeheLoanApplicationUpdateServiceImpl extends
-        AbstractUpdateLoanApplicationService<MorabeheLoanApplication, MorabeheLoanRule, MorabeheLoanType> implements
-        UpdateLoanApplicationService {
+public class MorabeheLoanApplicationUpdateServiceImpl
+        extends AbstractUpdateLoanApplicationService<MorabeheLoanApplication, MorabeheLoanRule, MorabeheLoanType>
+        implements UpdateLoanApplicationService {
 
     public MorabeheLoanApplicationUpdateServiceImpl(
-            LoanApplicationValidator loanApplicationValidator,
-            LoanTypeValidator loanTypeValidator) {
+            LoanApplicationValidator loanApplicationValidator, LoanTypeValidator loanTypeValidator) {
         super(loanApplicationValidator, loanTypeValidator);
     }
 
@@ -42,5 +41,4 @@ public class MorabeheLoanApplicationUpdateServiceImpl extends
     protected BaseLoanApplication getBaseLoanApplication(MorabeheLoanApplication loanApplicationRoot) {
         return loanApplicationRoot.loanApplication();
     }
-
 }
