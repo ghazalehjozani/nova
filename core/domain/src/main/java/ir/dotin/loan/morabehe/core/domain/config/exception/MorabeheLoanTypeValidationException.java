@@ -15,11 +15,11 @@ public final class MorabeheLoanTypeValidationException extends AggregateExceptio
         super(errors, cause);
     }
 
-    public MorabeheLoanTypeValidationException(String messageKey, String fieldName, Object... args) {
+    public MorabeheLoanTypeValidationException(String messageKey, String fieldName, String... args) {
         super(messageKey, fieldName, args);
     }
 
-    public MorabeheLoanTypeValidationException(String messageKey, Throwable cause, String fieldName, Object... args) {
+    public MorabeheLoanTypeValidationException(String messageKey, Throwable cause, String fieldName, String... args) {
         super(messageKey, cause, fieldName, args);
     }
 }

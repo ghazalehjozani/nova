@@ -1,5 +1,7 @@
 package ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application;
 
+import java.time.Clock;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -27,8 +29,8 @@ public class MorabeheLoanApplication extends AggregateRoot<MorabeheLoanApplicati
         this.loanApplication = loanApplication;
     }
 
-    public void request(ApplicationNumber applicationNumber) {
-        loanApplication.request(applicationNumber);
+    public void request(ApplicationNumber applicationNumber, Clock clock) {
+        loanApplication.request(applicationNumber, clock);
         setId(MorabeheLoanApplicationId.generate());
         registerEvent(MorabeheLoanApplicationRequestedEvent.of(id()));
     }

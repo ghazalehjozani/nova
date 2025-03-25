@@ -15,12 +15,12 @@ public final class MorabeheLoanApplicationValidationException extends LoanApplic
         super(errors, cause);
     }
 
-    public MorabeheLoanApplicationValidationException(String messageKey, String fieldName, Object... args) {
+    public MorabeheLoanApplicationValidationException(String messageKey, String fieldName, String... args) {
         super(messageKey, fieldName, args);
     }
 
     public MorabeheLoanApplicationValidationException(
-            String messageKey, Throwable cause, String fieldName, Object... args) {
+            String messageKey, Throwable cause, String fieldName, String... args) {
         super(messageKey, cause, fieldName, args);
     }
 }

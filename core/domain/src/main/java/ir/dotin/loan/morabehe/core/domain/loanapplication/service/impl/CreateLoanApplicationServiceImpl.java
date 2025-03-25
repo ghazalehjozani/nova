@@ -1,5 +1,7 @@
 package ir.dotin.loan.morabehe.core.domain.loanapplication.service.impl;
 
+import java.time.Clock;
+
 import ir.dotin.platform.ddd.common.annotation.DomainService;
 import ir.dotin.platform.ddd.common.exception.AggregateLoadException;
 import ir.dotin.loan.baseloan.domain.config.entity.loanrule.BaseLoanRule;
@@ -21,13 +23,16 @@ public class CreateLoanApplicationServiceImpl
         implements CreateLoanApplicationService {
 
     private final MorabeheLoanApplicationLoader morabeheLoanApplicationLoader;
+    private final Clock clock;
 
     public CreateLoanApplicationServiceImpl(
             LoanApplicationValidator loanApplicationValidator,
             LoanTypeValidator loanTypeValidator,
-            MorabeheLoanApplicationLoader morabeheLoanApplicationLoader) {
+            MorabeheLoanApplicationLoader morabeheLoanApplicationLoader,
+            Clock clock) {
         super(loanApplicationValidator, loanTypeValidator);
         this.morabeheLoanApplicationLoader = morabeheLoanApplicationLoader;
+        this.clock = clock;
     }
 
     @Override
@@ -47,7 +52,7 @@ public class CreateLoanApplicationServiceImpl
 
     @Override
     protected void request(MorabeheLoanApplication loanTypeRoot, ApplicationNumber applicationNumber) {
-        loanTypeRoot.request(applicationNumber);
+        loanTypeRoot.request(applicationNumber, clock);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package ir.dotin.loan.morabehe.core.domain.loanapplication.entity.application;
 
+import java.time.Clock;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -26,8 +28,8 @@ public class LoanApplication extends BaseLoanApplication {
     }
 
     @Override
-    protected void request(ApplicationNumber applicationNumber) {
-        super.request(applicationNumber);
+    protected void request(ApplicationNumber applicationNumber, Clock clock) {
+        super.request(applicationNumber, clock);
     }
 
     @Override
@@ -105,13 +107,11 @@ public class LoanApplication extends BaseLoanApplication {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public MorabeheLoanTypeId loanTypeId() {
         return loanTypeId;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public MorabeheLoanRuleId loanRuleId() {
         return loanRuleId;
