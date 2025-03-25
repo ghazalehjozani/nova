@@ -15,6 +15,12 @@
     <name>Morabehe Loan</name>
     <packaging>pom</packaging>
 
+    <scm>
+        <connection>scm:git:https://bitbucket.dotin.ir/scm/core/morabehe-loan.git</connection>
+        <developerConnection>scm:git:https://bitbucket.dotin.ir/scm/core/morabehe-loan.git</developerConnection>
+        <url>https://bitbucket.dotin.ir/projects/core/repos/morabehe-loan</url>
+    </scm>
+
     <modules>
         <module>core</module>
         <module>adapters</module>
