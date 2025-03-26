@@ -1,0 +1,33 @@
+#!/bin/sh
+
+##############################################################################
+# pre-commit Hook:
+#   - Runs `mvn clean compile -P dev`
+#   - Fails on errors or warnings
+##############################################################################
+
+echo "[pre-commit] Running Maven compile..."
+
+# 1. Execute compile. If it fails, reject the commit.
+mvn clean compile -P dev > /tmp/pre-commit-maven.log 2>&1
+RESULT=$?
+if [ $RESULT -ne 0 ]; then
+  echo "ERROR: Maven compile failed."
+  cat /tmp/pre-commit-maven.log
+  exit 1
+fi
+
+# 2. Optionally, treat ANY [WARNING] as an error. Check the logs:
+#    This approach depends on your tolerance for warnings.
+WARNINGS=$(grep -c "WARNING" /tmp/pre-commit-maven.log)
+if [ "$WARNINGS" -ne 0 ]; then
+  echo "ERROR: Maven compile produced warnings ($WARNINGS)."
+  echo "Please fix them before committing."
+  cat /tmp/pre-commit-maven.log
+  exit 1
+fi
+
+echo "[pre-commit] Compile passed with no errors/warnings."
+rm /tmp/pre-commit-maven.log 2>/dev/null
+exit 0
+
