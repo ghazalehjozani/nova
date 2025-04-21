@@ -17,10 +17,10 @@
   <packaging>jar</packaging>
 
   <dependencies>
-    <dependency>
+<!--    <dependency>
       <groupId>ir.dotin.loan</groupId>
       <artifactId>morabehe-loan-core-application-ports</artifactId>
-    </dependency>
+    </dependency>-->
 
     <!-- Transaction Management -->
     <dependency>

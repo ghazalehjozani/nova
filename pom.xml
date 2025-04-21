@@ -15,6 +15,7 @@
     <artifactId>morabehe-loan</artifactId>
     <name>Morabehe Loan</name>
     <packaging>pom</packaging>
+    <version>0.0.2-SNAPSHOT</version>
 
     <scm>
         <connection>scm:git:https://bitbucket.dotin.ir/scm/core/morabehe-loan.git</connection>
@@ -25,35 +26,15 @@
     <modules>
         <module>core</module>
         <module>adapters</module>
-        <module>container</module>
+        <module>architecture-tests</module>
     </modules>
 
     <properties>
-        <loan.base-loan.version>0.0.2-SNAPSHOT</loan.base-loan.version>
-        <platform.ddd-common.version>1.0.0-SNAPSHOT</platform.ddd-common.version>
-
-        <sonar.projectKey>ir.dotin.loan:morabehe-loan</sonar.projectKey>
-        <sonar.projectName>Morabehe Loan</sonar.projectName>
+        <loan.base-loan.version>1.1.0-SNAPSHOT</loan.base-loan.version>
+        <platform.ddd-common.version>5.6.0-SNAPSHOT</platform.ddd-common.version>
+        <loan.morabehe-loan.version>${project.version}</loan.morabehe-loan.version>
         <sonar.projectVersion>${project.version}</sonar.projectVersion>
-        <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
-        <sonar.language>java</sonar.language>
-        <sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
-        <sonar.sources>src</sonar.sources>
-        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-        <sonar.sources>src/main</sonar.sources>
-        <sonar.tests>src/test/java</sonar.tests>
-        <sonar.binaries>target/classes</sonar.binaries>
-        <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.tngtech.archunit</groupId>
-            <artifactId>archunit-junit5</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
 
     <dependencyManagement>
         <dependencies>
@@ -72,7 +53,7 @@
                 <version>${loan.base-loan.version}</version>
                 <scope>compile</scope>
             </dependency>
-            <dependency>
+          <dependency>
                 <groupId>ir.dotin.loan</groupId>
                 <artifactId>base-loan-core-application-ports</artifactId>
                 <version>${loan.base-loan.version}</version>
@@ -113,43 +94,37 @@
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
                 <artifactId>morabehe-loan-core-domain</artifactId>
-                <version>${project.version}</version>
+                <version>${loan.morabehe-loan.version}</version>
                 <scope>compile</scope>
             </dependency>
-            <dependency>
+           <dependency>
                 <groupId>ir.dotin.loan</groupId>
                 <artifactId>morabehe-loan-core-application-ports</artifactId>
-                <version>${project.version}</version>
+                <version>${loan.morabehe-loan.version}</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
                 <artifactId>morabehe-loan-core-application-service</artifactId>
-                <version>${project.version}</version>
+                <version>${loan.morabehe-loan.version}</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
                 <artifactId>morabehe-loan-adapters-driven-persistence</artifactId>
-                <version>${project.version}</version>
+                <version>${loan.morabehe-loan.version}</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
                 <artifactId>morabehe-loan-adapters-driving-rest</artifactId>
-                <version>${project.version}</version>
-                <scope>compile</scope>
-            </dependency>
-            <dependency>
-                <groupId>ir.dotin.loan</groupId>
-                <artifactId>morabehe-loan-adapters-driving-graphql</artifactId>
-                <version>${project.version}</version>
+                <version>${loan.morabehe-loan.version}</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
                 <artifactId>morabehe-loan-adapters-driven-client</artifactId>
-                <version>${project.version}</version>
+                <version>${loan.morabehe-loan.version}</version>
                 <scope>compile</scope>
             </dependency>
         </dependencies>
