@@ -12,7 +12,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.transaction.TransactionNumber;
 import ir.dotin.loan.morabehe.core.domain.disbursement.event.MorabeheDisbursementCompletedEvent;
 import ir.dotin.loan.morabehe.core.domain.disbursement.event.MorabeheDisbursementFailedEvent;
-import ir.dotin.loan.morabehe.core.domain.disbursement.event.MorabeheDisbursementPendingConfirmationEvent;
+import ir.dotin.loan.morabehe.core.domain.disbursement.event.MorabeheDisbursementTransactionPostedEvent;
 import ir.dotin.loan.morabehe.core.domain.disbursement.i18n.MorabeheDisbursementLocalizedMessageCodes;
 import ir.dotin.loan.morabehe.core.domain.disbursement.vo.MorabeheDisbursementRecordId;
 import ir.dotin.loan.morabehe.core.domain.loanfacility.vo.MorabeheLoanFacilityId;
@@ -36,8 +36,8 @@ public final class MorabeheDisbursementRecord extends AbstractDisbursementRecord
     }
 
     @Override
-    protected DomainEvent<?, ?> getPendingConfirmationEvent(MorabeheDisbursementRecordId id, Clock clock) {
-        return new MorabeheDisbursementPendingConfirmationEvent(UUID.randomUUID(), id, clock.instant());
+    protected DomainEvent<?, ?> getTransactionPostedEvent(MorabeheDisbursementRecordId id, Clock clock) {
+        return new MorabeheDisbursementTransactionPostedEvent(UUID.randomUUID(), id, clock.instant());
     }
 
     @Override

@@ -1,4 +1,4 @@
-package ir.dotin.loan.morabehe.core.domain.loanfacility.strategy.impl;
+package ir.dotin.loan.morabehe.core.domain.disbursement.strategy.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,7 @@ import java.util.Objects;
 import ir.dotin.platform.domain.common.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.DocumentCalculationStrategy;
 import ir.dotin.loan.morabehe.core.domain.loanfacility.aggregate.MorabeheLoanFacility;
-import ir.dotin.loan.morabehe.core.domain.loanfacility.strategy.DisbursementStrategyProvider;
+import ir.dotin.loan.morabehe.core.domain.disbursement.strategy.DisbursementStrategyProvider;
 
 @DomainService
 public final class DefaultDisbursementStrategyProvider implements DisbursementStrategyProvider {

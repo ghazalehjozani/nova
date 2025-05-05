@@ -6,13 +6,13 @@ import java.util.UUID;
 
 import ir.dotin.loan.morabehe.core.domain.disbursement.vo.MorabeheDisbursementRecordId;
 
-public record MorabeheDisbursementPendingConfirmationEvent(
+public record MorabeheDisbursementTransactionPostedEvent(
         UUID eventId, MorabeheDisbursementRecordId aggregateId, Instant createdAt)
-        implements MorabeheDisbursementEvent<MorabeheDisbursementPendingConfirmationEvent, Void> {
+        implements MorabeheDisbursementEvent<MorabeheDisbursementTransactionPostedEvent, Void> {
 
     public static final String PENDING = "PENDING";
 
-    public MorabeheDisbursementPendingConfirmationEvent {
+    public MorabeheDisbursementTransactionPostedEvent {
         Objects.requireNonNull(eventId, "eventId cannot be null");
         Objects.requireNonNull(aggregateId, "aggregateId cannot be null");
         Objects.requireNonNull(createdAt, "createdAt cannot be null");

@@ -11,7 +11,7 @@ import ir.dotin.loan.baseloan.core.domain.contractissuance.aggregate.AbstractCon
 import ir.dotin.loan.baseloan.core.domain.contractissuance.i18n.ContractIssuanceLocalizedMessageCodes;
 import ir.dotin.loan.baseloan.core.domain.contractissuance.vo.ContractReference;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
-import ir.dotin.loan.morabehe.core.domain.contractissuance.event.MorabeheContractIssuanceCreatedEvent;
+import ir.dotin.loan.morabehe.core.domain.contractissuance.event.MorabeheTransactionPostedEvent;
 import ir.dotin.loan.morabehe.core.domain.contractissuance.event.MorabeheContractIssuanceFailedEvent;
 import ir.dotin.loan.morabehe.core.domain.contractissuance.event.MorabeheContractIssuancePendingEvent;
 import ir.dotin.loan.morabehe.core.domain.contractissuance.event.MorabeheContractIssuedEvent;
@@ -37,7 +37,7 @@ public final class MorabeheContractIssuanceRecord
     public static Result<MorabeheContractIssuanceRecord> create(Builder builder, Clock clock) {
         var record = builder.withId(MorabeheContractIssuanceRecordId.generate()).build();
 
-        record.registerEvent(new MorabeheContractIssuanceCreatedEvent(
+        record.registerEvent(new MorabeheTransactionPostedEvent(
                 UUID.randomUUID(), record.getId(), Instant.now(clock), record.getLoanFacilityId(), record.getMethod()));
 
         return Result.ofValue(record);
@@ -49,7 +49,7 @@ public final class MorabeheContractIssuanceRecord
     }
 
     @Override
-    protected DomainEvent<?, ?> getGenerationPendingEvent(MorabeheContractIssuanceRecordId id, Clock clock) {
+    protected DomainEvent<?, ?> getTransactionPostedEvent(MorabeheContractIssuanceRecordId id, Clock clock) {
         return new MorabeheContractIssuancePendingEvent(UUID.randomUUID(), id, clock.instant());
     }
 

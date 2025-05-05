@@ -1,10 +1,11 @@
-package ir.dotin.loan.morabehe.core.domain.loanfacility.strategy.impl;
+package ir.dotin.loan.morabehe.core.domain.disbursement.strategy.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import ir.dotin.loan.baseloan.core.domain.shared.vo.transaction.Article;
 import ir.dotin.platform.domain.common.Notification;
 import ir.dotin.platform.domain.common.Result;
 import ir.dotin.platform.domain.common.annotation.DomainService;
@@ -12,19 +13,18 @@ import ir.dotin.platform.domain.common.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.InterestPolicy;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.BaseFormulaField;
 import ir.dotin.loan.baseloan.core.domain.shared.interaction.FindAccountByRelationTypeClient;
-import ir.dotin.loan.baseloan.core.domain.shared.service.transaction.DocumentItemCommentFactory;
+import ir.dotin.loan.baseloan.core.domain.shared.service.transaction.ArticleCommentFactory;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.AbstractDocumentItemStrategy;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.CalculationContext;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.transaction.DocumentItem;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.transaction.PostTitle;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.transaction.metadata.TransactionMetadata;
 import ir.dotin.loan.morabehe.core.domain.loanarrangement.aggregate.MorabeheLoanArrangement;
 import ir.dotin.loan.morabehe.core.domain.loanarrangement.vo.MorabeheLoanArrangementId;
 import ir.dotin.loan.morabehe.core.domain.loanfacility.aggregate.MorabeheLoanFacility;
 import ir.dotin.loan.morabehe.core.domain.loanfacility.i18n.MorabeheLoanFacilityLocalizedMessageCodes;
-import ir.dotin.loan.morabehe.core.domain.loanfacility.service.formula.MorabeheInterestCalculationService;
-import ir.dotin.loan.morabehe.core.domain.loanfacility.strategy.DisbursedInterestFacilitiesStrategy;
+import ir.dotin.loan.morabehe.core.domain.disbursement.formula.MorabeheInterestCalculationService;
+import ir.dotin.loan.morabehe.core.domain.disbursement.strategy.DisbursedInterestFacilitiesStrategy;
 import ir.dotin.loan.morabehe.core.domain.loantype.enums.MorabeheRelationType;
 import ir.dotin.loan.morabehe.core.domain.shared.interaction.MorabeheLoanArrangementDataProvider;
 
@@ -37,7 +37,7 @@ public final class DisbursedInterestTransactionStrategy extends AbstractDocument
 
     public DisbursedInterestTransactionStrategy(
             FindAccountByRelationTypeClient findAccountClient,
-            DocumentItemCommentFactory commentFactory,
+            ArticleCommentFactory commentFactory,
             MorabeheLoanArrangementDataProvider arrangementDataProvider,
             MorabeheInterestCalculationService interestCalculationService) {
         super(findAccountClient, commentFactory);
@@ -46,12 +46,12 @@ public final class DisbursedInterestTransactionStrategy extends AbstractDocument
     }
 
     @Override
-    public Result<List<DocumentItem>> calculateItems(CalculationContext<MorabeheLoanFacility> context) {
-        return calculateItemsInternal(context, "Incomplete items for Disbursed Facilities Interest");
+    public Result<List<Article>> calculateItems(CalculationContext<MorabeheLoanFacility> context) {
+        return calculateItemsInternal(context, "Incomplete articles for Disbursed Facilities Interest");
     }
 
     @Override
-    protected Result<List<DocumentItem>> generateItems(CalculationContext<MorabeheLoanFacility> context) {
+    protected Result<List<Article>> generateItems(CalculationContext<MorabeheLoanFacility> context) {
 
         Money principal = context.principalAmount();
         if (principal.isZero()) {
@@ -81,11 +81,11 @@ public final class DisbursedInterestTransactionStrategy extends AbstractDocument
         PostTitle postTitle = context.postTitle();
         TransactionMetadata metadata = context.baseMetadata();
         Notification notification = Notification.empty();
-        List<DocumentItem> items = new ArrayList<>();
+        List<Article> items = new ArrayList<>();
 
         // Debit Item
         MorabeheRelationType debitRelation = MorabeheRelationType.PRINCIPAL;
-        DocumentItem debitItem =
+        Article debitItem =
                 findAndCreateAccountItem(debitRelation, totalInterestAmount, topic, postTitle, metadata, notification);
         if (debitItem != null) {
             items.add(debitItem);
@@ -93,7 +93,7 @@ public final class DisbursedInterestTransactionStrategy extends AbstractDocument
 
         // Credit Item
         MorabeheRelationType creditRelation = MorabeheRelationType.FUTURE_INTEREST;
-        DocumentItem creditItem =
+        Article creditItem =
                 findAndCreateAccountItem(creditRelation, totalInterestAmount, topic, postTitle, metadata, notification);
         if (creditItem != null) {
             items.add(creditItem);

@@ -73,7 +73,7 @@ public class MorabeheLoanDomainRulesTest {
             .resideInAnyPackage(
                     DOMAIN_LAYER_PACKAGES, DOMAIN_COMMON_PACKAGE, BASE_LOAN_PACKAGE, JAVA_PACKAGE, SLF4J_PACKAGE)
             .as(
-                    "Morabehe Loan: Domain layer should only depend on allowed packages (self, common, java, jakarta, slf4j)");
+                    "Morabehe Loan: Domain layer should only depend on allowed packages (self, base-loan domain, common, java, slf4j)");
 
     @ArchTest
     public static final ArchRule value_objects_should_be_immutable_or_records = classes()

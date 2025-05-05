@@ -5,7 +5,7 @@ import ir.dotin.loan.morabehe.core.domain.contractissuance.vo.MorabeheContractIs
 
 public sealed interface MorabeheContractIssuanceEvent<T extends Record & MorabeheContractIssuanceEvent<T, P>, P>
         extends DomainEvent<T, P>
-        permits MorabeheContractIssuanceCreatedEvent,
+        permits MorabeheTransactionPostedEvent,
                 MorabeheContractIssuanceFailedEvent,
                 MorabeheContractIssuancePendingEvent,
                 MorabeheContractIssuedEvent {

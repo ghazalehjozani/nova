@@ -8,16 +8,16 @@ import ir.dotin.loan.baseloan.core.domain.contractissuance.enums.IssuanceMethod;
 import ir.dotin.loan.morabehe.core.domain.contractissuance.vo.MorabeheContractIssuanceRecordId;
 import ir.dotin.loan.morabehe.core.domain.loanfacility.vo.MorabeheLoanFacilityId;
 
-public record MorabeheContractIssuanceCreatedEvent(
+public record MorabeheTransactionPostedEvent(
         UUID eventId,
         MorabeheContractIssuanceRecordId aggregateId,
         Instant createdAt,
         MorabeheLoanFacilityId loanFacilityId,
         IssuanceMethod method)
         implements MorabeheContractIssuanceEvent<
-                MorabeheContractIssuanceCreatedEvent, MorabeheContractIssuanceCreatedEvent.Payload> {
+        MorabeheTransactionPostedEvent, MorabeheTransactionPostedEvent.Payload> {
 
-    public MorabeheContractIssuanceCreatedEvent {
+    public MorabeheTransactionPostedEvent {
         Objects.requireNonNull(eventId, "eventId cannot be null");
         Objects.requireNonNull(aggregateId, "aggregateId cannot be null");
         Objects.requireNonNull(createdAt, "createdAt cannot be null");

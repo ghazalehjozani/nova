@@ -1,4 +1,4 @@
-package ir.dotin.loan.morabehe.core.domain.loanfacility.strategy;
+package ir.dotin.loan.morabehe.core.domain.disbursement.strategy;
 
 import java.util.List;
 

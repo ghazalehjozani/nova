@@ -1,4 +1,4 @@
-package ir.dotin.loan.morabehe.core.domain.loanfacility.service.transaction;
+package ir.dotin.loan.morabehe.core.domain.disbursement.service;
 
 import java.util.Collections;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import ir.dotin.loan.morabehe.core.domain.disbursement.strategy.*;
 import ir.dotin.platform.domain.common.Notification;
 import ir.dotin.platform.domain.common.Result;
 import ir.dotin.platform.domain.common.annotation.DomainService;
@@ -22,7 +23,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.transaction.PostTitle;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.transaction.TransactionNumber;
 import ir.dotin.loan.morabehe.core.domain.loanfacility.aggregate.MorabeheLoanFacility;
 import ir.dotin.loan.morabehe.core.domain.loanfacility.i18n.MorabeheLoanFacilityLocalizedMessageCodes;
-import ir.dotin.loan.morabehe.core.domain.loanfacility.strategy.*;
 
 @DomainService
 public final class MorabeheDisbursementTransactionService {
@@ -93,7 +93,7 @@ public final class MorabeheDisbursementTransactionService {
                     .filter(data -> data != null
                             && data.transaction != null
                             && !data.transaction.documents().isEmpty()
-                            && !data.transaction.documents().getFirst().items().isEmpty())
+                            && !data.transaction.documents().getFirst().articles().isEmpty())
                     .toList();
 
             if (validTransactions.isEmpty()) {
