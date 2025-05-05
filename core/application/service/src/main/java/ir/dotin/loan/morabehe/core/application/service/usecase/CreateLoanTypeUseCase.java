@@ -1,7 +1,0 @@
-package ir.dotin.loan.morabehe.core.application.service.usecase;
-
-import ir.dotin.loan.baseloan.core.application.service.usecase.UseCase;
-import ir.dotin.loan.morabehe.core.application.service.command.MorabeheCreateLoanTypeCommand;
-import ir.dotin.loan.morabehe.core.application.service.response.LoanTypeResponse;
-
-public interface CreateLoanTypeUseCase extends UseCase<MorabeheCreateLoanTypeCommand, LoanTypeResponse> {}

@@ -22,10 +22,10 @@
   </modules>
 
   <dependencies>
-    <dependency>
+<!--    <dependency>
       <groupId>ir.dotin.loan</groupId>
       <artifactId>morabehe-loan-core-domain</artifactId>
-    </dependency>
+    </dependency>-->
   </dependencies>
 
 </project>

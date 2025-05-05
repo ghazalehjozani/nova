@@ -22,14 +22,14 @@
   </modules>
 
   <dependencies>
-    <dependency>
+<!--    <dependency>
       <groupId>ir.dotin.loan</groupId>
       <artifactId>morabehe-loan-core-application-ports</artifactId>
     </dependency>
     <dependency>
       <groupId>ir.dotin.loan</groupId>
       <artifactId>morabehe-loan-core-application-service</artifactId>
-    </dependency>
+    </dependency>-->
   </dependencies>
 
 </project>
