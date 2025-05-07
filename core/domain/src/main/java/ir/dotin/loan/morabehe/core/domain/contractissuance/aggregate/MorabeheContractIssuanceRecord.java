@@ -2,6 +2,7 @@ package ir.dotin.loan.morabehe.core.domain.contractissuance.aggregate;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 
 import ir.dotin.platform.domain.common.Notification;
@@ -11,9 +12,8 @@ import ir.dotin.loan.baseloan.core.domain.contractissuance.aggregate.AbstractCon
 import ir.dotin.loan.baseloan.core.domain.contractissuance.i18n.ContractIssuanceLocalizedMessageCodes;
 import ir.dotin.loan.baseloan.core.domain.contractissuance.vo.ContractReference;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
-import ir.dotin.loan.morabehe.core.domain.contractissuance.event.MorabeheTransactionPostedEvent;
 import ir.dotin.loan.morabehe.core.domain.contractissuance.event.MorabeheContractIssuanceFailedEvent;
-import ir.dotin.loan.morabehe.core.domain.contractissuance.event.MorabeheContractIssuancePendingEvent;
+import ir.dotin.loan.morabehe.core.domain.contractissuance.event.MorabeheContractIssuanceTransactionPostedEvent;
 import ir.dotin.loan.morabehe.core.domain.contractissuance.event.MorabeheContractIssuedEvent;
 import ir.dotin.loan.morabehe.core.domain.contractissuance.vo.MorabeheContractIssuanceRecordId;
 import ir.dotin.loan.morabehe.core.domain.loanfacility.vo.MorabeheLoanFacilityId;
@@ -34,13 +34,14 @@ public final class MorabeheContractIssuanceRecord
         return new Builder();
     }
 
-    public static Result<MorabeheContractIssuanceRecord> create(Builder builder, Clock clock) {
-        var record = builder.withId(MorabeheContractIssuanceRecordId.generate()).build();
+    public static Result<MorabeheContractIssuanceRecord> create(Builder builder) {
+        Objects.requireNonNull(builder, "Builder cannot be null for create.");
+        return builder.withId(MorabeheContractIssuanceRecordId.generate()).build();
+    }
 
-        record.registerEvent(new MorabeheTransactionPostedEvent(
-                UUID.randomUUID(), record.getId(), Instant.now(clock), record.getLoanFacilityId(), record.getMethod()));
-
-        return Result.ofValue(record);
+    public static MorabeheContractIssuanceRecord reconstitute(Builder builder) {
+        Objects.requireNonNull(builder, "Builder cannot be null for reconstitution.");
+        return builder.buildInternal();
     }
 
     @Override
@@ -50,7 +51,8 @@ public final class MorabeheContractIssuanceRecord
 
     @Override
     protected DomainEvent<?, ?> getTransactionPostedEvent(MorabeheContractIssuanceRecordId id, Clock clock) {
-        return new MorabeheContractIssuancePendingEvent(UUID.randomUUID(), id, clock.instant());
+        return MorabeheContractIssuanceTransactionPostedEvent.create(
+                UUID.randomUUID(), getId(), Instant.now(clock), getLoanFacilityId());
     }
 
     @Override
@@ -85,26 +87,17 @@ public final class MorabeheContractIssuanceRecord
         }
 
         @Override
-        protected Builder self() {
-            return this;
-        }
-
-        @Override
         protected MorabeheContractIssuanceRecord buildInternal() {
             return new MorabeheContractIssuanceRecord(this);
         }
 
         @Override
-        public Result<Void> validateBaseFields() {
-            Result<Void> baseResult = super.validateBaseFields();
-            if (baseResult.isFailure()) {
-                return baseResult;
-            }
+        public Notification validate() {
+            Notification notification = super.validate();
             if (loanFacilityId == null) {
-                return Result.ofNotification(
-                        Notification.ofError(ContractIssuanceLocalizedMessageCodes.FIELD_REQUIRED, "loanFacilityId"));
+                return notification.addError(ContractIssuanceLocalizedMessageCodes.FIELD_REQUIRED, "loanFacilityId");
             }
-            return Result.ofNotification(Notification.empty());
+            return notification;
         }
     }
 }

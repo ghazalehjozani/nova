@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Objects;
 
-import ir.dotin.loan.morabehe.core.domain.shared.formula.MorabeheLoanFormulaContextProvider;
 import ir.dotin.platform.domain.common.Notification;
 import ir.dotin.platform.domain.common.Result;
 import ir.dotin.platform.domain.common.annotation.DomainService;
@@ -17,6 +16,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.formula.FormulaContextProvider;
 import ir.dotin.loan.baseloan.core.domain.shared.interaction.BaseFormulaFieldEvaluator;
 import ir.dotin.loan.morabehe.core.domain.loanfacility.aggregate.MorabeheLoanFacility;
 import ir.dotin.loan.morabehe.core.domain.loanfacility.i18n.MorabeheLoanFacilityLocalizedMessageCodes;
+import ir.dotin.loan.morabehe.core.domain.shared.formula.MorabeheLoanFormulaContextProvider;
 
 @DomainService
 public final class MorabeheInterestCalculationService {
@@ -37,23 +37,23 @@ public final class MorabeheInterestCalculationService {
 
         ParameterizedFormula<BaseFormulaField> interestFormula = policy.interestFormula();
         if (interestFormula == null) {
-            return Result.ofNotification(
+            return Result.failure(
                     Notification.ofError(MorabeheLoanFacilityLocalizedMessageCodes.INTEREST_FORMULA_MISSING));
         }
 
         Result<Map<Character, TypedValue>> context = contextProvider.createContext(interestFormula, facility);
 
         if (context.isFailure()) {
-            return Result.ofNotification(context.notification());
+            return Result.failure(context.notification());
         }
 
         Result<BigDecimal> calculationResult = formulaEvaluator.evaluate(interestFormula, context.value());
 
         if (calculationResult.isFailure()) {
-            return Result.ofNotification(calculationResult.notification());
+            return Result.failure(calculationResult.notification());
         }
 
-        return Result.ofValue(Money.from(
-                calculationResult.value(), facility.getLoanApplication().getCurrency()));
+        return Money.valueOf(
+                calculationResult.value(), facility.getLoanApplication().getCurrency());
     }
 }

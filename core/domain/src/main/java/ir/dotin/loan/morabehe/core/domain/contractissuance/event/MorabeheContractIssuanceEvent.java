@@ -5,9 +5,8 @@ import ir.dotin.loan.morabehe.core.domain.contractissuance.vo.MorabeheContractIs
 
 public sealed interface MorabeheContractIssuanceEvent<T extends Record & MorabeheContractIssuanceEvent<T, P>, P>
         extends DomainEvent<T, P>
-        permits MorabeheTransactionPostedEvent,
+        permits MorabeheContractIssuanceTransactionPostedEvent,
                 MorabeheContractIssuanceFailedEvent,
-                MorabeheContractIssuancePendingEvent,
                 MorabeheContractIssuedEvent {
 
     String EVENT_TYPE_PREFIX = "MORABEHE_CONTRACT_ISSUANCE_";

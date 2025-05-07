@@ -3,11 +3,9 @@ package ir.dotin.loan.morabehe.core.domain.loanfacility.aggregate;
 import java.time.Clock;
 import java.util.Objects;
 
-import ir.dotin.platform.domain.common.Notification;
 import ir.dotin.platform.domain.common.Result;
 import ir.dotin.platform.domain.common.event.DomainEvent;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.aggregate.AbstractLoanFacility;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.aggregate.AbstractSanctionedLoan;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
@@ -15,7 +13,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.morabehe.core.domain.loanarrangement.vo.MorabeheLoanArrangementId;
 import ir.dotin.loan.morabehe.core.domain.loanfacility.event.*;
-import ir.dotin.loan.morabehe.core.domain.loanfacility.i18n.MorabeheLoanFacilityLocalizedMessageCodes;
 import ir.dotin.loan.morabehe.core.domain.loanfacility.vo.MorabeheLoanApplicationId;
 import ir.dotin.loan.morabehe.core.domain.loanfacility.vo.MorabeheLoanFacilityId;
 import ir.dotin.loan.morabehe.core.domain.loanfacility.vo.MorabeheSanctionedLoanId;
@@ -34,52 +31,44 @@ public final class MorabeheLoanFacility
 
     private MorabeheLoanFacility(
             MorabeheLoanFacilityId id,
-            MorabeheLoanApplication initialApplication,
-            MorabeheLoanTypeId loanTypeId,
-            MorabeheLoanArrangementId loanRuleId,
-            Clock clock) {
-        super(id, initialApplication, clock);
-        this.morabeheLoanTypeId = Objects.requireNonNull(loanTypeId, "morabeheLoanTypeId cannot be null");
-        this.morabeheLoanArrangementId = Objects.requireNonNull(loanRuleId, "morabeheLoanRuleId cannot be null");
-    }
-
-    private MorabeheLoanFacility(
-            MorabeheLoanFacilityId id,
             MorabeheLoanApplication application,
             MorabeheSanctionedLoan sanctionedLoan,
             FacilityStatus status,
             MorabeheLoanTypeId loanTypeId,
-            MorabeheLoanArrangementId loanRuleId) {
+            MorabeheLoanArrangementId loanArrangementId) {
         super(id, application, sanctionedLoan, status);
         this.morabeheLoanTypeId = Objects.requireNonNull(loanTypeId, "morabeheLoanTypeId cannot be null");
-        this.morabeheLoanArrangementId = Objects.requireNonNull(loanRuleId, "morabeheLoanRuleId cannot be null");
+        this.morabeheLoanArrangementId =
+                Objects.requireNonNull(loanArrangementId, "morabeheLoanArrangementId cannot be null");
     }
 
     public static Result<MorabeheLoanFacility> create(
             MorabeheLoanApplication.Builder applicationBuilder,
             MorabeheLoanTypeId loanTypeId,
-            MorabeheLoanArrangementId loanRuleId,
+            MorabeheLoanArrangementId loanArrangementId,
             Clock clock) {
-
         Objects.requireNonNull(applicationBuilder, "applicationBuilder cannot be null");
         Objects.requireNonNull(loanTypeId, "loanTypeId cannot be null");
-        Objects.requireNonNull(loanRuleId, "loanRuleId cannot be null");
+        Objects.requireNonNull(loanArrangementId, "loanArrangementId cannot be null");
         Objects.requireNonNull(clock, "clock cannot be null");
 
-        try {
-            MorabeheLoanApplicationId appId = MorabeheLoanApplicationId.generate();
-            MorabeheLoanFacilityId facilityId = MorabeheLoanFacilityId.generate();
+        MorabeheLoanFacilityId facilityId = MorabeheLoanFacilityId.generate();
+        Result<MorabeheLoanApplication> applicationResult = MorabeheLoanApplication.create(applicationBuilder);
 
-            MorabeheLoanApplication application = applicationBuilder.id(appId).build();
-
-            MorabeheLoanFacility facility =
-                    new MorabeheLoanFacility(facilityId, application, loanTypeId, loanRuleId, clock);
-
-            return Result.ofValue(facility);
-        } catch (IllegalArgumentException e) {
-            return Result.ofNotification(Notification.ofError(
-                    MorabeheLoanFacilityLocalizedMessageCodes.BUILDER_VALIDATION_FAILED, e.getMessage()));
+        if (applicationResult.isFailure()) {
+            return Result.failure(applicationResult.notification());
         }
+        FacilityStatus facilityStatus = FacilityStatus.APPLICATION_SUBMITTED;
+        MorabeheLoanFacility facility = new MorabeheLoanFacility(
+                facilityId, applicationResult.value(), null, facilityStatus, loanTypeId, loanArrangementId);
+
+        facility.registerEvent(MorabeheLoanFacilityCreatedEvent.of(
+                facilityId,
+                applicationResult.value().getId(),
+                facility.getLoanApplication().getCustomer(),
+                clock));
+
+        return Result.success(facility);
     }
 
     public static MorabeheLoanFacility reconstitute(
@@ -110,12 +99,6 @@ public final class MorabeheLoanFacility
     @Override
     protected MorabeheSanctionedLoanId generateSanctionedLoanId() {
         return MorabeheSanctionedLoanId.generate();
-    }
-
-    @Override
-    protected AbstractSanctionedLoan.AbstractBuilder<MorabeheSanctionedLoanId, MorabeheSanctionedLoan, ?>
-            getSanctionedLoanBuilder() {
-        return MorabeheSanctionedLoan.newBuilder();
     }
 
     @Override

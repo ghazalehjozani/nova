@@ -7,7 +7,7 @@
     <parent>
         <groupId>ir.dotin.platform</groupId>
         <artifactId>parent</artifactId>
-        <version>0.4.1-SNAPSHOT</version>
+        <version>0.5.1-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -31,7 +31,6 @@
 
     <properties>
         <loan.base-loan.version>1.1.0-SNAPSHOT</loan.base-loan.version>
-        <platform.ddd-common.version>5.6.0-SNAPSHOT</platform.ddd-common.version>
         <loan.morabehe-loan.version>${project.version}</loan.morabehe-loan.version>
         <sonar.projectVersion>${project.version}</sonar.projectVersion>
     </properties>
@@ -90,7 +89,6 @@
                 <version>${loan.base-loan.version}</version>
             </dependency>
             <!--endregion-->
-
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
                 <artifactId>morabehe-loan-core-domain</artifactId>

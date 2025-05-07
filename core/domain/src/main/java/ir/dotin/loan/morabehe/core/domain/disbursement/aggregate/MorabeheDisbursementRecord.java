@@ -1,7 +1,9 @@
 package ir.dotin.loan.morabehe.core.domain.disbursement.aggregate;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import ir.dotin.platform.domain.common.Notification;
@@ -30,14 +32,25 @@ public final class MorabeheDisbursementRecord extends AbstractDisbursementRecord
         return new MorabeheDisbursementRecord.Builder();
     }
 
+    public static Result<MorabeheDisbursementRecord> create(Builder builder) {
+        Objects.requireNonNull(builder, "Builder cannot be null for create.");
+        return builder.withId(MorabeheDisbursementRecordId.generate()).build();
+    }
+
+    public static MorabeheDisbursementRecord reconstitute(Builder builder) {
+        Objects.requireNonNull(builder, "Builder cannot be null for reconstitution.");
+        return builder.buildInternal();
+    }
+
     @Override
-    public MorabeheLoanFacilityId getLoanApplicationId() {
+    public MorabeheLoanFacilityId getLoanFacilityId() {
         return loanFacilityId;
     }
 
     @Override
     protected DomainEvent<?, ?> getTransactionPostedEvent(MorabeheDisbursementRecordId id, Clock clock) {
-        return new MorabeheDisbursementTransactionPostedEvent(UUID.randomUUID(), id, clock.instant());
+        return MorabeheDisbursementTransactionPostedEvent.create(
+                UUID.randomUUID(), getId(), Instant.now(clock), getLoanFacilityId());
     }
 
     @Override
@@ -64,26 +77,17 @@ public final class MorabeheDisbursementRecord extends AbstractDisbursementRecord
         }
 
         @Override
-        protected MorabeheDisbursementRecord.Builder self() {
-            return this;
-        }
-
-        @Override
         protected MorabeheDisbursementRecord buildInternal() {
             return new MorabeheDisbursementRecord(this);
         }
 
         @Override
-        public Result<Void> validateBaseFields() {
-            Result<Void> baseResult = super.validateBaseFields();
-            if (baseResult.isFailure()) {
-                return baseResult;
-            }
+        public Notification validate() {
+            Notification baseResult = super.validate();
             if (loanFacilityId == null) {
-                return Result.ofNotification(Notification.ofError(
-                        MorabeheDisbursementLocalizedMessageCodes.FIELD_REQUIRED, "loanFacilityId"));
+                return baseResult.addError(MorabeheDisbursementLocalizedMessageCodes.FIELD_REQUIRED, "loanFacilityId");
             }
-            return Result.ofNotification(Notification.empty());
+            return baseResult;
         }
     }
 }
