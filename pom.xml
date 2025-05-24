@@ -12,15 +12,15 @@
     </parent>
 
     <groupId>ir.dotin.loan</groupId>
-    <artifactId>morabehe-loan</artifactId>
-    <name>Morabehe Loan</name>
+    <artifactId>trade-loan</artifactId>
+    <name>Trade Loan</name>
     <packaging>pom</packaging>
     <version>0.0.2-SNAPSHOT</version>
 
     <scm>
-        <connection>scm:git:https://bitbucket.dotin.ir/scm/core/morabehe-loan.git</connection>
-        <developerConnection>scm:git:https://bitbucket.dotin.ir/scm/core/morabehe-loan.git</developerConnection>
-        <url>https://bitbucket.dotin.ir/projects/core/repos/morabehe-loan</url>
+        <connection>scm:git:https://bitbucket.dotin.ir/scm/core/trade-loan.git</connection>
+        <developerConnection>scm:git:https://bitbucket.dotin.ir/scm/core/trade-loan.git</developerConnection>
+        <url>https://bitbucket.dotin.ir/projects/core/repos/trade-loan</url>
     </scm>
 
     <modules>
@@ -31,7 +31,7 @@
 
     <properties>
         <loan.base-loan.version>1.1.0-SNAPSHOT</loan.base-loan.version>
-        <loan.morabehe-loan.version>${project.version}</loan.morabehe-loan.version>
+        <loan.trade-loan.version>${project.version}</loan.trade-loan.version>
         <sonar.projectVersion>${project.version}</sonar.projectVersion>
     </properties>
 
@@ -91,38 +91,38 @@
             <!--endregion-->
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
-                <artifactId>morabehe-loan-core-domain</artifactId>
-                <version>${loan.morabehe-loan.version}</version>
+                <artifactId>trade-loan-core-domain</artifactId>
+                <version>${loan.trade-loan.version}</version>
                 <scope>compile</scope>
             </dependency>
            <dependency>
                 <groupId>ir.dotin.loan</groupId>
-                <artifactId>morabehe-loan-core-application-ports</artifactId>
-                <version>${loan.morabehe-loan.version}</version>
+                <artifactId>trade-loan-core-application-ports</artifactId>
+                <version>${loan.trade-loan.version}</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
-                <artifactId>morabehe-loan-core-application-service</artifactId>
-                <version>${loan.morabehe-loan.version}</version>
+                <artifactId>trade-loan-core-application-service</artifactId>
+                <version>${loan.trade-loan.version}</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
-                <artifactId>morabehe-loan-adapters-driven-persistence</artifactId>
-                <version>${loan.morabehe-loan.version}</version>
+                <artifactId>trade-loan-adapters-driven-persistence</artifactId>
+                <version>${loan.trade-loan.version}</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
-                <artifactId>morabehe-loan-adapters-driving-rest</artifactId>
-                <version>${loan.morabehe-loan.version}</version>
+                <artifactId>trade-loan-adapters-driving-rest</artifactId>
+                <version>${loan.trade-loan.version}</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
-                <artifactId>morabehe-loan-adapters-driven-client</artifactId>
-                <version>${loan.morabehe-loan.version}</version>
+                <artifactId>trade-loan-adapters-driven-client</artifactId>
+                <version>${loan.trade-loan.version}</version>
                 <scope>compile</scope>
             </dependency>
         </dependencies>

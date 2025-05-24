@@ -7,19 +7,19 @@
 
   <parent>
     <groupId>ir.dotin.loan</groupId>
-    <artifactId>morabehe-loan-core-application</artifactId>
+    <artifactId>trade-loan-core-application</artifactId>
     <version>0.0.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>morabehe-loan-core-application-service</artifactId>
-  <name>Morabehe Loan :: Core :: Application :: Service</name>
+  <artifactId>trade-loan-core-application-service</artifactId>
+  <name>Trade Loan :: Core :: Application :: Service</name>
   <packaging>jar</packaging>
 
   <dependencies>
 <!--    <dependency>
       <groupId>ir.dotin.loan</groupId>
-      <artifactId>morabehe-loan-core-application-ports</artifactId>
+      <artifactId>trade-loan-core-application-ports</artifactId>
     </dependency>-->
 
     <!-- Transaction Management -->

@@ -7,13 +7,13 @@
 
   <parent>
     <groupId>ir.dotin.loan</groupId>
-    <artifactId>morabehe-loan-adapters-driven</artifactId>
+    <artifactId>trade-loan-adapters-driven</artifactId>
     <version>0.0.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>morabehe-loan-adapters-driven-persistence</artifactId>
-  <name>Morabehe Loan :: Adapters :: Driven :: Persistence</name>
+  <artifactId>trade-loan-adapters-driven-persistence</artifactId>
+  <name>Trade Loan :: Adapters :: Driven :: Persistence</name>
   <packaging>jar</packaging>
 
   <dependencies>

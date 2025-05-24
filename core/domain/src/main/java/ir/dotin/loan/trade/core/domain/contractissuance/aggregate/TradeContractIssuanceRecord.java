@@ -1,0 +1,102 @@
+package ir.dotin.loan.trade.core.domain.contractissuance.aggregate;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Objects;
+import java.util.UUID;
+
+import ir.dotin.platform.domain.common.Notification;
+import ir.dotin.platform.domain.common.Result;
+import ir.dotin.platform.domain.common.event.DomainEvent;
+import ir.dotin.loan.baseloan.core.domain.contractissuance.aggregate.AbstractContractIssuanceRecord;
+import ir.dotin.loan.baseloan.core.domain.contractissuance.i18n.ContractIssuanceLocalizedMessageCodes;
+import ir.dotin.loan.baseloan.core.domain.contractissuance.vo.ContractReference;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
+import ir.dotin.loan.trade.core.domain.contractissuance.event.TradeContractIssuanceFailedEvent;
+import ir.dotin.loan.trade.core.domain.contractissuance.event.TradeContractIssuanceTransactionPostedEvent;
+import ir.dotin.loan.trade.core.domain.contractissuance.event.TradeContractIssuedEvent;
+import ir.dotin.loan.trade.core.domain.contractissuance.vo.TradeContractIssuanceRecordId;
+import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
+
+import static java.util.Objects.requireNonNull;
+
+public final class TradeContractIssuanceRecord extends AbstractContractIssuanceRecord<TradeContractIssuanceRecordId> {
+
+    private final TradeLoanFacilityId loanFacilityId;
+
+    private TradeContractIssuanceRecord(Builder builder) {
+        super(builder);
+        this.loanFacilityId = requireNonNull(builder.loanFacilityId);
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
+    public static Result<TradeContractIssuanceRecord> create(Builder builder) {
+        Objects.requireNonNull(builder, "Builder cannot be null for create.");
+        return builder.withId(TradeContractIssuanceRecordId.generate()).build();
+    }
+
+    public static TradeContractIssuanceRecord reconstitute(Builder builder) {
+        Objects.requireNonNull(builder, "Builder cannot be null for reconstitution.");
+        return builder.buildInternal();
+    }
+
+    @Override
+    public TradeLoanFacilityId getLoanFacilityId() {
+        return loanFacilityId;
+    }
+
+    @Override
+    protected DomainEvent<?, ?> getTransactionPostedEvent(TradeContractIssuanceRecordId id, Clock clock) {
+        return TradeContractIssuanceTransactionPostedEvent.create(
+                UUID.randomUUID(), getId(), Instant.now(clock), getLoanFacilityId());
+    }
+
+    @Override
+    protected DomainEvent<?, ?> getContractIssuedEvent(
+            TradeContractIssuanceRecordId id, ContractReference reference, Clock clock) {
+        return new TradeContractIssuedEvent(UUID.randomUUID(), id, reference, clock.instant());
+    }
+
+    @Override
+    protected DomainEvent<?, ?> getContractIssuanceFailedEvent(
+            TradeContractIssuanceRecordId id, FailureReason reason, Clock clock) {
+        return new TradeContractIssuanceFailedEvent(UUID.randomUUID(), id, reason, clock.instant());
+    }
+
+    public static final class Builder
+            extends AbstractBuilder<TradeContractIssuanceRecordId, TradeContractIssuanceRecord, Builder> {
+
+        private TradeLoanFacilityId loanFacilityId;
+
+        public Builder() {
+            super();
+        }
+
+        public Builder(TradeContractIssuanceRecord other) {
+            super(other);
+            this.loanFacilityId = other.loanFacilityId;
+        }
+
+        public Builder withMethod(TradeLoanFacilityId loanFacilityId) {
+            this.loanFacilityId = loanFacilityId;
+            return this;
+        }
+
+        @Override
+        protected TradeContractIssuanceRecord buildInternal() {
+            return new TradeContractIssuanceRecord(this);
+        }
+
+        @Override
+        public Notification validate() {
+            Notification notification = super.validate();
+            if (loanFacilityId == null) {
+                return notification.addError(ContractIssuanceLocalizedMessageCodes.FIELD_REQUIRED, "loanFacilityId");
+            }
+            return notification;
+        }
+    }
+}

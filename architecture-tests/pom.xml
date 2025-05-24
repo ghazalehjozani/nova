@@ -6,13 +6,13 @@
 
     <parent>
         <groupId>ir.dotin.loan</groupId>
-        <artifactId>morabehe-loan</artifactId>
+        <artifactId>trade-loan</artifactId>
         <version>0.0.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>morabehe-architecture-tests</artifactId>
-    <name>Morabehe Loan :: Architecture Tests</name>
+    <artifactId>trade-architecture-tests</artifactId>
+    <name>Trade Loan :: Architecture Tests</name>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
@@ -27,32 +27,32 @@
         </dependency>
         <dependency>
             <groupId>ir.dotin.loan</groupId>
-            <artifactId>morabehe-loan-core-domain</artifactId>
+            <artifactId>trade-loan-core-domain</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ir.dotin.loan</groupId>
-            <artifactId>morabehe-loan-core-application-service</artifactId>
+            <artifactId>trade-loan-core-application-service</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ir.dotin.loan</groupId>
-            <artifactId>morabehe-loan-core-application-ports</artifactId>
+            <artifactId>trade-loan-core-application-ports</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ir.dotin.loan</groupId>
-            <artifactId>morabehe-loan-adapters-driving-rest</artifactId>
+            <artifactId>trade-loan-adapters-driving-rest</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ir.dotin.loan</groupId>
-            <artifactId>morabehe-loan-adapters-driven-persistence</artifactId>
+            <artifactId>trade-loan-adapters-driven-persistence</artifactId>
             <scope>test</scope>
         </dependency>
 <!--        <dependency>-->
 <!--            <groupId>ir.dotin.loan</groupId>-->
-<!--            <artifactId>morabehe-loan-adapters-driven-messaging</artifactId>-->
+<!--            <artifactId>trade-loan-adapters-driven-messaging</artifactId>-->
 <!--            <scope>test</scope>-->
 <!--        </dependency>-->
     </dependencies>

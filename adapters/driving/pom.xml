@@ -7,13 +7,13 @@
 
   <parent>
     <groupId>ir.dotin.loan</groupId>
-    <artifactId>morabehe-loan-adapters</artifactId>
+    <artifactId>trade-loan-adapters</artifactId>
     <version>0.0.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>morabehe-loan-adapters-driving</artifactId>
-  <name>Morabehe Loan :: Adapters :: Driving</name>
+  <artifactId>trade-loan-adapters-driving</artifactId>
+  <name>Trade Loan :: Adapters :: Driving</name>
   <packaging>pom</packaging>
 
   <modules>

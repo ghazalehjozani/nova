@@ -1,0 +1,17 @@
+package ir.dotin.loan.trade.core.domain.loanarrangement.event;
+
+import ir.dotin.platform.domain.common.event.DomainEvent;
+import ir.dotin.loan.trade.core.domain.loanarrangement.vo.TradeLoanArrangementId;
+
+public sealed interface TradeLoanArrangementEvent<T extends Record & TradeLoanArrangementEvent<T, P>, P>
+        extends DomainEvent<T, P>
+        permits TradeLoanArrangementActivated,
+                TradeLoanArrangementCreated,
+                TradeLoanArrangementDeactivated,
+                NewTradeLoanArrangementVersionPrepared {
+
+    String EVENT_TYPE_PREFIX = "MORABEHE_ARRANGEMENT_";
+
+    @Override
+    TradeLoanArrangementId aggregateId();
+}
