@@ -7,8 +7,9 @@ import java.util.UUID;
 
 import ir.dotin.platform.domain.common.Result;
 import ir.dotin.platform.domain.common.event.DomainEvent;
-import ir.dotin.platform.domain.common.interaction.FeatureConfig;
+import ir.dotin.platform.domain.common.feature.FeatureConfig;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.aggregate.AbstractLoanArrangement;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.ArrangementFeatureContext;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.BaseFormulaField;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Active;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Disable;
@@ -40,13 +41,13 @@ public final class MorabeheLoanArrangement
         builder.withDisable(new Disable(false));
         builder.withPreviousVersion(null);
 
-        Result<Void> baseValidation = builder.validateBaseFields();
+        Result<MorabeheLoanArrangement> arrangementResult = builder.build();
 
-        if (baseValidation.isFailure()) {
-            return Result.ofNotification(baseValidation.notification());
+        if (arrangementResult.isFailure()) {
+            return Result.failure(arrangementResult.notification());
         }
 
-        MorabeheLoanArrangement arrangement = builder.build();
+        MorabeheLoanArrangement arrangement = arrangementResult.value();
 
         var payload = new MorabeheLoanArrangementCreated.Payload(
                 arrangement.getCode(),
@@ -77,7 +78,12 @@ public final class MorabeheLoanArrangement
 
         arrangement.registerEvent(creationEvent);
 
-        return Result.ofValue(arrangement);
+        return Result.success(arrangement);
+    }
+
+    public static MorabeheLoanArrangement reconstitute(Builder builder) {
+        Objects.requireNonNull(builder, "Builder cannot be null for reconstitution.");
+        return builder.buildInternal();
     }
 
     @Override
@@ -98,7 +104,8 @@ public final class MorabeheLoanArrangement
             AbstractBuilder<MorabeheLoanArrangementId, BaseFormulaField, ?, ?> validatedBuilder,
             Clock clock) {
         Builder morabeheBuilder = (Builder) validatedBuilder;
-        MorabeheLoanArrangement loanArrangement = morabeheBuilder.build();
+        Result<MorabeheLoanArrangement> loanArrangementResult = morabeheBuilder.build();
+        MorabeheLoanArrangement loanArrangement = loanArrangementResult.value();
         MorabeheLoanArrangementId newVersionId = loanArrangement.getId();
 
         var payload = new NewMorabeheLoanArrangementVersionPrepared.Payload(
@@ -143,14 +150,15 @@ public final class MorabeheLoanArrangement
         return super.deactivate(clock).cast(MorabeheLoanArrangement.class);
     }
 
-    public Result<Builder> prepareNewVersion(Builder updatedBuilder, FeatureConfig featureConfig, Clock clock) {
+    public Result<Builder> prepareNewVersion(
+            Builder updatedBuilder, ArrangementFeatureContext featureContext, Clock clock) {
 
-        Result<Builder> prepareResult = super.prepareNewVersion(updatedBuilder, featureConfig, clock);
+        Result<Builder> prepareResult = super.prepareNewVersion(updatedBuilder, featureContext, clock);
 
         if (prepareResult.isSuccess()) {
-            return Result.ofValue(prepareResult.value());
+            return Result.success(prepareResult.value());
         } else {
-            return Result.ofNotification(prepareResult.notification());
+            return Result.failure(prepareResult.notification());
         }
     }
 
@@ -167,18 +175,8 @@ public final class MorabeheLoanArrangement
         }
 
         @Override
-        protected Builder self() {
-            return this;
-        }
-
-        @Override
         protected MorabeheLoanArrangement buildInternal() {
             return new MorabeheLoanArrangement(this);
-        }
-
-        @Override
-        public Result<Void> validateBaseFields() {
-            return super.validateBaseFields();
         }
     }
 }

@@ -8,7 +8,7 @@ import ir.dotin.platform.domain.common.Notification;
 import ir.dotin.platform.domain.common.Result;
 import ir.dotin.platform.domain.common.entity.Identity;
 import ir.dotin.platform.domain.common.event.DomainEvent;
-import ir.dotin.platform.domain.common.interaction.FeatureConfig;
+import ir.dotin.platform.domain.common.feature.FeatureConfig;
 import ir.dotin.loan.baseloan.core.domain.loantype.aggregate.AbstractLoanType;
 import ir.dotin.loan.baseloan.core.domain.loantype.i18n.LoanTypeLocalizedMessageCodes;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Active;
@@ -44,9 +44,9 @@ public final class MorabeheLoanType extends AbstractLoanType<MorabeheLoanTypeId>
         builder.withDisable(new Disable(false));
         builder.withPreviousVersion(null);
 
-        Result<Void> validationResult = builder.validateAllFields();
-        if (validationResult.isFailure()) {
-            return Result.ofNotification(validationResult.notification());
+        Notification notification = builder.validate();
+        if (notification.hasErrors()) {
+            return Result.failure(notification);
         }
 
         MorabeheLoanType loanType = builder.buildInternal();
@@ -69,7 +69,12 @@ public final class MorabeheLoanType extends AbstractLoanType<MorabeheLoanTypeId>
                 new MorabeheLoanTypeCreated(UUID.randomUUID(), loanType.getId(), payload, Instant.now(clock));
         loanType.registerEvent(creationEvent);
 
-        return Result.ofValue(loanType);
+        return Result.success(loanType);
+    }
+
+    public static MorabeheLoanType reconstitute(Builder builder) {
+        Objects.requireNonNull(builder, "Builder cannot be null for reconstitution.");
+        return builder.buildInternal();
     }
 
     @Override
@@ -95,8 +100,9 @@ public final class MorabeheLoanType extends AbstractLoanType<MorabeheLoanTypeId>
             AbstractLoanTypeBuilder<MorabeheLoanTypeId, ?, ?> validatedBuilder,
             Clock clock) {
 
-        Builder morabeheBuilder = (Builder) validatedBuilder;
-        MorabeheLoanType morabeheLoanType = morabeheBuilder.build();
+        Builder builder = (Builder) validatedBuilder;
+        Result<MorabeheLoanType> morabeheLoanTypeResult = builder.build();
+        MorabeheLoanType morabeheLoanType = morabeheLoanTypeResult.value();
         MorabeheLoanTypeId newAggregateId = morabeheLoanType.getId();
 
         var payload = new NewMorabeheLoanTypeVersionPrepared.Payload(
@@ -134,13 +140,13 @@ public final class MorabeheLoanType extends AbstractLoanType<MorabeheLoanTypeId>
     public Result<Builder> prepareNewVersion(Builder updatedBuilder, Clock clock) {
         Notification specificValidation = validateMorabeheNewVersionData(updatedBuilder);
         if (specificValidation.hasErrors()) {
-            return Result.ofNotification(specificValidation);
+            return Result.failure(specificValidation);
         }
         Result<Builder> prepareResult = super.prepareNewVersion(updatedBuilder, clock);
         if (prepareResult.isSuccess()) {
-            return Result.ofValue(prepareResult.value());
+            return Result.success(prepareResult.value());
         } else {
-            return Result.ofNotification(prepareResult.notification());
+            return Result.failure(prepareResult.notification());
         }
     }
 
@@ -157,7 +163,7 @@ public final class MorabeheLoanType extends AbstractLoanType<MorabeheLoanTypeId>
     }
 
     private static Notification validateMorabeheLoanArrangementIds(Set<MorabeheLoanArrangementId> arrangementIds) {
-        Notification notification = Notification.empty();
+        Notification notification = Notification.create();
         if (arrangementIds == null || arrangementIds.isEmpty()) {
             notification = notification.addError(LoanTypeLocalizedMessageCodes.LOAN_RULE_IDS_EMPTY);
         } else if (arrangementIds.stream().anyMatch(Objects::isNull)) {
@@ -180,11 +186,6 @@ public final class MorabeheLoanType extends AbstractLoanType<MorabeheLoanTypeId>
             super(other);
             this.loanArrangementIds =
                     (other.loanArrangementIds != null) ? new HashSet<>(other.loanArrangementIds) : new HashSet<>();
-        }
-
-        @Override
-        protected Builder self() {
-            return this;
         }
 
         @Override
@@ -213,40 +214,15 @@ public final class MorabeheLoanType extends AbstractLoanType<MorabeheLoanTypeId>
         }
 
         @Override
-        public MorabeheLoanType build() {
-            Result<Void> validationResult = validateAllFields();
-            if (validationResult.isFailure()) {
-                throw new IllegalArgumentException("Validation failed during build: "
-                        + validationResult.notification().getErrorMessages());
-            }
-            return buildInternal();
-        }
-
-        @Override
         protected MorabeheLoanType buildInternal() {
             return new MorabeheLoanType(this);
         }
 
-        private Result<Void> validateAllFields() {
-            Result<Void> baseValidation = super.validateBaseFields();
-            Result<Void> specificValidation = validateMorabeheSpecificBuilderFields();
-
-            return Result.ofNotification(
-                    Notification.empty().merge(baseValidation.notification()).merge(specificValidation.notification()));
-        }
-
-        private Result<Void> validateMorabeheSpecificBuilderFields() {
-            Notification notification = Notification.empty();
-            notification.merge(validateMorabeheLoanArrangementIds(this.loanArrangementIds));
-            return Result.ofNotification(notification);
-        }
-
         @Override
-        protected Result<Void> validateBaseFields() {
-            Result<Void> baseResult = super.validateBaseFields();
-            Notification notification = baseResult.notification();
-            notification.merge(validateMorabeheSpecificBuilderFields().notification());
-            return Result.ofNotification(notification);
+        public Notification validate() {
+            Notification notification = super.validate();
+            notification.merge(validateMorabeheLoanArrangementIds(this.loanArrangementIds));
+            return notification;
         }
     }
 }

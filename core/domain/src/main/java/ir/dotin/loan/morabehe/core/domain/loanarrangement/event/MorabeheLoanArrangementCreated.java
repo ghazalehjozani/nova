@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-import ir.dotin.platform.domain.common.vo.Currency;
+import ir.dotin.platform.domain.common.vo.CurrencyType;
 import ir.dotin.platform.domain.common.vo.DurationRange;
 import ir.dotin.platform.domain.common.vo.MoneyRange;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.ArrangementDisburseType;
@@ -38,7 +38,7 @@ public record MorabeheLoanArrangementCreated(
     public record Payload(
             LoanRuleCode code,
             Title title,
-            Set<Currency> currencies,
+            Set<CurrencyType> currencies,
             MoneyRange amountRange,
             DurationRange durationRange,
             PartyType partyType,

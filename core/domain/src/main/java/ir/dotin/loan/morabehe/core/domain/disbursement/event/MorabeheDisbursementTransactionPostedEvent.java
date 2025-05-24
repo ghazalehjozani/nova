@@ -5,10 +5,12 @@ import java.util.Objects;
 import java.util.UUID;
 
 import ir.dotin.loan.morabehe.core.domain.disbursement.vo.MorabeheDisbursementRecordId;
+import ir.dotin.loan.morabehe.core.domain.loanfacility.vo.MorabeheLoanFacilityId;
 
 public record MorabeheDisbursementTransactionPostedEvent(
-        UUID eventId, MorabeheDisbursementRecordId aggregateId, Instant createdAt)
-        implements MorabeheDisbursementEvent<MorabeheDisbursementTransactionPostedEvent, Void> {
+        UUID eventId, MorabeheDisbursementRecordId aggregateId, Instant createdAt, Payload payload)
+        implements MorabeheDisbursementEvent<
+                MorabeheDisbursementTransactionPostedEvent, MorabeheDisbursementTransactionPostedEvent.Payload> {
 
     public static final String PENDING = "PENDING";
 
@@ -23,8 +25,21 @@ public record MorabeheDisbursementTransactionPostedEvent(
         return EVENT_TYPE_PREFIX + PENDING;
     }
 
-    @Override
-    public Void payload() {
-        return null;
+    public record Payload(MorabeheLoanFacilityId loanFacilityId) {
+        public Payload {
+            Objects.requireNonNull(loanFacilityId, "loanFacilityId cannot be null");
+        }
+    }
+
+    public static MorabeheDisbursementTransactionPostedEvent create(
+            UUID eventId,
+            MorabeheDisbursementRecordId aggregateId,
+            Instant createdAt,
+            MorabeheLoanFacilityId loanFacilityId) {
+        return new MorabeheDisbursementTransactionPostedEvent(
+                eventId,
+                aggregateId,
+                createdAt,
+                new MorabeheDisbursementTransactionPostedEvent.Payload(loanFacilityId));
     }
 }
