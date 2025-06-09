@@ -1,11 +1,12 @@
-package ir.dotin.loan.trade.core.domain.loanfacility.aggregate;
+package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 
 import java.time.Clock;
-import java.util.Objects;
+
+import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.domain.common.Result;
 import ir.dotin.platform.domain.common.event.DomainEvent;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.aggregate.AbstractLoanFacility;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractLoanFacility;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
@@ -17,6 +18,8 @@ import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanApplicationId;
 import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
 import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeSanctionedLoanId;
 import ir.dotin.loan.trade.core.domain.loantype.vo.TradeLoanTypeId;
+
+import static java.util.Objects.requireNonNull;
 
 public final class TradeLoanFacility
         extends AbstractLoanFacility<
@@ -32,14 +35,13 @@ public final class TradeLoanFacility
     private TradeLoanFacility(
             TradeLoanFacilityId id,
             TradeLoanApplication application,
-            TradeSanctionedLoan sanctionedLoan,
+            @Nullable TradeSanctionedLoan sanctionedLoan,
             FacilityStatus status,
             TradeLoanTypeId loanTypeId,
             TradeLoanArrangementId loanArrangementId) {
         super(id, application, sanctionedLoan, status);
-        this.morabeheLoanTypeId = Objects.requireNonNull(loanTypeId, "morabeheLoanTypeId cannot be null");
-        this.morabeheLoanArrangementId =
-                Objects.requireNonNull(loanArrangementId, "morabeheLoanArrangementId cannot be null");
+        this.morabeheLoanTypeId = requireNonNull(loanTypeId, "morabeheLoanTypeId cannot be null");
+        this.morabeheLoanArrangementId = requireNonNull(loanArrangementId, "morabeheLoanArrangementId cannot be null");
     }
 
     public static Result<TradeLoanFacility> create(
@@ -47,10 +49,10 @@ public final class TradeLoanFacility
             TradeLoanTypeId loanTypeId,
             TradeLoanArrangementId loanArrangementId,
             Clock clock) {
-        Objects.requireNonNull(applicationBuilder, "applicationBuilder cannot be null");
-        Objects.requireNonNull(loanTypeId, "loanTypeId cannot be null");
-        Objects.requireNonNull(loanArrangementId, "loanArrangementId cannot be null");
-        Objects.requireNonNull(clock, "clock cannot be null");
+        requireNonNull(applicationBuilder, "applicationBuilder cannot be null");
+        requireNonNull(loanTypeId, "loanTypeId cannot be null");
+        requireNonNull(loanArrangementId, "loanArrangementId cannot be null");
+        requireNonNull(clock, "clock cannot be null");
 
         TradeLoanFacilityId facilityId = TradeLoanFacilityId.generate();
         Result<TradeLoanApplication> applicationResult = TradeLoanApplication.create(applicationBuilder);
@@ -59,14 +61,15 @@ public final class TradeLoanFacility
             return Result.failure(applicationResult.notification());
         }
         FacilityStatus facilityStatus = FacilityStatus.APPLICATION_SUBMITTED;
+        @SuppressWarnings("nullness")
+        TradeLoanApplication application = applicationResult.value();
+        @SuppressWarnings("nullness")
+        TradeSanctionedLoan sanctionedLoan = null;
         TradeLoanFacility facility = new TradeLoanFacility(
-                facilityId, applicationResult.value(), null, facilityStatus, loanTypeId, loanArrangementId);
+                facilityId, application, sanctionedLoan, facilityStatus, loanTypeId, loanArrangementId);
 
         facility.registerEvent(TradeLoanFacilityCreatedEvent.of(
-                facilityId,
-                applicationResult.value().getId(),
-                facility.getLoanApplication().getCustomer(),
-                clock));
+                facilityId, application.getId(), facility.getLoanApplication().getCustomer(), clock));
 
         return Result.success(facility);
     }

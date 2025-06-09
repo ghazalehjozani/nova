@@ -4,8 +4,10 @@ import java.util.UUID;
 
 import ir.dotin.platform.domain.common.entity.Identity;
 
+import static java.util.UUID.randomUUID;
+
 public record TradeSanctionedLoanId(UUID value) implements Identity {
     public static TradeSanctionedLoanId generate() {
-        return new TradeSanctionedLoanId(UUID.randomUUID());
+        return new TradeSanctionedLoanId(randomUUID());
     }
 }

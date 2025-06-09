@@ -2,11 +2,14 @@ package ir.dotin.loan.trade.core.domain.disbursement.event;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
-import ir.dotin.loan.baseloan.core.domain.shared.vo.transaction.TransactionNumber;
+import com.google.common.collect.ImmutableList;
+
+import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
 import ir.dotin.loan.trade.core.domain.disbursement.vo.TradeDisbursementRecordId;
+
+import static java.util.Objects.requireNonNull;
 
 public record TradeDisbursementCompletedEvent(
         UUID eventId,
@@ -18,15 +21,15 @@ public record TradeDisbursementCompletedEvent(
     public static final String COMPLETED = "COMPLETED";
 
     public TradeDisbursementCompletedEvent {
-        Objects.requireNonNull(eventId, "eventId cannot be null");
-        Objects.requireNonNull(aggregateId, "aggregateId cannot be null");
-        Objects.requireNonNull(transactionNumbers, "transactionNumbers cannot be null");
-        Objects.requireNonNull(createdAt, "createdAt cannot be null");
+        requireNonNull(eventId, "eventId cannot be null");
+        requireNonNull(aggregateId, "aggregateId cannot be null");
+        requireNonNull(transactionNumbers, "transactionNumbers cannot be null");
+        requireNonNull(createdAt, "createdAt cannot be null");
     }
 
     @Override
     public List<TransactionNumber> payload() {
-        return List.of();
+        return ImmutableList.of();
     }
 
     @Override

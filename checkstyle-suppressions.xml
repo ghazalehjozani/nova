@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <!-- Suppress all checks for test files -->
+    <suppress checks=".*" files=".*Test\.java$"/>
+    <suppress checks=".*" files=".*Tests\.java$"/>
+    <suppress checks=".*" files=".*IT\.java$"/>
+    <suppress checks=".*" files=".*IntegrationTest\.java$"/>
+
+    <!-- Suppress specific checks for test directories -->
+    <suppress checks="MagicNumber|MethodLength|JavadocMethod|JavadocType|JavadocVariable"
+              files="src[\\/]test[\\/]"/>
+
+    <!-- Suppress checks for generated code -->
+    <suppress checks=".*" files="[\\/]generated[\\/]"/>
+    <suppress checks=".*" files="[\\/]generated-sources[\\/]"/>
+    <suppress checks=".*" files="[\\/]target[\\/]"/>
+
+    <!-- Suppress JavaDoc checks for DTOs and entities -->
+    <suppress checks="JavadocMethod|JavadocType|JavadocVariable" files=".*DTO\.java$"/>
+    <suppress checks="JavadocMethod|JavadocType|JavadocVariable" files=".*Entity\.java$"/>
+    <suppress checks="JavadocMethod|JavadocType|JavadocVariable" files=".*Request\.java$"/>
+    <suppress checks="JavadocMethod|JavadocType|JavadocVariable" files=".*Response\.java$"/>
+
+    <!-- Spring Boot Application class exceptions -->
+    <suppress checks="HideUtilityClassConstructor|UncommentedMain" files=".*Application\.java$"/>
+
+    <!-- Configuration classes often have many beans -->
+    <suppress checks="MethodCount|ClassFanOutComplexity" files=".*Configuration\.java$"/>
+    <suppress checks="MethodCount|ClassFanOutComplexity" files=".*Config\.java$"/>
+
+    <!-- Migration files can be long -->
+    <suppress checks="FileLength|MethodLength|ExecutableStatementCount" files=".*Migration.*\.java$"/>
+
+    <!-- Example: Suppress specific check for specific file -->
+    <!-- <suppress checks="CyclomaticComplexity" files="ComplexBusinessLogic\.java"/> -->
+
+    <!-- Example: Suppress line length for files with long SQL queries -->
+    <!-- <suppress checks="LineLength" files=".*Repository\.java$"/> -->
+</suppressions>

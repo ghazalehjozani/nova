@@ -1,55 +1,51 @@
 package ir.dotin.loan.trade.core.domain.loantype.enums;
 
+import ir.dotin.platform.domain.common.i18n.LocalizedEnum;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.Direction;
 
-public enum TradeRelationType implements RelationType<TradeRelationType> {
+public enum TradeRelationType implements RelationType<TradeRelationType>, LocalizedEnum<TradeRelationType> {
 
     // --- Core Components ---
-    PRINCIPAL("Principal", Direction.DEBTOR), // اصلی
-    FUTURE_INTEREST("Future Interest", Direction.CREDITOR), // سود سال های آینده
-    PENALTY("Penalty", Direction.DEBTOR), // جریمه
-    RECEIVED_INTEREST("Received Interest", Direction.CREDITOR), // سود دریافتی (Assuming CREDIT side for received)
+    PRINCIPAL(Direction.DEBIT), // اصلی
+    FUTURE_INTEREST(Direction.CREDIT), // سود سال های آینده
+    PENALTY(Direction.DEBIT), // جریمه
+    RECEIVED_INTEREST(Direction.CREDIT), // سود دریافتی (Assuming CREDIT side for received)
 
     // --- Receivables Status (based on aging/regulation) ---
-    RECEIVABLES_PAST_DUE("Past Due Receivables", Direction.DEBTOR), // مطالبات بعد از سررسید
-    RECEIVABLES_OVERDUE("Overdue Receivables", Direction.DEBTOR), // مطالبات سررسید گذشته
-    RECEIVABLES_DOUBTFUL("Doubtful Receivables", Direction.DEBTOR), // مطالبات معوق (Often 'Doubtful' in IFRS terms)
-    RECEIVABLES_SUBSTANDARD("Substandard Receivables", Direction.DEBTOR), // مطالبات مشکوک الوصول (Substandard/Doubtful)
-    RECEIVABLES_WRITTEN_OFF("Written-off Receivables", Direction.DEBTOR), // مطالبات سوخت شده
+    RECEIVABLES_PAST_DUE(Direction.DEBIT), // مطالبات بعد از سررسید
+    RECEIVABLES_OVERDUE(Direction.DEBIT), // مطالبات سررسید گذشته
+    RECEIVABLES_DOUBTFUL(Direction.DEBIT), // مطالبات معوق (Often 'Doubtful' in IFRS terms)
+    RECEIVABLES_SUBSTANDARD(Direction.DEBIT), // مطالبات مشکوک الوصول (Substandard/Doubtful)
+    RECEIVABLES_WRITTEN_OFF(Direction.DEBIT), // مطالبات سوخت شده
 
     // --- Accruals & Provisions ---
-    INTEREST_SHORTFALL_PROVISION("Interest Shortfall Provision", Direction.CREDITOR), // تامین کسری سود
-    ACCRUED_INTEREST("Accrued Interest", Direction.DEBTOR), // سود تعهدي
-    DEFERRED_INTEREST("Deferred Interest", Direction.DEBTOR), // سود معوق (Interest recognized but payment delayed)
-    ACCRUED_DEFERRED_INTEREST("Accrued Deferred Interest", Direction.DEBTOR), // سود معوق تعهدی
+    INTEREST_SHORTFALL_PROVISION(Direction.CREDIT), // تامین کسری سود
+    ACCRUED_INTEREST(Direction.DEBIT), // سود تعهدي
+    DEFERRED_INTEREST(Direction.DEBIT), // سود معوق (Interest recognized but payment delayed)
+    ACCRUED_DEFERRED_INTEREST(Direction.DEBIT), // سود معوق تعهدی
 
     // --- Commitments ---
-    BANK_COMMITMENTS("Bank Commitments", Direction.CREDITOR), // تعهدات بانک
-    BANK_COMMITMENTS_CONTRA("Bank Commitments Contra", Direction.DEBTOR), // طرف تعهدات بانک
+    BANK_COMMITMENTS(Direction.CREDIT), // تعهدات بانک
+    BANK_COMMITMENTS_CONTRA(Direction.DEBIT), // طرف تعهدات بانک
 
     // --- Specific Receivable Interest/Penalty Types (Accrued/Deferred) ---
-    RECEIVABLES_ACCRUED_DEFERRED_INTEREST(
-            "Receivables Accrued Deferred Interest", Direction.DEBTOR), // سود معوق تعهدی مطالبات
-    RECEIVABLES_DEFERRED_INTEREST("Receivables Deferred Interest", Direction.DEBTOR), // سود معوق مطالبات
-    RECEIVABLES_FUTURE_INTEREST("Receivables Future Interest", Direction.CREDITOR), // سود سررسید آتی مطالبات
-    ACCRUED_PENALTY("Accrued Penalty", Direction.DEBTOR), // جریمه تعهدی
-    RECEIVABLES_ACCRUED_PENALTY("Receivables Accrued Penalty", Direction.DEBTOR), // جریمه تعهدی مطالبات
-    RECEIVABLES_PENALTY("Receivables Penalty", Direction.DEBTOR), // جریمه مطالبات
+    RECEIVABLES_ACCRUED_DEFERRED_INTEREST(Direction.DEBIT), // سود معوق تعهدی مطالبات
+    RECEIVABLES_DEFERRED_INTEREST(Direction.DEBIT), // سود معوق مطالبات
+    RECEIVABLES_FUTURE_INTEREST(Direction.CREDIT), // سود سررسید آتی مطالبات
+    ACCRUED_PENALTY(Direction.DEBIT), // جریمه تعهدی
+    RECEIVABLES_ACCRUED_PENALTY(Direction.DEBIT), // جریمه تعهدی مطالبات
+    RECEIVABLES_PENALTY(Direction.DEBIT), // جریمه مطالبات
+    CURRENT_DEBT_RECEIVABLES(Direction.DEBIT), // مطالبات دین حال
 
-    // --- Other ---
-    CURRENT_DEBT_RECEIVABLES("Current Debt Receivables", Direction.DEBTOR); // مطالبات دین حال
+    // --- Contextual/Metadata Relations ---
+    DISBURSEMENT_TRANSACTION_CONTEXT(Direction.CREDIT), // زمینه تراکنش پرداخت (Disbursement transaction context)
+    INTEREST_CALCULATION_CONTEXT(Direction.DEBIT); // زمینه محاسبه سود (Interest calculation context)
 
-    private final String localizableName;
     private final Direction direction;
 
-    TradeRelationType(String localizableName, Direction direction) {
-        this.localizableName = localizableName;
+    TradeRelationType(Direction direction) {
         this.direction = direction;
-    }
-
-    public String getLocalizableName() {
-        return localizableName;
     }
 
     @Override

@@ -1,11 +1,13 @@
-package ir.dotin.loan.trade.core.domain.loanfacility.aggregate;
+package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 
-import java.util.Objects;
+import org.jspecify.annotations.NonNull;
 
 import ir.dotin.platform.domain.common.Notification;
 import ir.dotin.platform.domain.common.Result;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.aggregate.AbstractLoanApplication;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractLoanApplication;
 import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanApplicationId;
+
+import static java.util.Objects.requireNonNull;
 
 public final class TradeLoanApplication
         extends AbstractLoanApplication<TradeLoanApplicationId, TradeLoanApplication.Builder> {
@@ -19,12 +21,12 @@ public final class TradeLoanApplication
     }
 
     static Result<TradeLoanApplication> create(Builder builder) {
-        Objects.requireNonNull(builder, "Builder cannot be null for create.");
+        requireNonNull(builder, "Builder cannot be null for create.");
         return builder.withId(TradeLoanApplicationId.generate()).build();
     }
 
     static Result<TradeLoanApplication> reconstitute(Builder builder) {
-        Objects.requireNonNull(builder, "Builder cannot be null for reconstitution.");
+        requireNonNull(builder, "Builder cannot be null for reconstitution.");
         return builder.build();
     }
 
@@ -37,6 +39,6 @@ public final class TradeLoanApplication
         }
 
         @Override
-        protected void validateSpecificRules(Notification notification) {}
+        protected void validateSpecificRules(@NonNull Notification notification) {}
     }
 }

@@ -2,7 +2,6 @@ package ir.dotin.loan.trade.core.domain.loantype.event;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,13 +14,15 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
 import ir.dotin.loan.trade.core.domain.loanarrangement.vo.TradeLoanArrangementId;
 import ir.dotin.loan.trade.core.domain.loantype.vo.TradeLoanTypeId;
 
+import static java.util.Objects.requireNonNull;
+
 public record TradeLoanTypeCreated(UUID eventId, TradeLoanTypeId aggregateId, Payload payload, Instant createdAt)
         implements TradeLoanTypeEvent<TradeLoanTypeCreated, TradeLoanTypeCreated.Payload> {
 
     public TradeLoanTypeCreated {
-        Objects.requireNonNull(eventId);
-        Objects.requireNonNull(aggregateId);
-        Objects.requireNonNull(payload);
+        requireNonNull(eventId);
+        requireNonNull(aggregateId);
+        requireNonNull(payload);
     }
 
     public record Payload(
@@ -39,17 +40,17 @@ public record TradeLoanTypeCreated(UUID eventId, TradeLoanTypeId aggregateId, Pa
             boolean active) {
 
         public Payload {
-            Objects.requireNonNull(code);
-            Objects.requireNonNull(title);
-            Objects.requireNonNull(gatewayType);
-            Objects.requireNonNull(loanApplicationAllowed);
-            Objects.requireNonNull(segmentType);
-            Objects.requireNonNull(economicSectors);
-            Objects.requireNonNull(loanTopicAssignments);
-            Objects.requireNonNull(incomeIds);
-            Objects.requireNonNull(attributes);
-            Objects.requireNonNull(groupId);
-            Objects.requireNonNull(loanArrangementIds);
+            requireNonNull(code);
+            requireNonNull(title);
+            requireNonNull(gatewayType);
+            requireNonNull(loanApplicationAllowed);
+            requireNonNull(segmentType);
+            requireNonNull(economicSectors);
+            requireNonNull(loanTopicAssignments);
+            requireNonNull(incomeIds);
+            requireNonNull(attributes);
+            requireNonNull(groupId);
+            requireNonNull(loanArrangementIds);
         }
     }
 

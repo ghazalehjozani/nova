@@ -1,14 +1,11 @@
-package ir.dotin.loan.trade.core.domain.contractissuance.aggregate;
+package ir.dotin.loan.trade.core.domain.contractissuance.entity;
 
 import java.time.Clock;
-import java.time.Instant;
-import java.util.Objects;
-import java.util.UUID;
 
 import ir.dotin.platform.domain.common.Notification;
 import ir.dotin.platform.domain.common.Result;
 import ir.dotin.platform.domain.common.event.DomainEvent;
-import ir.dotin.loan.baseloan.core.domain.contractissuance.aggregate.AbstractContractIssuanceRecord;
+import ir.dotin.loan.baseloan.core.domain.contractissuance.entity.AbstractContractIssuanceRecord;
 import ir.dotin.loan.baseloan.core.domain.contractissuance.i18n.ContractIssuanceLocalizedMessageCodes;
 import ir.dotin.loan.baseloan.core.domain.contractissuance.vo.ContractReference;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
@@ -19,6 +16,7 @@ import ir.dotin.loan.trade.core.domain.contractissuance.vo.TradeContractIssuance
 import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.UUID.randomUUID;
 
 public final class TradeContractIssuanceRecord extends AbstractContractIssuanceRecord<TradeContractIssuanceRecordId> {
 
@@ -34,12 +32,12 @@ public final class TradeContractIssuanceRecord extends AbstractContractIssuanceR
     }
 
     public static Result<TradeContractIssuanceRecord> create(Builder builder) {
-        Objects.requireNonNull(builder, "Builder cannot be null for create.");
+        requireNonNull(builder, "Builder cannot be null for create.");
         return builder.withId(TradeContractIssuanceRecordId.generate()).build();
     }
 
     public static TradeContractIssuanceRecord reconstitute(Builder builder) {
-        Objects.requireNonNull(builder, "Builder cannot be null for reconstitution.");
+        requireNonNull(builder, "Builder cannot be null for reconstitution.");
         return builder.buildInternal();
     }
 
@@ -51,19 +49,19 @@ public final class TradeContractIssuanceRecord extends AbstractContractIssuanceR
     @Override
     protected DomainEvent<?, ?> getTransactionPostedEvent(TradeContractIssuanceRecordId id, Clock clock) {
         return TradeContractIssuanceTransactionPostedEvent.create(
-                UUID.randomUUID(), getId(), Instant.now(clock), getLoanFacilityId());
+                randomUUID(), getId(), clock.instant(), getLoanFacilityId());
     }
 
     @Override
     protected DomainEvent<?, ?> getContractIssuedEvent(
             TradeContractIssuanceRecordId id, ContractReference reference, Clock clock) {
-        return new TradeContractIssuedEvent(UUID.randomUUID(), id, reference, clock.instant());
+        return new TradeContractIssuedEvent(randomUUID(), id, reference, clock.instant());
     }
 
     @Override
     protected DomainEvent<?, ?> getContractIssuanceFailedEvent(
             TradeContractIssuanceRecordId id, FailureReason reason, Clock clock) {
-        return new TradeContractIssuanceFailedEvent(UUID.randomUUID(), id, reason, clock.instant());
+        return new TradeContractIssuanceFailedEvent(randomUUID(), id, reason, clock.instant());
     }
 
     public static final class Builder

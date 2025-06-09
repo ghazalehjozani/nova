@@ -4,9 +4,11 @@ import java.util.UUID;
 
 import ir.dotin.platform.domain.common.entity.Identity;
 
+import static java.util.UUID.randomUUID;
+
 public record TradeLoanFacilityId(UUID value) implements Identity {
 
     public static TradeLoanFacilityId generate() {
-        return new TradeLoanFacilityId(UUID.randomUUID());
+        return new TradeLoanFacilityId(randomUUID());
     }
 }

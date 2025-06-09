@@ -1,154 +1,61 @@
 package ir.dotin.loan.trade.core.domain.disbursement.strategy.impl;
 
-import java.util.*;
+import java.util.List;
 
-import ir.dotin.platform.domain.common.Notification;
+import com.google.common.collect.ImmutableList;
+
 import ir.dotin.platform.domain.common.Result;
 import ir.dotin.platform.domain.common.annotation.DomainService;
-import ir.dotin.platform.domain.common.vo.Money;
-import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.InterestPolicy;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.TransactionCause;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.TransactionType;
-import ir.dotin.loan.baseloan.core.domain.shared.formula.BaseFormulaField;
 import ir.dotin.loan.baseloan.core.domain.shared.interaction.FindAccountByRelationTypeClient;
-import ir.dotin.loan.baseloan.core.domain.shared.service.transaction.ArticleCommentFactory;
-import ir.dotin.loan.baseloan.core.domain.shared.strategy.AbstractDocumentItemStrategy;
+import ir.dotin.loan.baseloan.core.domain.shared.strategy.AbstractMultiArticleCalculationStrategy;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.CalculationContext;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.transaction.Article;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.transaction.PostTitle;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.transaction.metadata.NetworkInfo;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.transaction.metadata.TerminalInfo;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.transaction.metadata.TransactionInfo;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.transaction.metadata.TransactionMetadata;
-import ir.dotin.loan.trade.core.domain.disbursement.formula.TradeInterestCalculationService;
-import ir.dotin.loan.trade.core.domain.disbursement.i18n.TradeDisbursementLocalizedMessageCodes;
+import ir.dotin.loan.baseloan.core.domain.shared.strategy.factory.DebitCreditArticleSpecFactory;
+import ir.dotin.loan.baseloan.core.domain.shared.validator.ArticleBalanceValidator;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Article;
+import ir.dotin.loan.trade.core.domain.disbursement.enums.DisbursedInterestArticleType;
 import ir.dotin.loan.trade.core.domain.disbursement.strategy.DisbursedInterestFacilitiesStrategy;
-import ir.dotin.loan.trade.core.domain.loanarrangement.aggregate.TradeLoanArrangement;
-import ir.dotin.loan.trade.core.domain.loanarrangement.vo.TradeLoanArrangementId;
-import ir.dotin.loan.trade.core.domain.loanfacility.aggregate.TradeLoanFacility;
-import ir.dotin.loan.trade.core.domain.loanfacility.i18n.TradeLoanFacilityLocalizedMessageCodes;
+import ir.dotin.loan.trade.core.domain.disbursement.strategy.factory.DisbursedInterestArticleSpecFactory;
+import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
-import ir.dotin.loan.trade.core.domain.shared.interaction.TradeLoanArrangementDataProvider;
+
+import static java.util.Objects.requireNonNull;
 
 @DomainService
-public final class DisbursedInterestTransactionStrategy extends AbstractDocumentItemStrategy<TradeLoanFacility>
+public final class DisbursedInterestTransactionStrategy
+        extends AbstractMultiArticleCalculationStrategy<
+                TradeLoanFacility, TradeRelationType, DisbursedInterestArticleType>
         implements DisbursedInterestFacilitiesStrategy {
 
-    private final TradeLoanArrangementDataProvider arrangementDataProvider;
-    private final TradeInterestCalculationService interestCalculationService;
+    private final DebitCreditArticleSpecFactory<DisbursedInterestArticleType, TradeRelationType> specFactory;
 
     public DisbursedInterestTransactionStrategy(
             FindAccountByRelationTypeClient findAccountClient,
-            ArticleCommentFactory commentFactory,
-            TradeLoanArrangementDataProvider arrangementDataProvider,
-            TradeInterestCalculationService interestCalculationService) {
-        super(findAccountClient, commentFactory);
-        this.arrangementDataProvider = Objects.requireNonNull(arrangementDataProvider);
-        this.interestCalculationService = Objects.requireNonNull(interestCalculationService);
+            DebitCreditArticleSpecFactory<DisbursedInterestArticleType, TradeRelationType>
+                    disbursedInterestArticleSpecFactory,
+            ArticleBalanceValidator articleBalanceValidator) {
+        super(findAccountClient, requireNonNull(articleBalanceValidator, "Balance validator cannot be null"));
+        this.specFactory = requireNonNull(disbursedInterestArticleSpecFactory, "Spec factory cannot be null");
+    }
+
+    public DisbursedInterestTransactionStrategy(FindAccountByRelationTypeClient findAccountClient) {
+        this(findAccountClient, new DisbursedInterestArticleSpecFactory(), new ArticleBalanceValidator());
     }
 
     @Override
-    public Result<List<Article>> calculateItems(CalculationContext<TradeLoanFacility> context) {
-        return calculateItemsInternal(context, "Incomplete articles for Disbursed Facilities Interest");
+    protected Result<List<Article>> generateDebits(
+            CalculationContext<TradeLoanFacility, TradeRelationType, DisbursedInterestArticleType> context) {
+
+        return context.requireArticleComponent(specFactory.getDebitArticleType())
+                .flatMap(specFactory::createDebitSpec)
+                .flatMap(spec -> createMultipleDebits(context, ImmutableList.of(spec)));
     }
 
     @Override
-    protected Result<List<Article>> generateItems(CalculationContext<TradeLoanFacility> context) {
-        Objects.requireNonNull(context, "CalculationContext cannot be null.");
+    protected Result<List<Article>> generateCredits(
+            CalculationContext<TradeLoanFacility, TradeRelationType, DisbursedInterestArticleType> context) {
 
-        Money principal = context.principalAmount();
-        if (principal.isZero()) {
-            return Result.success(Collections.emptyList());
-        }
-
-        Notification accumulatedNotification = Notification.create();
-        List<Article> items = new ArrayList<>();
-
-        TradeLoanArrangementId arrangementId = context.loanFacility().getLoanArrangementId();
-        Result<TradeLoanArrangement> arrangementResult = arrangementDataProvider.findArrangementById(arrangementId);
-        if (arrangementResult.isFailure()) {
-            accumulatedNotification = accumulatedNotification
-                    .merge(arrangementResult.notification())
-                    .addError(TradeLoanFacilityLocalizedMessageCodes.ARRANGEMENT_FETCH_FAILED, arrangementId.value());
-            return Result.failure(accumulatedNotification);
-        }
-        TradeLoanArrangement arrangement = arrangementResult.value();
-        InterestPolicy<BaseFormulaField> interestPolicy = arrangement.getInterestPolicy();
-
-        Result<Money> interestAmountResult =
-                interestCalculationService.calculateTotalInterest(interestPolicy, context.loanFacility());
-
-        if (interestAmountResult.isFailure()) {
-            accumulatedNotification = accumulatedNotification.merge(interestAmountResult.notification());
-            return Result.failure(accumulatedNotification);
-        }
-        Money totalInterestAmount = interestAmountResult.value();
-
-        LoanTopic topic = context.primaryLoanTopic();
-        PostTitle postTitle = context.postTitle();
-        Optional<TransactionMetadata> baseMetadataOpt = context.baseMetadata();
-
-        TransactionMetadata resolvedMetadata;
-        if (baseMetadataOpt.isPresent()) {
-            resolvedMetadata = baseMetadataOpt.orElseThrow();
-        } else {
-            Result<TransactionInfo> defaultTrxInfoResult =
-                    TransactionInfo.of(TransactionType.CODE_10004, TransactionCause.LRPA);
-            Result<TerminalInfo> defaultTerminalInfoResult = TerminalInfo.of("DEFAULT_TERMINAL");
-            Result<NetworkInfo> defaultNetworkInfoResult = NetworkInfo.of("INTERNAL");
-
-            if (defaultTrxInfoResult.isFailure()
-                    || defaultTerminalInfoResult.isFailure()
-                    || defaultNetworkInfoResult.isFailure()) {
-                accumulatedNotification = accumulatedNotification
-                        .merge(defaultTrxInfoResult.notification())
-                        .merge(defaultTerminalInfoResult.notification())
-                        .merge(defaultNetworkInfoResult.notification())
-                        .addError(TradeDisbursementLocalizedMessageCodes.TRANSACTION_METADATA_DEFAULT_CREATION_FAILED);
-                return Result.failure(accumulatedNotification);
-            }
-
-            Result<TransactionMetadata> defaultMetadataResult = TransactionMetadata.of(
-                    defaultTrxInfoResult.value(),
-                    defaultTerminalInfoResult.value(),
-                    defaultNetworkInfoResult.value(),
-                    null,
-                    null,
-                    null);
-            if (defaultMetadataResult.isFailure()) {
-                accumulatedNotification = accumulatedNotification
-                        .merge(defaultMetadataResult.notification())
-                        .addError(TradeDisbursementLocalizedMessageCodes.TRANSACTION_METADATA_DEFAULT_CREATION_FAILED);
-                return Result.failure(accumulatedNotification);
-            }
-            resolvedMetadata = defaultMetadataResult.value();
-        }
-
-        TradeRelationType debitRelation = TradeRelationType.PRINCIPAL;
-        Result<Article> debitItemResult =
-                findAndCreateAccountItem(debitRelation, totalInterestAmount, topic, postTitle, resolvedMetadata);
-
-        if (debitItemResult.isSuccess()) {
-            items.add(debitItemResult.value());
-        } else {
-            accumulatedNotification = accumulatedNotification.merge(debitItemResult.notification());
-        }
-
-        TradeRelationType creditRelation = TradeRelationType.FUTURE_INTEREST;
-        Result<Article> creditItemResult =
-                findAndCreateAccountItem(creditRelation, totalInterestAmount, topic, postTitle, resolvedMetadata);
-
-        if (creditItemResult.isSuccess()) {
-            items.add(creditItemResult.value());
-        } else {
-            accumulatedNotification = accumulatedNotification.merge(creditItemResult.notification());
-        }
-
-        if (accumulatedNotification.hasErrors()) {
-            return Result.failure(accumulatedNotification);
-        }
-
-        return Result.success(items);
+        return context.requireArticleComponent(specFactory.getCreditArticleType())
+                .flatMap(specFactory::createCreditSpec)
+                .flatMap(spec -> createMultipleCredits(context, ImmutableList.of(spec)));
     }
 }
