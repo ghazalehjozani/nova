@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import ir.dotin.platform.domain.common.annotation.DomainComponent;
 import ir.dotin.platform.domain.common.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.MetadataSection;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.config.MetadataConfig;
@@ -17,7 +18,7 @@ import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toUnmodifiableSet;
 
-@DomainService
+@DomainComponent
 public class PaymentAmountMetadataConfig implements MetadataConfig<PaymentAmountArticleType, TradeRelationType> {
 
     private static final List<MetadataSection> DEBIT_SPECIFIC_SECTIONS = ImmutableList.of(

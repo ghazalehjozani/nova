@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.core.domain.disbursement.strategy.factory;
 
 import ir.dotin.platform.domain.common.Result;
+import ir.dotin.platform.domain.common.annotation.DomainComponent;
 import ir.dotin.platform.domain.common.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.TransactionCause;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.TransactionType;
@@ -13,20 +14,16 @@ import ir.dotin.loan.trade.core.domain.disbursement.enums.DisbursedInterestArtic
 import ir.dotin.loan.trade.core.domain.disbursement.strategy.config.DisbursedInterestMetadataConfig;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
-@DomainService
+@DomainComponent
 public class DisbursedInterestArticleSpecFactory
         extends AbstractArticleSpecFactory<DisbursedInterestArticleType, TradeRelationType>
         implements DebitCreditArticleSpecFactory<DisbursedInterestArticleType, TradeRelationType> {
 
-    private static final TransactionType TRANSACTION_TYPE = TransactionType.CODE_10004;
+    private static final TransactionType TRANSACTION_TYPE = TransactionType.CODE_11009;
     private static final TransactionCause TRANSACTION_CAUSE = TransactionCause.IDENTIFY_FUTURE_INTEREST;
 
     public DisbursedInterestArticleSpecFactory(DisbursedInterestMetadataConfig metadataConfig) {
         super(metadataConfig, createTransactionInfo());
-    }
-
-    public DisbursedInterestArticleSpecFactory() {
-        this(new DisbursedInterestMetadataConfig());
     }
 
     @Override

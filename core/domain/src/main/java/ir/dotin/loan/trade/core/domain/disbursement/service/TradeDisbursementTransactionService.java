@@ -34,7 +34,7 @@
 //
 // @DomainService
 // public final
-// class TradeDisbursementTransactionService { // TODO: This class have to much responsibility and they should delegate
+// class TradeDisbursementTransactionService { // TODO: This class have to not handle orchestrator responsibility of domain service it should design simpler and get requirements from argument , responsibility and they should delegate
 // to
 //    // application service
 //

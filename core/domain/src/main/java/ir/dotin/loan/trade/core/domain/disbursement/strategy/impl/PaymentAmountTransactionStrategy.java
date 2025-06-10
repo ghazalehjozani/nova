@@ -5,6 +5,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 
 import ir.dotin.platform.domain.common.Result;
+import ir.dotin.platform.domain.common.annotation.DomainComponent;
 import ir.dotin.platform.domain.common.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.shared.interaction.FindAccountByRelationTypeClient;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.AbstractMultiArticleCalculationStrategy;
@@ -20,7 +21,7 @@ import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
 import static java.util.Objects.requireNonNull;
 
-@DomainService
+@DomainComponent
 public final class PaymentAmountTransactionStrategy
         extends AbstractMultiArticleCalculationStrategy<TradeLoanFacility, TradeRelationType, PaymentAmountArticleType>
         implements CashMovementStrategy {
@@ -33,10 +34,6 @@ public final class PaymentAmountTransactionStrategy
             ArticleBalanceValidator articleBalanceValidator) {
         super(findAccountClient, requireNonNull(articleBalanceValidator, "Balance validator cannot be null"));
         this.specFactory = requireNonNull(paymentAmountArticleSpecFactory, "Spec factory cannot be null");
-    }
-
-    public PaymentAmountTransactionStrategy(FindAccountByRelationTypeClient findAccountClient) {
-        this(findAccountClient, new PaymentAmountArticleSpecFactory(), new ArticleBalanceValidator());
     }
 
     @Override

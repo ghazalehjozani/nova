@@ -13,36 +13,36 @@ import ir.dotin.loan.baseloan.core.domain.shared.strategy.factory.DebitCreditArt
 import ir.dotin.loan.baseloan.core.domain.shared.validator.ArticleBalanceValidator;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Article;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
-import ir.dotin.loan.trade.core.domain.loanfacility.enums.BankCommitmentArticleType;
-import ir.dotin.loan.trade.core.domain.loanfacility.strategy.CommitmentHandlingStrategy;
-import ir.dotin.loan.trade.core.domain.loanfacility.strategy.factory.BankCommitmentArticleSpecFactory;
+import ir.dotin.loan.trade.core.domain.loanfacility.enums.IssueContractBankCommitmentArticleType;
+import ir.dotin.loan.trade.core.domain.loanfacility.strategy.IssueContractCommitmentHandlingStrategy;
+import ir.dotin.loan.trade.core.domain.loanfacility.strategy.factory.IssueContractBankCommitmentArticleSpecFactory;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
 import static java.util.Objects.requireNonNull;
 
 @DomainService
-public final class BankCommitmentTransactionStrategy
-        extends AbstractMultiArticleCalculationStrategy<TradeLoanFacility, TradeRelationType, BankCommitmentArticleType>
-        implements CommitmentHandlingStrategy {
+public final class IssueContractBankCommitmentTransactionStrategy
+        extends AbstractMultiArticleCalculationStrategy<TradeLoanFacility, TradeRelationType, IssueContractBankCommitmentArticleType>
+        implements IssueContractCommitmentHandlingStrategy {
 
-    private final DebitCreditArticleSpecFactory<BankCommitmentArticleType, TradeRelationType> specFactory;
+    private final DebitCreditArticleSpecFactory<IssueContractBankCommitmentArticleType, TradeRelationType> specFactory;
 
-    public BankCommitmentTransactionStrategy(
+    public IssueContractBankCommitmentTransactionStrategy(
             FindAccountByRelationTypeClient findAccountClient,
-            DebitCreditArticleSpecFactory<BankCommitmentArticleType, TradeRelationType>
+            DebitCreditArticleSpecFactory<IssueContractBankCommitmentArticleType, TradeRelationType>
                     bankCommitmentArticleSpecFactory,
             ArticleBalanceValidator articleBalanceValidator) {
         super(findAccountClient, requireNonNull(articleBalanceValidator, "Balance validator cannot be null"));
         this.specFactory = requireNonNull(bankCommitmentArticleSpecFactory, "Spec factory cannot be null");
     }
 
-    public BankCommitmentTransactionStrategy(FindAccountByRelationTypeClient findAccountClient) {
-        this(findAccountClient, new BankCommitmentArticleSpecFactory(), new ArticleBalanceValidator());
+    public IssueContractBankCommitmentTransactionStrategy(FindAccountByRelationTypeClient findAccountClient) {
+        this(findAccountClient, new IssueContractBankCommitmentArticleSpecFactory(), new ArticleBalanceValidator());
     }
 
     @Override
     protected Result<List<Article>> generateDebits(
-            CalculationContext<TradeLoanFacility, TradeRelationType, BankCommitmentArticleType> context) {
+            CalculationContext<TradeLoanFacility, TradeRelationType, IssueContractBankCommitmentArticleType> context) {
 
         return context.requireArticleComponent(specFactory.getDebitArticleType())
                 .flatMap(specFactory::createDebitSpec)
@@ -51,7 +51,7 @@ public final class BankCommitmentTransactionStrategy
 
     @Override
     protected Result<List<Article>> generateCredits(
-            CalculationContext<TradeLoanFacility, TradeRelationType, BankCommitmentArticleType> context) {
+            CalculationContext<TradeLoanFacility, TradeRelationType, IssueContractBankCommitmentArticleType> context) {
 
         return context.requireArticleComponent(specFactory.getCreditArticleType())
                 .flatMap(specFactory::createCreditSpec)

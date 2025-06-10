@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.core.domain.disbursement.strategy.factory;
 
 import ir.dotin.platform.domain.common.Result;
+import ir.dotin.platform.domain.common.annotation.DomainComponent;
 import ir.dotin.platform.domain.common.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.TransactionCause;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.TransactionType;
@@ -13,7 +14,7 @@ import ir.dotin.loan.trade.core.domain.disbursement.enums.PaymentAmountArticleTy
 import ir.dotin.loan.trade.core.domain.disbursement.strategy.config.PaymentAmountMetadataConfig;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
-@DomainService
+@DomainComponent
 public class PaymentAmountArticleSpecFactory
         extends AbstractArticleSpecFactory<PaymentAmountArticleType, TradeRelationType>
         implements DebitCreditArticleSpecFactory<PaymentAmountArticleType, TradeRelationType> {
@@ -23,10 +24,6 @@ public class PaymentAmountArticleSpecFactory
 
     public PaymentAmountArticleSpecFactory(PaymentAmountMetadataConfig metadataConfig) {
         super(metadataConfig, createTransactionInfo());
-    }
-
-    public PaymentAmountArticleSpecFactory() {
-        this(new PaymentAmountMetadataConfig());
     }
 
     @Override
