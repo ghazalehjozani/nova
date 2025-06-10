@@ -38,7 +38,8 @@ public final class TradeDisbursementTransactionService {
 
     public Result<List<LoanTransaction>> calculateMultipleDisbursementTransactions(
             CalculationContext<TradeLoanFacility, TradeRelationType, DisbursedInterestArticleType> context,
-            List<DocumentCalculationStrategy<TradeLoanFacility, TradeRelationType, DisbursedInterestArticleType>> strategies,
+            List<DocumentCalculationStrategy<TradeLoanFacility, TradeRelationType, DisbursedInterestArticleType>>
+                    strategies,
             String postTitle) {
         requireNonNull(context, "context cannot be null");
         requireNonNull(strategies, "strategies cannot be null");
@@ -48,7 +49,6 @@ public final class TradeDisbursementTransactionService {
             return Result.success(ImmutableList.of());
         }
 
-        return Result.traverse(strategies, 
-                strategy -> calculateDisbursementTransaction(context, strategy, postTitle));
+        return Result.traverse(strategies, strategy -> calculateDisbursementTransaction(context, strategy, postTitle));
     }
 }

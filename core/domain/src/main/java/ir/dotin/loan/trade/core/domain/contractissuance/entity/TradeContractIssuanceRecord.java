@@ -2,6 +2,8 @@ package ir.dotin.loan.trade.core.domain.contractissuance.entity;
 
 import java.time.Clock;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.platform.domain.common.Notification;
 import ir.dotin.platform.domain.common.Result;
 import ir.dotin.platform.domain.common.event.DomainEvent;
@@ -67,10 +69,16 @@ public final class TradeContractIssuanceRecord extends AbstractContractIssuanceR
     public static final class Builder
             extends AbstractBuilder<TradeContractIssuanceRecordId, TradeContractIssuanceRecord, Builder> {
 
+        @Nullable
         private TradeLoanFacilityId loanFacilityId;
 
         public Builder() {
             super();
+        }
+
+        public Builder withLoanFacilityId(TradeLoanFacilityId loanFacilityId) {
+            this.loanFacilityId = requireNonNull(loanFacilityId);
+            return this;
         }
 
         public Builder(TradeContractIssuanceRecord other) {
@@ -79,12 +87,12 @@ public final class TradeContractIssuanceRecord extends AbstractContractIssuanceR
         }
 
         public Builder withMethod(TradeLoanFacilityId loanFacilityId) {
-            this.loanFacilityId = loanFacilityId;
-            return this;
+            return this.withLoanFacilityId(loanFacilityId);
         }
 
         @Override
         protected TradeContractIssuanceRecord buildInternal() {
+            requireNonNull(loanFacilityId, "loanFacilityId must be set before building");
             return new TradeContractIssuanceRecord(this);
         }
 

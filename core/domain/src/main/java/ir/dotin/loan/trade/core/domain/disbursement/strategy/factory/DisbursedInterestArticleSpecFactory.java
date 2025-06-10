@@ -2,7 +2,6 @@ package ir.dotin.loan.trade.core.domain.disbursement.strategy.factory;
 
 import ir.dotin.platform.domain.common.Result;
 import ir.dotin.platform.domain.common.annotation.DomainComponent;
-import ir.dotin.platform.domain.common.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.TransactionCause;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.TransactionType;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.ArticleSpec;

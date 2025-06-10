@@ -39,9 +39,7 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
 
         builder.withActive(new Active(true));
         builder.withDisable(new Disable(false));
-        @SuppressWarnings("nullness")
-        TradeLoanArrangementId noPreviousVersion = null;
-        builder.withPreviousVersion(noPreviousVersion);
+        builder.withPreviousVersion(null);
 
         Result<TradeLoanArrangement> arrangementResult = builder.build();
 
@@ -49,8 +47,8 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
             return Result.failure(arrangementResult.notification());
         }
 
-        @SuppressWarnings("nullness")
         TradeLoanArrangement arrangement = arrangementResult.value();
+        requireNonNull(arrangement, "arrangement cannot be null after successful build");
 
         var payload = new TradeLoanArrangementCreated.Payload(
                 arrangement.getCode(),
@@ -71,9 +69,9 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
                 arrangement.getRepaymentPriorityPolicy(),
                 arrangement.getRegulatoryCompliancePolicy(),
                 arrangement.getCollateralPolicy(),
-                arrangement.getGuarantorCount(),
+                requireNonNull(arrangement.getGuarantorCount(), "guarantorCount cannot be null"),
                 arrangement.isHasInstallmentCard(),
-                arrangement.getConfirmType(),
+                requireNonNull(arrangement.getConfirmType(), "confirmType cannot be null"),
                 arrangement.getActive().isActive());
 
         TradeLoanArrangementCreated creationEvent =
@@ -111,11 +109,11 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
 
         checkState(
                 !loanArrangementResult.hasErrors(),
-                "Failed to build loan arrangement from validated builder: "
-                        + loanArrangementResult.notification().getErrorMessages());
+                "Failed to build loan arrangement from validated builder: %s",
+                loanArrangementResult.notification().getErrorMessages());
 
-        @SuppressWarnings("nullness")
         TradeLoanArrangement loanArrangement = loanArrangementResult.value();
+        requireNonNull(loanArrangement, "loanArrangement cannot be null after successful build");
         TradeLoanArrangementId newVersionId = loanArrangement.getId();
 
         var payload = new NewTradeLoanArrangementVersionPrepared.Payload(

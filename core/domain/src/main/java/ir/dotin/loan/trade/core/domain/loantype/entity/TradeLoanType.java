@@ -47,9 +47,10 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
         builder.withId(TradeLoanTypeId.generate());
         builder.withActive(new Active(true));
         builder.withDisable(new Disable(false));
-        @SuppressWarnings("nullness")
-        TradeLoanTypeId noPreviousVersion = null;
-        builder.withPreviousVersion(noPreviousVersion);
+
+        // Suppress NullAway for this specific call since previous version is null for initial creation
+        @SuppressWarnings({"nullness", "NullAway"})
+        var ignored = builder.withPreviousVersion(null);
 
         Notification notification = builder.validate();
         if (notification.hasErrors()) {
@@ -111,11 +112,11 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
 
         checkState(
                 !morabeheLoanTypeResult.hasErrors(),
-                "Failed to build loan type from validated builder: "
-                        + morabeheLoanTypeResult.notification().getErrorMessages());
+                "Failed to build loan type from validated builder: %s",
+                morabeheLoanTypeResult.notification().getErrorMessages());
 
-        @SuppressWarnings("nullness")
         TradeLoanType morabeheLoanType = morabeheLoanTypeResult.value();
+        requireNonNull(morabeheLoanType, "morabeheLoanType cannot be null after successful build");
         TradeLoanTypeId newAggregateId = morabeheLoanType.getId();
 
         var payload = new NewTradeLoanTypeVersionPrepared.Payload(
@@ -169,7 +170,8 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
         Notification notification = validateMorabeheLoanArrangementIds(this.loanArrangementIds);
         checkState(
                 !notification.hasErrors(),
-                "Internal MorabeheLoanType state validation failed: " + notification.getErrorMessages());
+                "Internal MorabeheLoanType state validation failed: %s",
+                notification.getErrorMessages());
     }
 
     private Notification validateMorabeheNewVersionData(Builder builder) {

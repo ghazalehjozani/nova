@@ -22,7 +22,8 @@ import static java.util.Objects.requireNonNull;
 
 @DomainService
 public final class IssueContractBankCommitmentTransactionStrategy
-        extends AbstractMultiArticleCalculationStrategy<TradeLoanFacility, TradeRelationType, IssueContractBankCommitmentArticleType>
+        extends AbstractMultiArticleCalculationStrategy<
+                TradeLoanFacility, TradeRelationType, IssueContractBankCommitmentArticleType>
         implements IssueContractCommitmentHandlingStrategy {
 
     private final DebitCreditArticleSpecFactory<IssueContractBankCommitmentArticleType, TradeRelationType> specFactory;

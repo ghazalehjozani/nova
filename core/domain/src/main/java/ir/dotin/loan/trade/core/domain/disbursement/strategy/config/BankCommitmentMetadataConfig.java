@@ -1,25 +1,25 @@
 package ir.dotin.loan.trade.core.domain.disbursement.strategy.config;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.MetadataSection;
-import ir.dotin.loan.baseloan.core.domain.shared.strategy.config.MetadataConfig;
-import ir.dotin.loan.trade.core.domain.disbursement.enums.DisburseBankCommitmentArticleType;
-import ir.dotin.loan.trade.core.domain.loanfacility.enums.IssueContractBankCommitmentArticleType;
-import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
-import ir.dotin.platform.domain.common.annotation.DomainComponent;
-import ir.dotin.platform.domain.common.annotation.DomainService;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+
+import ir.dotin.platform.domain.common.annotation.DomainComponent;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.MetadataSection;
+import ir.dotin.loan.baseloan.core.domain.shared.strategy.config.MetadataConfig;
+import ir.dotin.loan.trade.core.domain.disbursement.enums.DisburseBankCommitmentArticleType;
+import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
+
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toUnmodifiableSet;
 
 @DomainComponent
-public class BankCommitmentMetadataConfig implements MetadataConfig<DisburseBankCommitmentArticleType, TradeRelationType> {
+public class BankCommitmentMetadataConfig
+        implements MetadataConfig<DisburseBankCommitmentArticleType, TradeRelationType> {
 
     private static final List<MetadataSection> DEBIT_SPECIFIC_SECTIONS = ImmutableList.of(
             MetadataSection.SOURCE_ORIGINATOR_INFO,
@@ -31,9 +31,10 @@ public class BankCommitmentMetadataConfig implements MetadataConfig<DisburseBank
             MetadataSection.DESTINATION_RECEIVER_INFO,
             MetadataSection.DESTINATION_TOOL_INFO);
 
-    private static final Map<DisburseBankCommitmentArticleType, List<MetadataSection>> TYPE_SPECIFIC_SECTIONS = ImmutableMap.of(
-            DisburseBankCommitmentArticleType.BANK_COMMITMENT_DEBIT_LEG, DEBIT_SPECIFIC_SECTIONS,
-            DisburseBankCommitmentArticleType.BANK_COMMITMENT_CREDIT_LEG, CREDIT_SPECIFIC_SECTIONS);
+    private static final Map<DisburseBankCommitmentArticleType, List<MetadataSection>> TYPE_SPECIFIC_SECTIONS =
+            ImmutableMap.of(
+                    DisburseBankCommitmentArticleType.BANK_COMMITMENT_DEBIT_LEG, DEBIT_SPECIFIC_SECTIONS,
+                    DisburseBankCommitmentArticleType.BANK_COMMITMENT_CREDIT_LEG, CREDIT_SPECIFIC_SECTIONS);
 
     @Override
     public List<MetadataSection> getMetadataSections(DisburseBankCommitmentArticleType articleType) {

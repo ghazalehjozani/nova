@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.core.domain.disbursement.strategy.factory;
 
+import ir.dotin.platform.domain.common.Result;
+import ir.dotin.platform.domain.common.annotation.DomainComponent;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.TransactionCause;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.TransactionType;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.ArticleSpec;
@@ -10,9 +12,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.document.metadata.Transactio
 import ir.dotin.loan.trade.core.domain.disbursement.enums.DisburseBankCommitmentArticleType;
 import ir.dotin.loan.trade.core.domain.disbursement.strategy.config.BankCommitmentMetadataConfig;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
-import ir.dotin.platform.domain.common.Result;
-import ir.dotin.platform.domain.common.annotation.DomainComponent;
-import ir.dotin.platform.domain.common.annotation.DomainService;
 
 @DomainComponent
 public class BankCommitmentArticleSpecFactory

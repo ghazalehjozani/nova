@@ -61,15 +61,19 @@ public final class TradeLoanFacility
             return Result.failure(applicationResult.notification());
         }
         FacilityStatus facilityStatus = FacilityStatus.APPLICATION_SUBMITTED;
-        @SuppressWarnings("nullness")
         TradeLoanApplication application = applicationResult.value();
+        requireNonNull(application, "application cannot be null after successful creation");
+
         @SuppressWarnings("nullness")
         TradeSanctionedLoan sanctionedLoan = null;
         TradeLoanFacility facility = new TradeLoanFacility(
                 facilityId, application, sanctionedLoan, facilityStatus, loanTypeId, loanArrangementId);
 
+        TradeLoanApplication facilityApplication = facility.getLoanApplication();
+        requireNonNull(facilityApplication, "facility application cannot be null");
+
         facility.registerEvent(TradeLoanFacilityCreatedEvent.of(
-                facilityId, application.getId(), facility.getLoanApplication().getCustomer(), clock));
+                facilityId, application.getId(), facilityApplication.getCustomer(), clock));
 
         return Result.success(facility);
     }

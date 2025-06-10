@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 
 import ir.dotin.platform.domain.common.Result;
 import ir.dotin.platform.domain.common.annotation.DomainComponent;
-import ir.dotin.platform.domain.common.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.shared.interaction.FindAccountByRelationTypeClient;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.AbstractMultiArticleCalculationStrategy;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.CalculationContext;
@@ -15,7 +14,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.validator.ArticleBalanceValidat
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Article;
 import ir.dotin.loan.trade.core.domain.disbursement.enums.PaymentAmountArticleType;
 import ir.dotin.loan.trade.core.domain.disbursement.strategy.CashMovementStrategy;
-import ir.dotin.loan.trade.core.domain.disbursement.strategy.factory.PaymentAmountArticleSpecFactory;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 

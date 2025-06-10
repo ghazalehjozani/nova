@@ -6,4 +6,5 @@ import ir.dotin.loan.trade.core.domain.loanfacility.enums.IssueContractBankCommi
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
 public interface IssueContractCommitmentHandlingStrategy
-        extends DocumentCalculationStrategy<TradeLoanFacility, TradeRelationType, IssueContractBankCommitmentArticleType> {}
+        extends DocumentCalculationStrategy<
+                TradeLoanFacility, TradeRelationType, IssueContractBankCommitmentArticleType> {}

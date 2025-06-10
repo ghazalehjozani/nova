@@ -3,6 +3,8 @@ package ir.dotin.loan.trade.core.domain.disbursement.entity;
 import java.time.Clock;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.platform.domain.common.Notification;
 import ir.dotin.platform.domain.common.Result;
 import ir.dotin.platform.domain.common.event.DomainEvent;
@@ -25,7 +27,7 @@ public final class TradeDisbursementRecord extends AbstractDisbursementRecord<Tr
 
     private TradeDisbursementRecord(TradeDisbursementRecord.Builder builder) {
         super(builder);
-        this.loanFacilityId = builder.loanFacilityId;
+        this.loanFacilityId = requireNonNull(builder.loanFacilityId);
     }
 
     public static TradeDisbursementRecord.Builder newBuilder() {
@@ -69,15 +71,17 @@ public final class TradeDisbursementRecord extends AbstractDisbursementRecord<Tr
             extends AbstractDisbursementRecord.AbstractBuilder<
                     TradeDisbursementRecordId, TradeDisbursementRecord, TradeDisbursementRecord.Builder> {
 
+        @Nullable
         private TradeLoanFacilityId loanFacilityId;
 
         public Builder withLoanFacilityId(TradeLoanFacilityId loanFacilityId) {
-            this.loanFacilityId = loanFacilityId;
+            this.loanFacilityId = requireNonNull(loanFacilityId);
             return this;
         }
 
         @Override
         protected TradeDisbursementRecord buildInternal() {
+            requireNonNull(loanFacilityId, "loanFacilityId must be set before building");
             return new TradeDisbursementRecord(this);
         }
 

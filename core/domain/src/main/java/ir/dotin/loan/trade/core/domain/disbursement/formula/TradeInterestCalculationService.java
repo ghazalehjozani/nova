@@ -47,16 +47,23 @@ public final class TradeInterestCalculationService {
             return Result.failure(context.notification());
         }
 
-        @SuppressWarnings("nullness")
         Map<Character, TypedValue> contextValue = context.value();
+        if (contextValue == null) {
+            return Result.failure(
+                    Notification.ofError(TradeLoanFacilityLocalizedMessageCodes.INTEREST_FORMULA_EVALUATION_FAILED));
+        }
+
         Result<BigDecimal> calculationResult = formulaEvaluator.evaluate(interestFormula, contextValue);
 
         if (calculationResult.isFailure()) {
             return Result.failure(calculationResult.notification());
         }
 
-        @SuppressWarnings("nullness")
         BigDecimal calculationValue = calculationResult.value();
+        if (calculationValue == null) {
+            return Result.failure(Notification.ofError(
+                    TradeLoanFacilityLocalizedMessageCodes.INTEREST_CALCULATION_FAILED, "null result"));
+        }
         return Money.valueOf(calculationValue, facility.getLoanApplication().getCurrency());
     }
 }

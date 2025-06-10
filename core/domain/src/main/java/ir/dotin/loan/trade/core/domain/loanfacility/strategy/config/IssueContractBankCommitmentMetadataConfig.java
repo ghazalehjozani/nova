@@ -18,7 +18,8 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toUnmodifiableSet;
 
 @DomainService
-public class IssueContractBankCommitmentMetadataConfig implements MetadataConfig<IssueContractBankCommitmentArticleType, TradeRelationType> {
+public class IssueContractBankCommitmentMetadataConfig
+        implements MetadataConfig<IssueContractBankCommitmentArticleType, TradeRelationType> {
 
     private static final List<MetadataSection> DEBIT_SPECIFIC_SECTIONS = ImmutableList.of(
             MetadataSection.SOURCE_ORIGINATOR_INFO,
@@ -30,9 +31,10 @@ public class IssueContractBankCommitmentMetadataConfig implements MetadataConfig
             MetadataSection.DESTINATION_RECEIVER_INFO,
             MetadataSection.DESTINATION_TOOL_INFO);
 
-    private static final Map<IssueContractBankCommitmentArticleType, List<MetadataSection>> TYPE_SPECIFIC_SECTIONS = ImmutableMap.of(
-            IssueContractBankCommitmentArticleType.BANK_COMMITMENT_DEBIT_LEG, DEBIT_SPECIFIC_SECTIONS,
-            IssueContractBankCommitmentArticleType.BANK_COMMITMENT_CREDIT_LEG, CREDIT_SPECIFIC_SECTIONS);
+    private static final Map<IssueContractBankCommitmentArticleType, List<MetadataSection>> TYPE_SPECIFIC_SECTIONS =
+            ImmutableMap.of(
+                    IssueContractBankCommitmentArticleType.BANK_COMMITMENT_DEBIT_LEG, DEBIT_SPECIFIC_SECTIONS,
+                    IssueContractBankCommitmentArticleType.BANK_COMMITMENT_CREDIT_LEG, CREDIT_SPECIFIC_SECTIONS);
 
     @Override
     public List<MetadataSection> getMetadataSections(IssueContractBankCommitmentArticleType articleType) {

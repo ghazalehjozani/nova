@@ -1,8 +1,9 @@
 package ir.dotin.loan.trade.core.domain.disbursement.enums;
 
+import org.jspecify.annotations.NonNull;
+
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
-import org.jspecify.annotations.NonNull;
 
 public enum DisbursedInterestArticleType implements ArticleType<DisbursedInterestArticleType, TradeRelationType> {
     INTEREST_DEBIT_LEG(TradeRelationType.PRINCIPAL),
