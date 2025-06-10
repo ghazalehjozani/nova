@@ -1,85 +1,192 @@
 pipeline {
     agent any
 
+    options {
+        timeout(time: 60, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '5'))
+        timestamps()
+        skipDefaultCheckout()
+    }
+
     environment {
-        GIT_USER_EMAIL = 'm.amirabdollahi@dotin.ir'  // 'core.jenkins@dotin.ir'
-        GIT_USER_NAME = 'Mahdi Amirabdollahi'  // 'Jenkins CI'
-        GIT_REPO_URL = 'https://bitbucket.dotin.ir/scm/core/trade-loan.git'
+        MAVEN_OPTS = '-Xmx2048m -XX:+TieredCompilation -XX:TieredStopAtLevel=1'
+        MAVEN_CLI_OPTS = '--errors --show-version --batch-mode --no-transfer-progress'
+        MVN_CMD = 'mvn'
     }
 
     stages {
-        stage('Checkout SCM') {
+        stage('Initialize') {
+            steps {
+                script {
+                    // Check for mvnd first with proper returnStdout
+                    def mvndCheck = sh(script: 'command -v mvnd 2>/dev/null', returnStatus: true)
+                    if (mvndCheck == 0) {
+                        env.MVN_CMD = 'mvnd'
+                        echo "Using Maven Daemon (mvnd)"
+                    } else {
+                        // Check for mvn
+                        def mvnCheck = sh(script: 'command -v mvn 2>/dev/null', returnStatus: true)
+                        if (mvnCheck != 0) {
+                            error "Neither mvn nor mvnd found in PATH"
+                        }
+                        env.MVN_CMD = 'mvn'
+                        echo "Using standard Maven (mvn)"
+                    }
+
+                    sh "${env.MVN_CMD} --version"
+                }
+            }
+        }
+
+        stage('Checkout & Setup') {
             steps {
                 checkout scm
                 script {
-                    setupGitUser()
-                    if (!fileExists('pom.xml')) {
-                        error "Critical error: pom.xml not found in workspace!"
+                    validateProject()
+
+                    env.CALCULATED_VERSION = getProjectVersion()
+                    env.IS_SNAPSHOT = env.CALCULATED_VERSION.contains('SNAPSHOT')
+
+                    echo "Project version: ${env.CALCULATED_VERSION}"
+                    echo "Branch: ${env.BRANCH_NAME ?: 'unknown'}"
+                    echo "Build type: ${env.CHANGE_ID ? 'Pull Request' : 'Branch build'}"
+                }
+            }
+        }
+
+        stage('Build & Test') {
+            steps {
+                stage('Compile & Unit Tests') {
+                    steps {
+                        sh """
+                            ${env.MVN_CMD} ${MAVEN_CLI_OPTS} \\
+                                clean verify \\
+                                -DskipITs=true
+                        """
                     }
-                    def retrievedVersion = getProjectVersion()
-
-                    echo "Retrieved version: ${retrievedVersion}"
-
-                    env.CALCULATED_VERSION = retrievedVersion.toString()
-
-                    echo "CALCULATED_VERSION set to: ${env.CALCULATED_VERSION}"
-
-                    if (!env.CALCULATED_VERSION) {
-                        error "Failed to set CALCULATED_VERSION environment variable"
+                    post {
+                        always {
+                            junit '**/target/surefire-reports/*.xml'
+                        }
                     }
                 }
-                echo "Branch name: ${env.BRANCH_NAME}"
-                echo "Is PR build: ${env.CHANGE_ID ? 'Yes' : 'No'}"
+
+                stage('Integration Tests') {
+                    when {
+                        anyOf {
+                            branch 'develop'
+                            branch 'master'
+                            expression { env.CHANGE_ID != null && params.RUN_INTEGRATION_TESTS }
+                        }
+                    }
+                    steps {
+                        sh """
+                            ${env.MVN_CMD} ${MAVEN_CLI_OPTS} \\
+                                verify \\
+                                -Pintegration-test
+                        """
+                    }
+                    post {
+                        always {
+                            junit '**/target/failsafe-reports/*.xml'
+                        }
+                    }
+                }
+
+                stage('Architecture Tests') {
+                    steps {
+                        sh """
+                            ${env.MVN_CMD} ${MAVEN_CLI_OPTS} \\
+                                test \\
+                                -Parchitecture-test
+                        """
+                    }
+                }
             }
         }
 
-        stage('Build & Analysis') {
-            steps {
-                parallel(
-                    "Core Build": { sh 'mvn --errors --show-version --batch-mode --no-transfer-progress -Ddoclint=all compile -Pcore-build,code-quality' },
-                    failFast: true
-                )
-            }
-        }
-
-        stage('Testing') {
-            steps {
-                parallel(
-                    "Unit Tests": { sh 'mvn --errors --show-version --batch-mode --no-transfer-progress -Ddoclint=all -Pcore-build,code-quality test' },
-                    "Integration Tests": { sh 'mvn --errors --show-version --batch-mode --no-transfer-progress -Ddoclint=all -Pcore-build,code-quality verify' },
-                    "Architecture Tests": { sh 'mvn --errors --show-version --batch-mode --no-transfer-progress -Ddoclint=all clean test -Parchitecture-test' },
-                    failFast: true
-                )
-            }
-        }
-
-        stage('Quality Gates') {
-            environment {
-                SONAR_TOKEN = credentials('SONAR_TOKEN_TRADE_LOAN')
+        stage('Code Quality & Analysis') {
+            when {
+                anyOf {
+                    branch 'develop'
+                    branch 'master'
+                    expression { env.CHANGE_ID != null }
+                }
             }
             steps {
-                sh """
-                    mvn --errors --show-version --batch-mode --no-transfer-progress -Ddoclint=all -Pquality-gate sonar:sonar clean verify -Dsonar.token=${SONAR_TOKEN}
-                """
+                stage('Error Prone Analysis') {
+                    steps {
+                        sh """
+                            ${env.MVN_CMD} ${MAVEN_CLI_OPTS} \\
+                                -Perror-prone compile
+                        """
+                    }
+                }
+                stage('Checkstyle') {
+                    steps {
+                        sh """
+                            ${env.MVN_CMD} ${MAVEN_CLI_OPTS} \\
+                                checkstyle:check
+                        """
+                    }
+                }
+                stage('SonarQube Analysis') {
+                    environment {
+                        SONAR_TOKEN = credentials('SONAR_TOKEN_TRADE_LOAN')
+                    }
+                    steps {
+                        sh """
+                            ${env.MVN_CMD} ${MAVEN_CLI_OPTS} \\
+                                sonar:sonar \\
+                                -Dsonar.token=${SONAR_TOKEN}
+                        """
+                    }
+                }
             }
         }
 
         stage('Deploy') {
             when {
                 allOf {
-                    branch 'develop'
+                    anyOf {
+                        branch 'main'
+                        branch 'master'
+                        branch 'develop'
+                    }
                     expression { env.CHANGE_ID == null }
-                    expression { env.CALCULATED_VERSION }
+                    expression { env.CALCULATED_VERSION != null }
                 }
             }
             steps {
-                sh 'mvn --errors --show-version --batch-mode --no-transfer-progress -Ddoclint=all -Prelease deploy'
-                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+                script {
+                    def deployProfile = env.IS_SNAPSHOT ? 'snapshots' : 'release'
+
+                    sh """
+                        ${env.MVN_CMD} ${MAVEN_CLI_OPTS} \\
+                            deploy \\
+                            -P${deployProfile} \\
+                            -DskipTests=true \\
+                            -Dmaven.install.skip=true
+                    """
+
+                }
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true, allowEmptyArchive: false
+                }
             }
         }
     }
 
     post {
+        failure {
+            emailext(
+                subject: "Build Failed: ${env.JOB_NAME} - ${env.BUILD_NUMBER}",
+                body: "Build failed for ${env.JOB_NAME}. Check console output at ${env.BUILD_URL}",
+                to: '${DEFAULT_RECIPIENTS}'
+            )
+        }
         always {
             cleanWs()
         }
@@ -88,31 +195,32 @@ pipeline {
 
 def getProjectVersion() {
     try {
-        String rawOutput = sh(
-            script: 'mvn help:evaluate -Dexpression=project.version -DforceStdout',
+        def version = sh(
+            script: """
+                ${env.MVN_CMD} help:evaluate -Dexpression=project.version -q -DforceStdout | \\
+                grep -E '^[0-9]+\\.[0-9]+\\.[0-9]+(-SNAPSHOT)?$' | \\
+                head -1
+            """,
             returnStdout: true
         ).trim()
 
-        echo "Raw Maven output: '${rawOutput}'"
-
-        def version = rawOutput.readLines()
-                               .find { it ==~ /^\d+\.\d+\.\d+(-SNAPSHOT)?$/ }
-
         if (!version) {
-            error "Could not find a valid version line in the Maven output."
+            error "Could not extract valid version from pom.xml"
         }
 
-        echo "Validated project version: ${version}"
         return version
-
-    } catch (ex) {
-        error "Failed to retrieve project version: ${ex.getMessage()}"
+    } catch (Exception e) {
+        error "Failed to retrieve project version: ${e.message}"
     }
 }
 
-def setupGitUser() {
-    sh """
-        git config user.email "${env.GIT_USER_EMAIL}"
-        git config user.name "${env.GIT_USER_NAME}"
-    """
+def validateProject() {
+    if (!fileExists('pom.xml')) {
+        error "pom.xml not found - invalid Maven project structure"
+    }
+
+    def pomContent = readFile('pom.xml')
+    if (!pomContent.contains('<groupId>ir.dotin.loan</groupId>')) {
+        error "Invalid project groupId - expected ir.dotin.loan"
+    }
 }
