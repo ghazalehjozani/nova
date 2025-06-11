@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import ir.dotin.platform.domain.common.entity.Identity;
 
+import static java.util.UUID.randomUUID;
+
 public record TradeDisbursementRecordId(UUID value) implements Identity {
 
     public static TradeDisbursementRecordId of(UUID value) {
@@ -11,6 +13,6 @@ public record TradeDisbursementRecordId(UUID value) implements Identity {
     }
 
     public static TradeDisbursementRecordId generate() {
-        return new TradeDisbursementRecordId(UUID.randomUUID());
+        return new TradeDisbursementRecordId(randomUUID());
     }
 }

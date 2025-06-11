@@ -9,6 +9,7 @@ import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
 import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeSanctionedLoanId;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.UUID.randomUUID;
 
 public record TradeLoanFacilityApprovedEvent(
         UUID eventId, TradeLoanFacilityId aggregateId, Payload payload, Instant createdAt)
@@ -32,7 +33,7 @@ public record TradeLoanFacilityApprovedEvent(
     public static TradeLoanFacilityApprovedEvent of(
             TradeLoanFacilityId id, TradeSanctionedLoanId sanId, SanctionSerial sanctionSerial, Clock clock) {
         return new TradeLoanFacilityApprovedEvent(
-                UUID.randomUUID(), id, new Payload(sanId, sanctionSerial), Instant.now(clock));
+                randomUUID(), id, new Payload(sanId, sanctionSerial), clock.instant());
     }
 
     @Override

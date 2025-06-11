@@ -1,7 +1,6 @@
 package ir.dotin.loan.trade.core.domain.loanarrangement.event;
 
 import java.time.Instant;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,6 +15,8 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
 import ir.dotin.loan.trade.core.domain.loanarrangement.vo.TradeLoanArrangementId;
 
+import static java.util.Objects.requireNonNull;
+
 public record TradeLoanArrangementCreated(
         UUID eventId, TradeLoanArrangementId aggregateId, Payload payload, Instant createdAt)
         implements TradeLoanArrangementEvent<TradeLoanArrangementCreated, TradeLoanArrangementCreated.Payload> {
@@ -23,10 +24,10 @@ public record TradeLoanArrangementCreated(
     public static final String CREATED = "CREATED";
 
     public TradeLoanArrangementCreated {
-        Objects.requireNonNull(eventId, "eventId cannot be null");
-        Objects.requireNonNull(aggregateId, "aggregateId cannot be null");
-        Objects.requireNonNull(payload, "payload cannot be null");
-        Objects.requireNonNull(createdAt, "createdAt cannot be null");
+        requireNonNull(eventId, "eventId cannot be null");
+        requireNonNull(aggregateId, "aggregateId cannot be null");
+        requireNonNull(payload, "payload cannot be null");
+        requireNonNull(createdAt, "createdAt cannot be null");
     }
 
     @Override
@@ -35,7 +36,7 @@ public record TradeLoanArrangementCreated(
     }
 
     public record Payload(
-            LoanRuleCode code,
+            LoanArrangementCode code,
             Title title,
             Set<CurrencyType> currencies,
             MoneyRange amountRange,
@@ -58,8 +59,8 @@ public record TradeLoanArrangementCreated(
             ConfirmType confirmType,
             boolean active) {
         public Payload {
-            Objects.requireNonNull(code, "payload.code cannot be null");
-            Objects.requireNonNull(title, "payload.title cannot be null");
+            requireNonNull(code, "payload.code cannot be null");
+            requireNonNull(title, "payload.title cannot be null");
         }
     }
 }

@@ -6,8 +6,8 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.service.validator.Sanctio
 import ir.dotin.loan.baseloan.core.domain.loanfacility.specification.*;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Sanction;
-import ir.dotin.loan.trade.core.domain.loanarrangement.aggregate.TradeLoanArrangement;
-import ir.dotin.loan.trade.core.domain.loanfacility.aggregate.TradeLoanFacility;
+import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
+import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 @DomainService
 public final class TradeSanctionValidationService

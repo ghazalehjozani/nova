@@ -2,7 +2,6 @@ package ir.dotin.loan.trade.core.domain.disbursement.formula;
 
 import java.math.BigDecimal;
 import java.util.Map;
-import java.util.Objects;
 
 import ir.dotin.platform.domain.common.Notification;
 import ir.dotin.platform.domain.common.Result;
@@ -14,9 +13,11 @@ import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.InterestPolicy;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.BaseFormulaField;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.FormulaContextProvider;
 import ir.dotin.loan.baseloan.core.domain.shared.interaction.BaseFormulaFieldEvaluator;
-import ir.dotin.loan.trade.core.domain.loanfacility.aggregate.TradeLoanFacility;
+import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.i18n.TradeLoanFacilityLocalizedMessageCodes;
 import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanFormulaContextProvider;
+
+import static java.util.Objects.requireNonNull;
 
 @DomainService
 public final class TradeInterestCalculationService {
@@ -26,13 +27,13 @@ public final class TradeInterestCalculationService {
 
     public TradeInterestCalculationService(
             TradeLoanFormulaContextProvider contextProvider, BaseFormulaFieldEvaluator formulaEvaluator) {
-        this.contextProvider = Objects.requireNonNull(contextProvider, "contextProvider cannot be null");
-        this.formulaEvaluator = Objects.requireNonNull(formulaEvaluator, "FormulaEvaluator cannot be null");
+        this.contextProvider = requireNonNull(contextProvider, "contextProvider cannot be null");
+        this.formulaEvaluator = requireNonNull(formulaEvaluator, "FormulaEvaluator cannot be null");
     }
 
     public Result<Money> calculateTotalInterest(InterestPolicy<BaseFormulaField> policy, TradeLoanFacility facility) {
-        Objects.requireNonNull(policy, "InterestPolicy cannot be null");
-        Objects.requireNonNull(facility, "facility cannot be null");
+        requireNonNull(policy, "InterestPolicy cannot be null");
+        requireNonNull(facility, "facility cannot be null");
 
         ParameterizedFormula<BaseFormulaField> interestFormula = policy.interestFormula();
         if (interestFormula == null) {
@@ -46,13 +47,23 @@ public final class TradeInterestCalculationService {
             return Result.failure(context.notification());
         }
 
-        Result<BigDecimal> calculationResult = formulaEvaluator.evaluate(interestFormula, context.value());
+        Map<Character, TypedValue> contextValue = context.value();
+        if (contextValue == null) {
+            return Result.failure(
+                    Notification.ofError(TradeLoanFacilityLocalizedMessageCodes.INTEREST_FORMULA_EVALUATION_FAILED));
+        }
+
+        Result<BigDecimal> calculationResult = formulaEvaluator.evaluate(interestFormula, contextValue);
 
         if (calculationResult.isFailure()) {
             return Result.failure(calculationResult.notification());
         }
 
-        return Money.valueOf(
-                calculationResult.value(), facility.getLoanApplication().getCurrency());
+        BigDecimal calculationValue = calculationResult.value();
+        if (calculationValue == null) {
+            return Result.failure(Notification.ofError(
+                    TradeLoanFacilityLocalizedMessageCodes.INTEREST_CALCULATION_FAILED, "null result"));
+        }
+        return Money.valueOf(calculationValue, facility.getLoanApplication().getCurrency());
     }
 }

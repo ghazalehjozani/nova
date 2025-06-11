@@ -2,9 +2,10 @@ package ir.dotin.loan.trade.core.domain.loantype.event;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+
+import org.jspecify.annotations.Nullable;
 
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loantype.enums.SegmentType;
@@ -15,15 +16,17 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
 import ir.dotin.loan.trade.core.domain.loanarrangement.vo.TradeLoanArrangementId;
 import ir.dotin.loan.trade.core.domain.loantype.vo.TradeLoanTypeId;
 
+import static java.util.Objects.requireNonNull;
+
 public record NewTradeLoanTypeVersionPrepared(
         UUID eventId, TradeLoanTypeId aggregateId, Payload payload, Instant createdAt)
         implements TradeLoanTypeEvent<NewTradeLoanTypeVersionPrepared, NewTradeLoanTypeVersionPrepared.Payload> {
 
     public NewTradeLoanTypeVersionPrepared {
-        Objects.requireNonNull(eventId);
-        Objects.requireNonNull(aggregateId);
-        Objects.requireNonNull(payload);
-        Objects.requireNonNull(createdAt);
+        requireNonNull(eventId);
+        requireNonNull(aggregateId);
+        requireNonNull(payload);
+        requireNonNull(createdAt);
         if (!aggregateId.equals(payload.newAggregateId()))
             throw new IllegalArgumentException("aggregateId must match payload.newAggregateId");
     }
@@ -33,7 +36,7 @@ public record NewTradeLoanTypeVersionPrepared(
             TradeLoanTypeId previousAggregateId,
             LoanTypeCode code,
             Title title,
-            EditReason editReason,
+            @Nullable EditReason editReason,
             GatewayType gatewayType,
             LoanApplicationStatus loanApplicationAllowed,
             SegmentType segmentType,
@@ -45,11 +48,11 @@ public record NewTradeLoanTypeVersionPrepared(
             Set<TradeLoanArrangementId> loanArrangementIds) {
 
         public Payload {
-            Objects.requireNonNull(newAggregateId);
-            Objects.requireNonNull(previousAggregateId);
-            Objects.requireNonNull(code);
-            Objects.requireNonNull(title);
-            Objects.requireNonNull(loanArrangementIds);
+            requireNonNull(newAggregateId);
+            requireNonNull(previousAggregateId);
+            requireNonNull(code);
+            requireNonNull(title);
+            requireNonNull(loanArrangementIds);
         }
     }
 

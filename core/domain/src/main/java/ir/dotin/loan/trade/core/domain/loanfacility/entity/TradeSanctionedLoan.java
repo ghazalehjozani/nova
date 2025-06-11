@@ -1,11 +1,11 @@
-package ir.dotin.loan.trade.core.domain.loanfacility.aggregate;
-
-import java.util.Objects;
+package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 
 import ir.dotin.platform.domain.common.Notification;
 import ir.dotin.platform.domain.common.Result;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.aggregate.AbstractSanctionedLoan;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractSanctionedLoan;
 import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeSanctionedLoanId;
+
+import static java.util.Objects.requireNonNull;
 
 public final class TradeSanctionedLoan
         extends AbstractSanctionedLoan<TradeSanctionedLoanId, TradeSanctionedLoan.Builder> {
@@ -19,7 +19,7 @@ public final class TradeSanctionedLoan
     }
 
     static Result<TradeSanctionedLoan> reconstitute(Builder builder) {
-        Objects.requireNonNull(builder, "Builder cannot be null for reconstitution.");
+        requireNonNull(builder, "Builder cannot be null for reconstitution.");
         return builder.build();
     }
 

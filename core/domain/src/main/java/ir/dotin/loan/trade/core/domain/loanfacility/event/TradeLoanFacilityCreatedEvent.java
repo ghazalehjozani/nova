@@ -9,6 +9,7 @@ import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanApplicationId;
 import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.UUID.randomUUID;
 
 public record TradeLoanFacilityCreatedEvent(
         UUID eventId, TradeLoanFacilityId aggregateId, Payload payload, Instant createdAt)
@@ -30,8 +31,7 @@ public record TradeLoanFacilityCreatedEvent(
 
     public static TradeLoanFacilityCreatedEvent of(
             TradeLoanFacilityId id, TradeLoanApplicationId appId, Party customer, Clock clock) {
-        return new TradeLoanFacilityCreatedEvent(
-                UUID.randomUUID(), id, new Payload(appId, customer), Instant.now(clock));
+        return new TradeLoanFacilityCreatedEvent(randomUUID(), id, new Payload(appId, customer), clock.instant());
     }
 
     @Override

@@ -1,11 +1,12 @@
 package ir.dotin.loan.trade.core.domain.disbursement.event;
 
 import java.time.Instant;
-import java.util.Objects;
 import java.util.UUID;
 
 import ir.dotin.loan.trade.core.domain.disbursement.vo.TradeDisbursementRecordId;
 import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
+
+import static java.util.Objects.requireNonNull;
 
 public record TradeDisbursementTransactionPostedEvent(
         UUID eventId, TradeDisbursementRecordId aggregateId, Instant createdAt, Payload payload)
@@ -15,9 +16,9 @@ public record TradeDisbursementTransactionPostedEvent(
     public static final String PENDING = "PENDING";
 
     public TradeDisbursementTransactionPostedEvent {
-        Objects.requireNonNull(eventId, "eventId cannot be null");
-        Objects.requireNonNull(aggregateId, "aggregateId cannot be null");
-        Objects.requireNonNull(createdAt, "createdAt cannot be null");
+        requireNonNull(eventId, "eventId cannot be null");
+        requireNonNull(aggregateId, "aggregateId cannot be null");
+        requireNonNull(createdAt, "createdAt cannot be null");
     }
 
     @Override
@@ -27,7 +28,7 @@ public record TradeDisbursementTransactionPostedEvent(
 
     public record Payload(TradeLoanFacilityId loanFacilityId) {
         public Payload {
-            Objects.requireNonNull(loanFacilityId, "loanFacilityId cannot be null");
+            requireNonNull(loanFacilityId, "loanFacilityId cannot be null");
         }
     }
 

@@ -27,7 +27,9 @@ public enum TradeDisbursementLocalizedMessageCodes implements LocalizedMessage<T
     INTEREST_RESULT_CONVERSION_FAILED("Interest calculation failed: Could not convert result to Money: {0}"),
     INTEREST_CALCULATION_UNEXPECTED_ERROR("Unexpected error during interest calculation: {0}"),
     TRANSACTION_METADATA_DEFAULT_CREATION_FAILED("Default transaction metadata creation failed."),
-    DEPOSIT_NUMBER_REQUIRED_FOR_DEPOSIT_TYPE("Deposit number is required for deposit type destination.");
+    DEPOSIT_NUMBER_REQUIRED_FOR_DEPOSIT_TYPE("Deposit number is required for deposit type destination."),
+    STRATEGY_RETURNED_NO_ITEMS("The calculation strategy returned no items when items were expected."),
+    CALCULATION_CONTEXT_COMPONENT_MISSING("Required component ''{0}'' is missing in the calculation context.");
 
     private final String messageFormat;
 

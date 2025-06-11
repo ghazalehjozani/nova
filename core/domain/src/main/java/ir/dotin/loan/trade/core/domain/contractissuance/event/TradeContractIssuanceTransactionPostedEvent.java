@@ -1,11 +1,12 @@
 package ir.dotin.loan.trade.core.domain.contractissuance.event;
 
 import java.time.Instant;
-import java.util.Objects;
 import java.util.UUID;
 
 import ir.dotin.loan.trade.core.domain.contractissuance.vo.TradeContractIssuanceRecordId;
 import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
+
+import static java.util.Objects.requireNonNull;
 
 public record TradeContractIssuanceTransactionPostedEvent(
         UUID eventId, TradeContractIssuanceRecordId aggregateId, Instant createdAt, Payload payload)
@@ -13,15 +14,15 @@ public record TradeContractIssuanceTransactionPostedEvent(
                 TradeContractIssuanceTransactionPostedEvent, TradeContractIssuanceTransactionPostedEvent.Payload> {
 
     public TradeContractIssuanceTransactionPostedEvent {
-        Objects.requireNonNull(eventId, "eventId cannot be null");
-        Objects.requireNonNull(aggregateId, "aggregateId cannot be null");
-        Objects.requireNonNull(createdAt, "createdAt cannot be null");
+        requireNonNull(eventId, "eventId cannot be null");
+        requireNonNull(aggregateId, "aggregateId cannot be null");
+        requireNonNull(createdAt, "createdAt cannot be null");
     }
 
     public record Payload(TradeLoanFacilityId loanFacilityId) {
 
         public Payload {
-            Objects.requireNonNull(loanFacilityId, "loanFacilityId cannot be null");
+            requireNonNull(loanFacilityId, "loanFacilityId cannot be null");
         }
     }
 

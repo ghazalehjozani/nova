@@ -1,9 +1,10 @@
 package ir.dotin.loan.trade.core.domain.loanarrangement.event;
 
 import java.time.Instant;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+
+import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.domain.common.vo.CurrencyType;
 import ir.dotin.platform.domain.common.vo.DurationRange;
@@ -16,19 +17,20 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
 import ir.dotin.loan.trade.core.domain.loanarrangement.vo.TradeLoanArrangementId;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
+
 public record NewTradeLoanArrangementVersionPrepared(
         UUID eventId, TradeLoanArrangementId aggregateId, Payload payload, Instant createdAt)
         implements TradeLoanArrangementEvent<
                 NewTradeLoanArrangementVersionPrepared, NewTradeLoanArrangementVersionPrepared.Payload> {
 
     public NewTradeLoanArrangementVersionPrepared {
-        Objects.requireNonNull(eventId, "eventId cannot be null");
-        Objects.requireNonNull(aggregateId, "aggregateId cannot be null (should be new version ID)");
-        Objects.requireNonNull(payload, "payload cannot be null");
-        Objects.requireNonNull(createdAt, "createdAt cannot be null");
-        if (!aggregateId.equals(payload.newAggregateId())) {
-            throw new IllegalArgumentException("aggregateId must match payload.newAggregateId");
-        }
+        requireNonNull(eventId, "eventId cannot be null");
+        requireNonNull(aggregateId, "aggregateId cannot be null (should be new version ID)");
+        requireNonNull(payload, "payload cannot be null");
+        requireNonNull(createdAt, "createdAt cannot be null");
+        checkArgument(aggregateId.equals(payload.newAggregateId()), "aggregateId must match payload.newAggregateId");
     }
 
     @Override
@@ -39,7 +41,7 @@ public record NewTradeLoanArrangementVersionPrepared(
     public record Payload(
             TradeLoanArrangementId newAggregateId,
             TradeLoanArrangementId previousAggregateId,
-            LoanRuleCode code,
+            LoanArrangementCode code,
             Title title,
             Set<CurrencyType> currencies,
             MoneyRange amountRange,
@@ -57,14 +59,14 @@ public record NewTradeLoanArrangementVersionPrepared(
             RepaymentPriorityPolicy repaymentPriorityPolicy,
             RegulatoryCompliancePolicy regulatoryCompliancePolicy,
             CollateralPolicy collateralPolicy,
-            Integer guarantorCount,
+            @Nullable Integer guarantorCount,
             boolean hasInstallmentCard,
-            ConfirmType confirmType) {
+            @Nullable ConfirmType confirmType) {
         public Payload {
-            Objects.requireNonNull(newAggregateId, "payload.newAggregateId cannot be null");
-            Objects.requireNonNull(previousAggregateId, "payload.previousAggregateId cannot be null");
-            Objects.requireNonNull(code, "payload.code cannot be null");
-            Objects.requireNonNull(title, "payload.title cannot be null");
+            requireNonNull(newAggregateId, "payload.newAggregateId cannot be null");
+            requireNonNull(previousAggregateId, "payload.previousAggregateId cannot be null");
+            requireNonNull(code, "payload.code cannot be null");
+            requireNonNull(title, "payload.title cannot be null");
         }
     }
 }

@@ -1,14 +1,11 @@
-package ir.dotin.loan.trade.core.domain.loanarrangement.aggregate;
+package ir.dotin.loan.trade.core.domain.loanarrangement.entity;
 
 import java.time.Clock;
-import java.time.Instant;
-import java.util.Objects;
-import java.util.UUID;
 
 import ir.dotin.platform.domain.common.Result;
 import ir.dotin.platform.domain.common.event.DomainEvent;
 import ir.dotin.platform.domain.common.feature.FeatureConfig;
-import ir.dotin.loan.baseloan.core.domain.loanarrangement.aggregate.AbstractLoanArrangement;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.entity.AbstractLoanArrangement;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.ArrangementFeatureContext;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.BaseFormulaField;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Active;
@@ -18,6 +15,10 @@ import ir.dotin.loan.trade.core.domain.loanarrangement.event.TradeLoanArrangemen
 import ir.dotin.loan.trade.core.domain.loanarrangement.event.TradeLoanArrangementCreated;
 import ir.dotin.loan.trade.core.domain.loanarrangement.event.TradeLoanArrangementDeactivated;
 import ir.dotin.loan.trade.core.domain.loanarrangement.vo.TradeLoanArrangementId;
+
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
+import static java.util.UUID.randomUUID;
 
 public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoanArrangementId, BaseFormulaField> {
 
@@ -31,8 +32,8 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
 
     public static Result<TradeLoanArrangement> create(Builder builder, Clock clock) {
 
-        Objects.requireNonNull(clock, "Clock cannot be null for creation");
-        Objects.requireNonNull(builder, "Builder cannot be null for creation");
+        requireNonNull(clock, "Clock cannot be null for creation");
+        requireNonNull(builder, "Builder cannot be null for creation");
 
         builder.withId(TradeLoanArrangementId.generate());
 
@@ -47,6 +48,7 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
         }
 
         TradeLoanArrangement arrangement = arrangementResult.value();
+        requireNonNull(arrangement, "arrangement cannot be null after successful build");
 
         var payload = new TradeLoanArrangementCreated.Payload(
                 arrangement.getCode(),
@@ -67,13 +69,13 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
                 arrangement.getRepaymentPriorityPolicy(),
                 arrangement.getRegulatoryCompliancePolicy(),
                 arrangement.getCollateralPolicy(),
-                arrangement.getGuarantorCount(),
+                requireNonNull(arrangement.getGuarantorCount(), "guarantorCount cannot be null"),
                 arrangement.isHasInstallmentCard(),
-                arrangement.getConfirmType(),
+                requireNonNull(arrangement.getConfirmType(), "confirmType cannot be null"),
                 arrangement.getActive().isActive());
 
         TradeLoanArrangementCreated creationEvent =
-                new TradeLoanArrangementCreated(UUID.randomUUID(), arrangement.getId(), payload, Instant.now(clock));
+                new TradeLoanArrangementCreated(randomUUID(), arrangement.getId(), payload, clock.instant());
 
         arrangement.registerEvent(creationEvent);
 
@@ -81,20 +83,20 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
     }
 
     public static TradeLoanArrangement reconstitute(Builder builder) {
-        Objects.requireNonNull(builder, "Builder cannot be null for reconstitution.");
+        requireNonNull(builder, "Builder cannot be null for reconstitution.");
         return builder.buildInternal();
     }
 
     @Override
     protected DomainEvent<?, ?> getArrangementActivatedEvent(TradeLoanArrangementId aggregateId, Clock clock) {
         var payload = new TradeLoanArrangementActivated.Payload();
-        return new TradeLoanArrangementActivated(UUID.randomUUID(), aggregateId, payload, clock.instant());
+        return new TradeLoanArrangementActivated(randomUUID(), aggregateId, payload, clock.instant());
     }
 
     @Override
     protected DomainEvent<?, ?> getArrangementDeactivatedEvent(TradeLoanArrangementId aggregateId, Clock clock) {
         var payload = new TradeLoanArrangementDeactivated.Payload();
-        return new TradeLoanArrangementDeactivated(UUID.randomUUID(), aggregateId, payload, clock.instant());
+        return new TradeLoanArrangementDeactivated(randomUUID(), aggregateId, payload, clock.instant());
     }
 
     @Override
@@ -104,7 +106,14 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
             Clock clock) {
         Builder morabeheBuilder = (Builder) validatedBuilder;
         Result<TradeLoanArrangement> loanArrangementResult = morabeheBuilder.build();
+
+        checkState(
+                !loanArrangementResult.hasErrors(),
+                "Failed to build loan arrangement from validated builder: %s",
+                loanArrangementResult.notification().getErrorMessages());
+
         TradeLoanArrangement loanArrangement = loanArrangementResult.value();
+        requireNonNull(loanArrangement, "loanArrangement cannot be null after successful build");
         TradeLoanArrangementId newVersionId = loanArrangement.getId();
 
         var payload = new NewTradeLoanArrangementVersionPrepared.Payload(
@@ -132,19 +141,19 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
                 loanArrangement.isHasInstallmentCard(),
                 loanArrangement.getConfirmType());
 
-        return new NewTradeLoanArrangementVersionPrepared(UUID.randomUUID(), newVersionId, payload, Instant.now(clock));
+        return new NewTradeLoanArrangementVersionPrepared(randomUUID(), newVersionId, payload, clock.instant());
     }
 
     @Override
     public Result<TradeLoanArrangement> activate(Clock clock) {
-        Objects.requireNonNull(clock, "Clock cannot be null for activation");
+        requireNonNull(clock, "Clock cannot be null for activation");
 
         return super.activate(clock).cast(TradeLoanArrangement.class);
     }
 
     @Override
     public Result<TradeLoanArrangement> deactivate(Clock clock) {
-        Objects.requireNonNull(clock, "Clock cannot be null for deactivation");
+        requireNonNull(clock, "Clock cannot be null for deactivation");
         return super.deactivate(clock).cast(TradeLoanArrangement.class);
     }
 
@@ -154,7 +163,7 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
         Result<Builder> prepareResult = super.prepareNewVersion(updatedBuilder, featureContext, clock);
 
         if (prepareResult.isSuccess()) {
-            return Result.success(prepareResult.value());
+            return Result.success(prepareResult.orElseThrow());
         } else {
             return Result.failure(prepareResult.notification());
         }
@@ -165,7 +174,7 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
 
         public Builder(FeatureConfig featureConfig) {
             super(featureConfig);
-            Objects.requireNonNull(featureConfig, "FeatureConfig cannot be null for MorabeheLoanArrangement Builder");
+            requireNonNull(featureConfig, "FeatureConfig cannot be null for MorabeheLoanArrangement Builder");
         }
 
         public Builder(Builder other) {

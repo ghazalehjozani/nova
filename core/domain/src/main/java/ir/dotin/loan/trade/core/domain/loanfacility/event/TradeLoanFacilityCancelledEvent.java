@@ -9,6 +9,7 @@ import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
 import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeSanctionedLoanId;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.UUID.randomUUID;
 
 public record TradeLoanFacilityCancelledEvent(
         UUID eventId, TradeLoanFacilityId aggregateId, Payload payload, Instant createdAt)
@@ -28,13 +29,11 @@ public record TradeLoanFacilityCancelledEvent(
     }
 
     public static TradeLoanFacilityCancelledEvent of(TradeLoanFacilityId id, Clock clock) {
-        return new TradeLoanFacilityCancelledEvent(
-                UUID.randomUUID(), id, new Payload(Optional.empty()), Instant.now(clock));
+        return new TradeLoanFacilityCancelledEvent(randomUUID(), id, new Payload(Optional.empty()), clock.instant());
     }
 
     public static TradeLoanFacilityCancelledEvent of(TradeLoanFacilityId id, TradeSanctionedLoanId sanId, Clock clock) {
-        return new TradeLoanFacilityCancelledEvent(
-                UUID.randomUUID(), id, new Payload(Optional.of(sanId)), Instant.now(clock));
+        return new TradeLoanFacilityCancelledEvent(randomUUID(), id, new Payload(Optional.of(sanId)), clock.instant());
     }
 
     @Override

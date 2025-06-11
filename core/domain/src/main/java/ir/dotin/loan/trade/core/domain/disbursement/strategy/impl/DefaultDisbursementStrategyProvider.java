@@ -1,51 +1,40 @@
 package ir.dotin.loan.trade.core.domain.disbursement.strategy.impl;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-import ir.dotin.platform.domain.common.annotation.DomainService;
+import com.google.common.collect.ImmutableList;
+
+import ir.dotin.platform.domain.common.annotation.DomainComponent;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.DocumentCalculationStrategy;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleType;
 import ir.dotin.loan.trade.core.domain.disbursement.strategy.DisbursementStrategyProvider;
-import ir.dotin.loan.trade.core.domain.loanfacility.aggregate.TradeLoanFacility;
+import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
+import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
-@DomainService
+import static java.util.Objects.requireNonNull;
+
+@DomainComponent
 public final class DefaultDisbursementStrategyProvider implements DisbursementStrategyProvider {
 
-    private final BankCommitmentTransactionStrategy bankCommitmentStrategy;
+    private final BankCommitmentTransactionStrategy bankCommitmentTransactionStrategy;
     private final PaymentAmountTransactionStrategy paymentAmountStrategy;
-    private final DisbursedInterestTransactionStrategy disbursedFacilitiesStrategy;
-    // Inject other optional strategies...
-    // private final CashInsuranceTransactionStrategy cashInsuranceStrategy;
+    private final DisbursedInterestTransactionStrategy disbursedInterestStrategy;
 
     public DefaultDisbursementStrategyProvider(
-            BankCommitmentTransactionStrategy bankCommitmentStrategy,
+            BankCommitmentTransactionStrategy bankCommitmentTransactionStrategy,
             PaymentAmountTransactionStrategy paymentAmountStrategy,
-            DisbursedInterestTransactionStrategy disbursedFacilitiesStrategy
-            /*, CashInsuranceTransactionStrategy cashInsuranceStrategy */ ) {
-        this.bankCommitmentStrategy = Objects.requireNonNull(bankCommitmentStrategy);
-        this.paymentAmountStrategy = Objects.requireNonNull(paymentAmountStrategy);
-        this.disbursedFacilitiesStrategy = Objects.requireNonNull(disbursedFacilitiesStrategy);
-        // this.cashInsuranceStrategy = Objects.requireNonNull(cashInsuranceStrategy);
+            DisbursedInterestTransactionStrategy disbursedInterestStrategy) {
+        this.paymentAmountStrategy = requireNonNull(paymentAmountStrategy);
+        this.disbursedInterestStrategy = requireNonNull(disbursedInterestStrategy);
+        this.bankCommitmentTransactionStrategy = bankCommitmentTransactionStrategy;
     }
 
     @Override
-    public List<DocumentCalculationStrategy<TradeLoanFacility>> getStrategies(TradeLoanFacility facility) {
-        Objects.requireNonNull(facility);
-        List<DocumentCalculationStrategy<TradeLoanFacility>> applicableStrategies = new ArrayList<>();
-
-        applicableStrategies.add(bankCommitmentStrategy);
-        applicableStrategies.add(paymentAmountStrategy);
-        applicableStrategies.add(disbursedFacilitiesStrategy);
-
-        // if (shouldApplyCashInsurance(facility)) {
-        //     applicableStrategies.add(cashInsuranceStrategy);
-        // }
-        // Add other conditionals...
-
-        return applicableStrategies;
+    public List<
+                    DocumentCalculationStrategy<
+                            TradeLoanFacility, TradeRelationType, ? extends ArticleType<?, TradeRelationType>>>
+            getStrategies(TradeLoanFacility facility) {
+        requireNonNull(facility);
+        return ImmutableList.of(bankCommitmentTransactionStrategy, paymentAmountStrategy, disbursedInterestStrategy);
     }
-
-    // private boolean shouldApplyCashInsurance(MorabeheLoanFacility facility) { ... }
-    // Other condition checks...
 }

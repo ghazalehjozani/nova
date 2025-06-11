@@ -24,7 +24,13 @@ public enum TradeLoanFacilityLocalizedMessageCodes implements LocalizedMessage<T
     CALCULATION_CONTEXT_ECONOMIC_SECTOR_MISSING("EconomicSector is missing from the LoanApplication."),
     CALCULATION_CONTEXT_APPLICATION_NUMBER_MISSING(
             "ApplicationNumber is missing from the LoanApplication, cannot create PostTitle."),
-    CALCULATION_CONTEXT_POST_TITLE_CREATION_FAILED("Failed to create PostTitle from application number: {0}.");
+    CALCULATION_CONTEXT_POST_TITLE_CREATION_FAILED("Failed to create PostTitle from application number: {0}."),
+    STRATEGY_RETURNED_NO_ITEMS("Strategy did not return any items when items were expected."),
+    ARTICLE_METADATA_DEBIT_BUILD_FAILED("Failed to build ArticleMetadata for the debit entry."),
+    ARTICLE_METADATA_CREDIT_BUILD_FAILED("Failed to build ArticleMetadata for the credit entry."),
+    CALCULATION_CONTEXT_COMPONENT_MISSING("Primary article component ''{0}'' missing in calculation context."),
+    ARTICLE_METADATA_BUILD_FAILED("Failed to build article metadata.");
+    ;
 
     private final String messageFormat;
 

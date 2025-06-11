@@ -8,6 +8,7 @@ import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanApplicationId;
 import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.UUID.randomUUID;
 
 public record TradeLoanFacilityRejectedEvent(
         UUID eventId, TradeLoanFacilityId aggregateId, Payload payload, Instant createdAt)
@@ -27,7 +28,7 @@ public record TradeLoanFacilityRejectedEvent(
     }
 
     public static TradeLoanFacilityRejectedEvent of(TradeLoanFacilityId id, TradeLoanApplicationId appId, Clock clock) {
-        return new TradeLoanFacilityRejectedEvent(UUID.randomUUID(), id, new Payload(appId), Instant.now(clock));
+        return new TradeLoanFacilityRejectedEvent(randomUUID(), id, new Payload(appId), clock.instant());
     }
 
     @Override

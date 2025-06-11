@@ -1,18 +1,19 @@
 package ir.dotin.loan.trade.core.domain.loantype.event;
 
 import java.time.Instant;
-import java.util.Objects;
 import java.util.UUID;
 
 import ir.dotin.loan.trade.core.domain.loantype.vo.TradeLoanTypeId;
+
+import static java.util.Objects.requireNonNull;
 
 public record TradeLoanTypeDeactivated(UUID eventId, TradeLoanTypeId aggregateId, Payload payload, Instant createdAt)
         implements TradeLoanTypeEvent<TradeLoanTypeDeactivated, TradeLoanTypeDeactivated.Payload> {
 
     public TradeLoanTypeDeactivated {
-        Objects.requireNonNull(eventId);
-        Objects.requireNonNull(aggregateId);
-        Objects.requireNonNull(payload);
+        requireNonNull(eventId);
+        requireNonNull(aggregateId);
+        requireNonNull(payload);
     }
 
     public record Payload() {}

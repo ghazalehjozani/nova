@@ -4,9 +4,9 @@ import ir.dotin.platform.domain.common.Result;
 import ir.dotin.platform.domain.common.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.service.validator.LoanFacilityCreationValidator;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.specification.*;
-import ir.dotin.loan.trade.core.domain.loanarrangement.aggregate.TradeLoanArrangement;
-import ir.dotin.loan.trade.core.domain.loanfacility.aggregate.TradeLoanFacility;
-import ir.dotin.loan.trade.core.domain.loantype.aggregate.TradeLoanType;
+import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
+import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
+import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 
 @DomainService
 public final class TradeLoanFacilityValidationService
@@ -16,12 +16,19 @@ public final class TradeLoanFacilityValidationService
     public Result<Boolean> validateForCreation(
             TradeLoanFacility candidateFacility, TradeLoanArrangement morabeheRules, TradeLoanType morabeheLoanType) {
 
-        return new LoanApplicationAmountSpecification<>(morabeheRules.getAmountRange())
+        var baseSpecification = new LoanApplicationAmountSpecification<>(morabeheRules.getAmountRange())
                 .and(new LoanApplicationDurationSpecification<>(morabeheRules.getDurationRange()))
                 .and(new LoanApplicationGracePeriodSpecification<>(
                         morabeheRules.getGracePeriodPolicy().gracePeriodRange()))
-                .and(new LoanApplicationGuarantorCountSpecification<>(morabeheRules.getGuarantorCount()))
-                .and(new LoanApplicationCustomerTypeSpecification<>(morabeheRules.getPartyType()))
+                .and(new LoanApplicationCustomerTypeSpecification<>(morabeheRules.getPartyType()));
+
+        // Add guarantor count specification only if guarantor count is specified
+        var specificationWithGuarantor = morabeheRules.getGuarantorCount() != null
+                ? baseSpecification.and(
+                        new LoanApplicationGuarantorCountSpecification<>(morabeheRules.getGuarantorCount()))
+                : baseSpecification;
+
+        return specificationWithGuarantor
                 .and(new LoanApplicationInstallmentCountSpecification<>(
                         morabeheRules.getInstallmentPolicy().installmentPaymentType()))
                 .and(new LoanApplicationEconomicSectorSpecification<>(morabeheLoanType.getEconomicSectors()))

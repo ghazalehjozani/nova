@@ -6,9 +6,9 @@ import java.util.Map;
 import ir.dotin.platform.domain.common.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.BaseFormulaField;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.BaseLoanFormulaContextProvider;
-import ir.dotin.loan.trade.core.domain.loanarrangement.aggregate.TradeLoanArrangement;
+import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanarrangement.vo.TradeLoanArrangementId;
-import ir.dotin.loan.trade.core.domain.loanfacility.aggregate.TradeLoanFacility;
+import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.shared.interaction.TradeLoanArrangementDataProvider;
 
 @DomainService
