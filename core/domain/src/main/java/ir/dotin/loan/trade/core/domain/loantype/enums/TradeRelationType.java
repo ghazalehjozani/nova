@@ -4,6 +4,7 @@ import ir.dotin.platform.domain.common.i18n.LocalizedEnum;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.Direction;
 
+@SuppressWarnings("CheckStyle")
 public enum TradeRelationType implements RelationType<TradeRelationType>, LocalizedEnum<TradeRelationType> {
 
     // --- Core Components ---

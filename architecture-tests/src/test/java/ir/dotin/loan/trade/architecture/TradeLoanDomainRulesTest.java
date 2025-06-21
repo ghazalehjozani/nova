@@ -32,13 +32,12 @@ public class TradeLoanDomainRulesTest {
 
     private static final String BASE_LOAN_PACKAGE = "ir.dotin.loan.baseloan.core.domain..";
 
-
     private static final String[] GUAVA_ALLOWED_PACKAGES = {
-            "com.google.common.base..",
-            "com.google.common.collect..",
-            "com.google.common.primitives..",
-            "com.google.common.math..",
-            "com.google.common.annotations.."
+        "com.google.common.base..",
+        "com.google.common.collect..",
+        "com.google.common.primitives..",
+        "com.google.common.math..",
+        "com.google.common.annotations.."
     };
 
     private static final String JSPECIFY_PACKAGE = "org.jspecify.annotations..";
@@ -85,7 +84,12 @@ public class TradeLoanDomainRulesTest {
             .onlyDependOnClassesThat()
             .resideInAnyPackage(combinePackages(
                     new String[] {
-                            DOMAIN_LAYER_PACKAGES, DOMAIN_COMMON_PACKAGE, BASE_LOAN_PACKAGE, JAVA_PACKAGE, SLF4J_PACKAGE, JSPECIFY_PACKAGE
+                        DOMAIN_LAYER_PACKAGES,
+                        DOMAIN_COMMON_PACKAGE,
+                        BASE_LOAN_PACKAGE,
+                        JAVA_PACKAGE,
+                        SLF4J_PACKAGE,
+                        JSPECIFY_PACKAGE
                     },
                     GUAVA_ALLOWED_PACKAGES))
             .as(
@@ -253,7 +257,7 @@ public class TradeLoanDomainRulesTest {
                 return input.isNestedClass()
                         && input.getModifiers().contains(JavaModifier.STATIC)
                         && (input.getSimpleName().endsWith("Builder")
-                        || input.getSimpleName().endsWith("AbstractBuilder"));
+                                || input.getSimpleName().endsWith("AbstractBuilder"));
             }
         };
     }
