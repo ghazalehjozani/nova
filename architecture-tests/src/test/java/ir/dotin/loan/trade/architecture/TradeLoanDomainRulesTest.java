@@ -15,16 +15,17 @@ import ir.dotin.platform.domain.common.i18n.LocalizedMessage;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.*;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 
+@SuppressWarnings("unused")
 @AnalyzeClasses(packages = "ir.dotin.loan.trade.core.domain", importOptions = ImportOption.DoNotIncludeTests.class)
 public class TradeLoanDomainRulesTest {
 
-    private static final String MORABEHE_LOAN_PREFIX = "ir.dotin.loan.trade.";
+    private static final String TRADE_LOAN_PREFIX = "ir.dotin.loan.trade.";
 
-    private static final String DOMAIN_LAYER_PACKAGES = MORABEHE_LOAN_PREFIX + "core.domain..";
+    private static final String DOMAIN_LAYER_PACKAGES = TRADE_LOAN_PREFIX + "core.domain..";
 
-    private static final String ADAPTERS_PACKAGE = MORABEHE_LOAN_PREFIX + "adapters..";
-    private static final String PORTS_PACKAGE = MORABEHE_LOAN_PREFIX + "port..";
-    private static final String APPLICATION_PACKAGE = MORABEHE_LOAN_PREFIX + "core.application..";
+    private static final String ADAPTERS_PACKAGE = TRADE_LOAN_PREFIX + "adapters..";
+    private static final String PORTS_PACKAGE = TRADE_LOAN_PREFIX + "port..";
+    private static final String APPLICATION_PACKAGE = TRADE_LOAN_PREFIX + "core.application..";
 
     private static final String DOMAIN_COMMON_PACKAGE = "ir.dotin.platform.domain.common..";
     private static final String BASE_LOAN_PACKAGE = "ir.dotin.loan.baseloan.core.domain..";
