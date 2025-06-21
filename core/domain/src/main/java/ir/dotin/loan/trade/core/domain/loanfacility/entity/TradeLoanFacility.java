@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 
 import java.time.Clock;
+import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
@@ -11,6 +12,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.trade.core.domain.loanarrangement.vo.TradeLoanArrangementId;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.*;
@@ -100,7 +102,7 @@ public final class TradeLoanFacility
 
     @Override
     public String getLoanFacilityType() {
-        return "MORABEHE";
+        return "TRADE";
     }
 
     @Override
@@ -134,8 +136,11 @@ public final class TradeLoanFacility
 
     @Override
     protected DomainEvent<?, ?> getFacilityContractIssuedEvent(
-            TradeLoanFacilityId id, TradeSanctionedLoanId sanctionId, Clock clock) {
-        return TradeLoanFacilityContractIssuedEvent.of(id, sanctionId, clock);
+            TradeLoanFacilityId id,
+            TradeSanctionedLoanId sanctionId,
+            List<TransactionNumber> transactionNumberList,
+            Clock clock) {
+        return TradeLoanFacilityContractIssuedEvent.of(id, sanctionId, transactionNumberList, clock);
     }
 
     @Override

@@ -14,7 +14,7 @@ public record TradeLoanFacilityActivatedEvent(
         UUID eventId, TradeLoanFacilityId aggregateId, Payload payload, Instant createdAt)
         implements TradeLoanFacilityEvent<TradeLoanFacilityActivatedEvent, TradeLoanFacilityActivatedEvent.Payload> {
 
-    public record Payload(TradeSanctionedLoanId sanctionedLoanId) { // Added sanctionedLoanId
+    public record Payload(TradeSanctionedLoanId sanctionedLoanId) {
         public Payload {
             requireNonNull(sanctionedLoanId);
         }

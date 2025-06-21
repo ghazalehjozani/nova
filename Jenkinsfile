@@ -75,9 +75,6 @@ pipeline {
                     steps {
                         catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
                             sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} -P!dev,quality-gate checkstyle:check"
-                            recordIssues(
-                                enabledForFailure: true,
-                            )
                         }
                     }
                 }
@@ -180,18 +177,6 @@ pipeline {
     post {
         always {
             cleanWs()
-        }
-        success {
-            updateBuildStatus('SUCCESS', 'Build completed successfully')
-        }
-        failure {
-            updateBuildStatus('FAILURE', 'Build failed')
-        }
-        unstable {
-            updateBuildStatus('UNSTABLE', 'Build is unstable')
-        }
-        aborted {
-            updateBuildStatus('ABORTED', 'Build was aborted')
         }
     }
 

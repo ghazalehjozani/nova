@@ -74,8 +74,8 @@ public final class TradeDisbursementRecord extends AbstractDisbursementRecord<Tr
         @Nullable
         private TradeLoanFacilityId loanFacilityId;
 
-        public Builder withLoanFacilityId(TradeLoanFacilityId loanFacilityId) {
-            this.loanFacilityId = requireNonNull(loanFacilityId);
+        public Builder withLoanFacilityId(TradeLoanFacilityId tradeLoanFacilityId) {
+            this.loanFacilityId = requireNonNull(tradeLoanFacilityId);
             return this;
         }
 

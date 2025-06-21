@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.core.domain.loanarrangement.event;
 
+import org.jspecify.annotations.NonNull;
+
 import ir.dotin.platform.domain.common.event.DomainEvent;
 import ir.dotin.loan.trade.core.domain.loanarrangement.vo.TradeLoanArrangementId;
 
@@ -10,8 +12,9 @@ public sealed interface TradeLoanArrangementEvent<T extends Record & TradeLoanAr
                 TradeLoanArrangementDeactivated,
                 NewTradeLoanArrangementVersionPrepared {
 
-    String EVENT_TYPE_PREFIX = "MORABEHE_ARRANGEMENT_";
+    String EVENT_TYPE_PREFIX = "TRADE_ARRANGEMENT_";
 
     @Override
+    @NonNull
     TradeLoanArrangementId aggregateId();
 }
