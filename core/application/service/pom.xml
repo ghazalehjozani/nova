@@ -17,6 +17,18 @@
   <packaging>jar</packaging>
 
   <dependencies>
+    <!-- Base loan domain -->
+    <dependency>
+      <groupId>ir.dotin.loan</groupId>
+      <artifactId>base-loan-core-domain</artifactId>
+    </dependency>
+
+    <!-- Trade loan domain -->
+    <dependency>
+      <groupId>ir.dotin.loan</groupId>
+      <artifactId>trade-loan-core-domain</artifactId>
+    </dependency>
+
 <!--    <dependency>
       <groupId>ir.dotin.loan</groupId>
       <artifactId>trade-loan-core-application-ports</artifactId>

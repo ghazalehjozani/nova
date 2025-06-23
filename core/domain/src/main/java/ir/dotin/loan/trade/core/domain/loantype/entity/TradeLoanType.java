@@ -138,7 +138,7 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
     }
 
     public Set<TradeLoanArrangementId> getLoanArrangementIds() {
-        return loanArrangementIds;
+        return Set.copyOf(loanArrangementIds);
     }
 
     @Override
@@ -198,7 +198,7 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
             super(featureConfig);
         }
 
-        private Builder(Builder other) {
+        public Builder(Builder other) {
             super(other);
             this.loanArrangementIds =
                     (other.loanArrangementIds != null) ? new HashSet<>(other.loanArrangementIds) : new HashSet<>();

@@ -13,12 +13,10 @@ public enum TradeLoanFacilityLocalizedMessageCodes implements LocalizedMessage<T
     LOAN_TOPIC_RESOLUTION_FAILED("Failed to resolve primary loan topic for LoanType ID {0} and EconomicSector {1}"),
     CANNOT_POST_DISBURSE_TRANSACTION("Cannot post disbursement transactions while facility is in state: {0}"),
     UNEXPECTED_ERROR("An unexpected error occurred: {0}"),
-
     INTEREST_FORMULA_MISSING("Interest calculation failed: Formula is missing in the InterestPolicy."),
     INTEREST_FORMULA_EVALUATION_FAILED("Interest calculation failed during formula evaluation"),
     INTEREST_RESULT_CONVERSION_FAILED("Interest calculation failed: Could not convert result to Money: {0}"),
     INTEREST_CALCULATION_UNEXPECTED_ERROR("Unexpected error during interest calculation: {0}"),
-
     CALCULATION_CONTEXT_LOAN_APPLICATION_MISSING_IN_FACILITY(
             "LoanApplication is missing within the provided facility."),
     CALCULATION_CONTEXT_ECONOMIC_SECTOR_MISSING("EconomicSector is missing from the LoanApplication."),
@@ -30,7 +28,6 @@ public enum TradeLoanFacilityLocalizedMessageCodes implements LocalizedMessage<T
     ARTICLE_METADATA_CREDIT_BUILD_FAILED("Failed to build ArticleMetadata for the credit entry."),
     CALCULATION_CONTEXT_COMPONENT_MISSING("Primary article component ''{0}'' missing in calculation context."),
     ARTICLE_METADATA_BUILD_FAILED("Failed to build article metadata.");
-    ;
 
     private final String messageFormat;
 

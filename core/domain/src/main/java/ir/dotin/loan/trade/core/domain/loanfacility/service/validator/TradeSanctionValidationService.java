@@ -17,10 +17,10 @@ public final class TradeSanctionValidationService
     public Result<Boolean> validateSanction(
             TradeLoanFacility loanFacility, TradeLoanArrangement loanArrangement, Sanction sanction) {
 
-        return new SanctionAmountSpecification<>(loanFacility)
-                .and(new SanctionDurationSpecification<>(loanFacility))
-                .and(new SanctionGracePeriodSpecification<>(loanArrangement))
-                .and(new SanctionPreferentialRateSpecification<>(loanArrangement))
+        return new SanctionAmountSpecification(loanFacility)
+                .and(new SanctionDurationSpecification(loanFacility))
+                .and(new SanctionGracePeriodSpecification(loanArrangement))
+                .and(new SanctionPreferentialRateSpecification(loanArrangement))
                 .isSatisfiedBy(sanction);
     }
 
@@ -28,8 +28,8 @@ public final class TradeSanctionValidationService
     public Result<Boolean> validateSanctionCollateral(
             TradeLoanArrangement loanArrangement, Collateral collateral, Sanction sanction) {
 
-        return new SanctionCollateralTypeSpecification<>(loanArrangement)
-                .and(new SanctionCollateralPercentSpecification<>(loanArrangement))
+        return new SanctionCollateralTypeSpecification(loanArrangement)
+                .and(new SanctionCollateralPercentSpecification(loanArrangement))
                 .and(new SanctionCollateralExistSpecification(collateral.collateralSerial()))
                 .isSatisfiedBy(sanction);
     }

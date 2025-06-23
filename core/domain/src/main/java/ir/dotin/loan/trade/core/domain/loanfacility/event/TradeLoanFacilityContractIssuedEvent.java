@@ -2,8 +2,10 @@ package ir.dotin.loan.trade.core.domain.loanfacility.event;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
+import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
 import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
 import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeSanctionedLoanId;
 
@@ -15,9 +17,10 @@ public record TradeLoanFacilityContractIssuedEvent(
         implements TradeLoanFacilityEvent<
                 TradeLoanFacilityContractIssuedEvent, TradeLoanFacilityContractIssuedEvent.Payload> {
 
-    public record Payload(TradeSanctionedLoanId sanctionedLoanId) {
+    public record Payload(TradeSanctionedLoanId sanctionedLoanId, List<TransactionNumber> transactionNumbers) {
         public Payload {
             requireNonNull(sanctionedLoanId);
+            requireNonNull(transactionNumbers);
         }
     }
 
@@ -29,8 +32,12 @@ public record TradeLoanFacilityContractIssuedEvent(
     }
 
     public static TradeLoanFacilityContractIssuedEvent of(
-            TradeLoanFacilityId id, TradeSanctionedLoanId sanId, Clock clock) {
-        return new TradeLoanFacilityContractIssuedEvent(randomUUID(), id, new Payload(sanId), clock.instant());
+            TradeLoanFacilityId id,
+            TradeSanctionedLoanId sanId,
+            List<TransactionNumber> transactionNumbers,
+            Clock clock) {
+        return new TradeLoanFacilityContractIssuedEvent(
+                randomUUID(), id, new Payload(sanId, transactionNumbers), clock.instant());
     }
 
     @Override

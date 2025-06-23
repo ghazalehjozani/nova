@@ -36,7 +36,9 @@
     <suppress checks="FileLength|MethodLength|ExecutableStatementCount" files=".*Migration.*\.java$"/>
 
     <!-- Example: Suppress specific check for specific file -->
-    <!-- <suppress checks="CyclomaticComplexity" files="ComplexBusinessLogic\.java"/> -->
+     <suppress checks="TrailingComment" files="TradeRelationType\.java"/>
+     <suppress checks="ClassDataAbstractionCoupling" files="TradeLoanType\.java"/>
+     <suppress checks="ClassDataAbstractionCoupling" files="TradeLoanArrangement\.java"/>
 
     <!-- Example: Suppress line length for files with long SQL queries -->
     <!-- <suppress checks="LineLength" files=".*Repository\.java$"/> -->

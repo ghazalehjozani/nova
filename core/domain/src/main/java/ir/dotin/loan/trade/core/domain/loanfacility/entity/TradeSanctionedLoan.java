@@ -8,23 +8,24 @@ import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeSanctionedLoanId;
 import static java.util.Objects.requireNonNull;
 
 public final class TradeSanctionedLoan
-        extends AbstractSanctionedLoan<TradeSanctionedLoanId, TradeSanctionedLoan.Builder> {
+        extends AbstractSanctionedLoan<TradeSanctionedLoanId, TradeSanctionedLoan.TradeSanctionedLoanBuilder> {
 
-    private TradeSanctionedLoan(Builder builder) {
+    private TradeSanctionedLoan(TradeSanctionedLoanBuilder builder) {
         super(builder);
     }
 
-    public static Builder newBuilder() {
-        return new Builder();
+    public static TradeSanctionedLoanBuilder newBuilder() {
+        return new TradeSanctionedLoanBuilder();
     }
 
-    static Result<TradeSanctionedLoan> reconstitute(Builder builder) {
+    static Result<TradeSanctionedLoan> reconstitute(TradeSanctionedLoanBuilder builder) {
         requireNonNull(builder, "Builder cannot be null for reconstitution.");
         return builder.build();
     }
 
-    public static final class Builder
-            extends AbstractSanctionedLoan.AbstractBuilder<TradeSanctionedLoanId, TradeSanctionedLoan, Builder> {
+    public static final class TradeSanctionedLoanBuilder
+            extends AbstractSanctionedLoanBuilder<
+                    TradeSanctionedLoanId, TradeSanctionedLoan, TradeSanctionedLoanBuilder> {
 
         @Override
         protected TradeSanctionedLoan buildInternal() {

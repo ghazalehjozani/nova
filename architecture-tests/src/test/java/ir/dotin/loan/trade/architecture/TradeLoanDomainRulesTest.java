@@ -7,15 +7,16 @@ import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
-import com.tngtech.archunit.lang.conditions.ArchConditions;
 
 import ir.dotin.platform.domain.common.entity.BaseEntity;
+import ir.dotin.platform.domain.common.entity.Builder;
 import ir.dotin.platform.domain.common.i18n.LocalizedMessage;
 
 import static com.tngtech.archunit.lang.conditions.ArchConditions.*;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 
 @AnalyzeClasses(packages = "ir.dotin.loan.trade.core.domain", importOptions = ImportOption.DoNotIncludeTests.class)
+@SuppressWarnings("ConstantNaming")
 public class TradeLoanDomainRulesTest {
 
     private static final String MORABEHE_LOAN_PREFIX = "ir.dotin.loan.trade.";
@@ -133,18 +134,23 @@ public class TradeLoanDomainRulesTest {
             .as("Classes in '..i18n..' should be Enums implementing LocalizedMessage");
 
     @ArchTest
-    public static final ArchRule aggregate_related_classes_should_extend_base_types = classes()
+    public static final ArchRule entity_related_classes_should_extend_base_types = classes()
             .that()
             .resideInAPackage(DOMAIN_AGGREGATE_PACKAGES)
             .and()
             .areTopLevelClasses()
             .should()
-            .beAssignableFrom(BaseEntity.class)
-            .andShould(ArchConditions.notBeEnums())
-            .andShould(ArchConditions.notBeRecords())
-            .andShould(ArchConditions.notBeInterfaces())
-            .andShould(ArchConditions.beFinal())
-            .as("Classes in '..aggregate..' packages should extend BaseEntity or AggregateRoot");
+            .beAssignableTo(BaseEntity.class)
+            .orShould()
+            .beAssignableTo(Builder.class)
+            .orShould()
+            .beInterfaces()
+            .orShould()
+            .haveSimpleNameEndingWith("Factory")
+            .andShould(notBeEnums())
+            .andShould(notBeRecords())
+            .andShould(notBeFinal())
+            .as("Classes in '..entity..' packages not valid!");
 
     @ArchTest
     public static final ArchRule nested_classes_in_aggregates_should_be_static_builders_or_allowed = classes()

@@ -20,18 +20,18 @@ public final class TradeLoanApplication
         return new Builder();
     }
 
-    static Result<TradeLoanApplication> create(Builder builder) {
-        requireNonNull(builder, "Builder cannot be null for create.");
+    public static Result<TradeLoanApplication> create(Builder builder) {
+        requireNonNull(builder, "Builder cannot be null for create");
         return builder.withId(TradeLoanApplicationId.generate()).build();
     }
 
-    static Result<TradeLoanApplication> reconstitute(Builder builder) {
-        requireNonNull(builder, "Builder cannot be null for reconstitution.");
+    public static Result<TradeLoanApplication> reconstitute(Builder builder) {
+        requireNonNull(builder, "Builder cannot be null for reconstitution");
         return builder.build();
     }
 
     public static final class Builder
-            extends AbstractLoanApplication.AbstractBuilder<TradeLoanApplicationId, TradeLoanApplication, Builder> {
+            extends AbstractLoanApplicationBuilder<TradeLoanApplicationId, TradeLoanApplication, Builder> {
 
         @Override
         protected TradeLoanApplication buildInternal() {

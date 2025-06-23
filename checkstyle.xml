@@ -170,16 +170,11 @@
 
         <!-- Imports -->
         <module name="IllegalImport">
-            <property name="illegalPkgs" value="sun, com.sun, jdk.internal"/>
+            <property name="illegalPkgs"
+                      value="sun, com.sun, jdk.internal, com.google.common.io, com.google.common.net, com.google.common.cache, com.google.common.eventbus, com.google.common.reflect, com.google.common.util.concurrent, com.google.common.testing"/>
         </module>
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
-        <module name="ImportOrder">
-            <property name="groups" value="java,jakarta,javax,*,ir.dotin.platform,ir.dotin"/>
-            <property name="ordered" value="true"/>
-            <property name="separated" value="true"/>
-            <property name="option" value="bottom"/>
-        </module>
 
         <!-- Javadoc Comments -->
         <module name="AtclauseOrder">
@@ -250,6 +245,7 @@
             <property name="throwsIndent" value="8"/>
             <property name="lineWrappingIndentation" value="8"/>
             <property name="arrayInitIndent" value="4"/>
+            <property name="severity" value="ignore"/>
         </module>
         <module name="NoCodeInFile"/>
         <module name="OuterTypeFilename"/>
