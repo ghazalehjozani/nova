@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.core.domain.loantype.event;
 
+import org.jspecify.annotations.NonNull;
+
 import ir.dotin.platform.domain.common.event.DomainEvent;
 import ir.dotin.loan.trade.core.domain.loantype.vo.TradeLoanTypeId;
 
@@ -9,8 +11,9 @@ public sealed interface TradeLoanTypeEvent<T extends Record & TradeLoanTypeEvent
                 TradeLoanTypeDeactivated,
                 NewTradeLoanTypeVersionPrepared {
 
-    String EVENT_TYPE_PREFIX = "MORABEHE_LOAN_TYPE_";
+    String EVENT_TYPE_PREFIX = "TRADE_LOAN_TYPE_";
 
     @Override
+    @NonNull
     TradeLoanTypeId aggregateId();
 }

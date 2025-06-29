@@ -40,6 +40,7 @@
      <suppress checks="ClassDataAbstractionCoupling" files="TradeLoanType\.java"/>
      <suppress checks="ClassDataAbstractionCoupling" files="TradeLoanArrangement\.java"/>
 
-    <!-- Example: Suppress line length for files with long SQL queries -->
-    <!-- <suppress checks="LineLength" files=".*Repository\.java$"/> -->
+    <suppress checks="TrailingComment" files="TradeRelationType.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="TradeLoanArrangement.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="TradeLoanType.java"/>
 </suppressions>

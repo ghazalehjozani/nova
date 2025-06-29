@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.core.domain.loanfacility.i18n;
 
+import org.jspecify.annotations.NonNull;
+
 import ir.dotin.platform.domain.common.i18n.LocalizedMessage;
 
 public enum TradeLoanFacilityLocalizedMessageCodes implements LocalizedMessage<TradeLoanFacilityLocalizedMessageCodes> {
@@ -36,6 +38,7 @@ public enum TradeLoanFacilityLocalizedMessageCodes implements LocalizedMessage<T
     }
 
     @Override
+    @NonNull
     public String getDefaultMessageFormat() {
         return messageFormat;
     }
