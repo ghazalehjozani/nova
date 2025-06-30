@@ -4,7 +4,6 @@ import java.time.Clock;
 
 import org.jspecify.annotations.Nullable;
 
-import ir.dotin.platform.domain.common.Result;
 import ir.dotin.platform.domain.common.entity.Identity;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractLoanFacility;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.LoanFacilityEventFactory;
@@ -33,11 +32,11 @@ public final class TradeLoanFacility
         super(id, application, sanctionedLoan, status, loanArrangementId);
         this.tradeLoanTypeId = requireNonNull(loanTypeId, "tradeLoanTypeId cannot be null");
         this.tradeLoanArrangementId = requireNonNull(loanArrangementId, "tradeLoanArrangementId cannot be null");
-        validateInternalState().orElseThrow();
     }
 
-    private Result<Void> validateInternalState() {
-        return Result.success();
+    @Override
+    protected void validateInternalState() {
+        super.validateInternalState();
     }
 
     public static TradeLoanFacility create(
