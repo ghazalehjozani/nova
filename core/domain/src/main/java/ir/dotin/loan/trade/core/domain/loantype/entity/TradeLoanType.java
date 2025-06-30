@@ -1,7 +1,9 @@
 package ir.dotin.loan.trade.core.domain.loantype.entity;
 
 import java.time.Clock;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -33,7 +35,6 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
     private TradeLoanType(Builder builder) {
         super(builder);
         this.loanArrangementIds = requireNonNullElse(builder.loanArrangementIds, ImmutableSet.of());
-        validateMorabeheState();
     }
 
     public static Builder newBuilder(FeatureConfig featureConfig) {
@@ -138,7 +139,7 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
     }
 
     public Set<TradeLoanArrangementId> getLoanArrangementIds() {
-        return loanArrangementIds;
+        return Set.copyOf(loanArrangementIds);
     }
 
     @Override
@@ -166,19 +167,22 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
         }
     }
 
-    private void validateMorabeheState() {
-        Notification notification = validateMorabeheLoanArrangementIds(this.loanArrangementIds);
-        checkState(
-                !notification.hasErrors(),
-                "Internal MorabeheLoanType state validation failed: %s",
-                notification.getErrorMessages());
+    @Override
+    protected Result<Void> validateInternalState() {
+        Result<Void> result = super.validateInternalState();
+        Notification notification = validateTradeLoanArrangementIds(this.loanArrangementIds);
+        if (notification.hasErrors() || result.isFailure()) {
+            result.ifFailure(notification::merge);
+            return Result.failure(notification);
+        }
+        return result;
     }
 
     private Notification validateMorabeheNewVersionData(Builder builder) {
-        return validateMorabeheLoanArrangementIds(builder.loanArrangementIds);
+        return validateTradeLoanArrangementIds(builder.loanArrangementIds);
     }
 
-    private static Notification validateMorabeheLoanArrangementIds(Set<TradeLoanArrangementId> arrangementIds) {
+    private static Notification validateTradeLoanArrangementIds(Set<TradeLoanArrangementId> arrangementIds) {
         Notification notification = Notification.create();
         if (arrangementIds == null || arrangementIds.isEmpty()) {
             notification = notification.addError(LoanTypeLocalizedMessageCodes.LOAN_RULE_IDS_EMPTY);
@@ -198,7 +202,7 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
             super(featureConfig);
         }
 
-        private Builder(Builder other) {
+        public Builder(Builder other) {
             super(other);
             this.loanArrangementIds =
                     (other.loanArrangementIds != null) ? new HashSet<>(other.loanArrangementIds) : new HashSet<>();
@@ -237,7 +241,7 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
         @Override
         public Notification validate() {
             Notification notification = super.validate();
-            notification.merge(validateMorabeheLoanArrangementIds(this.loanArrangementIds));
+            notification.merge(validateTradeLoanArrangementIds(this.loanArrangementIds));
             return notification;
         }
     }

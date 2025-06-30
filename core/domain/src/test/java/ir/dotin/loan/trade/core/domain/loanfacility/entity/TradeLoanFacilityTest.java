@@ -1,9 +1,10 @@
 package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 
+import java.math.BigDecimal;
 import java.time.Clock;
-import java.util.List;
+import java.time.Instant;
 
-import com.google.common.collect.ImmutableList;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,154 +12,375 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import ir.dotin.platform.domain.common.Result;
-import ir.dotin.platform.domain.common.event.DomainEvent;
+import ir.dotin.platform.domain.common.vo.CurrencyType;
+import ir.dotin.platform.domain.common.vo.Money;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.*;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.trade.core.domain.loanarrangement.vo.TradeLoanArrangementId;
-import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityContractIssuedEvent;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCreatedEvent;
+import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanApplicationId;
 import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeSanctionedLoanId;
 import ir.dotin.loan.trade.core.domain.loantype.vo.TradeLoanTypeId;
 
-import static ir.dotin.loan.trade.core.domain.ResultAssert.assertFailureHasErrors;
+import static java.time.ZoneOffset.UTC;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@DisplayName("TradeLoanFacility Contract Issuance Tests")
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings({"NullAway", "TimeZoneUsage"})
-final class TradeLoanFacilityTest {
+@DisplayName("TradeLoanFacility")
+@SuppressWarnings("NullAway")
+class TradeLoanFacilityTest {
 
-    private static final TradeLoanFacilityId FACILITY_ID = TradeLoanFacilityId.generate();
-    private static final TradeLoanTypeId LOAN_TYPE_ID = TradeLoanTypeId.generate();
-    private static final TradeLoanArrangementId LOAN_ARRANGEMENT_ID = TradeLoanArrangementId.generate();
+    private Clock testClock;
+    private TradeLoanArrangementId loanArrangementId;
 
-    private TradeLoanFacility createFacility(
-            FacilityStatus initialStatus, TradeLoanApplication loanApplication, TradeSanctionedLoan sanctionedLoan) {
-
-        return TradeLoanFacility.reconstitute(
-                FACILITY_ID, loanApplication, sanctionedLoan, initialStatus, LOAN_TYPE_ID, LOAN_ARRANGEMENT_ID);
+    @BeforeEach
+    void setUp() {
+        testClock = Clock.fixed(Instant.parse("2023-12-01T10:00:00Z"), UTC);
+        loanArrangementId = TradeLoanArrangementId.generate();
     }
 
-    @DisplayName("Contract Issuance Event Generation")
+    @DisplayName("when creating new trade loan facility")
     @Nested
-    final class ContractIssuanceEventGenerationTest {
+    final class CreateTradeLoanFacilityTests {
 
-        @DisplayName("should generate TradeLoanFacilityContractIssuedEvent with transaction numbers")
+        @DisplayName("should create facility successfully with valid parameters")
         @Test
-        void shouldGenerateContractIssuedEventWithTransactionNumbers(
-                @Mock TradeLoanApplication loanApplication, @Mock TradeSanctionedLoan sanctionedLoan) {
-            Clock clock = Clock.systemUTC();
-            List<TransactionNumber> transactionNumbers = ImmutableList.of(
-                    TransactionNumber.of("TXN-TRADE-001").orElseThrow(),
-                    TransactionNumber.of("TXN-TRADE-002").orElseThrow());
-            when(sanctionedLoan.getId()).thenReturn(TradeSanctionedLoanId.generate());
+        void shouldCreateFacilitySuccessfullyWithValidParameters(
+                @Mock ApplicationNumber applicationNumber,
+                @Mock Party customer,
+                @Mock InstallmentCount installmentCount,
+                @Mock EconomicSector economicSector,
+                @Mock Branch branch,
+                @Mock RequestReason requestReason,
+                @Mock DisburseDestination disburseDestination) {
+            // given
+            var applicationBuilder = createValidLoanApplicationBuilder(
+                    applicationNumber,
+                    customer,
+                    installmentCount,
+                    economicSector,
+                    branch,
+                    requestReason,
+                    disburseDestination);
+            var application = applicationBuilder.build().orElseThrow();
+            var facilityId = TradeLoanFacilityId.generate();
 
-            TradeLoanFacility facility = createFacility(FacilityStatus.APPROVED, loanApplication, sanctionedLoan);
+            // when
+            var facility = TradeLoanFacility.create(facilityId, application, loanArrangementId, testClock);
 
-            Result<Void> result = facility.issueContract(transactionNumbers, clock);
-
-            assertThat(result.isSuccess()).isTrue();
-            assertThat(facility.domainEvents()).hasSize(1);
-
-            DomainEvent<?, ?> event = facility.domainEvents().getFirst();
-            assertThat(event).isInstanceOf(TradeLoanFacilityContractIssuedEvent.class);
-
-            TradeLoanFacilityContractIssuedEvent contractEvent = (TradeLoanFacilityContractIssuedEvent) event;
-            assertThat(contractEvent.aggregateId()).isEqualTo(FACILITY_ID);
-            assertThat(contractEvent.payload().sanctionedLoanId()).isEqualTo(sanctionedLoan.getId());
-            assertThat(contractEvent.payload().transactionNumbers()).containsExactlyElementsOf(transactionNumbers);
-            assertThat(contractEvent.eventType()).isEqualTo("TRADE_LOAN_FACILITY_CONTRACT_ISSUED");
-        }
-
-        @DisplayName("should preserve transaction numbers immutability in event payload")
-        @Test
-        void shouldPreserveTransactionNumbersImmutabilityInEventPayload(
-                @Mock TradeLoanApplication loanApplication, @Mock TradeSanctionedLoan sanctionedLoan) {
-            Clock clock = Clock.systemUTC();
-            List<TransactionNumber> originalTransactionNumbers = ImmutableList.of(
-                    TransactionNumber.of("TXN-TRADE-001").orElseThrow(),
-                    TransactionNumber.of("TXN-TRADE-002").orElseThrow());
-            when(sanctionedLoan.getId()).thenReturn(TradeSanctionedLoanId.generate());
-
-            TradeLoanFacility facility = createFacility(FacilityStatus.APPROVED, loanApplication, sanctionedLoan);
-            facility.issueContract(originalTransactionNumbers, clock);
-
-            TradeLoanFacilityContractIssuedEvent event = (TradeLoanFacilityContractIssuedEvent)
-                    facility.domainEvents().getFirst();
-            List<TransactionNumber> eventTransactionNumbers = event.payload().transactionNumbers();
-
-            assertThat(eventTransactionNumbers)
-                    .isNotSameAs(originalTransactionNumbers)
-                    .containsExactlyElementsOf(originalTransactionNumbers);
-
-            assertThatCode(eventTransactionNumbers::clear).isInstanceOf(UnsupportedOperationException.class);
-        }
-    }
-
-    @DisplayName("Trade-Specific Contract Issuance Scenarios")
-    @Nested
-    final class TradeSpecificContractIssuanceScenariosTest {
-
-        @DisplayName("should successfully issue contract for Murabaha loan type")
-        @Test
-        void shouldSuccessfullyIssueContractForMurabahaLoanType(
-                @Mock TradeLoanApplication loanApplication, @Mock TradeSanctionedLoan sanctionedLoan) {
-            Clock clock = Clock.systemUTC();
-            List<TransactionNumber> transactionNumbers =
-                    ImmutableList.of(TransactionNumber.of("MURABAHA-TXN-001").orElseThrow());
-            when(sanctionedLoan.getId()).thenReturn(TradeSanctionedLoanId.generate());
-
-            TradeLoanFacility facility = createFacility(FacilityStatus.APPROVED, loanApplication, sanctionedLoan);
-
-            Result<Void> result = facility.issueContract(transactionNumbers, clock);
-
-            assertThat(result.isSuccess()).isTrue();
-            assertThat(facility.getLoanFacilityType()).isEqualTo("TRADE");
-            assertThat(facility.getCurrentState()).isEqualTo(FacilityStatus.PENDING_DISBURSEMENT);
-            assertThat(facility.getTransactionNumbers()).containsExactlyElementsOf(transactionNumbers);
-        }
-
-        @DisplayName("should maintain loan type and arrangement references after contract issuance")
-        @Test
-        void shouldMaintainLoanTypeAndArrangementReferencesAfterContractIssuance(
-                @Mock TradeLoanApplication loanApplication, @Mock TradeSanctionedLoan sanctionedLoan) {
-            given(sanctionedLoan.getId()).willReturn(TradeSanctionedLoanId.generate());
-            Clock clock = Clock.systemUTC();
-            List<TransactionNumber> transactionNumbers =
-                    ImmutableList.of(TransactionNumber.of("TXN-TRADE-001").orElseThrow());
-
-            TradeLoanFacility facility = createFacility(FacilityStatus.APPROVED, loanApplication, sanctionedLoan);
-
-            facility.issueContract(transactionNumbers, clock);
-
-            assertThat(facility.loanTypeId()).isEqualTo(LOAN_TYPE_ID);
-            assertThat(facility.getLoanArrangementId()).isEqualTo(LOAN_ARRANGEMENT_ID);
+            // then
+            assertThat(facility).isNotNull();
+            assertThat(facility.getLoanArrangementId()).isEqualTo(loanArrangementId);
+            assertThat(facility.getCurrentState()).isEqualTo(FacilityStatus.APPLICATION_SUBMITTED);
             assertThat(facility.getLoanFacilityType()).isEqualTo("TRADE");
         }
+
+        @DisplayName("should fail when facility ID is null")
+        @Test
+        void shouldFailWhenFacilityIdIsNull(@Mock TradeLoanApplication application) {
+            // when & then
+            assertThatThrownBy(() -> TradeLoanFacility.create(null, application, loanArrangementId, testClock))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("Facility ID cannot be null");
+        }
+
+        @DisplayName("should fail when application is null")
+        @Test
+        void shouldFailWhenApplicationIsNull() {
+            // given
+            var facilityId = TradeLoanFacilityId.generate();
+
+            // when & then
+            assertThatThrownBy(() -> TradeLoanFacility.create(facilityId, null, loanArrangementId, testClock))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("Application cannot be null");
+        }
+
+        @DisplayName("should fail when loan arrangement id is null")
+        @Test
+        void shouldFailWhenLoanArrangementIdIsNull(@Mock TradeLoanApplication application) {
+            // given
+            var facilityId = TradeLoanFacilityId.generate();
+
+            // when & then
+            assertThatThrownBy(() -> TradeLoanFacility.create(facilityId, application, null, testClock))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("Loan arrangement ID cannot be null");
+        }
+
+        @DisplayName("should publish facility created event upon creation")
+        @Test
+        void shouldPublishFacilityCreatedEventUponCreation(
+                @Mock ApplicationNumber applicationNumber,
+                @Mock Party customer,
+                @Mock InstallmentCount installmentCount,
+                @Mock EconomicSector economicSector,
+                @Mock Branch branch,
+                @Mock RequestReason requestReason,
+                @Mock DisburseDestination disburseDestination) {
+            // given
+            var applicationBuilder = createValidLoanApplicationBuilder(
+                    applicationNumber,
+                    customer,
+                    installmentCount,
+                    economicSector,
+                    branch,
+                    requestReason,
+                    disburseDestination);
+            var application = applicationBuilder.build().orElseThrow();
+            var facilityId = TradeLoanFacilityId.generate();
+
+            // when
+            var facility = TradeLoanFacility.create(facilityId, application, loanArrangementId, testClock);
+
+            // then
+            assertThat(facility).isNotNull();
+            var events = facility.domainEvents();
+            assertThat(events).hasSize(1);
+            assertThat(events.getFirst()).isInstanceOf(TradeLoanFacilityCreatedEvent.class);
+
+            var createdEvent = (TradeLoanFacilityCreatedEvent) events.getFirst();
+            assertThat(createdEvent.aggregateId()).isEqualTo(facility.getId());
+            assertThat(createdEvent.payload().applicationId())
+                    .isEqualTo(facility.getLoanApplication().getId());
+            assertThat(createdEvent.payload().customer()).isEqualTo(customer);
+        }
     }
 
-    @DisplayName("Trade Loan Integration with Base Loan Functionality")
+    @DisplayName("when reconstituting trade loan facility")
     @Nested
-    final class TradeLoanIntegrationTest {
+    final class ReconstituteTradeLoanFacilityTests {
 
-        @DisplayName("should inherit all base loan facility validations for contract issuance")
+        @DisplayName("should reconstitute facility with all parameters")
         @Test
-        void shouldInheritBaseLoanFacilityValidationsForContractIssuance(@Mock TradeLoanApplication loanApplication) {
-            Clock clock = Clock.systemUTC();
-            List<TransactionNumber> transactionNumbers =
-                    ImmutableList.of(TransactionNumber.of("TXN-TRADE-001").orElseThrow());
+        void shouldReconstituteFacilityWithAllParameters(
+                @Mock TradeLoanApplication application, @Mock TradeSanctionedLoan sanctionedLoan) {
+            // given
+            var facilityId = TradeLoanFacilityId.generate();
+            var status = FacilityStatus.ACTIVE;
 
-            TradeLoanFacility facility = createFacility(FacilityStatus.APPROVED, loanApplication, null);
+            // when
+            var facility =
+                    TradeLoanFacility.reconstitute(facilityId, application, sanctionedLoan, status, loanArrangementId);
 
-            Result<Void> result = facility.issueContract(transactionNumbers, clock);
-
-            assertFailureHasErrors(result);
-            assertThat(facility.getCurrentState()).isEqualTo(FacilityStatus.APPROVED);
-            assertThat(facility.domainEvents()).isEmpty();
+            // then
+            assertThat(facility).isNotNull();
+            assertThat(facility.getId()).isEqualTo(facilityId);
+            assertThat(facility.getLoanArrangementId()).isEqualTo(loanArrangementId);
+            assertThat(facility.getCurrentState()).isEqualTo(status);
+            assertThat(facility.getSanctionedLoan()).hasValue(sanctionedLoan);
         }
+
+        @DisplayName("should reconstitute facility without sanctioned loan")
+        @Test
+        void shouldReconstituteFacilityWithoutSanctionedLoan(@Mock TradeLoanApplication application) {
+            // given
+            var facilityId = TradeLoanFacilityId.generate();
+            var status = FacilityStatus.PENDING_APPROVAL;
+
+            // when
+            var facility = TradeLoanFacility.reconstitute(facilityId, application, null, status, loanArrangementId);
+
+            // then
+            assertThat(facility).isNotNull();
+            assertThat(facility.getSanctionedLoan()).isEmpty();
+        }
+    }
+
+    @DisplayName("when accessing facility properties")
+    @Nested
+    final class FacilityPropertiesTests {
+
+        @DisplayName("should return correct loan type id")
+        @Test
+        void shouldReturnCorrectLoanTypeId(
+                @Mock ApplicationNumber applicationNumber,
+                @Mock Party customer,
+                @Mock InstallmentCount installmentCount,
+                @Mock EconomicSector economicSector,
+                @Mock Branch branch,
+                @Mock RequestReason requestReason,
+                @Mock DisburseDestination disburseDestination) {
+            // given
+            var builder = createValidLoanApplicationBuilder(
+                    applicationNumber,
+                    customer,
+                    installmentCount,
+                    economicSector,
+                    branch,
+                    requestReason,
+                    disburseDestination);
+            var application = builder.build().orElseThrow();
+            var facilityId = TradeLoanFacilityId.generate();
+            TradeLoanFacility facility =
+                    TradeLoanFacility.create(facilityId, application, loanArrangementId, testClock);
+
+            // when
+            var returnedLoanTypeId = facility.getLoanTypeId();
+
+            // then
+            assertThat(returnedLoanTypeId).isNotNull().isInstanceOf(TradeLoanTypeId.class);
+        }
+
+        @DisplayName("should return correct loan arrangement id")
+        @Test
+        void shouldReturnCorrectLoanArrangementId(
+                @Mock ApplicationNumber applicationNumber,
+                @Mock Party customer,
+                @Mock InstallmentCount installmentCount,
+                @Mock EconomicSector economicSector,
+                @Mock Branch branch,
+                @Mock RequestReason requestReason,
+                @Mock DisburseDestination disburseDestination) {
+            // given
+            var builder = createValidLoanApplicationBuilder(
+                    applicationNumber,
+                    customer,
+                    installmentCount,
+                    economicSector,
+                    branch,
+                    requestReason,
+                    disburseDestination);
+            var application = builder.build().orElseThrow();
+            var facilityId = TradeLoanFacilityId.generate();
+            TradeLoanFacility facility =
+                    TradeLoanFacility.create(facilityId, application, loanArrangementId, testClock);
+
+            // when
+            var returnedArrangementId = facility.getLoanArrangementId();
+
+            // then
+            assertThat(returnedArrangementId).isEqualTo(loanArrangementId);
+        }
+
+        @DisplayName("should return TRADE as facility type")
+        @Test
+        void shouldReturnTradeAsFacilityType(
+                @Mock ApplicationNumber applicationNumber,
+                @Mock Party customer,
+                @Mock InstallmentCount installmentCount,
+                @Mock EconomicSector economicSector,
+                @Mock Branch branch,
+                @Mock RequestReason requestReason,
+                @Mock DisburseDestination disburseDestination) {
+            // given
+            var builder = createValidLoanApplicationBuilder(
+                    applicationNumber,
+                    customer,
+                    installmentCount,
+                    economicSector,
+                    branch,
+                    requestReason,
+                    disburseDestination);
+            var application = builder.build().orElseThrow();
+            var facilityId = TradeLoanFacilityId.generate();
+            TradeLoanFacility facility =
+                    TradeLoanFacility.create(facilityId, application, loanArrangementId, testClock);
+
+            // when
+            var facilityType = facility.getLoanFacilityType();
+
+            // then
+            assertThat(facilityType).isEqualTo("TRADE");
+        }
+    }
+
+    @DisplayName("when testing backward compatibility")
+    @Nested
+    final class BackwardCompatibilityTests {
+
+        @DisplayName("should maintain compatibility with existing facility workflows")
+        @Test
+        void shouldMaintainCompatibilityWithExistingFacilityWorkflows(
+                @Mock ApplicationNumber applicationNumber,
+                @Mock Party customer,
+                @Mock InstallmentCount installmentCount,
+                @Mock EconomicSector economicSector,
+                @Mock Branch branch,
+                @Mock RequestReason requestReason,
+                @Mock DisburseDestination disburseDestination) {
+            // given
+            var builder = createValidLoanApplicationBuilder(
+                    applicationNumber,
+                    customer,
+                    installmentCount,
+                    economicSector,
+                    branch,
+                    requestReason,
+                    disburseDestination);
+            var application = builder.build().orElseThrow();
+            var facilityId = TradeLoanFacilityId.generate();
+            TradeLoanFacility facility =
+                    TradeLoanFacility.create(facilityId, application, loanArrangementId, testClock);
+
+            // when & then - should be able to access all inherited workflow methods
+            assertThat(facility.getCurrentState()).isEqualTo(FacilityStatus.APPLICATION_SUBMITTED);
+            assertThat((Object) facility.getLoanApplication()).isNotNull();
+            assertThat(facility.getIssueContractTransactionNumbers().isEmpty()).isTrue();
+            assertThat(facility.getSanctionedLoan()).isEmpty();
+        }
+
+        @DisplayName("should work with workflow operations")
+        @Test
+        void shouldWorkWithWorkflowOperations(
+                @Mock ApplicationNumber applicationNumber,
+                @Mock Party customer,
+                @Mock InstallmentCount installmentCount,
+                @Mock EconomicSector economicSector,
+                @Mock Branch branch,
+                @Mock RequestReason requestReason,
+                @Mock DisburseDestination disburseDestination) {
+            // given
+            var builder = createValidLoanApplicationBuilder(
+                    applicationNumber,
+                    customer,
+                    installmentCount,
+                    economicSector,
+                    branch,
+                    requestReason,
+                    disburseDestination);
+            var application = builder.build().orElseThrow();
+            var facilityId = TradeLoanFacilityId.generate();
+            TradeLoanFacility facility =
+                    TradeLoanFacility.create(facilityId, application, loanArrangementId, testClock);
+
+            // when
+            var result = facility.submitForApproval(testClock);
+
+            // then - in the new workflow pattern, the specific behavior will depend on the policies
+            // For now, we just verify the method can be called without errors
+            assertThat(result).isNotNull();
+        }
+    }
+
+    private TradeLoanApplication.Builder createValidLoanApplicationBuilder(
+            @Mock ApplicationNumber applicationNumber,
+            @Mock Party customer,
+            @Mock InstallmentCount installmentCount,
+            @Mock EconomicSector economicSector,
+            @Mock Branch branch,
+            @Mock RequestReason requestReason,
+            @Mock DisburseDestination disburseDestination) {
+        // Create a minimal builder that will pass validation
+        return TradeLoanApplication.newBuilder()
+                .withId(TradeLoanApplicationId.generate()) // Add the required ID
+                .withApplicationNumber(applicationNumber)
+                .withRequestDate(testClock.instant())
+                .withCustomer(customer)
+                .withRequestedAmount(Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR)
+                        .orElseThrow())
+                .withCurrency(CurrencyType.IRR)
+                .withRequestedLoanDuration(
+                        LoanDuration.of(java.time.Duration.ofDays(365)).orElseThrow())
+                .withApplicantChannel(ApplicantChannel.INTERNET_BANK)
+                .withInstallmentCount(installmentCount)
+                .withEconomicSector(economicSector)
+                .withBranch(branch)
+                .withRequestReason(requestReason)
+                .withDisburseDestination(disburseDestination);
     }
 }

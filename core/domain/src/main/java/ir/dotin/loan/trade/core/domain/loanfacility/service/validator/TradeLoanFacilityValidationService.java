@@ -16,23 +16,23 @@ public final class TradeLoanFacilityValidationService
     public Result<Boolean> validateForCreation(
             TradeLoanFacility candidateFacility, TradeLoanArrangement morabeheRules, TradeLoanType morabeheLoanType) {
 
-        var baseSpecification = new LoanApplicationAmountSpecification<>(morabeheRules.getAmountRange())
-                .and(new LoanApplicationDurationSpecification<>(morabeheRules.getDurationRange()))
-                .and(new LoanApplicationGracePeriodSpecification<>(
+        var baseSpecification = new LoanApplicationAmountSpecification(morabeheRules.getAmountRange())
+                .and(new LoanApplicationDurationSpecification(morabeheRules.getDurationRange()))
+                .and(new LoanApplicationGracePeriodSpecification(
                         morabeheRules.getGracePeriodPolicy().gracePeriodRange()))
-                .and(new LoanApplicationCustomerTypeSpecification<>(morabeheRules.getPartyType()));
+                .and(new LoanApplicationCustomerTypeSpecification(morabeheRules.getPartyType()));
 
         // Add guarantor count specification only if guarantor count is specified
         var specificationWithGuarantor = morabeheRules.getGuarantorCount() != null
                 ? baseSpecification.and(
-                        new LoanApplicationGuarantorCountSpecification<>(morabeheRules.getGuarantorCount()))
+                        new LoanApplicationGuarantorCountSpecification(morabeheRules.getGuarantorCount()))
                 : baseSpecification;
 
         return specificationWithGuarantor
-                .and(new LoanApplicationInstallmentCountSpecification<>(
+                .and(new LoanApplicationInstallmentCountSpecification(
                         morabeheRules.getInstallmentPolicy().installmentPaymentType()))
-                .and(new LoanApplicationEconomicSectorSpecification<>(morabeheLoanType.getEconomicSectors()))
-                .and(new LoanApplicationCurrencySpecification<>(morabeheRules.getCurrencies()))
+                .and(new LoanApplicationEconomicSectorSpecification(morabeheLoanType.getEconomicSectors()))
+                .and(new LoanApplicationCurrencySpecification(morabeheRules.getCurrencies()))
                 .isSatisfiedBy(candidateFacility);
     }
 }

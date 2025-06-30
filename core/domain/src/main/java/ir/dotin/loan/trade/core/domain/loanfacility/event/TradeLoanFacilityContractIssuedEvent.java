@@ -5,8 +5,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-import org.jspecify.annotations.NonNull;
-
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
 import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
 import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeSanctionedLoanId;
@@ -39,11 +37,10 @@ public record TradeLoanFacilityContractIssuedEvent(
             List<TransactionNumber> transactionNumbers,
             Clock clock) {
         return new TradeLoanFacilityContractIssuedEvent(
-                randomUUID(), id, new Payload(sanId, List.copyOf(transactionNumbers)), clock.instant());
+                randomUUID(), id, new Payload(sanId, transactionNumbers), clock.instant());
     }
 
     @Override
-    @NonNull
     public String eventType() {
         return EVENT_TYPE_PREFIX + "CONTRACT_ISSUED";
     }

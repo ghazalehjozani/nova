@@ -6,7 +6,6 @@ import ir.dotin.loan.baseloan.core.domain.loantype.service.LoanTypeValidationSer
 import ir.dotin.loan.baseloan.core.domain.loantype.specification.LoanTypeApplicationAllowedSpecification;
 import ir.dotin.loan.baseloan.core.domain.loantype.specification.LoanTypeLoanArrangementExistenceSpecification;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
-import ir.dotin.loan.trade.core.domain.loanarrangement.vo.TradeLoanArrangementId;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 
 @DomainService
@@ -14,9 +13,8 @@ public class TradeLoanTypeValidationService implements LoanTypeValidationService
 
     @Override
     public Result<Boolean> validateLoanType(TradeLoanType loanType, TradeLoanArrangement loanArrangement) {
-        return new LoanTypeLoanArrangementExistenceSpecification<TradeLoanArrangementId, TradeLoanType>(
-                        loanArrangement.getId())
-                .and(new LoanTypeApplicationAllowedSpecification<>())
+        return new LoanTypeLoanArrangementExistenceSpecification(loanArrangement.getId())
+                .and(new LoanTypeApplicationAllowedSpecification())
                 .isSatisfiedBy(loanType);
     }
 }

@@ -19,6 +19,7 @@ public sealed interface TradeLoanFacilityEvent<T extends Record & TradeLoanFacil
                 TradeLoanFacilityClosedDefaultedEvent,
                 TradeLoanFacilityCancelledEvent,
                 TradeLoanFacilityCollateralAddedEvent {
+
     String EVENT_TYPE_PREFIX = "TRADE_LOAN_FACILITY_";
 
     @Override

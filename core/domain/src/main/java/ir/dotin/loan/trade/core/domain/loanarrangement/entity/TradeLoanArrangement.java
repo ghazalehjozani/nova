@@ -26,6 +26,11 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
         super(builder);
     }
 
+    @Override
+    protected Result<Void> validateInternalState() {
+        return super.validateInternalState();
+    }
+
     public static Builder newBuilder(FeatureConfig featureConfig) {
         return new Builder(featureConfig);
     }
