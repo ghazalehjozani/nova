@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ final class TradeLoanFacilityContractIssuedEventTest {
         @Test
         void shouldCreateEventWithAllRequiredFieldsUsingFactoryMethod() {
             Clock clock = Clock.systemUTC();
-            List<TransactionNumber> transactionNumbers = List.of(
+            List<TransactionNumber> transactionNumbers = ImmutableList.of(
                     TransactionNumber.of("TXN-TRADE-001").orElseThrow(),
                     TransactionNumber.of("TXN-TRADE-002").orElseThrow());
 
@@ -52,7 +53,7 @@ final class TradeLoanFacilityContractIssuedEventTest {
         void shouldCreateEventWithCorrectEventType() {
             Clock clock = Clock.systemUTC();
             List<TransactionNumber> transactionNumbers =
-                    List.of(TransactionNumber.of("TXN-001").orElseThrow());
+                    ImmutableList.of(TransactionNumber.of("TXN-001").orElseThrow());
 
             TradeLoanFacilityContractIssuedEvent event =
                     TradeLoanFacilityContractIssuedEvent.of(FACILITY_ID, SANCTIONED_LOAN_ID, transactionNumbers, clock);
@@ -65,7 +66,7 @@ final class TradeLoanFacilityContractIssuedEventTest {
         void shouldGenerateUniqueEventIdForEachEvent() {
             Clock clock = Clock.systemUTC();
             List<TransactionNumber> transactionNumbers =
-                    List.of(TransactionNumber.of("TXN-001").orElseThrow());
+                    ImmutableList.of(TransactionNumber.of("TXN-001").orElseThrow());
 
             TradeLoanFacilityContractIssuedEvent event1 =
                     TradeLoanFacilityContractIssuedEvent.of(FACILITY_ID, SANCTIONED_LOAN_ID, transactionNumbers, clock);
@@ -83,7 +84,7 @@ final class TradeLoanFacilityContractIssuedEventTest {
         @DisplayName("should create payload with sanctioned loan ID and transaction numbers")
         @Test
         void shouldCreatePayloadWithSanctionedLoanIdAndTransactionNumbers() {
-            List<TransactionNumber> transactionNumbers = List.of(
+            List<TransactionNumber> transactionNumbers = ImmutableList.of(
                     TransactionNumber.of("TXN-TRADE-001").orElseThrow(),
                     TransactionNumber.of("TXN-TRADE-002").orElseThrow(),
                     TransactionNumber.of("TXN-TRADE-003").orElseThrow());
@@ -99,7 +100,7 @@ final class TradeLoanFacilityContractIssuedEventTest {
         @DisplayName("should preserve transaction numbers immutability in payload")
         @Test
         void shouldPreserveTransactionNumbersImmutabilityInPayload() {
-            List<TransactionNumber> originalTransactionNumbers = List.of(
+            List<TransactionNumber> originalTransactionNumbers = ImmutableList.of(
                     TransactionNumber.of("TXN-TRADE-001").orElseThrow(),
                     TransactionNumber.of("TXN-TRADE-002").orElseThrow());
 
@@ -115,7 +116,7 @@ final class TradeLoanFacilityContractIssuedEventTest {
         @DisplayName("should handle empty transaction numbers list")
         @Test
         void shouldHandleEmptyTransactionNumbersList() {
-            List<TransactionNumber> emptyTransactionNumbers = List.of();
+            List<TransactionNumber> emptyTransactionNumbers = ImmutableList.of();
 
             TradeLoanFacilityContractIssuedEvent.Payload payload =
                     new TradeLoanFacilityContractIssuedEvent.Payload(SANCTIONED_LOAN_ID, emptyTransactionNumbers);
@@ -128,7 +129,7 @@ final class TradeLoanFacilityContractIssuedEventTest {
         @Test
         void shouldRejectNullSanctionedLoanIdInPayload() {
             List<TransactionNumber> transactionNumbers =
-                    List.of(TransactionNumber.of("TXN-001").orElseThrow());
+                    ImmutableList.of(TransactionNumber.of("TXN-001").orElseThrow());
 
             assertThatCode(() -> new TradeLoanFacilityContractIssuedEvent.Payload(null, transactionNumbers))
                     .isInstanceOf(NullPointerException.class);
@@ -150,7 +151,7 @@ final class TradeLoanFacilityContractIssuedEventTest {
         @Test
         void shouldCopyTransactionNumbersListInFactoryMethod() {
             Clock clock = Clock.systemUTC();
-            List<TransactionNumber> originalTransactionNumbers = List.of(
+            List<TransactionNumber> originalTransactionNumbers = ImmutableList.of(
                     TransactionNumber.of("TXN-TRADE-001").orElseThrow(),
                     TransactionNumber.of("TXN-TRADE-002").orElseThrow());
 
@@ -168,7 +169,7 @@ final class TradeLoanFacilityContractIssuedEventTest {
         void shouldHandleSingleTransactionNumber() {
             Clock clock = Clock.systemUTC();
             List<TransactionNumber> singleTransactionNumber =
-                    List.of(TransactionNumber.of("TXN-SINGLE-001").orElseThrow());
+                    ImmutableList.of(TransactionNumber.of("TXN-SINGLE-001").orElseThrow());
 
             TradeLoanFacilityContractIssuedEvent event = TradeLoanFacilityContractIssuedEvent.of(
                     FACILITY_ID, SANCTIONED_LOAN_ID, singleTransactionNumber, clock);
@@ -181,7 +182,7 @@ final class TradeLoanFacilityContractIssuedEventTest {
         @Test
         void shouldHandleMultipleTransactionNumbers() {
             Clock clock = Clock.systemUTC();
-            List<TransactionNumber> multipleTransactionNumbers = List.of(
+            List<TransactionNumber> multipleTransactionNumbers = ImmutableList.of(
                     TransactionNumber.of("TXN-MULTI-001").orElseThrow(),
                     TransactionNumber.of("TXN-MULTI-002").orElseThrow(),
                     TransactionNumber.of("TXN-MULTI-003").orElseThrow(),
@@ -204,7 +205,7 @@ final class TradeLoanFacilityContractIssuedEventTest {
         void shouldRejectNullEventId() {
             Instant now = Instant.now();
             List<TransactionNumber> transactionNumbers =
-                    List.of(TransactionNumber.of("TXN-001").orElseThrow());
+                    ImmutableList.of(TransactionNumber.of("TXN-001").orElseThrow());
             TradeLoanFacilityContractIssuedEvent.Payload payload =
                     new TradeLoanFacilityContractIssuedEvent.Payload(SANCTIONED_LOAN_ID, transactionNumbers);
 
@@ -218,7 +219,7 @@ final class TradeLoanFacilityContractIssuedEventTest {
             UUID eventId = randomUUID();
             Instant now = Instant.now();
             List<TransactionNumber> transactionNumbers =
-                    List.of(TransactionNumber.of("TXN-001").orElseThrow());
+                    ImmutableList.of(TransactionNumber.of("TXN-001").orElseThrow());
             TradeLoanFacilityContractIssuedEvent.Payload payload =
                     new TradeLoanFacilityContractIssuedEvent.Payload(SANCTIONED_LOAN_ID, transactionNumbers);
 
@@ -241,7 +242,7 @@ final class TradeLoanFacilityContractIssuedEventTest {
         void shouldRejectNullCreatedAtTimestamp() {
             UUID eventId = randomUUID();
             List<TransactionNumber> transactionNumbers =
-                    List.of(TransactionNumber.of("TXN-001").orElseThrow());
+                    ImmutableList.of(TransactionNumber.of("TXN-001").orElseThrow());
             TradeLoanFacilityContractIssuedEvent.Payload payload =
                     new TradeLoanFacilityContractIssuedEvent.Payload(SANCTIONED_LOAN_ID, transactionNumbers);
 

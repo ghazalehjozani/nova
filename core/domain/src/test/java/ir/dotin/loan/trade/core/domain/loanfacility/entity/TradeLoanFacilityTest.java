@@ -36,13 +36,11 @@ class TradeLoanFacilityTest {
 
     private Clock testClock;
     private TradeLoanArrangementId loanArrangementId;
-    private TradeLoanFacilityFactory factory;
 
     @BeforeEach
     void setUp() {
         testClock = Clock.fixed(Instant.parse("2023-12-01T10:00:00Z"), UTC);
         loanArrangementId = TradeLoanArrangementId.generate();
-        factory = new TradeLoanFacilityFactory(testClock);
     }
 
     @DisplayName("when creating new trade loan facility")
@@ -72,7 +70,7 @@ class TradeLoanFacilityTest {
             var facilityId = TradeLoanFacilityId.generate();
 
             // when
-            var facility = factory.create(facilityId, application, loanArrangementId);
+            var facility = TradeLoanFacility.create(facilityId, application, loanArrangementId, testClock);
 
             // then
             assertThat(facility).isNotNull();
@@ -85,7 +83,7 @@ class TradeLoanFacilityTest {
         @Test
         void shouldFailWhenFacilityIdIsNull(@Mock TradeLoanApplication application) {
             // when & then
-            assertThatThrownBy(() -> factory.create(null, application, loanArrangementId))
+            assertThatThrownBy(() -> TradeLoanFacility.create(null, application, loanArrangementId, testClock))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessageContaining("Facility ID cannot be null");
         }
@@ -97,7 +95,7 @@ class TradeLoanFacilityTest {
             var facilityId = TradeLoanFacilityId.generate();
 
             // when & then
-            assertThatThrownBy(() -> factory.create(facilityId, null, loanArrangementId))
+            assertThatThrownBy(() -> TradeLoanFacility.create(facilityId, null, loanArrangementId, testClock))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessageContaining("Application cannot be null");
         }
@@ -109,28 +107,9 @@ class TradeLoanFacilityTest {
             var facilityId = TradeLoanFacilityId.generate();
 
             // when & then
-            assertThatThrownBy(() -> factory.create(facilityId, application, null))
+            assertThatThrownBy(() -> TradeLoanFacility.create(facilityId, application, null, testClock))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessageContaining("Loan arrangement ID cannot be null");
-        }
-
-        @DisplayName("should fail when clock in factory constructor is null")
-        @Test
-        void shouldFailWhenClockInFactoryConstructorIsNull() {
-            // when & then
-            assertThatThrownBy(() -> new TradeLoanFacilityFactory(null))
-                    .isInstanceOf(NullPointerException.class)
-                    .hasMessageContaining("Clock cannot be null");
-        }
-
-        @DisplayName("should create factory with valid clock")
-        @Test
-        void shouldCreateFactoryWithValidClock() {
-            // when
-            var factoryWithClock = new TradeLoanFacilityFactory(testClock);
-
-            // then - factory should be created successfully
-            assertThat(factoryWithClock).isNotNull();
         }
 
         @DisplayName("should publish facility created event upon creation")
@@ -156,7 +135,7 @@ class TradeLoanFacilityTest {
             var facilityId = TradeLoanFacilityId.generate();
 
             // when
-            var facility = factory.create(facilityId, application, loanArrangementId);
+            var facility = TradeLoanFacility.create(facilityId, application, loanArrangementId, testClock);
 
             // then
             assertThat(facility).isNotNull();
@@ -185,7 +164,8 @@ class TradeLoanFacilityTest {
             var status = FacilityStatus.ACTIVE;
 
             // when
-            var facility = factory.reconstitute(facilityId, application, sanctionedLoan, status, loanArrangementId);
+            var facility =
+                    TradeLoanFacility.reconstitute(facilityId, application, sanctionedLoan, status, loanArrangementId);
 
             // then
             assertThat(facility).isNotNull();
@@ -203,7 +183,7 @@ class TradeLoanFacilityTest {
             var status = FacilityStatus.PENDING_APPROVAL;
 
             // when
-            var facility = factory.reconstitute(facilityId, application, null, status, loanArrangementId);
+            var facility = TradeLoanFacility.reconstitute(facilityId, application, null, status, loanArrangementId);
 
             // then
             assertThat(facility).isNotNull();
@@ -236,7 +216,8 @@ class TradeLoanFacilityTest {
                     disburseDestination);
             var application = builder.build().orElseThrow();
             var facilityId = TradeLoanFacilityId.generate();
-            TradeLoanFacility facility = factory.create(facilityId, application, loanArrangementId);
+            TradeLoanFacility facility =
+                    TradeLoanFacility.create(facilityId, application, loanArrangementId, testClock);
 
             // when
             var returnedLoanTypeId = facility.getLoanTypeId();
@@ -266,7 +247,8 @@ class TradeLoanFacilityTest {
                     disburseDestination);
             var application = builder.build().orElseThrow();
             var facilityId = TradeLoanFacilityId.generate();
-            TradeLoanFacility facility = factory.create(facilityId, application, loanArrangementId);
+            TradeLoanFacility facility =
+                    TradeLoanFacility.create(facilityId, application, loanArrangementId, testClock);
 
             // when
             var returnedArrangementId = facility.getLoanArrangementId();
@@ -296,7 +278,8 @@ class TradeLoanFacilityTest {
                     disburseDestination);
             var application = builder.build().orElseThrow();
             var facilityId = TradeLoanFacilityId.generate();
-            TradeLoanFacility facility = factory.create(facilityId, application, loanArrangementId);
+            TradeLoanFacility facility =
+                    TradeLoanFacility.create(facilityId, application, loanArrangementId, testClock);
 
             // when
             var facilityType = facility.getLoanFacilityType();
@@ -331,7 +314,8 @@ class TradeLoanFacilityTest {
                     disburseDestination);
             var application = builder.build().orElseThrow();
             var facilityId = TradeLoanFacilityId.generate();
-            TradeLoanFacility facility = factory.create(facilityId, application, loanArrangementId);
+            TradeLoanFacility facility =
+                    TradeLoanFacility.create(facilityId, application, loanArrangementId, testClock);
 
             // when & then - should be able to access all inherited workflow methods
             assertThat(facility.getCurrentState()).isEqualTo(FacilityStatus.APPLICATION_SUBMITTED);
@@ -361,7 +345,8 @@ class TradeLoanFacilityTest {
                     disburseDestination);
             var application = builder.build().orElseThrow();
             var facilityId = TradeLoanFacilityId.generate();
-            TradeLoanFacility facility = factory.create(facilityId, application, loanArrangementId);
+            TradeLoanFacility facility =
+                    TradeLoanFacility.create(facilityId, application, loanArrangementId, testClock);
 
             // when
             var result = facility.submitForApproval(testClock);

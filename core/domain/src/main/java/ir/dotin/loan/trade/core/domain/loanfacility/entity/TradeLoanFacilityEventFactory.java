@@ -15,7 +15,7 @@ import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanApplicationId;
 import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
 import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeSanctionedLoanId;
 
-public final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<TradeLoanFacilityEvent<?, ?>> {
+final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<TradeLoanFacilityEvent<?, ?>> {
 
     @Override
     public Identity generateSanctionedLoanId() {

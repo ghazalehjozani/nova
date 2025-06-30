@@ -23,6 +23,11 @@ public final class TradeSanctionedLoan
         return builder.build();
     }
 
+    @Override
+    protected Result<Void> validateInternalState() {
+        return super.validateInternalState();
+    }
+
     public static final class TradeSanctionedLoanBuilder
             extends AbstractSanctionedLoanBuilder<
                     TradeSanctionedLoanId, TradeSanctionedLoan, TradeSanctionedLoanBuilder> {

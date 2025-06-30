@@ -30,6 +30,11 @@ public final class TradeLoanApplication
         return builder.build();
     }
 
+    @Override
+    protected Result<Void> validateInternalState() {
+        return super.validateInternalState();
+    }
+
     public static final class Builder
             extends AbstractLoanApplicationBuilder<TradeLoanApplicationId, TradeLoanApplication, Builder> {
 

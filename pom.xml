@@ -30,7 +30,8 @@
     </modules>
 
     <properties>
-        <loan.base-loan.version>2.1.0-SNAPSHOT</loan.base-loan.version>
+        <loan.base-loan.version>2.1.1-SNAPSHOT</loan.base-loan.version>
+        <platform.platform-archunit.version>0.1.2-SNAPSHOT</platform.platform-archunit.version>
         <loan.trade-loan.version>${project.version}</loan.trade-loan.version>
         <sonar.projectVersion>${project.version}</sonar.projectVersion>
     </properties>
@@ -40,9 +41,9 @@
             <!-- region platform-->
             <dependency>
                 <groupId>ir.dotin.platform</groupId>
-                <artifactId>ddd-common</artifactId>
-                <version>${platform.ddd-common.version}</version>
-                <scope>compile</scope>
+                <artifactId>platform-archunit</artifactId>
+                <version>${platform.platform-archunit.version}</version>
+                <scope>test</scope>
             </dependency>
             <!--endregion-->
             <!--region base-loan -->

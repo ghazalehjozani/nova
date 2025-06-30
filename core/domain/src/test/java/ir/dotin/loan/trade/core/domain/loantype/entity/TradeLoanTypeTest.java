@@ -346,8 +346,7 @@ final class TradeLoanTypeTest {
             // then
             TradeLoanArrangementId generate = TradeLoanArrangementId.generate();
             //noinspection DataFlowIssue
-            assertThatThrownBy(() -> arrangementIds.add(generate))
-                    .isInstanceOf(UnsupportedOperationException.class);
+            assertThatThrownBy(() -> arrangementIds.add(generate)).isInstanceOf(UnsupportedOperationException.class);
         }
 
         @DisplayName("should maintain proper state validation")
