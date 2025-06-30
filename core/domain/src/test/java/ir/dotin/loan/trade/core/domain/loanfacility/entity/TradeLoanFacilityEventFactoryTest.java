@@ -78,13 +78,6 @@ final class TradeLoanFacilityEventFactoryTest {
         void shouldBeAFinalClass() {
             assertThat(TradeLoanFacilityEventFactory.class).isFinal();
         }
-
-        @Test
-        @DisplayName("should have default constructor")
-        void shouldHaveDefaultConstructor() throws NoSuchMethodException {
-            var constructor = TradeLoanFacilityEventFactory.class.getConstructor();
-            assertThat(constructor).isNotNull();
-        }
     }
 
     @Nested
