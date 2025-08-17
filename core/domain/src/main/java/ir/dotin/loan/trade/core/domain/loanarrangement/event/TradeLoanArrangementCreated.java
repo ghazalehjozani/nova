@@ -7,7 +7,7 @@ import java.util.UUID;
 import ir.dotin.platform.domain.common.vo.CurrencyType;
 import ir.dotin.platform.domain.common.vo.DurationRange;
 import ir.dotin.platform.domain.common.vo.MoneyRange;
-import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.ArrangementDisburseType;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.*;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.*;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.BaseFormulaField;
@@ -42,9 +42,7 @@ public record TradeLoanArrangementCreated(
             MoneyRange amountRange,
             DurationRange durationRange,
             PartyType partyType,
-            DisburseType disburseType,
             LifeInsurancePaymentType lifeInsurancePaymentType,
-            ArrangementDisburseType ruleDisburseType,
             LoanSecondaryType loanSecondaryType,
             SectionType sectionType,
             InterestPolicy<BaseFormulaField> interestPolicy,
@@ -57,6 +55,7 @@ public record TradeLoanArrangementCreated(
             Integer guarantorCount,
             boolean hasInstallmentCard,
             ConfirmType confirmType,
+            DisbursementMethod disbursementMethod,
             boolean active) {
         public Payload {
             requireNonNull(code, "payload.code cannot be null");

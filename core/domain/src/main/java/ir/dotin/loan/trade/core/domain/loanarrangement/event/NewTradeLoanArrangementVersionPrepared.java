@@ -9,7 +9,7 @@ import org.jspecify.annotations.Nullable;
 import ir.dotin.platform.domain.common.vo.CurrencyType;
 import ir.dotin.platform.domain.common.vo.DurationRange;
 import ir.dotin.platform.domain.common.vo.MoneyRange;
-import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.ArrangementDisburseType;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.*;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.*;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.BaseFormulaField;
@@ -47,9 +47,7 @@ public record NewTradeLoanArrangementVersionPrepared(
             MoneyRange amountRange,
             DurationRange durationRange,
             PartyType partyType,
-            DisburseType disburseType,
             LifeInsurancePaymentType lifeInsurancePaymentType,
-            ArrangementDisburseType ruleDisburseType,
             LoanSecondaryType loanSecondaryType,
             SectionType sectionType,
             InterestPolicy<BaseFormulaField> interestPolicy,
@@ -61,7 +59,8 @@ public record NewTradeLoanArrangementVersionPrepared(
             CollateralPolicy collateralPolicy,
             @Nullable Integer guarantorCount,
             boolean hasInstallmentCard,
-            @Nullable ConfirmType confirmType) {
+            @Nullable ConfirmType confirmType,
+            @Nullable DisbursementMethod disbursementMethod) {
         public Payload {
             requireNonNull(newAggregateId, "payload.newAggregateId cannot be null");
             requireNonNull(previousAggregateId, "payload.previousAggregateId cannot be null");
