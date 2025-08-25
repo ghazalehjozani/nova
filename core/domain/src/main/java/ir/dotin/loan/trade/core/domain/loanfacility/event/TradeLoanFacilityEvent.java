@@ -7,18 +7,19 @@ import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
 
 public sealed interface TradeLoanFacilityEvent<T extends Record & TradeLoanFacilityEvent<T, P>, P>
         extends DomainEvent<T, P>
-        permits TradeLoanFacilityCreatedEvent,
-                TradeLoanFacilityPendingApprovalEvent,
+        permits TradeLoanFacilityActivatedEvent,
                 TradeLoanFacilityApprovedEvent,
-                TradeLoanFacilityRejectedEvent,
-                TradeLoanFacilityContractIssuedEvent,
-                TradeLoanFacilityPendingDisbursementEvent,
-                TradeLoanFacilityActivatedEvent,
-                TradeLoanFacilityDisbursementFailedEvent,
-                TradeLoanFacilityClosedPaidOffEvent,
-                TradeLoanFacilityClosedDefaultedEvent,
                 TradeLoanFacilityCancelledEvent,
-                TradeLoanFacilityCollateralAddedEvent {
+                TradeLoanFacilityClosedDefaultedEvent,
+                TradeLoanFacilityClosedPaidOffEvent,
+                TradeLoanFacilityCollateralAddedEvent,
+                TradeLoanFacilityContractIssuedEvent,
+                TradeLoanFacilityCreatedEvent,
+                TradeLoanFacilityDisbursementFailedEvent,
+                TradeLoanFacilityIrregularDisbursementEvent,
+                TradeLoanFacilityPendingApprovalEvent,
+                TradeLoanFacilityPendingDisbursementEvent,
+                TradeLoanFacilityRejectedEvent {
 
     String EVENT_TYPE_PREFIX = "TRADE_LOAN_FACILITY_";
 

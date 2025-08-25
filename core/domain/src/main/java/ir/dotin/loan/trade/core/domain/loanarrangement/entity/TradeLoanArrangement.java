@@ -62,9 +62,7 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
                 arrangement.getAmountRange(),
                 arrangement.getDurationRange(),
                 arrangement.getPartyType(),
-                arrangement.getDisburseType(),
                 arrangement.getLifeInsurancePaymentType(),
-                arrangement.getRuleDisburseType(),
                 arrangement.getLoanSecondaryType(),
                 arrangement.getSectionType(),
                 arrangement.getInterestPolicy(),
@@ -77,6 +75,7 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
                 requireNonNull(arrangement.getGuarantorCount(), "guarantorCount cannot be null"),
                 arrangement.isHasInstallmentCard(),
                 requireNonNull(arrangement.getConfirmType(), "confirmType cannot be null"),
+                requireNonNull(arrangement.getDisbursementMethod(), "disbursementType cannot be null"),
                 arrangement.getActive().isActive());
 
         TradeLoanArrangementCreated creationEvent =
@@ -130,9 +129,7 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
                 loanArrangement.getAmountRange(),
                 loanArrangement.getDurationRange(),
                 loanArrangement.getPartyType(),
-                loanArrangement.getDisburseType(),
                 loanArrangement.getLifeInsurancePaymentType(),
-                loanArrangement.getRuleDisburseType(),
                 loanArrangement.getLoanSecondaryType(),
                 loanArrangement.getSectionType(),
                 loanArrangement.getInterestPolicy(),
@@ -144,7 +141,8 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
                 loanArrangement.getCollateralPolicy(),
                 loanArrangement.getGuarantorCount(),
                 loanArrangement.isHasInstallmentCard(),
-                loanArrangement.getConfirmType());
+                loanArrangement.getConfirmType(),
+                loanArrangement.getDisbursementMethod());
 
         return new NewTradeLoanArrangementVersionPrepared(randomUUID(), newVersionId, payload, clock.instant());
     }

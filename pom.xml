@@ -30,7 +30,7 @@
     </modules>
 
     <properties>
-        <loan.base-loan.version>2.1.1-SNAPSHOT</loan.base-loan.version>
+        <loan.base-loan.version>2.2.0-SNAPSHOT</loan.base-loan.version>
         <platform.platform-archunit.version>0.1.2-SNAPSHOT</platform.platform-archunit.version>
         <loan.trade-loan.version>${project.version}</loan.trade-loan.version>
         <sonar.projectVersion>${project.version}</sonar.projectVersion>

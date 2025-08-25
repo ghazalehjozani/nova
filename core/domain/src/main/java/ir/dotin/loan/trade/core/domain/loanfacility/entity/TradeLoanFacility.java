@@ -5,6 +5,7 @@ import java.time.Clock;
 import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.domain.common.entity.Identity;
+import ir.dotin.platform.domain.common.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractLoanFacility;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.LoanFacilityEventFactory;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
@@ -21,6 +22,7 @@ public final class TradeLoanFacility
 
     private final TradeLoanTypeId tradeLoanTypeId;
     private final TradeLoanArrangementId tradeLoanArrangementId;
+    private final Money totalTradeDisbursementAmount;
 
     TradeLoanFacility(
             TradeLoanFacilityId id,
@@ -28,10 +30,12 @@ public final class TradeLoanFacility
             @Nullable TradeSanctionedLoan sanctionedLoan,
             FacilityStatus status,
             TradeLoanTypeId loanTypeId,
-            TradeLoanArrangementId loanArrangementId) {
-        super(id, application, sanctionedLoan, status, loanArrangementId);
+            TradeLoanArrangementId loanArrangementId,
+            Money totalDisbursementAmount) {
+        super(id, application, sanctionedLoan, status, loanArrangementId, totalDisbursementAmount);
         this.tradeLoanTypeId = requireNonNull(loanTypeId, "tradeLoanTypeId cannot be null");
         this.tradeLoanArrangementId = requireNonNull(loanArrangementId, "tradeLoanArrangementId cannot be null");
+        this.totalTradeDisbursementAmount = totalDisbursementAmount;
     }
 
     @Override
@@ -40,7 +44,11 @@ public final class TradeLoanFacility
     }
 
     public static TradeLoanFacility create(
-            TradeLoanFacilityId id, TradeLoanApplication application, Identity loanArrangementId, Clock clock) {
+            TradeLoanFacilityId id,
+            TradeLoanApplication application,
+            Identity loanArrangementId,
+            Money totalDisbursementAmount,
+            Clock clock) {
 
         requireNonNull(id, "Facility ID cannot be null");
         requireNonNull(application, "Application cannot be null");
@@ -55,7 +63,13 @@ public final class TradeLoanFacility
         TradeLoanTypeId loanTypeId = TradeLoanTypeId.generate();
 
         TradeLoanFacility facility = new TradeLoanFacility(
-                id, application, null, FacilityStatus.APPLICATION_SUBMITTED, loanTypeId, arrangementId);
+                id,
+                application,
+                null,
+                FacilityStatus.APPLICATION_SUBMITTED,
+                loanTypeId,
+                arrangementId,
+                totalDisbursementAmount);
 
         var createdEvent = facility.getEventFactory()
                 .createCreatedEvent(
@@ -72,7 +86,8 @@ public final class TradeLoanFacility
             TradeLoanApplication application,
             @Nullable TradeSanctionedLoan sanctionedLoan,
             FacilityStatus status,
-            Identity loanArrangementId) {
+            Identity loanArrangementId,
+            Money totalDisbursementAmount) {
 
         requireNonNull(id, "Facility ID cannot be null");
         requireNonNull(application, "Application cannot be null");
@@ -88,7 +103,8 @@ public final class TradeLoanFacility
 
         TradeLoanTypeId loanTypeId = TradeLoanTypeId.generate();
 
-        return new TradeLoanFacility(id, application, sanctionedLoan, status, loanTypeId, arrangementId);
+        return new TradeLoanFacility(
+                id, application, sanctionedLoan, status, loanTypeId, arrangementId, totalDisbursementAmount);
     }
 
     @Override
@@ -104,6 +120,11 @@ public final class TradeLoanFacility
     @Override
     public String getLoanFacilityType() {
         return "TRADE";
+    }
+
+    @Override
+    public Money getTotalDisbursedAmount() {
+        return totalTradeDisbursementAmount;
     }
 
     @Override

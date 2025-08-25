@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.util.List;
 
 import ir.dotin.platform.domain.common.entity.Identity;
+import ir.dotin.platform.domain.common.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.LoanFacilityEventFactory;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
@@ -101,5 +102,12 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
             Identity facilityId, Identity applicationId, Party customer, Clock clock) {
         return TradeLoanFacilityCreatedEvent.of(
                 (TradeLoanFacilityId) facilityId, (TradeLoanApplicationId) applicationId, customer, clock);
+    }
+
+    @Override
+    public TradeLoanFacilityIrregularDisbursementEvent createIrregularDisbursementRequestedEvent(
+            Identity facilityId, Identity sanctionId, Money amountToDisburse, Clock clock) {
+        return TradeLoanFacilityIrregularDisbursementEvent.of(
+                (TradeLoanFacilityId) facilityId, (TradeSanctionedLoanId) sanctionId, amountToDisburse, clock);
     }
 }
