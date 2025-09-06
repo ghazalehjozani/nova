@@ -20,6 +20,7 @@ import static org.mockito.BDDMockito.given;
 
 @DisplayName("TradeLoanArrangement Test")
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("NullAway")
 final class TradeLoanArrangementTest {
 
     @Mock
