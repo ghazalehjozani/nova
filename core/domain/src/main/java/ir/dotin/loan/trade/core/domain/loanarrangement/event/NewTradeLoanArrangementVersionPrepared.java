@@ -24,5 +24,9 @@ public record NewTradeLoanArrangementVersionPrepared(
         return EVENT_TYPE_PREFIX + "VERSION_PREPARED";
     }
 
-    public record Payload() {}
+    public record Payload(LoanArrangementId loanArrangementId) {
+        public Payload {
+            requireNonNull(loanArrangementId);
+        }
+    }
 }

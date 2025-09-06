@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.core.domain.loanarrangement.entity;
 import java.time.Clock;
 
 import com.google.common.collect.Range;
+import org.jspecify.annotations.NonNull;
 
 import ir.dotin.platform.domain.common.Result;
 import ir.dotin.platform.domain.common.event.DomainEvent;
@@ -18,7 +19,6 @@ import ir.dotin.loan.trade.core.domain.loanarrangement.event.TradeLoanArrangemen
 import ir.dotin.loan.trade.core.domain.loanarrangement.event.TradeLoanArrangementDeactivated;
 import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanFacilityFormulaField;
 import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanParameterProvider;
-import org.jspecify.annotations.NonNull;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
@@ -60,7 +60,7 @@ public final class TradeLoanArrangement
         TradeLoanArrangement arrangement = arrangementResult.value();
         requireNonNull(arrangement, "arrangement cannot be null after successful build");
 
-        var payload = new TradeLoanArrangementCreated.Payload();
+        var payload = new TradeLoanArrangementCreated.Payload(arrangement.getId());
 
         TradeLoanArrangementCreated creationEvent =
                 new TradeLoanArrangementCreated(randomUUID(), arrangement.getId(), payload, clock.instant());
@@ -104,7 +104,7 @@ public final class TradeLoanArrangement
         requireNonNull(loanArrangement, "loanArrangement cannot be null after successful build");
         LoanArrangementId newVersionId = loanArrangement.getId();
 
-        var payload = new NewTradeLoanArrangementVersionPrepared.Payload();
+        var payload = new NewTradeLoanArrangementVersionPrepared.Payload(loanArrangement.getId());
 
         return new NewTradeLoanArrangementVersionPrepared(randomUUID(), newVersionId, payload, clock.instant());
     }

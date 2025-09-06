@@ -2,11 +2,15 @@ package ir.dotin.loan.trade.core.domain.shared.formula;
 
 import java.lang.reflect.Method;
 import java.time.Period;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -14,6 +18,7 @@ import ir.dotin.platform.domain.common.vo.Money;
 import ir.dotin.platform.domain.common.vo.Rate;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
@@ -26,71 +31,33 @@ final class TradeLoanParameterProviderTest {
     @DisplayName("Contract Tests")
     final class ContractTests {
 
-        @Test
-        @DisplayName("should have getApprovedAmount method")
-        void shouldHaveGetApprovedAmountMethod() throws NoSuchMethodException {
+        @ParameterizedTest
+        @MethodSource("providerMethodContract")
+        @DisplayName("should have correctly defined methods")
+        void shouldHaveCorrectlyDefinedMethods(String methodName, Class<?> expectedReturnType)
+                throws NoSuchMethodException {
             // Arrange & Act
-            Method method = TradeLoanParameterProvider.class.getMethod("getApprovedAmount");
+            Method method = TradeLoanParameterProvider.class.getMethod(methodName);
 
             // Assert
-            assertThat(method.getReturnType()).isEqualTo(Money.class);
+            assertThat(method.getReturnType()).isEqualTo(expectedReturnType);
         }
 
-        @Test
-        @DisplayName("should have getRequestedAmount method")
-        void shouldHaveGetRequestedAmountMethod() throws NoSuchMethodException {
-            // Arrange & Act
-            Method method = TradeLoanParameterProvider.class.getMethod("getRequestedAmount");
-
-            // Assert
-            assertThat(method.getReturnType()).isEqualTo(Money.class);
-        }
-
-        @Test
-        @DisplayName("should have getGracePeriod method")
-        void shouldHaveGetGracePeriodMethod() throws NoSuchMethodException {
-            // Arrange & Act
-            Method method = TradeLoanParameterProvider.class.getMethod("getGracePeriod");
-
-            // Assert
-            assertThat(method.getReturnType()).isEqualTo(Period.class);
-        }
-
-        @Test
-        @DisplayName("should have getCommissionAmount method")
-        void shouldHaveGetCommissionAmountMethod() throws NoSuchMethodException {
-            // Arrange & Act
-            Method method = TradeLoanParameterProvider.class.getMethod("getCommissionAmount");
-
-            // Assert
-            assertThat(method.getReturnType()).isEqualTo(Money.class);
-        }
-
-        @Test
-        @DisplayName("should have getShipmentValue method")
-        void shouldHaveGetShipmentValueMethod() throws NoSuchMethodException {
-            // Arrange & Act
-            Method method = TradeLoanParameterProvider.class.getMethod("getShipmentValue");
-
-            // Assert
-            assertThat(method.getReturnType()).isEqualTo(Money.class);
-        }
-
-        @Test
-        @DisplayName("should have getInsuranceRate method")
-        void shouldHaveGetInsuranceRateMethod() throws NoSuchMethodException {
-            // Arrange & Act
-            Method method = TradeLoanParameterProvider.class.getMethod("getInsuranceRate");
-
-            // Assert
-            assertThat(method.getReturnType()).isEqualTo(Rate.class);
+        private static Stream<Arguments> providerMethodContract() {
+            return Stream.of(
+                    arguments("getApprovedAmount", Money.class),
+                    arguments("getRequestedAmount", Money.class),
+                    arguments("getGracePeriod", Period.class),
+                    arguments("getCommissionAmount", Money.class),
+                    arguments("getShipmentValue", Money.class),
+                    arguments("getInsuranceRate", Rate.class));
         }
     }
 
     @Nested
     @DisplayName("Mock Implementation Tests")
     @SuppressWarnings("NullAway")
-    public final class MockImplementationTests {
+    final class MockImplementationTests {
 
         @Mock
         private TradeLoanParameterProvider mockParameterProvider;

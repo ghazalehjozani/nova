@@ -25,5 +25,9 @@ public record TradeLoanArrangementCreated(
         return EVENT_TYPE_PREFIX + CREATED;
     }
 
-    public record Payload() {}
+    public record Payload(LoanArrangementId loanArrangementId) {
+        public Payload {
+            requireNonNull(loanArrangementId);
+        }
+    }
 }
