@@ -13,14 +13,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.*;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanApplicationId;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeSanctionedLoanId;
 
 import static java.time.ZoneOffset.UTC;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,13 +26,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 final class TradeLoanFacilityEventFactoryTest {
 
     @Mock
-    private TradeLoanFacilityId mockFacilityId;
+    private LoanFacilityId mockFacilityId;
 
     @Mock
-    private TradeLoanApplicationId mockApplicationId;
+    private LoanApplicationId mockApplicationId;
 
     @Mock
-    private TradeSanctionedLoanId mockSanctionId;
+    private SanctionedLoanId mockSanctionId;
 
     @Mock
     private SanctionSerial mockSanctionSerial;
@@ -194,7 +189,7 @@ final class TradeLoanFacilityEventFactoryTest {
         void shouldGenerateSanctionedLoanId() {
             var id = factory.generateSanctionedLoanId();
 
-            assertThat(id).isNotNull().isInstanceOf(TradeSanctionedLoanId.class);
+            assertThat(id).isNotNull().isInstanceOf(SanctionedLoanId.class);
         }
 
         @Test

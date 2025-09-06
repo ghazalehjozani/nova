@@ -4,19 +4,21 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.jspecify.annotations.NonNull;
+
 import ir.dotin.platform.domain.common.vo.Money;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeSanctionedLoanId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
 public record TradeLoanFacilityIrregularDisbursementEvent(
-        UUID eventId, TradeLoanFacilityId aggregateId, Payload payload, Money amountToDisburse, Instant createdAt)
+        UUID eventId, LoanFacilityId aggregateId, Payload payload, Money amountToDisburse, Instant createdAt)
         implements TradeLoanFacilityEvent<
                 TradeLoanFacilityIrregularDisbursementEvent, TradeLoanFacilityIrregularDisbursementEvent.Payload> {
 
-    public record Payload(TradeSanctionedLoanId sanctionedLoanId) {
+    public record Payload(SanctionedLoanId sanctionedLoanId) {
         public Payload {
             requireNonNull(sanctionedLoanId);
         }
@@ -31,7 +33,7 @@ public record TradeLoanFacilityIrregularDisbursementEvent(
     }
 
     public static TradeLoanFacilityIrregularDisbursementEvent of(
-            TradeLoanFacilityId id, TradeSanctionedLoanId sanId, Money amountToDisburse, Clock clock) {
+            LoanFacilityId id, SanctionedLoanId sanId, Money amountToDisburse, Clock clock) {
         return new TradeLoanFacilityIrregularDisbursementEvent(
                 randomUUID(),
                 id,
@@ -41,7 +43,7 @@ public record TradeLoanFacilityIrregularDisbursementEvent(
     }
 
     @Override
-    public String eventType() {
+    public @NonNull String eventType() {
         return EVENT_TYPE_PREFIX + "IRREGULAR_DISBURSEMENT";
     }
 }

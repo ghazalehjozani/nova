@@ -2,8 +2,8 @@ package ir.dotin.loan.trade.core.domain.loanfacility.service;
 
 import java.math.BigDecimal;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.Instant;
+import java.time.Period;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -251,9 +251,9 @@ class TradeLoanFacilityServiceTest {
             var requestedAmount =
                     Money.valueOf(new BigDecimal("1000.00"), CurrencyType.USD).orElseThrow();
             var currency = CurrencyType.USD;
-            var gracePeriod = GracePeriod.of(Duration.ofDays(30)).orElseThrow();
+            var gracePeriod = GracePeriod.of(Period.ofDays(30)).orElseThrow();
             var installmentCount = InstallmentCount.of(12).orElseThrow();
-            var loanDuration = LoanDuration.of(Duration.ofDays(365)).orElseThrow();
+            var loanDuration = LoanDuration.of(Period.ofDays(365)).orElseThrow();
 
             when(mockLoanApplication.getRequestedAmount()).thenReturn(requestedAmount);
             when(mockLoanApplication.getCurrency()).thenReturn(currency);

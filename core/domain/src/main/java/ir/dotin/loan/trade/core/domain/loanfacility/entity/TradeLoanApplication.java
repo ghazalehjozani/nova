@@ -5,12 +5,12 @@ import org.jspecify.annotations.NonNull;
 import ir.dotin.platform.domain.common.Notification;
 import ir.dotin.platform.domain.common.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractLoanApplication;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanApplicationId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.UUID.randomUUID;
 
-public final class TradeLoanApplication
-        extends AbstractLoanApplication<TradeLoanApplicationId, TradeLoanApplication.Builder> {
+public final class TradeLoanApplication extends AbstractLoanApplication<TradeLoanApplication.Builder> {
 
     private TradeLoanApplication(Builder builder) {
         super(builder);
@@ -22,7 +22,7 @@ public final class TradeLoanApplication
 
     public static Result<TradeLoanApplication> create(Builder builder) {
         requireNonNull(builder, "Builder cannot be null for create");
-        return builder.withId(TradeLoanApplicationId.generate()).build();
+        return builder.withId(LoanApplicationId.of(randomUUID())).build();
     }
 
     public static Result<TradeLoanApplication> reconstitute(Builder builder) {
@@ -35,8 +35,7 @@ public final class TradeLoanApplication
         return super.validateInternalState();
     }
 
-    public static final class Builder
-            extends AbstractLoanApplicationBuilder<TradeLoanApplicationId, TradeLoanApplication, Builder> {
+    public static final class Builder extends AbstractLoanApplicationBuilder<TradeLoanApplication, Builder> {
 
         @Override
         protected TradeLoanApplication buildInternal() {

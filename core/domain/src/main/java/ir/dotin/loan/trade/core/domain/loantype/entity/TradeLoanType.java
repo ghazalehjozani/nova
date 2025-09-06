@@ -16,21 +16,21 @@ import ir.dotin.loan.baseloan.core.domain.loantype.entity.AbstractLoanType;
 import ir.dotin.loan.baseloan.core.domain.loantype.i18n.LoanTypeLocalizedMessageCodes;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Active;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Disable;
-import ir.dotin.loan.trade.core.domain.loanarrangement.vo.TradeLoanArrangementId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 import ir.dotin.loan.trade.core.domain.loantype.event.NewTradeLoanTypeVersionPrepared;
 import ir.dotin.loan.trade.core.domain.loantype.event.TradeLoanTypeActivated;
 import ir.dotin.loan.trade.core.domain.loantype.event.TradeLoanTypeCreated;
 import ir.dotin.loan.trade.core.domain.loantype.event.TradeLoanTypeDeactivated;
-import ir.dotin.loan.trade.core.domain.loantype.vo.TradeLoanTypeId;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static java.util.Objects.requireNonNullElse;
 import static java.util.UUID.randomUUID;
 
-public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
+public final class TradeLoanType extends AbstractLoanType {
 
-    private final Set<TradeLoanArrangementId> loanArrangementIds;
+    private final Set<LoanArrangementId> loanArrangementIds;
 
     private TradeLoanType(Builder builder) {
         super(builder);
@@ -45,7 +45,7 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
         requireNonNull(clock, "Clock cannot be null for creation");
         requireNonNull(builder, "Builder cannot be null for creation");
 
-        builder.withId(TradeLoanTypeId.generate());
+        builder.withId(LoanTypeId.of(randomUUID()));
         builder.withActive(new Active(true));
         builder.withDisable(new Disable(false));
 
@@ -91,22 +91,20 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
     }
 
     @Override
-    protected DomainEvent<?, ?> getLoanTypeActivatedEvent(TradeLoanTypeId aggregateId, Clock clock) {
+    protected DomainEvent<?, ?> getLoanTypeActivatedEvent(LoanTypeId aggregateId, Clock clock) {
         var payload = new TradeLoanTypeActivated.Payload();
         return new TradeLoanTypeActivated(randomUUID(), aggregateId, payload, clock.instant());
     }
 
     @Override
-    protected DomainEvent<?, ?> getLoanTypeDeactivatedEvent(TradeLoanTypeId aggregateId, Clock clock) {
+    protected DomainEvent<?, ?> getLoanTypeDeactivatedEvent(LoanTypeId aggregateId, Clock clock) {
         var payload = new TradeLoanTypeDeactivated.Payload();
         return new TradeLoanTypeDeactivated(randomUUID(), aggregateId, payload, clock.instant());
     }
 
     @Override
     protected DomainEvent<?, ?> getNewVersionPreparedEvent(
-            TradeLoanTypeId currentAggregateId,
-            AbstractLoanTypeBuilder<TradeLoanTypeId, ?, ?> validatedBuilder,
-            Clock clock) {
+            LoanTypeId currentAggregateId, AbstractLoanTypeBuilder<?, ?> validatedBuilder, Clock clock) {
 
         Builder builder = (Builder) validatedBuilder;
         Result<TradeLoanType> morabeheLoanTypeResult = builder.build();
@@ -118,7 +116,7 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
 
         TradeLoanType morabeheLoanType = morabeheLoanTypeResult.value();
         requireNonNull(morabeheLoanType, "morabeheLoanType cannot be null after successful build");
-        TradeLoanTypeId newAggregateId = morabeheLoanType.getId();
+        LoanTypeId newAggregateId = morabeheLoanType.getId();
 
         var payload = new NewTradeLoanTypeVersionPrepared.Payload(
                 newAggregateId,
@@ -138,7 +136,7 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
         return new NewTradeLoanTypeVersionPrepared(randomUUID(), newAggregateId, payload, clock.instant());
     }
 
-    public Set<TradeLoanArrangementId> getLoanArrangementIds() {
+    public Set<LoanArrangementId> getLoanArrangementIds() {
         return Set.copyOf(loanArrangementIds);
     }
 
@@ -170,7 +168,7 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
     @Override
     protected Result<Void> validateInternalState() {
         Result<Void> result = super.validateInternalState();
-        Notification notification = validateTradeLoanArrangementIds(this.loanArrangementIds);
+        Notification notification = validateLoanArrangementIds(this.loanArrangementIds);
         if (notification.hasErrors() || result.isFailure()) {
             result.ifFailure(notification::merge);
             return Result.failure(notification);
@@ -179,10 +177,10 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
     }
 
     private Notification validateMorabeheNewVersionData(Builder builder) {
-        return validateTradeLoanArrangementIds(builder.loanArrangementIds);
+        return validateLoanArrangementIds(builder.loanArrangementIds);
     }
 
-    private static Notification validateTradeLoanArrangementIds(Set<TradeLoanArrangementId> arrangementIds) {
+    private static Notification validateLoanArrangementIds(Set<LoanArrangementId> arrangementIds) {
         Notification notification = Notification.create();
         if (arrangementIds == null || arrangementIds.isEmpty()) {
             notification = notification.addError(LoanTypeLocalizedMessageCodes.LOAN_RULE_IDS_EMPTY);
@@ -193,10 +191,9 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
         return notification;
     }
 
-    public static final class Builder
-            extends AbstractLoanType.AbstractLoanTypeBuilder<TradeLoanTypeId, TradeLoanType, Builder> {
+    public static final class Builder extends AbstractLoanType.AbstractLoanTypeBuilder<TradeLoanType, Builder> {
 
-        private Set<TradeLoanArrangementId> loanArrangementIds = new HashSet<>();
+        private Set<LoanArrangementId> loanArrangementIds = new HashSet<>();
 
         public Builder(FeatureConfig featureConfig) {
             super(featureConfig);
@@ -214,9 +211,9 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
                 this.loanArrangementIds = new HashSet<>();
                 return self();
             }
-            Set<TradeLoanArrangementId> specificIds = new HashSet<>();
+            Set<LoanArrangementId> specificIds = new HashSet<>();
             for (Identity id : val) {
-                if (id instanceof TradeLoanArrangementId specificId) {
+                if (id instanceof LoanArrangementId specificId) {
                     specificIds.add(specificId);
                 } else if (id != null) {
                     throw new IllegalArgumentException(
@@ -228,7 +225,7 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
             return self();
         }
 
-        public Builder withMorabeheLoanArrangementIds(Set<TradeLoanArrangementId> val) {
+        public Builder withMorabeheLoanArrangementIds(Set<LoanArrangementId> val) {
             this.loanArrangementIds = (val != null) ? new HashSet<>(val) : new HashSet<>();
             return self();
         }
@@ -241,7 +238,7 @@ public final class TradeLoanType extends AbstractLoanType<TradeLoanTypeId> {
         @Override
         public Notification validate() {
             Notification notification = super.validate();
-            notification.merge(validateTradeLoanArrangementIds(this.loanArrangementIds));
+            notification.merge(validateLoanArrangementIds(this.loanArrangementIds));
             return notification;
         }
     }

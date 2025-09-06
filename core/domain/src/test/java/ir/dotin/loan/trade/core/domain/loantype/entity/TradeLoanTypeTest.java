@@ -19,12 +19,13 @@ import ir.dotin.loan.baseloan.core.domain.loantype.enums.SegmentType;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanApplicationStatus;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeGroupId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
-import ir.dotin.loan.trade.core.domain.loanarrangement.vo.TradeLoanArrangementId;
-import ir.dotin.loan.trade.core.domain.loantype.vo.TradeLoanTypeId;
 
 import static java.time.ZoneOffset.UTC;
+import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -51,14 +52,14 @@ final class TradeLoanTypeTest {
     @Mock
     private LoanTypeGroupId mockGroupId;
 
-    private Set<TradeLoanArrangementId> validArrangementIds;
+    private Set<LoanArrangementId> validArrangementIds;
     private Clock testClock;
 
     @BeforeEach
     void setUp() {
         // Create distinct arrangement IDs to avoid DistinctVarargsChecker warning
-        var arrangementId1 = TradeLoanArrangementId.generate();
-        var arrangementId2 = TradeLoanArrangementId.generate();
+        var arrangementId1 = LoanArrangementId.of(randomUUID());
+        var arrangementId2 = LoanArrangementId.of(randomUUID());
         validArrangementIds = ImmutableSet.of(arrangementId1, arrangementId2);
         testClock = Clock.fixed(Instant.parse("2023-12-01T10:00:00Z"), UTC);
     }
@@ -81,7 +82,7 @@ final class TradeLoanTypeTest {
             var loanType = result.value();
             assertThat(loanType).isNotNull();
             assertThat(loanType.getId()).isNotNull();
-            assertThat(loanType.getId()).isInstanceOf(TradeLoanTypeId.class);
+            assertThat(loanType.getId()).isInstanceOf(LoanTypeId.class);
             assertThat(loanType.getCode()).isEqualTo(mockLoanTypeCode);
             assertThat(loanType.getTitle()).isEqualTo(mockTitle);
             assertThat(loanType.getLoanArrangementIds()).hasSameElementsAs(validArrangementIds);
@@ -159,7 +160,7 @@ final class TradeLoanTypeTest {
         @Test
         void shouldReconstituteSuccessfully() {
             // given
-            var existingId = TradeLoanTypeId.generate();
+            var existingId = LoanTypeId.of(randomUUID());
             var builder = createValidBuilder().withId(existingId);
 
             // when
@@ -231,7 +232,7 @@ final class TradeLoanTypeTest {
             var originalLoanType = TradeLoanType.reconstitute(originalBuilder);
             var updatedBuilder = createValidBuilder()
                     .withTitle(mockTitle)
-                    .withMorabeheLoanArrangementIds(ImmutableSet.of(TradeLoanArrangementId.generate()));
+                    .withMorabeheLoanArrangementIds(ImmutableSet.of(LoanArrangementId.of(randomUUID())));
 
             // when
             var result = originalLoanType.prepareNewVersion(updatedBuilder, testClock);
@@ -304,7 +305,7 @@ final class TradeLoanTypeTest {
         void shouldHandleTypeConversionForLoanArrangementIds() {
             // given
             var builder = createValidBuilder();
-            var arrangementIds = ImmutableSet.of(TradeLoanArrangementId.generate());
+            var arrangementIds = ImmutableSet.of(LoanArrangementId.of(randomUUID()));
 
             // when
             builder.withMorabeheLoanArrangementIds(arrangementIds);
@@ -344,7 +345,7 @@ final class TradeLoanTypeTest {
             var arrangementIds = loanType.getLoanArrangementIds();
 
             // then
-            TradeLoanArrangementId generate = TradeLoanArrangementId.generate();
+            LoanArrangementId generate = LoanArrangementId.of(randomUUID());
             //noinspection DataFlowIssue
             assertThatThrownBy(() -> arrangementIds.add(generate)).isInstanceOf(UnsupportedOperationException.class);
         }
@@ -363,7 +364,7 @@ final class TradeLoanTypeTest {
 
     private TradeLoanType.Builder createValidBuilder() {
         return TradeLoanType.newBuilder(mockFeatureConfig)
-                .withId(TradeLoanTypeId.generate())
+                .withId(LoanTypeId.of(randomUUID()))
                 .withCode(mockLoanTypeCode)
                 .withTitle(mockTitle)
                 .withGatewayType(GatewayType.LOAN)

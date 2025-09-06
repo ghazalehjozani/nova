@@ -1,8 +1,8 @@
 package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.Instant;
+import java.time.Period;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,9 +23,10 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.RequestReason;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanApplicationId;
 
+import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -69,7 +70,7 @@ final class TradeLoanApplicationTest {
         validAmount =
                 Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR).value();
         validCurrency = CurrencyType.IRR;
-        validDuration = LoanDuration.of(Duration.ofDays(12)).value();
+        validDuration = LoanDuration.of(Period.ofDays(12)).value();
     }
 
     @Nested
@@ -90,7 +91,7 @@ final class TradeLoanApplicationTest {
             var application = result.value();
             assertThat(application).isNotNull();
             assertThat(application.getId()).isNotNull();
-            assertThat(application.getId()).isInstanceOf(TradeLoanApplicationId.class);
+            assertThat(application.getId()).isInstanceOf(LoanApplicationId.class);
             assertThat(application.getApplicationNumber()).hasValue(mockApplicationNumber);
             assertThat(application.getCustomer()).isEqualTo(mockApplicant);
             assertThat(application.getRequestedAmount()).isEqualTo(validAmount);
@@ -141,7 +142,7 @@ final class TradeLoanApplicationTest {
         @Test
         void shouldReconstituteSuccessfully() {
             // given
-            var existingId = TradeLoanApplicationId.generate();
+            var existingId = LoanApplicationId.of(randomUUID());
             var builder = createValidBuilder().withId(existingId);
 
             // when
@@ -183,7 +184,7 @@ final class TradeLoanApplicationTest {
         @Test
         void shouldBuildSuccessfullyWithAllRequiredFields() {
             // given
-            var builder = createValidBuilder().withId(TradeLoanApplicationId.generate());
+            var builder = createValidBuilder().withId(LoanApplicationId.of(randomUUID()));
 
             // when
             var result = builder.build();
@@ -199,7 +200,7 @@ final class TradeLoanApplicationTest {
         void shouldValidateAndReturnErrorsForInvalidData() {
             // given - provide minimum required fields to pass constructor validation but fail business validation
             var builder = TradeLoanApplication.newBuilder()
-                    .withId(TradeLoanApplicationId.generate())
+                    .withId(LoanApplicationId.of(randomUUID()))
                     .withApplicationNumber(mockApplicationNumber)
                     .withRequestDate(FIXED_INSTANT)
                     .withCustomer(mockApplicant)
@@ -231,7 +232,7 @@ final class TradeLoanApplicationTest {
         @Test
         void shouldImplementEqualityCorrectly() {
             // given
-            var id = TradeLoanApplicationId.generate();
+            var id = LoanApplicationId.of(randomUUID());
             var builder1 = createValidBuilder().withId(id);
             var builder2 = createValidBuilder().withId(id);
 

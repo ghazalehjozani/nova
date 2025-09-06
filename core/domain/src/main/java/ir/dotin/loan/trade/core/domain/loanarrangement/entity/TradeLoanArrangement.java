@@ -2,25 +2,30 @@ package ir.dotin.loan.trade.core.domain.loanarrangement.entity;
 
 import java.time.Clock;
 
+import com.google.common.collect.Range;
+
 import ir.dotin.platform.domain.common.Result;
 import ir.dotin.platform.domain.common.event.DomainEvent;
 import ir.dotin.platform.domain.common.feature.FeatureConfig;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.entity.AbstractLoanArrangement;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.ArrangementFeatureContext;
-import ir.dotin.loan.baseloan.core.domain.shared.formula.BaseFormulaField;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Active;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Disable;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.trade.core.domain.loanarrangement.event.NewTradeLoanArrangementVersionPrepared;
 import ir.dotin.loan.trade.core.domain.loanarrangement.event.TradeLoanArrangementActivated;
 import ir.dotin.loan.trade.core.domain.loanarrangement.event.TradeLoanArrangementCreated;
 import ir.dotin.loan.trade.core.domain.loanarrangement.event.TradeLoanArrangementDeactivated;
-import ir.dotin.loan.trade.core.domain.loanarrangement.vo.TradeLoanArrangementId;
+import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanFacilityFormulaField;
+import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanParameterProvider;
+import org.jspecify.annotations.NonNull;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
-public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoanArrangementId, BaseFormulaField> {
+public final class TradeLoanArrangement
+        extends AbstractLoanArrangement<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> {
 
     private TradeLoanArrangement(Builder builder) {
         super(builder);
@@ -40,7 +45,7 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
         requireNonNull(clock, "Clock cannot be null for creation");
         requireNonNull(builder, "Builder cannot be null for creation");
 
-        builder.withId(TradeLoanArrangementId.generate());
+        builder.withId(LoanArrangementId.of(randomUUID()));
 
         builder.withActive(new Active(true));
         builder.withDisable(new Disable(false));
@@ -55,28 +60,7 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
         TradeLoanArrangement arrangement = arrangementResult.value();
         requireNonNull(arrangement, "arrangement cannot be null after successful build");
 
-        var payload = new TradeLoanArrangementCreated.Payload(
-                arrangement.getCode(),
-                arrangement.getTitle(),
-                arrangement.getCurrencies(),
-                arrangement.getAmountRange(),
-                arrangement.getDurationRange(),
-                arrangement.getPartyType(),
-                arrangement.getLifeInsurancePaymentType(),
-                arrangement.getLoanSecondaryType(),
-                arrangement.getSectionType(),
-                arrangement.getInterestPolicy(),
-                arrangement.getPenaltyPolicy(),
-                arrangement.getInstallmentPolicy(),
-                arrangement.getGracePeriodPolicy(),
-                arrangement.getRepaymentPriorityPolicy(),
-                arrangement.getRegulatoryCompliancePolicy(),
-                arrangement.getCollateralPolicy(),
-                requireNonNull(arrangement.getGuarantorCount(), "guarantorCount cannot be null"),
-                arrangement.isHasInstallmentCard(),
-                requireNonNull(arrangement.getConfirmType(), "confirmType cannot be null"),
-                requireNonNull(arrangement.getDisbursementMethod(), "disbursementType cannot be null"),
-                arrangement.getActive().isActive());
+        var payload = new TradeLoanArrangementCreated.Payload();
 
         TradeLoanArrangementCreated creationEvent =
                 new TradeLoanArrangementCreated(randomUUID(), arrangement.getId(), payload, clock.instant());
@@ -92,21 +76,21 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
     }
 
     @Override
-    protected DomainEvent<?, ?> getArrangementActivatedEvent(TradeLoanArrangementId aggregateId, Clock clock) {
+    protected DomainEvent<?, ?> getArrangementActivatedEvent(LoanArrangementId aggregateId, Clock clock) {
         var payload = new TradeLoanArrangementActivated.Payload();
         return new TradeLoanArrangementActivated(randomUUID(), aggregateId, payload, clock.instant());
     }
 
     @Override
-    protected DomainEvent<?, ?> getArrangementDeactivatedEvent(TradeLoanArrangementId aggregateId, Clock clock) {
+    protected DomainEvent<?, ?> getArrangementDeactivatedEvent(LoanArrangementId aggregateId, Clock clock) {
         var payload = new TradeLoanArrangementDeactivated.Payload();
         return new TradeLoanArrangementDeactivated(randomUUID(), aggregateId, payload, clock.instant());
     }
 
     @Override
     protected DomainEvent<?, ?> getNewArrangementVersionPreparedEvent(
-            TradeLoanArrangementId currentAggregateId,
-            AbstractBuilder<TradeLoanArrangementId, BaseFormulaField, ?, ?> validatedBuilder,
+            LoanArrangementId currentAggregateId,
+            AbstractBuilder<TradeLoanParameterProvider, TradeLoanFacilityFormulaField, ?, ?> validatedBuilder,
             Clock clock) {
         Builder morabeheBuilder = (Builder) validatedBuilder;
         Result<TradeLoanArrangement> loanArrangementResult = morabeheBuilder.build();
@@ -118,31 +102,9 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
 
         TradeLoanArrangement loanArrangement = loanArrangementResult.value();
         requireNonNull(loanArrangement, "loanArrangement cannot be null after successful build");
-        TradeLoanArrangementId newVersionId = loanArrangement.getId();
+        LoanArrangementId newVersionId = loanArrangement.getId();
 
-        var payload = new NewTradeLoanArrangementVersionPrepared.Payload(
-                newVersionId,
-                currentAggregateId,
-                loanArrangement.getCode(),
-                loanArrangement.getTitle(),
-                loanArrangement.getCurrencies(),
-                loanArrangement.getAmountRange(),
-                loanArrangement.getDurationRange(),
-                loanArrangement.getPartyType(),
-                loanArrangement.getLifeInsurancePaymentType(),
-                loanArrangement.getLoanSecondaryType(),
-                loanArrangement.getSectionType(),
-                loanArrangement.getInterestPolicy(),
-                loanArrangement.getPenaltyPolicy(),
-                loanArrangement.getInstallmentPolicy(),
-                loanArrangement.getGracePeriodPolicy(),
-                loanArrangement.getRepaymentPriorityPolicy(),
-                loanArrangement.getRegulatoryCompliancePolicy(),
-                loanArrangement.getCollateralPolicy(),
-                loanArrangement.getGuarantorCount(),
-                loanArrangement.isHasInstallmentCard(),
-                loanArrangement.getConfirmType(),
-                loanArrangement.getDisbursementMethod());
+        var payload = new NewTradeLoanArrangementVersionPrepared.Payload();
 
         return new NewTradeLoanArrangementVersionPrepared(randomUUID(), newVersionId, payload, clock.instant());
     }
@@ -173,7 +135,8 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
     }
 
     public static final class Builder
-            extends AbstractBuilder<TradeLoanArrangementId, BaseFormulaField, TradeLoanArrangement, Builder> {
+            extends AbstractBuilder<
+                    TradeLoanParameterProvider, TradeLoanFacilityFormulaField, TradeLoanArrangement, Builder> {
 
         public Builder(FeatureConfig featureConfig) {
             super(featureConfig);
@@ -188,5 +151,9 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement<TradeLoa
         protected TradeLoanArrangement buildInternal() {
             return new TradeLoanArrangement(this);
         }
+    }
+
+    public Range<@NonNull Long> getDurationRangeAsLongRange() {
+        return Range.closed(0L, Long.MAX_VALUE);
     }
 }

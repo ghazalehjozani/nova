@@ -17,9 +17,10 @@ public final class TradeLoanFacilityValidationService
             TradeLoanFacility candidateFacility, TradeLoanArrangement morabeheRules, TradeLoanType morabeheLoanType) {
 
         var baseSpecification = new LoanApplicationAmountSpecification(morabeheRules.getAmountRange())
-                .and(new LoanApplicationDurationSpecification(morabeheRules.getDurationRange()))
+                .and(new LoanApplicationDurationSpecification(morabeheRules.getDurationRangeAsLongRange()))
                 .and(new LoanApplicationGracePeriodSpecification(
-                        morabeheRules.getGracePeriodPolicy().gracePeriodRange()))
+                        morabeheRules.getGracePeriodPolicy().minGracePeriod(),
+                        morabeheRules.getGracePeriodPolicy().maxGracePeriod()))
                 .and(new LoanApplicationCustomerTypeSpecification(morabeheRules.getPartyType()));
 
         // Add guarantor count specification only if guarantor count is specified

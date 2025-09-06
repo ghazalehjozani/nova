@@ -10,9 +10,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeSanctionedLoanId;
 
 import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.*;
@@ -21,8 +21,8 @@ import static org.assertj.core.api.Assertions.*;
 @SuppressWarnings({"NullAway", "TimeZoneUsage"})
 final class TradeLoanFacilityContractIssuedEventTest {
 
-    private static final TradeLoanFacilityId FACILITY_ID = TradeLoanFacilityId.generate();
-    private static final TradeSanctionedLoanId SANCTIONED_LOAN_ID = TradeSanctionedLoanId.generate();
+    private static final LoanFacilityId FACILITY_ID = LoanFacilityId.of(randomUUID());
+    private static final SanctionedLoanId SANCTIONED_LOAN_ID = SanctionedLoanId.of(randomUUID());
 
     @DisplayName("Event Creation and Structure")
     @Nested

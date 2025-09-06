@@ -11,12 +11,14 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.service.AbstractLoanFacilityService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan;
 import ir.dotin.loan.trade.core.domain.loanfacility.i18n.TradeLoanFacilityLocalizedMessageCodes;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeSanctionedLoanId;
+
+import static java.util.UUID.randomUUID;
 
 public class TradeLoanFacilityService
         extends AbstractLoanFacilityService<TradeLoanApplication, TradeSanctionedLoan, TradeLoanFacility> {
@@ -79,7 +81,7 @@ public class TradeLoanFacilityService
 
     @Override
     protected Result<Void> performPreApprovalChecks(
-            TradeLoanFacility facility, AbstractSanctionedLoan.AbstractSanctionedLoanBuilder<?, ?, ?> builder) {
+            TradeLoanFacility facility, AbstractSanctionedLoan.AbstractSanctionedLoanBuilder<?, ?> builder) {
         return Result.success();
     }
 
@@ -90,7 +92,7 @@ public class TradeLoanFacilityService
 
         // Create a TradeSanctionedLoan.Builder from the loan application data
         var builder = TradeSanctionedLoan.newBuilder()
-                .withId(TradeSanctionedLoanId.generate())
+                .withId(SanctionedLoanId.of(randomUUID()))
                 .withSanctionSerial(
                         SanctionSerial.of("AUTO_GENERATED-" + System.currentTimeMillis(), SanctionType.GENERAL)
                                 .orElseThrow())

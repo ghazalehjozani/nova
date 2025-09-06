@@ -9,32 +9,32 @@ import ir.dotin.platform.domain.common.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractLoanFacility;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.LoanFacilityEventFactory;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
-import ir.dotin.loan.trade.core.domain.loanarrangement.vo.TradeLoanArrangementId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityEvent;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
-import ir.dotin.loan.trade.core.domain.loantype.vo.TradeLoanTypeId;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
+import static java.util.UUID.randomUUID;
 
-public final class TradeLoanFacility
-        extends AbstractLoanFacility<TradeLoanFacilityId, TradeLoanApplication, TradeSanctionedLoan> {
+public final class TradeLoanFacility extends AbstractLoanFacility<TradeLoanApplication, TradeSanctionedLoan> {
 
-    private final TradeLoanTypeId tradeLoanTypeId;
-    private final TradeLoanArrangementId tradeLoanArrangementId;
+    private final LoanTypeId loanTypeId;
+    private final LoanArrangementId loanArrangementId;
     private final Money totalTradeDisbursementAmount;
 
     TradeLoanFacility(
-            TradeLoanFacilityId id,
+            LoanFacilityId id,
             TradeLoanApplication application,
             @Nullable TradeSanctionedLoan sanctionedLoan,
             FacilityStatus status,
-            TradeLoanTypeId loanTypeId,
-            TradeLoanArrangementId loanArrangementId,
+            LoanTypeId loanTypeId,
+            LoanArrangementId loanArrangementId,
             Money totalDisbursementAmount) {
         super(id, application, sanctionedLoan, status, loanArrangementId, totalDisbursementAmount);
-        this.tradeLoanTypeId = requireNonNull(loanTypeId, "tradeLoanTypeId cannot be null");
-        this.tradeLoanArrangementId = requireNonNull(loanArrangementId, "tradeLoanArrangementId cannot be null");
+        this.loanTypeId = requireNonNull(loanTypeId, "LoanTypeId cannot be null");
+        this.loanArrangementId = requireNonNull(loanArrangementId, "LoanArrangementId cannot be null");
         this.totalTradeDisbursementAmount = totalDisbursementAmount;
     }
 
@@ -44,7 +44,7 @@ public final class TradeLoanFacility
     }
 
     public static TradeLoanFacility create(
-            TradeLoanFacilityId id,
+            LoanFacilityId id,
             TradeLoanApplication application,
             Identity loanArrangementId,
             Money totalDisbursementAmount,
@@ -55,19 +55,19 @@ public final class TradeLoanFacility
         requireNonNull(loanArrangementId, "Loan arrangement ID cannot be null");
 
         checkArgument(
-                (loanArrangementId instanceof TradeLoanArrangementId),
-                "Expected TradeLoanArrangementId, got: %s",
+                (loanArrangementId instanceof LoanArrangementId),
+                "Expected LoanArrangementId, got: %s",
                 loanArrangementId.getClass().getSimpleName());
-        TradeLoanArrangementId arrangementId = (TradeLoanArrangementId) loanArrangementId;
+        LoanArrangementId arrangementId = (LoanArrangementId) loanArrangementId;
 
-        TradeLoanTypeId loanTypeId = TradeLoanTypeId.generate();
+        LoanTypeId typeId = new LoanTypeId(randomUUID());
 
         TradeLoanFacility facility = new TradeLoanFacility(
                 id,
                 application,
                 null,
                 FacilityStatus.APPLICATION_SUBMITTED,
-                loanTypeId,
+                typeId,
                 arrangementId,
                 totalDisbursementAmount);
 
@@ -82,7 +82,7 @@ public final class TradeLoanFacility
     }
 
     public static TradeLoanFacility reconstitute(
-            TradeLoanFacilityId id,
+            LoanFacilityId id,
             TradeLoanApplication application,
             @Nullable TradeSanctionedLoan sanctionedLoan,
             FacilityStatus status,
@@ -96,25 +96,25 @@ public final class TradeLoanFacility
 
         // For trade loans, we expect specific types
         checkArgument(
-                (loanArrangementId instanceof TradeLoanArrangementId),
-                "Expected TradeLoanArrangementId, got: %s",
+                (loanArrangementId instanceof LoanArrangementId),
+                "Expected LoanArrangementId, got: %s",
                 loanArrangementId.getClass().getSimpleName());
-        TradeLoanArrangementId arrangementId = (TradeLoanArrangementId) loanArrangementId;
+        LoanArrangementId arrangementId = (LoanArrangementId) loanArrangementId;
 
-        TradeLoanTypeId loanTypeId = TradeLoanTypeId.generate();
+        LoanTypeId typeId = new LoanTypeId(randomUUID());
 
         return new TradeLoanFacility(
-                id, application, sanctionedLoan, status, loanTypeId, arrangementId, totalDisbursementAmount);
+                id, application, sanctionedLoan, status, typeId, arrangementId, totalDisbursementAmount);
     }
 
     @Override
-    public TradeLoanTypeId getLoanTypeId() {
-        return tradeLoanTypeId;
+    public LoanTypeId getLoanTypeId() {
+        return loanTypeId;
     }
 
     @Override
-    public TradeLoanArrangementId getLoanArrangementId() {
-        return tradeLoanArrangementId;
+    public LoanArrangementId getLoanArrangementId() {
+        return loanArrangementId;
     }
 
     @Override
