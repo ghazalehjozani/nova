@@ -104,9 +104,7 @@ public final class TradeLoanArrangement
         requireNonNull(loanArrangement, "loanArrangement cannot be null after successful build");
         LoanArrangementId newVersionId = loanArrangement.getId();
 
-        var payload = new NewTradeLoanArrangementVersionPrepared.Payload(loanArrangement.getId());
-
-        return new NewTradeLoanArrangementVersionPrepared(randomUUID(), newVersionId, payload, clock.instant());
+        return new NewTradeLoanArrangementVersionPrepared(randomUUID(), newVersionId, clock.instant());
     }
 
     @Override

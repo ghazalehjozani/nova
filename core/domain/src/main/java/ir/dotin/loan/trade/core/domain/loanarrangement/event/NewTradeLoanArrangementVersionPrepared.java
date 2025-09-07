@@ -8,14 +8,13 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import static java.util.Objects.requireNonNull;
 
 public record NewTradeLoanArrangementVersionPrepared(
-        UUID eventId, LoanArrangementId aggregateId, Payload payload, Instant createdAt)
+        UUID eventId, LoanArrangementId aggregateId, Instant createdAt)
         implements TradeLoanArrangementEvent<
-                NewTradeLoanArrangementVersionPrepared, NewTradeLoanArrangementVersionPrepared.Payload> {
+        NewTradeLoanArrangementVersionPrepared, Void> {
 
     public NewTradeLoanArrangementVersionPrepared {
         requireNonNull(eventId, "eventId cannot be null");
         requireNonNull(aggregateId, "aggregateId cannot be null (should be new version ID)");
-        requireNonNull(payload, "payload cannot be null");
         requireNonNull(createdAt, "createdAt cannot be null");
     }
 
@@ -24,9 +23,8 @@ public record NewTradeLoanArrangementVersionPrepared(
         return EVENT_TYPE_PREFIX + "VERSION_PREPARED";
     }
 
-    public record Payload(LoanArrangementId loanArrangementId) {
-        public Payload {
-            requireNonNull(loanArrangementId);
-        }
+    @Override
+    public Void payload() {
+        return null; // Return null for Void payload
     }
 }

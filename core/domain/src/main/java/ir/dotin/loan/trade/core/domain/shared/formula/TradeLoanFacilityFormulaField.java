@@ -1,46 +1,68 @@
 package ir.dotin.loan.trade.core.domain.shared.formula;
 
-import java.util.function.Function;
-
 import ir.dotin.platform.domain.common.vo.ValueType;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.LoanFacilityFormulaField;
 
 public enum TradeLoanFacilityFormulaField
         implements LoanFacilityFormulaField<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> {
-    APPROVED_AMOUNT(LoanFacilityFormulaField.approvedAmount()),
 
-    REQUESTED_AMOUNT(LoanFacilityFormulaField.requestedAmount()),
+    APPROVED_AMOUNT(LoanFacilityFormulaField.approvedAmount()) {
+        @Override
+        Object extract(TradeLoanParameterProvider p) {
+            return LoanFacilityFormulaField.approvedAmount().getExtractor().apply(p);
+        }
+    },
 
-    COMMISSION_AMOUNT(ValueType.MONEY, TradeLoanParameterProvider::getCommissionAmount),
+    REQUESTED_AMOUNT(LoanFacilityFormulaField.requestedAmount()) {
+        @Override
+        Object extract(TradeLoanParameterProvider p) {
+            return LoanFacilityFormulaField.requestedAmount().getExtractor().apply(p);
+        }
+    },
 
-    SHIPMENT_VALUE(ValueType.MONEY, TradeLoanParameterProvider::getShipmentValue),
+    COMMISSION_AMOUNT(ValueType.MONEY) {
+        @Override
+        Object extract(TradeLoanParameterProvider p) {
+            return p.getCommissionAmount();
+        }
+    },
 
-    INSURANCE_RATE(ValueType.RATE, TradeLoanParameterProvider::getInsuranceRate);
+    SHIPMENT_VALUE(ValueType.MONEY) {
+        @Override
+        Object extract(TradeLoanParameterProvider p) {
+            return p.getShipmentValue();
+        }
+    },
+
+    INSURANCE_RATE(ValueType.RATE) {
+        @Override
+        Object extract(TradeLoanParameterProvider p) {
+            return p.getInsuranceRate();
+        }
+    };
 
     private final ValueType expectedType;
 
-    @SuppressWarnings("Immutable")
-    private final Function<TradeLoanParameterProvider, Object> extractor;
-
-    TradeLoanFacilityFormulaField(ValueType expectedType, Function<TradeLoanParameterProvider, Object> extractor) {
+    TradeLoanFacilityFormulaField(ValueType expectedType) {
         this.expectedType = expectedType;
-        this.extractor = extractor;
     }
 
+    // keep the delegating ctor if you really need it, but don't copy a Function into a field
     TradeLoanFacilityFormulaField(
-            LoanFacilityFormulaField<TradeLoanParameterProvider, TradeLoanFacilityFormulaField>
-                    loanFacilityFormulaField) {
-        this.expectedType = loanFacilityFormulaField.getExpectedType();
-        this.extractor = loanFacilityFormulaField.getExtractor();
+            LoanFacilityFormulaField<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> base) {
+        this.expectedType = base.getExpectedType();
     }
+
+    abstract Object extract(TradeLoanParameterProvider p);
 
     @Override
     public ValueType getExpectedType() {
         return expectedType;
     }
 
+    // If some callers still want a Function, return one without storing it:
     @Override
-    public Function<TradeLoanParameterProvider, Object> getExtractor() {
-        return extractor;
+    public java.util.function.Function<TradeLoanParameterProvider, Object> getExtractor() {
+        return this::extract;
     }
 }
