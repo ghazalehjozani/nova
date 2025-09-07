@@ -25,6 +25,6 @@ public record NewTradeLoanArrangementVersionPrepared(
 
     @Override
     public Void payload() {
-        return null; // Return null for Void payload
+        return null;
     }
 }
