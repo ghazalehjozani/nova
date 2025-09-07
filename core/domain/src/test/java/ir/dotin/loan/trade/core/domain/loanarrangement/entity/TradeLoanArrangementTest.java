@@ -64,7 +64,7 @@ class TradeLoanArrangementTest {
     final class CreateArrangementTests {
 
         @Test
-        @DisplayName("✅ should create successfully and register created event")
+        @DisplayName("should create successfully and register created event")
         void shouldCreateSuccessfullyWithValidBuilder(
                 @Mock FeatureConfig featureConfig,
                 @Mock InterestPolicy interestPolicy,
@@ -75,7 +75,7 @@ class TradeLoanArrangementTest {
                 @Mock RegulatoryCompliancePolicy regulatoryCompliancePolicy,
                 @Mock CollateralPolicy collateralPolicy) {
             // given
-            var builder = createValidBuilder(
+            var validBuilder = createValidBuilder(
                     featureConfig,
                     interestPolicy,
                     penaltyPolicy,
@@ -86,7 +86,7 @@ class TradeLoanArrangementTest {
                     collateralPolicy);
 
             // when
-            var result = TradeLoanArrangement.create(builder, testClock);
+            var result = TradeLoanArrangement.create(validBuilder, testClock);
 
             // then
             assertThat(result.isSuccess()).isTrue();
@@ -117,7 +117,7 @@ class TradeLoanArrangementTest {
         ) {
             // given: A builder representing data from a persistent source
             var id = LoanArrangementId.of(randomUUID());
-            var builder = createValidBuilder(
+            var validBuilder = createValidBuilder(
                     featureConfig,
                     interestPolicy,
                     penaltyPolicy,
@@ -130,7 +130,7 @@ class TradeLoanArrangementTest {
                     .withActive(new Active(true));
 
             // when
-            var arrangement = TradeLoanArrangement.reconstitute(builder);
+            var arrangement = TradeLoanArrangement.reconstitute(validBuilder);
 
             // then
             assertThat(arrangement).isNotNull();
