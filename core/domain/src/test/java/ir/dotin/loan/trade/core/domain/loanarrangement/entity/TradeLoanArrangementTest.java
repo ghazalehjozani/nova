@@ -1,9 +1,27 @@
 package ir.dotin.loan.trade.core.domain.loanarrangement.entity;
 
 
-import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.ArrangementFeatureContext;
-import ir.dotin.platform.domain.common.Result;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Range;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.CollateralPolicy;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.GracePeriodPolicy;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.InstallmentPolicy;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.InterestPolicy;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.PenaltyPolicy;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.RegulatoryCompliancePolicy;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.RepaymentPriorityPolicy;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.LifeInsurancePaymentType;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.LoanSecondaryType;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.SectionType;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.Active;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
+import ir.dotin.loan.trade.core.domain.loanarrangement.event.TradeLoanArrangementCreated;
 import ir.dotin.platform.domain.common.feature.FeatureConfig;
+import ir.dotin.platform.domain.common.vo.CurrencyType;
+import ir.dotin.platform.domain.common.vo.Money;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -11,45 +29,120 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 
+import java.math.BigDecimal;
 import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static java.time.ZoneOffset.UTC;
+import static java.util.UUID.randomUUID;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.BDDMockito.given;
 
-@DisplayName("TradeLoanArrangement Test")
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("NullAway")
-final class TradeLoanArrangementTest {
+@DisplayName("TradeLoanArrangement Aggregate")
+@SuppressWarnings({"NullAway", "unchecked"})
+class TradeLoanArrangementTest {
+
+    private Clock testClock;
+
+    private TradeLoanArrangement.Builder builder;
 
     @Mock
     private FeatureConfig mockFeatureConfig;
 
-    @Mock
-    private Clock mockClock;
-
-    @Mock
-    private ArrangementFeatureContext mockFeatureContext;
-
-    @Mock
-    private TradeLoanArrangement mockTradeLoanArrangement;
-
-    private TradeLoanArrangement.Builder builder;
-
     @BeforeEach
     void setUp() {
         builder = TradeLoanArrangement.newBuilder(mockFeatureConfig);
+        testClock = Clock.fixed(Instant.parse("2023-01-01T00:00:00Z"), UTC);
+    }
+
+    @DisplayName("when creating new arrangement")
+    @Nested
+    final class CreateArrangementTests {
+
+        @Test
+        @DisplayName("✅ should create successfully and register created event")
+        void shouldCreateSuccessfullyWithValidBuilder(
+                @Mock FeatureConfig featureConfig,
+                @Mock InterestPolicy interestPolicy,
+                @Mock PenaltyPolicy penaltyPolicy,
+                @Mock InstallmentPolicy installmentPolicy,
+                @Mock GracePeriodPolicy gracePeriodPolicy,
+                @Mock RepaymentPriorityPolicy repaymentPriorityPolicy,
+                @Mock RegulatoryCompliancePolicy regulatoryCompliancePolicy,
+                @Mock CollateralPolicy collateralPolicy) {
+            // given
+            var builder = createValidBuilder(
+                    featureConfig,
+                    interestPolicy,
+                    penaltyPolicy,
+                    installmentPolicy,
+                    gracePeriodPolicy,
+                    repaymentPriorityPolicy,
+                    regulatoryCompliancePolicy,
+                    collateralPolicy);
+
+            // when
+            var result = TradeLoanArrangement.create(builder, testClock);
+
+            // then
+            assertThat(result.isSuccess()).isTrue();
+            var arrangement = result.value();
+            assertThat(arrangement).isNotNull();
+            assertThat(arrangement.getId()).isNotNull();
+            assertThat(arrangement.getPreviousVersion()).isNull();
+            assertThat(arrangement.domainEvents()).hasSize(1);
+            assertThat(arrangement.domainEvents().getFirst()).isInstanceOf(TradeLoanArrangementCreated.class);
+        }
+    }
+
+    @DisplayName("when reconstituting arrangement")
+    @Nested
+    final class ReconstituteArrangementTests {
+
+        @Test
+        @DisplayName("should reconstitute successfully from a complete builder")
+        void shouldReconstituteSuccessfully(
+                @Mock FeatureConfig featureConfig,
+                @Mock InterestPolicy interestPolicy,
+                @Mock PenaltyPolicy penaltyPolicy,
+                @Mock InstallmentPolicy installmentPolicy,
+                @Mock GracePeriodPolicy gracePeriodPolicy,
+                @Mock RepaymentPriorityPolicy repaymentPriorityPolicy,
+                @Mock RegulatoryCompliancePolicy regulatoryCompliancePolicy,
+                @Mock CollateralPolicy collateralPolicy
+        ) {
+            // given: A builder representing data from a persistent source
+            var id = LoanArrangementId.of(randomUUID());
+            var builder = createValidBuilder(
+                    featureConfig,
+                    interestPolicy,
+                    penaltyPolicy,
+                    installmentPolicy,
+                    gracePeriodPolicy,
+                    repaymentPriorityPolicy,
+                    regulatoryCompliancePolicy,
+                    collateralPolicy)
+                    .withId(id)
+                    .withActive(new Active(true));
+
+            // when
+            var arrangement = TradeLoanArrangement.reconstitute(builder);
+
+            // then
+            assertThat(arrangement).isNotNull();
+            assertThat(arrangement.getId()).isEqualTo(id);
+            assertThat(arrangement.getCode().value()).isEqualTo("TRD-ARR-01");
+            assertThat(arrangement.domainEvents()).isEmpty();
+        }
     }
 
     @Nested
     @DisplayName("Constructor Tests")
     final class ConstructorTests {
-        @Test
-        @DisplayName("should create builder with feature config")
-        void shouldCreateBuilderWithFeatureConfig() {
-            assertThat(builder).isNotNull();
-        }
 
         @Test
         @DisplayName("should throw exception when feature config is null")
@@ -74,92 +167,45 @@ final class TradeLoanArrangementTest {
         @Test
         @DisplayName("should throw exception when builder is null")
         void shouldThrowExceptionWhenBuilderIsNull() {
-            assertThatThrownBy(() -> TradeLoanArrangement.create(null, mockClock))
+            assertThatThrownBy(() -> TradeLoanArrangement.create(null, testClock))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessageContaining("Builder cannot be null for creation");
         }
     }
 
-    @Nested
-    @DisplayName("Reconstitute Method Tests")
-    final class ReconstituteMethodTests {
-
-        @Test
-        @DisplayName("should throw exception when builder is null")
-        void shouldThrowExceptionWhenBuilderIsNull() {
-            assertThatThrownBy(() -> TradeLoanArrangement.reconstitute(null))
-                    .isInstanceOf(NullPointerException.class)
-                    .hasMessageContaining("Builder cannot be null for reconstitution");
-        }
-    }
-
-    @Nested
-    @DisplayName("Activation/Deactivation Tests")
-    final class ActivationDeactivationTests {
-        @Test
-        @DisplayName("should activate arrangement successfully")
-        void shouldActivateArrangementSuccessfully() {
-            // Arrange
-            given(mockTradeLoanArrangement.activate(mockClock))
-                    .willReturn(Result.success(mockTradeLoanArrangement));
-
-            // Act
-            var result = mockTradeLoanArrangement.activate(mockClock);
-
-            // Assert
-            assertThat(result.isSuccess()).isTrue();
-            assertThat(result.value()).isEqualTo(mockTradeLoanArrangement);
-        }
-
-        @Test
-        @DisplayName("should deactivate arrangement successfully")
-        void shouldDeactivateArrangementSuccessfully() {
-            // Arrange
-            given(mockTradeLoanArrangement.deactivate(mockClock))
-                    .willReturn(Result.success(mockTradeLoanArrangement));
-
-            // Act
-            var result = mockTradeLoanArrangement.deactivate(mockClock);
-
-            // Assert
-            assertThat(result.isSuccess()).isTrue();
-            assertThat(result.value()).isEqualTo(mockTradeLoanArrangement);
-        }
-    }
-
-    @Nested
-    @DisplayName("Prepare New Version Tests")
-    final class PrepareNewVersionTests {
-        @Test
-        @DisplayName("should prepare new version successfully")
-        void shouldPrepareNewVersionSuccessfully() {
-            // Arrange
-            given(mockTradeLoanArrangement.prepareNewVersion(builder, mockFeatureContext, mockClock))
-                    .willReturn(Result.success(builder));
-
-            // Act
-            var result = mockTradeLoanArrangement.prepareNewVersion(builder, mockFeatureContext, mockClock);
-
-            // Assert
-            assertThat(result.isSuccess()).isTrue();
-            assertThat(result.value()).isEqualTo(builder);
-        }
-    }
-
-    @Nested
-    @DisplayName("Builder Tests")
-    final class BuilderTests {
-        @Test
-        @DisplayName("should create builder with copy constructor")
-        void shouldCreateBuilderWithCopyConstructor() {
-            // Arrange
-            var originalBuilder = TradeLoanArrangement.newBuilder(mockFeatureConfig);
-
-            // Act
-            var copiedBuilder = new TradeLoanArrangement.Builder(originalBuilder);
-
-            // Assert
-            assertThat(copiedBuilder).isNotNull();
-        }
+    private TradeLoanArrangement.Builder createValidBuilder(
+            FeatureConfig featureConfig,
+            InterestPolicy interestPolicy,
+            PenaltyPolicy penaltyPolicy,
+            InstallmentPolicy installmentPolicy,
+            GracePeriodPolicy gracePeriodPolicy,
+            RepaymentPriorityPolicy repaymentPriorityPolicy,
+            RegulatoryCompliancePolicy regulatoryCompliancePolicy,
+            CollateralPolicy collateralPolicy
+    ) {
+        return TradeLoanArrangement.newBuilder(featureConfig)
+                .withCode(new LoanArrangementCode("TRD-ARR-01"))
+                .withTitle(new Title("Default Trade Arrangement"))
+                .withCurrencies(ImmutableSet.of(CurrencyType.IRR))
+                .withAmountRange(Range.closed(
+                        Money.valueOf(BigDecimal.valueOf(1000), CurrencyType.IRR).orElseThrow(),
+                        Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR).orElseThrow()
+                ))
+                .withDurationRange(Range.closed(Duration.ofDays(30), Duration.ofDays(365)))
+                .withGuarantorCount(1)
+                .withCustomerType(PartyType.LEGAL)
+                .withHasInstallmentCard(false)
+                .withLifeInsurancePaymentType(LifeInsurancePaymentType.NONE)
+                .withLoanSecondaryType(LoanSecondaryType.GENERAL)
+                .withSectionType(SectionType.CURRENT)
+                .withAutoApproval(true)
+                .withDisbursementMethod(DisbursementMethod.LUMP_SUMP)
+                .withInterestPolicy(interestPolicy)
+                .withPenaltyPolicy(penaltyPolicy)
+                .withInstallmentPolicy(installmentPolicy)
+                .withGracePeriodPolicy(gracePeriodPolicy)
+                .withRepaymentPriorityPolicy(repaymentPriorityPolicy)
+                .withRegulatoryCompliancePolicy(regulatoryCompliancePolicy)
+                .withCollateralPolicy(collateralPolicy);
     }
 }
