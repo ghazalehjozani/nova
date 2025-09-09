@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.Period;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,15 +18,12 @@ import ir.dotin.platform.domain.common.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.*;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
-import ir.dotin.loan.trade.core.domain.loanarrangement.vo.TradeLoanArrangementId;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCreatedEvent;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanApplicationId;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
-import ir.dotin.loan.trade.core.domain.loantype.vo.TradeLoanTypeId;
 
 import static java.time.ZoneOffset.UTC;
+import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -35,12 +33,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class TradeLoanFacilityTest {
 
     private Clock testClock;
-    private TradeLoanArrangementId loanArrangementId;
+    private LoanArrangementId loanArrangementId;
 
     @BeforeEach
     void setUp() {
         testClock = Clock.fixed(Instant.parse("2023-12-01T10:00:00Z"), UTC);
-        loanArrangementId = TradeLoanArrangementId.generate();
+        loanArrangementId = LoanArrangementId.of(randomUUID());
     }
 
     @DisplayName("when creating new trade loan facility")
@@ -68,7 +66,7 @@ class TradeLoanFacilityTest {
                     requestReason,
                     disburseDestination);
             var application = applicationBuilder.build().orElseThrow();
-            var facilityId = TradeLoanFacilityId.generate();
+            var facilityId = LoanFacilityId.of(randomUUID());
 
             // when
             var facility = TradeLoanFacility.create(
@@ -96,7 +94,7 @@ class TradeLoanFacilityTest {
         @Test
         void shouldFailWhenApplicationIsNull(@Mock Money totalDisbursementAmount) {
             // given
-            var facilityId = TradeLoanFacilityId.generate();
+            var facilityId = LoanFacilityId.of(randomUUID());
 
             // when & then
             assertThatThrownBy(() -> TradeLoanFacility.create(
@@ -110,7 +108,7 @@ class TradeLoanFacilityTest {
         void shouldFailWhenLoanArrangementIdIsNull(
                 @Mock TradeLoanApplication application, @Mock Money totalDisbursementAmount) {
             // given
-            var facilityId = TradeLoanFacilityId.generate();
+            var facilityId = LoanFacilityId.of(randomUUID());
 
             // when & then
             assertThatThrownBy(() ->
@@ -140,7 +138,7 @@ class TradeLoanFacilityTest {
                     requestReason,
                     disburseDestination);
             var application = applicationBuilder.build().orElseThrow();
-            var facilityId = TradeLoanFacilityId.generate();
+            var facilityId = LoanFacilityId.of(randomUUID());
 
             // when
             var facility = TradeLoanFacility.create(
@@ -171,7 +169,7 @@ class TradeLoanFacilityTest {
                 @Mock TradeSanctionedLoan sanctionedLoan,
                 @Mock Money tradeTotalDisbursementAmount) {
             // given
-            var facilityId = TradeLoanFacilityId.generate();
+            var facilityId = LoanFacilityId.of(randomUUID());
             var status = FacilityStatus.ACTIVE;
 
             // when
@@ -191,7 +189,7 @@ class TradeLoanFacilityTest {
         void shouldReconstituteFacilityWithoutSanctionedLoan(
                 @Mock TradeLoanApplication application, @Mock Money totalDisbursementAmount) {
             // given
-            var facilityId = TradeLoanFacilityId.generate();
+            var facilityId = LoanFacilityId.of(randomUUID());
             var status = FacilityStatus.PENDING_APPROVAL;
 
             // when
@@ -229,7 +227,7 @@ class TradeLoanFacilityTest {
                     requestReason,
                     disburseDestination);
             var application = builder.build().orElseThrow();
-            var facilityId = TradeLoanFacilityId.generate();
+            var facilityId = LoanFacilityId.of(randomUUID());
             TradeLoanFacility facility = TradeLoanFacility.create(
                     facilityId, application, loanArrangementId, totalDisbursementAmount, testClock);
 
@@ -237,7 +235,7 @@ class TradeLoanFacilityTest {
             var returnedLoanTypeId = facility.getLoanTypeId();
 
             // then
-            assertThat(returnedLoanTypeId).isNotNull().isInstanceOf(TradeLoanTypeId.class);
+            assertThat(returnedLoanTypeId).isNotNull().isInstanceOf(LoanTypeId.class);
         }
 
         @DisplayName("should return correct loan arrangement id")
@@ -261,7 +259,7 @@ class TradeLoanFacilityTest {
                     requestReason,
                     disburseDestination);
             var application = builder.build().orElseThrow();
-            var facilityId = TradeLoanFacilityId.generate();
+            var facilityId = LoanFacilityId.of(randomUUID());
             TradeLoanFacility facility = TradeLoanFacility.create(
                     facilityId, application, loanArrangementId, totalDisbursementAmount, testClock);
 
@@ -293,7 +291,7 @@ class TradeLoanFacilityTest {
                     requestReason,
                     disburseDestination);
             var application = builder.build().orElseThrow();
-            var facilityId = TradeLoanFacilityId.generate();
+            var facilityId = LoanFacilityId.of(randomUUID());
             TradeLoanFacility facility = TradeLoanFacility.create(
                     facilityId, application, loanArrangementId, totalDisbursementAmount, testClock);
 
@@ -330,7 +328,7 @@ class TradeLoanFacilityTest {
                     requestReason,
                     disburseDestination);
             var application = builder.build().orElseThrow();
-            var facilityId = TradeLoanFacilityId.generate();
+            var facilityId = LoanFacilityId.of(randomUUID());
             TradeLoanFacility facility = TradeLoanFacility.create(
                     facilityId, application, loanArrangementId, totalDisbursementAmount, testClock);
 
@@ -362,7 +360,7 @@ class TradeLoanFacilityTest {
                     requestReason,
                     disburseDestination);
             var application = builder.build().orElseThrow();
-            var facilityId = TradeLoanFacilityId.generate();
+            var facilityId = LoanFacilityId.of(randomUUID());
             TradeLoanFacility facility = TradeLoanFacility.create(
                     facilityId, application, loanArrangementId, totalDisbursementAmount, testClock);
 
@@ -385,15 +383,14 @@ class TradeLoanFacilityTest {
             @Mock DisburseDestination disburseDestination) {
         // Create a minimal builder that will pass validation
         return TradeLoanApplication.newBuilder()
-                .withId(TradeLoanApplicationId.generate()) // Add the required ID
+                .withId(LoanApplicationId.of(randomUUID())) // Add the required ID
                 .withApplicationNumber(applicationNumber)
                 .withRequestDate(testClock.instant())
                 .withCustomer(customer)
                 .withRequestedAmount(Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR)
                         .orElseThrow())
                 .withCurrency(CurrencyType.IRR)
-                .withRequestedLoanDuration(
-                        LoanDuration.of(java.time.Duration.ofDays(365)).orElseThrow())
+                .withRequestedLoanDuration(LoanDuration.of(Period.ofDays(365)).orElseThrow())
                 .withApplicantChannel(ApplicantChannel.INTERNET_BANK)
                 .withInstallmentCount(installmentCount)
                 .withEconomicSector(economicSector)

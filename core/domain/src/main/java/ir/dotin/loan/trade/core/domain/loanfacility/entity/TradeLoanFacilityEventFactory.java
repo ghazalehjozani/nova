@@ -3,111 +3,104 @@ package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 import java.time.Clock;
 import java.util.List;
 
-import ir.dotin.platform.domain.common.entity.Identity;
 import ir.dotin.platform.domain.common.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.LoanFacilityEventFactory;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.*;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanApplicationId;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeSanctionedLoanId;
+
+import static java.util.UUID.randomUUID;
 
 final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<TradeLoanFacilityEvent<?, ?>> {
 
     @Override
-    public Identity generateSanctionedLoanId() {
-        return TradeSanctionedLoanId.generate();
+    public SanctionedLoanId generateSanctionedLoanId() {
+        return new SanctionedLoanId(randomUUID());
     }
 
     @Override
     public TradeLoanFacilityPendingApprovalEvent createPendingApprovalEvent(
-            Identity facilityId, Identity applicationId, Clock clock) {
-        return TradeLoanFacilityPendingApprovalEvent.of(
-                (TradeLoanFacilityId) facilityId, (TradeLoanApplicationId) applicationId, clock);
+            LoanFacilityId facilityId, LoanApplicationId applicationId, Clock clock) {
+        return TradeLoanFacilityPendingApprovalEvent.of(facilityId, applicationId, clock);
     }
 
     @Override
     public TradeLoanFacilityApprovedEvent createApprovedEvent(
-            Identity facilityId, Identity sanctionId, SanctionSerial sanctionSerial, Clock clock) {
-        return TradeLoanFacilityApprovedEvent.of(
-                (TradeLoanFacilityId) facilityId, (TradeSanctionedLoanId) sanctionId, sanctionSerial, clock);
+            LoanFacilityId facilityId, SanctionedLoanId sanctionId, SanctionSerial sanctionSerial, Clock clock) {
+        return TradeLoanFacilityApprovedEvent.of(facilityId, sanctionId, sanctionSerial, clock);
     }
 
     @Override
     public TradeLoanFacilityRejectedEvent createRejectedEvent(
-            Identity facilityId, Identity applicationId, Clock clock) {
-        return TradeLoanFacilityRejectedEvent.of(
-                (TradeLoanFacilityId) facilityId, (TradeLoanApplicationId) applicationId, clock);
+            LoanFacilityId facilityId, LoanApplicationId applicationId, Clock clock) {
+        return TradeLoanFacilityRejectedEvent.of(facilityId, applicationId, clock);
     }
 
     @Override
     public TradeLoanFacilityContractIssuedEvent createContractIssuedEvent(
-            Identity facilityId, Identity sanctionId, List<TransactionNumber> transactionNumbers, Clock clock) {
-        return TradeLoanFacilityContractIssuedEvent.of(
-                (TradeLoanFacilityId) facilityId, (TradeSanctionedLoanId) sanctionId, transactionNumbers, clock);
+            LoanFacilityId facilityId,
+            SanctionedLoanId sanctionId,
+            List<TransactionNumber> transactionNumbers,
+            Clock clock) {
+        return TradeLoanFacilityContractIssuedEvent.of(facilityId, sanctionId, transactionNumbers, clock);
     }
 
     @Override
     public TradeLoanFacilityPendingDisbursementEvent createPendingDisbursementEvent(
-            Identity facilityId, Identity sanctionId, Clock clock) {
-        return TradeLoanFacilityPendingDisbursementEvent.of(
-                (TradeLoanFacilityId) facilityId, (TradeSanctionedLoanId) sanctionId, clock);
+            LoanFacilityId facilityId, SanctionedLoanId sanctionId, Clock clock) {
+        return TradeLoanFacilityPendingDisbursementEvent.of(facilityId, sanctionId, clock);
     }
 
     @Override
     public TradeLoanFacilityDisbursementFailedEvent createDisbursementFailedEvent(
-            Identity facilityId, Identity sanctionId, FailureReason reason, Clock clock) {
-        return TradeLoanFacilityDisbursementFailedEvent.of(
-                (TradeLoanFacilityId) facilityId, (TradeSanctionedLoanId) sanctionId, reason, clock);
+            LoanFacilityId facilityId, SanctionedLoanId sanctionId, FailureReason reason, Clock clock) {
+        return TradeLoanFacilityDisbursementFailedEvent.of(facilityId, sanctionId, reason, clock);
     }
 
     @Override
-    public TradeLoanFacilityActivatedEvent createActivatedEvent(Identity facilityId, Identity sanctionId, Clock clock) {
-        return TradeLoanFacilityActivatedEvent.of(
-                (TradeLoanFacilityId) facilityId, (TradeSanctionedLoanId) sanctionId, clock);
+    public TradeLoanFacilityActivatedEvent createActivatedEvent(
+            LoanFacilityId facilityId, SanctionedLoanId sanctionId, Clock clock) {
+        return TradeLoanFacilityActivatedEvent.of(facilityId, sanctionId, clock);
     }
 
     @Override
     public TradeLoanFacilityClosedPaidOffEvent createClosedPaidOffEvent(
-            Identity facilityId, Identity sanctionId, Clock clock) {
-        return TradeLoanFacilityClosedPaidOffEvent.of(
-                (TradeLoanFacilityId) facilityId, (TradeSanctionedLoanId) sanctionId, clock);
+            LoanFacilityId facilityId, SanctionedLoanId sanctionId, Clock clock) {
+        return TradeLoanFacilityClosedPaidOffEvent.of(facilityId, sanctionId, clock);
     }
 
     @Override
     public TradeLoanFacilityClosedDefaultedEvent createClosedDefaultedEvent(
-            Identity facilityId, Identity sanctionId, Clock clock) {
-        return TradeLoanFacilityClosedDefaultedEvent.of(
-                (TradeLoanFacilityId) facilityId, (TradeSanctionedLoanId) sanctionId, clock);
+            LoanFacilityId facilityId, SanctionedLoanId sanctionId, Clock clock) {
+        return TradeLoanFacilityClosedDefaultedEvent.of(facilityId, sanctionId, clock);
     }
 
     @Override
-    public TradeLoanFacilityCancelledEvent createCancelledEvent(Identity facilityId, Clock clock) {
-        return TradeLoanFacilityCancelledEvent.of((TradeLoanFacilityId) facilityId, clock);
+    public TradeLoanFacilityCancelledEvent createCancelledEvent(LoanFacilityId facilityId, Clock clock) {
+        return TradeLoanFacilityCancelledEvent.of(facilityId, clock);
     }
 
     @Override
     public TradeLoanFacilityCollateralAddedEvent createCollateralAddedEvent(
-            Identity facilityId, Identity sanctionId, CollateralSerial collateralSerial, Clock clock) {
-        return TradeLoanFacilityCollateralAddedEvent.of(
-                (TradeLoanFacilityId) facilityId, (TradeSanctionedLoanId) sanctionId, collateralSerial, clock);
+            LoanFacilityId facilityId, SanctionedLoanId sanctionId, CollateralSerial collateralSerial, Clock clock) {
+        return TradeLoanFacilityCollateralAddedEvent.of(facilityId, sanctionId, collateralSerial, clock);
     }
 
     @Override
     public TradeLoanFacilityCreatedEvent createCreatedEvent(
-            Identity facilityId, Identity applicationId, Party customer, Clock clock) {
-        return TradeLoanFacilityCreatedEvent.of(
-                (TradeLoanFacilityId) facilityId, (TradeLoanApplicationId) applicationId, customer, clock);
+            LoanFacilityId facilityId, LoanApplicationId applicationId, Party customer, Clock clock) {
+        return TradeLoanFacilityCreatedEvent.of(facilityId, applicationId, customer, clock);
     }
 
     @Override
     public TradeLoanFacilityIrregularDisbursementEvent createIrregularDisbursementRequestedEvent(
-            Identity facilityId, Identity sanctionId, Money amountToDisburse, Clock clock) {
-        return TradeLoanFacilityIrregularDisbursementEvent.of(
-                (TradeLoanFacilityId) facilityId, (TradeSanctionedLoanId) sanctionId, amountToDisburse, clock);
+            LoanFacilityId facilityId, SanctionedLoanId sanctionId, Money amountToDisburse, Clock clock) {
+        return TradeLoanFacilityIrregularDisbursementEvent.of(facilityId, sanctionId, amountToDisburse, clock);
     }
 }

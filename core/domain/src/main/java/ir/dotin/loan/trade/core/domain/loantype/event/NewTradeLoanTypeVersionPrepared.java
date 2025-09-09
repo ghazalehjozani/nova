@@ -13,13 +13,12 @@ import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanApplicationStatus;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanTopicConfiguration;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
-import ir.dotin.loan.trade.core.domain.loanarrangement.vo.TradeLoanArrangementId;
-import ir.dotin.loan.trade.core.domain.loantype.vo.TradeLoanTypeId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 
 import static java.util.Objects.requireNonNull;
 
-public record NewTradeLoanTypeVersionPrepared(
-        UUID eventId, TradeLoanTypeId aggregateId, Payload payload, Instant createdAt)
+public record NewTradeLoanTypeVersionPrepared(UUID eventId, LoanTypeId aggregateId, Payload payload, Instant createdAt)
         implements TradeLoanTypeEvent<NewTradeLoanTypeVersionPrepared, NewTradeLoanTypeVersionPrepared.Payload> {
 
     public NewTradeLoanTypeVersionPrepared {
@@ -32,8 +31,8 @@ public record NewTradeLoanTypeVersionPrepared(
     }
 
     public record Payload(
-            TradeLoanTypeId newAggregateId,
-            TradeLoanTypeId previousAggregateId,
+            LoanTypeId newAggregateId,
+            LoanTypeId previousAggregateId,
             LoanTypeCode code,
             Title title,
             @Nullable EditReason editReason,
@@ -45,7 +44,7 @@ public record NewTradeLoanTypeVersionPrepared(
             Set<IncomeId> incomeIds,
             List<Attribute> attributes,
             LoanTypeGroupId groupId,
-            Set<TradeLoanArrangementId> loanArrangementIds) {
+            Set<LoanArrangementId> loanArrangementIds) {
 
         public Payload {
             requireNonNull(newAggregateId);

@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.core.domain.loanfacility.service.validator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -79,6 +80,23 @@ final class TradeLoanFacilityValidationServiceTest {
         } catch (Exception e) {
             // Expected due to mock objects not having proper setup
             assertThat(e).isNotNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("Service Annotation Tests")
+    final class ServiceAnnotationTests {
+        @Test
+        @DisplayName("should be annotated with DomainService")
+        void shouldBeAnnotatedWithDomainService() {
+            assertThat(TradeLoanFacilityValidationService.class)
+                    .hasAnnotation(ir.dotin.platform.domain.common.annotation.DomainService.class);
+        }
+
+        @Test
+        @DisplayName("should be a final class")
+        void shouldBeAFinalClass() {
+            assertThat(TradeLoanFacilityValidationService.class).isFinal();
         }
     }
 }

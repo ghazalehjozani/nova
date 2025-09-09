@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 
 import java.math.BigDecimal;
+import java.time.Period;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,8 +17,9 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeSanctionedLoanId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 
+import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -38,8 +40,8 @@ final class TradeSanctionedLoanTest {
     void setUp() {
         validAmount =
                 Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR).value();
-        validDuration = LoanDuration.of(java.time.Duration.ofDays(365)).orElseThrow();
-        validGracePeriod = GracePeriod.of(java.time.Duration.ofDays(3)).orElseThrow();
+        validDuration = LoanDuration.of(Period.ofDays(365)).orElseThrow();
+        validGracePeriod = GracePeriod.of(Period.ofDays(3)).orElseThrow();
         validInstallmentCount = InstallmentCount.of(12).value();
     }
 
@@ -61,7 +63,7 @@ final class TradeSanctionedLoanTest {
             var sanctionedLoan = result.value();
             assertThat(sanctionedLoan).isNotNull();
             assertThat(sanctionedLoan.getId()).isNotNull();
-            assertThat(sanctionedLoan.getId()).isInstanceOf(TradeSanctionedLoanId.class);
+            assertThat(sanctionedLoan.getId()).isInstanceOf(SanctionedLoanId.class);
             assertThat(sanctionedLoan.getSanctionSerial()).isEqualTo(mockSanctionSerial);
             assertThat(sanctionedLoan.getApprovedAmount()).isEqualTo(validAmount);
             assertThat(sanctionedLoan.getLoanDuration()).isEqualTo(validDuration);
@@ -122,7 +124,7 @@ final class TradeSanctionedLoanTest {
         @Test
         void shouldValidateAndReturnErrorsForInvalidData() {
             // given
-            var builder = TradeSanctionedLoan.newBuilder().withId(TradeSanctionedLoanId.generate());
+            var builder = TradeSanctionedLoan.newBuilder().withId(SanctionedLoanId.of(randomUUID()));
 
             // when & then
             assertThatThrownBy(builder::build)
@@ -135,7 +137,7 @@ final class TradeSanctionedLoanTest {
         void shouldSupportMethodChaining() {
             // when
             var builder = TradeSanctionedLoan.newBuilder()
-                    .withId(TradeSanctionedLoanId.generate())
+                    .withId(SanctionedLoanId.of(randomUUID()))
                     // .withSanction(mockSanction) // Method signature may have changed
                     .withSanctionSerial(mockSanctionSerial)
                     .withApprovedAmount(validAmount)
@@ -154,7 +156,7 @@ final class TradeSanctionedLoanTest {
         @Test
         void shouldImplementEqualityCorrectly() {
             // given
-            var id = TradeSanctionedLoanId.generate();
+            var id = SanctionedLoanId.of(randomUUID());
             var builder1 = createValidBuilder().withId(id);
             var builder2 = createValidBuilder().withId(id);
 
@@ -171,8 +173,8 @@ final class TradeSanctionedLoanTest {
         @Test
         void shouldHaveDifferentIdentityForDifferentLoans() {
             // given
-            var builder1 = createValidBuilder().withId(TradeSanctionedLoanId.generate());
-            var builder2 = createValidBuilder().withId(TradeSanctionedLoanId.generate());
+            var builder1 = createValidBuilder().withId(SanctionedLoanId.of(randomUUID()));
+            var builder2 = createValidBuilder().withId(SanctionedLoanId.of(randomUUID()));
 
             // when
             var sanctionedLoan1 = TradeSanctionedLoan.reconstitute(builder1).value();
@@ -188,7 +190,7 @@ final class TradeSanctionedLoanTest {
         void shouldHandleNullValuesGracefullyInBuilder() {
             // given
             var builder = TradeSanctionedLoan.newBuilder()
-                    .withId(TradeSanctionedLoanId.generate())
+                    .withId(SanctionedLoanId.of(randomUUID()))
                     .withSanctionSerial(null);
 
             // when & then
@@ -267,7 +269,7 @@ final class TradeSanctionedLoanTest {
         @Test
         void shouldValidateRequiredFields() {
             // given
-            var builder = TradeSanctionedLoan.newBuilder().withId(TradeSanctionedLoanId.generate());
+            var builder = TradeSanctionedLoan.newBuilder().withId(SanctionedLoanId.of(randomUUID()));
 
             // when & then
             assertThatThrownBy(builder::validate)
@@ -291,7 +293,7 @@ final class TradeSanctionedLoanTest {
 
     private TradeSanctionedLoan.TradeSanctionedLoanBuilder createValidBuilder() {
         return TradeSanctionedLoan.newBuilder()
-                .withId(TradeSanctionedLoanId.generate())
+                .withId(SanctionedLoanId.of(randomUUID()))
                 .withSanctionSerial(mockSanctionSerial)
                 .withApprovedAmount(validAmount)
                 .withCurrency(ir.dotin.platform.domain.common.vo.CurrencyType.IRR)

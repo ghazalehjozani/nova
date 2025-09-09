@@ -6,8 +6,8 @@
 
     <parent>
         <groupId>ir.dotin.platform</groupId>
-        <artifactId>parent</artifactId>
-        <version>2.2.1-SNAPSHOT</version>
+        <artifactId>platform-parent</artifactId>
+        <version>3.0.0</version>
         <relativePath/>
     </parent>
 
@@ -30,7 +30,7 @@
     </modules>
 
     <properties>
-        <loan.base-loan.version>2.2.0-SNAPSHOT</loan.base-loan.version>
+        <loan.base-loan.version>3.0.0-SNAPSHOT</loan.base-loan.version>
         <platform.platform-archunit.version>0.1.2-SNAPSHOT</platform.platform-archunit.version>
         <loan.trade-loan.version>${project.version}</loan.trade-loan.version>
         <sonar.projectVersion>${project.version}</sonar.projectVersion>

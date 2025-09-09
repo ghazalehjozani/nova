@@ -6,17 +6,17 @@ import java.util.UUID;
 
 import org.jspecify.annotations.NonNull;
 
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeSanctionedLoanId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
 public record TradeLoanFacilityActivatedEvent(
-        UUID eventId, TradeLoanFacilityId aggregateId, Payload payload, Instant createdAt)
+        UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
         implements TradeLoanFacilityEvent<TradeLoanFacilityActivatedEvent, TradeLoanFacilityActivatedEvent.Payload> {
 
-    public record Payload(TradeSanctionedLoanId sanctionedLoanId) {
+    public record Payload(SanctionedLoanId sanctionedLoanId) {
         public Payload {
             requireNonNull(sanctionedLoanId);
         }
@@ -29,7 +29,7 @@ public record TradeLoanFacilityActivatedEvent(
         requireNonNull(createdAt);
     }
 
-    public static TradeLoanFacilityActivatedEvent of(TradeLoanFacilityId id, TradeSanctionedLoanId sanId, Clock clock) {
+    public static TradeLoanFacilityActivatedEvent of(LoanFacilityId id, SanctionedLoanId sanId, Clock clock) {
         return new TradeLoanFacilityActivatedEvent(randomUUID(), id, new Payload(sanId), clock.instant());
     }
 

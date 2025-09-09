@@ -3,11 +3,11 @@ package ir.dotin.loan.trade.core.domain.loantype.event;
 import java.time.Instant;
 import java.util.UUID;
 
-import ir.dotin.loan.trade.core.domain.loantype.vo.TradeLoanTypeId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 
 import static java.util.Objects.requireNonNull;
 
-public record TradeLoanTypeDeactivated(UUID eventId, TradeLoanTypeId aggregateId, Payload payload, Instant createdAt)
+public record TradeLoanTypeDeactivated(UUID eventId, LoanTypeId aggregateId, Payload payload, Instant createdAt)
         implements TradeLoanTypeEvent<TradeLoanTypeDeactivated, TradeLoanTypeDeactivated.Payload> {
 
     public TradeLoanTypeDeactivated {

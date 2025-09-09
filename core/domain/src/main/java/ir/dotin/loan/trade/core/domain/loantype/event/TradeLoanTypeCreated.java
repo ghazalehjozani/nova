@@ -11,12 +11,12 @@ import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanApplicationStatus;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanTopicConfiguration;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
-import ir.dotin.loan.trade.core.domain.loanarrangement.vo.TradeLoanArrangementId;
-import ir.dotin.loan.trade.core.domain.loantype.vo.TradeLoanTypeId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 
 import static java.util.Objects.requireNonNull;
 
-public record TradeLoanTypeCreated(UUID eventId, TradeLoanTypeId aggregateId, Payload payload, Instant createdAt)
+public record TradeLoanTypeCreated(UUID eventId, LoanTypeId aggregateId, Payload payload, Instant createdAt)
         implements TradeLoanTypeEvent<TradeLoanTypeCreated, TradeLoanTypeCreated.Payload> {
 
     public TradeLoanTypeCreated {
@@ -36,7 +36,7 @@ public record TradeLoanTypeCreated(UUID eventId, TradeLoanTypeId aggregateId, Pa
             Set<IncomeId> incomeIds,
             List<Attribute> attributes,
             LoanTypeGroupId groupId,
-            Set<TradeLoanArrangementId> loanArrangementIds,
+            Set<LoanArrangementId> loanArrangementIds,
             boolean active) {
 
         public Payload {

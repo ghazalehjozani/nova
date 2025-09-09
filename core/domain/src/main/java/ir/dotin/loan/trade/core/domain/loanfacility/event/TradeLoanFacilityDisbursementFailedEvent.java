@@ -4,19 +4,21 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.jspecify.annotations.NonNull;
+
 import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeSanctionedLoanId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
 public record TradeLoanFacilityDisbursementFailedEvent(
-        UUID eventId, TradeLoanFacilityId aggregateId, Payload payload, Instant createdAt)
+        UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
         implements TradeLoanFacilityEvent<
                 TradeLoanFacilityDisbursementFailedEvent, TradeLoanFacilityDisbursementFailedEvent.Payload> {
 
-    public record Payload(TradeSanctionedLoanId sanctionedLoanId, FailureReason reason) {
+    public record Payload(SanctionedLoanId sanctionedLoanId, FailureReason reason) {
         public Payload {
             requireNonNull(sanctionedLoanId);
             requireNonNull(reason);
@@ -31,13 +33,13 @@ public record TradeLoanFacilityDisbursementFailedEvent(
     }
 
     public static TradeLoanFacilityDisbursementFailedEvent of(
-            TradeLoanFacilityId id, TradeSanctionedLoanId sanId, FailureReason reason, Clock clock) {
+            LoanFacilityId id, SanctionedLoanId sanId, FailureReason reason, Clock clock) {
         return new TradeLoanFacilityDisbursementFailedEvent(
                 randomUUID(), id, new Payload(sanId, reason), clock.instant());
     }
 
     @Override
-    public String eventType() {
+    public @NonNull String eventType() {
         return EVENT_TYPE_PREFIX + "DISBURSEMENT_FAILED";
     }
 }

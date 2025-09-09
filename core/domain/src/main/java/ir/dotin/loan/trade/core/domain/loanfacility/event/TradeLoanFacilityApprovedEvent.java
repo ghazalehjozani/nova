@@ -6,18 +6,18 @@ import java.util.UUID;
 
 import org.jspecify.annotations.NonNull;
 
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeLoanFacilityId;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeSanctionedLoanId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
 public record TradeLoanFacilityApprovedEvent(
-        UUID eventId, TradeLoanFacilityId aggregateId, Payload payload, Instant createdAt)
+        UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
         implements TradeLoanFacilityEvent<TradeLoanFacilityApprovedEvent, TradeLoanFacilityApprovedEvent.Payload> {
 
-    public record Payload(TradeSanctionedLoanId sanctionedLoanId, SanctionSerial sanctionSerial) {
+    public record Payload(SanctionedLoanId sanctionedLoanId, SanctionSerial sanctionSerial) {
         public Payload {
             requireNonNull(sanctionedLoanId);
             requireNonNull(sanctionSerial);
@@ -32,7 +32,7 @@ public record TradeLoanFacilityApprovedEvent(
     }
 
     public static TradeLoanFacilityApprovedEvent of(
-            TradeLoanFacilityId id, TradeSanctionedLoanId sanId, SanctionSerial sanctionSerial, Clock clock) {
+            LoanFacilityId id, SanctionedLoanId sanId, SanctionSerial sanctionSerial, Clock clock) {
         return new TradeLoanFacilityApprovedEvent(
                 randomUUID(), id, new Payload(sanId, sanctionSerial), clock.instant());
     }

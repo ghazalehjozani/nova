@@ -3,12 +3,10 @@ package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 import ir.dotin.platform.domain.common.Notification;
 import ir.dotin.platform.domain.common.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractSanctionedLoan;
-import ir.dotin.loan.trade.core.domain.loanfacility.vo.TradeSanctionedLoanId;
 
 import static java.util.Objects.requireNonNull;
 
-public final class TradeSanctionedLoan
-        extends AbstractSanctionedLoan<TradeSanctionedLoanId, TradeSanctionedLoan.TradeSanctionedLoanBuilder> {
+public final class TradeSanctionedLoan extends AbstractSanctionedLoan<TradeSanctionedLoan.TradeSanctionedLoanBuilder> {
 
     private TradeSanctionedLoan(TradeSanctionedLoanBuilder builder) {
         super(builder);
@@ -29,8 +27,7 @@ public final class TradeSanctionedLoan
     }
 
     public static final class TradeSanctionedLoanBuilder
-            extends AbstractSanctionedLoanBuilder<
-                    TradeSanctionedLoanId, TradeSanctionedLoan, TradeSanctionedLoanBuilder> {
+            extends AbstractSanctionedLoanBuilder<TradeSanctionedLoan, TradeSanctionedLoanBuilder> {
 
         @Override
         protected TradeSanctionedLoan buildInternal() {

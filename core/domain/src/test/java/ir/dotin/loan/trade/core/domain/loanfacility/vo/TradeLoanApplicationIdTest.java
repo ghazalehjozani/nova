@@ -6,15 +6,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
+
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.IntStream.range;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@DisplayName("TradeLoanApplicationId Identity Value Object")
+@DisplayName("LoanApplicationId Identity Value Object")
 @SuppressWarnings("NullAway")
-final class TradeLoanApplicationIdTest {
+final class LoanApplicationIdTest {
 
     @Nested
     @DisplayName("Factory Method Tests")
@@ -24,7 +25,7 @@ final class TradeLoanApplicationIdTest {
         @Test
         void shouldGenerateUniqueIdWithRandomUuid() {
             // when
-            TradeLoanApplicationId id = TradeLoanApplicationId.generate();
+            LoanApplicationId id = LoanApplicationId.of(randomUUID());
 
             // then
             assertThat(id).isNotNull();
@@ -36,9 +37,9 @@ final class TradeLoanApplicationIdTest {
         @Test
         void shouldGenerateDifferentIdsOnMultipleCalls() {
             // when
-            TradeLoanApplicationId id1 = TradeLoanApplicationId.generate();
-            TradeLoanApplicationId id2 = TradeLoanApplicationId.generate();
-            TradeLoanApplicationId id3 = TradeLoanApplicationId.generate();
+            LoanApplicationId id1 = LoanApplicationId.of(randomUUID());
+            LoanApplicationId id2 = LoanApplicationId.of(randomUUID());
+            LoanApplicationId id3 = LoanApplicationId.of(randomUUID());
 
             // then
             assertThat(id1).isNotEqualTo(id2).isNotEqualTo(id3);
@@ -53,7 +54,7 @@ final class TradeLoanApplicationIdTest {
         @Test
         void shouldGenerateValidUuidFormat() {
             // when
-            TradeLoanApplicationId id = TradeLoanApplicationId.generate();
+            LoanApplicationId id = LoanApplicationId.of(randomUUID());
 
             // then
             UUID uuid = id.value();
@@ -68,7 +69,7 @@ final class TradeLoanApplicationIdTest {
         @Test
         void shouldGenerateConsistentUuidEachTimeForSameInstance() {
             // given
-            TradeLoanApplicationId id = TradeLoanApplicationId.generate();
+            LoanApplicationId id = LoanApplicationId.of(randomUUID());
 
             // when
             UUID value1 = id.value();
@@ -90,7 +91,7 @@ final class TradeLoanApplicationIdTest {
             UUID validUuid = randomUUID();
 
             // when
-            TradeLoanApplicationId id = new TradeLoanApplicationId(validUuid);
+            LoanApplicationId id = new LoanApplicationId(validUuid);
 
             // then
             assertThat(id.value()).isEqualTo(validUuid);
@@ -103,17 +104,10 @@ final class TradeLoanApplicationIdTest {
             UUID specificUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
             // when
-            TradeLoanApplicationId id = new TradeLoanApplicationId(specificUuid);
+            LoanApplicationId id = new LoanApplicationId(specificUuid);
 
             // then
             assertThat(id.value()).isEqualTo(specificUuid);
-        }
-
-        @DisplayName("should fail when UUID is null")
-        @Test
-        void shouldFailWhenUuidIsNull() {
-            // when & then
-            assertThatThrownBy(() -> new TradeLoanApplicationId(null)).isInstanceOf(NullPointerException.class);
         }
     }
 
@@ -126,8 +120,8 @@ final class TradeLoanApplicationIdTest {
         void shouldBeEqualWhenUuidsAreEqual() {
             // given
             UUID uuid = randomUUID();
-            TradeLoanApplicationId id1 = new TradeLoanApplicationId(uuid);
-            TradeLoanApplicationId id2 = new TradeLoanApplicationId(uuid);
+            LoanApplicationId id1 = new LoanApplicationId(uuid);
+            LoanApplicationId id2 = new LoanApplicationId(uuid);
 
             // when & then
             assertThat(id1).isEqualTo(id2);
@@ -138,8 +132,8 @@ final class TradeLoanApplicationIdTest {
         @Test
         void shouldNotBeEqualWhenUuidsDiffer() {
             // given
-            TradeLoanApplicationId id1 = new TradeLoanApplicationId(randomUUID());
-            TradeLoanApplicationId id2 = new TradeLoanApplicationId(randomUUID());
+            LoanApplicationId id1 = new LoanApplicationId(randomUUID());
+            LoanApplicationId id2 = new LoanApplicationId(randomUUID());
 
             // when & then
             assertThat(id1).isNotEqualTo(id2);
@@ -150,8 +144,8 @@ final class TradeLoanApplicationIdTest {
         void shouldBeEqualWhenCreatedFromSameUuidString() {
             // given
             String uuidString = "123e4567-e89b-12d3-a456-426614174000";
-            TradeLoanApplicationId id1 = new TradeLoanApplicationId(UUID.fromString(uuidString));
-            TradeLoanApplicationId id2 = new TradeLoanApplicationId(UUID.fromString(uuidString));
+            LoanApplicationId id1 = new LoanApplicationId(UUID.fromString(uuidString));
+            LoanApplicationId id2 = new LoanApplicationId(UUID.fromString(uuidString));
 
             // when & then
             assertThat(id1).isEqualTo(id2);
@@ -162,7 +156,7 @@ final class TradeLoanApplicationIdTest {
         @Test
         void shouldNotBeEqualToNull() {
             // given
-            TradeLoanApplicationId id = TradeLoanApplicationId.generate();
+            LoanApplicationId id = LoanApplicationId.of(randomUUID());
 
             // when & then
             assertThat(id).isNotEqualTo(null);
@@ -172,7 +166,7 @@ final class TradeLoanApplicationIdTest {
         @Test
         void shouldNotBeEqualToDifferentClass() {
             // given
-            TradeLoanApplicationId id = TradeLoanApplicationId.generate();
+            LoanApplicationId id = LoanApplicationId.of(randomUUID());
             String differentObject = "not an id";
 
             // when & then
@@ -184,8 +178,8 @@ final class TradeLoanApplicationIdTest {
         void shouldBeSymmetric() {
             // given
             UUID uuid = randomUUID();
-            TradeLoanApplicationId id1 = new TradeLoanApplicationId(uuid);
-            TradeLoanApplicationId id2 = new TradeLoanApplicationId(uuid);
+            LoanApplicationId id1 = new LoanApplicationId(uuid);
+            LoanApplicationId id2 = new LoanApplicationId(uuid);
 
             // when & then
             assertThat(id1).isEqualTo(id2);
@@ -197,9 +191,9 @@ final class TradeLoanApplicationIdTest {
         void shouldBeTransitive() {
             // given
             UUID uuid = randomUUID();
-            TradeLoanApplicationId id1 = new TradeLoanApplicationId(uuid);
-            TradeLoanApplicationId id2 = new TradeLoanApplicationId(uuid);
-            TradeLoanApplicationId id3 = new TradeLoanApplicationId(uuid);
+            LoanApplicationId id1 = new LoanApplicationId(uuid);
+            LoanApplicationId id2 = new LoanApplicationId(uuid);
+            LoanApplicationId id3 = new LoanApplicationId(uuid);
 
             // when & then
             assertThat(id1).isEqualTo(id2);
@@ -216,7 +210,7 @@ final class TradeLoanApplicationIdTest {
         @Test
         void shouldImplementIdentityInterfaceCorrectly() {
             // given
-            TradeLoanApplicationId id = TradeLoanApplicationId.generate();
+            LoanApplicationId id = LoanApplicationId.of(randomUUID());
 
             // when & then
             assertThat(id).isInstanceOf(ir.dotin.platform.domain.common.entity.Identity.class);
@@ -227,7 +221,7 @@ final class TradeLoanApplicationIdTest {
         @Test
         void shouldHaveImmutableBehavior() {
             // given
-            TradeLoanApplicationId id = TradeLoanApplicationId.generate();
+            LoanApplicationId id = LoanApplicationId.of(randomUUID());
             UUID originalValue = id.value();
 
             // when
@@ -247,7 +241,7 @@ final class TradeLoanApplicationIdTest {
 
             // when
             var generatedIds = range(0, numberOfIds)
-                    .mapToObj(i -> TradeLoanApplicationId.generate())
+                    .mapToObj(i -> LoanApplicationId.of(randomUUID()))
                     .collect(toImmutableSet());
 
             // then
@@ -263,14 +257,14 @@ final class TradeLoanApplicationIdTest {
         @Test
         void shouldGenerateMeaningfulToStringRepresentation() {
             // given
-            TradeLoanApplicationId id = TradeLoanApplicationId.generate();
+            LoanApplicationId id = LoanApplicationId.of(randomUUID());
 
             // when
             String toStringResult = id.toString();
 
             // then
             assertThat(toStringResult)
-                    .contains("TradeLoanApplicationId")
+                    .contains("LoanApplicationId")
                     .contains(id.value().toString());
         }
 
@@ -278,8 +272,8 @@ final class TradeLoanApplicationIdTest {
         @Test
         void shouldGenerateDifferentToStringForDifferentIds() {
             // given
-            TradeLoanApplicationId id1 = TradeLoanApplicationId.generate();
-            TradeLoanApplicationId id2 = TradeLoanApplicationId.generate();
+            LoanApplicationId id1 = LoanApplicationId.of(randomUUID());
+            LoanApplicationId id2 = LoanApplicationId.of(randomUUID());
 
             // when
             String toString1 = id1.toString();
@@ -294,7 +288,7 @@ final class TradeLoanApplicationIdTest {
         void shouldIncludeUuidInToStringOutput() {
             // given
             UUID specificUuid = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-            TradeLoanApplicationId id = new TradeLoanApplicationId(specificUuid);
+            LoanApplicationId id = new LoanApplicationId(specificUuid);
 
             // when
             String toStringResult = id.toString();
@@ -312,14 +306,14 @@ final class TradeLoanApplicationIdTest {
         @Test
         void shouldPreserveUuidValueThroughSerialization() {
             // given
-            TradeLoanApplicationId originalId = TradeLoanApplicationId.generate();
+            LoanApplicationId originalId = LoanApplicationId.of(randomUUID());
             UUID originalUuid = originalId.value();
 
             // when
             // Simulate serialization by converting to string and back
             String uuidString = originalUuid.toString();
             UUID reconstructedUuid = UUID.fromString(uuidString);
-            TradeLoanApplicationId reconstructedId = new TradeLoanApplicationId(reconstructedUuid);
+            LoanApplicationId reconstructedId = new LoanApplicationId(reconstructedUuid);
 
             // then
             assertThat(reconstructedId).isEqualTo(originalId);
@@ -331,7 +325,7 @@ final class TradeLoanApplicationIdTest {
         void shouldHandleUuidVersionTypes() {
             // given
             UUID version4Uuid = randomUUID(); // Version 4 (random)
-            TradeLoanApplicationId id = new TradeLoanApplicationId(version4Uuid);
+            LoanApplicationId id = new LoanApplicationId(version4Uuid);
 
             // when & then
             assertThat(id.value()).isEqualTo(version4Uuid);
