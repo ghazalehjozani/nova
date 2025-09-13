@@ -8,9 +8,13 @@
   <parent>
     <groupId>ir.dotin.loan</groupId>
     <artifactId>trade-loan-core</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
+
+  <properties>
+    <org.mapstruct.version>1.6.3</org.mapstruct.version>
+  </properties>
 
   <artifactId>trade-loan-core-application</artifactId>
   <name>Trade Loan :: Core :: Application</name>
@@ -22,10 +26,47 @@
   </modules>
 
   <dependencies>
-<!--    <dependency>
+    <dependency>
+      <groupId>ir.dotin.platform</groupId>
+      <artifactId>platform-dispatcher-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>ir.dotin.loan</groupId>
       <artifactId>trade-loan-core-domain</artifactId>
-    </dependency>-->
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+      <version>${org.mapstruct.version}</version>
+    </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>21</source>
+          <target>21</target>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.mapstruct</groupId>
+              <artifactId>mapstruct-processor</artifactId>
+              <version>${org.mapstruct.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

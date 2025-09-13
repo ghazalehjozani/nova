@@ -7,13 +7,13 @@
 
     <parent>
         <groupId>ir.dotin.loan</groupId>
-        <artifactId>trade-loan-adapters-driven</artifactId>
+        <artifactId>trade-loan-core-application-ports</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>trade-loan-adapters-driven-client</artifactId>
-    <name>Trade Loan :: Adapters :: Driven :: Client</name>
+    <artifactId>trade-loan-core-application-ports-driving</artifactId>
+    <name>Trade Loan :: Core :: Application :: Ports :: Driving (In  Bound)</name>
     <packaging>jar</packaging>
 
     <dependencies>

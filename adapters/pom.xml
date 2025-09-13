@@ -8,7 +8,7 @@
   <parent>
     <groupId>ir.dotin.loan</groupId>
     <artifactId>trade-loan</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -20,16 +20,5 @@
     <module>driven</module>
     <module>driving</module>
   </modules>
-
-  <dependencies>
-<!--    <dependency>
-      <groupId>ir.dotin.loan</groupId>
-      <artifactId>trade-loan-core-application-ports</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>ir.dotin.loan</groupId>
-      <artifactId>trade-loan-core-application-service</artifactId>
-    </dependency>-->
-  </dependencies>
 
 </project>

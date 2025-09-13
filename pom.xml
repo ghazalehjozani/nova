@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>ir.dotin.platform</groupId>
         <artifactId>platform-parent</artifactId>
-        <version>3.0.0</version>
+        <version>1.0.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -15,7 +15,7 @@
     <artifactId>trade-loan</artifactId>
     <name>Trade Loan</name>
     <packaging>pom</packaging>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
 
     <scm>
         <connection>scm:git:https://bitbucket.dotin.ir/scm/core/trade-loan.git</connection>
@@ -27,67 +27,23 @@
         <module>core</module>
         <module>adapters</module>
         <module>architecture-tests</module>
+        <module>container</module>
     </modules>
 
     <properties>
-        <loan.base-loan.version>3.0.0-SNAPSHOT</loan.base-loan.version>
-        <platform.platform-archunit.version>0.1.2-SNAPSHOT</platform.platform-archunit.version>
+        <loan.base-loan.version>1.0.0-SNAPSHOT</loan.base-loan.version>
         <loan.trade-loan.version>${project.version}</loan.trade-loan.version>
         <sonar.projectVersion>${project.version}</sonar.projectVersion>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- region platform-->
-            <dependency>
-                <groupId>ir.dotin.platform</groupId>
-                <artifactId>platform-archunit</artifactId>
-                <version>${platform.platform-archunit.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <!--endregion-->
             <!--region base-loan -->
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
                 <artifactId>base-loan-core-domain</artifactId>
                 <version>${loan.base-loan.version}</version>
                 <scope>compile</scope>
-            </dependency>
-          <dependency>
-                <groupId>ir.dotin.loan</groupId>
-                <artifactId>base-loan-core-application-ports</artifactId>
-                <version>${loan.base-loan.version}</version>
-                <scope>compile</scope>
-            </dependency>
-            <dependency>
-                <groupId>ir.dotin.loan</groupId>
-                <artifactId>base-loan-core-application-service</artifactId>
-                <version>${loan.base-loan.version}</version>
-                <scope>compile</scope>
-            </dependency>
-            <dependency>
-                <groupId>ir.dotin.loan</groupId>
-                <artifactId>base-loan-adapters-driven-persistence</artifactId>
-                <version>${loan.base-loan.version}</version>
-                <scope>compile</scope>
-            </dependency>
-            <dependency>
-                <groupId>ir.dotin.loan</groupId>
-                <artifactId>base-loan-adapters-driven-messaging</artifactId>
-                <version>${loan.base-loan.version}</version>
-                <scope>compile</scope>
-            </dependency>
-            <dependency>
-                <groupId>ir.dotin.loan</groupId>
-                <artifactId>base-loan-adapters-driving-rest</artifactId>
-                <version>${loan.base-loan.version}</version>
-                <scope>compile</scope>
-            </dependency>
-            <dependency>
-                <artifactId>base-loan-container</artifactId>
-                <groupId>ir.dotin.loan</groupId>
-                <scope>compile</scope>
-                <version>${loan.base-loan.version}</version>
             </dependency>
             <!--endregion-->
             <dependency>
@@ -96,9 +52,15 @@
                 <version>${loan.trade-loan.version}</version>
                 <scope>compile</scope>
             </dependency>
-           <dependency>
+            <dependency>
                 <groupId>ir.dotin.loan</groupId>
-                <artifactId>trade-loan-core-application-ports</artifactId>
+                <artifactId>trade-loan-core-application-ports-driven</artifactId>
+                <version>${loan.trade-loan.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>ir.dotin.loan</groupId>
+                <artifactId>trade-loan-core-application-ports-driving</artifactId>
                 <version>${loan.trade-loan.version}</version>
                 <scope>compile</scope>
             </dependency>
