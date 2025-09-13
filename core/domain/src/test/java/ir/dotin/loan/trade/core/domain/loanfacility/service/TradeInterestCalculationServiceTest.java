@@ -8,8 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import ir.dotin.platform.domain.common.Result;
-import ir.dotin.platform.domain.common.vo.Money;
+import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.FormulaEvaluationResult;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.FormulaEvaluationService;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityParameterizedFormula;

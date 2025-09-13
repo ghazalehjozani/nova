@@ -11,8 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import ir.dotin.platform.domain.common.vo.CurrencyType;
-import ir.dotin.platform.domain.common.vo.Money;
+import ir.dotin.platform.commons.domain.vo.CurrencyType;
+import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
@@ -93,7 +93,7 @@ final class TradeSanctionedLoanTest {
 
     @Nested
     @DisplayName("Builder Tests")
-    final class TradeSanctionedLoanBuilderTests {
+    final class TradeSanctionedLoanDisbursementScheduleBuilderTests {
 
         @DisplayName("should create new builder instance")
         @Test

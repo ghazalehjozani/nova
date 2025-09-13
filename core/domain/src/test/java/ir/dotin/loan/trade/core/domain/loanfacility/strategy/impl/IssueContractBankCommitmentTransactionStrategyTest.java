@@ -12,10 +12,10 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import ir.dotin.platform.domain.common.Notification;
-import ir.dotin.platform.domain.common.Result;
-import ir.dotin.platform.domain.common.vo.CurrencyType;
-import ir.dotin.platform.domain.common.vo.Money;
+import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.domain.vo.CurrencyType;
+import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.shared.interaction.FindAccountByRelationTypeClient;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.CalculationContext;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.factory.DebitCreditArticleSpecFactory;

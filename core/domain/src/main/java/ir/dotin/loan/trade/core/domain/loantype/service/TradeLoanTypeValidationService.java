@@ -1,7 +1,7 @@
 package ir.dotin.loan.trade.core.domain.loantype.service;
 
-import ir.dotin.platform.domain.common.Result;
-import ir.dotin.platform.domain.common.annotation.DomainService;
+import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.domain.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.loantype.service.LoanTypeValidationService;
 import ir.dotin.loan.baseloan.core.domain.loantype.specification.LoanTypeApplicationAllowedSpecification;
 import ir.dotin.loan.baseloan.core.domain.loantype.specification.LoanTypeLoanArrangementExistenceSpecification;

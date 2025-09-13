@@ -9,8 +9,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import ir.dotin.platform.domain.common.Notification;
-import ir.dotin.platform.domain.common.Result;
+import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.factory.DocumentFactory;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.CalculationContext;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.DocumentCalculationStrategy;

@@ -13,7 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import ir.dotin.platform.domain.common.feature.FeatureConfig;
+import ir.dotin.platform.commons.core.feature.FeatureConfig;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loantype.enums.SegmentType;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanApplicationStatus;
@@ -262,7 +262,7 @@ final class TradeLoanTypeTest {
 
     @Nested
     @DisplayName("Builder Tests")
-    final class TradeSanctionedLoanBuilderTests {
+    final class TradeSanctionedLoanDisbursementScheduleBuilderTests {
 
         @DisplayName("should create new builder with feature config")
         @Test

@@ -5,9 +5,9 @@ import java.time.Clock;
 import com.google.common.collect.Range;
 import org.jspecify.annotations.NonNull;
 
-import ir.dotin.platform.domain.common.Result;
-import ir.dotin.platform.domain.common.event.DomainEvent;
-import ir.dotin.platform.domain.common.feature.FeatureConfig;
+import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.feature.FeatureConfig;
+import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.entity.AbstractLoanArrangement;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.ArrangementFeatureContext;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Active;

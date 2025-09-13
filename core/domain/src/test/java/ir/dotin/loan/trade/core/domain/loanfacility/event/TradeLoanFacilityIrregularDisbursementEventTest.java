@@ -10,8 +10,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import ir.dotin.platform.domain.common.vo.CurrencyType;
-import ir.dotin.platform.domain.common.vo.Money;
+import ir.dotin.platform.commons.domain.vo.CurrencyType;
+import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 

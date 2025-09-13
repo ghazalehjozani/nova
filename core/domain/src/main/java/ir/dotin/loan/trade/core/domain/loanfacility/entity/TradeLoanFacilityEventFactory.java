@@ -3,7 +3,7 @@ package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 import java.time.Clock;
 import java.util.List;
 
-import ir.dotin.platform.domain.common.vo.Money;
+import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.LoanFacilityEventFactory;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;

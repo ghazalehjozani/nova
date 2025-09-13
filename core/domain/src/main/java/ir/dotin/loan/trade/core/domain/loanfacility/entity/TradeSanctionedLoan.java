@@ -1,7 +1,7 @@
 package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 
-import ir.dotin.platform.domain.common.Notification;
-import ir.dotin.platform.domain.common.Result;
+import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractSanctionedLoan;
 
 import static java.util.Objects.requireNonNull;

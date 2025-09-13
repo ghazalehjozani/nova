@@ -1,8 +1,23 @@
 package ir.dotin.loan.trade.core.domain.loanarrangement.entity;
 
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import ir.dotin.platform.commons.core.feature.FeatureConfig;
+import ir.dotin.platform.commons.domain.vo.CurrencyType;
+import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.CollateralPolicy;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.GracePeriodPolicy;
@@ -17,24 +32,9 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.LoanSecondaryType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.SectionType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Active;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
 import ir.dotin.loan.trade.core.domain.loanarrangement.event.TradeLoanArrangementCreated;
-import ir.dotin.platform.domain.common.feature.FeatureConfig;
-import ir.dotin.platform.domain.common.vo.CurrencyType;
-import ir.dotin.platform.domain.common.vo.Money;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
-
-import java.math.BigDecimal;
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
 
 import static java.time.ZoneOffset.UTC;
 import static java.util.UUID.randomUUID;
@@ -113,19 +113,18 @@ class TradeLoanArrangementTest {
                 @Mock GracePeriodPolicy gracePeriodPolicy,
                 @Mock RepaymentPriorityPolicy repaymentPriorityPolicy,
                 @Mock RegulatoryCompliancePolicy regulatoryCompliancePolicy,
-                @Mock CollateralPolicy collateralPolicy
-        ) {
+                @Mock CollateralPolicy collateralPolicy) {
             // given: A builder representing data from a persistent source
             var id = LoanArrangementId.of(randomUUID());
             var validBuilder = createValidBuilder(
-                    featureConfig,
-                    interestPolicy,
-                    penaltyPolicy,
-                    installmentPolicy,
-                    gracePeriodPolicy,
-                    repaymentPriorityPolicy,
-                    regulatoryCompliancePolicy,
-                    collateralPolicy)
+                            featureConfig,
+                            interestPolicy,
+                            penaltyPolicy,
+                            installmentPolicy,
+                            gracePeriodPolicy,
+                            repaymentPriorityPolicy,
+                            regulatoryCompliancePolicy,
+                            collateralPolicy)
                     .withId(id)
                     .withActive(new Active(true));
 
@@ -147,8 +146,7 @@ class TradeLoanArrangementTest {
         @Test
         @DisplayName("should throw exception when feature config is null")
         void shouldThrowExceptionWhenFeatureConfigIsNull() {
-            assertThatThrownBy(() -> TradeLoanArrangement.newBuilder(null))
-                    .isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> TradeLoanArrangement.newBuilder(null)).isInstanceOf(NullPointerException.class);
         }
     }
 
@@ -181,16 +179,16 @@ class TradeLoanArrangementTest {
             GracePeriodPolicy gracePeriodPolicy,
             RepaymentPriorityPolicy repaymentPriorityPolicy,
             RegulatoryCompliancePolicy regulatoryCompliancePolicy,
-            CollateralPolicy collateralPolicy
-    ) {
+            CollateralPolicy collateralPolicy) {
         return TradeLoanArrangement.newBuilder(featureConfig)
                 .withCode(new LoanArrangementCode("TRD-ARR-01"))
                 .withTitle(new Title("Default Trade Arrangement"))
                 .withCurrencies(ImmutableSet.of(CurrencyType.IRR))
                 .withAmountRange(Range.closed(
-                        Money.valueOf(BigDecimal.valueOf(1000), CurrencyType.IRR).orElseThrow(),
-                        Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR).orElseThrow()
-                ))
+                        Money.valueOf(BigDecimal.valueOf(1000), CurrencyType.IRR)
+                                .orElseThrow(),
+                        Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR)
+                                .orElseThrow()))
                 .withDurationRange(Range.closed(Duration.ofDays(30), Duration.ofDays(365)))
                 .withGuarantorCount(1)
                 .withCustomerType(PartyType.LEGAL)

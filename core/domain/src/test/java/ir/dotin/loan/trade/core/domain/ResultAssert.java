@@ -2,9 +2,9 @@ package ir.dotin.loan.trade.core.domain;
 
 import java.util.Arrays;
 
-import ir.dotin.platform.domain.common.Notification;
-import ir.dotin.platform.domain.common.Result;
-import ir.dotin.platform.domain.common.i18n.LocalizedMessage;
+import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.i18n.LocalizedMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

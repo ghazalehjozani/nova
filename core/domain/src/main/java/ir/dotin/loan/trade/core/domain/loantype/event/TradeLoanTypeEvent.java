@@ -2,7 +2,7 @@ package ir.dotin.loan.trade.core.domain.loantype.event;
 
 import org.jspecify.annotations.NonNull;
 
-import ir.dotin.platform.domain.common.event.DomainEvent;
+import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 
 public sealed interface TradeLoanTypeEvent<T extends Record & TradeLoanTypeEvent<T, P>, P> extends DomainEvent<T, P>

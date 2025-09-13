@@ -1,7 +1,7 @@
 package ir.dotin.loan.trade.core.domain.loanfacility.service.validator;
 
-import ir.dotin.platform.domain.common.Result;
-import ir.dotin.platform.domain.common.annotation.DomainService;
+import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.domain.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.service.validator.SanctionValidationService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.specification.*;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;

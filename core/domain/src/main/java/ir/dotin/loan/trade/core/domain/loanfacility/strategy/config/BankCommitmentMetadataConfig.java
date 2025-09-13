@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import ir.dotin.platform.domain.common.annotation.DomainComponent;
+import ir.dotin.platform.commons.domain.annotation.DomainComponent;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.MetadataSection;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.config.MetadataConfig;
 import ir.dotin.loan.trade.core.domain.loanfacility.enums.DisburseBankCommitmentArticleType;

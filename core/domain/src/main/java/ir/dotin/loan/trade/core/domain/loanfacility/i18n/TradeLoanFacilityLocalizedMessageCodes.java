@@ -2,7 +2,7 @@ package ir.dotin.loan.trade.core.domain.loanfacility.i18n;
 
 import org.jspecify.annotations.NonNull;
 
-import ir.dotin.platform.domain.common.i18n.LocalizedMessage;
+import ir.dotin.platform.commons.core.i18n.LocalizedMessage;
 
 public enum TradeLoanFacilityLocalizedMessageCodes implements LocalizedMessage<TradeLoanFacilityLocalizedMessageCodes> {
     BUILDER_VALIDATION_FAILED("Failed to build MorabeheLoanApplication due to validation errors."),

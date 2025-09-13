@@ -14,8 +14,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import ir.dotin.platform.domain.common.vo.Money;
-import ir.dotin.platform.domain.common.vo.Rate;
+import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.platform.commons.domain.vo.Rate;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;

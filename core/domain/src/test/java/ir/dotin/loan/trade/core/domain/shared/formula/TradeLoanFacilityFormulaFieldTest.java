@@ -10,9 +10,9 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import ir.dotin.platform.domain.common.vo.Money;
-import ir.dotin.platform.domain.common.vo.Rate;
-import ir.dotin.platform.domain.common.vo.ValueType;
+import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.platform.commons.domain.vo.Rate;
+import ir.dotin.platform.commons.domain.vo.ValueType;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.verify;

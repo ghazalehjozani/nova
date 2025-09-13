@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
-import ir.dotin.platform.domain.common.annotation.DomainComponent;
+import ir.dotin.platform.commons.domain.annotation.DomainComponent;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.DocumentCalculationStrategy;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleType;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;

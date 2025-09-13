@@ -1,11 +1,10 @@
 package ir.dotin.loan.trade.core.domain.shared.formula;
 
-import ir.dotin.platform.domain.common.vo.ValueType;
+import ir.dotin.platform.commons.domain.vo.ValueType;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.LoanFacilityFormulaField;
 
 public enum TradeLoanFacilityFormulaField
         implements LoanFacilityFormulaField<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> {
-
     APPROVED_AMOUNT(LoanFacilityFormulaField.approvedAmount()) {
         @Override
         Object extract(TradeLoanParameterProvider p) {

@@ -1,8 +1,8 @@
 package ir.dotin.loan.trade.core.domain.loanfacility.service;
 
-import ir.dotin.platform.domain.common.Result;
-import ir.dotin.platform.domain.common.annotation.DomainService;
-import ir.dotin.platform.domain.common.vo.Money;
+import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.domain.annotation.DomainService;
+import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.FormulaEvaluationResult;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.FormulaEvaluationService;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityParameterizedFormula;

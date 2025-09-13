@@ -7,11 +7,11 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 
-import ir.dotin.platform.domain.common.Notification;
-import ir.dotin.platform.domain.common.Result;
-import ir.dotin.platform.domain.common.entity.Identity;
-import ir.dotin.platform.domain.common.event.DomainEvent;
-import ir.dotin.platform.domain.common.feature.FeatureConfig;
+import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.feature.FeatureConfig;
+import ir.dotin.platform.commons.domain.entity.Identity;
+import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.loan.baseloan.core.domain.loantype.entity.AbstractLoanType;
 import ir.dotin.loan.baseloan.core.domain.loantype.i18n.LoanTypeLocalizedMessageCodes;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Active;
