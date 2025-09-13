@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import ir.dotin.platform.commons.domain.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.service.validator.LoanFacilityCreationValidator;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
@@ -51,8 +52,7 @@ final class TradeLoanFacilityValidationServiceTest {
     @Test
     @DisplayName("should be annotated with DomainService")
     void shouldBeAnnotatedWithDomainService() {
-        assertThat(TradeLoanFacilityValidationService.class)
-                .hasAnnotation(ir.dotin.platform.domain.common.annotation.DomainService.class);
+        assertThat(TradeLoanFacilityValidationService.class).hasAnnotation(DomainService.class);
     }
 
     @Test
@@ -89,8 +89,7 @@ final class TradeLoanFacilityValidationServiceTest {
         @Test
         @DisplayName("should be annotated with DomainService")
         void shouldBeAnnotatedWithDomainService() {
-            assertThat(TradeLoanFacilityValidationService.class)
-                    .hasAnnotation(ir.dotin.platform.domain.common.annotation.DomainService.class);
+            assertThat(TradeLoanFacilityValidationService.class).hasAnnotation(DomainService.class);
         }
 
         @Test

@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import ir.dotin.platform.commons.domain.annotation.DomainComponent;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.DocumentCalculationStrategy;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleType;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
@@ -157,8 +158,7 @@ final class DefaultDisbursementStrategyProviderTest {
         @Test
         @DisplayName("should be annotated with DomainComponent")
         void shouldBeAnnotatedWithDomainComponent() {
-            assertThat(DefaultDisbursementStrategyProvider.class)
-                    .hasAnnotation(ir.dotin.platform.domain.common.annotation.DomainComponent.class);
+            assertThat(DefaultDisbursementStrategyProvider.class).hasAnnotation(DomainComponent.class);
         }
 
         @Test

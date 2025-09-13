@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.domain.annotation.DomainService;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.shared.interaction.FindAccountByRelationTypeClient;
@@ -266,8 +267,7 @@ final class IssueContractBankCommitmentTransactionStrategyTest {
         @Test
         @DisplayName("should be annotated with DomainService")
         void shouldBeAnnotatedWithDomainService() {
-            assertThat(IssueContractBankCommitmentTransactionStrategy.class)
-                    .hasAnnotation(ir.dotin.platform.domain.common.annotation.DomainService.class);
+            assertThat(IssueContractBankCommitmentTransactionStrategy.class).hasAnnotation(DomainService.class);
         }
 
         @Test

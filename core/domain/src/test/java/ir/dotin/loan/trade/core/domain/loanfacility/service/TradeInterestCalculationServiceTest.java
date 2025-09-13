@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.domain.annotation.DomainService;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.FormulaEvaluationResult;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.FormulaEvaluationService;
@@ -137,8 +138,7 @@ class TradeInterestCalculationServiceTest {
         @Test
         @DisplayName("should be annotated with DomainService")
         void shouldBeAnnotatedWithDomainService() {
-            assertThat(TradeInterestCalculationService.class)
-                    .hasAnnotation(ir.dotin.platform.domain.common.annotation.DomainService.class);
+            assertThat(TradeInterestCalculationService.class).hasAnnotation(DomainService.class);
         }
 
         @Test

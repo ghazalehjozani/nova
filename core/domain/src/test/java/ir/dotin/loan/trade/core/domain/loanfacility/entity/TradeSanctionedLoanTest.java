@@ -296,7 +296,7 @@ final class TradeSanctionedLoanTest {
                 .withId(SanctionedLoanId.of(randomUUID()))
                 .withSanctionSerial(mockSanctionSerial)
                 .withApprovedAmount(validAmount)
-                .withCurrency(ir.dotin.platform.domain.common.vo.CurrencyType.IRR)
+                .withCurrency(CurrencyType.IRR)
                 .withLoanDuration(validDuration)
                 .withGracePeriod(validGracePeriod)
                 .withInstallmentCount(validInstallmentCount);

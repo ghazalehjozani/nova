@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import ir.dotin.platform.commons.domain.entity.Identity;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
@@ -213,7 +214,7 @@ final class LoanApplicationIdTest {
             LoanApplicationId id = LoanApplicationId.of(randomUUID());
 
             // when & then
-            assertThat(id).isInstanceOf(ir.dotin.platform.domain.common.entity.Identity.class);
+            assertThat(id).isInstanceOf(Identity.class);
             assertThat(id.value()).isInstanceOf(UUID.class);
         }
 
