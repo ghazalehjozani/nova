@@ -1,0 +1,99 @@
+spring:
+  application:
+    name: trade-loan-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: sudoit
+    password: p@sSw0rd
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 25
+          order_inserts: true
+          order_updates: true
+  sql:
+    init:
+      mode: never
+server:
+  port: 8080
+management:
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0  # 0.1 (10%) for production
+    baggage:
+      enabled: true
+      remote-fields: user-id,correlation-id,tenant-id
+      correlation:
+        enabled: true
+        fields: user-id,correlation-id
+  
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:http://127.0.0.1:4318/v1/traces}
+      protocol: http/protobuf
+      compression: gzip
+      timeout: 10s
+    metrics:
+      endpoint: ${OTEL_EXPORTER_OTLP_METRICS_ENDPOINT:http://127.0.0.1:4318/v1/metrics}
+      protocol: http/protobuf
+      step: 30s
+  
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,traces
+  
+  endpoint:
+    health:
+      show-details: always
+  
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5,0.95,0.99
+
+otel:
+  resource:
+    attributes:
+      service.name: ${spring.application.name}
+      service.version: ${spring.application.version:unknown}
+      service.namespace: ${OTEL_SERVICE_NAMESPACE:development}
+      service.instance.id: ${HOSTNAME:${random.uuid}}
+      deployment.environment: ${SPRING_PROFILES_ACTIVE:development}
+  
+  instrumentation:
+    annotations:
+      enabled: true
+    spring-webmvc:
+      enabled: true
+    jdbc:
+      enabled: true
+    kafka:
+      enabled: true
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId:-},%X{spanId:-}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId:-},%X{spanId:-}] %logger{36} - %msg%n"
+  
+  level:
+    io.opentelemetry: INFO
+    io.micrometer: INFO
+    org.springframework.web: DEBUG
+    ir.dotin: DEBUG

@@ -18,6 +18,10 @@
 
   <dependencies>
     <dependency>
+        <groupId>ir.dotin.platform</groupId>
+        <artifactId>platform-starter-all</artifactId>
+    </dependency>
+    <dependency>
       <groupId>ir.dotin.loan</groupId>
       <artifactId>trade-loan-core-domain</artifactId>
     </dependency>
@@ -40,6 +44,16 @@
     <dependency>
       <groupId>ir.dotin.loan</groupId>
       <artifactId>trade-loan-adapters-driven-persistence</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <exclusions>
+            <exclusion>
+                <groupId>org.checkerframework</groupId>
+                <artifactId>checker-qual</artifactId>
+            </exclusion>
+        </exclusions>
     </dependency>
   </dependencies>
 </project>

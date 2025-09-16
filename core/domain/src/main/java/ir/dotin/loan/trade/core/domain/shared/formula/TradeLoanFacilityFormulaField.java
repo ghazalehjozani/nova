@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.core.domain.shared.formula;
 
+import java.util.function.Function;
+
 import ir.dotin.platform.commons.domain.vo.ValueType;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.LoanFacilityFormulaField;
 
@@ -46,7 +48,6 @@ public enum TradeLoanFacilityFormulaField
         this.expectedType = expectedType;
     }
 
-    // keep the delegating ctor if you really need it, but don't copy a Function into a field
     TradeLoanFacilityFormulaField(
             LoanFacilityFormulaField<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> base) {
         this.expectedType = base.getExpectedType();
@@ -59,9 +60,8 @@ public enum TradeLoanFacilityFormulaField
         return expectedType;
     }
 
-    // If some callers still want a Function, return one without storing it:
     @Override
-    public java.util.function.Function<TradeLoanParameterProvider, Object> getExtractor() {
+    public Function<TradeLoanParameterProvider, Object> getExtractor() {
         return this::extract;
     }
 }
