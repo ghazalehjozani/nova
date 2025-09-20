@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driven.persistance.mapper;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -11,6 +12,8 @@ import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import ir.dotin.platform.adapter.persistence.embeddable.AmountRangeEmb;
+import ir.dotin.platform.adapter.persistence.embeddable.DurationRangeEmb;
 import ir.dotin.platform.commons.convert.utils.TypeDescriptors;
 import ir.dotin.platform.commons.core.feature.FeatureConfig;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
@@ -40,8 +43,6 @@ import ir.dotin.loan.trade.adapters.driven.persistance.entity.embdeddable.Regula
 import ir.dotin.loan.trade.adapters.driven.persistance.entity.embdeddable.RepaymentPriorityPolicyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.exception.InvalidDomainStateException;
 import ir.dotin.loan.trade.adapters.driven.persistance.exception.PersistenceConversionException;
-import ir.dotin.loan.trade.adapters.driven.persistance.shared.embeddable.AmountRangeEmb;
-import ir.dotin.loan.trade.adapters.driven.persistance.shared.embeddable.DurationRangeEmb;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanFacilityFormulaField;
 import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanParameterProvider;
@@ -249,9 +250,9 @@ public class TradeLoanArrangementPersistenceMapper {
     }
 
     private void mapCollateralToDomain(TradeLoanArrangementEntity entity, TradeLoanArrangement.Builder builder) {
-        Set<CollateralType> collateralTypes = entity.getCollateralTypes().stream()
+        List<CollateralType> collateralTypes = entity.getCollateralTypes().stream()
                 .map(this::mapCollateralTypeToDomain)
-                .collect(Collectors.toSet());
+                .toList();
 
         CollateralPolicy policy = CollateralPolicy.of(
                         collateralTypes,

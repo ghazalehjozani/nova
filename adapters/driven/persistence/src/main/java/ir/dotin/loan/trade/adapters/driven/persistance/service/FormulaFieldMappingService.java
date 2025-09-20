@@ -36,17 +36,17 @@ public class FormulaFieldMappingService {
             LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> formula) {
         if (formula == null) return null;
 
-        return serializeParameterizedFormula(formula.parameterizedFormula());
+        return serializeParameterizedFormula(formula);
     }
 
     public String serializeParameterizedFormula(
-            ParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> formula) {
+            LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> formula) {
         if (formula == null) return null;
 
         FormulaData data = new FormulaData(
-                formula.formula().value(),
-                serializeMappings(formula.fieldMappings()),
-                extractVariables(formula.formula().value()));
+                formula.parameterizedFormula().formula().value(),
+                serializeMappings(formula.parameterizedFormula().fieldMappings()),
+                extractVariables(formula.parameterizedFormula().formula().value()));
 
         try {
             return objectMapper.writeValueAsString(data);
@@ -86,16 +86,13 @@ public class FormulaFieldMappingService {
         }
     }
 
-    public ParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField>
+    public LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField>
             deserializeParameterizedFormula(String serialized) {
         if (serialized == null || serialized.trim().isEmpty()) {
             return null;
         }
 
-        LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> loanFormula =
-                deserializeInterestFormula(serialized);
-
-        return loanFormula != null ? loanFormula.parameterizedFormula() : null;
+        return deserializeInterestFormula(serialized);
     }
 
     private LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField>

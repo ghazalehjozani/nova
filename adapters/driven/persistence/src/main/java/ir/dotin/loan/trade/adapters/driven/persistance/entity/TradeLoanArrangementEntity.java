@@ -20,6 +20,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
+import ir.dotin.platform.adapter.persistence.embeddable.AmountRangeEmb;
+import ir.dotin.platform.adapter.persistence.embeddable.DurationRangeEmb;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LifeInsurancePaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LoanSecondaryType;
@@ -33,8 +35,6 @@ import ir.dotin.loan.trade.adapters.driven.persistance.entity.embdeddable.Intere
 import ir.dotin.loan.trade.adapters.driven.persistance.entity.embdeddable.PenaltyPolicyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.entity.embdeddable.RegulatoryCompliancePolicyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.entity.embdeddable.RepaymentPriorityPolicyEmb;
-import ir.dotin.loan.trade.adapters.driven.persistance.shared.embeddable.AmountRangeEmb;
-import ir.dotin.loan.trade.adapters.driven.persistance.shared.embeddable.DurationRangeEmb;
 
 @Entity
 @Table(name = "trade_loan_arrangement")

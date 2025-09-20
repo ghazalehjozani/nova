@@ -27,6 +27,17 @@ spring:
   sql:
     init:
       mode: never
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP:banking-platform}
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      isolation-level: read_committed
+    producer:
+      acks: all
+      retries: 3
+      enable-idempotence: true
 server:
   port: 8080
 management:
@@ -97,3 +108,43 @@ logging:
     io.micrometer: INFO
     org.springframework.web: DEBUG
     ir.dotin: DEBUG
+
+
+platform:
+  messaging:
+    outbox:
+      batch-size: 100
+      poll-interval: PT5S
+      lock-timeout: PT5M
+      max-retries: 3
+      retry-backoff-multiplier: PT2S
+      enable-encryption: true
+      retention-period: P30D
+
+    inbox:
+      batch-size: 50
+      processing-interval: PT10S
+      duplicate-check-window: P1D
+      max-processing-attempts: 5
+      dead-letter-threshold: P7D
+      enable-idempotency-check: true
+
+    kafka:
+      transaction-id-prefix: banking-tx-
+      trusted-packages: "ir.dotin.*"
+      max-poll-records: 50
+      concurrency: 3
+      topics:
+        outbox-events: platform.outbox.events
+        inbox-events: platform.inbox.events
+        dead-letter: platform.deadletter
+        partitions: 10
+        replicas: 3
+
+    scheduling:
+      enabled: true
+      default-lock-at-most-for: PT10M
+      default-lock-at-least-for: PT1M
+
+    encryption:
+      password: ${ENCRYPTION_PASSWORD:DefaultSecurePassword123!@#}
