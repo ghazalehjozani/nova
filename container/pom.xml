@@ -7,33 +7,39 @@
 
   <parent>
     <groupId>ir.dotin.loan</groupId>
-    <artifactId>trade-loan-core-application</artifactId>
+    <artifactId>trade-loan</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>trade-loan-core-application-service</artifactId>
-  <name>Trade Loan :: Core :: Application :: Service</name>
+  <artifactId>trade-loan-container</artifactId>
+  <name>Trade Loan :: Container</name>
   <packaging>jar</packaging>
 
   <dependencies>
     <dependency>
       <groupId>ir.dotin.loan</groupId>
-      <artifactId>trade-loan-core-application-ports-driven</artifactId>
+      <artifactId>trade-loan-core-domain</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ir.dotin.loan</groupId>
+      <artifactId>trade-loan-core-application-service</artifactId>
     </dependency>
     <dependency>
       <groupId>ir.dotin.loan</groupId>
       <artifactId>trade-loan-core-application-ports-driving</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-tx</artifactId>
+      <groupId>ir.dotin.loan</groupId>
+      <artifactId>trade-loan-core-application-ports-driven</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
+      <groupId>ir.dotin.loan</groupId>
+      <artifactId>trade-loan-adapters-driving-rest</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ir.dotin.loan</groupId>
+      <artifactId>trade-loan-adapters-driven-persistence</artifactId>
     </dependency>
   </dependencies>
-
 </project>

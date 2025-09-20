@@ -8,20 +8,17 @@
   <parent>
     <groupId>ir.dotin.loan</groupId>
     <artifactId>trade-loan-core-application</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>trade-loan-core-application-ports</artifactId>
   <name>Trade Loan :: Core :: Application :: Ports</name>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+  <modules>
+    <module>driving</module>
+    <module>driven</module>
+  </modules>
 
 </project>

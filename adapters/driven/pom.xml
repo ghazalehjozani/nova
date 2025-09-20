@@ -7,7 +7,7 @@
   <parent>
     <groupId>ir.dotin.loan</groupId>
     <artifactId>trade-loan-adapters</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -20,5 +20,12 @@
     <module>client</module>
     <module>messaging</module>
   </modules>
+
+  <dependencies>
+    <dependency>
+      <groupId>ir.dotin.loan</groupId>
+      <artifactId>trade-loan-core-application-ports-driven</artifactId>
+    </dependency>
+  </dependencies>
 
 </project>

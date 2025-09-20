@@ -7,7 +7,7 @@
     <parent>
         <groupId>ir.dotin.loan</groupId>
         <artifactId>trade-loan</artifactId>
-        <version>0.1.1-SNAPSHOT</version>
+        <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>trade-architecture-tests</artifactId>
@@ -17,7 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>ir.dotin.platform</groupId>
-            <artifactId>platform-archunit</artifactId>
+            <artifactId>platform-test-archunit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -42,7 +42,12 @@
         </dependency>
         <dependency>
             <groupId>ir.dotin.loan</groupId>
-            <artifactId>trade-loan-core-application-ports</artifactId>
+            <artifactId>trade-loan-core-application-ports-driving</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>trade-loan-core-application-ports-driven</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
