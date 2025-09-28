@@ -3,7 +3,6 @@ package ir.dotin.loan.trade.adapters.driving.web.controller.dto;
 import java.math.BigDecimal;
 import java.time.Period;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
@@ -53,13 +52,11 @@ public record EstablishTradeLoanArrangementRequest(
                         requiredMode = Schema.RequiredMode.REQUIRED)
                 @JsonProperty(required = true)
                 String title,
-        @NotEmpty(message = "{field.required.currency}")
-                @Size(max = 10, message = "{collateral.types.max.exceeded}")
-                @Schema(
-                        description = "Supported currency codes",
-                        example = "[\"USD\", \"EUR\", \"IRR\"]",
-                        requiredMode = Schema.RequiredMode.REQUIRED)
-                Set<@Pattern(regexp = "^[A-Z]{3}$", message = "{field.pattern.currency}") String> currencies,
+        @NotBlank(message = "{field.required.currency}")
+                @Size(min = 3, max = 3, message = "{field.size.currency}")
+                @Pattern(regexp = "^[A-Z]{3}$", message = "{field.pattern.currency}")
+                @Schema(description = "Currency code", example = "IRR", requiredMode = Schema.RequiredMode.REQUIRED)
+                String currency,
         @NotNull(message = "{field.required.amount}")
                 @Valid
                 @Schema(description = "Allowed amount range for loans", requiredMode = Schema.RequiredMode.REQUIRED)

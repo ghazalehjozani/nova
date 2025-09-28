@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.google.common.collect.Range;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingConstants;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
@@ -15,7 +16,7 @@ import ir.dotin.loan.trade.adapters.driving.web.controller.dto.EstablishTradeLoa
 import ir.dotin.loan.trade.core.application.ports.driven.command.EstablishTradeLoanArrangementCommand;
 
 @Mapper(
-        componentModel = "spring",
+        componentModel = MappingConstants.ComponentModel.SPRING,
         unmappedSourcePolicy = ReportingPolicy.WARN,
         unmappedTargetPolicy = ReportingPolicy.ERROR,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
