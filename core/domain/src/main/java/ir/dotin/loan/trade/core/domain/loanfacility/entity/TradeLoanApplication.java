@@ -16,13 +16,13 @@ public final class TradeLoanApplication extends AbstractLoanApplication<TradeLoa
         super(builder);
     }
 
-    public static Builder newBuilder() {
+    public static Builder builder() {
         return new Builder();
     }
 
     public static Result<TradeLoanApplication> create(Builder builder) {
         requireNonNull(builder, "Builder cannot be null for create");
-        return builder.withId(LoanApplicationId.of(randomUUID())).build();
+        return builder.id(LoanApplicationId.of(randomUUID())).build();
     }
 
     public static Result<TradeLoanApplication> reconstitute(Builder builder) {
@@ -38,7 +38,7 @@ public final class TradeLoanApplication extends AbstractLoanApplication<TradeLoa
     public static final class Builder extends AbstractLoanApplicationBuilder<TradeLoanApplication, Builder> {
 
         @Override
-        protected TradeLoanApplication buildInternal() {
+        public TradeLoanApplication buildInternal() {
             return new TradeLoanApplication(this);
         }
 

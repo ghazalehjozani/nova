@@ -26,6 +26,11 @@
       <groupId>ir.dotin.loan</groupId>
       <artifactId>trade-loan-core-application-ports-driven</artifactId>
     </dependency>
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <scope>provided</scope>
+    </dependency>
   </dependencies>
 
 </project>

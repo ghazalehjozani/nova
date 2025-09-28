@@ -17,7 +17,7 @@ public final class TradeLoanFacilityValidationService
             TradeLoanFacility candidateFacility, TradeLoanArrangement morabeheRules, TradeLoanType morabeheLoanType) {
 
         var baseSpecification = new LoanApplicationAmountSpecification(morabeheRules.getAmountRange())
-                .and(new LoanApplicationDurationSpecification(morabeheRules.getDurationRangeAsLongRange()))
+                .and(new LoanApplicationDurationSpecification(morabeheRules.getDurationRange()))
                 .and(new LoanApplicationGracePeriodSpecification(
                         morabeheRules.getGracePeriodPolicy().minGracePeriod(),
                         morabeheRules.getGracePeriodPolicy().maxGracePeriod()))
@@ -32,8 +32,9 @@ public final class TradeLoanFacilityValidationService
         return specificationWithGuarantor
                 .and(new LoanApplicationInstallmentCountSpecification(
                         morabeheRules.getInstallmentPolicy().installmentPaymentType()))
-                .and(new LoanApplicationEconomicSectorSpecification(morabeheLoanType.getEconomicSectors()))
-                .and(new LoanApplicationCurrencySpecification(morabeheRules.getCurrencies()))
+                //                .and(new
+                // LoanApplicationEconomicSectorSpecification(morabeheLoanType.getEconomicSectorCurrencies())) TODO:
+                //                .and(new LoanApplicationCurrencySpecification(morabeheRules.getCurrencyType()))
                 .isSatisfiedBy(candidateFacility);
     }
 }

@@ -1,13 +1,9 @@
 package ir.dotin.loan.trade.core.application.service.establishloanarrangement.mapper;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.commons.convert.utils.TypeDescriptors;
@@ -24,8 +20,6 @@ import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.RegulatoryComplianc
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.RepaymentPriorityPolicy;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
 import ir.dotin.loan.trade.core.application.ports.driven.command.EstablishTradeLoanArrangementCommand;
-import ir.dotin.loan.trade.core.application.service.configuration.TradeFeatureProperties;
-import ir.dotin.loan.trade.core.application.service.configuration.TradeLoanFormulaFieldMappingProperties;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanFacilityFormulaField;
 import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanParameterProvider;
@@ -33,62 +27,54 @@ import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanParameterProvider
 import static java.util.Objects.requireNonNull;
 
 @Component
-public class TradeLoanArrangementCommandMapper
-        implements Converter<EstablishTradeLoanArrangementCommand, Result<TradeLoanArrangement.Builder>> {
+@SuppressWarnings("NullAway") // TODO
+public class TradeLoanArrangementCommandMapper {
 
     private static final Logger log = LoggerFactory.getLogger(TradeLoanArrangementCommandMapper.class);
-    private final TradeFeatureProperties featureProperties;
-    private final TradeLoanFormulaFieldMappingProperties formulaFieldMappingProperties;
     private final ConversionService conversionService;
 
-    public TradeLoanArrangementCommandMapper(
-            TradeFeatureProperties featureProperties,
-            TradeLoanFormulaFieldMappingProperties formulaFieldMappingProperties,
-            ConversionService conversionService) {
-        this.featureProperties = featureProperties;
-        this.formulaFieldMappingProperties = formulaFieldMappingProperties;
+    public TradeLoanArrangementCommandMapper(ConversionService conversionService) {
         this.conversionService = conversionService;
     }
 
     @SuppressWarnings("unchecked")
-    @Override
-    public Result<TradeLoanArrangement.Builder> convert(@NonNull EstablishTradeLoanArrangementCommand command) {
+    public Result<TradeLoanArrangement.Builder> mapToAggregate(@NonNull EstablishTradeLoanArrangementCommand command) {
         log.debug("Converting EstablishTradeLoanArrangementCommand to TradeLoanArrangement.Builder");
 
         Notification aggregatedNotification = Notification.create();
-        TradeLoanArrangement.Builder builder = TradeLoanArrangement.newBuilder(featureProperties.featureConfig());
+        TradeLoanArrangement.Builder builder = TradeLoanArrangement.builder();
 
         Result<LoanArrangementCode> codeResult = convertCode(command.code());
         if (codeResult.isFailure()) {
             aggregatedNotification.merge(codeResult.notification());
         } else {
-            builder.withCode(codeResult.value());
+            builder.code(codeResult.value());
         }
 
         Result<Title> titleResult = convertTitle(command.title());
         if (titleResult.isFailure()) {
             aggregatedNotification.merge(titleResult.notification());
         } else {
-            builder.withTitle(titleResult.value());
+            builder.title(titleResult.value());
         }
+        Result<CurrencyType> currencyResult = CurrencyType.valueOf(command.currency());
 
-        Result<Set<CurrencyType>> currenciesResult = convertCurrencies(command.currencies());
-        if (currenciesResult.isFailure()) {
-            aggregatedNotification.merge(currenciesResult.notification());
+        if (currencyResult.isFailure()) {
+            aggregatedNotification.merge(currencyResult.notification());
         } else {
-            builder.withCurrencies(currenciesResult.value());
+            builder.currencyType(currencyResult.value());
         }
 
-        builder.withAmountRange(command.amountRange())
-                .withDurationRange(command.durationRange())
-                .withGuarantorCount(command.guarantorCount())
-                .withCustomerType(command.customerType())
-                .withHasInstallmentCard(command.hasInstallmentCard())
-                .withLifeInsurancePaymentType(command.lifeInsurancePaymentType())
-                .withLoanSecondaryType(command.loanSecondaryType())
-                .withSectionType(command.sectionType())
-                .withAutoApproval(command.autoApproval())
-                .withDisbursementMethod(command.disbursementMethod());
+        builder.amountRange(command.amountRange())
+                .durationRange(command.durationRange())
+                .guarantorCount(command.guarantorCount())
+                .partyType(command.customerType())
+                .hasInstallmentCard(command.hasInstallmentCard())
+                .lifeInsurancePaymentType(command.lifeInsurancePaymentType())
+                .loanSecondaryType(command.loanSecondaryType())
+                .sectionType(command.sectionType())
+                .autoApproval(command.autoApproval())
+                .disbursementMethod(command.disbursementMethod());
 
         Result<InterestPolicy<TradeLoanParameterProvider, TradeLoanFacilityFormulaField>> interestPolicyResult =
                 (Result<InterestPolicy<TradeLoanParameterProvider, TradeLoanFacilityFormulaField>>)
@@ -99,7 +85,7 @@ public class TradeLoanArrangementCommandMapper
         if (requireNonNull(interestPolicyResult).isFailure()) {
             aggregatedNotification.merge(interestPolicyResult.notification());
         } else {
-            builder.withInterestPolicy(interestPolicyResult.value());
+            builder.interestPolicy(interestPolicyResult.value());
         }
 
         Result<PenaltyPolicy<TradeLoanParameterProvider, TradeLoanFacilityFormulaField>> penaltyPolicyResult =
@@ -111,7 +97,7 @@ public class TradeLoanArrangementCommandMapper
         if (requireNonNull(penaltyPolicyResult).isFailure()) {
             aggregatedNotification.merge(penaltyPolicyResult.notification());
         } else {
-            builder.withPenaltyPolicy(penaltyPolicyResult.value());
+            builder.penaltyPolicy(penaltyPolicyResult.value());
         }
 
         Result<InstallmentPolicy<TradeLoanParameterProvider, TradeLoanFacilityFormulaField>> installmentPolicyResult =
@@ -123,7 +109,7 @@ public class TradeLoanArrangementCommandMapper
         if (requireNonNull(installmentPolicyResult).isFailure()) {
             aggregatedNotification.merge(installmentPolicyResult.notification());
         } else {
-            builder.withInstallmentPolicy(installmentPolicyResult.value());
+            builder.installmentPolicy(installmentPolicyResult.value());
         }
 
         Result<GracePeriodPolicy<TradeLoanParameterProvider, TradeLoanFacilityFormulaField>> gracePeriodPolicyResult =
@@ -135,7 +121,7 @@ public class TradeLoanArrangementCommandMapper
         if (requireNonNull(gracePeriodPolicyResult).isFailure()) {
             aggregatedNotification.merge(gracePeriodPolicyResult.notification());
         } else {
-            builder.withGracePeriodPolicy(gracePeriodPolicyResult.value());
+            builder.gracePeriodPolicy(gracePeriodPolicyResult.value());
         }
 
         Result<RepaymentPriorityPolicy> repaymentPriorityPolicyResult =
@@ -146,7 +132,7 @@ public class TradeLoanArrangementCommandMapper
         if (requireNonNull(repaymentPriorityPolicyResult).isFailure()) {
             aggregatedNotification.merge(repaymentPriorityPolicyResult.notification());
         } else {
-            builder.withRepaymentPriorityPolicy(repaymentPriorityPolicyResult.value());
+            builder.repaymentPriorityPolicy(repaymentPriorityPolicyResult.value());
         }
 
         Result<RegulatoryCompliancePolicy> regulatoryCompliancePolicyResult =
@@ -157,7 +143,7 @@ public class TradeLoanArrangementCommandMapper
         if (requireNonNull(regulatoryCompliancePolicyResult).isFailure()) {
             aggregatedNotification.merge(regulatoryCompliancePolicyResult.notification());
         } else {
-            builder.withRegulatoryCompliancePolicy(regulatoryCompliancePolicyResult.value());
+            builder.regulatoryCompliancePolicy(regulatoryCompliancePolicyResult.value());
         }
 
         Result<CollateralPolicy> collateralPolicyResult = (Result<CollateralPolicy>) conversionService.convert(
@@ -167,7 +153,7 @@ public class TradeLoanArrangementCommandMapper
         if (requireNonNull(collateralPolicyResult).isFailure()) {
             aggregatedNotification.merge(collateralPolicyResult.notification());
         } else {
-            builder.withCollateralPolicy(collateralPolicyResult.value());
+            builder.collateralPolicy(collateralPolicyResult.value());
         }
 
         if (aggregatedNotification.hasErrors()) {
@@ -185,16 +171,5 @@ public class TradeLoanArrangementCommandMapper
 
     private Result<Title> convertTitle(String title) {
         return Title.of(title);
-    }
-
-    private Result<Set<CurrencyType>> convertCurrencies(Set<String> currencyCodes) {
-        Set<CurrencyType> currencies = currencyCodes.stream()
-                .map(code -> {
-                    Result<CurrencyType> currencyResult = CurrencyType.valueOf(code);
-                    return currencyResult.orElseThrow();
-                })
-                .collect(Collectors.toSet());
-
-        return Result.success(currencies);
     }
 }

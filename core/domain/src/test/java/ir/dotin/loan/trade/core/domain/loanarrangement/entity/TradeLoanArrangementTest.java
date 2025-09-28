@@ -2,10 +2,9 @@ package ir.dotin.loan.trade.core.domain.loanarrangement.entity;
 
 import java.math.BigDecimal;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.Instant;
+import java.time.Period;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,11 +26,13 @@ import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.PenaltyPolicy;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.RegulatoryCompliancePolicy;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.RepaymentPriorityPolicy;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LifeInsurancePaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LoanSecondaryType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.SectionType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Active;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
 import ir.dotin.loan.trade.core.domain.loanarrangement.event.TradeLoanArrangementCreated;
@@ -55,7 +56,7 @@ class TradeLoanArrangementTest {
 
     @BeforeEach
     void setUp() {
-        builder = TradeLoanArrangement.newBuilder(mockFeatureConfig);
+        builder = TradeLoanArrangement.builder();
         testClock = Clock.fixed(Instant.parse("2023-01-01T00:00:00Z"), UTC);
     }
 
@@ -125,8 +126,8 @@ class TradeLoanArrangementTest {
                             repaymentPriorityPolicy,
                             regulatoryCompliancePolicy,
                             collateralPolicy)
-                    .withId(id)
-                    .withActive(new Active(true));
+                    .id(id)
+                    .active(new Active(true));
 
             // when
             var arrangement = TradeLoanArrangement.reconstitute(validBuilder);
@@ -144,9 +145,11 @@ class TradeLoanArrangementTest {
     final class ConstructorTests {
 
         @Test
-        @DisplayName("should throw exception when feature config is null")
-        void shouldThrowExceptionWhenFeatureConfigIsNull() {
-            assertThatThrownBy(() -> TradeLoanArrangement.newBuilder(null)).isInstanceOf(NullPointerException.class);
+        @DisplayName("should throw exception when builder is null")
+        void shouldThrowExceptionWhenBuilderIsNull() {
+            assertThatThrownBy(() -> TradeLoanArrangement.create(null, testClock))
+                    .isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("Builder cannot be null for creation");
         }
     }
 
@@ -180,30 +183,33 @@ class TradeLoanArrangementTest {
             RepaymentPriorityPolicy repaymentPriorityPolicy,
             RegulatoryCompliancePolicy regulatoryCompliancePolicy,
             CollateralPolicy collateralPolicy) {
-        return TradeLoanArrangement.newBuilder(featureConfig)
-                .withCode(new LoanArrangementCode("TRD-ARR-01"))
-                .withTitle(new Title("Default Trade Arrangement"))
-                .withCurrencies(ImmutableSet.of(CurrencyType.IRR))
-                .withAmountRange(Range.closed(
+        return TradeLoanArrangement.builder()
+                .code(new LoanArrangementCode("TRD-ARR-01"))
+                .title(new Title("Default Trade Arrangement"))
+                .currencyType(CurrencyType.IRR)
+                .amountRange(Range.closed(
                         Money.valueOf(BigDecimal.valueOf(1000), CurrencyType.IRR)
                                 .orElseThrow(),
                         Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR)
                                 .orElseThrow()))
-                .withDurationRange(Range.closed(Duration.ofDays(30), Duration.ofDays(365)))
-                .withGuarantorCount(1)
-                .withCustomerType(PartyType.LEGAL)
-                .withHasInstallmentCard(false)
-                .withLifeInsurancePaymentType(LifeInsurancePaymentType.NONE)
-                .withLoanSecondaryType(LoanSecondaryType.GENERAL)
-                .withSectionType(SectionType.CURRENT)
-                .withAutoApproval(true)
-                .withDisbursementMethod(DisbursementMethod.LUMP_SUMP)
-                .withInterestPolicy(interestPolicy)
-                .withPenaltyPolicy(penaltyPolicy)
-                .withInstallmentPolicy(installmentPolicy)
-                .withGracePeriodPolicy(gracePeriodPolicy)
-                .withRepaymentPriorityPolicy(repaymentPriorityPolicy)
-                .withRegulatoryCompliancePolicy(regulatoryCompliancePolicy)
-                .withCollateralPolicy(collateralPolicy);
+                .durationRange(Range.closed(
+                        LoanDuration.of(Period.ofDays(30)).orElseThrow(),
+                        LoanDuration.of(Period.ofDays(365)).orElseThrow()))
+                .guarantorCount(1)
+                .partyType(PartyType.LEGAL)
+                .hasInstallmentCard(false)
+                .lifeInsurancePaymentType(LifeInsurancePaymentType.NONE)
+                .loanSecondaryType(LoanSecondaryType.GENERAL)
+                .sectionType(SectionType.CURRENT)
+                .autoApproval(true)
+                .disbursementMethod(DisbursementMethod.LUMP_SUMP)
+                .interestPolicy(interestPolicy)
+                .penaltyPolicy(penaltyPolicy)
+                .installmentPolicy(installmentPolicy)
+                .gracePeriodPolicy(gracePeriodPolicy)
+                .repaymentPriorityPolicy(repaymentPriorityPolicy)
+                .regulatoryCompliancePolicy(regulatoryCompliancePolicy)
+                .collateralPolicy(collateralPolicy)
+                .economicSector(new EconomicSector("EXCHANGE", "Exchange Sector"));
     }
 }

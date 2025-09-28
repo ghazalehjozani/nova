@@ -87,20 +87,19 @@ public class TradeLoanFacilityService
 
     @Override
     @SuppressWarnings("unchecked")
-    protected Result<TradeSanctionedLoan.TradeSanctionedLoanBuilder> createSanctionedLoanFromApplication(
+    protected Result<TradeSanctionedLoan.Builder> createSanctionedLoanFromApplication(
             TradeLoanApplication loanApplication) {
 
         // Create a TradeSanctionedLoan.Builder from the loan application data
-        var builder = TradeSanctionedLoan.newBuilder()
-                .withId(SanctionedLoanId.of(randomUUID()))
-                .withSanctionSerial(
-                        SanctionSerial.of("AUTO_GENERATED-" + System.currentTimeMillis(), SanctionType.GENERAL)
-                                .orElseThrow())
-                .withApprovedAmount(loanApplication.getRequestedAmount())
-                .withCurrency(loanApplication.getCurrency())
-                .withGracePeriod(loanApplication.getGracePeriod())
-                .withInstallmentCount(loanApplication.getInstallmentCount())
-                .withLoanDuration(loanApplication.getRequestedLoanDuration());
+        var builder = TradeSanctionedLoan.builder()
+                .id(SanctionedLoanId.of(randomUUID()))
+                .sanctionSerial(SanctionSerial.of("AUTO_GENERATED-" + System.currentTimeMillis(), SanctionType.GENERAL)
+                        .orElseThrow())
+                .approvedAmount(loanApplication.getRequestedAmount())
+                .currency(loanApplication.getCurrency())
+                .gracePeriod(loanApplication.getGracePeriod())
+                .installmentCount(loanApplication.getInstallmentCount())
+                .loanDuration(loanApplication.getRequestedLoanDuration());
 
         return Result.success(builder);
     }

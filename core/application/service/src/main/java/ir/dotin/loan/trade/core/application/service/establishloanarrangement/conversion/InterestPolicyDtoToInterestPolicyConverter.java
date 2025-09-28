@@ -61,7 +61,7 @@ public class InterestPolicyDtoToInterestPolicyConverter
         }
 
         return InterestPolicy.of(
-                minRateResult.value(), // baseInterestRate
+                minRateResult.orElseThrow(), // baseInterestRate
                 preferentialRangeRate,
                 interestParameterizedFormulaResult.orElseThrow(),
                 refundParameterizedFormulaResult.orElseThrow(),

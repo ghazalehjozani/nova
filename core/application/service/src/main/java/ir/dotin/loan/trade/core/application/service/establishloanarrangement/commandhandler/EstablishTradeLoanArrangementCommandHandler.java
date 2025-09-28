@@ -5,9 +5,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.ResolvableType;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
@@ -18,6 +15,7 @@ import ir.dotin.loan.trade.core.application.ports.driven.command.EstablishTradeL
 import ir.dotin.loan.trade.core.application.ports.driven.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.application.ports.driven.usecase.EstablishTradeLoanArrangementUseCase;
 import ir.dotin.loan.trade.core.application.service.establishloanarrangement.i18n.LoanArrangementErrorCodes;
+import ir.dotin.loan.trade.core.application.service.establishloanarrangement.mapper.TradeLoanArrangementCommandMapper;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 
 import static java.util.Objects.requireNonNull;
@@ -28,12 +26,12 @@ public class EstablishTradeLoanArrangementCommandHandler
 
     private static final Logger log = LoggerFactory.getLogger(EstablishTradeLoanArrangementCommandHandler.class);
 
-    private final ConversionService mapper;
+    private final TradeLoanArrangementCommandMapper mapper;
     private final TradeLoanArrangementRepository repository;
     private final Clock clock;
 
     public EstablishTradeLoanArrangementCommandHandler(
-            ConversionService mapper, TradeLoanArrangementRepository repository, Clock clock) {
+            TradeLoanArrangementCommandMapper mapper, TradeLoanArrangementRepository repository, Clock clock) {
         this.mapper = mapper;
         this.repository = repository;
         this.clock = clock;
@@ -50,10 +48,7 @@ public class EstablishTradeLoanArrangementCommandHandler
             }
 
             // Step 2: Build domain model
-            ResolvableType rt = ResolvableType.forClassWithGenerics(Result.class, TradeLoanArrangement.Builder.class);
-            @SuppressWarnings("unchecked")
-            Result<TradeLoanArrangement.Builder> builderResult =
-                    (Result<TradeLoanArrangement.Builder>) mapper.convert(command, new TypeDescriptor(rt, null, null));
+            Result<TradeLoanArrangement.Builder> builderResult = mapper.mapToAggregate(command);
             requireNonNull(builderResult);
             if (builderResult.isFailure()) {
                 return Result.failure(builderResult.notification());
@@ -67,6 +62,7 @@ public class EstablishTradeLoanArrangementCommandHandler
             }
             var arrangement = arrangementResult.orElseThrow();
 
+            arrangement.setVersion(command.version());
             // Step 4: Save to repository
             var saved = repository.save(arrangement);
 

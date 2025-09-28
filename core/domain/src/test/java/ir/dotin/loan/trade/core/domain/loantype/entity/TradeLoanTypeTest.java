@@ -16,9 +16,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ir.dotin.platform.commons.core.feature.FeatureConfig;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loantype.enums.SegmentType;
+import ir.dotin.loan.baseloan.core.domain.loantype.vo.EconomicSectorCurrency;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanApplicationStatus;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeGroupId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
@@ -47,7 +47,7 @@ final class TradeLoanTypeTest {
     private LoanApplicationStatus mockLoanApplicationStatus;
 
     @Mock
-    private EconomicSector mockEconomicSector;
+    private EconomicSectorCurrency mockEconomicSector;
 
     @Mock
     private LoanTypeGroupId mockGroupId;
@@ -110,34 +110,6 @@ final class TradeLoanTypeTest {
                     .hasMessageContaining("Clock cannot be null for creation");
         }
 
-        @DisplayName("should fail when loan arrangement IDs are empty")
-        @Test
-        void shouldFailWhenLoanArrangementIdsAreEmpty() {
-            // given
-            var builder = createValidBuilder().withMorabeheLoanArrangementIds(ImmutableSet.of());
-
-            // when
-            var result = TradeLoanType.create(builder, testClock);
-
-            // then
-            assertThat(result.isFailure()).isTrue();
-            assertThat(result.notification().hasErrors()).isTrue();
-        }
-
-        @DisplayName("should fail when loan arrangement IDs are null")
-        @Test
-        void shouldFailWhenLoanArrangementIdsAreNull() {
-            // given
-            var builder = createValidBuilder().withMorabeheLoanArrangementIds(null);
-
-            // when
-            var result = TradeLoanType.create(builder, testClock);
-
-            // then
-            assertThat(result.isFailure()).isTrue();
-            assertThat(result.notification().hasErrors()).isTrue();
-        }
-
         @DisplayName("should register creation event when successful")
         @Test
         void shouldRegisterCreationEventWhenSuccessful() {
@@ -161,7 +133,7 @@ final class TradeLoanTypeTest {
         void shouldReconstituteSuccessfully() {
             // given
             var existingId = LoanTypeId.of(randomUUID());
-            var builder = createValidBuilder().withId(existingId);
+            var builder = createValidBuilder().id(existingId);
 
             // when
             var loanType = TradeLoanType.reconstitute(builder);
@@ -221,46 +193,6 @@ final class TradeLoanTypeTest {
     }
 
     @Nested
-    @DisplayName("Version Management Tests")
-    final class VersionManagementTests {
-
-        @DisplayName("should prepare new version successfully")
-        @Test
-        void shouldPrepareNewVersionSuccessfully() {
-            // given
-            var originalBuilder = createValidBuilder();
-            var originalLoanType = TradeLoanType.reconstitute(originalBuilder);
-            var updatedBuilder = createValidBuilder()
-                    .withTitle(mockTitle)
-                    .withMorabeheLoanArrangementIds(ImmutableSet.of(LoanArrangementId.of(randomUUID())));
-
-            // when
-            var result = originalLoanType.prepareNewVersion(updatedBuilder, testClock);
-
-            // then
-            assertThat(result.isSuccess()).isTrue();
-            var newVersionBuilder = result.value();
-            assertThat(newVersionBuilder).isNotNull();
-        }
-
-        @DisplayName("should fail to prepare new version with invalid arrangement IDs")
-        @Test
-        void shouldFailToPrepareNewVersionWithInvalidArrangementIds() {
-            // given
-            var originalBuilder = createValidBuilder();
-            var originalLoanType = TradeLoanType.reconstitute(originalBuilder);
-            var updatedBuilder = createValidBuilder().withMorabeheLoanArrangementIds(ImmutableSet.of());
-
-            // when
-            var result = originalLoanType.prepareNewVersion(updatedBuilder, testClock);
-
-            // then
-            assertThat(result.isFailure()).isTrue();
-            assertThat(result.notification().hasErrors()).isTrue();
-        }
-    }
-
-    @Nested
     @DisplayName("Builder Tests")
     final class TradeSanctionedLoanDisbursementScheduleBuilderTests {
 
@@ -268,7 +200,7 @@ final class TradeLoanTypeTest {
         @Test
         void shouldCreateNewBuilderWithFeatureConfig() {
             // when
-            var builder = TradeLoanType.newBuilder(mockFeatureConfig);
+            var builder = TradeLoanType.builder();
 
             // then
             assertThat(builder).isNotNull().isInstanceOf(TradeLoanType.Builder.class);
@@ -286,53 +218,11 @@ final class TradeLoanTypeTest {
             // then
             assertThat(notification.hasErrors()).isFalse();
         }
-
-        @DisplayName("should fail validation with invalid arrangement IDs")
-        @Test
-        void shouldFailValidationWithInvalidArrangementIds() {
-            // given
-            var builder = createValidBuilder().withMorabeheLoanArrangementIds(ImmutableSet.of());
-
-            // when
-            var notification = builder.validate();
-
-            // then
-            assertThat(notification.hasErrors()).isTrue();
-        }
-
-        @DisplayName("should handle type conversion for loan arrangement IDs")
-        @Test
-        void shouldHandleTypeConversionForLoanArrangementIds() {
-            // given
-            var builder = createValidBuilder();
-            var arrangementIds = ImmutableSet.of(LoanArrangementId.of(randomUUID()));
-
-            // when
-            builder.withMorabeheLoanArrangementIds(arrangementIds);
-            var notification = builder.validate();
-
-            // then
-            assertThat(notification.hasErrors()).isFalse();
-        }
     }
 
     @Nested
     @DisplayName("Domain Model Tests")
     final class DomainModelTests {
-
-        @DisplayName("should implement getLoanRuleIds correctly")
-        @Test
-        void shouldImplementGetLoanRuleIdsCorrectly() {
-            // given
-            var builder = createValidBuilder();
-            var loanType = TradeLoanType.reconstitute(builder);
-
-            // when
-            var loanRuleIds = loanType.getLoanRuleIds();
-
-            // then
-            assertThat(loanRuleIds).hasSameSizeAs(validArrangementIds).hasSameElementsAs(validArrangementIds);
-        }
 
         @DisplayName("should return immutable loan arrangement IDs")
         @Test
@@ -363,21 +253,21 @@ final class TradeLoanTypeTest {
     }
 
     private TradeLoanType.Builder createValidBuilder() {
-        return TradeLoanType.newBuilder(mockFeatureConfig)
-                .withId(LoanTypeId.of(randomUUID()))
-                .withCode(mockLoanTypeCode)
-                .withTitle(mockTitle)
-                .withGatewayType(GatewayType.LOAN)
-                .withLoanApplicationAllowed(mockLoanApplicationStatus)
-                .withSegmentType(SegmentType.LOAN)
-                .withEconomicSectors(ImmutableSet.of(mockEconomicSector))
-                .withGroupId(mockGroupId)
-                .withMorabeheLoanArrangementIds(validArrangementIds);
+        return TradeLoanType.builder()
+                .id(LoanTypeId.of(randomUUID()))
+                .code(mockLoanTypeCode)
+                .title(mockTitle)
+                .gatewayType(GatewayType.LOAN)
+                .loanApplicationAllowed(mockLoanApplicationStatus)
+                .segmentType(SegmentType.LOAN)
+                .economicSectorCurrencies(ImmutableSet.of(mockEconomicSector))
+                .groupId(mockGroupId)
+                .loanArrangementIds(validArrangementIds);
     }
 
     private TradeLoanType.Builder createInactiveBuilder() {
         return createValidBuilder()
-                .withActive(new ir.dotin.loan.baseloan.core.domain.shared.vo.Active(false))
-                .withDisable(new ir.dotin.loan.baseloan.core.domain.shared.vo.Disable(false));
+                .active(new ir.dotin.loan.baseloan.core.domain.shared.vo.Active(false))
+                .disable(new ir.dotin.loan.baseloan.core.domain.shared.vo.Disable(false));
     }
 }

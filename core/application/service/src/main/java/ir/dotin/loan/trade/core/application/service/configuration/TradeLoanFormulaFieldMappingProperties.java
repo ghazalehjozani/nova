@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.core.application.service.configuration;
 
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanFacilityFormulaField;
@@ -10,7 +11,7 @@ import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanFacilityFormulaFi
 public record TradeLoanFormulaFieldMappingProperties(Map<Character, TradeLoanFacilityFormulaField> fieldMap) {
 
     public TradeLoanFormulaFieldMappingProperties {
-        fieldMap = fieldMap == null ? createDefaultMappings() : Map.copyOf(fieldMap);
+        fieldMap = fieldMap == null ? createDefaultMappings() : ImmutableMap.copyOf(fieldMap);
     }
 
     private static Map<Character, TradeLoanFacilityFormulaField> createDefaultMappings() {

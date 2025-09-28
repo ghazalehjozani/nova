@@ -1,23 +1,21 @@
 package ir.dotin.loan.trade.core.domain.loantype.entity;
 
 import java.time.Clock;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableSet;
-
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.core.feature.FeatureConfig;
-import ir.dotin.platform.commons.domain.entity.Identity;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.loan.baseloan.core.domain.loantype.entity.AbstractLoanType;
 import ir.dotin.loan.baseloan.core.domain.loantype.i18n.LoanTypeLocalizedMessageCodes;
+import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanTopicConfiguration;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Active;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Disable;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
+import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 import ir.dotin.loan.trade.core.domain.loantype.event.NewTradeLoanTypeVersionPrepared;
 import ir.dotin.loan.trade.core.domain.loantype.event.TradeLoanTypeActivated;
 import ir.dotin.loan.trade.core.domain.loantype.event.TradeLoanTypeCreated;
@@ -25,33 +23,29 @@ import ir.dotin.loan.trade.core.domain.loantype.event.TradeLoanTypeDeactivated;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
-import static java.util.Objects.requireNonNullElse;
 import static java.util.UUID.randomUUID;
 
 public final class TradeLoanType extends AbstractLoanType {
 
-    private final Set<LoanArrangementId> loanArrangementIds;
-
     private TradeLoanType(Builder builder) {
         super(builder);
-        this.loanArrangementIds = requireNonNullElse(builder.loanArrangementIds, ImmutableSet.of());
     }
 
-    public static Builder newBuilder(FeatureConfig featureConfig) {
-        return new Builder(featureConfig);
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static Result<TradeLoanType> create(Builder builder, Clock clock) {
         requireNonNull(clock, "Clock cannot be null for creation");
         requireNonNull(builder, "Builder cannot be null for creation");
 
-        builder.withId(LoanTypeId.of(randomUUID()));
-        builder.withActive(new Active(true));
-        builder.withDisable(new Disable(false));
+        builder.id(LoanTypeId.of(randomUUID()));
+        builder.active(new Active(true));
+        builder.disable(new Disable(false));
 
         // Suppress NullAway for this specific call since previous version is null for initial creation
         @SuppressWarnings({"nullness", "NullAway"})
-        var ignored = builder.withPreviousVersion(null);
+        var ignored = builder.previousVersion(null);
 
         Notification notification = builder.validate();
         if (notification.hasErrors()) {
@@ -60,19 +54,7 @@ public final class TradeLoanType extends AbstractLoanType {
 
         TradeLoanType loanType = builder.buildInternal();
 
-        var payload = new TradeLoanTypeCreated.Payload(
-                loanType.getCode(),
-                loanType.getTitle(),
-                loanType.getGatewayType(),
-                loanType.getLoanApplicationAllowed(),
-                loanType.getSegmentType(),
-                loanType.getEconomicSectors(),
-                loanType.getLoanTopicAssignments(),
-                loanType.getIncomeIds(),
-                loanType.getAttributes(),
-                loanType.getGroupId(),
-                loanType.getLoanArrangementIds(),
-                loanType.getActive().isActive());
+        var payload = new TradeLoanTypeCreated.Payload(loanType.getCode());
 
         var creationEvent = new TradeLoanTypeCreated(randomUUID(), loanType.getId(), payload, clock.instant());
         loanType.registerEvent(creationEvent);
@@ -83,11 +65,6 @@ public final class TradeLoanType extends AbstractLoanType {
     public static TradeLoanType reconstitute(Builder builder) {
         requireNonNull(builder, "Builder cannot be null for reconstitution.");
         return builder.buildInternal();
-    }
-
-    @Override
-    public Set<Identity> getLoanRuleIds() {
-        return Set.copyOf(this.loanArrangementIds);
     }
 
     @Override
@@ -107,37 +84,19 @@ public final class TradeLoanType extends AbstractLoanType {
             LoanTypeId currentAggregateId, AbstractLoanTypeBuilder<?, ?> validatedBuilder, Clock clock) {
 
         Builder builder = (Builder) validatedBuilder;
-        Result<TradeLoanType> morabeheLoanTypeResult = builder.build();
+        Result<TradeLoanType> tradeLoanTypeResult = builder.build();
 
         checkState(
-                !morabeheLoanTypeResult.hasErrors(),
+                !tradeLoanTypeResult.hasErrors(),
                 "Failed to build loan type from validated builder: %s",
-                morabeheLoanTypeResult.notification().getErrorMessages());
+                tradeLoanTypeResult.notification().getErrorMessages());
 
-        TradeLoanType morabeheLoanType = morabeheLoanTypeResult.value();
-        requireNonNull(morabeheLoanType, "morabeheLoanType cannot be null after successful build");
-        LoanTypeId newAggregateId = morabeheLoanType.getId();
+        TradeLoanType tradeLoanType = tradeLoanTypeResult.value();
+        requireNonNull(tradeLoanType, "tradeLoanType cannot be null after successful build");
+        LoanTypeId newAggregateId = tradeLoanType.getId();
 
-        var payload = new NewTradeLoanTypeVersionPrepared.Payload(
-                newAggregateId,
-                currentAggregateId,
-                morabeheLoanType.getCode(),
-                morabeheLoanType.getTitle(),
-                morabeheLoanType.getEditReason(),
-                morabeheLoanType.getGatewayType(),
-                morabeheLoanType.getLoanApplicationAllowed(),
-                morabeheLoanType.getSegmentType(),
-                morabeheLoanType.getEconomicSectors(),
-                morabeheLoanType.getLoanTopicAssignments(),
-                morabeheLoanType.getIncomeIds(),
-                morabeheLoanType.getAttributes(),
-                morabeheLoanType.getGroupId(),
-                morabeheLoanType.loanArrangementIds);
+        var payload = new NewTradeLoanTypeVersionPrepared.Payload(newAggregateId, currentAggregateId);
         return new NewTradeLoanTypeVersionPrepared(randomUUID(), newAggregateId, payload, clock.instant());
-    }
-
-    public Set<LoanArrangementId> getLoanArrangementIds() {
-        return Set.copyOf(loanArrangementIds);
     }
 
     @Override
@@ -150,11 +109,14 @@ public final class TradeLoanType extends AbstractLoanType {
         return super.deactivate(clock).cast(TradeLoanType.class);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public Set<LoanTopicConfiguration<TradeRelationType>> getLoanTopicAssignments() {
+        return Collections.unmodifiableSet(
+                (Set<LoanTopicConfiguration<TradeRelationType>>) (Set<?>) super.loanTopicAssignments);
+    }
+
     public Result<Builder> prepareNewVersion(Builder updatedBuilder, Clock clock) {
-        Notification specificValidation = validateMorabeheNewVersionData(updatedBuilder);
-        if (specificValidation.hasErrors()) {
-            return Result.failure(specificValidation);
-        }
         Result<Builder> prepareResult = super.prepareNewVersion(updatedBuilder, clock);
         if (prepareResult.isSuccess()) {
             Builder successValue = prepareResult.value();
@@ -167,17 +129,7 @@ public final class TradeLoanType extends AbstractLoanType {
 
     @Override
     protected Result<Void> validateInternalState() {
-        Result<Void> result = super.validateInternalState();
-        Notification notification = validateLoanArrangementIds(this.loanArrangementIds);
-        if (notification.hasErrors() || result.isFailure()) {
-            result.ifFailure(notification::merge);
-            return Result.failure(notification);
-        }
-        return result;
-    }
-
-    private Notification validateMorabeheNewVersionData(Builder builder) {
-        return validateLoanArrangementIds(builder.loanArrangementIds);
+        return super.validateInternalState();
     }
 
     private static Notification validateLoanArrangementIds(Set<LoanArrangementId> arrangementIds) {
@@ -193,45 +145,16 @@ public final class TradeLoanType extends AbstractLoanType {
 
     public static final class Builder extends AbstractLoanType.AbstractLoanTypeBuilder<TradeLoanType, Builder> {
 
-        private Set<LoanArrangementId> loanArrangementIds = new HashSet<>();
-
-        public Builder(FeatureConfig featureConfig) {
-            super(featureConfig);
+        public Builder() {
+            super();
         }
 
         public Builder(Builder other) {
             super(other);
-            this.loanArrangementIds =
-                    (other.loanArrangementIds != null) ? new HashSet<>(other.loanArrangementIds) : new HashSet<>();
         }
 
         @Override
-        public Builder withLoanArrangementIds(Set<Identity> val) {
-            if (val == null) {
-                this.loanArrangementIds = new HashSet<>();
-                return self();
-            }
-            Set<LoanArrangementId> specificIds = new HashSet<>();
-            for (Identity id : val) {
-                if (id instanceof LoanArrangementId specificId) {
-                    specificIds.add(specificId);
-                } else if (id != null) {
-                    throw new IllegalArgumentException(
-                            "Invalid Identity type provided for LoanArrangementIds. Expected MorabeheLoanArrangementId, got "
-                                    + id.getClass().getName());
-                }
-            }
-            this.loanArrangementIds = specificIds;
-            return self();
-        }
-
-        public Builder withMorabeheLoanArrangementIds(Set<LoanArrangementId> val) {
-            this.loanArrangementIds = (val != null) ? new HashSet<>(val) : new HashSet<>();
-            return self();
-        }
-
-        @Override
-        protected TradeLoanType buildInternal() {
+        public TradeLoanType buildInternal() {
             return new TradeLoanType(this);
         }
 

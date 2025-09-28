@@ -262,14 +262,14 @@ class TradeLoanFacilityServiceTest {
             when(mockLoanApplication.getRequestedLoanDuration()).thenReturn(loanDuration);
 
             // when
-            Result<TradeSanctionedLoan.TradeSanctionedLoanBuilder> result =
+            Result<TradeSanctionedLoan.Builder> result =
                     service.createSanctionedLoanFromApplication(mockLoanApplication);
 
             // then
             assertThat(result.isSuccess()).isTrue();
 
             var builder = result.orElseThrow();
-            assertThat(builder).isInstanceOf(TradeSanctionedLoan.TradeSanctionedLoanBuilder.class);
+            assertThat(builder).isInstanceOf(TradeSanctionedLoan.Builder.class);
 
             // Build and verify the sanctioned loan
             var sanctionedLoanResult = builder.build();

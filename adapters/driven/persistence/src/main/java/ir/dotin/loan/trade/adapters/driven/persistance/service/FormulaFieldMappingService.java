@@ -1,17 +1,21 @@
 package ir.dotin.loan.trade.adapters.driven.persistance.service;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
+import ir.dotin.platform.adapter.persistence.exception.InvalidDomainStateException;
+import ir.dotin.platform.adapter.persistence.exception.PersistenceConversionException;
 import ir.dotin.platform.commons.domain.vo.Formula;
 import ir.dotin.platform.commons.domain.vo.ParameterizedFormula;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityParameterizedFormula;
-import ir.dotin.loan.trade.adapters.driven.persistance.exception.InvalidDomainStateException;
-import ir.dotin.loan.trade.adapters.driven.persistance.exception.PersistenceConversionException;
 import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanFacilityFormulaField;
 import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanParameterProvider;
 
@@ -32,13 +36,6 @@ public class FormulaFieldMappingService {
                 'A', TradeLoanFacilityFormulaField.APPROVED_AMOUNT, 'I', TradeLoanFacilityFormulaField.INSURANCE_RATE);
     }
 
-    public String serializeFormula(
-            LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> formula) {
-        if (formula == null) return null;
-
-        return serializeParameterizedFormula(formula);
-    }
-
     public String serializeParameterizedFormula(
             LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> formula) {
         if (formula == null) return null;
@@ -56,7 +53,7 @@ public class FormulaFieldMappingService {
     }
 
     public LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField>
-            deserializeInterestFormula(String serialized) {
+            deserializeParameterizedFormula(String serialized) {
         if (serialized == null || serialized.trim().isEmpty()) {
             return null;
         }
@@ -84,15 +81,6 @@ public class FormulaFieldMappingService {
         } catch (JsonProcessingException e) {
             return deserializeLegacyFormula(serialized);
         }
-    }
-
-    public LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField>
-            deserializeParameterizedFormula(String serialized) {
-        if (serialized == null || serialized.trim().isEmpty()) {
-            return null;
-        }
-
-        return deserializeInterestFormula(serialized);
     }
 
     private LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField>

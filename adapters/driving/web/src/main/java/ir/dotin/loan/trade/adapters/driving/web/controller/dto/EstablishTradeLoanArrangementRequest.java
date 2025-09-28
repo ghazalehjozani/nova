@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.Period;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.DecimalMax;
@@ -33,10 +34,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Complete request for establishing a new trade loan arrangement")
 public record EstablishTradeLoanArrangementRequest(
-
+        @Schema(description = "Command universal unique id", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
+                UUID uid,
+        @Schema(description = "Optimistic lock", requiredMode = Schema.RequiredMode.REQUIRED) Long version,
         @NotBlank(message = "{field.required.code}")
                 @Size(min = 3, max = 50, message = "{field.size.code}")
-                @Pattern(regexp = "^[A-Z][A-Z0-9_-]*$", message = "{field.pattern.code}")
                 @Schema(
                         description = "Unique arrangement code",
                         example = "TRD_LOAN_001",
@@ -151,7 +153,6 @@ public record EstablishTradeLoanArrangementRequest(
                     BigDecimal maxRate,
             @NotBlank(message = "{field.required}")
                     @Size(max = 1000, message = "{field.size.max.exceeded}")
-                    @Pattern(regexp = "^[A-Za-z0-9+\\-*/()\\s.]+$", message = "{field.pattern.invalid}")
                     @Schema(
                             description = "Interest calculation formula",
                             example = "P * R * T / 365",
@@ -159,7 +160,6 @@ public record EstablishTradeLoanArrangementRequest(
                     String interestFormula,
             @NotBlank(message = "{field.required}")
                     @Size(max = 1000, message = "{field.size.max.exceeded}")
-                    @Pattern(regexp = "^[A-Za-z0-9+\\-*/()\\s.]+$", message = "{field.pattern.invalid}")
                     @Schema(
                             description = "Refund interest calculation formula",
                             requiredMode = Schema.RequiredMode.REQUIRED)
@@ -193,7 +193,6 @@ public record EstablishTradeLoanArrangementRequest(
                     PenaltyPaymentType paymentType,
             @NotBlank(message = "{penalty.formula.required}")
                     @Size(max = 1000, message = "{penalty.formula.too.long}")
-                    @Pattern(regexp = "^[A-Za-z0-9+\\-*/()\\s.]+$", message = "{field.pattern.invalid}")
                     @Schema(description = "Penalty calculation formula", requiredMode = Schema.RequiredMode.REQUIRED)
                     String formula) {}
 
@@ -223,14 +222,12 @@ public record EstablishTradeLoanArrangementRequest(
                     Period installmentPeriod,
             @NotBlank(message = "{installment.formula.required}")
                     @Size(max = 1000, message = "{field.size.max.exceeded}")
-                    @Pattern(regexp = "^[A-Za-z0-9+\\-*/()\\s.]+$", message = "{field.pattern.invalid}")
                     @Schema(
                             description = "Installment calculation formula",
                             requiredMode = Schema.RequiredMode.REQUIRED)
                     String installmentFormula,
             @NotBlank(message = "{field.required}")
                     @Size(max = 1000, message = "{field.size.max.exceeded}")
-                    @Pattern(regexp = "^[A-Za-z0-9+\\-*/()\\s.]+$", message = "{field.pattern.invalid}")
                     @Schema(description = "Interest component formula", requiredMode = Schema.RequiredMode.REQUIRED)
                     String interestComponentFormula,
             @NotNull(message = "{installment.payment.type.required}")
@@ -260,7 +257,6 @@ public record EstablishTradeLoanArrangementRequest(
                     Integer maxGracePeriodDays,
             @NotBlank(message = "{grace.period.formula.required}")
                     @Size(max = 1000, message = "{field.size.max.exceeded}")
-                    @Pattern(regexp = "^[A-Za-z0-9+\\-*/()\\s.]+$", message = "{field.pattern.invalid}")
                     @Schema(
                             description = "Grace period calculation formula",
                             requiredMode = Schema.RequiredMode.REQUIRED)
@@ -397,7 +393,6 @@ public record EstablishTradeLoanArrangementRequest(
             @NotNull(message = "{field.required.amount}")
                     @Positive(message = "{field.number.positive}")
                     @DecimalMin(value = "1000", message = "{amount.min.too.low}")
-                    @Digits(integer = 12, fraction = 2, message = "{field.decimal.format}")
                     @Schema(
                             description = "Minimum loan amount",
                             example = "1000000.00",
@@ -406,7 +401,6 @@ public record EstablishTradeLoanArrangementRequest(
             @NotNull(message = "{field.required.amount}")
                     @Positive(message = "{field.number.positive}")
                     @DecimalMax(value = "999999999999", message = "{amount.max.exceeded}")
-                    @Digits(integer = 12, fraction = 2, message = "{field.decimal.format}")
                     @Schema(
                             description = "Maximum loan amount",
                             example = "100000000.00",

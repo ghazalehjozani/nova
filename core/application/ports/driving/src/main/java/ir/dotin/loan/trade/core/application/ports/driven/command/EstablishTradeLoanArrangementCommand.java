@@ -1,10 +1,8 @@
 package ir.dotin.loan.trade.core.application.ports.driven.command;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.Period;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -16,6 +14,7 @@ import com.google.common.collect.Range;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.platform.dispatcher.api.command.Command;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.InstallmentPaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LifeInsurancePaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LoanSecondaryType;
@@ -25,11 +24,12 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.SectionType;
 
 public record EstablishTradeLoanArrangementCommand(
         @NotNull UUID uid,
+        @NotNull Long version,
         @NotBlank(message = "{code.required}") String code,
         @NotBlank(message = "{title.required}") String title,
-        @NotEmpty(message = "{currencies.required}") Set<String> currencies,
+        @NotEmpty(message = "{currency.required}") String currency,
         @NotNull(message = "{amount.range.required}") Range<Money> amountRange,
-        @NotNull(message = "{duration.range.required}") Range<Duration> durationRange,
+        @NotNull(message = "{duration.range.required}") Range<LoanDuration> durationRange,
         DisbursementMethod disbursementMethod,
         LifeInsurancePaymentType lifeInsurancePaymentType,
         LoanSecondaryType loanSecondaryType,
