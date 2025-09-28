@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 import ir.dotin.loan.trade.adapters.driven.persistance.loantype.mapper.TradeLoanTypePersistenceMapper;
 import ir.dotin.loan.trade.adapters.driven.persistance.loantype.repository.TradeLoanTypeJpaRepository;
 import ir.dotin.loan.trade.core.application.ports.driven.repository.TradeLoanTypeRepository;
@@ -35,7 +35,7 @@ public class TradeLoanTypeRepositoryAdapter implements TradeLoanTypeRepository {
     }
 
     @Override
-    public Optional<TradeLoanType> findByCode(LoanTypeCode code) {
-        return jpaRepository.findByCode(code.value()).map(mapper::map);
+    public Optional<TradeLoanType> findById(LoanTypeId id) {
+        return jpaRepository.findById(id.value()).map(mapper::map);
     }
 }

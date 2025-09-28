@@ -1,11 +1,11 @@
 package ir.dotin.loan.trade.adapters.driven.persistance.loanarrangement;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.trade.adapters.driven.persistance.loanarrangement.mapper.TradeLoanArrangementPersistenceMapper;
 import ir.dotin.loan.trade.adapters.driven.persistance.loanarrangement.repository.TradeLoanArrangementJpaRepository;
 import ir.dotin.loan.trade.core.application.ports.driven.repository.TradeLoanArrangementRepository;
@@ -35,17 +35,12 @@ public class TradeLoanArrangementRepositoryAdapter implements TradeLoanArrangeme
     }
 
     @Override
+    public Optional<TradeLoanArrangement> findById(LoanArrangementId id) {
+        return jpaRepository.findById(id.value()).map(mapper::map);
+    }
+
+    @Override
     public boolean existsByCode(String code) {
         return jpaRepository.existsByCode(code);
-    }
-
-    @Override
-    public Optional<TradeLoanArrangement> findById(UUID id) {
-        return jpaRepository.findById(id).map(mapper::map);
-    }
-
-    @Override
-    public Optional<TradeLoanArrangement> findByCode(String code) {
-        return jpaRepository.findByCode(code).map(mapper::map);
     }
 }

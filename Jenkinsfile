@@ -359,11 +359,19 @@ def getProjectVersion() {
         def version = sh(
             script: """
                 ${env.MVN_CMD} help:evaluate -Dexpression=project.version -q -DforceStdout | \\
-                grep -E '^[0-9]+\\.[0-9]+\\.[0-9]+(-SNAPSHOT)?\$' | \\
+                grep -v '\\[' | \\
+                grep -E '^[0-9]+' | \\
                 head -1
             """,
             returnStdout: true
         ).trim()
+
+        if (!version) {
+            version = sh(
+                script: "${env.MVN_CMD} help:evaluate -Dexpression=project.version -q -DforceStdout",
+                returnStdout: true
+            ).split('\n').find { it.matches(/^[0-9].*/) }?.trim()
+        }
 
         if (!version) {
             error "Could not extract valid version from pom.xml"
