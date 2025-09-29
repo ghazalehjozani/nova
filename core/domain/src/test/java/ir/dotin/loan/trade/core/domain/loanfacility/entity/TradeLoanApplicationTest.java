@@ -111,18 +111,18 @@ final class TradeLoanApplicationTest {
         @Test
         void shouldFailWhenRequiredFieldsAreMissing() {
             // given - provide all constructor required fields but trigger business validation failure
-            var builder = TradeLoanApplication.newBuilder()
-                    .withRequestDate(FIXED_INSTANT)
-                    .withCustomer(mockApplicant)
-                    .withRequestedAmount(validAmount)
-                    .withCurrency(validCurrency)
-                    .withRequestedLoanDuration(validDuration)
-                    .withApplicantChannel(ApplicantChannel.INTERNET_BANK)
-                    .withInstallmentCount(mockInstallmentCount)
-                    .withEconomicSector(mockEconomicSector)
-                    .withBranch(mockBranch)
-                    .withRequestReason(mockRequestReason)
-                    .withDisburseDestination(mockDisburseDestination);
+            var builder = TradeLoanApplication.builder()
+                    .requestDate(FIXED_INSTANT)
+                    .customer(mockApplicant)
+                    .requestedAmount(validAmount)
+                    .currency(validCurrency)
+                    .requestedLoanDuration(validDuration)
+                    .applicantChannel(ApplicantChannel.INTERNET_BANK)
+                    .installmentCount(mockInstallmentCount)
+                    .economicSector(mockEconomicSector)
+                    .branch(mockBranch)
+                    .requestReason(mockRequestReason)
+                    .disburseDestination(mockDisburseDestination);
             // Intentionally missing some optional business validation fields
 
             // when
@@ -143,7 +143,7 @@ final class TradeLoanApplicationTest {
         void shouldReconstituteSuccessfully() {
             // given
             var existingId = LoanApplicationId.of(randomUUID());
-            var builder = createValidBuilder().withId(existingId);
+            var builder = createValidBuilder().id(existingId);
 
             // when
             var result = TradeLoanApplication.reconstitute(builder);
@@ -174,7 +174,7 @@ final class TradeLoanApplicationTest {
         @Test
         void shouldCreateNewBuilder() {
             // when
-            var builder = TradeLoanApplication.newBuilder();
+            var builder = TradeLoanApplication.builder();
 
             // then
             assertThat(builder).isNotNull().isInstanceOf(TradeLoanApplication.Builder.class);
@@ -184,7 +184,7 @@ final class TradeLoanApplicationTest {
         @Test
         void shouldBuildSuccessfullyWithAllRequiredFields() {
             // given
-            var builder = createValidBuilder().withId(LoanApplicationId.of(randomUUID()));
+            var builder = createValidBuilder().id(LoanApplicationId.of(randomUUID()));
 
             // when
             var result = builder.build();
@@ -199,20 +199,20 @@ final class TradeLoanApplicationTest {
         @Test
         void shouldValidateAndReturnErrorsForInvalidData() {
             // given - provide minimum required fields to pass constructor validation but fail business validation
-            var builder = TradeLoanApplication.newBuilder()
-                    .withId(LoanApplicationId.of(randomUUID()))
-                    .withApplicationNumber(mockApplicationNumber)
-                    .withRequestDate(FIXED_INSTANT)
-                    .withCustomer(mockApplicant)
-                    .withRequestedAmount(validAmount)
-                    .withCurrency(validCurrency)
-                    .withRequestedLoanDuration(validDuration)
-                    .withApplicantChannel(ApplicantChannel.INTERNET_BANK)
-                    .withInstallmentCount(mockInstallmentCount)
-                    .withEconomicSector(mockEconomicSector)
-                    .withBranch(mockBranch)
-                    .withRequestReason(mockRequestReason)
-                    .withDisburseDestination(mockDisburseDestination);
+            var builder = TradeLoanApplication.builder()
+                    .id(LoanApplicationId.of(randomUUID()))
+                    .applicationNumber(mockApplicationNumber)
+                    .requestDate(FIXED_INSTANT)
+                    .customer(mockApplicant)
+                    .requestedAmount(validAmount)
+                    .currency(validCurrency)
+                    .requestedLoanDuration(validDuration)
+                    .applicantChannel(ApplicantChannel.INTERNET_BANK)
+                    .installmentCount(mockInstallmentCount)
+                    .economicSector(mockEconomicSector)
+                    .branch(mockBranch)
+                    .requestReason(mockRequestReason)
+                    .disburseDestination(mockDisburseDestination);
             // This builder should pass basic validation
 
             // when
@@ -233,8 +233,8 @@ final class TradeLoanApplicationTest {
         void shouldImplementEqualityCorrectly() {
             // given
             var id = LoanApplicationId.of(randomUUID());
-            var builder1 = createValidBuilder().withId(id);
-            var builder2 = createValidBuilder().withId(id);
+            var builder1 = createValidBuilder().id(id);
+            var builder2 = createValidBuilder().id(id);
 
             // when
             var application1 = TradeLoanApplication.reconstitute(builder1).value();
@@ -306,19 +306,19 @@ final class TradeLoanApplicationTest {
     }
 
     private TradeLoanApplication.Builder createValidBuilder() {
-        return TradeLoanApplication.newBuilder()
-                .withApplicationNumber(mockApplicationNumber)
-                .withRequestDate(FIXED_INSTANT)
-                .withCustomer(mockApplicant)
-                .withRequestedAmount(validAmount)
-                .withCurrency(validCurrency)
-                .withRequestedLoanDuration(validDuration)
-                .withApplicantChannel(ApplicantChannel.INTERNET_BANK)
-                .withInstallmentCount(mockInstallmentCount)
-                .withEconomicSector(mockEconomicSector)
-                .withBranch(mockBranch)
-                .withRequestReason(mockRequestReason)
-                .withDisburseDestination(mockDisburseDestination)
-                .withDescription(mockDescription);
+        return TradeLoanApplication.builder()
+                .applicationNumber(mockApplicationNumber)
+                .requestDate(FIXED_INSTANT)
+                .customer(mockApplicant)
+                .requestedAmount(validAmount)
+                .currency(validCurrency)
+                .requestedLoanDuration(validDuration)
+                .applicantChannel(ApplicantChannel.INTERNET_BANK)
+                .installmentCount(mockInstallmentCount)
+                .economicSector(mockEconomicSector)
+                .branch(mockBranch)
+                .requestReason(mockRequestReason)
+                .disburseDestination(mockDisburseDestination)
+                .description(mockDescription);
     }
 }

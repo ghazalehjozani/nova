@@ -2,11 +2,7 @@ package ir.dotin.loan.trade.core.domain.loanarrangement.entity;
 
 import java.time.Clock;
 
-import com.google.common.collect.Range;
-import org.jspecify.annotations.NonNull;
-
 import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.core.feature.FeatureConfig;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.entity.AbstractLoanArrangement;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.ArrangementFeatureContext;
@@ -36,8 +32,8 @@ public final class TradeLoanArrangement
         return super.validateInternalState();
     }
 
-    public static Builder newBuilder(FeatureConfig featureConfig) {
-        return new Builder(featureConfig);
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static Result<TradeLoanArrangement> create(Builder builder, Clock clock) {
@@ -45,11 +41,11 @@ public final class TradeLoanArrangement
         requireNonNull(clock, "Clock cannot be null for creation");
         requireNonNull(builder, "Builder cannot be null for creation");
 
-        builder.withId(LoanArrangementId.of(randomUUID()));
+        builder.id(LoanArrangementId.of(randomUUID()));
 
-        builder.withActive(new Active(true));
-        builder.withDisable(new Disable(false));
-        builder.withPreviousVersion(null);
+        builder.active(new Active(true));
+        builder.disable(new Disable(false));
+        builder.previousVersion(null);
 
         Result<TradeLoanArrangement> arrangementResult = builder.build();
 
@@ -136,9 +132,8 @@ public final class TradeLoanArrangement
             extends AbstractBuilder<
                     TradeLoanParameterProvider, TradeLoanFacilityFormulaField, TradeLoanArrangement, Builder> {
 
-        public Builder(FeatureConfig featureConfig) {
-            super(featureConfig);
-            requireNonNull(featureConfig, "FeatureConfig cannot be null for MorabeheLoanArrangement Builder");
+        public Builder() {
+            super();
         }
 
         public Builder(Builder other) {
@@ -146,12 +141,8 @@ public final class TradeLoanArrangement
         }
 
         @Override
-        protected TradeLoanArrangement buildInternal() {
+        public TradeLoanArrangement buildInternal() {
             return new TradeLoanArrangement(this);
         }
-    }
-
-    public Range<@NonNull Long> getDurationRangeAsLongRange() {
-        return Range.closed(0L, Long.MAX_VALUE);
     }
 }

@@ -67,16 +67,17 @@ class TradeLoanFacilityTest {
                     disburseDestination);
             var application = applicationBuilder.build().orElseThrow();
             var facilityId = LoanFacilityId.of(randomUUID());
+            var loanTypeId = LoanTypeId.of(randomUUID());
 
             // when
             var facility = TradeLoanFacility.create(
-                    facilityId, application, loanArrangementId, totalDisbursementAmount, testClock);
+                    facilityId, application, loanTypeId, loanArrangementId, totalDisbursementAmount, testClock);
 
             // then
             assertThat(facility).isNotNull();
             assertThat(facility.getLoanArrangementId()).isEqualTo(loanArrangementId);
             assertThat(facility.getCurrentState()).isEqualTo(FacilityStatus.APPLICATION_SUBMITTED);
-            assertThat(facility.getLoanFacilityType()).isEqualTo("TRADE");
+            assertThat(facility.getFacilityType()).isEqualTo("TRADE");
         }
 
         @DisplayName("should fail when facility ID is null")
@@ -85,7 +86,12 @@ class TradeLoanFacilityTest {
                 @Mock TradeLoanApplication application, @Mock Money totalDisbursementAmount) {
             // when & then
             assertThatThrownBy(() -> TradeLoanFacility.create(
-                            null, application, loanArrangementId, totalDisbursementAmount, testClock))
+                            null,
+                            application,
+                            LoanTypeId.of(randomUUID()),
+                            loanArrangementId,
+                            totalDisbursementAmount,
+                            testClock))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessageContaining("Facility ID cannot be null");
         }
@@ -98,7 +104,12 @@ class TradeLoanFacilityTest {
 
             // when & then
             assertThatThrownBy(() -> TradeLoanFacility.create(
-                            facilityId, null, loanArrangementId, totalDisbursementAmount, testClock))
+                            facilityId,
+                            null,
+                            LoanTypeId.of(randomUUID()),
+                            loanArrangementId,
+                            totalDisbursementAmount,
+                            testClock))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessageContaining("Application cannot be null");
         }
@@ -111,8 +122,13 @@ class TradeLoanFacilityTest {
             var facilityId = LoanFacilityId.of(randomUUID());
 
             // when & then
-            assertThatThrownBy(() ->
-                            TradeLoanFacility.create(facilityId, application, null, totalDisbursementAmount, testClock))
+            assertThatThrownBy(() -> TradeLoanFacility.create(
+                            facilityId,
+                            application,
+                            LoanTypeId.of(randomUUID()),
+                            null,
+                            totalDisbursementAmount,
+                            testClock))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessageContaining("Loan arrangement ID cannot be null");
         }
@@ -139,10 +155,11 @@ class TradeLoanFacilityTest {
                     disburseDestination);
             var application = applicationBuilder.build().orElseThrow();
             var facilityId = LoanFacilityId.of(randomUUID());
+            var loanTypeId = LoanTypeId.of(randomUUID());
 
             // when
             var facility = TradeLoanFacility.create(
-                    facilityId, application, loanArrangementId, totalDisbursementAmount, testClock);
+                    facilityId, application, loanTypeId, loanArrangementId, totalDisbursementAmount, testClock);
 
             // then
             assertThat(facility).isNotNull();
@@ -155,50 +172,6 @@ class TradeLoanFacilityTest {
             assertThat(createdEvent.payload().applicationId())
                     .isEqualTo(facility.getLoanApplication().getId());
             assertThat(createdEvent.payload().customer()).isEqualTo(customer);
-        }
-    }
-
-    @DisplayName("when reconstituting trade loan facility")
-    @Nested
-    final class ReconstituteTradeLoanFacilityTests {
-
-        @DisplayName("should reconstitute facility with all parameters")
-        @Test
-        void shouldReconstituteFacilityWithAllParameters(
-                @Mock TradeLoanApplication application,
-                @Mock TradeSanctionedLoan sanctionedLoan,
-                @Mock Money tradeTotalDisbursementAmount) {
-            // given
-            var facilityId = LoanFacilityId.of(randomUUID());
-            var status = FacilityStatus.ACTIVE;
-
-            // when
-            var facility = TradeLoanFacility.reconstitute(
-                    facilityId, application, sanctionedLoan, status, loanArrangementId, tradeTotalDisbursementAmount);
-
-            // then
-            assertThat(facility).isNotNull();
-            assertThat(facility.getId()).isEqualTo(facilityId);
-            assertThat(facility.getLoanArrangementId()).isEqualTo(loanArrangementId);
-            assertThat(facility.getCurrentState()).isEqualTo(status);
-            assertThat(facility.getSanctionedLoan()).hasValue(sanctionedLoan);
-        }
-
-        @DisplayName("should reconstitute facility without sanctioned loan")
-        @Test
-        void shouldReconstituteFacilityWithoutSanctionedLoan(
-                @Mock TradeLoanApplication application, @Mock Money totalDisbursementAmount) {
-            // given
-            var facilityId = LoanFacilityId.of(randomUUID());
-            var status = FacilityStatus.PENDING_APPROVAL;
-
-            // when
-            var facility = TradeLoanFacility.reconstitute(
-                    facilityId, application, null, status, loanArrangementId, totalDisbursementAmount);
-
-            // then
-            assertThat(facility).isNotNull();
-            assertThat(facility.getSanctionedLoan()).isEmpty();
         }
     }
 
@@ -228,8 +201,9 @@ class TradeLoanFacilityTest {
                     disburseDestination);
             var application = builder.build().orElseThrow();
             var facilityId = LoanFacilityId.of(randomUUID());
+            var loanTypeId = LoanTypeId.of(randomUUID());
             TradeLoanFacility facility = TradeLoanFacility.create(
-                    facilityId, application, loanArrangementId, totalDisbursementAmount, testClock);
+                    facilityId, application, loanTypeId, loanArrangementId, totalDisbursementAmount, testClock);
 
             // when
             var returnedLoanTypeId = facility.getLoanTypeId();
@@ -260,8 +234,9 @@ class TradeLoanFacilityTest {
                     disburseDestination);
             var application = builder.build().orElseThrow();
             var facilityId = LoanFacilityId.of(randomUUID());
+            var loanTypeId = LoanTypeId.of(randomUUID());
             TradeLoanFacility facility = TradeLoanFacility.create(
-                    facilityId, application, loanArrangementId, totalDisbursementAmount, testClock);
+                    facilityId, application, loanTypeId, loanArrangementId, totalDisbursementAmount, testClock);
 
             // when
             var returnedArrangementId = facility.getLoanArrangementId();
@@ -292,11 +267,12 @@ class TradeLoanFacilityTest {
                     disburseDestination);
             var application = builder.build().orElseThrow();
             var facilityId = LoanFacilityId.of(randomUUID());
+            var loanTypeId = LoanTypeId.of(randomUUID());
             TradeLoanFacility facility = TradeLoanFacility.create(
-                    facilityId, application, loanArrangementId, totalDisbursementAmount, testClock);
+                    facilityId, application, loanTypeId, loanArrangementId, totalDisbursementAmount, testClock);
 
             // when
-            var facilityType = facility.getLoanFacilityType();
+            var facilityType = facility.getFacilityType();
 
             // then
             assertThat(facilityType).isEqualTo("TRADE");
@@ -329,8 +305,9 @@ class TradeLoanFacilityTest {
                     disburseDestination);
             var application = builder.build().orElseThrow();
             var facilityId = LoanFacilityId.of(randomUUID());
+            var loanTypeId = LoanTypeId.of(randomUUID());
             TradeLoanFacility facility = TradeLoanFacility.create(
-                    facilityId, application, loanArrangementId, totalDisbursementAmount, testClock);
+                    facilityId, application, loanTypeId, loanArrangementId, totalDisbursementAmount, testClock);
 
             // when & then - should be able to access all inherited workflow methods
             assertThat(facility.getCurrentState()).isEqualTo(FacilityStatus.APPLICATION_SUBMITTED);
@@ -361,8 +338,9 @@ class TradeLoanFacilityTest {
                     disburseDestination);
             var application = builder.build().orElseThrow();
             var facilityId = LoanFacilityId.of(randomUUID());
+            var loanTypeId = LoanTypeId.of(randomUUID());
             TradeLoanFacility facility = TradeLoanFacility.create(
-                    facilityId, application, loanArrangementId, totalDisbursementAmount, testClock);
+                    facilityId, application, loanTypeId, loanArrangementId, totalDisbursementAmount, testClock);
 
             // when
             var result = facility.submitForApproval(testClock);
@@ -382,20 +360,20 @@ class TradeLoanFacilityTest {
             @Mock RequestReason requestReason,
             @Mock DisburseDestination disburseDestination) {
         // Create a minimal builder that will pass validation
-        return TradeLoanApplication.newBuilder()
-                .withId(LoanApplicationId.of(randomUUID())) // Add the required ID
-                .withApplicationNumber(applicationNumber)
-                .withRequestDate(testClock.instant())
-                .withCustomer(customer)
-                .withRequestedAmount(Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR)
+        return TradeLoanApplication.builder()
+                .id(LoanApplicationId.of(randomUUID())) // Add the required ID
+                .applicationNumber(applicationNumber)
+                .requestDate(testClock.instant())
+                .customer(customer)
+                .requestedAmount(Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR)
                         .orElseThrow())
-                .withCurrency(CurrencyType.IRR)
-                .withRequestedLoanDuration(LoanDuration.of(Period.ofDays(365)).orElseThrow())
-                .withApplicantChannel(ApplicantChannel.INTERNET_BANK)
-                .withInstallmentCount(installmentCount)
-                .withEconomicSector(economicSector)
-                .withBranch(branch)
-                .withRequestReason(requestReason)
-                .withDisburseDestination(disburseDestination);
+                .currency(CurrencyType.IRR)
+                .requestedLoanDuration(LoanDuration.of(Period.ofDays(365)).orElseThrow())
+                .applicantChannel(ApplicantChannel.INTERNET_BANK)
+                .installmentCount(installmentCount)
+                .economicSector(economicSector)
+                .branch(branch)
+                .requestReason(requestReason)
+                .disburseDestination(disburseDestination);
     }
 }

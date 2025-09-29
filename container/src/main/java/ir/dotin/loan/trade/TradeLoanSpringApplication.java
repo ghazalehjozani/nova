@@ -3,7 +3,9 @@ package ir.dotin.loan.trade;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(
+        scanBasePackages = {"ir.dotin.platform.adapter.persistence.convert", "ir.dotin.loan.trade"
+        }) // TODO: Remove scan
 public class TradeLoanSpringApplication {
 
     public static void main(String[] args) {

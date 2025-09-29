@@ -82,7 +82,7 @@ final class TradeSanctionedLoanTest {
         @Test
         void shouldFailWhenRequiredFieldsAreMissing() {
             // given
-            var builder = TradeSanctionedLoan.newBuilder();
+            var builder = TradeSanctionedLoan.builder();
 
             // when & then
             assertThatThrownBy(() -> TradeSanctionedLoan.reconstitute(builder))
@@ -99,10 +99,10 @@ final class TradeSanctionedLoanTest {
         @Test
         void shouldCreateNewBuilder() {
             // when
-            var builder = TradeSanctionedLoan.newBuilder();
+            var builder = TradeSanctionedLoan.builder();
 
             // then
-            assertThat(builder).isNotNull().isInstanceOf(TradeSanctionedLoan.TradeSanctionedLoanBuilder.class);
+            assertThat(builder).isNotNull().isInstanceOf(TradeSanctionedLoan.Builder.class);
         }
 
         @DisplayName("should build successfully with all required fields")
@@ -124,7 +124,7 @@ final class TradeSanctionedLoanTest {
         @Test
         void shouldValidateAndReturnErrorsForInvalidData() {
             // given
-            var builder = TradeSanctionedLoan.newBuilder().withId(SanctionedLoanId.of(randomUUID()));
+            var builder = TradeSanctionedLoan.builder().id(SanctionedLoanId.of(randomUUID()));
 
             // when & then
             assertThatThrownBy(builder::build)
@@ -136,15 +136,15 @@ final class TradeSanctionedLoanTest {
         @Test
         void shouldSupportMethodChaining() {
             // when
-            var builder = TradeSanctionedLoan.newBuilder()
-                    .withId(SanctionedLoanId.of(randomUUID()))
+            var builder = TradeSanctionedLoan.builder()
+                    .id(SanctionedLoanId.of(randomUUID()))
                     // .withSanction(mockSanction) // Method signature may have changed
-                    .withSanctionSerial(mockSanctionSerial)
-                    .withApprovedAmount(validAmount)
-                    .withLoanDuration(validDuration);
+                    .sanctionSerial(mockSanctionSerial)
+                    .approvedAmount(validAmount)
+                    .loanDuration(validDuration);
 
             // then
-            assertThat(builder).isNotNull().isInstanceOf(TradeSanctionedLoan.TradeSanctionedLoanBuilder.class);
+            assertThat(builder).isNotNull().isInstanceOf(TradeSanctionedLoan.Builder.class);
         }
     }
 
@@ -157,8 +157,8 @@ final class TradeSanctionedLoanTest {
         void shouldImplementEqualityCorrectly() {
             // given
             var id = SanctionedLoanId.of(randomUUID());
-            var builder1 = createValidBuilder().withId(id);
-            var builder2 = createValidBuilder().withId(id);
+            var builder1 = createValidBuilder().id(id);
+            var builder2 = createValidBuilder().id(id);
 
             // when
             var sanctionedLoan1 = TradeSanctionedLoan.reconstitute(builder1).value();
@@ -173,8 +173,8 @@ final class TradeSanctionedLoanTest {
         @Test
         void shouldHaveDifferentIdentityForDifferentLoans() {
             // given
-            var builder1 = createValidBuilder().withId(SanctionedLoanId.of(randomUUID()));
-            var builder2 = createValidBuilder().withId(SanctionedLoanId.of(randomUUID()));
+            var builder1 = createValidBuilder().id(SanctionedLoanId.of(randomUUID()));
+            var builder2 = createValidBuilder().id(SanctionedLoanId.of(randomUUID()));
 
             // when
             var sanctionedLoan1 = TradeSanctionedLoan.reconstitute(builder1).value();
@@ -189,9 +189,9 @@ final class TradeSanctionedLoanTest {
         @Test
         void shouldHandleNullValuesGracefullyInBuilder() {
             // given
-            var builder = TradeSanctionedLoan.newBuilder()
-                    .withId(SanctionedLoanId.of(randomUUID()))
-                    .withSanctionSerial(null);
+            var builder = TradeSanctionedLoan.builder()
+                    .id(SanctionedLoanId.of(randomUUID()))
+                    .sanctionSerial(null);
 
             // when & then
             assertThatThrownBy(builder::build)
@@ -269,7 +269,7 @@ final class TradeSanctionedLoanTest {
         @Test
         void shouldValidateRequiredFields() {
             // given
-            var builder = TradeSanctionedLoan.newBuilder().withId(SanctionedLoanId.of(randomUUID()));
+            var builder = TradeSanctionedLoan.builder().id(SanctionedLoanId.of(randomUUID()));
 
             // when & then
             assertThatThrownBy(builder::validate)
@@ -291,14 +291,14 @@ final class TradeSanctionedLoanTest {
         }
     }
 
-    private TradeSanctionedLoan.TradeSanctionedLoanBuilder createValidBuilder() {
-        return TradeSanctionedLoan.newBuilder()
-                .withId(SanctionedLoanId.of(randomUUID()))
-                .withSanctionSerial(mockSanctionSerial)
-                .withApprovedAmount(validAmount)
-                .withCurrency(CurrencyType.IRR)
-                .withLoanDuration(validDuration)
-                .withGracePeriod(validGracePeriod)
-                .withInstallmentCount(validInstallmentCount);
+    private TradeSanctionedLoan.Builder createValidBuilder() {
+        return TradeSanctionedLoan.builder()
+                .id(SanctionedLoanId.of(randomUUID()))
+                .sanctionSerial(mockSanctionSerial)
+                .approvedAmount(validAmount)
+                .currency(CurrencyType.IRR)
+                .loanDuration(validDuration)
+                .gracePeriod(validGracePeriod)
+                .installmentCount(validInstallmentCount);
     }
 }

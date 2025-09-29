@@ -6,17 +6,17 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractSanctioned
 
 import static java.util.Objects.requireNonNull;
 
-public final class TradeSanctionedLoan extends AbstractSanctionedLoan<TradeSanctionedLoan.TradeSanctionedLoanBuilder> {
+public final class TradeSanctionedLoan extends AbstractSanctionedLoan<TradeSanctionedLoan.Builder> {
 
-    private TradeSanctionedLoan(TradeSanctionedLoanBuilder builder) {
+    private TradeSanctionedLoan(Builder builder) {
         super(builder);
     }
 
-    public static TradeSanctionedLoanBuilder newBuilder() {
-        return new TradeSanctionedLoanBuilder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    static Result<TradeSanctionedLoan> reconstitute(TradeSanctionedLoanBuilder builder) {
+    static Result<TradeSanctionedLoan> reconstitute(Builder builder) {
         requireNonNull(builder, "Builder cannot be null for reconstitution.");
         return builder.build();
     }
@@ -26,11 +26,10 @@ public final class TradeSanctionedLoan extends AbstractSanctionedLoan<TradeSanct
         return super.validateInternalState();
     }
 
-    public static final class TradeSanctionedLoanBuilder
-            extends AbstractSanctionedLoanBuilder<TradeSanctionedLoan, TradeSanctionedLoanBuilder> {
+    public static final class Builder extends AbstractSanctionedLoanBuilder<TradeSanctionedLoan, Builder> {
 
         @Override
-        protected TradeSanctionedLoan buildInternal() {
+        public TradeSanctionedLoan buildInternal() {
             return new TradeSanctionedLoan(this);
         }
 
