@@ -6,6 +6,8 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
@@ -14,6 +16,7 @@ import jakarta.persistence.Table;
 import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
 import ir.dotin.platform.adapter.persistence.embeddable.PeriodEmb;
 import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.CollateralSerialEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.CurrencyTypeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.GracePeriodEmb;
@@ -29,7 +32,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @Entity
-@Table(name = "trade_sanctioned_loan")
+@Table(name = "sanctioned_loan")
 public class TradeSanctionedLoanEntity extends PersistentEntity {
 
     @Embedded
@@ -49,7 +52,7 @@ public class TradeSanctionedLoanEntity extends PersistentEntity {
     private GracePeriodEmb gracePeriod;
 
     @Embedded
-    @AttributeOverrides({@AttributeOverride(name = "value", column = @Column(name = "installment_count"))})
+    @AttributeOverrides({@AttributeOverride(name = "number", column = @Column(name = "installment_count"))})
     private InstallmentCountEmb installmentCount;
 
     @Embedded
@@ -72,4 +75,8 @@ public class TradeSanctionedLoanEntity extends PersistentEntity {
 
     @Embedded
     private RevocationReasonEmb revocationReason;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "disbursement_method")
+    private DisbursementMethod disbursementMethod;
 }

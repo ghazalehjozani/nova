@@ -8,6 +8,8 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
@@ -20,7 +22,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table
+@Table(name = "loan_installment")
 @Setter
 @Getter
 @NoArgsConstructor
@@ -57,6 +59,10 @@ public class InstallmentEntity extends PersistentEntity {
     })
     private MoneyEmb outstandingAmount;
 
-    @Column(name = "due_date")
+    @Column(name = "last_payment_date")
     private LocalDate lastPaymentDate;
+
+    @ManyToOne
+    @JoinColumn(name = "installment_schedule_id", nullable = false)
+    private InstallmentScheduleEntity installmentSchedule;
 }

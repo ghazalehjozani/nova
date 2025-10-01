@@ -15,6 +15,7 @@ public interface InstallmentPersistenceMapper {
     @Mapping(target = "modifiedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "modifiedBy", ignore = true)
+    @Mapping(target = "installmentSchedule", ignore = true)
     InstallmentEntity map(Installment domain);
 
     Installment map(InstallmentEntity entity);

@@ -8,6 +8,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 public sealed interface TradeLoanFacilityEvent<T extends Record & TradeLoanFacilityEvent<T, P>, P>
         extends DomainEvent<T, P>
         permits TradeLoanFacilityActivatedEvent,
+                TradeLoanFacilityAdditionalDisbursementCompletedEvent,
                 TradeLoanFacilityApprovedEvent,
                 TradeLoanFacilityCancelledEvent,
                 TradeLoanFacilityClosedDefaultedEvent,
@@ -17,6 +18,7 @@ public sealed interface TradeLoanFacilityEvent<T extends Record & TradeLoanFacil
                 TradeLoanFacilityCreatedEvent,
                 TradeLoanFacilityDisbursementFailedEvent,
                 TradeLoanFacilityIrregularDisbursementEvent,
+                TradeLoanFacilityPartiallyDisbursedEvent,
                 TradeLoanFacilityPendingApprovalEvent,
                 TradeLoanFacilityPendingDisbursementEvent,
                 TradeLoanFacilityRejectedEvent {

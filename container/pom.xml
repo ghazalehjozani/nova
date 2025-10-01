@@ -16,6 +16,10 @@
   <name>Trade Loan :: Container</name>
   <packaging>jar</packaging>
 
+  <properties>
+      <start-class>ir.dotin.loan.trade.ir.dotin.loan.trade.config.TradeLoanSpringApplication</start-class>
+  </properties>
+
   <dependencies>
     <dependency>
         <groupId>ir.dotin.platform</groupId>
@@ -35,7 +39,7 @@
     </dependency>
     <dependency>
       <groupId>ir.dotin.loan</groupId>
-      <artifactId>trade-loan-core-application-ports-driven</artifactId>
+      <artifactId>trade-loan-core-application-ports-outbound</artifactId>
     </dependency>
     <dependency>
       <groupId>ir.dotin.loan</groupId>

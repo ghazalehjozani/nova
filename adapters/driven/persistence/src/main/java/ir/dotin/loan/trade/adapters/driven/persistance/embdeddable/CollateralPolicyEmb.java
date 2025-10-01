@@ -24,9 +24,9 @@ public class CollateralPolicyEmb implements Serializable {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
-            name = "arrangement_collateral_types",
-            joinColumns = @JoinColumn(name = "arrangement_id"),
-            indexes = @Index(name = "idx_arrangement_collateral", columnList = "arrangement_id"))
+            name = "loan_arrangement_collateral_types",
+            joinColumns = @JoinColumn(name = "loan_arrangement_id"),
+            indexes = @Index(name = "idx_trade_loan_arrangement_collateral", columnList = "loan_arrangement_id"))
     @AttributeOverrides({
         @AttributeOverride(name = "code", column = @Column(name = "collateral_code", length = 50)),
         @AttributeOverride(name = "name", column = @Column(name = "collateral_name", length = 100))

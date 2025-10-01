@@ -120,7 +120,7 @@ public final class TradeLoanType extends AbstractLoanType {
         Result<Builder> prepareResult = super.prepareNewVersion(updatedBuilder, clock);
         if (prepareResult.isSuccess()) {
             Builder successValue = prepareResult.value();
-            checkState(successValue != null, "Successful result cannot have null value");
+            checkState(successValue != null, "Successful result cannot have null number");
             return Result.success(successValue);
         } else {
             return Result.failure(prepareResult.notification());

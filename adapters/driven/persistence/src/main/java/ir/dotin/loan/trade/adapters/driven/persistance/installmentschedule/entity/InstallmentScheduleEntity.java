@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -28,7 +30,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table
+@Table(name = "loan_installment_schedule")
 @Setter
 @Getter
 @NoArgsConstructor
@@ -49,6 +51,9 @@ public class InstallmentScheduleEntity extends PersistentEntity {
     private MoneyEmb totalLoanAmount;
 
     @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "number", column = @Column(name = "schedule_currency", nullable = false, length = 3))
+    })
     private CurrencyTypeEmb currency;
 
     @Enumerated(EnumType.STRING)

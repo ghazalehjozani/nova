@@ -119,7 +119,7 @@ final class TradeLoanParameterProviderTest {
         }
 
         @Test
-        @DisplayName("should return shipment value from mock")
+        @DisplayName("should return shipment number from mock")
         void shouldReturnShipmentValueFromMock(@Mock Money mockShipmentValue) {
             // Arrange
             given(mockParameterProvider.getShipmentValue()).willReturn(mockShipmentValue);

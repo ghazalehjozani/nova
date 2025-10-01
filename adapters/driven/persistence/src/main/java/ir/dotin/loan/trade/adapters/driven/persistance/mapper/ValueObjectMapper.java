@@ -598,7 +598,7 @@ public abstract class ValueObjectMapper {
     @Named("embToTrackedTransactionNumber")
     public TrackedTransactionNumber<TradeRelationType> embToTrackedTransactionNumber(TransactionNumberEmb emb) {
         return new TrackedTransactionNumber<>(
-                emb.getValue(), emb.getRelationType(), emb.getCreatedAt(), emb.getTrackingId());
+                emb.getValue(), emb.getRelationType(), emb.getCreatedAt(), emb.getTrackingId(), emb.getStatus());
     }
 
     public String mapParameterizedFormulaToString(

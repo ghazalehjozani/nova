@@ -35,7 +35,7 @@ final class TradeLoanFacilityFormulaFieldTest {
                 switch (field) {
                     case APPROVED_AMOUNT, REQUESTED_AMOUNT, COMMISSION_AMOUNT, SHIPMENT_VALUE -> ValueType.MONEY;
                     case INSURANCE_RATE -> ValueType.RATE;
-                    default -> throw new IllegalStateException("Unexpected value: " + field);
+                    default -> throw new IllegalStateException("Unexpected number: " + field);
                 };
 
         // Act

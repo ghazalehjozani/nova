@@ -33,7 +33,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table
+@Table(name = "loan_arrangement")
 @Setter
 @Getter
 @NoArgsConstructor

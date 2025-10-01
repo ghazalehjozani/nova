@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.adapters.driven.persistance.loanfacility.mapper.TradeLoanFacilityPersistenceMapper;
 import ir.dotin.loan.trade.adapters.driven.persistance.loanfacility.repository.TradeLoanFacilityJpaRepository;
@@ -39,5 +40,10 @@ public class TradeLoanFacilityRepositoryAdapter implements TradeLoanFacilityRepo
     public Optional<TradeLoanFacility> findById(LoanFacilityId id) {
         requireNonNull(id, "ID cannot be null");
         return jpaRepository.findById(id.value()).map(mapper::map);
+    }
+
+    @Override
+    public Result<Boolean> existsById(LoanFacilityId id) {
+        return Result.success(jpaRepository.existsById(id.value()));
     }
 }

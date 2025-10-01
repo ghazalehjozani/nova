@@ -21,6 +21,7 @@ import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
 import ir.dotin.platform.adapter.persistence.embeddable.PeriodEmb;
 import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.ApplicationNumberEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.BranchEmb;
@@ -43,7 +44,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @Entity
-@Table(name = "trade_loan_application")
+@Table(name = "loan_application")
 public class TradeLoanApplicationEntity extends PersistentEntity {
 
     @Column(name = "request_date", nullable = false)
@@ -105,6 +106,10 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
     private RequestReasonEmb requestReason;
 
     @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "core", column = @Column(name = "sub_source_request_reason_code", length = 500)),
+        @AttributeOverride(name = "name", column = @Column(name = "sub_source_request_reason_name", length = 500))
+    })
     private SubSourceEmb subSource;
 
     @Embedded
@@ -114,19 +119,43 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
     private CredibilityRankEmb credibilityRank;
 
     @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(
+                name = "branch.code",
+                column = @Column(name = "application_branch_code", nullable = false, length = 50)),
+        @AttributeOverride(
+                name = "branch.name",
+                column = @Column(name = "application_branch_name", nullable = false, length = 200)),
+        @AttributeOverride(
+                name = "party.customerNumber",
+                column = @Column(name = "application_customer_number", nullable = false, length = 100)),
+        @AttributeOverride(
+                name = "party.partyType",
+                column = @Column(name = "application_customer_type", nullable = false, length = 20)),
+        @AttributeOverride(
+                name = "party.firstName",
+                column = @Column(name = "application_customer_first_name", nullable = false, length = 100)),
+        @AttributeOverride(
+                name = "party.lastName",
+                column = @Column(name = "application_customer_last_name", nullable = false, length = 100))
+    })
     private ApplicationNumberEmb applicationNumber;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
-            name = "application_guarantors",
-            joinColumns = @JoinColumn(name = "application_id"),
-            indexes = @Index(name = "idx_guarantor_application", columnList = "application_id"))
+            name = "loan_application_guarantors",
+            joinColumns = @JoinColumn(name = "loan_application_id"),
+            indexes = @Index(name = "idx_trade_loan_application_guarantor", columnList = "loan_application_id"))
     private Set<PartyEmb> guarantors = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
-            name = "application_certificates",
-            joinColumns = @JoinColumn(name = "application_id"),
-            indexes = @Index(name = "idx_certificate_application", columnList = "application_id"))
+            name = "loan_application_certificates",
+            joinColumns = @JoinColumn(name = "loan_application_id"),
+            indexes = @Index(name = "idx_trade_loan_application_certificate", columnList = "loan_application_id"))
     private Set<CertificateEmb> certificates = new HashSet<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "disbursement_method")
+    private DisbursementMethod disbursementMethod;
 }

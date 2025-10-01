@@ -32,7 +32,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @Entity
-@Table(name = "trade_loan_facility")
+@Table(name = "loan_facility")
 public class TradeLoanFacilityEntity extends PersistentEntity {
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -63,11 +63,15 @@ public class TradeLoanFacilityEntity extends PersistentEntity {
     private MoneyEmb totalDisbursedAmount;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "issue_contract_transaction_numbers", joinColumns = @JoinColumn(name = "parent_id"))
+    @CollectionTable(
+            name = "loan_facility_issue_contract_transaction_numbers",
+            joinColumns = @JoinColumn(name = "loan_facility_id"))
     private List<TransactionNumberEmb> issueContractTransactionNumbers = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "disbursement_transaction_numbers", joinColumns = @JoinColumn(name = "parent_id"))
+    @CollectionTable(
+            name = "loan_facility_disbursement_transaction_numbers",
+            joinColumns = @JoinColumn(name = "loan_facility_id"))
     private List<TransactionNumberEmb> disbursementTransactionNumbers = new ArrayList<>();
 
     @Embedded

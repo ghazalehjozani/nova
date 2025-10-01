@@ -14,7 +14,7 @@ public final class ResultAssert {
     private ResultAssert() {}
 
     /**
-     * Asserts that the given Result represents a successful outcome. Checks for non-null value, success status, and
+     * Asserts that the given Result represents a successful outcome. Checks for non-null number, success status, and
      * absence of notification errors.
      */
     public static <T> void assertSuccess(Result<T> result) {

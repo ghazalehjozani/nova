@@ -19,27 +19,6 @@ public enum TradeLoanFacilityFormulaField
         Object extract(TradeLoanParameterProvider p) {
             return LoanFacilityFormulaField.requestedAmount().getExtractor().apply(p);
         }
-    },
-
-    COMMISSION_AMOUNT(ValueType.MONEY) {
-        @Override
-        Object extract(TradeLoanParameterProvider p) {
-            return p.getCommissionAmount();
-        }
-    },
-
-    SHIPMENT_VALUE(ValueType.MONEY) {
-        @Override
-        Object extract(TradeLoanParameterProvider p) {
-            return p.getShipmentValue();
-        }
-    },
-
-    INSURANCE_RATE(ValueType.RATE) {
-        @Override
-        Object extract(TradeLoanParameterProvider p) {
-            return p.getInsuranceRate();
-        }
     };
 
     private final ValueType expectedType;

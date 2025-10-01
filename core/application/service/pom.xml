@@ -19,7 +19,7 @@
   <dependencies>
     <dependency>
       <groupId>ir.dotin.loan</groupId>
-      <artifactId>trade-loan-core-application-ports-driven</artifactId>
+      <artifactId>trade-loan-core-application-ports-outbound</artifactId>
     </dependency>
     <dependency>
       <groupId>ir.dotin.loan</groupId>
@@ -43,5 +43,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
 
 </project>

@@ -19,9 +19,6 @@ public record TradeLoanFormulaFieldMappingProperties(Map<Character, TradeLoanFac
                 'p', TradeLoanFacilityFormulaField.APPROVED_AMOUNT,
                 'a', TradeLoanFacilityFormulaField.APPROVED_AMOUNT,
                 'r', TradeLoanFacilityFormulaField.REQUESTED_AMOUNT,
-                't', TradeLoanFacilityFormulaField.REQUESTED_AMOUNT,
-                'c', TradeLoanFacilityFormulaField.COMMISSION_AMOUNT,
-                's', TradeLoanFacilityFormulaField.SHIPMENT_VALUE,
-                'i', TradeLoanFacilityFormulaField.INSURANCE_RATE);
+                't', TradeLoanFacilityFormulaField.REQUESTED_AMOUNT);
     }
 }
