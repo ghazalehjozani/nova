@@ -22,8 +22,8 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.AttributeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.EconomicSectorCurrencyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.EditReasonEmb;
-import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.LoanTopicConfigurationEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.LoanTypeCodeEmb;
+import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.RelationTypeLoanTopicEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.TitleEmb;
 
 import lombok.Getter;
@@ -85,7 +85,7 @@ public class TradeLoanTypeEntity extends PersistentEntity {
             name = "loan_type_topics",
             joinColumns = @JoinColumn(name = "loan_type_id"),
             indexes = @Index(name = "idx_trade_loan_type_topic", columnList = "loan_type_id"))
-    private Set<LoanTopicConfigurationEmb> loanTopicAssignments = new HashSet<>();
+    private Set<RelationTypeLoanTopicEmb> relationTypeLoanTopics = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(

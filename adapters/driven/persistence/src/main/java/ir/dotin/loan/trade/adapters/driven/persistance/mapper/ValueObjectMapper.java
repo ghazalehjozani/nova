@@ -3,12 +3,15 @@ package ir.dotin.loan.trade.adapters.driven.persistance.mapper;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Period;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Range;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
@@ -59,7 +62,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ScheduledTranche;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.EconomicSectorCurrency;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanApplicationStatus;
-import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanTopicConfiguration;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Active;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Attribute;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
@@ -74,12 +77,14 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityParameterizedFormula;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeGroupId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.RespiteSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.TopicRelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumbers;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
@@ -107,12 +112,12 @@ import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.InstallmentCo
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.InstallmentPolicyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.InterestPolicyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.LoanApplicationStatusEmb;
-import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.LoanTopicConfigurationEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.LoanTypeCodeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.PartyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.PenaltyPolicyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.PeriodRangeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.RegulatoryCompliancePolicyEmb;
+import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.RelationTypeLoanTopicEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.RequestReasonEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.RespiteSerialEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.RevocationReasonEmb;
@@ -322,18 +327,6 @@ public abstract class ValueObjectMapper {
     public abstract LoanApplicationStatusEmb toLoanApplicationStatusEmb(LoanApplicationStatus loanApplicationStatus);
 
     public abstract LoanApplicationStatus toLoanApplicationStatus(LoanApplicationStatusEmb embeddable);
-
-    @Mapping(source = "economicSectorCurrency.economicSector.code", target = "economicSectorCode")
-    @Mapping(source = "economicSectorCurrency.economicSector.name", target = "economicSectorName")
-    @Mapping(source = "economicSectorCurrency.currencyType", target = "currencyType")
-    public abstract LoanTopicConfigurationEmb toLoanTopicConfigurationEmb(
-            LoanTopicConfiguration<TradeRelationType> loanTopicConfiguration);
-
-    @Mapping(source = "economicSectorCode", target = "economicSectorCurrency.economicSector.code")
-    @Mapping(source = "economicSectorName", target = "economicSectorCurrency.economicSector.name")
-    @Mapping(source = "currencyType", target = "economicSectorCurrency.currencyType")
-    public abstract LoanTopicConfiguration<TradeRelationType> toLoanTopicConfiguration(
-            LoanTopicConfigurationEmb embeddable);
 
     public abstract InstallmentAmountEmb toInstallmentAmountEmb(InstallmentAmount installmentAmount);
 
@@ -792,18 +785,55 @@ public abstract class ValueObjectMapper {
                 : null;
     }
 
-    public Set<LoanTopicConfigurationEmb> mapLoanTopicConfigurationsToEmbs(
-            Set<LoanTopicConfiguration<TradeRelationType>> value) {
-        return value != null
-                ? value.stream().map(this::toLoanTopicConfigurationEmb).collect(Collectors.toSet())
-                : null;
+    @Named("mapRelationTypeLoanTopicsEmbs")
+    public Set<RelationTypeLoanTopicEmb> mapRelationTypeLoanTopicsEmbs(
+            Multimap<RelationType<TradeRelationType>, LoanTopic> multimap) {
+
+        Set<RelationTypeLoanTopicEmb> embs = new HashSet<>();
+
+        if (multimap == null || multimap.isEmpty()) {
+            return embs;
+        }
+
+        for (var entry : multimap.entries()) {
+            TradeRelationType relationType = (TradeRelationType) entry.getKey();
+            LoanTopic loanTopic = entry.getValue();
+            RelationTypeLoanTopicEmb emb = new RelationTypeLoanTopicEmb();
+            emb.setTradeRelationType(relationType);
+            emb.setTopicName(loanTopic.name());
+            emb.setTopicCode(loanTopic.code());
+            emb.setRelationTypeName(loanTopic.relationType().name());
+            emb.setRelationTypeCode(loanTopic.relationType().code());
+            emb.setEconomicSector(toEconomicSectorEmb(loanTopic.economicSector()));
+            embs.add(emb);
+        }
+
+        return embs;
     }
 
-    public Set<LoanTopicConfiguration<TradeRelationType>> mapEmbsToLoanTopicConfigurations(
-            Set<LoanTopicConfigurationEmb> value) {
-        return value != null
-                ? value.stream().map(this::toLoanTopicConfiguration).collect(Collectors.toSet())
-                : null;
+    @Named("mapEmbsRelationTypeLoanTopics")
+    public ImmutableSetMultimap<RelationType<TradeRelationType>, LoanTopic> mapEmbsRelationTypeLoanTopics(
+            Set<RelationTypeLoanTopicEmb> embs) {
+
+        if (embs == null || embs.isEmpty()) {
+            return ImmutableSetMultimap.of();
+        }
+
+        ImmutableSetMultimap.Builder<RelationType<TradeRelationType>, LoanTopic> builder =
+                ImmutableSetMultimap.builder();
+
+        for (var emb : embs) {
+            LoanTopic loanTopic = LoanTopic.of(
+                            emb.getTopicName(),
+                            emb.getTopicCode(),
+                            new TopicRelationType(emb.getRelationTypeName(), emb.getRelationTypeCode()),
+                            toEconomicSector(emb.getEconomicSector()))
+                    .orElseThrow();
+
+            builder.put(emb.getTradeRelationType(), loanTopic);
+        }
+
+        return builder.build();
     }
 
     public List<AttributeEmb> mapAttributesToEmbs(List<Attribute> value) {

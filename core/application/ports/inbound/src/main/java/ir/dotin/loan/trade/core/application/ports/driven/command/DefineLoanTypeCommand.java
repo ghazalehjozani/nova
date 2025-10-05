@@ -22,11 +22,11 @@ public record DefineLoanTypeCommand(
         @NotNull LoanApplicationStatusDto loanApplicationAllowed,
         @NotNull SegmentType segmentType,
         @NotNull Set<EconomicSectorCurrencyDto> economicSectorCurrencies,
-        @NotNull Set<LoanTopicConfigurationDto> loanTopicAssignments,
         @NotNull Set<LoanArrangementIdDto> loanArrangementIds,
         @NotNull Set<IncomeIdDto> incomeIds,
         @NotNull LoanTypeGroupIdDto groupId,
-        @NotNull List<AttributeDto> attributes)
+        @NotNull List<AttributeDto> attributes,
+        @NotNull List<RelationTypeLoanTopicDto> relationTypeLoanTopics)
         implements Command {
 
     public record LoanTypeCodeDto(@NotBlank String value) {}
@@ -44,14 +44,18 @@ public record DefineLoanTypeCommand(
     public record AttributeDto(
             @NotBlank String name, @NotBlank String code, @NotNull ValueType dataType, boolean mandatory) {}
 
-    public record LoanTopicConfigurationDto(
-            @NotNull String loanTopicCode,
-            @NotNull EconomicSectorCurrencyDto economicSectorCurrency,
-            @NotNull TradeRelationType relationType) {}
-
     public record LoanArrangementIdDto(@NotNull UUID value) {}
 
     public record IncomeIdDto(@NotNull UUID value) {}
 
     public record LoanTypeGroupIdDto(@NotNull UUID value) {}
+
+    public record RelationTypeLoanTopicDto(
+            @NotNull TradeRelationType relationTypeKey,
+            @NotNull RelationTypeDto relationType,
+            @NotBlank String topicName,
+            @NotBlank String topicCode,
+            @NotNull EconomicSectorDto economicSector) {}
+
+    public record RelationTypeDto(@NotBlank String code, @NotBlank String name) {}
 }

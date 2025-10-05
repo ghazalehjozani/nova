@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.core.application.service.establishloanarrangement.mapper;
+package ir.dotin.loan.trade.core.application.service.defineloanarrangement.mapper;
 
 import java.time.Period;
 import java.util.List;
@@ -35,7 +35,7 @@ import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanFacilityFormulaFi
 import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanParameterProvider;
 
 @Mapper(config = BaseMapperConfig.class)
-public abstract class EstablishTradeLoanArrangementCommandMapper {
+public abstract class DefineTradeLoanArrangementCommandMapper {
 
     @Autowired
     private TradeLoanFormulaFieldMappingProperties tradeLoanFormulaFieldMappingProperties;

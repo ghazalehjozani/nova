@@ -17,7 +17,7 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>web</module>
+    <module>rest</module>
     <module>messaging</module>
   </modules>
 

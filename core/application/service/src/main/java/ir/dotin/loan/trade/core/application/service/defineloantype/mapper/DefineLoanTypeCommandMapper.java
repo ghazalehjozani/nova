@@ -1,18 +1,24 @@
 package ir.dotin.loan.trade.core.application.service.defineloantype.mapper;
 
+import java.util.List;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.EconomicSectorCurrency;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanApplicationStatus;
-import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanTopicConfiguration;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Attribute;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.IncomeId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeGroupId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.TopicRelationType;
 import ir.dotin.loan.trade.core.application.ports.driven.command.DefineLoanTypeCommand;
 import ir.dotin.loan.trade.core.application.service.BaseMapperConfig;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
@@ -46,5 +52,25 @@ public interface DefineLoanTypeCommandMapper {
 
     LoanTypeGroupId map(DefineLoanTypeCommand.LoanTypeGroupIdDto dto);
 
-    LoanTopicConfiguration<TradeRelationType> map(DefineLoanTypeCommand.LoanTopicConfigurationDto dto);
+    TopicRelationType map(DefineLoanTypeCommand.RelationTypeDto dto);
+
+    default Multimap<RelationType<TradeRelationType>, LoanTopic> map(
+            List<DefineLoanTypeCommand.RelationTypeLoanTopicDto> dtos) {
+
+        Multimap<RelationType<TradeRelationType>, LoanTopic> multimap = ArrayListMultimap.create();
+
+        if (dtos == null || dtos.isEmpty()) {
+            return multimap;
+        }
+
+        for (var dto : dtos) {
+            LoanTopic loanTopic = LoanTopic.of(
+                            dto.topicName(), dto.topicCode(), map(dto.relationType()), map(dto.economicSector()))
+                    .orElseThrow();
+
+            multimap.put(dto.relationTypeKey(), loanTopic);
+        }
+
+        return multimap;
+    }
 }

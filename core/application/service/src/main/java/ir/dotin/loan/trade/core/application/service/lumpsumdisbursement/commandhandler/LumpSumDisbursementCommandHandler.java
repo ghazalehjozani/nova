@@ -59,7 +59,7 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
     private Result<TradeLoanFacility> validateDisbursementMethod(TradeLoanFacility facility) {
         return facility.getSanctionedLoan()
                 .filter(sl -> sl.getDisbursementMethod() == DisbursementMethod.LUMP_SUMP)
-                .map(sl -> Result.success(facility))
+                .map(ignored -> Result.success(facility))
                 .orElseGet(() -> Result.failure(Notification.ofError(
                         LumpSumDisbursementErrorCodes.INVALID_DISBURSEMENT_METHOD,
                         facility.getSanctionedLoan()
