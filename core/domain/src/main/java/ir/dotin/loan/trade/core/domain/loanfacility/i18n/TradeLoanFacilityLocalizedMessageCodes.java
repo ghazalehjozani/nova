@@ -11,6 +11,11 @@ public enum TradeLoanFacilityLocalizedMessageCodes implements LocalizedMessage<T
     ARRANGEMENT_FETCH_FAILED("Failed to fetch Loan Arrangement details for ID: {0}"),
     INTEREST_CALCULATION_FAILED("Failed to calculate interest: {0}"),
     TRANSACTION_POSTING_FAILED("Failed to post transaction."),
+    ALL_DISBURSEMENT_INPUTS_REQUIRED("All disbursement inputs are required"),
+    FACILITY_CANNOT_BE_NULL("Facility cannot be null"),
+    LOAN_TYPE_CANNOT_BE_NULL("Loan type cannot be null"),
+    BRANCH_CODE_CANNOT_BE_NULL("Branch code cannot be null"),
+    POST_TITLE_CANNOT_BE_NULL("Post title cannot be null"),
     UNKNOWN_STRATEGY_TYPE("Cannot determine purpose code for unknown strategy type: {0}"),
     LOAN_TOPIC_RESOLUTION_FAILED("Failed to resolve primary loan topic for LoanType ID {0} and EconomicSector {1}"),
     CANNOT_POST_DISBURSE_TRANSACTION("Cannot post disbursement transactions while facility is in state: {0}"),
@@ -29,6 +34,9 @@ public enum TradeLoanFacilityLocalizedMessageCodes implements LocalizedMessage<T
     ARTICLE_METADATA_DEBIT_BUILD_FAILED("Failed to build ArticleMetadata for the debit entry."),
     ARTICLE_METADATA_CREDIT_BUILD_FAILED("Failed to build ArticleMetadata for the credit entry."),
     CALCULATION_CONTEXT_COMPONENT_MISSING("Primary article component ''{0}'' missing in calculation context."),
+    SANCTIONED_LOAN_NOT_FOUND_FOR_FACILITY("Sanctioned loan not found for facility {0}"),
+    SANCTIONED_LOAN_NOT_FOUND("Sanctioned loan not found"),
+    NO_ARTICLE_COMPONENTS_ADDED("No article components added"),
     ARTICLE_METADATA_BUILD_FAILED("Failed to build article metadata.");
 
     private final String messageFormat;

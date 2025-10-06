@@ -8,6 +8,7 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
+import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
 import lombok.Data;
@@ -28,4 +29,8 @@ public class TransactionNumberEmb implements Serializable {
 
     @Column(name = "tracking_id", nullable = false, length = 100)
     private String trackingId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 50)
+    private TransactionStatus status;
 }

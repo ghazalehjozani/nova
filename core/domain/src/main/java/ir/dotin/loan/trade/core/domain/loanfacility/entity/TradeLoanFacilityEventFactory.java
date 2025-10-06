@@ -11,7 +11,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.*;
 
@@ -44,10 +43,7 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
 
     @Override
     public TradeLoanFacilityContractIssuedEvent createContractIssuedEvent(
-            LoanFacilityId facilityId,
-            SanctionedLoanId sanctionId,
-            List<TransactionNumber> transactionNumbers,
-            Clock clock) {
+            LoanFacilityId facilityId, SanctionedLoanId sanctionId, List<String> transactionNumbers, Clock clock) {
         return TradeLoanFacilityContractIssuedEvent.of(facilityId, sanctionId, transactionNumbers, clock);
     }
 
@@ -102,5 +98,19 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
     public TradeLoanFacilityIrregularDisbursementEvent createIrregularDisbursementRequestedEvent(
             LoanFacilityId facilityId, SanctionedLoanId sanctionId, Money amountToDisburse, Clock clock) {
         return TradeLoanFacilityIrregularDisbursementEvent.of(facilityId, sanctionId, amountToDisburse, clock);
+    }
+
+    @Override
+    public TradeLoanFacilityPartiallyDisbursedEvent createPartiallyDisbursedEvent(
+            LoanFacilityId loanFacilityId, SanctionedLoanId sanctionedLoanId, Money totalDisbursedAmount, Clock clock) {
+        return TradeLoanFacilityPartiallyDisbursedEvent.of(
+                loanFacilityId, sanctionedLoanId, totalDisbursedAmount, clock);
+    }
+
+    @Override
+    public TradeLoanFacilityAdditionalDisbursementCompletedEvent createAdditionalDisbursementCompletedEvent(
+            LoanFacilityId facilityId, SanctionedLoanId sanctionId, Money totalDisbursedAmount, Clock clock) {
+        return TradeLoanFacilityAdditionalDisbursementCompletedEvent.of(
+                facilityId, sanctionId, totalDisbursedAmount, clock);
     }
 }

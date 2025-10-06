@@ -1,10 +1,10 @@
 package ir.dotin.loan.trade.core.domain.loanfacility.service;
 
 import java.time.Clock;
-import java.util.List;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.domain.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractSanctionedLoan;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;
@@ -12,7 +12,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.service.AbstractLoanFacil
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumbers;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan;
@@ -20,6 +20,7 @@ import ir.dotin.loan.trade.core.domain.loanfacility.i18n.TradeLoanFacilityLocali
 
 import static java.util.UUID.randomUUID;
 
+@DomainService
 public class TradeLoanFacilityService
         extends AbstractLoanFacilityService<TradeLoanApplication, TradeSanctionedLoan, TradeLoanFacility> {
 
@@ -29,21 +30,12 @@ public class TradeLoanFacilityService
 
     @Override
     protected Result<Void> validateTransactionNumbers(
-            TradeLoanFacility facility, List<TransactionNumber> transactionNumbers) {
-        // Trade-specific transaction number validation
+            TradeLoanFacility facility, TrackedTransactionNumbers<?> transactionNumbers) {
+
         if (transactionNumbers == null || transactionNumbers.isEmpty()) {
             return Result.failure(Notification.ofError(
                     TradeLoanFacilityLocalizedMessageCodes.BUILDER_VALIDATION_FAILED,
                     "Transaction numbers cannot be null or empty for trade loans"));
-        }
-
-        // Validate each transaction number follows trade loan format
-        for (TransactionNumber txnNumber : transactionNumbers) {
-            if (!isValidTradeTransactionNumber()) {
-                return Result.failure(Notification.ofError(
-                        TradeLoanFacilityLocalizedMessageCodes.BUILDER_VALIDATION_FAILED,
-                        "Invalid trade transaction number format: " + txnNumber.value()));
-            }
         }
 
         return Result.success();
@@ -102,9 +94,5 @@ public class TradeLoanFacilityService
                 .loanDuration(loanApplication.getRequestedLoanDuration());
 
         return Result.success(builder);
-    }
-
-    private boolean isValidTradeTransactionNumber() {
-        return Boolean.TRUE;
     }
 }

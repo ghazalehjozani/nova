@@ -32,8 +32,7 @@ public class FormulaFieldMappingService {
 
     private Map<Character, TradeLoanFacilityFormulaField>
             initializeDefaultMappings() { // TODO: Use dynamic service for load
-        return Map.of(
-                'A', TradeLoanFacilityFormulaField.APPROVED_AMOUNT, 'I', TradeLoanFacilityFormulaField.INSURANCE_RATE);
+        return Map.of('A', TradeLoanFacilityFormulaField.APPROVED_AMOUNT);
     }
 
     public String serializeParameterizedFormula(

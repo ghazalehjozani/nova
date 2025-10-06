@@ -13,7 +13,7 @@ final class ExistResultTest {
     @DisplayName("Constructor Tests")
     final class ConstructorTests {
 
-        @DisplayName("should create with true value")
+        @DisplayName("should create with true number")
         @Test
         void shouldCreateWithTrueValue() {
             // when
@@ -23,7 +23,7 @@ final class ExistResultTest {
             assertThat(result.exists()).isTrue();
         }
 
-        @DisplayName("should create with false value")
+        @DisplayName("should create with false number")
         @Test
         void shouldCreateWithFalseValue() {
             // when
@@ -140,7 +140,7 @@ final class ExistResultTest {
             assertThat(value1).isTrue();
         }
 
-        @DisplayName("should preserve the exact boolean value")
+        @DisplayName("should preserve the exact boolean number")
         @Test
         void shouldPreserveTheExactBooleanValue() {
             // given

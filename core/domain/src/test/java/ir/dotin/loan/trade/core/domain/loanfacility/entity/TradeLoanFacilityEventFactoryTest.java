@@ -2,8 +2,8 @@ package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
@@ -48,6 +49,9 @@ final class TradeLoanFacilityEventFactoryTest {
 
     @Mock
     private TransactionNumber mockTransactionNumber;
+
+    @Mock
+    private Money mockMoney;
 
     private TradeLoanFacilityEventFactory factory;
     private Clock fixedClock;
@@ -106,9 +110,7 @@ final class TradeLoanFacilityEventFactoryTest {
         @Test
         @DisplayName("should create contract issued event")
         void shouldCreateContractIssuedEvent() {
-            var transactionNumbers = ImmutableList.of(mockTransactionNumber);
-            var event =
-                    factory.createContractIssuedEvent(mockFacilityId, mockSanctionId, transactionNumbers, fixedClock);
+            var event = factory.createContractIssuedEvent(mockFacilityId, mockSanctionId, List.of("trx1"), fixedClock);
 
             assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityContractIssuedEvent.class);
         }
@@ -177,6 +179,23 @@ final class TradeLoanFacilityEventFactoryTest {
             var event = factory.createCreatedEvent(mockFacilityId, mockApplicationId, mockCustomer, fixedClock);
 
             assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityCreatedEvent.class);
+        }
+
+        @Test
+        @DisplayName("should create partially disbursed event")
+        void shouldCreatePartiallyDisbursedEvent() {
+            var event = factory.createPartiallyDisbursedEvent(mockFacilityId, mockSanctionId, mockMoney, fixedClock);
+
+            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityPartiallyDisbursedEvent.class);
+        }
+
+        @Test
+        @DisplayName("should create additional disbursement completed event")
+        void shouldCreateAdditionalDisbursementCompletedEvent() {
+            var event = factory.createAdditionalDisbursementCompletedEvent(
+                    mockFacilityId, mockSanctionId, mockMoney, fixedClock);
+
+            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityAdditionalDisbursementCompletedEvent.class);
         }
     }
 

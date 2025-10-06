@@ -1,19 +1,17 @@
 package ir.dotin.loan.trade.core.domain.loantype.entity;
 
 import java.time.Clock;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Set;
+
+import com.google.common.collect.ImmutableSetMultimap;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.loan.baseloan.core.domain.loantype.entity.AbstractLoanType;
-import ir.dotin.loan.baseloan.core.domain.loantype.i18n.LoanTypeLocalizedMessageCodes;
-import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanTopicConfiguration;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Active;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Disable;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 import ir.dotin.loan.trade.core.domain.loantype.event.NewTradeLoanTypeVersionPrepared;
@@ -81,7 +79,7 @@ public final class TradeLoanType extends AbstractLoanType {
 
     @Override
     protected DomainEvent<?, ?> getNewVersionPreparedEvent(
-            LoanTypeId currentAggregateId, AbstractLoanTypeBuilder<?, ?> validatedBuilder, Clock clock) {
+            LoanTypeId currentAggregateId, AbstractLoanTypeBuilder<?, ?, ?> validatedBuilder, Clock clock) {
 
         Builder builder = (Builder) validatedBuilder;
         Result<TradeLoanType> tradeLoanTypeResult = builder.build();
@@ -109,18 +107,18 @@ public final class TradeLoanType extends AbstractLoanType {
         return super.deactivate(clock).cast(TradeLoanType.class);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public Set<LoanTopicConfiguration<TradeRelationType>> getLoanTopicAssignments() {
-        return Collections.unmodifiableSet(
-                (Set<LoanTopicConfiguration<TradeRelationType>>) (Set<?>) super.loanTopicAssignments);
+    @SuppressWarnings("unchecked")
+    public ImmutableSetMultimap<RelationType<TradeRelationType>, LoanTopic> getRelationTypeLoanTopics() {
+        return (ImmutableSetMultimap<RelationType<TradeRelationType>, LoanTopic>)
+                (ImmutableSetMultimap<?, ?>) this.relationTypeLoanTopics;
     }
 
     public Result<Builder> prepareNewVersion(Builder updatedBuilder, Clock clock) {
         Result<Builder> prepareResult = super.prepareNewVersion(updatedBuilder, clock);
         if (prepareResult.isSuccess()) {
             Builder successValue = prepareResult.value();
-            checkState(successValue != null, "Successful result cannot have null value");
+            checkState(successValue != null, "Successful result cannot have null number");
             return Result.success(successValue);
         } else {
             return Result.failure(prepareResult.notification());
@@ -132,18 +130,8 @@ public final class TradeLoanType extends AbstractLoanType {
         return super.validateInternalState();
     }
 
-    private static Notification validateLoanArrangementIds(Set<LoanArrangementId> arrangementIds) {
-        Notification notification = Notification.create();
-        if (arrangementIds == null || arrangementIds.isEmpty()) {
-            notification = notification.addError(LoanTypeLocalizedMessageCodes.LOAN_RULE_IDS_EMPTY);
-        } else if (arrangementIds.stream().anyMatch(Objects::isNull)) {
-            notification = notification.addError(
-                    LoanTypeLocalizedMessageCodes.FIELD_INVALID, "loanArrangementIds", "contains null elements");
-        }
-        return notification;
-    }
-
-    public static final class Builder extends AbstractLoanType.AbstractLoanTypeBuilder<TradeLoanType, Builder> {
+    public static final class Builder
+            extends AbstractLoanType.AbstractLoanTypeBuilder<TradeRelationType, TradeLoanType, Builder> {
 
         public Builder() {
             super();
@@ -160,9 +148,7 @@ public final class TradeLoanType extends AbstractLoanType {
 
         @Override
         public Notification validate() {
-            Notification notification = super.validate();
-            notification.merge(validateLoanArrangementIds(this.loanArrangementIds));
-            return notification;
+            return super.validate();
         }
     }
 }

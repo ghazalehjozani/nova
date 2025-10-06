@@ -15,7 +15,15 @@ public interface TradeLoanTypePersistenceMapper {
     @Mapping(target = "modifiedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "modifiedBy", ignore = true)
+    @Mapping(
+            source = "relationTypeLoanTopics",
+            target = "relationTypeLoanTopics",
+            qualifiedByName = "mapRelationTypeLoanTopicsEmbs")
     TradeLoanTypeEntity map(TradeLoanType domain);
 
+    @Mapping(
+            source = "relationTypeLoanTopics",
+            target = "relationTypeLoanTopics",
+            qualifiedByName = "mapEmbsRelationTypeLoanTopics")
     TradeLoanType map(TradeLoanTypeEntity entity);
 }

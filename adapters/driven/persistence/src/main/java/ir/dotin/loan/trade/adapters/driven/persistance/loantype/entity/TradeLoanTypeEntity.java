@@ -22,8 +22,8 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.AttributeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.EconomicSectorCurrencyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.EditReasonEmb;
-import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.LoanTopicConfigurationEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.LoanTypeCodeEmb;
+import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.RelationTypeLoanTopicEmb;
 import ir.dotin.loan.trade.adapters.driven.persistance.embdeddable.TitleEmb;
 
 import lombok.Getter;
@@ -31,7 +31,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "trade_loan_type")
+@Table(name = "loan_type")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -61,14 +61,14 @@ public class TradeLoanTypeEntity extends PersistentEntity {
     @CollectionTable(
             name = "loan_type_economic_sectors",
             joinColumns = @JoinColumn(name = "loan_type_id"),
-            indexes = @Index(name = "idx_loan_type_sector", columnList = "loan_type_id"))
+            indexes = @Index(name = "idx_trade_loan_type_economic_sector", columnList = "loan_type_id"))
     private Set<EconomicSectorCurrencyEmb> economicSectorCurrencies = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "loan_type_income_ids",
             joinColumns = @JoinColumn(name = "loan_type_id"),
-            indexes = @Index(name = "idx_loan_type_income", columnList = "loan_type_id"))
+            indexes = @Index(name = "idx_trade_loan_type_income", columnList = "loan_type_id"))
     @Column(name = "income_id", nullable = false)
     private Set<UUID> incomeIds = new HashSet<>();
 
@@ -76,7 +76,7 @@ public class TradeLoanTypeEntity extends PersistentEntity {
     @CollectionTable(
             name = "loan_type_arrangement_ids",
             joinColumns = @JoinColumn(name = "loan_type_id"),
-            indexes = @Index(name = "idx_loan_type_arrangement", columnList = "loan_type_id"))
+            indexes = @Index(name = "idx_trade_loan_type_arrangement", columnList = "loan_type_id"))
     @Column(name = "arrangement_id", nullable = false)
     private Set<UUID> loanArrangementIds = new HashSet<>();
 
@@ -84,14 +84,14 @@ public class TradeLoanTypeEntity extends PersistentEntity {
     @CollectionTable(
             name = "loan_type_topics",
             joinColumns = @JoinColumn(name = "loan_type_id"),
-            indexes = @Index(name = "idx_loan_type_topic", columnList = "loan_type_id"))
-    private Set<LoanTopicConfigurationEmb> loanTopicAssignments = new HashSet<>();
+            indexes = @Index(name = "idx_trade_loan_type_topic", columnList = "loan_type_id"))
+    private Set<RelationTypeLoanTopicEmb> relationTypeLoanTopics = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "loan_type_attributes",
             joinColumns = @JoinColumn(name = "loan_type_id"),
-            indexes = @Index(name = "idx_loan_type_attribute", columnList = "loan_type_id"))
+            indexes = @Index(name = "idx_trade_loan_type_attribute", columnList = "loan_type_id"))
     private List<AttributeEmb> attributes;
 
     @Column(name = "group_id", nullable = false)

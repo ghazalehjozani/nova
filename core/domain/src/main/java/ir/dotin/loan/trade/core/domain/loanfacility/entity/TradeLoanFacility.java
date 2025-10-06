@@ -2,13 +2,14 @@ package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 
 import java.time.Clock;
 
-import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
+import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.platform.commons.domain.vo.Rate;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractLoanFacility;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.LoanFacilityEventFactory;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.DestinationAccount;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
@@ -18,39 +19,58 @@ import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
 import static java.util.Objects.requireNonNull;
 
-public final class TradeLoanFacility extends AbstractLoanFacility<TradeLoanApplication, TradeSanctionedLoan> {
+public final class TradeLoanFacility
+        extends AbstractLoanFacility<TradeLoanApplication, TradeSanctionedLoan, TradeLoanFacility.Builder> {
 
-    public TradeLoanFacility(Builder builder) {
-        super(
-                builder.id,
-                builder.loanApplication,
-                builder.loanTypeId,
-                builder.loanArrangementId,
-                builder.sanctionedLoan,
-                builder.currentState,
-                builder.issueContractTransactionNumbers,
-                builder.disbursementTransactionNumbers,
-                builder.disbursementDestinationAccount,
-                builder.totalDisbursedAmount);
+    private TradeLoanFacility(Builder builder) {
+        super(builder);
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
-    private TradeLoanFacility(
+    /** Factory method for creating a new Trade Loan Facility in APPLICATION_SUBMITTED state */
+    public static TradeLoanFacility create(
             LoanFacilityId id,
             TradeLoanApplication application,
-            FacilityStatus status,
             LoanTypeId loanTypeId,
             LoanArrangementId loanArrangementId,
-            Money totalDisbursedAmount) {
-        super(id, application, null, status, loanTypeId, loanArrangementId, totalDisbursedAmount);
+            Clock clock) {
+
+        requireNonNull(id, "Facility ID cannot be null");
+        requireNonNull(application, "Application cannot be null");
+        requireNonNull(loanTypeId, "Loan type ID cannot be null");
+        requireNonNull(loanArrangementId, "Loan arrangement ID cannot be null");
+        requireNonNull(clock, "Clock cannot be null");
+
+        TradeLoanFacility facility = builder()
+                .id(id)
+                .loanApplication(application)
+                .loanTypeId(loanTypeId)
+                .loanArrangementId(loanArrangementId)
+                .currentState(FacilityStatus.APPLICATION_SUBMITTED)
+                .buildInternal();
+
+        var createdEvent = facility.getEventFactory()
+                .createCreatedEvent(
+                        facility.getId(),
+                        facility.getLoanApplication().getId(),
+                        facility.getLoanApplication().getCustomer(),
+                        clock);
+        facility.registerEvent(createdEvent);
+
+        return facility;
     }
 
     @Override
-    protected void validateInternalState() {
-        super.validateInternalState();
+    public String getFacilityType() {
+        return "TRADE";
+    }
+
+    @Override
+    protected LoanFacilityEventFactory<TradeLoanFacilityEvent<?, ?>> createEventFactory() {
+        return new TradeLoanFacilityEventFactory();
     }
 
     @SuppressWarnings("unchecked")
@@ -65,133 +85,62 @@ public final class TradeLoanFacility extends AbstractLoanFacility<TradeLoanAppli
         return (TrackedTransactionNumbers<TradeRelationType>) super.disbursementTransactionNumbers;
     }
 
-    public static TradeLoanFacility create(
-            LoanFacilityId id,
-            TradeLoanApplication application,
-            LoanTypeId loanTypeId,
-            LoanArrangementId loanArrangementId,
-            Money totalDisbursementAmount,
-            Clock clock) {
-
-        requireNonNull(id, "Facility ID cannot be null");
-        requireNonNull(application, "Application cannot be null");
-        requireNonNull(loanArrangementId, "Loan arrangement ID cannot be null");
-
-        TradeLoanFacility facility = new TradeLoanFacility(
-                id,
-                application,
-                FacilityStatus.APPLICATION_SUBMITTED,
-                loanTypeId,
-                loanArrangementId,
-                totalDisbursementAmount);
-
-        var createdEvent = facility.getEventFactory()
-                .createCreatedEvent(
-                        facility.getId(),
-                        facility.getLoanApplication().getId(),
-                        facility.getLoanApplication().getCustomer(),
-                        clock);
-        facility.registerEvent(createdEvent);
-        return facility;
+    public Money getCommissionAmount() {
+        return getSanctionedLoan()
+                .map(sanctioned -> Money.zero(sanctioned.getCurrency()).orElseThrow())
+                .orElseGet(
+                        () -> Money.zero(getLoanApplication().getCurrency()).orElseThrow()); // Default implementation
     }
 
-    @Override
-    public String getFacilityType() {
-        return "TRADE";
+    public Money getShipmentValue() {
+        return getSanctionedLoan()
+                .map(sanctioned -> Money.zero(sanctioned.getCurrency()).orElseThrow())
+                .orElseGet(
+                        () -> Money.zero(getLoanApplication().getCurrency()).orElseThrow()); // Default implementation
     }
 
-    @Override
-    protected LoanFacilityEventFactory<TradeLoanFacilityEvent<?, ?>> createEventFactory() {
-        return new TradeLoanFacilityEventFactory();
+    public Rate getInsuranceRate() {
+        return Rate.valueOf(0.0).orElseThrow(); // Default implementation - should be overridden by business logic
     }
 
-    public static final class Builder {
-        @Nullable
-        private LoanFacilityId id;
-
-        @Nullable
-        private Money totalDisbursedAmount;
-
-        @Nullable
-        private DestinationAccount disbursementDestinationAccount;
-
-        @Nullable
-        private TrackedTransactionNumbers<TradeRelationType> disbursementTransactionNumbers;
-
-        @Nullable
-        private TrackedTransactionNumbers<TradeRelationType> issueContractTransactionNumbers;
-
-        @Nullable
-        private FacilityStatus currentState;
-
-        @Nullable
-        private TradeSanctionedLoan sanctionedLoan;
-
-        @Nullable
-        private LoanArrangementId loanArrangementId;
-
-        @Nullable
-        private LoanTypeId loanTypeId;
-
-        @Nullable
-        private TradeLoanApplication loanApplication;
+    public static final class Builder
+            extends AbstractLoanFacility.AbstractLoanFacilityBuilder<
+                    TradeLoanApplication, TradeSanctionedLoan, TradeLoanFacility, TradeRelationType, Builder> {
 
         public Builder() {}
 
-        public Builder totalDisbursedAmount(Money totalDisbursedAmount) {
-            this.totalDisbursedAmount = totalDisbursedAmount;
-            return this;
-        }
-
-        public Builder disbursementDestinationAccount(DestinationAccount disbursementDestinationAccount) {
-            this.disbursementDestinationAccount = disbursementDestinationAccount;
-            return this;
-        }
-
-        public Builder disbursementTransactionNumbers(
-                TrackedTransactionNumbers<TradeRelationType> disbursementTransactionNumbers) {
-            this.disbursementTransactionNumbers = disbursementTransactionNumbers;
-            return this;
-        }
-
-        public Builder issueContractTransactionNumbers(
-                TrackedTransactionNumbers<TradeRelationType> issueContractTransactionNumbers) {
-            this.issueContractTransactionNumbers = issueContractTransactionNumbers;
-            return this;
-        }
-
-        public Builder currentState(FacilityStatus currentState) {
-            this.currentState = currentState;
-            return this;
-        }
-
-        public Builder sanctionedLoan(TradeSanctionedLoan sanctionedLoan) {
-            this.sanctionedLoan = sanctionedLoan;
-            return this;
-        }
-
-        public Builder loanArrangementId(LoanArrangementId loanArrangementId) {
-            this.loanArrangementId = loanArrangementId;
-            return this;
-        }
-
-        public Builder loanTypeId(LoanTypeId loanTypeId) {
-            this.loanTypeId = loanTypeId;
-            return this;
-        }
-
-        public Builder loanApplication(TradeLoanApplication loanApplication) {
-            this.loanApplication = loanApplication;
-            return this;
-        }
-
-        public Builder id(LoanFacilityId id) {
-            this.id = id;
-            return this;
-        }
-
+        @Override
         public TradeLoanFacility buildInternal() {
             return new TradeLoanFacility(this);
+        }
+
+        @Override
+        protected void validateSpecificRules(@NonNull Notification notification) {}
+
+        @Override
+        public Builder loanApplication(@NonNull TradeLoanApplication newLoanApplication) {
+            super.loanApplication(newLoanApplication);
+            return this;
+        }
+
+        @Override
+        public Builder sanctionedLoan(TradeSanctionedLoan newSanctionedLoan) {
+            super.sanctionedLoan(newSanctionedLoan);
+            return this;
+        }
+
+        @Override
+        public Builder issueContractTransactionNumbers(
+                TrackedTransactionNumbers<TradeRelationType> newTransactionNumbers) {
+            super.issueContractTransactionNumbers(newTransactionNumbers);
+            return this;
+        }
+
+        @Override
+        public Builder disbursementTransactionNumbers(
+                TrackedTransactionNumbers<TradeRelationType> newTransactionNumbers) {
+            super.disbursementTransactionNumbers(newTransactionNumbers);
+            return this;
         }
     }
 }

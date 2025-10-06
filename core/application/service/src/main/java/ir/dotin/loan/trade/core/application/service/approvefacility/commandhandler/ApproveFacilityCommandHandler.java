@@ -1,0 +1,55 @@
+package ir.dotin.loan.trade.core.application.service.approvefacility.commandhandler;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.domain.event.DomainEvent;
+import ir.dotin.platform.dispatcher.api.command.CommandHandler;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
+import ir.dotin.loan.trade.core.application.ports.driven.command.ApproveFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.driven.repository.TradeLoanArrangementRepository;
+import ir.dotin.loan.trade.core.application.ports.driven.repository.TradeLoanFacilityRepository;
+import ir.dotin.loan.trade.core.application.service.approvefacility.i18n.ApproveFacilityErrorCodes;
+import ir.dotin.loan.trade.core.application.service.approvefacility.mapper.ApproveFacilityCommandMapper;
+import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan;
+import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilityService;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class ApproveFacilityCommandHandler implements CommandHandler<ApproveFacilityCommand> {
+
+    private static final Logger log = LoggerFactory.getLogger(ApproveFacilityCommandHandler.class);
+
+    private final ApproveFacilityCommandMapper mapper;
+    private final TradeLoanFacilityRepository loanFacilityRepository;
+    private final TradeLoanArrangementRepository loanArrangementRepository;
+    private final TradeLoanFacilityService domainService;
+
+    @Override
+    public Result<List<DomainEvent<?, ?>>> handle(ApproveFacilityCommand command) {
+        LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
+        return Result.fromOptional(
+                        loanFacilityRepository.findById(loanFacilityId),
+                        () -> Notification.ofError(
+                                ApproveFacilityErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId()))
+                .flatMap(facility -> Result.fromOptional(
+                                loanArrangementRepository.findById(facility.getLoanArrangementId()),
+                                () -> Notification.ofError(
+                                        ApproveFacilityErrorCodes.LOAN_ARRANGEMENT_NOT_FOUND,
+                                        facility.getLoanArrangementId()))
+                        .mapNonNull(arrangement -> {
+                            TradeSanctionedLoan.Builder sanctionBuilder = mapper.toBuilder(command);
+                            domainService.approve(facility, sanctionBuilder, arrangement);
+                            loanFacilityRepository.save(facility);
+                            log.debug("Facility approved: {}", command.loanFacilityId());
+                            return facility.domainEvents();
+                        }));
+    }
+}

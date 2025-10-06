@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
-import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +22,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumbers;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan;
@@ -47,16 +46,14 @@ class TradeLoanFacilityServiceTest {
     private CollateralSerial mockCollateralSerial;
 
     private TradeLoanFacilityService service;
-    private List<TransactionNumber> validTradeTransactionNumbers;
+    private TrackedTransactionNumbers<?> validTradeTransactionNumbers;
 
     @BeforeEach
     void setUp() {
         Clock testClock = Clock.fixed(Instant.parse("2023-01-01T00:00:00Z"), UTC);
         service = new TradeLoanFacilityService(testClock);
 
-        validTradeTransactionNumbers = ImmutableList.of(
-                TransactionNumber.of("TRD-001").orElseThrow(),
-                TransactionNumber.of("TRD-002").orElseThrow());
+        validTradeTransactionNumbers = TrackedTransactionNumbers.empty();
     }
 
     @DisplayName("when validating transaction numbers")

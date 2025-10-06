@@ -17,8 +17,8 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>driving</module>
-    <module>driven</module>
+    <module>inbound</module>
+    <module>outbound</module>
   </modules>
 
   <dependencies>

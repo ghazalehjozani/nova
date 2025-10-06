@@ -303,7 +303,7 @@ final class LoanApplicationIdTest {
     @DisplayName("Serialization Tests")
     final class SerializationTests {
 
-        @DisplayName("should preserve UUID value through serialization")
+        @DisplayName("should preserve UUID number through serialization")
         @Test
         void shouldPreserveUuidValueThroughSerialization() {
             // given

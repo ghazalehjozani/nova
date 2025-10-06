@@ -56,7 +56,7 @@ final class TradeSanctionedLoanTest {
             var builder = createValidBuilder();
 
             // when
-            var result = TradeSanctionedLoan.reconstitute(builder);
+            var result = builder.build();
 
             // then
             assertThat(result.isSuccess()).isTrue();
@@ -69,15 +69,6 @@ final class TradeSanctionedLoanTest {
             assertThat(sanctionedLoan.getLoanDuration()).isEqualTo(validDuration);
         }
 
-        @DisplayName("should fail when builder is null")
-        @Test
-        void shouldFailWhenBuilderIsNull() {
-            // when & then
-            assertThatThrownBy(() -> TradeSanctionedLoan.reconstitute(null))
-                    .isInstanceOf(NullPointerException.class)
-                    .hasMessageContaining("Builder cannot be null for reconstitution");
-        }
-
         @DisplayName("should fail when required fields are missing")
         @Test
         void shouldFailWhenRequiredFieldsAreMissing() {
@@ -85,7 +76,7 @@ final class TradeSanctionedLoanTest {
             var builder = TradeSanctionedLoan.builder();
 
             // when & then
-            assertThatThrownBy(() -> TradeSanctionedLoan.reconstitute(builder))
+            assertThatThrownBy(() -> builder.build())
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("cannot be null");
         }
@@ -161,8 +152,8 @@ final class TradeSanctionedLoanTest {
             var builder2 = createValidBuilder().id(id);
 
             // when
-            var sanctionedLoan1 = TradeSanctionedLoan.reconstitute(builder1).value();
-            var sanctionedLoan2 = TradeSanctionedLoan.reconstitute(builder2).value();
+            var sanctionedLoan1 = builder1.build().value();
+            var sanctionedLoan2 = builder2.build().value();
 
             // then
             assertThat(sanctionedLoan1).isEqualTo(sanctionedLoan2);
@@ -177,8 +168,8 @@ final class TradeSanctionedLoanTest {
             var builder2 = createValidBuilder().id(SanctionedLoanId.of(randomUUID()));
 
             // when
-            var sanctionedLoan1 = TradeSanctionedLoan.reconstitute(builder1).value();
-            var sanctionedLoan2 = TradeSanctionedLoan.reconstitute(builder2).value();
+            var sanctionedLoan1 = builder1.build().value();
+            var sanctionedLoan2 = builder2.build().value();
 
             // then
             assertThat(sanctionedLoan1.getId()).isNotEqualTo(sanctionedLoan2.getId());
@@ -211,7 +202,7 @@ final class TradeSanctionedLoanTest {
             var builder = createValidBuilder();
 
             // when
-            var result = TradeSanctionedLoan.reconstitute(builder);
+            var result = builder.build();
 
             // then
             assertThat(result.isSuccess()).isTrue();
@@ -232,7 +223,7 @@ final class TradeSanctionedLoanTest {
             var builder = createValidBuilder();
 
             // when
-            var result = TradeSanctionedLoan.reconstitute(builder);
+            var result = builder.build();
 
             // then
             assertThat(result.isSuccess()).isTrue();
@@ -249,7 +240,7 @@ final class TradeSanctionedLoanTest {
             var builder = createValidBuilder();
 
             // when
-            var result = TradeSanctionedLoan.reconstitute(builder);
+            var result = builder.build();
 
             // then
             assertThat(result.isSuccess()).isTrue();
