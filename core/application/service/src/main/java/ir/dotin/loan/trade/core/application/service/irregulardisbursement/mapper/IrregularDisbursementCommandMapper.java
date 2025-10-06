@@ -2,11 +2,17 @@ package ir.dotin.loan.trade.core.application.service.irregulardisbursement.mappe
 
 import org.mapstruct.Mapper;
 
+import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.MoneyDto;
+import ir.dotin.loan.trade.core.application.service.BaseMapperConfig;
 
-@Mapper
+@Mapper(config = BaseMapperConfig.class)
 public interface IrregularDisbursementCommandMapper {
 
     Money toMoney(MoneyDto dto);
+
+    default CurrencyType map(String currencyCode) {
+        return CurrencyType.valueOf(currencyCode.toUpperCase()).orElseThrow();
+    }
 }
