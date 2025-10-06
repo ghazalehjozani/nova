@@ -13,7 +13,7 @@
     </parent>
 
     <artifactId>trade-loan-core-application-ports-outbound</artifactId>
-    <name>Trade Loan :: Core :: Application :: Ports :: Driven  (Out Bound)</name>
+    <name>Trade Loan :: Core :: Application :: Ports :: OutBound</name>
     <packaging>jar</packaging>
 
     <dependencies>

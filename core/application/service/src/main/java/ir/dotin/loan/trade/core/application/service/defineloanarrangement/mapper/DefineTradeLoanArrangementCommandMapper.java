@@ -27,7 +27,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityParameterizedFormula;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
-import ir.dotin.loan.trade.core.application.ports.driven.command.EstablishTradeLoanArrangementCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.EstablishTradeLoanArrangementCommand;
 import ir.dotin.loan.trade.core.application.service.BaseMapperConfig;
 import ir.dotin.loan.trade.core.application.service.configuration.TradeLoanFormulaFieldMappingProperties;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;

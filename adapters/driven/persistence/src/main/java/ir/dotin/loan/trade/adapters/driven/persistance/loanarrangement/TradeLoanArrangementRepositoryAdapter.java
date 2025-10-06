@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.trade.adapters.driven.persistance.loanarrangement.mapper.TradeLoanArrangementPersistenceMapper;
 import ir.dotin.loan.trade.adapters.driven.persistance.loanarrangement.repository.TradeLoanArrangementJpaRepository;
-import ir.dotin.loan.trade.core.application.ports.driven.repository.TradeLoanArrangementRepository;
+import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 
 import static java.util.Objects.requireNonNull;

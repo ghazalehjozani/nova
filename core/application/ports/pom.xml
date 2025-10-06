@@ -21,11 +21,4 @@
     <module>outbound</module>
   </modules>
 
-  <dependencies>
-      <dependency>
-          <groupId>ir.dotin.platform</groupId>
-          <artifactId>platform-commons-convert</artifactId>
-      </dependency>
-  </dependencies>
-
 </project>

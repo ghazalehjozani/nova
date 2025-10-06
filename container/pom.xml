@@ -35,7 +35,7 @@
     </dependency>
     <dependency>
       <groupId>ir.dotin.loan</groupId>
-      <artifactId>trade-loan-core-application-ports-driving</artifactId>
+      <artifactId>trade-loan-core-application-ports-inbound</artifactId>
     </dependency>
     <dependency>
       <groupId>ir.dotin.loan</groupId>

@@ -25,7 +25,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.RespiteSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
-import ir.dotin.loan.trade.core.application.ports.driven.command.OpenFacilityCaseCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OpenFacilityCaseCommand;
 import ir.dotin.loan.trade.core.application.service.BaseMapperConfig;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
 

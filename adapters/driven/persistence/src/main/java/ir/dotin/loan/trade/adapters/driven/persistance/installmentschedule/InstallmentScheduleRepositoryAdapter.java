@@ -9,7 +9,7 @@ import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.Installment
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.trade.adapters.driven.persistance.installmentschedule.mapper.InstallmentSchedulePersistenceMapper;
 import ir.dotin.loan.trade.adapters.driven.persistance.installmentschedule.repository.InstallmentScheduleJpaRepository;
-import ir.dotin.loan.trade.core.application.ports.driven.repository.InstallmentScheduleRepository;
+import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.InstallmentScheduleRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

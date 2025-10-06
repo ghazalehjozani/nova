@@ -9,7 +9,7 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.adapters.driven.persistance.loanfacility.mapper.TradeLoanFacilityPersistenceMapper;
 import ir.dotin.loan.trade.adapters.driven.persistance.loanfacility.repository.TradeLoanFacilityJpaRepository;
-import ir.dotin.loan.trade.core.application.ports.driven.repository.TradeLoanFacilityRepository;
+import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 import static java.util.Objects.requireNonNull;

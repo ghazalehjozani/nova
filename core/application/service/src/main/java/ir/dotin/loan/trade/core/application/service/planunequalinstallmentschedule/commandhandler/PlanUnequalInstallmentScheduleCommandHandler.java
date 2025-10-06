@@ -16,10 +16,10 @@ import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.Installment
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentScheduleCreationContext;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentSpec;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
-import ir.dotin.loan.trade.core.application.ports.driven.command.PlanUnequalInstallmentScheduleCommand;
-import ir.dotin.loan.trade.core.application.ports.driven.repository.InstallmentScheduleRepository;
-import ir.dotin.loan.trade.core.application.ports.driven.repository.TradeLoanArrangementRepository;
-import ir.dotin.loan.trade.core.application.ports.driven.repository.TradeLoanFacilityRepository;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.PlanUnequalInstallmentScheduleCommand;
+import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.InstallmentScheduleRepository;
+import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
+import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.service.planunequalinstallmentschedule.i18n.PlanUnequalInstallmentScheduleErrorCodes;
 import ir.dotin.loan.trade.core.application.service.planunequalinstallmentschedule.mapper.PlanUnequalInstallmentScheduleCommandMapper;
 import ir.dotin.loan.trade.core.domain.installmentschedule.service.TradeRepaymentSchedulingService;

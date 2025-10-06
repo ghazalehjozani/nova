@@ -12,8 +12,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>trade-loan-core-application-ports-driving</artifactId>
-    <name>Trade Loan :: Core :: Application :: Ports :: Driving (In  Bound)</name>
+    <artifactId>trade-loan-core-application-ports-inbound</artifactId>
+    <name>Trade Loan :: Core :: Application :: Ports :: InBound</name>
     <packaging>jar</packaging>
 
     <dependencies>
