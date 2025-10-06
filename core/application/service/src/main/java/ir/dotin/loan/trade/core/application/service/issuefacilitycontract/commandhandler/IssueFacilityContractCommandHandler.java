@@ -2,28 +2,19 @@ package ir.dotin.loan.trade.core.application.service.issuefacilitycontract.comma
 
 import java.time.Clock;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
-import com.google.common.collect.ImmutableSetMultimap;
-import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
-import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
-import ir.dotin.loan.baseloan.core.domain.shared.i18n.ValidationLocalizedMessageCodes;
-import ir.dotin.loan.baseloan.core.domain.shared.strategy.CalculationContext;
-import ir.dotin.loan.baseloan.core.domain.shared.strategy.factory.ArticleComponentFactory;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumbers;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleComponent;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.PostTitle;
 import ir.dotin.loan.trade.core.application.ports.driven.client.BankPort;
 import ir.dotin.loan.trade.core.application.ports.driven.client.TransactionPostingPort;
@@ -33,15 +24,10 @@ import ir.dotin.loan.trade.core.application.ports.driven.repository.TradeLoanTyp
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.configuration.IssueFacilityContractConfiguration;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.i18n.IssueFacilityContractErrorCodes;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
-import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan;
-import ir.dotin.loan.trade.core.domain.loanfacility.enums.IssueContractBankCommitmentArticleType;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeIssueContractTransactionService;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
-import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
 import lombok.RequiredArgsConstructor;
-
-import static java.util.Objects.requireNonNull;
 
 @Service
 @RequiredArgsConstructor
@@ -49,8 +35,8 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
 
     private static final Logger log = LoggerFactory.getLogger(IssueFacilityContractCommandHandler.class);
 
-    private final TradeLoanFacilityRepository loanFacilityRepository;
-    private final TradeLoanTypeRepository tradeLoanTypeRepository;
+    private final TradeLoanFacilityRepository facilityRepository;
+    private final TradeLoanTypeRepository loanTypeRepository;
     private final TradeIssueContractTransactionService transactionService;
     private final TransactionPostingPort transactionPostingPort;
     private final IssueFacilityContractConfiguration configuration;
@@ -60,129 +46,44 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
     @Override
     public Result<List<DomainEvent<?, ?>>> handle(IssueFacilityContractCommand command) {
 
-        return loadFacility(command)
-                .flatMap((TradeLoanFacility facility) -> {
-                    TradeLoanType tradeLoanType = tradeLoanTypeRepository
-                            .findById(facility.getLoanTypeId())
-                            .get();
-                    return generateAndPostTransactions(facility, tradeLoanType);
+        return loadFacility(command.loanFacilityId()).flatMap(facility -> loadLoanType(facility)
+                .flatMap(loanType -> createPostTitle(facility)
+                        .flatMap(postTitle -> createTransaction(facility, loanType, postTitle)))
+                .flatMap(transactionPostingPort::postTransaction)
+                .mapNonNull(transactionNumbers -> {
+                    facility.issueContract(transactionNumbers, clock);
+                    facilityRepository.save(facility);
+                    log.info(
+                            "Contract issued for facility: {}", facility.getId().value());
+                    return facility;
                 })
-                .peekValue(result -> issueAndSaveContract(result.facility(), result.transactionNumbers()))
-                .peekValue(ignored -> log.debug("Facility contract issued: {}", command.loanFacilityId()))
-                .mapNonNull(result -> result.facility().domainEvents());
+                .mapNonNull(AbstractAggregateRoot::domainEvents));
     }
 
-    private Result<TradeLoanFacility> loadFacility(IssueFacilityContractCommand command) {
+    private Result<TradeLoanFacility> loadFacility(UUID facilityId) {
         return Result.fromOptional(
-                loanFacilityRepository.findById(LoanFacilityId.of(command.loanFacilityId())),
-                Notification.ofError(IssueFacilityContractErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId()));
+                facilityRepository.findById(LoanFacilityId.of(facilityId)),
+                Notification.ofError(IssueFacilityContractErrorCodes.FACILITY_NOT_FOUND, facilityId));
     }
 
-    private Result<ContractIssuanceResult> generateAndPostTransactions(
-            TradeLoanFacility facility, TradeLoanType tradeLoanType) {
-        return buildPostTitle(facility).flatMap(postTitle -> extractSanctionedLoan(facility)
-                .flatMap(sanctionedLoan -> buildCalculationContext(facility, sanctionedLoan, tradeLoanType, postTitle))
-                .flatMap(context -> calculateAndPostTransaction(context, postTitle))
-                .mapNonNull(numbers -> new ContractIssuanceResult(facility, numbers)));
-    }
-
-    private Result<PostTitle> buildPostTitle(TradeLoanFacility facility) {
-        String title =
-                configuration.postTitleTemplate().formatted(facility.getId().value());
-        return PostTitle.of(title);
-    }
-
-    private Result<TradeSanctionedLoan> extractSanctionedLoan(TradeLoanFacility facility) {
+    private Result<TradeLoanType> loadLoanType(TradeLoanFacility facility) {
         return Result.fromOptional(
-                facility.getSanctionedLoan(),
+                loanTypeRepository.findById(facility.getLoanTypeId()),
                 Notification.ofError(
-                        IssueFacilityContractErrorCodes.SANCTIONED_LOAN_NOT_FOUND,
+                        IssueFacilityContractErrorCodes.LOAN_TYPE_NOT_FOUND,
+                        facility.getLoanTypeId(),
                         facility.getId().value()));
     }
 
-    private Result<CalculationContext<TradeLoanFacility, TradeRelationType, IssueContractBankCommitmentArticleType>>
-            buildCalculationContext(
-                    @NonNull TradeLoanFacility facility,
-                    @NonNull TradeSanctionedLoan sanctionedLoan,
-                    @NonNull TradeLoanType tradeLoanType,
-                    @NonNull PostTitle postTitle) {
-
-        if (sanctionedLoan.getCurrency() == null) {
-            return Result.failure(Notification.ofError(
-                    ValidationLocalizedMessageCodes.CALCULATION_CONTEXT_TRANSACTION_CURRENCY_REQUIRED));
-        }
-
-        if (requireNonNull(facility.getLoanApplication()).getBranch() == null) {
-            return Result.failure(
-                    Notification.ofError(ValidationLocalizedMessageCodes.CALCULATION_CONTEXT_BRANCH_CODE_REQUIRED));
-        }
-
-        Result<Map<IssueContractBankCommitmentArticleType, ArticleComponent>> articlesResult =
-                buildArticleComponents(facility, sanctionedLoan, tradeLoanType);
-
-        if (articlesResult.isFailure()) {
-            return Result.failure(articlesResult.notification());
-        }
-
-        return CalculationContext
-                .<TradeLoanFacility, TradeRelationType, IssueContractBankCommitmentArticleType>builder()
-                .loanFacility(facility)
-                .branchCode(bankPort.getCurrentBranchCode())
-                .articleComponents(articlesResult.getValue())
-                .postTitle(postTitle)
-                .baseArticleMetadata(null)
-                .build();
+    private Result<PostTitle> createPostTitle(TradeLoanFacility facility) {
+        return PostTitle.of(
+                configuration.postTitleTemplate().formatted(facility.getId().value()));
     }
 
-    private Result<Map<IssueContractBankCommitmentArticleType, ArticleComponent>> buildArticleComponents(
-            TradeLoanFacility facility, TradeSanctionedLoan sanctionedLoan, TradeLoanType tradeLoanType) {
+    private Result<LoanTransaction> createTransaction(
+            TradeLoanFacility facility, TradeLoanType loanType, PostTitle postTitle) {
 
-        ImmutableSetMultimap<RelationType<TradeRelationType>, LoanTopic> relationTopics =
-                tradeLoanType.getRelationTypeLoanTopics();
-        Money approvedAmount = sanctionedLoan.getApprovedAmount();
-        EconomicSector economicSector = facility.getLoanApplication().getEconomicSector();
-
-        // Debit leg
-        Result<ArticleComponent> debitLeg = ArticleComponentFactory.createWithLoanTopicLookup(
-                relationTopics,
-                IssueContractBankCommitmentArticleType.BANK_COMMITMENT_DEBIT_LEG,
-                economicSector,
-                approvedAmount);
-        if (debitLeg.isFailure()) {
-            return Result.failure(debitLeg.notification());
-        }
-
-        // Credit leg
-        Result<ArticleComponent> creditLeg = ArticleComponentFactory.createWithLoanTopicLookup(
-                relationTopics,
-                IssueContractBankCommitmentArticleType.BANK_COMMITMENT_CREDIT_LEG,
-                economicSector,
-                approvedAmount);
-        if (creditLeg.isFailure()) {
-            return Result.failure(creditLeg.notification());
-        }
-
-        return Result.success(Map.of(
-                IssueContractBankCommitmentArticleType.BANK_COMMITMENT_DEBIT_LEG, debitLeg.getValue(),
-                IssueContractBankCommitmentArticleType.BANK_COMMITMENT_CREDIT_LEG, creditLeg.getValue()));
+        return transactionService.createIssueContractTransaction(
+                facility, loanType, bankPort.getCurrentBranchCode(), postTitle);
     }
-
-    private Result<TrackedTransactionNumbers<TradeRelationType>> calculateAndPostTransaction(
-            CalculationContext<TradeLoanFacility, TradeRelationType, IssueContractBankCommitmentArticleType> context,
-            PostTitle postTitle) {
-
-        return transactionService
-                .calculateTransaction(context, postTitle.value())
-                .flatMap(transactionPostingPort::postTransaction);
-    }
-
-    private void issueAndSaveContract(
-            TradeLoanFacility facility, TrackedTransactionNumbers<TradeRelationType> transactionNumbers) {
-
-        facility.issueContract(transactionNumbers, clock);
-        loanFacilityRepository.save(facility);
-    }
-
-    private record ContractIssuanceResult(
-            TradeLoanFacility facility, TrackedTransactionNumbers<TradeRelationType> transactionNumbers) {}
 }

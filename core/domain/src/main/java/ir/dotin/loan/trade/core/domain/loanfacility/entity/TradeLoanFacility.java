@@ -5,6 +5,8 @@ import java.time.Clock;
 import org.jspecify.annotations.NonNull;
 
 import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.platform.commons.domain.vo.Rate;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractLoanFacility;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.LoanFacilityEventFactory;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
@@ -81,6 +83,24 @@ public final class TradeLoanFacility
     @Override
     public TrackedTransactionNumbers<TradeRelationType> getDisbursementTransactionNumbers() {
         return (TrackedTransactionNumbers<TradeRelationType>) super.disbursementTransactionNumbers;
+    }
+
+    public Money getCommissionAmount() {
+        return getSanctionedLoan()
+                .map(sanctioned -> Money.zero(sanctioned.getCurrency()).orElseThrow())
+                .orElseGet(
+                        () -> Money.zero(getLoanApplication().getCurrency()).orElseThrow()); // Default implementation
+    }
+
+    public Money getShipmentValue() {
+        return getSanctionedLoan()
+                .map(sanctioned -> Money.zero(sanctioned.getCurrency()).orElseThrow())
+                .orElseGet(
+                        () -> Money.zero(getLoanApplication().getCurrency()).orElseThrow()); // Default implementation
+    }
+
+    public Rate getInsuranceRate() {
+        return Rate.valueOf(0.0).orElseThrow(); // Default implementation - should be overridden by business logic
     }
 
     public static final class Builder

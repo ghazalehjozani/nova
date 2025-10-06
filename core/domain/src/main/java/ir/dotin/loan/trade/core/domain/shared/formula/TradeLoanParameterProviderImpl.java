@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.core.domain.shared.formula;
 import java.time.Period;
 
 import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.platform.commons.domain.vo.Rate;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 import static java.util.Objects.requireNonNull;
@@ -66,6 +67,21 @@ public final class TradeLoanParameterProviderImpl implements TradeLoanParameterP
     public Integer getGuarantorCount() {
         return Math.toIntExact(
                 tradeLoanFacility.getLoanApplication().getGuarantors().size());
+    }
+
+    @Override
+    public Money getCommissionAmount() {
+        return tradeLoanFacility.getCommissionAmount();
+    }
+
+    @Override
+    public Money getShipmentValue() {
+        return tradeLoanFacility.getShipmentValue();
+    }
+
+    @Override
+    public Rate getInsuranceRate() {
+        return tradeLoanFacility.getInsuranceRate();
     }
 
     public TradeLoanFacility getTradeLoanFacility() {
