@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    public ResponseEntity<ServiceError> handle(Exception exception) {
-        ServiceError details = ServiceError.builder()
+    public ResponseEntity<ServiceResponse<?>> handle(Exception exception) {
+        ServiceError serviceError = ServiceError.builder()
                 .code("500")
                 .message(exception.getMessage())
                 .details(Collections.singletonList(ServiceError.ErrorDetail.of(exception.toString())))
                 .build();
-
-        return new ResponseEntity<>(details, HttpStatus.INTERNAL_SERVER_ERROR);
+        ServiceResponse<Object> error = ServiceResponse.error(serviceError);
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
