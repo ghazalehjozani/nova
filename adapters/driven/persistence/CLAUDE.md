@@ -1,209 +1,370 @@
-# CLAUDE.md
+# Updated CLAUDE.md - Query Persistence Adapter Section
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Query Implementation in Persistence Layer
 
-## Repository Overview
+### Query Pattern Architecture
 
-This is a multi-module Java microservices repository implementing a loan management system using Domain-Driven Design (DDD) and Hexagonal Architecture. The repository contains two main services:
+The system implements CQRS with Query Models defined in the application layer. **Query adapters reuse existing JPA
+entities and map them to Query Models.**
 
-1. **base-loan**: Shared kernel containing common domain models and business logic for all loan types
-2. **trade-loan**: Specialized service implementing Morabehe (Trade) loans that extends base-loan functionality
-
-## Build & Development Commands
-
-### Maven Commands
-```bash
-# Build and run unit tests (exclude integration tests)
-mvn clean verify -P!dev -DskipITs=true
-
-# Build with all tests (including integration tests)
-mvn clean verify
-
-# Run architecture tests only (enabled by default in CI)
-mvn test -Dtest=**/*ArchitectureTest*
-
-# Run specific module tests
-cd trade-loan && mvn clean test
-cd base-loan && mvn clean test
-
-# Run with SpotBugs static analysis (optional in CI)
-mvn clean verify -Pspotbugs
-
-# Run OWASP security scanning (optional in CI)
-mvn clean verify -Psecurity
+#### Query Flow
+```
+Controller → QueryHandler → QueryPort → QueryAdapter → JPA Entity → QueryModel → DTO
+↑                           ↓
+(app layer)                  (persistence adapter)
+Mapper: Entity→QueryModel
 ```
 
-### Development Setup
-```bash
-# Configure project hooks (commit-msg, pre-commit, pre-push)
-./configure-project-hooks.sh
+### Query Model Location
 
-# Build all modules
-mvn clean install
+Query Models are defined in the **application layer**, not persistence:
 
-# Run tests for trade-loan service
-cd trade-loan && mvn clean test
+```java
+// Location: core/application/query/loanfacility/model/
+package ir.dotin.loan.trade.core.application.query.loanfacility.model;
+
+public class FacilityQueryModel {
+    private UUID id;
+    private String facilityCode;
+    private BigDecimal requestedAmount;
+    private String currency;
+    private String facilityStatus;
+    // Flattened customer data
+    private UUID customerId;
+    private String customerName;
+    private String customerNationalId;
+    // Flattened arrangement data
+    private UUID arrangementId;
+    private String arrangementCode;
+    // Audit fields
+    private Instant createdAt;
+    private String createdBy;
+    // Getters, setters, builder
+}
 ```
 
-## Architecture & Project Structure
+### Query Repository Port
 
-### Hexagonal Architecture Pattern
-The project follows strict hexagonal (ports & adapters) architecture:
+Ports return Query Models from application layer:
 
-- **Core Layer**: Domain entities, value objects, and business logic
-- **Application Layer**: Use cases, application services, and ports (interfaces)
-- **Adapter Layer**: Implementation of ports (REST controllers, persistence, messaging)
-- **Container Layer**: Spring Boot application entry point
+```java
+// Location: core/application/ports/driven/query/loanfacility/
+package ir.dotin.loan.trade.core.application.ports.inbound.query.loanfacility;
 
-### Base Loan Module Structure
-```
-base-loan/
-├── domain/                      # Domain layer (DDD entities, VOs, aggregates)
-│   ├── loanarrangement/         # Loan facility and arrangement domain
-│   ├── loantype/                # Loan type definitions and rules
-│   └── shared/                  # Shared domain components
-├── architecture-tests/          # ArchUnit tests enforcing domain rules
-└── pom.xml
-```
-
-### Trade Loan Module Structure
-```
-trade-loan/
-├── core/
-│   ├── domain/                  # Trade-specific domain models
-│   └── application/
-│       ├── ports/               # Application interfaces
-│       │   ├── driving/         # Inbound interfaces (REST, messaging)
-│       │   └── driven/          # Outbound interfaces (persistence, clients)
-│       └── service/             # Application services (use cases)
-├── adapters/
-│   ├── driving/                 # Inbound adapters
-│   │   ├── rest/               # REST controllers
-│   │   └── messaging/          # Message consumers
-│   └── driven/                  # Outbound adapters
-│       ├── persistence/         # JPA repositories
-│       ├── client/             # External service clients
-│       └── messaging/          # Message producers
-├── container/                   # Spring Boot main application
-└── architecture-tests/          # Architecture compliance tests
+public interface FacilityQueryRepository {
+    Optional<FacilityQueryModel> findById(UUID facilityId);
+    
+    FacilitySearchQueryModel searchByCriteria(
+        FacilitySearchCriteria criteria,
+        PageRequest pageRequest
+    );
+    
+    Optional<OutstandingBalanceQueryModel> calculateOutstanding(
+        UUID facilityId,
+        LocalDate asOfDate
+    );
+}
 ```
 
-## Key Domain Concepts
+### Query Adapter Implementation
 
-### Core Domain Entities (from base-loan)
-- **BaseLoanFacility**: Loan request/facility with customer details, amount, duration
-- **BaseLoanType**: Configurable loan product type with parameters and rules
-- **BaseLoanRule**: Immutable loan rules covering interest, penalties, repayment policies
-- **BaseLoanArrangement**: Specific loan agreement instance
+#### Structure
+```
+adapters/driven/persistence/loanfacility/query/
+├── JpaFacilityQueryAdapter.java              # Implements QueryPort
+├── SpringDataFacilityQueryRepository.java    # Spring Data JPA
+├── mapper/
+│   └── FacilityQueryModelMapper.java         # Entity → QueryModel (app layer)
+└── specification/
+    └── FacilitySpecification.java
+```
 
-### Value Objects & Policies
-- **InterestPolicy**: Base/preferred interest rates and formulas
-- **PenaltyPolicy**: Penalty rates and payment types
-- **RepaymentPriorityPolicy**: Repayment order (principal, interest, penalty)
-- **RegulatoryCompliancePolicy**: Overdue classification rules
-- **Money**: Immutable monetary value with currency handling
+#### Query Adapter Pattern
 
-### Trade Loan Extensions
-- **MorabeheLoanType**: Trade-specific loan type with merchandise document flags
-- **Trade-specific domain logic**: Extends base-loan with trade business rules
+Adapter **reuses existing entities** and maps to application Query Models:
 
-## Persistence Layer Architecture
+```java
+// Location: adapters/driven/persistence/loanfacility/query/
+package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query;
 
-### Key Components
+@Repository
+@Transactional(readOnly = true)
+public class JpaFacilityQueryAdapter implements FacilityQueryRepository {
+    
+    // Reuse existing JPA repository
+    private final TradeLoanFacilityJpaRepository jpaRepository;
+    private final InstallmentJpaRepository installmentRepository;
+    
+    // Mapper: Entity → QueryModel (from application layer)
+    private final FacilityQueryModelMapper queryModelMapper;
+    
+    @Override
+    public Optional<FacilityQueryModel> findById(UUID facilityId) {
+        return jpaRepository.findById(facilityId)
+            .map(queryModelMapper::toQueryModel);  // Entity → QueryModel
+    }
+    
+    @Override
+    public FacilitySearchQueryModel searchByCriteria(
+        FacilitySearchCriteria criteria,
+        PageRequest pageRequest
+    ) {
+        Specification<TradeLoanFacilityEntity> spec = 
+            FacilitySpecification.fromCriteria(criteria);
+        
+        Pageable pageable = toSpringPageable(pageRequest);
+        Page<TradeLoanFacilityEntity> page = jpaRepository.findAll(spec, pageable);
+        
+        // Map existing entities to query models
+        List<FacilityQueryModel> models = page.getContent()
+            .stream()
+            .map(queryModelMapper::toQueryModel)
+            .toList();
+        
+        return new FacilitySearchQueryModel(
+            models,
+            page.getTotalElements(),
+            page.getTotalPages(),
+            page.getNumber()
+        );
+    }
+    
+    @Override
+    public Optional<OutstandingBalanceQueryModel> calculateOutstanding(
+        UUID facilityId,
+        LocalDate asOfDate
+    ) {
+        Optional<TradeLoanFacilityEntity> facilityOpt = 
+            jpaRepository.findById(facilityId);
+        
+        if (facilityOpt.isEmpty()) return Optional.empty();
+        
+        TradeLoanFacilityEntity facility = facilityOpt.get();
+        
+        // Use existing installment repository
+        List<InstallmentEntity> installments = 
+            installmentRepository.findByFacilityIdAndDueDateBefore(
+                facilityId, asOfDate
+            );
+        
+        // Calculate using entities
+        BigDecimal principal = installments.stream()
+            .filter(i -> !"PAID".equals(i.getStatus()))
+            .map(InstallmentEntity::getPrincipalAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        BigDecimal interest = installments.stream()
+            .filter(i -> !"PAID".equals(i.getStatus()))
+            .map(InstallmentEntity::getInterestAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        // Build query model
+        OutstandingBalanceQueryModel model = new OutstandingBalanceQueryModel();
+        model.setFacilityId(facilityId);
+        model.setPrincipalOutstanding(principal);
+        model.setInterestOutstanding(interest);
+        model.setTotalOutstanding(principal.add(interest));
+        model.setCurrency(facility.getCurrency());
+        model.setCalculationDate(asOfDate);
+        
+        return Optional.of(model);
+    }
+    
+    private Pageable toSpringPageable(PageRequest pageRequest) {
+        Sort sort = Sort.unsorted();
+        if (pageRequest.sortBy() != null) {
+            sort = "DESC".equalsIgnoreCase(pageRequest.direction()) 
+                ? Sort.by(pageRequest.sortBy()).descending()
+                : Sort.by(pageRequest.sortBy()).ascending();
+        }
+        return org.springframework.data.domain.PageRequest.of(
+            pageRequest.page(), 
+            pageRequest.size(), 
+            sort
+        );
+    }
+}
+```
 
-#### Repository Pattern Implementation
-The persistence layer implements the repository pattern using JPA with Spring Data:
+### Mapping Strategy
 
-- **JPA Repositories**: Spring Data JPA interfaces (e.g., `TradeLoanFacilityJpaRepository`)
-- **Repository Adapters**: Implementation classes that implement domain repository interfaces
-- **Entity Mapping**: JPA entities that map to database tables
-- **Mapper Classes**: MapStruct mappers for domain-object to entity conversion
+#### Entity → QueryModel Mapper (in persistence adapter)
 
-#### Entity Structure
-Entities are organized by domain aggregate:
-- **loanarrangement/**: `TradeLoanArrangementEntity`
-- **loanfacility/**: `TradeLoanFacilityEntity`, `TradeLoanApplicationEntity`, `TradeSanctionedLoanEntity`, `DisbursementScheduleEntity`
-- **loantype/**: `TradeLoanTypeEntity`
-- **installmentschedule/**: `InstallmentScheduleEntity`, `InstallmentEntity`
+Maps existing JPA entities to application Query Models:
 
-#### Value Object Embeddables
-Complex domain value objects are mapped using JPA embeddables:
-- **Policy Embeddables**: `InterestPolicyEmb`, `PenaltyPolicyEmb`, `InstallmentPolicyEmb`, `GracePeriodPolicyEmb`
-- **Business Objects**: `MoneyEmb`, `AccountEmb`, `PartyEmb`, `BranchEmb`
-- **Loan-specific**: `LoanTypeCodeEmb`, `ApplicationNumberEmb`, `SanctionSerialEmb`
+```java
+// Location: adapters/driven/persistence/loanfacility/query/mapper/
+package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query.mapper;
 
-#### Mapping Strategy
-The system uses MapStruct for object mapping with consistent patterns:
-- **BaseMapperConfig**: Common configuration for all mappers
-- **ValueObjectMapper**: Centralized mapper for domain value objects to embeddables
-- **Entity-specific mappers**: Dedicated mappers for each aggregate (e.g., `TradeLoanFacilityPersistenceMapper`)
+@Mapper(componentModel = "spring")
+public interface FacilityQueryModelMapper {
+    
+    // Map entity to QueryModel (from application layer)
+    FacilityQueryModel toQueryModel(TradeLoanFacilityEntity entity);
+    
+    List<FacilityQueryModel> toQueryModels(List<TradeLoanFacilityEntity> entities);
+}
+```
 
-### Important Development Guidelines
+#### QueryModel → DTO Mapper (in application layer)
 
-### Code Quality & Architecture Compliance
-- **Architecture Tests**: Use ArchUnit to enforce hexagonal architecture rules
-- **Checkstyle**: Code style enforcement (checkstyle.xml configuration in both modules)
-- **No cross-layer dependencies**: Domain layer must not depend on application or adapter layers
-- **Immutable Value Objects**: All domain VOs should be immutable
-- **Factory Pattern**: Use factories for complex domain object creation (DocumentFactory, ArticleSpecFactory)
+```java
+// Location: core/application/query/loanfacility/mapper/
+package ir.dotin.loan.trade.core.application.query.loanfacility.mapper;
 
-### Domain-Driven Design Principles
-- **Aggregate Roots**: Protect domain invariants through aggregate roots
-- **Domain Events**: Use for communication between bounded contexts
-- **Repository Pattern**: Abstract persistence behind domain interfaces
-- **Strategy Pattern**: For configurable business rules (DocumentCalculationStrategy)
+@Mapper(componentModel = "spring")
+public interface FacilityDTOMapper {
+    
+    @Mapping(target = "customer", source = ".")
+    @Mapping(target = "requestedAmount", source = ".")
+    @Mapping(target = "arrangement", source = ".")
+    TradeFacilityDTO toDTO(FacilityQueryModel model);
+    
+    default CustomerDTO toCustomerDTO(FacilityQueryModel model) {
+        return new CustomerDTO(
+            model.getCustomerId(),
+            model.getCustomerName(),
+            model.getCustomerNationalId()
+        );
+    }
+    
+    default MoneyDTO toMoneyDTO(FacilityQueryModel model) {
+        return new MoneyDTO(
+            model.getRequestedAmount(),
+            model.getCurrency()
+        );
+    }
+}
+```
 
-### Testing Approach
-- **Unit Tests**: Test domain logic in isolation
-- **Architecture Tests**: Enforce structural rules using ArchUnit
-- **Integration Tests**: Test adapter implementations (optional via CI parameter)
-- **Test Coverage**: Maintain high coverage for domain logic
+### Key Principles
 
-### Document & Transaction Flow
-The system uses a sophisticated document and transaction creation pattern:
-1. **Application Service**: Orchestrates transaction creation
-2. **DocumentFactory**: Manages document and transaction lifecycle
-3. **DocumentCalculationStrategy**: Implements business rules for article generation
-4. **ArticleSpecFactory**: Creates article specifications
-5. **Value Objects**: Ensure data integrity (Document, Article, LoanTransaction)
+1. **Reuse existing entities**: No duplicate read models in persistence layer
+2. **Query Models in application**: Defined once in core/application/query
+3. **Adapter responsibility**: Map Entity → QueryModel using existing entities
+4. **Handler responsibility**: Map QueryModel → DTO in application layer
+5. **No domain entities in queries**: Entities stay in persistence adapter
 
-## Configuration Files
-- **Jenkinsfile**: CI/CD pipeline with quality gates and deployment options
-- **checkstyle.xml**: Code style and quality rules
-- **checkstyle-suppressions.xml**: Checkstyle rule exceptions
-- **configure-project-hooks.sh**: Git hooks setup for commit validation
+### JPA Specifications for Complex Queries
 
-## Dependencies & Platform
-- **Parent**: ir.dotin.platform:platform-parent (1.0.0-SNAPSHOT)
-- **Framework**: Spring Boot with Java
-- **Build**: Maven with multi-module structure
-- **Testing**: JUnit 5, AssertJ, Mockito
-- **Architecture**: ArchUnit for structural testing
-- **Documentation**: ADR (Architecture Decision Records) in doc/adr/
+```java
+// Location: adapters/driven/persistence/loanfacility/query/specification/
+package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query.specification;
 
-## Key External Dependencies
-- **ir.dotin.platform**: Platform-specific libraries (commons, dispatcher-api)
-- **Spring Ecosystem**: Web, Data JPA, Security, Validation
-- **MapStruct**: For object mapping
-- **SpringDoc**: OpenAPI documentation
-- **Spring Kafka**: For messaging adapters
+public class FacilitySpecification {
+    
+    public static Specification<TradeLoanFacilityEntity> fromCriteria(
+        FacilitySearchCriteria criteria
+    ) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            
+            Optional.ofNullable(criteria.facilityCode())
+                .ifPresent(code -> predicates.add(
+                    cb.like(cb.lower(root.get("facilityCode")), 
+                        "%" + code.toLowerCase() + "%")
+                ));
+            
+            Optional.ofNullable(criteria.customerNationalId())
+                .ifPresent(nid -> predicates.add(
+                    cb.equal(root.get("customer").get("nationalId"), nid)
+                ));
+            
+            Optional.ofNullable(criteria.status())
+                .ifPresent(status -> predicates.add(
+                    cb.equal(root.get("status"), status)
+                ));
+            
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+}
+```
 
-## Persistence Layer Specifics
+### Query Optimization
 
-### Formula Field Mapping Service
-The `FormulaFieldMappingService` handles serialization/deserialization of parameterized formulas used in loan calculations. This service is critical for:
-- Converting domain formula objects to/from string representations
-- Mapping formula fields between domain and persistence models
-- Supporting complex loan calculation formulas
+#### Custom JPQL with Existing Entities
 
-### Currency Handling
-The system defaults to IRR (Iranian Rial) as the default currency:
-- All monetary operations assume IRR unless explicitly specified
-- Currency conversion logic uses `CurrencyType.IRR` as fallback
-- Currency types are validated using the `CurrencyType` value object
+```java
+// Add to existing Spring Data repository
+public interface TradeLoanFacilityJpaRepository 
+    extends JpaRepository<TradeLoanFacilityEntity, UUID>,
+            JpaSpecificationExecutor<TradeLoanFacilityEntity> {
+    
+    // Query methods for query adapter
+    @Query("""
+        SELECT f FROM TradeLoanFacilityEntity f
+        LEFT JOIN FETCH f.arrangement
+        LEFT JOIN FETCH f.customer
+        WHERE f.id = :facilityId
+    """)
+    Optional<TradeLoanFacilityEntity> findByIdWithDetails(
+        @Param("facilityId") UUID facilityId
+    );
+    
+    @Query("""
+        SELECT f FROM TradeLoanFacilityEntity f
+        WHERE f.status = 'ACTIVE'
+        AND EXISTS (
+            SELECT 1 FROM InstallmentEntity i
+            WHERE i.facilityId = f.id
+            AND i.dueDate < :asOfDate
+            AND i.status != 'PAID'
+        )
+    """)
+    List<TradeLoanFacilityEntity> findOverdueFacilities(
+        @Param("asOfDate") LocalDate asOfDate
+    );
+}
+```
 
-### ID Mapping Patterns
-The persistence layer uses consistent patterns for ID mapping:
-- Domain IDs (e.g., `LoanFacilityId`) wrap UUID values
-- Mappers convert between domain IDs and raw UUIDs for persistence
-- Null safety is maintained through optional mapping methods
+#### Caching in Adapter
+
+```java
+@Repository
+@Transactional(readOnly = true)
+public class JpaFacilityQueryAdapter implements FacilityQueryRepository {
+    
+    @Override
+    @Cacheable(value = "facilityById", key = "#facilityId")
+    public Optional<FacilityQueryModel> findById(UUID facilityId) {
+        return jpaRepository.findByIdWithDetails(facilityId)
+            .map(queryModelMapper::toQueryModel);
+    }
+}
+```
+
+### Complete Package Structure
+
+```
+core/application/query/loanfacility/
+├── GetFacilityByIdQuery.java
+├── GetFacilityByIdQueryHandler.java
+├── model/                                    # Query Models (application layer)
+│   ├── FacilityQueryModel.java
+│   ├── FacilitySearchQueryModel.java
+│   └── OutstandingBalanceQueryModel.java
+├── mapper/                                   # QueryModel → DTO
+│   └── FacilityDTOMapper.java
+└── dto/
+    └── TradeFacilityDTO.java
+
+adapters/driven/persistence/loanfacility/query/
+├── JpaFacilityQueryAdapter.java              # Implements port
+├── mapper/
+│   └── FacilityQueryModelMapper.java         # Entity → QueryModel
+└── specification/
+    └── FacilitySpecification.java
+
+adapters/driven/persistence/loanfacility/      # Reuse existing
+├── TradeLoanFacilityJpaRepository.java       # Add query methods
+└── entity/
+    └── TradeLoanFacilityEntity.java          # Existing entity
+```
+
+**Key Benefits:**
+- Single source of entities (no duplication)
+- Query Models centralized in application layer
+- Clear separation: adapter maps Entity→QueryModel, handler maps QueryModel→DTO
+- Existing repositories extended for query needs
+

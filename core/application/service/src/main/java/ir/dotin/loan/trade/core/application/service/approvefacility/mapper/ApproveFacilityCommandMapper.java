@@ -14,7 +14,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.RevocationReason;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LifeInsuranceId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
-import ir.dotin.loan.trade.core.application.ports.driven.command.ApproveFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.ApproveFacilityCommand;
 import ir.dotin.loan.trade.core.application.service.BaseMapperConfig;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan;
 

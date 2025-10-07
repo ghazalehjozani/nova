@@ -17,7 +17,7 @@
   <packaging>jar</packaging>
 
   <properties>
-      <start-class>ir.dotin.loan.trade.ir.dotin.loan.trade.config.TradeLoanSpringApplication</start-class>
+      <start-class>ir.dotin.loan.trade.Main</start-class>
   </properties>
 
   <dependencies>
@@ -35,7 +35,7 @@
     </dependency>
     <dependency>
       <groupId>ir.dotin.loan</groupId>
-      <artifactId>trade-loan-core-application-ports-driving</artifactId>
+      <artifactId>trade-loan-core-application-ports-inbound</artifactId>
     </dependency>
     <dependency>
       <groupId>ir.dotin.loan</groupId>

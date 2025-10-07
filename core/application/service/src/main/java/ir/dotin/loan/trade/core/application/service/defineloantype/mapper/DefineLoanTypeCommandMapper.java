@@ -19,7 +19,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeGroupId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TopicRelationType;
-import ir.dotin.loan.trade.core.application.ports.driven.command.DefineLoanTypeCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.DefineLoanTypeCommand;
 import ir.dotin.loan.trade.core.application.service.BaseMapperConfig;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;

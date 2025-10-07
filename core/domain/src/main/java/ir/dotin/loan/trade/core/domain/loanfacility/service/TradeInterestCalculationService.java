@@ -34,6 +34,7 @@ public final class TradeInterestCalculationService {
         Result<FormulaEvaluationResult> evaluationResult =
                 formulaEvaluationService.evaluate(interestFormula, tradeLoanParameterProvider);
 
-        return evaluationResult.map(FormulaEvaluationResult::value);
+        return evaluationResult.map(formulaEvaluationResult ->
+                Money.valueOf(formulaEvaluationResult.value(), requireNonNull(facility.getSanctionedLoan().orElseThrow().getCurrency())).orElseThrow());
     }
 }

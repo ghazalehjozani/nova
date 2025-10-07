@@ -52,7 +52,7 @@ public class InstallmentScheduleEntity extends PersistentEntity {
 
     @Embedded
     @AttributeOverrides({
-        @AttributeOverride(name = "number", column = @Column(name = "schedule_currency", nullable = false, length = 3))
+        @AttributeOverride(name = "value", column = @Column(name = "schedule_currency", nullable = false, length = 3))
     })
     private CurrencyTypeEmb currency;
 

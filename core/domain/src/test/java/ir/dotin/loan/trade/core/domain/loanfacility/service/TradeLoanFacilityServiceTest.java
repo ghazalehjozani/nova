@@ -5,7 +5,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -85,7 +84,7 @@ class TradeLoanFacilityServiceTest {
         @Test
         void shouldFailWhenTransactionNumbersAreEmpty() {
             // when
-            var result = service.validateTransactionNumbers(mockFacility, ImmutableList.of());
+            var result = service.validateTransactionNumbers(mockFacility, TrackedTransactionNumbers.empty());
 
             // then
             assertThat(result.isFailure()).isTrue();

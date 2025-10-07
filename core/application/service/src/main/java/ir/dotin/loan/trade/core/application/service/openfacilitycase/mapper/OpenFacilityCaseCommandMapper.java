@@ -3,7 +3,7 @@ package ir.dotin.loan.trade.core.application.service.openfacilitycase.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import ir.dotin.loan.trade.core.application.ports.driven.command.OpenFacilityCaseCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OpenFacilityCaseCommand;
 import ir.dotin.loan.trade.core.application.service.BaseMapperConfig;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 

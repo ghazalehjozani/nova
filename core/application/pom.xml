@@ -23,6 +23,7 @@
   <modules>
     <module>ports</module>
     <module>service</module>
+    <module>query</module>
   </modules>
 
   <dependencies>

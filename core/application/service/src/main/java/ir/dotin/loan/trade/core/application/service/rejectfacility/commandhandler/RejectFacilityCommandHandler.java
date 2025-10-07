@@ -12,8 +12,8 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
-import ir.dotin.loan.trade.core.application.ports.driven.command.RejectFacilityCommand;
-import ir.dotin.loan.trade.core.application.ports.driven.repository.TradeLoanFacilityRepository;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.RejectFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.service.rejectfacility.i18n.RejectFacilityErrorCodes;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
