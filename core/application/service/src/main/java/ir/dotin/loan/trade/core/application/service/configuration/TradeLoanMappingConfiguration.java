@@ -3,6 +3,12 @@ package ir.dotin.loan.trade.core.application.service.configuration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.configuration.IssueFacilityContractConfiguration;
+
 @Configuration
-@EnableConfigurationProperties({TradeLoanFormulaFieldMappingProperties.class, TradeFeatureProperties.class})
+@EnableConfigurationProperties({
+    TradeLoanFormulaFieldMappingProperties.class,
+    TradeFeatureProperties.class,
+    IssueFacilityContractConfiguration.class
+})
 public class TradeLoanMappingConfiguration {}

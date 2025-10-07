@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.core.application.service.interaction;
 
+import org.springframework.stereotype.Service;
+
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.FormulaEvaluationContext;
 import ir.dotin.loan.baseloan.core.domain.shared.formula.FormulaEvaluationResult;
@@ -8,6 +10,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.formula.FormulaEvalua
 
 import lombok.RequiredArgsConstructor;
 
+@Service
 @RequiredArgsConstructor
 public class FormulaEvaluatorService implements FormulaEvaluator {
 

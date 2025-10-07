@@ -43,10 +43,6 @@
     </dependency>
     <dependency>
       <groupId>ir.dotin.loan</groupId>
-      <artifactId>trade-loan-adapters-driving-rest</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>ir.dotin.loan</groupId>
       <artifactId>trade-loan-adapters-driven-persistence</artifactId>
     </dependency>
     <dependency>
@@ -58,6 +54,18 @@
                 <artifactId>checker-qual</artifactId>
             </exclusion>
         </exclusions>
+    </dependency>
+    <dependency>
+        <groupId>ir.dotin.loan</groupId>
+        <artifactId>trade-loan-adapters-driven-client</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>ir.dotin.loan</groupId>
+        <artifactId>trade-loan-adapters-driven-formula</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>ir.dotin.loan</groupId>
+        <artifactId>trade-loan-adapters-driving-rest</artifactId>
     </dependency>
   </dependencies>
 </project>

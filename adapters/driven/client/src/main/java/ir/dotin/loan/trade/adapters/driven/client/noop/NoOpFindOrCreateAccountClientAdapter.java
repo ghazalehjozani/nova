@@ -1,6 +1,5 @@
 package ir.dotin.loan.trade.adapters.driven.client.noop;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.commons.core.Result;
@@ -13,7 +12,6 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.FindOrCreateAc
  * implementation is available, providing a safe fallback.
  */
 @Component
-@ConditionalOnMissingBean(FindOrCreateAccountPort.class)
 public class NoOpFindOrCreateAccountClientAdapter implements FindOrCreateAccountPort {
 
     @Override

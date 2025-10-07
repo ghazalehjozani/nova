@@ -16,7 +16,7 @@ public class FindAccountByRelationTypeService implements FindAccountByRelationTy
     private final FindAccountByRelationTypePort findAccountByRelationTypePort;
 
     @Override
-    public Result<AccountInfo> findAccount(Input input) {
+    public Result<AccountInfo> findAccount(FindAccountByRelationTypeInput input) {
         return findAccountByRelationTypePort.findAccount(input);
     }
 }

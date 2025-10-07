@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/loan-management/facilities")
+@RequestMapping("/v1/facilities")
 @RequiredArgsConstructor
 @Tag(name = "Facility Queries", description = "Query loan facilities")
 public class FacilityQueryController {

@@ -12,5 +12,5 @@ public interface FindAccountByRelationTypePort {
      * @param input The input containing loan topic
      * @return Result containing AccountInfo if successful, or failure notification
      */
-    Result<AccountInfo> findAccount(FindAccountByRelationTypeClient.Input input);
+    Result<AccountInfo> findAccount(FindAccountByRelationTypeClient.FindAccountByRelationTypeInput input);
 }

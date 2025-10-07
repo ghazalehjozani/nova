@@ -7,7 +7,7 @@ public record IssueFacilityContractConfiguration(String postTitleTemplate) {
 
     public IssueFacilityContractConfiguration {
         if (postTitleTemplate == null || postTitleTemplate.isBlank()) {
-            throw new IllegalArgumentException("Post title template cannot be null or blank");
+//            throw new IllegalArgumentException("Post title template cannot be null or blank");
         }
     }
 

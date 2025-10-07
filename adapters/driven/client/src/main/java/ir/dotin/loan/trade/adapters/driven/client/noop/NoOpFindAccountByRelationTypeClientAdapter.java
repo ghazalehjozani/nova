@@ -1,6 +1,5 @@
 package ir.dotin.loan.trade.adapters.driven.client.noop;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.commons.core.Result;
@@ -14,11 +13,10 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.FindAccountByR
  * no real implementation is available, providing a safe fallback.
  */
 @Component
-@ConditionalOnMissingBean(FindAccountByRelationTypePort.class)
 public class NoOpFindAccountByRelationTypeClientAdapter implements FindAccountByRelationTypePort {
 
     @Override
-    public Result<AccountInfo> findAccount(FindAccountByRelationTypeClient.Input input) {
+    public Result<AccountInfo> findAccount(FindAccountByRelationTypeClient.FindAccountByRelationTypeInput input) {
         // Return failure to indicate account finding is not available
         return AccountInfo.of(AccountId.valueOf("123").getValue(), null, null);
     }

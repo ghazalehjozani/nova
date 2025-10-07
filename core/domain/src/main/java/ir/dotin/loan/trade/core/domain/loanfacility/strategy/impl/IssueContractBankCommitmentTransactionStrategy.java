@@ -9,7 +9,6 @@ import ir.dotin.platform.commons.domain.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.shared.interaction.FindAccountByRelationTypeClient;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.AbstractMultiArticleCalculationStrategy;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.CalculationContext;
-import ir.dotin.loan.baseloan.core.domain.shared.strategy.factory.DebitCreditArticleSpecFactory;
 import ir.dotin.loan.baseloan.core.domain.shared.validator.ArticleBalanceValidator;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Article;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
@@ -26,19 +25,14 @@ public final class IssueContractBankCommitmentTransactionStrategy
                 TradeLoanFacility, TradeRelationType, IssueContractBankCommitmentArticleType>
         implements IssueContractCommitmentHandlingStrategy {
 
-    private final DebitCreditArticleSpecFactory<IssueContractBankCommitmentArticleType, TradeRelationType> specFactory;
+    private final IssueContractBankCommitmentArticleSpecFactory specFactory;
 
     public IssueContractBankCommitmentTransactionStrategy(
             FindAccountByRelationTypeClient findAccountClient,
-            DebitCreditArticleSpecFactory<IssueContractBankCommitmentArticleType, TradeRelationType>
-                    bankCommitmentArticleSpecFactory,
+            IssueContractBankCommitmentArticleSpecFactory bankCommitmentArticleSpecFactory,
             ArticleBalanceValidator articleBalanceValidator) {
         super(findAccountClient, requireNonNull(articleBalanceValidator, "Balance validator cannot be null"));
         this.specFactory = requireNonNull(bankCommitmentArticleSpecFactory, "Spec factory cannot be null");
-    }
-
-    public IssueContractBankCommitmentTransactionStrategy(FindAccountByRelationTypeClient findAccountClient) {
-        this(findAccountClient, new IssueContractBankCommitmentArticleSpecFactory(), new ArticleBalanceValidator());
     }
 
     @Override

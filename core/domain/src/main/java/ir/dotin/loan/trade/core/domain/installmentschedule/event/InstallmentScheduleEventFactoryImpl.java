@@ -7,6 +7,7 @@ import java.util.Map;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import ir.dotin.platform.commons.domain.annotation.DomainFactory;
 import ir.dotin.platform.commons.domain.entity.Identity;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.commons.domain.vo.Money;
@@ -15,6 +16,7 @@ import ir.dotin.loan.baseloan.core.domain.installmentschedule.event.InstallmentS
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentSpec;
 
 // TODO: change IDs with concrete ID
+@DomainFactory
 public class InstallmentScheduleEventFactoryImpl implements InstallmentScheduleEventFactory {
     @Override
     public DomainEvent<?, ?> createEqualInstallmentsCreatedEvent(
