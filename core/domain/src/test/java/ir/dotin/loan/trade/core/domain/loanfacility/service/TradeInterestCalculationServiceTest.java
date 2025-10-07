@@ -78,7 +78,7 @@ class TradeInterestCalculationServiceTest {
         @DisplayName("should calculate interest successfully")
         void shouldCalculateInterestSuccessfully(@Mock Money expectedMoney) {
 
-            FormulaEvaluationResult formulaResult = new FormulaEvaluationResult(expectedMoney);
+            FormulaEvaluationResult formulaResult = new FormulaEvaluationResult(expectedMoney.value());
             Result<FormulaEvaluationResult> successfulEvalResult = Result.success(formulaResult);
 
             when(mockFormulaEvaluationService.evaluate(mockInterestFormula, mockTradeLoanParameterProvider))
@@ -157,7 +157,7 @@ class TradeInterestCalculationServiceTest {
 
             given(mockFormulaEvaluationService.evaluate(mockInterestFormula, mockTradeLoanParameterProvider))
                     .willReturn(Result.success(mockFormulaEvaluationResult));
-            given(mockFormulaEvaluationResult.value()).willReturn(expectedMoney);
+            given(mockFormulaEvaluationResult.value()).willReturn(expectedMoney.value());
 
             // Act
             var result = service.calculate(mockLoanFacility, mockInterestFormula, mockTradeLoanParameterProvider);
