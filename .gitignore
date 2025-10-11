@@ -183,4 +183,9 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-/.env
+.env
+**/application-dev.yml
+container/src/main/resources/application-dev.yml
+container/.env
+container/k8s/**/secret*.yml
+!container/k8s/**/sealed-secret*.yml
