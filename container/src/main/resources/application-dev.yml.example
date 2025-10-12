@@ -16,3 +16,9 @@ logging:
   level:
     org.springframework.web: DEBUG
     ir.dotin: DEBUG
+management:
+  otlp:
+    tracing:
+      endpoint: http://10.100.7.20:4318/v1/traces
+    metrics:
+      endpoint: http://10.100.7.20:4318/v1/metrics

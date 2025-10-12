@@ -26,54 +26,5 @@ services:
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     network_mode: host
 
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.137.0
-    container_name: otel-collector
-    command: ["--config=/etc/otelcol/config.yaml"]
-    restart: unless-stopped
-    network_mode: host
-    volumes:
-      - ./docker/otel-collector-config.yaml:/etc/otelcol/config.yaml:ro
-    environment:
-      - GOMEMLIMIT=512MiB
-    depends_on:
-      jaeger:
-        condition: service_started
-
-  jaeger:
-    image: jaegertracing/jaeger:2.11.0
-    container_name: jaeger
-    restart: unless-stopped
-    environment:
-      - COLLECTOR_OTLP_ENABLED=true
-      - JAEGER_DISABLED=false
-      - SPAN_STORAGE_TYPE=badger
-      - BADGER_EPHEMERAL=false
-      - BADGER_DIRECTORY_VALUE=/badger/data
-      - BADGER_DIRECTORY_KEY=/badger/key
-    network_mode: host
-    volumes:
-      - jaeger-badger:/badger
-
-  prometheus:
-    image: prom/prometheus:v3.6.0
-    container_name: prometheus
-    restart: unless-stopped
-    network_mode: host
-    volumes:
-      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus-data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=7d'
-      - '--web.enable-lifecycle'
-
 volumes:
   postgres-data:
-  jaeger-badger:
-    driver: local
-  prometheus-data:
-    driver: local
