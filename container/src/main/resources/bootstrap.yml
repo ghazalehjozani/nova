@@ -2,7 +2,7 @@ spring:
   application:
     name: trade-loan-service
   profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}
+    active: ${SPRING_PROFILES_ACTIVE}
 ---
 spring:
   config:

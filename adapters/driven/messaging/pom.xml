@@ -18,12 +18,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
+            <groupId>ir.dotin.platform</groupId>
+            <artifactId>platform-adapter-messaging</artifactId>
         </dependency>
     </dependencies>
 </project>
