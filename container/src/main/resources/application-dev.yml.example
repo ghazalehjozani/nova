@@ -5,7 +5,9 @@ spring:
   docker:
     compose:
       readiness:
+        wait: only_if_started
         timeout: 5m
+      lifecycle-management: start_only
   datasource:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
     username: ${DB_USERNAME}
