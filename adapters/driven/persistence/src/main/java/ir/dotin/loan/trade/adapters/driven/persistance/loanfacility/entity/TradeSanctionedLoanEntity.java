@@ -32,7 +32,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @Entity
-@Table(name = "sanctioned_loan")
+@Table(name = "sanctioned_loans")
 public class TradeSanctionedLoanEntity extends PersistentEntity {
 
     @Embedded

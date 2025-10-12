@@ -32,7 +32,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @Entity
-@Table(name = "loan_facility")
+@Table(name = "loan_facilities")
 public class TradeLoanFacilityEntity extends PersistentEntity {
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

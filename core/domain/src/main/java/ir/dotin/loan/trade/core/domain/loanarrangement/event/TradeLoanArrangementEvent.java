@@ -4,6 +4,7 @@ import org.jspecify.annotations.NonNull;
 
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
+import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 
 public sealed interface TradeLoanArrangementEvent<T extends Record & TradeLoanArrangementEvent<T, P>, P>
         extends DomainEvent<T, P>
@@ -17,4 +18,9 @@ public sealed interface TradeLoanArrangementEvent<T extends Record & TradeLoanAr
     @Override
     @NonNull
     LoanArrangementId aggregateId();
+
+    @Override
+    default Class<TradeLoanArrangement> aggregateType() {
+        return TradeLoanArrangement.class;
+    }
 }

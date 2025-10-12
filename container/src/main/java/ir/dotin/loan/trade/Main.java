@@ -6,11 +6,11 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import ir.dotin.platform.commons.domain.annotation.DomainComponent;
 import ir.dotin.platform.commons.domain.annotation.DomainFactory;
 import ir.dotin.platform.commons.domain.annotation.DomainService;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @ComponentScan(

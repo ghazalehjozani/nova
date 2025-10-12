@@ -1,18 +1,18 @@
-version: '3.8'
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:18.0-alpine
     environment:
-      POSTGRES_USER: ${DB_USERNAME:-sudoit}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-p@sSw0rd}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME:-postgres}
+      TZ: Asia/Tehran
     ports:
       - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
   kafka:
-    image: confluentinc/cp-kafka:7.5.0
+    image: confluentinc/cp-kafka:7.9.4
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
@@ -28,5 +28,71 @@ services:
     ports:
       - "9092:9092"
 
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.137.0
+    container_name: otel-collector
+    command: ["--config=/etc/otelcol/config.yaml"]
+    restart: unless-stopped
+    ports:
+      - "4317:4317"    # gRPC OTLP receiver
+      - "4318:4318"    # HTTP OTLP receiver
+      - "8888:8888"    # Prometheus metrics
+      - "8889:8889"    # Prometheus exporter metrics
+    volumes:
+      - ./docker/otel-collector-config.yaml:/etc/otelcol/config.yaml:ro
+    environment:
+      - GOMEMLIMIT=512MiB
+    networks:
+      - otel-network
+    depends_on:
+      jaeger:
+        condition: service_started
+
+  jaeger:
+    image: jaegertracing/jaeger:2.11.0
+    container_name: jaeger
+    restart: unless-stopped
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - JAEGER_DISABLED=false
+      - SPAN_STORAGE_TYPE=badger
+      - BADGER_EPHEMERAL=false
+      - BADGER_DIRECTORY_VALUE=/badger/data
+      - BADGER_DIRECTORY_KEY=/badger/key
+    ports:
+      - "16686:16686"   # Jaeger UI
+      - "14268:14268"   # Jaeger collector HTTP
+    volumes:
+      - jaeger-badger:/badger
+    networks:
+      - otel-network
+
+  prometheus:
+    image: prom/prometheus:v3.6.0
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=7d'
+      - '--web.enable-lifecycle'
+    networks:
+      - otel-network
+
 volumes:
   postgres-data:
+  jaeger-badger:
+    driver: local
+  prometheus-data:
+    driver: local
+
+networks:
+  otel-network:
+    driver: bridge

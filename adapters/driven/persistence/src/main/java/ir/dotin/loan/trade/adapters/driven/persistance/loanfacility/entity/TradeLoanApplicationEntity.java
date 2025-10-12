@@ -44,7 +44,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @Entity
-@Table(name = "loan_application")
+@Table(name = "loan_applications")
 public class TradeLoanApplicationEntity extends PersistentEntity {
 
     @Column(name = "request_date", nullable = false)

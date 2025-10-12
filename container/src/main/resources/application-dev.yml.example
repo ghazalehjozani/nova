@@ -6,10 +6,6 @@ spring:
     password: ${DB_PASSWORD}  # ⚠️ Set your password in .env
   jpa:
     show-sql: true
-platform:
-  messaging:
-    encryption:
-      password: ${ENCRYPTION_PASSWORD}  # ⚠️ Set encryption key in .env
 logging:
   level:
     org.springframework.web: DEBUG
