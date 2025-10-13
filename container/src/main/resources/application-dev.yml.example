@@ -8,8 +8,6 @@ spring:
     password: ${DB_PASSWORD}  # ⚠️ Set your password in .env
   jpa:
     show-sql: true
-    hibernate:
-      ddl-auto: ${HIBERNATE_DDL_AUTO:none}
 logging:
   level:
     org.springframework.web: DEBUG

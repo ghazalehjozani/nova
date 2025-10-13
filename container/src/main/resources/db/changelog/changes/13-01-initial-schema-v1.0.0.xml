@@ -1,0 +1,1057 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1760355706326-1" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="dead_letter_messages">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_dead_letter_messages"/>
+            </column>
+            <column name="message_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="source_topic" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="message_key" type="VARCHAR(255)"/>
+            <column name="payload" type="oid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="error_message" type="VARCHAR(2000)"/>
+            <column name="exception_type" type="VARCHAR(255)"/>
+            <column name="stack_trace" type="oid"/>
+            <column name="retry_count" type="INT"/>
+            <column name="max_retries" type="INT"/>
+            <column name="retryable" type="BOOLEAN"/>
+            <column name="next_retry_at" type="DATETIME"/>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_retry_at" type="DATETIME"/>
+            <column name="resolved_at" type="DATETIME"/>
+            <column name="resolution_notes" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-2" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="dlq_message_headers">
+            <column name="dead_letter_entity_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_dlq_message_headers"/>
+            </column>
+            <column name="header_value" type="VARCHAR(255)"/>
+            <column name="header_key" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_dlq_message_headers"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-3" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="installment_schedule_outbox_events">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_installment_schedule_outbox_events"/>
+            </column>
+            <column name="event_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="idempotency_key" type="VARCHAR(100)"/>
+            <column name="aggregate_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="event_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="event_version" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sequence_number" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payload" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="partition_key" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="target_topic" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="retry_count" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="next_retry_at" type="DATETIME"/>
+            <column name="error_message" type="VARCHAR(4000)"/>
+            <column name="error_stacktrace" type="TEXT"/>
+            <column name="aggregate_type" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="processed_at" type="DATETIME"/>
+            <column name="locked_at" type="DATETIME"/>
+            <column name="locked_by" type="VARCHAR(100)"/>
+            <column name="version" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-4" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_application_certificates">
+            <column name="loan_application_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="serial" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-5" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_application_guarantors">
+            <column name="loan_application_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="customer_number" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="party_type" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="first_name" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-6" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_applications">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_applications"/>
+            </column>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(100)"/>
+            <column name="modified_by" type="VARCHAR(100)"/>
+            <column name="request_date" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="applicant_channel" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="disbursement_method" type="VARCHAR(255)"/>
+            <column name="customer_number" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="customer_type" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="customer_first_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="customer_last_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="requested_amount" type="DECIMAL(19, 4)"/>
+            <column name="requested_currency" type="VARCHAR(3)"/>
+            <column name="requested_duration_years" type="INT"/>
+            <column name="requested_duration_months" type="INT"/>
+            <column name="requested_duration_days" type="INT"/>
+            <column name="grace_period_days" type="INT"/>
+            <column name="grace_period_months" type="INT"/>
+            <column name="grace_period_years" type="INT"/>
+            <column name="installment_count" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deposit_number" type="VARCHAR(100)"/>
+            <column name="disburse_destination_type" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="economic_sector_code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="economic_sector_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="branch_code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="branch_name" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="request_reason_code" type="VARCHAR(500)"/>
+            <column name="request_reason_name" type="VARCHAR(500)"/>
+            <column name="sub_source_request_reason_code" type="VARCHAR(500)"/>
+            <column name="sub_source_request_reason_name" type="VARCHAR(500)"/>
+            <column name="description" type="TEXT"/>
+            <column name="credibility_rank" type="VARCHAR(50)"/>
+            <column name="application_branch_code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="application_branch_name" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="loan_type_code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="application_customer_number" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="application_customer_type" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="application_customer_first_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="application_customer_last_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="respite_serial_value" type="VARCHAR(255)"/>
+            <column name="derived_value" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-7" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_arrangement_collateral_types">
+            <column name="loan_arrangement_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="collateral_code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="collateral_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-8" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_arrangement_outbox_events">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_arrangement_outbox_events"/>
+            </column>
+            <column name="event_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="idempotency_key" type="VARCHAR(100)"/>
+            <column name="aggregate_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="event_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="event_version" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sequence_number" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payload" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="partition_key" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="target_topic" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="retry_count" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="next_retry_at" type="DATETIME"/>
+            <column name="error_message" type="VARCHAR(4000)"/>
+            <column name="error_stacktrace" type="TEXT"/>
+            <column name="aggregate_type" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="processed_at" type="DATETIME"/>
+            <column name="locked_at" type="DATETIME"/>
+            <column name="locked_by" type="VARCHAR(100)"/>
+            <column name="version" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-9" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_arrangements">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_arrangements"/>
+            </column>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(100)"/>
+            <column name="modified_by" type="VARCHAR(100)"/>
+            <column name="code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="disable" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="guarantor_count" type="INT"/>
+            <column name="party_type" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="has_installment_card" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="life_insurance_payment_type" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="loan_secondary_type" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="section_type" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="auto_approval" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="disbursement_method" type="VARCHAR(30)"/>
+            <column name="previous_version_id" type="UUID"/>
+            <column name="title" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="VARCHAR(255)"/>
+            <column name="economic_sector_code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="economic_sector_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="min_amount" type="DECIMAL(19, 4)"/>
+            <column name="max_amount" type="DECIMAL(19, 4)"/>
+            <column name="amount_currency" type="VARCHAR(255)"/>
+            <column name="min_years" type="INT"/>
+            <column name="min_months" type="INT"/>
+            <column name="min_days" type="INT"/>
+            <column name="max_years" type="INT"/>
+            <column name="max_months" type="INT"/>
+            <column name="max_days" type="INT"/>
+            <column name="confirm_person_code" type="VARCHAR(50)"/>
+            <column name="confirm_person_name" type="VARCHAR(100)"/>
+            <column name="base_interest_rate" type="DECIMAL(10, 6)"/>
+            <column name="preferential_min_rate" type="DECIMAL(10, 6)"/>
+            <column name="preferential_max_rate" type="DECIMAL(10, 6)"/>
+            <column name="interest_formula" type="TEXT"/>
+            <column name="refund_interest_formula" type="TEXT"/>
+            <column name="daily_interest" type="BOOLEAN"/>
+            <column name="penalty_rate" type="DECIMAL(10, 6)"/>
+            <column name="deferral_interest_rate" type="DECIMAL(10, 6)"/>
+            <column name="penalty_formula" type="TEXT"/>
+            <column name="penalty_payment_type" type="VARCHAR(255)"/>
+            <column name="installment_period_days" type="INT"/>
+            <column name="installment_formula" type="TEXT"/>
+            <column name="interest_component_formula" type="TEXT"/>
+            <column name="installment_payment_type" type="VARCHAR(255)"/>
+            <column name="define_automatic_installment" type="BOOLEAN"/>
+            <column name="min_grace_period_days" type="INT"/>
+            <column name="max_grace_period_days" type="INT"/>
+            <column name="grace_period_formula" type="TEXT"/>
+            <column name="installment_main_amount_priority" type="INT"/>
+            <column name="installment_interest_amount_priority" type="INT"/>
+            <column name="installment_penalty_amount_priority" type="INT"/>
+            <column name="installment_income_amount_priority" type="INT"/>
+            <column name="insurance_amount_priority" type="INT"/>
+            <column name="insurance_penalty_amount_priority" type="INT"/>
+            <column name="has_equal_priority" type="BOOLEAN"/>
+            <column name="overdue_period_days" type="INT"/>
+            <column name="deferral_period_days" type="INT"/>
+            <column name="suspicious_period_days" type="INT"/>
+            <column name="collateral_total_percent" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-10" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_disbursement_schedule_tranches">
+            <column name="disbursement_schedule_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="scheduled_date" type="DATETIME"/>
+            <column name="amount" type="DECIMAL(19, 4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="VARCHAR(3)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-11" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_disbursement_schedules">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_disbursement_schedules"/>
+            </column>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(100)"/>
+            <column name="modified_by" type="VARCHAR(100)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-12" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_facilities">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_facilities"/>
+            </column>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(100)"/>
+            <column name="modified_by" type="VARCHAR(100)"/>
+            <column name="loan_application_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sanctioned_loan_id" type="UUID"/>
+            <column name="loan_type_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="loan_arrangement_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="current_state" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="facility_type" type="VARCHAR(20)"/>
+            <column name="total_disbursed_amount" type="DECIMAL(19, 4)"/>
+            <column name="total_disbursed_currency" type="VARCHAR(3)"/>
+            <column name="account_number" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="account_holder" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="bank_code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="branch_code" type="VARCHAR(50)"/>
+            <column name="iban" type="VARCHAR(100)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-13" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_facility_disbursement_transaction_numbers">
+            <column name="loan_facility_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="transaction_number_value" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="relation_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tracking_id" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-14" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_facility_issue_contract_transaction_numbers">
+            <column name="loan_facility_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="transaction_number_value" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="relation_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tracking_id" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-15" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_facility_outbox_events">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_facility_outbox_events"/>
+            </column>
+            <column name="event_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="idempotency_key" type="VARCHAR(100)"/>
+            <column name="aggregate_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="event_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="event_version" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sequence_number" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payload" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="partition_key" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="target_topic" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="retry_count" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="next_retry_at" type="DATETIME"/>
+            <column name="error_message" type="VARCHAR(4000)"/>
+            <column name="error_stacktrace" type="TEXT"/>
+            <column name="aggregate_type" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="processed_at" type="DATETIME"/>
+            <column name="locked_at" type="DATETIME"/>
+            <column name="locked_by" type="VARCHAR(100)"/>
+            <column name="version" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-16" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_installment_schedules">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_installment_schedules"/>
+            </column>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(100)"/>
+            <column name="modified_by" type="VARCHAR(100)"/>
+            <column name="loan_facility_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="schedule_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="initiated_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="interest_rate" type="DECIMAL(10, 6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="DECIMAL(19, 4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="VARCHAR(3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="schedule_currency" type="VARCHAR(3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="grace_period_days" type="INT"/>
+            <column name="grace_period_months" type="INT"/>
+            <column name="grace_period_years" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-17" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_installments">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_installments"/>
+            </column>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(100)"/>
+            <column name="modified_by" type="VARCHAR(100)"/>
+            <column name="sequence_number" type="INT"/>
+            <column name="due_date" type="DATE"/>
+            <column name="status" type="VARCHAR(255)"/>
+            <column name="last_payment_date" type="DATE"/>
+            <column name="installment_schedule_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_amount" type="DECIMAL(19, 4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_amount_currency" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="principal_amount" type="DECIMAL(19, 4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="principal_amount_currency" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="interest_amount" type="DECIMAL(19, 4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="interest_amount_currency" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="paid_amount_amount" type="DECIMAL(19, 4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="paid_amount_currency" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="outstanding_amount" type="DECIMAL(19, 4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="outstanding_amount_currency" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-18" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_type_arrangement_ids">
+            <column name="loan_type_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="arrangement_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-19" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_type_attributes">
+            <column name="loan_type_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="attribute_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="attribute_code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="data_type" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="mandatory" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-20" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_type_economic_sectors">
+            <column name="loan_type_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="economic_sector_code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="economic_sector_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-21" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_type_income_ids">
+            <column name="loan_type_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="income_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-22" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_type_outbox_events">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_type_outbox_events"/>
+            </column>
+            <column name="event_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="idempotency_key" type="VARCHAR(100)"/>
+            <column name="aggregate_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="event_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="event_version" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sequence_number" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payload" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="partition_key" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="target_topic" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="retry_count" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="next_retry_at" type="DATETIME"/>
+            <column name="error_message" type="VARCHAR(4000)"/>
+            <column name="error_stacktrace" type="TEXT"/>
+            <column name="aggregate_type" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="processed_at" type="DATETIME"/>
+            <column name="locked_at" type="DATETIME"/>
+            <column name="locked_by" type="VARCHAR(100)"/>
+            <column name="version" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-23" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_type_topics">
+            <column name="loan_type_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="trade_relation_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="topic_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="topic_code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="relation_type_code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="relation_type_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="topic_economic_sector_code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="topic_economic_sector_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-24" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_types">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_types"/>
+            </column>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(100)"/>
+            <column name="modified_by" type="VARCHAR(100)"/>
+            <column name="gateway_type" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="loan_application_allowed" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="segment_type" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="group_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="disable" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="previous_version_id" type="UUID"/>
+            <column name="loan_type_code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="edit_reason" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-25" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="outbox_event_metadata">
+            <column name="outbox_event_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_outbox_event_metadata"/>
+            </column>
+            <column name="meta_value" type="VARCHAR(2000)"/>
+            <column name="meta_key" type="VARCHAR(100)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_outbox_event_metadata"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-26" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="sanctioned_loans">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_sanctioned_loans"/>
+            </column>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(100)"/>
+            <column name="modified_by" type="VARCHAR(100)"/>
+            <column name="life_insurance_id" type="VARCHAR(255)"/>
+            <column name="disbursement_schedule_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="disbursement_method" type="VARCHAR(255)"/>
+            <column name="sanction_serial_value" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sanction_type" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="approved_amount" type="DECIMAL(19, 4)"/>
+            <column name="approved_currency" type="VARCHAR(3)"/>
+            <column name="currency" type="VARCHAR(255)"/>
+            <column name="grace_period_days" type="INT"/>
+            <column name="grace_period_months" type="INT"/>
+            <column name="grace_period_years" type="INT"/>
+            <column name="installment_count" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="loan_duration_years" type="INT"/>
+            <column name="loan_duration_months" type="INT"/>
+            <column name="loan_duration_days" type="INT"/>
+            <column name="collateral_serial" type="VARCHAR(100)"/>
+            <column name="revocation_reason" type="TEXT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1760355706326-27" author="DOTIN\m.amirabdollahi">
+        <addUniqueConstraint columnNames="event_id" constraintName="uc_installment_schedule_outbox_events_event"
+                             tableName="installment_schedule_outbox_events"/>
+    </changeSet>
+    <changeSet id="1760355706326-28" author="DOTIN\m.amirabdollahi">
+        <addUniqueConstraint columnNames="idempotency_key"
+                             constraintName="uc_installment_schedule_outbox_events_idempotency_key"
+                             tableName="installment_schedule_outbox_events"/>
+    </changeSet>
+    <changeSet id="1760355706326-29" author="DOTIN\m.amirabdollahi">
+        <addUniqueConstraint columnNames="event_id" constraintName="uc_loan_arrangement_outbox_events_event"
+                             tableName="loan_arrangement_outbox_events"/>
+    </changeSet>
+    <changeSet id="1760355706326-30" author="DOTIN\m.amirabdollahi">
+        <addUniqueConstraint columnNames="idempotency_key"
+                             constraintName="uc_loan_arrangement_outbox_events_idempotency_key"
+                             tableName="loan_arrangement_outbox_events"/>
+    </changeSet>
+    <changeSet id="1760355706326-31" author="DOTIN\m.amirabdollahi">
+        <addUniqueConstraint columnNames="code" constraintName="uc_loan_arrangements_code"
+                             tableName="loan_arrangements"/>
+    </changeSet>
+    <changeSet id="1760355706326-32" author="DOTIN\m.amirabdollahi">
+        <addUniqueConstraint columnNames="loan_application_id" constraintName="uc_loan_facilities_loan_application"
+                             tableName="loan_facilities"/>
+    </changeSet>
+    <changeSet id="1760355706326-33" author="DOTIN\m.amirabdollahi">
+        <addUniqueConstraint columnNames="sanctioned_loan_id" constraintName="uc_loan_facilities_sanctioned_loan"
+                             tableName="loan_facilities"/>
+    </changeSet>
+    <changeSet id="1760355706326-34" author="DOTIN\m.amirabdollahi">
+        <addUniqueConstraint columnNames="event_id" constraintName="uc_loan_facility_outbox_events_event"
+                             tableName="loan_facility_outbox_events"/>
+    </changeSet>
+    <changeSet id="1760355706326-35" author="DOTIN\m.amirabdollahi">
+        <addUniqueConstraint columnNames="idempotency_key"
+                             constraintName="uc_loan_facility_outbox_events_idempotency_key"
+                             tableName="loan_facility_outbox_events"/>
+    </changeSet>
+    <changeSet id="1760355706326-36" author="DOTIN\m.amirabdollahi">
+        <addUniqueConstraint columnNames="event_id" constraintName="uc_loan_type_outbox_events_event"
+                             tableName="loan_type_outbox_events"/>
+    </changeSet>
+    <changeSet id="1760355706326-37" author="DOTIN\m.amirabdollahi">
+        <addUniqueConstraint columnNames="idempotency_key" constraintName="uc_loan_type_outbox_events_idempotency_key"
+                             tableName="loan_type_outbox_events"/>
+    </changeSet>
+    <changeSet id="1760355706326-38" author="DOTIN\m.amirabdollahi">
+        <addUniqueConstraint columnNames="disbursement_schedule_id"
+                             constraintName="uc_sanctioned_loans_disbursement_schedule" tableName="sanctioned_loans"/>
+    </changeSet>
+    <changeSet id="1760355706326-48" author="DOTIN\m.amirabdollahi">
+        <addForeignKeyConstraint baseColumnNames="loan_application_id" baseTableName="loan_facilities"
+                                 constraintName="FK_LOAN_FACILITIES_ON_LOAN_APPLICATION" referencedColumnNames="id"
+                                 referencedTableName="loan_applications"/>
+    </changeSet>
+    <changeSet id="1760355706326-49" author="DOTIN\m.amirabdollahi">
+        <addForeignKeyConstraint baseColumnNames="sanctioned_loan_id" baseTableName="loan_facilities"
+                                 constraintName="FK_LOAN_FACILITIES_ON_SANCTIONED_LOAN" referencedColumnNames="id"
+                                 referencedTableName="sanctioned_loans"/>
+    </changeSet>
+    <changeSet id="1760355706326-50" author="DOTIN\m.amirabdollahi">
+        <addForeignKeyConstraint baseColumnNames="installment_schedule_id" baseTableName="loan_installments"
+                                 constraintName="FK_LOAN_INSTALLMENTS_ON_INSTALLMENT_SCHEDULE"
+                                 referencedColumnNames="id" referencedTableName="loan_installment_schedules"/>
+    </changeSet>
+    <changeSet id="1760355706326-51" author="DOTIN\m.amirabdollahi">
+        <addForeignKeyConstraint baseColumnNames="disbursement_schedule_id" baseTableName="sanctioned_loans"
+                                 constraintName="FK_SANCTIONED_LOANS_ON_DISBURSEMENT_SCHEDULE"
+                                 referencedColumnNames="id" referencedTableName="loan_disbursement_schedules"/>
+    </changeSet>
+    <changeSet id="1760355706326-52" author="DOTIN\m.amirabdollahi">
+        <addForeignKeyConstraint baseColumnNames="dead_letter_entity_id" baseTableName="dlq_message_headers"
+                                 constraintName="fk_dlq_message_headers_on_dead_letter_entity"
+                                 referencedColumnNames="id" referencedTableName="dead_letter_messages"/>
+    </changeSet>
+    <changeSet id="1760355706326-53" author="DOTIN\m.amirabdollahi">
+        <addForeignKeyConstraint baseColumnNames="loan_application_id" baseTableName="loan_application_guarantors"
+                                 constraintName="fk_loan_application_guarantors_on_trade_loan_application_entity"
+                                 referencedColumnNames="id" referencedTableName="loan_applications"/>
+
+        <createIndex indexName="idx_trade_loan_application_guarantor" tableName="loan_application_guarantors">
+            <column name="loan_application_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="1760355706326-54" author="DOTIN\m.amirabdollahi">
+        <addForeignKeyConstraint baseColumnNames="loan_type_id" baseTableName="loan_type_arrangement_ids"
+                                 constraintName="fk_loan_type_arrangement_ids_on_trade_loan_type_entity"
+                                 referencedColumnNames="id" referencedTableName="loan_types"/>
+
+        <createIndex indexName="idx_trade_loan_type_arrangement" tableName="loan_type_arrangement_ids">
+            <column name="loan_type_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="1760355706326-55" author="DOTIN\m.amirabdollahi">
+        <addForeignKeyConstraint baseColumnNames="loan_type_id" baseTableName="loan_type_attributes"
+                                 constraintName="fk_loan_type_attributes_on_trade_loan_type_entity"
+                                 referencedColumnNames="id" referencedTableName="loan_types"/>
+
+        <createIndex indexName="idx_trade_loan_type_attribute" tableName="loan_type_attributes">
+            <column name="loan_type_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="1760355706326-56" author="DOTIN\m.amirabdollahi">
+        <addForeignKeyConstraint baseColumnNames="loan_type_id" baseTableName="loan_type_economic_sectors"
+                                 constraintName="fk_loan_type_economic_sectors_on_trade_loan_type_entity"
+                                 referencedColumnNames="id" referencedTableName="loan_types"/>
+
+        <createIndex indexName="idx_trade_loan_type_economic_sector" tableName="loan_type_economic_sectors">
+            <column name="loan_type_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="1760355706326-57" author="DOTIN\m.amirabdollahi">
+        <addForeignKeyConstraint baseColumnNames="loan_type_id" baseTableName="loan_type_income_ids"
+                                 constraintName="fk_loan_type_income_ids_on_trade_loan_type_entity"
+                                 referencedColumnNames="id" referencedTableName="loan_types"/>
+
+        <createIndex indexName="idx_trade_loan_type_income" tableName="loan_type_income_ids">
+            <column name="loan_type_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="1760355706326-58" author="DOTIN\m.amirabdollahi">
+        <addForeignKeyConstraint baseColumnNames="loan_type_id" baseTableName="loan_type_topics"
+                                 constraintName="fk_loan_type_topics_on_trade_loan_type_entity"
+                                 referencedColumnNames="id" referencedTableName="loan_types"/>
+
+        <createIndex indexName="idx_trade_loan_type_topic" tableName="loan_type_topics">
+            <column name="loan_type_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="1760355706326-59" author="DOTIN\m.amirabdollahi">
+        <addForeignKeyConstraint baseColumnNames="loan_application_id" baseTableName="loan_application_certificates"
+                                 constraintName="fk_loanapplicationcertificates_on_tradeloanapplicationentity"
+                                 referencedColumnNames="id" referencedTableName="loan_applications"/>
+
+        <createIndex indexName="idx_trade_loan_application_certificate" tableName="loan_application_certificates">
+            <column name="loan_application_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="1760355706326-60" author="DOTIN\m.amirabdollahi">
+        <addForeignKeyConstraint baseColumnNames="loan_arrangement_id" baseTableName="loan_arrangement_collateral_types"
+                                 constraintName="fk_loanarrangementcollateraltypes_on_tradeloanarrangemententity"
+                                 referencedColumnNames="id" referencedTableName="loan_arrangements"/>
+
+        <createIndex indexName="idx_trade_loan_arrangement_collateral" tableName="loan_arrangement_collateral_types">
+            <column name="loan_arrangement_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="1760355706326-61" author="DOTIN\m.amirabdollahi">
+        <addForeignKeyConstraint baseColumnNames="disbursement_schedule_id"
+                                 baseTableName="loan_disbursement_schedule_tranches"
+                                 constraintName="fk_loandisbursementscheduletranch_on_disbursementscheduleentity"
+                                 referencedColumnNames="id" referencedTableName="loan_disbursement_schedules"/>
+    </changeSet>
+    <changeSet id="1760355706326-62" author="DOTIN\m.amirabdollahi">
+        <addForeignKeyConstraint baseColumnNames="loan_facility_id"
+                                 baseTableName="loan_facility_disbursement_transaction_numbers"
+                                 constraintName="fk_loanfacilitydisbursementtransacti_on_tradeloanfacilityentity"
+                                 referencedColumnNames="id" referencedTableName="loan_facilities"/>
+    </changeSet>
+    <changeSet id="1760355706326-63" author="DOTIN\m.amirabdollahi">
+        <addForeignKeyConstraint baseColumnNames="loan_facility_id"
+                                 baseTableName="loan_facility_issue_contract_transaction_numbers"
+                                 constraintName="fk_loanfacilityissuecontracttransact_on_tradeloanfacilityentity"
+                                 referencedColumnNames="id" referencedTableName="loan_facilities"/>
+    </changeSet>
+    <changeSet id="1760355706326-64" author="DOTIN\m.amirabdollahi">
+        <addForeignKeyConstraint baseColumnNames="outbox_event_id" baseTableName="outbox_event_metadata"
+                                 constraintName="fk_outboxeventmetadata_on_installmentscheduleoutboxevententity"
+                                 referencedColumnNames="id" referencedTableName="installment_schedule_outbox_events"/>
+
+        <createIndex indexName="idx_metadata_event" tableName="outbox_event_metadata">
+            <column name="outbox_event_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
