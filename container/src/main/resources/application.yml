@@ -105,7 +105,7 @@ platform:
       caching-enabled: false
     events:
       publisher: spring
-      publish-after-commit: true
+      publish-before-commit: true
       publish-async: false
       enforce-event-ordering: true
       max-concurrent-listeners: 10

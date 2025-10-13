@@ -243,7 +243,7 @@
         <logger name="ir.dotin" level="DEBUG"/>
         <logger name="org.springframework.web" level="DEBUG"/>
         <logger name="org.springframework.security" level="DEBUG"/>
-        <logger name="org.hibernate.SQL" level="DEBUG"/>
+        <logger name="org.hibernate.SQL" level="INFO"/>
         <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>
         <logger name="org.springframework.kafka" level="INFO"/>
         <logger name="org.springframework.transaction" level="DEBUG"/>
