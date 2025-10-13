@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.adapters.driven.client.noop;
+package ir.dotin.loan.trade.adapters.driven.fcbclient.noop;
 
 import org.springframework.stereotype.Component;
 
