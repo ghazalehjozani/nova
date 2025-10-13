@@ -2,6 +2,7 @@ package ir.dotin.loan.trade;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -24,6 +25,7 @@ import ir.dotin.platform.commons.domain.annotation.DomainService;
 @EnableDiscoveryClient
 @EnableScheduling
 @EnableFeignClients
+@ConfigurationPropertiesScan
 public class Main {
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);

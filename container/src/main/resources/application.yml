@@ -9,37 +9,13 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
-
   jpa:
-    hibernate:
-      ddl-auto: ${HIBERNATE_DDL_AUTO}
-    show-sql: ${SHOW_SQL:false}
-    properties:
-      hibernate:
-        format_sql: true
-        use_sql_comments: true
-        jdbc:
-          batch_size: 25
-          order_inserts: true
-          order_updates: true
     open-in-view: false
-
   sql:
     init:
       mode: never
-
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
-    consumer:
-      group-id: ${KAFKA_CONSUMER_GROUP:trade-loan-events}
-      auto-offset-reset: earliest
-      enable-auto-commit: false
-      isolation-level: read_committed
-    producer:
-      acks: all
-      retries: 3
-      enable-idempotence: true
-
 server:
   port: 8080
 
@@ -97,39 +73,158 @@ otel:
       enabled: true
 
 platform:
+  persistence:
+    show-sql: ${SHOW_SQL:false}
+    statistics: false
+    ddl-auto: ${HIBERNATE_DDL_AUTO:none}
+    batch-size: 25
+    order-inserts: true
+    order-updates: true
+    batch-versioned-data: true
+    fail-on-pagination-over-collection-fetch: true
+    plan-cache-max-size: 2048
+    second-level-cache: false
+    query-cache: false
+  dispatcher:
+    command:
+      sync-timeout: 30s
+      shutdown-timeout: 30s
+      middleware-enabled: true
+      idempotency:
+        enabled: true
+        ttl: 24h
+        lock-ttl: 30s
+        cleanup-interval: 5m
+        cleanup-threshold: 100
+    query:
+      sync-timeout: 10s
+      middleware-enabled: true
+      caching-enabled: false
+    events:
+      publisher: spring
+      publish-after-commit: true
+      publish-async: false
+      enforce-event-ordering: true
+      max-concurrent-listeners: 10
+      shutdown-timeout-seconds: 30
+    metrics:
+      enabled: true
+      log-execution: true
+      store-in-context: true
+      record-timings: true
+      record-counts: true
+      record-errors: true
+      metrics-prefix: dispatcher
+      slow-execution-threshold-ms: 1000
+    tracing:
+      enabled: true
+      propagate-headers: true
+      add-mdc-entries: true
+      trace-id-header: X-Trace-Id
+      span-id-header: X-Span-Id
+      correlation-id-header: X-Correlation-Id
   messaging:
+    enabled: true
+    kafka:
+      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+      consumer-group-id: ${KAFKA_CONSUMER_GROUP:trade-loan-events}
+      client-id: trade-loan-client
+      producer:
+        acks: all
+        retries: 3
+        batch-size: 16384
+        linger: 100ms
+        compression-type: snappy
+        request-timeout: 30s
+        delivery-timeout: 2m
+      consumer:
+        auto-offset-reset: earliest
+        enable-auto-commit: false
+        max-poll-records: 50
+        max-poll-interval: 5m
+        session-timeout: 30s
+        heartbeat-interval: 3s
+    outbox:
+      enabled: true
+      processor-threads: 3
+      batch-size: 100
+      poll-interval: 5s
+      retention-period: 30d
+      enable-cleanup: true
+      enable-metrics: true
+      lock-timeout: 5m
+      default-topic: trade-loan-domain-events
+      topic-mappings:
+        InstallmentSchedule:
+          - fcb-installment-schedule
+        TradeLoanArrangement:
+          - fcb-trade-loan-arrangement
+        TradeLoanFacility:
+          - fcb-trade-loan-facility
+        TradeLoanType:
+          - fcb-trade-loan-type
+    inbox:
+      enabled: true
+      processor-threads: 3
+      batch-size: 50
+      poll-interval: 10s
+      retention-period: 7d
+      enable-deduplication: true
+      enable-metrics: true
+      processing-timeout: 5m
+    dead-letter:
+      enabled: true
+      topic-suffix: dlq
+      max-retries: 3
+      retry-interval: 1m
+      enable-alerts: true
+      alert-threshold: 5m
+      alert-batch-size: 10
+    retry:
+      max-attempts: 3
+      initial-interval: 500ms
+      multiplier: 2.0
+      max-interval: 30s
+      max-duration: 10m
+    resilience:
+      circuit-breaker:
+        enabled: true
+        failure-rate-threshold: 50.0
+        wait-duration-in-open-state: 30s
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        slow-call-rate-threshold: 80.0
+        slow-call-duration-threshold: 5s
+        enable-metrics: true
+      retry-pattern:
+        enabled: true
+        max-attempts: 3
+        wait-duration: 500ms
+        exponential-backoff-multiplier: 2.0
+        max-wait-duration: 10s
+        enable-metrics: true
+      bulkhead:
+        enabled: false
+        max-concurrent-calls: 25
+        max-wait-duration: 1s
+      rate-limiter:
+        enabled: false
+        limit-for-period: 100
+        limit-refresh-period: 1s
+        timeout-duration: 500ms
     encryption:
       password: ${ENCRYPTION_PASSWORD}
-    outbox:
-      batch-size: 100
-      poll-interval: PT5S
-      lock-timeout: PT5M
-      max-retries: 3
-      retry-backoff-multiplier: PT2S
-      enable-encryption: true
-      retention-period: P30D
-    inbox:
-      batch-size: 50
-      processing-interval: PT10S
-      duplicate-check-window: P1D
-      max-processing-attempts: 5
-      dead-letter-threshold: P7D
-      enable-idempotency-check: true
-    kafka:
-      transaction-id-prefix: trade-loan-tx-
-      trusted-packages: ir.dotin.*
-      max-poll-records: 50
-      concurrency: 3
-      topics:
-        outbox-events: platform.outbox.events
-        inbox-events: platform.inbox.events
-        dead-letter: platform.deadletter
-        partitions: 10
-        replicas: 3
     scheduling:
       enabled: true
-      default-lock-at-most-for: PT10M
-      default-lock-at-least-for: PT1M
+      default-lock-at-most-for: 10m
+      default-lock-at-least-for: 1m
+    topics:
+      outbox-events: fcb-domain-events
+      inbox-events: fcb-inbox-events
+      dead-letter: fcb-deadletter
+      partitions: ${KAFKA_TOPIC_PARTITIONS:3}
+      replicas: ${KAFKA_TOPIC_REPLICAS:1}
 
 fcb:
   integration:

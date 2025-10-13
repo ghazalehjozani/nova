@@ -67,5 +67,9 @@
         <groupId>ir.dotin.loan</groupId>
         <artifactId>trade-loan-adapters-driving-rest</artifactId>
     </dependency>
+    <dependency>
+        <groupId>ir.dotin.loan</groupId>
+        <artifactId>trade-loan-adapters-driven-messaging</artifactId>
+    </dependency>
   </dependencies>
 </project>
