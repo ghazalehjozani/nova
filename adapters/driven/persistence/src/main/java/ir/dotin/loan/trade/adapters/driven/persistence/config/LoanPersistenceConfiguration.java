@@ -7,5 +7,4 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @Configuration
 @EnableJpaRepositories(basePackages = "ir.dotin.loan.trade.adapters.driven.persistence")
 @EntityScan(basePackages = "ir.dotin.loan.trade.adapters.driven.persistence")
-public class LoanPersistenceConfiguration {
-}
+public class LoanPersistenceConfiguration {}

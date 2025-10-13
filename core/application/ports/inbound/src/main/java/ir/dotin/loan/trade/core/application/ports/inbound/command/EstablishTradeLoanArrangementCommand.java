@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.Period;
 import java.util.Set;
 import java.util.UUID;
+
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -16,9 +18,12 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PenaltyPaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.SectionType;
 
+import lombok.Builder;
+
+@Builder
 public record EstablishTradeLoanArrangementCommand(
         @NotNull UUID uid,
-        @NotNull Long version,
+        @Nullable Long version,
         @NotNull LoanArrangementCodeDto code,
         @NotNull TitleDto title,
         @NotNull CurrencyTypeDto currencyType,

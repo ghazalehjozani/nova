@@ -16,7 +16,7 @@ import ir.dotin.platform.commons.domain.annotation.DomainService;
 
 @SpringBootApplication
 @ComponentScan(
-        basePackages = "ir.dotin.loan",
+        basePackages = {"ir.dotin.loan.trade", "ir.dotin.loan.baseloan.core.domain"},
         includeFilters =
                 @ComponentScan.Filter(
                         type = FilterType.ANNOTATION,

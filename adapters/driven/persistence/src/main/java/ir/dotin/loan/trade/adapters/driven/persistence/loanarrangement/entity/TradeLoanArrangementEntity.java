@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.entity;
 
+import java.util.Objects;
 import java.util.UUID;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -7,6 +8,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+
+import org.hibernate.proxy.HibernateProxy;
 
 import ir.dotin.platform.adapter.persistence.embeddable.AmountRangeEmb;
 import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
@@ -39,7 +42,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class TradeLoanArrangementEntity extends PersistentEntity {
 
-    @Column(name = "code", nullable = false, unique = true, length = 50)
+    @Column(name = "code", nullable = false, unique = true)
     private String code;
 
     @Embedded
@@ -67,7 +70,7 @@ public class TradeLoanArrangementEntity extends PersistentEntity {
     private Integer guarantorCount;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "party_type", nullable = false, length = 30)
+    @Column(name = "party_type", nullable = false)
     private PartyType partyType;
 
     @Column(name = "has_installment_card", nullable = false)
@@ -77,15 +80,15 @@ public class TradeLoanArrangementEntity extends PersistentEntity {
     private ConfirmTypeEmb confirmType;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "life_insurance_payment_type", nullable = false, length = 30)
+    @Column(name = "life_insurance_payment_type", nullable = false)
     private LifeInsurancePaymentType lifeInsurancePaymentType;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "loan_secondary_type", nullable = false, length = 30)
+    @Column(name = "loan_secondary_type", nullable = false)
     private LoanSecondaryType loanSecondaryType;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "section_type", nullable = false, length = 30)
+    @Column(name = "section_type", nullable = false)
     private SectionType sectionType;
 
     @Embedded
@@ -113,9 +116,34 @@ public class TradeLoanArrangementEntity extends PersistentEntity {
     private boolean autoApproval = false;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "disbursement_method", length = 30)
+    @Column(name = "disbursement_method")
     private DisbursementMethod disbursementMethod;
 
     @Column(name = "previous_version_id")
     private UUID previousVersion;
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy
+                ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
+                : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy
+                ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+                : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        TradeLoanArrangementEntity that = (TradeLoanArrangementEntity) o;
+        return getId() != null && Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy
+                ? ((HibernateProxy) this)
+                        .getHibernateLazyInitializer()
+                        .getPersistentClass()
+                        .hashCode()
+                : getClass().hashCode();
+    }
 }

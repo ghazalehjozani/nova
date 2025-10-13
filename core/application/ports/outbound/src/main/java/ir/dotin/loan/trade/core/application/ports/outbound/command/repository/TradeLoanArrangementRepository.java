@@ -7,7 +7,7 @@ import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangeme
 
 public interface TradeLoanArrangementRepository {
 
-    TradeLoanArrangement save(TradeLoanArrangement arrangement);
+    void save(TradeLoanArrangement arrangement);
 
     Optional<TradeLoanArrangement> findById(LoanArrangementId id);
 

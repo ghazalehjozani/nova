@@ -116,7 +116,7 @@
             <column name="customer_number" type="VARCHAR(100)">
                 <constraints nullable="false"/>
             </column>
-            <column name="party_type" type="VARCHAR(30)">
+            <column name="party_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="first_name" type="VARCHAR(200)">
@@ -144,7 +144,7 @@
             <column name="request_date" type="DATETIME">
                 <constraints nullable="false"/>
             </column>
-            <column name="applicant_channel" type="VARCHAR(30)">
+            <column name="applicant_channel" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="disbursement_method" type="VARCHAR(255)"/>
@@ -309,25 +309,25 @@
                 <constraints nullable="false"/>
             </column>
             <column name="guarantor_count" type="INT"/>
-            <column name="party_type" type="VARCHAR(30)">
+            <column name="party_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="has_installment_card" type="BOOLEAN">
                 <constraints nullable="false"/>
             </column>
-            <column name="life_insurance_payment_type" type="VARCHAR(30)">
+            <column name="life_insurance_payment_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="loan_secondary_type" type="VARCHAR(30)">
+            <column name="loan_secondary_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="section_type" type="VARCHAR(30)">
+            <column name="section_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="auto_approval" type="BOOLEAN">
                 <constraints nullable="false"/>
             </column>
-            <column name="disbursement_method" type="VARCHAR(30)"/>
+            <column name="disbursement_method" type="VARCHAR(255)"/>
             <column name="previous_version_id" type="UUID"/>
             <column name="title" type="VARCHAR(200)">
                 <constraints nullable="false"/>
@@ -670,7 +670,7 @@
             <column name="attribute_code" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="data_type" type="VARCHAR(30)">
+            <column name="data_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="mandatory" type="BOOLEAN">
@@ -796,13 +796,13 @@
             <column name="modified_at" type="DATETIME"/>
             <column name="created_by" type="VARCHAR(100)"/>
             <column name="modified_by" type="VARCHAR(100)"/>
-            <column name="gateway_type" type="VARCHAR(30)">
+            <column name="gateway_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="loan_application_allowed" type="BOOLEAN">
                 <constraints nullable="false"/>
             </column>
-            <column name="segment_type" type="VARCHAR(30)">
+            <column name="segment_type" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="group_id" type="UUID">

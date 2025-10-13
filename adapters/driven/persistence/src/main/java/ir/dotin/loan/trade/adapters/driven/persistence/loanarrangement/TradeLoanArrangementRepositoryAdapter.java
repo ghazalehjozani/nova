@@ -2,8 +2,7 @@ package ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement;
 
 import java.util.Optional;
 
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
 
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.mapper.TradeLoanArrangementPersistenceMapper;
@@ -11,27 +10,21 @@ import ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.repositor
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 
+import lombok.RequiredArgsConstructor;
+
 import static java.util.Objects.requireNonNull;
 
-@Repository
-@Transactional(readOnly = true)
+@Service
+@RequiredArgsConstructor
 public class TradeLoanArrangementRepositoryAdapter implements TradeLoanArrangementRepository {
 
     private final TradeLoanArrangementJpaRepository jpaRepository;
     private final TradeLoanArrangementPersistenceMapper mapper;
 
-    public TradeLoanArrangementRepositoryAdapter(
-            TradeLoanArrangementJpaRepository jpaRepository, TradeLoanArrangementPersistenceMapper mapper) {
-        this.jpaRepository = jpaRepository;
-        this.mapper = mapper;
-    }
-
     @Override
-    @Transactional
-    public TradeLoanArrangement save(TradeLoanArrangement arrangement) {
+    public void save(TradeLoanArrangement arrangement) {
         var entity = mapper.map(arrangement);
-        var saved = jpaRepository.save(requireNonNull(entity));
-        return mapper.map(saved);
+        jpaRepository.save(requireNonNull(entity));
     }
 
     @Override
