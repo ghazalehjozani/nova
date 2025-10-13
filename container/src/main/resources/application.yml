@@ -69,12 +69,12 @@ management:
         fields: user-id,correlation-id
   otlp:
     tracing:
-      endpoint: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:http://127.0.0.1:4318/v1/traces}
+      endpoint: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT}
       protocol: http/protobuf
       compression: gzip
       timeout: 10s
     metrics:
-      endpoint: ${OTEL_EXPORTER_OTLP_METRICS_ENDPOINT:http://127.0.0.1:4318/v1/metrics}
+      endpoint: ${OTEL_EXPORTER_OTLP_METRICS_ENDPOINT}
       protocol: http/protobuf
       step: 30s
 
