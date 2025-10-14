@@ -1,17 +1,29 @@
 services:
   postgres:
     image: postgres:18.0-alpine
+    container_name: postgres
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME:-postgres}
       TZ: Asia/Tehran
-    network_mode: host
+    ports:
+      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   kafka:
     image: confluentinc/cp-kafka:7.9.4
+    container_name: kafka
+    restart: unless-stopped
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
@@ -24,7 +36,36 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
-    network_mode: host
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop:4.2.0
+    container_name: kafdrop
+    restart: unless-stopped
+    environment:
+      KAFKA_BROKERCONNECT: kafka:9092
+      JVM_OPTS: "-Xms32M -Xmx64M"
+      SERVER_SERVLET_CONTEXTPATH: "/"
+    ports:
+      - "9000:9000"
+    networks:
+      - app-network
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   postgres-data:
