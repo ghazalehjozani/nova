@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ir.dotin.platform.dispatcher.api.dispatcher.QueryDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.base.ServiceResponse;
 import ir.dotin.loan.trade.core.application.ports.inbound.query.GetFacilityByIdQuery;
-import ir.dotin.loan.trade.core.application.ports.outbound.query.dto.FacilityQueryDto;
+import ir.dotin.loan.trade.core.application.ports.outbound.query.dto.TradeFacilityQueryDto;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,13 +28,13 @@ public class FacilityQueryController {
 
     @GetMapping("/{facilityId}")
     @Operation(summary = "Get facility by ID")
-    public ResponseEntity<ServiceResponse<FacilityQueryDto>> getById(
+    public ResponseEntity<ServiceResponse<TradeFacilityQueryDto>> getById(
             @PathVariable UUID facilityId, @RequestHeader(value = "X-Request-ID") UUID uid) {
         GetFacilityByIdQuery query = GetFacilityByIdQuery.builder()
                 .uid(uid)
                 .loanFacilityId(facilityId)
                 .build();
-        ServiceResponse<FacilityQueryDto> serviceResponse = ServiceResponse.<FacilityQueryDto>builder()
+        ServiceResponse<TradeFacilityQueryDto> serviceResponse = ServiceResponse.<TradeFacilityQueryDto>builder()
                 .data(dispatcher.dispatch(query))
                 .build();
         return ResponseEntity.ok(serviceResponse);
