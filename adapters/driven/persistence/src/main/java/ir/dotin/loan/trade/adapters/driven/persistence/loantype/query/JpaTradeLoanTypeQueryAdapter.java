@@ -1,11 +1,11 @@
-package ir.dotin.loan.trade.adapters.driven.persistence.installmentschedule.query;
+package ir.dotin.loan.trade.adapters.driven.persistence.loantype.query;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import ir.dotin.loan.trade.adapters.driven.persistence.installmentschedule.query.mapper.TradeLoanTypeQueryModelMapper;
+import ir.dotin.loan.trade.adapters.driven.persistence.loantype.query.mapper.TradeLoanTypeQueryModelMapper;
 import ir.dotin.loan.trade.adapters.driven.persistence.loantype.repository.TradeLoanTypeJpaRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.query.dto.TradeLoanTypeQueryDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.query.repository.TradeLoanTypeQueryPort;

@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.adapters.driven.persistence.installmentschedule.query.mapper;
+package ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.query.mapper;
 
 import org.mapstruct.Mapper;
 
