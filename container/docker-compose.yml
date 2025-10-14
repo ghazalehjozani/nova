@@ -52,13 +52,10 @@ services:
     container_name: kafdrop
     restart: unless-stopped
     environment:
-      KAFKA_BROKERCONNECT: kafka:9092
+      KAFKA_BROKERCONNECT: 127.0.0.1:9092
       JVM_OPTS: "-Xms32M -Xmx64M"
       SERVER_SERVLET_CONTEXTPATH: "/"
-    ports:
-      - "9000:9000"
-    networks:
-      - app-network
+    network_mode: host
     depends_on:
       kafka:
         condition: service_healthy

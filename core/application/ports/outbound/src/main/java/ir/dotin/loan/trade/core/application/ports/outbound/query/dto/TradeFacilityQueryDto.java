@@ -17,7 +17,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionSt
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
 /** DTO for TradeLoanFacilityEntity */
-public record FacilityQueryDto(
+public record TradeFacilityQueryDto(
         UUID id,
         Long version,
         LocalDateTime createdAt,

@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query.mapper.FacilityQueryModelMapper;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.repository.TradeLoanFacilityJpaRepository;
-import ir.dotin.loan.trade.core.application.ports.outbound.query.dto.FacilityQueryDto;
-import ir.dotin.loan.trade.core.application.ports.outbound.query.repository.TradeLoanFacilityQueryRepository;
+import ir.dotin.loan.trade.core.application.ports.outbound.query.dto.TradeFacilityQueryDto;
+import ir.dotin.loan.trade.core.application.ports.outbound.query.repository.TradeLoanFacilityQueryPort;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,13 +17,13 @@ import lombok.RequiredArgsConstructor;
 @Repository
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class JpaFacilityQueryAdapter implements TradeLoanFacilityQueryRepository {
+public class JpaFacilityQueryAdapter implements TradeLoanFacilityQueryPort {
 
     private final TradeLoanFacilityJpaRepository facilityRepository;
     private final FacilityQueryModelMapper queryModelMapper;
 
     @Override
-    public Optional<FacilityQueryDto> findById(UUID facilityId) {
+    public Optional<TradeFacilityQueryDto> findById(UUID facilityId) {
         return facilityRepository.findById(facilityId).stream().findFirst().map(queryModelMapper::toQueryModel);
     }
 }

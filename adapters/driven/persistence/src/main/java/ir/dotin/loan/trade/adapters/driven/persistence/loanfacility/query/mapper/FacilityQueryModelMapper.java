@@ -4,10 +4,10 @@ import org.mapstruct.Mapper;
 
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity.TradeLoanFacilityEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.mapper.BaseMapperConfig;
-import ir.dotin.loan.trade.core.application.ports.outbound.query.dto.FacilityQueryDto;
+import ir.dotin.loan.trade.core.application.ports.outbound.query.dto.TradeFacilityQueryDto;
 
 @Mapper(config = BaseMapperConfig.class)
 public interface FacilityQueryModelMapper {
 
-    FacilityQueryDto toQueryModel(TradeLoanFacilityEntity entity);
+    TradeFacilityQueryDto toQueryModel(TradeLoanFacilityEntity entity);
 }
