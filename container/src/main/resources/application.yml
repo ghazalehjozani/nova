@@ -231,14 +231,14 @@ platform:
 
 fcb:
   integration:
-    base-url: http://10.20.151.12:8080/FCB/
+    base-url: ${FCB_BASE_URL}
     app-name: FCB
     service-path: httpUsecaseRunner
     connection-timeout: 60000
     read-timeout: 80000
     credentials:
-      username: admin
-      password: abcd1234
+      username: ${FCB_USERNAME}
+      password: ${FCB_PASSWORD}
     encoding: UTF-8
     show-exceptions: true
     same-session: false
