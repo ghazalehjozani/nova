@@ -7,7 +7,10 @@ import com.thoughtworks.xstream.security.PrimitiveTypePermission;
 
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CustomerInfoResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.DepositInfoResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.EconomicalSectionResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.EconomicalSectorValidationResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ElectronicBillCustomerDTO;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.IssueDocumentResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.OpenAccountResponse;
 
 import lombok.AccessLevel;
@@ -38,7 +41,12 @@ public class FcbXStreamFactory {
 
         xstream.alias("com.fanap.business.cmplexpenditure.dto.DepositInfoDTO", DepositInfoResponse.class);
 
-        xstream.alias("ir.dotin.lc.dto.ilccredit.bill.ElectronicBillIssueDocumentVO", DepositInfoResponse.class);
+        xstream.alias("ir.dotin.lc.dto.ilccredit.bill.ElectronicBillIssueDocumentVO", IssueDocumentResponse.class);
+
+        xstream.alias("com.fanap.business.cmplexpenditure.dto.EconomicalSectionDTO", EconomicalSectionResponse.class);
+
+        xstream.alias(
+                "com.fanap.business.cmplexpenditure.dto.ValidationResultDTO", EconomicalSectorValidationResponse.class);
 
         xstream.autodetectAnnotations(true);
 

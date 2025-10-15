@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -9,13 +10,11 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.domain.vo.NationalCode;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CustomerInfo;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
@@ -25,8 +24,9 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ElectronicBill
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.IssueDocumentResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.OpenAccountResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.CustomerMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
-import ir.dotin.loan.trade.core.application.ports.driven.client.CustomerService.CustomerServicePort;
+import ir.dotin.loan.trade.core.application.ports.driven.client.customerService.CustomerServicePort;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,15 +38,17 @@ import static java.util.Objects.requireNonNull;
 @RequiredArgsConstructor
 public class CustomerServiceAdapter implements CustomerServicePort {
 
+    private static final String ITEM_SEPARATOR = "#";
+
     private final FcbService fcbService;
     private final FcbBaseRequestBuilder requestBuilder;
 
     @Override
-    public Result<CustomerInfo> getCustomerInfo(Party party) {
+    public Result<CustomerInfo> getCustomerInfo(String customerNumber) {
         Parameter parameter = Parameter.builder()
                 .type("constant")
                 .key("customerNumbers")
-                .value(party.customerNumber())
+                .value(customerNumber)
                 .build();
 
         Usecases usecases =
@@ -61,13 +63,13 @@ public class CustomerServiceAdapter implements CustomerServicePort {
                 requireNonNull(responseDto).getCustomerData();
 
         if (customerData == null || customerData.isEmpty()) {
-            return Result.failure(Notification.ofError(
-                    FcbBusinessLocalizedMessageCodes.CUSTOMER_NOT_FOUND_IN_FCB, party.customerNumber()));
+            return Result.failure(
+                    Notification.ofError(FcbBusinessLocalizedMessageCodes.CUSTOMER_NOT_FOUND_IN_FCB, customerNumber));
         }
 
         ElectronicBillCustomerDTO firstCustomerDto = customerData.getFirst();
 
-        return mapToCustomerInfo(firstCustomerDto);
+        return CustomerMapper.mapToCustomerInfo(firstCustomerDto);
     }
 
     @Override
@@ -110,48 +112,92 @@ public class CustomerServiceAdapter implements CustomerServicePort {
         return AccountId.valueOf(openAccountResponseResult.value().getAccountNumber());
     }
 
-    //    @Override
-    public Result<IssueDocumentResponse> issueDocument(
-            String comment, String item, String itemComment, String branchCode) {
+    @Override
+    public Result<TransactionNumber> issueDocument(LoanTransaction loanTransaction) {
 
-        log.debug(
-                "Issuing document with comment: {}, item: {}, itemComment: {}, branchCode: {}",
-                comment,
-                item,
-                itemComment,
-                branchCode);
+        log.info(
+                "Starting document issuance for loan facility: {}",
+                loanTransaction.loanFacilityId().value());
 
-        List<Parameter> parameters = Arrays.asList(
-                Parameter.builder().type("String").key("comment").value(comment).build(),
-                Parameter.builder().type("String").key("item").value(item).build(),
-                Parameter.builder()
-                        .type("String")
-                        .key("itemComment")
-                        .value(itemComment)
-                        .build(),
-                Parameter.builder()
-                        .type("String")
-                        .key("branchCode")
-                        .value(branchCode)
-                        .build());
+        Notification validationNotification = loanTransaction.validate();
+        if (validationNotification.hasErrors()) {
+            log.error("LoanTransaction validation failed: {}", validationNotification.getErrorMessages());
+            return Result.failure(validationNotification);
+        }
+
+        Result<List<String>> itemsResult = CustomerMapper.mapToFcbItems(loanTransaction);
+        if (itemsResult.isFailure()) {
+            log.error(
+                    "Failed to map articles to FCB items: {}",
+                    itemsResult.notification().getErrorMessages());
+            return Result.failure(itemsResult.notification());
+        }
+        List<String> items = itemsResult.orElseThrow();
+
+        List<String> itemComments = CustomerMapper.mapToFcbItemComments(loanTransaction);
+
+        if (items.size() != itemComments.size()) {
+            log.error("Items count ({}) doesn't match comments count ({})", items.size(), itemComments.size());
+            return Result.failure(Notification.ofError(
+                    FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE, "Items and comments count mismatch"));
+        }
+
+        String branchCode = CustomerMapper.extractBranchCode(loanTransaction);
+        String documentComment = CustomerMapper.extractDocumentComment(loanTransaction);
+
+        List<Parameter> parameters = buildFcbIssueDocumentParameters(documentComment, items, itemComments, branchCode);
 
         Usecases usecases = requestBuilder.buildUseCase("electronic-bill-issue-document", parameters);
         FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
 
-        return fcbService.executeUsecase(fcbRequest, IssueDocumentResponse.class);
+        log.debug("Executing FCB document issuance with {} items", items.size());
+
+        Result<IssueDocumentResponse> fcbResult = fcbService.executeUsecase(fcbRequest, IssueDocumentResponse.class);
+
+        if (fcbResult.isFailure()) {
+            log.error(
+                    "FCB document issuance failed: {}", fcbResult.notification().getErrorMessages());
+            return Result.failure(fcbResult.notification());
+        }
+
+        return TransactionNumber.of(fcbResult.value().getTransaction());
     }
 
-    private Result<CustomerInfo> mapToCustomerInfo(ElectronicBillCustomerDTO customerDto) {
-        String[] nameParts =
-                customerDto.getName() != null ? customerDto.getName().split(" ", 2) : new String[] {"", ""};
-        String firstName = nameParts[0];
-        String lastName = nameParts.length > 1 ? nameParts[1] : "";
+    private List<Parameter> buildFcbIssueDocumentParameters(
+            String documentComment, List<String> items, List<String> itemComments, String branchCode) {
 
-        PersonName personName = new PersonName(firstName, lastName);
-        PartyType partyType = PartyType.valueOf(customerDto.getCustomerType());
-        Party party = new Party(customerDto.getCustomerNumber(), partyType, personName);
-        Result<NationalCode> nationalCode = NationalCode.valueOf(customerDto.getNationalCode());
+        List<Parameter> parameters = new ArrayList<>();
 
-        return CustomerInfo.of(party, nationalCode.getValue());
+        parameters.add(Parameter.builder()
+                .type("String")
+                .key("comment")
+                .value(documentComment)
+                .build());
+
+        String itemsValue = String.join(ITEM_SEPARATOR, items);
+        parameters.add(
+                Parameter.builder().type("String").key("item").value(itemsValue).build());
+
+        String itemCommentsValue = String.join(ITEM_SEPARATOR, itemComments);
+        parameters.add(Parameter.builder()
+                .type("String")
+                .key("itemComment")
+                .value(itemCommentsValue)
+                .build());
+
+        parameters.add(Parameter.builder()
+                .type("String")
+                .key("branchCode")
+                .value(branchCode)
+                .build());
+
+        log.debug(
+                "Built FCB parameters - comment: {}, items: {}, itemComments: {}, branch: {}",
+                documentComment,
+                itemsValue,
+                itemCommentsValue,
+                branchCode);
+
+        return parameters;
     }
 }
