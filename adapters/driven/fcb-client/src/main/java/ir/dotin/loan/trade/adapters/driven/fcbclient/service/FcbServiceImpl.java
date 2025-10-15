@@ -38,7 +38,6 @@ public class FcbServiceImpl implements FcbService {
         try {
             log.debug("Executing FCB usecase: {}", request);
 
-            // Convert request to XML string
             String usecaseListXML = marshalToXml(request);
             log.debug("Request XML (usecaseListXML parameter): {}", usecaseListXML);
 
@@ -79,14 +78,12 @@ public class FcbServiceImpl implements FcbService {
                     FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, "Service returned status: " + status));
         }
 
-        // Check if body exists
         if (response.body() == null) {
             log.error("Response body is null");
             return Result.failure(Notification.ofError(
                     FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, "Empty response from FCB service"));
         }
 
-        // Read response body
         byte[] bodyBytes = response.body().asInputStream().readAllBytes();
         log.debug("Response body length: {} bytes", bodyBytes.length);
 
