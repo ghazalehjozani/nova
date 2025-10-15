@@ -10,6 +10,6 @@ import lombok.Data;
 @Embeddable
 public class CollateralSerialEmb implements Serializable {
 
-    @Column(name = "collateral_serial", length = 100)
+    @Column(name = "collateral_serial")
     private String value;
 }

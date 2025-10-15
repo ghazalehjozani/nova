@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.core.application.service.planunequalinstallmentschedule.i18n;
+package ir.dotin.loan.trade.core.application.service.plangradualinstallmentschedule.i18n;
 
 import ir.dotin.platform.commons.core.i18n.LocalizedMessage;
 

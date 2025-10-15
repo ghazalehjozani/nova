@@ -10,10 +10,10 @@ import lombok.Data;
 @Data
 @Embeddable
 public class EconomicSectorCurrencyEmb implements Serializable {
-    @Column(name = "economic_sector_code", nullable = false, length = 50)
+    @Column(name = "economic_sector_code", nullable = false)
     private String economicSectorCode;
 
-    @Column(name = "economic_sector_name", nullable = false, length = 100)
+    @Column(name = "economic_sector_name", nullable = false)
     private String economicSectorName;
 
     @Embedded

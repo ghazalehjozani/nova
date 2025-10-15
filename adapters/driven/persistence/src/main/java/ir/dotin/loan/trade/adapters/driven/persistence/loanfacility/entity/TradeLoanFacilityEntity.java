@@ -52,6 +52,9 @@ public class TradeLoanFacilityEntity extends PersistentEntity {
     @Column(name = "loan_arrangement_id", nullable = false)
     private UUID loanArrangementId;
 
+    @Column(name = "installment_schedule_id")
+    private UUID installmentScheduleId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "current_state", nullable = false)
     private FacilityStatus currentState;
@@ -80,7 +83,7 @@ public class TradeLoanFacilityEntity extends PersistentEntity {
     @Embedded
     private AccountEmb disbursementDestinationAccount;
 
-    @Column(name = "facility_type", length = 20)
+    @Column(name = "facility_type")
     private String facilityType = "TRADE";
 
     @Override

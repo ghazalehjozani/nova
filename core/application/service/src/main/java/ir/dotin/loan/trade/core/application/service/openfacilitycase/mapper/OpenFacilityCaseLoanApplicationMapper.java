@@ -33,6 +33,7 @@ import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
 public interface OpenFacilityCaseLoanApplicationMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "installmentScheduleId", ignore = true)
     TradeLoanApplication map(OpenFacilityCaseCommand.LoanApplicationDto loanApplication);
 
     Party map(OpenFacilityCaseCommand.PartyDto dto);

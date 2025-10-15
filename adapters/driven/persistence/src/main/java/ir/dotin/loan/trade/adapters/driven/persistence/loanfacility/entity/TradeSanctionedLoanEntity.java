@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity;
 
 import java.util.Objects;
+import java.util.UUID;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.CascadeType;
@@ -68,6 +69,9 @@ public class TradeSanctionedLoanEntity extends PersistentEntity {
 
     @Column(name = "life_insurance_id")
     private String lifeInsuranceId;
+
+    @Column(name = "installment_schedule_id")
+    private UUID installmentScheduleId;
 
     @Embedded
     private CollateralSerialEmb collateralSerial;

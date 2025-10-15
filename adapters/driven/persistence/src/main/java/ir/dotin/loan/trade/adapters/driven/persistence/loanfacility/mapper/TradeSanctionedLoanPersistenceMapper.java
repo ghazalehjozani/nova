@@ -19,6 +19,7 @@ public interface TradeSanctionedLoanPersistenceMapper {
     @Mapping(target = "modifiedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "modifiedBy", ignore = true)
+    @Mapping(target = "installmentScheduleId", ignore = true)
     TradeSanctionedLoanEntity map(TradeSanctionedLoan domain);
 
     default TradeSanctionedLoanEntity map(Optional<TradeSanctionedLoan> domainOpt) {

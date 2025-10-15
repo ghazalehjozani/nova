@@ -17,20 +17,20 @@ import lombok.Data;
 @Embeddable
 public class TransactionNumberEmb implements Serializable {
 
-    @Column(name = "transaction_number_value", nullable = false, length = 50)
+    @Column(name = "transaction_number_value", nullable = false)
     private String value;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "relation_type", nullable = false, length = 50)
+    @Column(name = "relation_type", nullable = false)
     private TradeRelationType relationType;
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    @Column(name = "tracking_id", nullable = false, length = 100)
+    @Column(name = "tracking_id", nullable = false)
     private String trackingId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 50)
+    @Column(name = "status", nullable = false)
     private TransactionStatus status;
 }

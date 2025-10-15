@@ -22,29 +22,25 @@ import lombok.NoArgsConstructor;
 public class RelationTypeLoanTopicEmb implements Serializable {
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "trade_relation_type", nullable = false, length = 50)
+    @Column(name = "trade_relation_type", nullable = false)
     private TradeRelationType tradeRelationType;
 
-    @Column(name = "topic_name", nullable = false, length = 100)
+    @Column(name = "topic_name", nullable = false)
     private String topicName;
 
-    @Column(name = "topic_code", nullable = false, length = 50)
+    @Column(name = "topic_code", nullable = false)
     private String topicCode;
 
-    @Column(name = "relation_type_code", nullable = false, length = 50)
+    @Column(name = "relation_type_code", nullable = false)
     private String relationTypeCode;
 
-    @Column(name = "relation_type_name", nullable = false, length = 100)
+    @Column(name = "relation_type_name", nullable = false)
     private String relationTypeName;
 
     @Embedded
     @AttributeOverrides({
-        @AttributeOverride(
-                name = "code",
-                column = @Column(name = "topic_economic_sector_code", nullable = false, length = 50)),
-        @AttributeOverride(
-                name = "name",
-                column = @Column(name = "topic_economic_sector_name", nullable = false, length = 100))
+        @AttributeOverride(name = "code", column = @Column(name = "topic_economic_sector_code", nullable = false)),
+        @AttributeOverride(name = "name", column = @Column(name = "topic_economic_sector_name", nullable = false))
     })
     private EconomicSectorEmb economicSector;
 }

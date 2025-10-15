@@ -14,27 +14,26 @@ public final class TradeLoanFacilityValidationService
 
     @Override
     public Result<Boolean> validateForCreation(
-            TradeLoanFacility candidateFacility, TradeLoanArrangement morabeheRules, TradeLoanType morabeheLoanType) {
+            TradeLoanFacility candidateFacility, TradeLoanArrangement tradeRules, TradeLoanType tradeLoanType) {
 
-        var baseSpecification = new LoanApplicationAmountSpecification(morabeheRules.getAmountRange())
-                .and(new LoanApplicationDurationSpecification(morabeheRules.getDurationRange()))
+        var baseSpecification = new LoanApplicationAmountSpecification(tradeRules.getAmountRange())
+                .and(new LoanApplicationDurationSpecification(tradeRules.getDurationRange()))
                 .and(new LoanApplicationGracePeriodSpecification(
-                        morabeheRules.getGracePeriodPolicy().minGracePeriod(),
-                        morabeheRules.getGracePeriodPolicy().maxGracePeriod()))
-                .and(new LoanApplicationCustomerTypeSpecification(morabeheRules.getPartyType()));
+                        tradeRules.getGracePeriodPolicy().minGracePeriod(),
+                        tradeRules.getGracePeriodPolicy().maxGracePeriod()))
+                .and(new LoanApplicationCustomerTypeSpecification(tradeRules.getPartyType()));
 
         // Add guarantor count specification only if guarantor count is specified
-        var specificationWithGuarantor = morabeheRules.getGuarantorCount() != null
-                ? baseSpecification.and(
-                        new LoanApplicationGuarantorCountSpecification(morabeheRules.getGuarantorCount()))
+        var specificationWithGuarantor = tradeRules.getGuarantorCount() != null
+                ? baseSpecification.and(new LoanApplicationGuarantorCountSpecification(tradeRules.getGuarantorCount()))
                 : baseSpecification;
 
         return specificationWithGuarantor
                 .and(new LoanApplicationInstallmentCountSpecification(
-                        morabeheRules.getInstallmentPolicy().installmentPaymentType()))
+                        tradeRules.getInstallmentPolicy().installmentPaymentType()))
                 //                .and(new
-                // LoanApplicationEconomicSectorSpecification(morabeheLoanType.getEconomicSectorCurrencies())) TODO:
-                //                .and(new LoanApplicationCurrencySpecification(morabeheRules.getCurrencyType()))
+                // LoanApplicationEconomicSectorSpecification(tradeLoanType.getEconomicSectorCurrencies())) TODO:
+                //                .and(new LoanApplicationCurrencySpecification(tradeRules.getCurrencyType()))
                 .isSatisfiedBy(candidateFacility);
     }
 }

@@ -50,14 +50,14 @@ public class TradeLoanTypeEntity extends PersistentEntity {
     private EditReasonEmb editReason;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "gateway_type", nullable = false, length = 30)
+    @Column(name = "gateway_type", nullable = false)
     private GatewayType gatewayType;
 
     @Column(name = "loan_application_allowed", nullable = false)
     private Boolean loanApplicationAllowed;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "segment_type", nullable = false, length = 30)
+    @Column(name = "segment_type", nullable = false)
     private SegmentType segmentType;
 
     @ElementCollection(fetch = FetchType.EAGER)

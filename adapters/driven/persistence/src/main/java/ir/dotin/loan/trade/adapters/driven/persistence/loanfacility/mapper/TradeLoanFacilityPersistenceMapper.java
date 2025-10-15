@@ -33,6 +33,7 @@ public interface TradeLoanFacilityPersistenceMapper {
                 source = "disbursementTransactionNumbers",
                 qualifiedByName = "toTransactionNumberEmbList")
     })
+    @Mapping(target = "installmentScheduleId", ignore = true)
     TradeLoanFacilityEntity map(TradeLoanFacility domain);
 
     TradeLoanFacility map(TradeLoanFacilityEntity entity);

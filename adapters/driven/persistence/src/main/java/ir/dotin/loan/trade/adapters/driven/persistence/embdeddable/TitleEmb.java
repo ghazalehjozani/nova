@@ -9,6 +9,6 @@ import lombok.Data;
 @Data
 @Embeddable
 public class TitleEmb implements Serializable {
-    @Column(name = "title", nullable = false, length = 200)
+    @Column(name = "title", nullable = false)
     private String value;
 }

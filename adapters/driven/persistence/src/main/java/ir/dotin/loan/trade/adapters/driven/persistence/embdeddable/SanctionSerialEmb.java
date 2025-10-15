@@ -14,10 +14,10 @@ import lombok.Data;
 @Embeddable
 public class SanctionSerialEmb implements Serializable {
 
-    @Column(name = "sanction_serial_value", nullable = false, length = 100)
+    @Column(name = "sanction_serial_value", nullable = false)
     private String value;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "sanction_type", nullable = false, length = 20)
+    @Column(name = "sanction_type", nullable = false)
     private SanctionType type;
 }

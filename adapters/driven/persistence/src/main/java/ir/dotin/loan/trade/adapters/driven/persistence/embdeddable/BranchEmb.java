@@ -10,9 +10,9 @@ import lombok.Data;
 @Data
 public class BranchEmb implements Serializable {
 
-    @Column(name = "branch_code", nullable = false, length = 50)
+    @Column(name = "branch_code", nullable = false)
     private String code;
 
-    @Column(name = "branch_name", nullable = false, length = 200)
+    @Column(name = "branch_name", nullable = false)
     private String name;
 }

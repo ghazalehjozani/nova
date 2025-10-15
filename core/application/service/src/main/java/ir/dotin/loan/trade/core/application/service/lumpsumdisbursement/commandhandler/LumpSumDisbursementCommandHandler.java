@@ -14,6 +14,7 @@ import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractSanctionedLoan;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.LumpSumDisbursementCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
@@ -58,12 +59,10 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
 
     private Result<TradeLoanFacility> validateDisbursementMethod(TradeLoanFacility facility) {
         return facility.getSanctionedLoan()
-                .filter(sl -> sl.getDisbursementMethod() == DisbursementMethod.LUMP_SUMP)
+                .filter(sl -> sl.getDisbursementMethod() == DisbursementMethod.LUMP_SUM)
                 .map(ignored -> Result.success(facility))
                 .orElseGet(() -> Result.failure(Notification.ofError(
                         LumpSumDisbursementErrorCodes.INVALID_DISBURSEMENT_METHOD,
-                        facility.getSanctionedLoan()
-                                .map(sl -> sl.getDisbursementMethod().name())
-                                .orElse("UNKNOWN"))));
+                        facility.getSanctionedLoan().map(AbstractSanctionedLoan::getDisbursementMethod))));
     }
 }
