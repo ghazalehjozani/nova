@@ -10,9 +10,9 @@ import lombok.Data;
 @Embeddable
 public class CollateralTypeEmb implements Serializable {
 
-    @Column(name = "code", nullable = false, length = 50)
+    @Column(name = "code", nullable = false)
     private String code;
 
-    @Column(name = "name", nullable = false, length = 100)
+    @Column(name = "name", nullable = false)
     private String name;
 }

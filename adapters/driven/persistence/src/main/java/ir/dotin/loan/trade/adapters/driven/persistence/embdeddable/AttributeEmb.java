@@ -14,14 +14,14 @@ import lombok.Data;
 @Embeddable
 public class AttributeEmb implements Serializable {
 
-    @Column(name = "attribute_name", nullable = false, length = 100)
+    @Column(name = "attribute_name", nullable = false)
     private String name;
 
-    @Column(name = "attribute_code", nullable = false, length = 50)
+    @Column(name = "attribute_code", nullable = false)
     private String code;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "data_type", nullable = false, length = 30)
+    @Column(name = "data_type", nullable = false)
     private ValueType dataType;
 
     @Column(name = "mandatory", nullable = false)

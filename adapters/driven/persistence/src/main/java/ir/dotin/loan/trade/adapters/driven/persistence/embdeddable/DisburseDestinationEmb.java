@@ -14,10 +14,10 @@ import lombok.Data;
 @Embeddable
 public class DisburseDestinationEmb implements Serializable {
 
-    @Column(name = "deposit_number", length = 100)
+    @Column(name = "deposit_number")
     private String depositNumber;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "disburse_destination_type", nullable = false, length = 20)
+    @Column(name = "disburse_destination_type", nullable = false)
     private DisburseDestinationType type;
 }

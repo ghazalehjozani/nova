@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.CollectionTable;
@@ -55,16 +56,10 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
 
     @Embedded
     @AttributeOverrides({
-        @AttributeOverride(
-                name = "customerNumber",
-                column = @Column(name = "customer_number", nullable = false, length = 100)),
-        @AttributeOverride(name = "partyType", column = @Column(name = "customer_type", nullable = false, length = 20)),
-        @AttributeOverride(
-                name = "firstName",
-                column = @Column(name = "customer_first_name", nullable = false, length = 100)),
-        @AttributeOverride(
-                name = "lastName",
-                column = @Column(name = "customer_last_name", nullable = false, length = 100))
+        @AttributeOverride(name = "customerNumber", column = @Column(name = "customer_number", nullable = false)),
+        @AttributeOverride(name = "partyType", column = @Column(name = "customer_type", nullable = false)),
+        @AttributeOverride(name = "firstName", column = @Column(name = "customer_first_name", nullable = false)),
+        @AttributeOverride(name = "lastName", column = @Column(name = "customer_last_name", nullable = false))
     })
     private PartyEmb customer;
 
@@ -87,7 +82,7 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
     private PeriodEmb requestedLoanDuration;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "applicant_channel", nullable = false, length = 30)
+    @Column(name = "applicant_channel", nullable = false)
     private ApplicantChannel applicantChannel;
 
     @Embedded
@@ -108,6 +103,9 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
     @Embedded
     private RequestReasonEmb requestReason;
 
+    @Column(name = "installment_schedule_id")
+    private UUID installmentScheduleId;
+
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "core", column = @Column(name = "sub_source_request_reason_code", length = 500)),
@@ -123,24 +121,20 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
 
     @Embedded
     @AttributeOverrides({
-        @AttributeOverride(
-                name = "branch.code",
-                column = @Column(name = "application_branch_code", nullable = false, length = 50)),
-        @AttributeOverride(
-                name = "branch.name",
-                column = @Column(name = "application_branch_name", nullable = false, length = 200)),
+        @AttributeOverride(name = "branch.code", column = @Column(name = "application_branch_code", nullable = false)),
+        @AttributeOverride(name = "branch.name", column = @Column(name = "application_branch_name", nullable = false)),
         @AttributeOverride(
                 name = "party.customerNumber",
-                column = @Column(name = "application_customer_number", nullable = false, length = 100)),
+                column = @Column(name = "application_customer_number", nullable = false)),
         @AttributeOverride(
                 name = "party.partyType",
-                column = @Column(name = "application_customer_type", nullable = false, length = 20)),
+                column = @Column(name = "application_customer_type", nullable = false)),
         @AttributeOverride(
                 name = "party.firstName",
-                column = @Column(name = "application_customer_first_name", nullable = false, length = 100)),
+                column = @Column(name = "application_customer_first_name", nullable = false)),
         @AttributeOverride(
                 name = "party.lastName",
-                column = @Column(name = "application_customer_last_name", nullable = false, length = 100))
+                column = @Column(name = "application_customer_last_name", nullable = false))
     })
     private ApplicationNumberEmb applicationNumber;
 

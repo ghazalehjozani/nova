@@ -10,9 +10,9 @@ import lombok.Data;
 @Embeddable
 public class ConfirmTypeEmb implements Serializable {
 
-    @Column(name = "confirm_person_code", length = 50)
+    @Column(name = "confirm_person_code")
     private String personCode;
 
-    @Column(name = "confirm_person_name", length = 100)
+    @Column(name = "confirm_person_name")
     private String personName;
 }

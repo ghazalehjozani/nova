@@ -10,6 +10,6 @@ import lombok.Data;
 @Embeddable
 public class CertificateEmb implements Serializable {
 
-    @Column(name = "serial", nullable = false, length = 100)
+    @Column(name = "serial", nullable = false)
     private String serial;
 }

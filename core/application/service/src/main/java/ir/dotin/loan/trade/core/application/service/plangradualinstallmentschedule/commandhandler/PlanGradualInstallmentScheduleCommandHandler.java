@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.core.application.service.planunequalinstallmentschedule.commandhandler;
+package ir.dotin.loan.trade.core.application.service.plangradualinstallmentschedule.commandhandler;
 
 import java.time.Clock;
 import java.util.List;
@@ -16,12 +16,12 @@ import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.Installment
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentScheduleCreationContext;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentSpec;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.PlanUnequalInstallmentScheduleCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.PlanGradualInstallmentScheduleCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.InstallmentScheduleRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
-import ir.dotin.loan.trade.core.application.service.planunequalinstallmentschedule.i18n.PlanUnequalInstallmentScheduleErrorCodes;
-import ir.dotin.loan.trade.core.application.service.planunequalinstallmentschedule.mapper.PlanUnequalInstallmentScheduleCommandMapper;
+import ir.dotin.loan.trade.core.application.service.plangradualinstallmentschedule.i18n.PlanUnequalInstallmentScheduleErrorCodes;
+import ir.dotin.loan.trade.core.application.service.plangradualinstallmentschedule.mapper.PlanGradualInstallmentScheduleCommandMapper;
 import ir.dotin.loan.trade.core.domain.installmentschedule.service.TradeRepaymentSchedulingService;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
@@ -32,12 +32,12 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class PlanUnequalInstallmentScheduleCommandHandler
-        implements CommandHandler<PlanUnequalInstallmentScheduleCommand> {
+public class PlanGradualInstallmentScheduleCommandHandler
+        implements CommandHandler<PlanGradualInstallmentScheduleCommand> {
 
-    private static final Logger log = LoggerFactory.getLogger(PlanUnequalInstallmentScheduleCommandHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(PlanGradualInstallmentScheduleCommandHandler.class);
 
-    private final PlanUnequalInstallmentScheduleCommandMapper mapper;
+    private final PlanGradualInstallmentScheduleCommandMapper mapper;
     private final InstallmentScheduleRepository installmentScheduleRepository;
     private final TradeLoanFacilityRepository tradeLoanFacilityRepository;
     private final TradeLoanArrangementRepository tradeLoanArrangementRepository;
@@ -45,7 +45,7 @@ public class PlanUnequalInstallmentScheduleCommandHandler
     private final Clock clock;
 
     @Override
-    public Result<List<DomainEvent<?, ?>>> handle(PlanUnequalInstallmentScheduleCommand command) {
+    public Result<List<DomainEvent<?, ?>>> handle(PlanGradualInstallmentScheduleCommand command) {
         return loadDependencies(command)
                 .flatMap(context -> planSchedule(command, context))
                 .peekValue(installmentScheduleRepository::save)
@@ -54,7 +54,7 @@ public class PlanUnequalInstallmentScheduleCommandHandler
                 .mapNonNull(AbstractAggregateRoot::domainEvents);
     }
 
-    private Result<ScheduleCreationDependencies> loadDependencies(PlanUnequalInstallmentScheduleCommand command) {
+    private Result<ScheduleCreationDependencies> loadDependencies(PlanGradualInstallmentScheduleCommand command) {
         Result<TradeLoanFacility> facility = Result.fromOptional(
                 tradeLoanFacilityRepository.findById(LoanFacilityId.of(command.loanFacilityId())),
                 Notification.ofError(
@@ -72,14 +72,14 @@ public class PlanUnequalInstallmentScheduleCommandHandler
     }
 
     private Result<InstallmentSchedule> planSchedule(
-            PlanUnequalInstallmentScheduleCommand command, ScheduleCreationDependencies dependencies) {
+            PlanGradualInstallmentScheduleCommand command, ScheduleCreationDependencies dependencies) {
 
         InstallmentScheduleCreationContext<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> context =
                 new InstallmentScheduleCreationContext<>(dependencies.facility(), dependencies.arrangement(), clock);
 
         List<InstallmentSpec> installmentSpecs = mapper.mapSpec(command.installments());
 
-        return schedulingService.planUnequalInstallmentSchedule(context, installmentSpecs);
+        return schedulingService.planGradualInstallmentSchedule(context, installmentSpecs);
     }
 
     private record ScheduleCreationDependencies(TradeLoanFacility facility, TradeLoanArrangement arrangement) {}

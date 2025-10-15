@@ -19,5 +19,6 @@ public interface OpenFacilityCaseCommandMapper {
     @Mapping(target = "sanctionedLoan", ignore = true)
     @Mapping(target = "issueContractTransactionNumbers", ignore = true)
     @Mapping(target = "disbursementTransactionNumbers", ignore = true)
+    @Mapping(target = "installmentScheduleId", ignore = true)
     TradeLoanFacility.Builder map(OpenFacilityCaseCommand command);
 }

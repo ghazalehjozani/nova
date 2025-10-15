@@ -26,7 +26,7 @@ public class TradeLoanTypeOutboxEventEntity extends AbstractOutboxEventEntity {
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "loan_type_outbox_metadata", joinColumns = @JoinColumn(name = "outbox_event_id"))
-    @MapKeyColumn(name = "meta_key", length = 100)
+    @MapKeyColumn(name = "meta_key")
     @Column(name = "meta_value", length = 2000)
     private Map<String, String> metadata = new HashMap<>();
 }

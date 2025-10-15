@@ -10,6 +10,6 @@ import lombok.Data;
 @Embeddable
 public class CredibilityRankEmb implements Serializable {
 
-    @Column(name = "credibility_rank", length = 50)
+    @Column(name = "credibility_rank")
     private String value;
 }

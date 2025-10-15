@@ -15,6 +15,7 @@ public interface TradeLoanApplicationPersistenceMapper {
     @Mapping(target = "modifiedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "modifiedBy", ignore = true)
+    @Mapping(target = "installmentScheduleId", ignore = true)
     TradeLoanApplicationEntity map(TradeLoanApplication domain);
 
     TradeLoanApplication map(TradeLoanApplicationEntity entity);

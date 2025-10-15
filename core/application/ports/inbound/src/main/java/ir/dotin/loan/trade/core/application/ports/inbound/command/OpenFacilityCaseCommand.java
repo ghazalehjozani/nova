@@ -3,12 +3,12 @@ package ir.dotin.loan.trade.core.application.ports.inbound.command;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.Period;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
-import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.dispatcher.api.command.Command;
@@ -22,8 +22,8 @@ public record OpenFacilityCaseCommand(
         @NotNull Long version,
         @NotNull UUID loanTypeId,
         @NotNull UUID loanArrangementId,
-        @Nullable UUID loanFacilityId,
         @NotNull LoanApplicationDto loanApplication,
+        @NotNull Optional<PlanGradualInstallmentScheduleCommand> installmentSchedule,
         @NotNull String customerId)
         implements Command {
 

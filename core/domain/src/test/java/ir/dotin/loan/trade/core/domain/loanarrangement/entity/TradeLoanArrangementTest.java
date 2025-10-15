@@ -202,7 +202,7 @@ class TradeLoanArrangementTest {
                 .loanSecondaryType(LoanSecondaryType.GENERAL)
                 .sectionType(SectionType.CURRENT)
                 .autoApproval(true)
-                .disbursementMethod(DisbursementMethod.LUMP_SUMP)
+                .disbursementMethod(DisbursementMethod.LUMP_SUM)
                 .interestPolicy(interestPolicy)
                 .penaltyPolicy(penaltyPolicy)
                 .installmentPolicy(installmentPolicy)

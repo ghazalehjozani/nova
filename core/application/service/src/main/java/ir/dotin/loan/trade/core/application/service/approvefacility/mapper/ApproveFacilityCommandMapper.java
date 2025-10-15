@@ -22,6 +22,7 @@ import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan;
 public interface ApproveFacilityCommandMapper {
 
     @Mapping(target = "disbursementSchedule", ignore = true)
+    @Mapping(target = "installmentScheduleId", ignore = true)
     TradeSanctionedLoan.Builder toBuilder(ApproveFacilityCommand command);
 
     SanctionedLoanId map(ApproveFacilityCommand.SanctionedLoanIdDto dto);

@@ -10,18 +10,18 @@ import lombok.Data;
 @Embeddable
 public class AccountEmb implements Serializable {
 
-    @Column(name = "account_number", nullable = false, length = 100)
+    @Column(name = "account_number", nullable = false)
     private String accountNumber;
 
-    @Column(name = "account_holder", nullable = false, length = 200)
+    @Column(name = "account_holder", nullable = false)
     private String accountHolder;
 
-    @Column(name = "bank_code", nullable = false, length = 50)
+    @Column(name = "bank_code", nullable = false)
     private String bankCode;
 
-    @Column(name = "branch_code", length = 50)
+    @Column(name = "branch_code")
     private String branchCode;
 
-    @Column(name = "iban", length = 100)
+    @Column(name = "iban")
     private String iban;
 }

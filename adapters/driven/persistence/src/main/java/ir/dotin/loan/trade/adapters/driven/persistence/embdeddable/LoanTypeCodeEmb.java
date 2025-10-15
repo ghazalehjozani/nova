@@ -9,6 +9,6 @@ import lombok.Data;
 @Data
 @Embeddable
 public class LoanTypeCodeEmb implements Serializable {
-    @Column(name = "loan_type_code", nullable = false, length = 50)
+    @Column(name = "loan_type_code", nullable = false)
     private String value;
 }
