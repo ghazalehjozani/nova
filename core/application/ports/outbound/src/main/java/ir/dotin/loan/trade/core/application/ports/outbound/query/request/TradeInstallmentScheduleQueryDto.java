@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.core.application.ports.outbound.query.dto;
+package ir.dotin.loan.trade.core.application.ports.outbound.query.request;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import ir.dotin.platform.dispatcher.api.query.QueryResult;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleStatus;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleType;
 
@@ -27,7 +28,7 @@ public record TradeInstallmentScheduleQueryDto(
         Instant lastModifiedAt,
         GracePeriodEmbDto gracePeriod,
         BigDecimal interestRate)
-        implements Serializable {
+        implements QueryResult {
 
     public record MoneyEmbDto(BigDecimal amount, String currency) implements Serializable {}
 

@@ -8,9 +8,9 @@
     <springProperty scope="context" name="APP_VERSION" source="spring.application.version" defaultValue="unknown"/>
     <property name="LOG_PATH" value="${LOG_PATH:-./logs}"/>
     <property name="HOSTNAME" value="${HOSTNAME:-localhost}"/>
-    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
-    <conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
-    <conversionRule conversionWord="wEx" converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
+    <conversionRule conversionWord="clr" class="org.springframework.boot.logging.logback.ColorConverter" />
+    <conversionRule conversionWord="wex" class="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
+    <conversionRule conversionWord="wEx" class="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
 
     <!-- =========================================== -->
     <!-- CONSOLE PATTERNS                            -->
@@ -233,16 +233,19 @@
     <!-- PROFILE: DEVELOPMENT (Local)                -->
     <!-- =========================================== -->
     <springProfile name="dev">
-        <root level="DEBUG">
+        <root level="INFO">
             <appender-ref ref="DEV_CONSOLE"/>
             <appender-ref ref="ASYNC_APP"/>
             <appender-ref ref="ASYNC_ERROR"/>
+            <appender-ref ref="ASYNC_JSON"/>
         </root>
 
         <!-- Enhanced debug levels for dev -->
         <logger name="ir.dotin" level="DEBUG"/>
+        <logger name="SECURITY_AUDIT" level="DEBUG"/>
         <logger name="org.springframework.web" level="DEBUG"/>
         <logger name="org.springframework.security" level="DEBUG"/>
+        <logger name="org.springframework.security.oauth2" level="TRACE"/>
         <logger name="org.hibernate.SQL" level="INFO"/>
         <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>
         <logger name="org.springframework.kafka" level="INFO"/>
@@ -271,6 +274,7 @@
 
         <root level="INFO">
             <appender-ref ref="ASYNC_K8S_CONSOLE"/>
+            <appender-ref ref="ASYNC_JSON"/>
         </root>
 
         <!-- Production log levels -->

@@ -8,7 +8,9 @@ spring:
     password: ${DB_PASSWORD}  # ⚠️ Set your password in .env
   jpa:
     show-sql: true
-logging:
-  level:
-    org.springframework.web: DEBUG
-    ir.dotin: DEBUG
+  docker:
+    compose:
+      lifecycle-management: start_only
+server:
+  ssl:
+    enabled: false

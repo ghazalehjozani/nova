@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.loan.trade.adapters.driven.persistence.loantype.query.mapper.TradeLoanTypeQueryModelMapper;
 import ir.dotin.loan.trade.adapters.driven.persistence.loantype.repository.TradeLoanTypeJpaRepository;
-import ir.dotin.loan.trade.core.application.ports.outbound.query.dto.TradeLoanTypeQueryDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.query.repository.TradeLoanTypeQueryPort;
+import ir.dotin.loan.trade.core.application.ports.outbound.query.request.TradeLoanTypeQueryDto;
 
 import lombok.RequiredArgsConstructor;
 

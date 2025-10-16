@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query.mapper.FacilityQueryModelMapper;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.repository.TradeLoanFacilityJpaRepository;
-import ir.dotin.loan.trade.core.application.ports.outbound.query.dto.TradeFacilityQueryDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.query.repository.TradeLoanFacilityQueryPort;
+import ir.dotin.loan.trade.core.application.ports.outbound.query.request.TradeFacilityQueryDto;
 
 import lombok.RequiredArgsConstructor;
 
