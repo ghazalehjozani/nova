@@ -1,0 +1,10 @@
+${AnsiColor.BRIGHT_BLUE}
+███╗   ██╗ ██████╗ ██╗   ██╗ █████╗ 
+████╗  ██║██╔═══██╗██║   ██║██╔══██╗
+██╔██╗ ██║██║   ██║██║   ██║███████║
+██║╚██╗██║██║   ██║╚██╗ ██╔╝██╔══██║
+██║ ╚████║╚██████╔╝ ╚████╔╝ ██║  ██║
+╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  ╚═╝  ╚═╝
+${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_CYAN}:: Trade Loan Project ::${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_YELLOW}:: Spring Boot ${spring-boot.version} ::${AnsiColor.DEFAULT}

@@ -19,6 +19,32 @@ spring:
     enabled: true
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${platform.security.resource-server.jwk-set-uri}
+          issuer-uri: ${platform.security.resource-server.issuer-uri}
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600s
+      cache-null-values: false
+    cache-names:
+      - oauth2-tokens
+      - jwt-jwks
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: ${REDIS_PASSWORD}
+      timeout: 3000ms
+      database: 0
+      client-type: lettuce
+      lettuce:
+        cluster:
+          refresh:
+            adaptive: true
 server:
   port: 8080
 
@@ -102,7 +128,9 @@ platform:
     query:
       sync-timeout: 10s
       middleware-enabled: true
-      caching-enabled: false
+      caching-enabled: true
+      cache-type: redis
+      cache-ttl: 2m
     events:
       publisher: spring
       publish-before-commit: true
@@ -228,7 +256,75 @@ platform:
       dead-letter: fcb-deadletter
       partitions: ${KAFKA_TOPIC_PARTITIONS:3}
       replicas: ${KAFKA_TOPIC_REPLICAS:1}
-
+  security:
+    enabled: true
+    resource-server:
+      issuer-uri: https://sso.tps.ir
+      jwk-set-uri: https://sso.tps.ir/.well-known/openid-configuration/jwks
+      jwks-cache-lifespan: 5m
+      extract-user-context: true
+      user-id-claim: sub
+      client-id-claim: azp
+      branch-code-claim: branch_code
+      server-address-claim: server_address
+      validate-azp-claim: true
+      allowed-clients:
+        - f9fcf393-b793-4268-a579-44c4337e4a3e
+    oauth2-client:
+      enabled: true
+      client-id: ${OAUTH2_CLIENT_ID}
+      client-secret: ${OAUTH2_CLIENT_SECRET}
+      token-uri: https://sso.tps.ir/oauth/token
+      scopes:
+        - openid
+        - upgrade_token
+      use-refresh-token: true
+      cache-tokens: true
+      token-cache-buffer: 5m
+      support-token-upgrade: true
+      connection-timeout: 5s
+      read-timeout: 10s
+      max-connections: 100
+      max-per-route: 20
+    authorization:
+      public-paths:
+        - /actuator/health
+        - /actuator/info
+        - /swagger-ui/**
+        - /v3/api-docs/**
+      require-authentication-by-default: true
+    audit:
+      enabled: true
+      log-authentication-success: true
+      log-authentication-failure: true
+      log-access-denied: true
+      log-token-acquisition: true
+      log-token-validation: true
+      log-banking-context: true
+      slow-request-threshold-ms: 1000
+      sensitive-headers:
+        - Authorization
+        - Cookie
+        - Set-Cookie
+      sensitive-fields:
+        - password
+        - secret
+        - token
+    ssl:
+      verify: true
+    resilience:
+      circuit-breaker:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 5
+        sliding-window-size: 10
+      retry:
+        max-attempts: 3
+        wait-duration: 500ms
+      rate-limiter:
+        limit-for-period: 100
+        limit-refresh-period: 1s
+        timeout-duration: 5s
 fcb:
   integration:
     base-url: ${FCB_BASE_URL}
@@ -242,3 +338,18 @@ fcb:
     encoding: UTF-8
     show-exceptions: true
     same-session: false
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+    persist-authorization: true
+  show-actuator: false
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json

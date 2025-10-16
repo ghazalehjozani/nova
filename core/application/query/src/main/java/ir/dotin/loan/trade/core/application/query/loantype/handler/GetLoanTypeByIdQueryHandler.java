@@ -3,9 +3,9 @@ package ir.dotin.loan.trade.core.application.query.loantype.handler;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.dispatcher.api.query.QueryHandler;
-import ir.dotin.loan.trade.core.application.ports.inbound.query.GetLoanTypeByIdQuery;
-import ir.dotin.loan.trade.core.application.ports.outbound.query.dto.TradeLoanTypeQueryDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.query.repository.TradeLoanTypeQueryPort;
+import ir.dotin.loan.trade.core.application.ports.outbound.query.request.TradeLoanTypeQueryDto;
+import ir.dotin.loan.trade.core.application.ports.outbound.query.response.GetLoanTypeByIdQuery;
 
 import lombok.RequiredArgsConstructor;
 

@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ir.dotin.platform.dispatcher.api.dispatcher.QueryDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.base.ServiceResponse;
-import ir.dotin.loan.trade.core.application.ports.inbound.query.GetInstallmentScheduleByIdQuery;
-import ir.dotin.loan.trade.core.application.ports.outbound.query.dto.TradeInstallmentScheduleQueryDto;
+import ir.dotin.loan.trade.core.application.ports.outbound.query.request.TradeInstallmentScheduleQueryDto;
+import ir.dotin.loan.trade.core.application.ports.outbound.query.response.GetInstallmentScheduleByIdQuery;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

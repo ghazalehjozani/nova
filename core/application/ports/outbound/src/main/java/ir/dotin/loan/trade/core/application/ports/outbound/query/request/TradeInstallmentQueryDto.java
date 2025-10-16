@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.core.application.ports.outbound.query.dto;
+package ir.dotin.loan.trade.core.application.ports.outbound.query.request;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

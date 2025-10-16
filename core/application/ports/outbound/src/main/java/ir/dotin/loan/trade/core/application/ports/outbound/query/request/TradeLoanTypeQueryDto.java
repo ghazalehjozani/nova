@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.core.application.ports.outbound.query.dto;
+package ir.dotin.loan.trade.core.application.ports.outbound.query.request;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import ir.dotin.platform.commons.domain.vo.ValueType;
+import ir.dotin.platform.dispatcher.api.query.QueryResult;
 import ir.dotin.loan.baseloan.core.domain.loantype.enums.SegmentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
@@ -33,7 +34,7 @@ public record TradeLoanTypeQueryDto(
         boolean active,
         boolean disable,
         UUID previousVersion)
-        implements Serializable {
+        implements QueryResult {
 
     public record LoanTypeCodeEmbDto(String value) implements Serializable {}
 
