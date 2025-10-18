@@ -294,7 +294,7 @@ platform:
         - /actuator/info
         - /swagger-ui/**
         - /v3/api-docs/**
-        - /internal/auth/**  # Only if testing enabled
+        - /api/dev/auth/token
       require-authentication-by-default: true
     audit:
       enabled: true
@@ -328,6 +328,9 @@ platform:
         limit-for-period: 100
         limit-refresh-period: 1s
         timeout-duration: 5s
+    dev-auth:
+      enabled: true
+      branch-code: "1"
 fcb:
   integration:
     base-url: ${FCB_BASE_URL}

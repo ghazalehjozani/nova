@@ -7,8 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import ir.dotin.platform.adapter.security.oauth2.core.config.PlatformSecurityProperties;
-
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
@@ -25,8 +23,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SwaggerConfig {
 
-    private final PlatformSecurityProperties securityProperties;
-
     @Value("${spring.application.name}")
     private String applicationName;
 
@@ -41,10 +37,7 @@ public class SwaggerConfig {
     public OpenAPI devOpenAPI() {
         return baseOpenAPI()
                 .components(createDevComponents())
-                .addSecurityItem(new SecurityRequirement()
-                        .addList("password-flow")
-                        .addList("dev-token-helper")
-                        .addList("bearer-jwt"));
+                .addSecurityItem(new SecurityRequirement().addList("dev-auto-auth"));
     }
 
     @Bean
@@ -52,7 +45,7 @@ public class SwaggerConfig {
     public OpenAPI prodOpenAPI() {
         return baseOpenAPI()
                 .components(createProdComponents())
-                .addSecurityItem(new SecurityRequirement().addList("bearer-jwt").addList("password-flow"));
+                .addSecurityItem(new SecurityRequirement().addList("bearer-jwt"));
     }
 
     private OpenAPI baseOpenAPI() {
@@ -73,7 +66,7 @@ public class SwaggerConfig {
 
     private Components createDevComponents() {
         return new Components()
-                .addSecuritySchemes("password-flow", createPasswordFlowScheme())
+                .addSecuritySchemes("dev-auto-auth", createDevAutoAuthScheme())
                 .addSecuritySchemes("bearer-jwt", createBearerScheme());
     }
 
@@ -86,19 +79,16 @@ public class SwaggerConfig {
                 .type(SecurityScheme.Type.HTTP)
                 .scheme("bearer")
                 .bearerFormat("JWT")
-                .description("JWT Bearer Token from TPS SSO (paste access_token here)");
+                .description("JWT Bearer Token from TPS SSO");
     }
 
-    private SecurityScheme createPasswordFlowScheme() {
-        PlatformSecurityProperties.OAuth2ClientConfig config = securityProperties.oauth2Client();
-
-        Scopes scopes = new Scopes();
-        config.scopes().forEach(scope -> scopes.addString(scope, "Server-configured scope"));
+    private SecurityScheme createDevAutoAuthScheme() {
+        String tokenUrl = contextPath.isEmpty() ? "/api/dev/auth/token" : contextPath + "/api/dev/auth/token";
 
         return new SecurityScheme()
                 .type(SecurityScheme.Type.OAUTH2)
                 .flows(new OAuthFlows()
-                        .password(new OAuthFlow().tokenUrl(config.tokenUri()).scopes(scopes)))
-                .description("OAuth2 Password Flow - Enter username and password to obtain token");
+                        .password(new OAuthFlow().tokenUrl(tokenUrl).scopes(new Scopes())))
+                .description("client_id and client_secret is optional");
     }
 }
