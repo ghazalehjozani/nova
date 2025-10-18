@@ -73,12 +73,12 @@ public class SwaggerConfig {
 
     private Components createDevComponents() {
         return new Components()
-                .addSecuritySchemes("Password Flow", createPasswordFlowScheme())
-                .addSecuritySchemes("Bearer JWT", createBearerScheme());
+                .addSecuritySchemes("password-flow", createPasswordFlowScheme())
+                .addSecuritySchemes("bearer-jwt", createBearerScheme());
     }
 
     private Components createProdComponents() {
-        return new Components().addSecuritySchemes("Bearer JWT", createBearerScheme());
+        return new Components().addSecuritySchemes("bearer-jwt", createBearerScheme());
     }
 
     private SecurityScheme createBearerScheme() {
