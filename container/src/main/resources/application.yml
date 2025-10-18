@@ -269,7 +269,7 @@ platform:
       server-address-claim: server_address
       validate-azp-claim: true
       allowed-clients:
-        - f9fcf393-b793-4268-a579-44c4337e4a3e
+        - 1ebad0ab-39d1-4718-9690-ec1873c6914f # nova-service-client-dev
     oauth2-client:
       enabled: true
       client-id: ${OAUTH2_CLIENT_ID}
@@ -278,6 +278,7 @@ platform:
       scopes:
         - openid
         - upgrade_token
+        - core
       use-refresh-token: true
       cache-tokens: true
       token-cache-buffer: 5m
@@ -292,6 +293,7 @@ platform:
         - /actuator/info
         - /swagger-ui/**
         - /v3/api-docs/**
+        - /internal/auth/**  # Only if testing enabled
       require-authentication-by-default: true
     audit:
       enabled: true

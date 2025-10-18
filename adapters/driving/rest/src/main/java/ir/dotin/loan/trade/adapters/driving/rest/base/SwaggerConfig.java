@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import ir.dotin.platform.adapter.security.oauth2.core.config.PlatformSecurityProperties;
 
@@ -36,12 +37,26 @@ public class SwaggerConfig {
     private String contextPath;
 
     @Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .info(apiInfo())
-                .servers(List.of(createServer()))
-                .components(createComponents())
-                .addSecurityItem(new SecurityRequirement().addList("bearer-jwt"));
+    @Profile("dev")
+    public OpenAPI devOpenAPI() {
+        return baseOpenAPI()
+                .components(createDevComponents())
+                .addSecurityItem(new SecurityRequirement()
+                        .addList("password-flow")
+                        .addList("dev-token-helper")
+                        .addList("bearer-jwt"));
+    }
+
+    @Bean
+    @Profile("!dev")
+    public OpenAPI prodOpenAPI() {
+        return baseOpenAPI()
+                .components(createProdComponents())
+                .addSecurityItem(new SecurityRequirement().addList("bearer-jwt").addList("password-flow"));
+    }
+
+    private OpenAPI baseOpenAPI() {
+        return new OpenAPI().info(apiInfo()).servers(List.of(createServer()));
     }
 
     private Info apiInfo() {
@@ -56,10 +71,14 @@ public class SwaggerConfig {
         return new Server().url(contextPath.isEmpty() ? "/" : contextPath).description("Current Environment");
     }
 
-    private Components createComponents() {
+    private Components createDevComponents() {
         return new Components()
-                .addSecuritySchemes("bearer-jwt", createBearerScheme())
-                .addSecuritySchemes("oauth2-client-credentials", createClientCredentialsScheme());
+                .addSecuritySchemes("Password Flow", createPasswordFlowScheme())
+                .addSecuritySchemes("Bearer JWT", createBearerScheme());
+    }
+
+    private Components createProdComponents() {
+        return new Components().addSecuritySchemes("Bearer JWT", createBearerScheme());
     }
 
     private SecurityScheme createBearerScheme() {
@@ -67,32 +86,19 @@ public class SwaggerConfig {
                 .type(SecurityScheme.Type.HTTP)
                 .scheme("bearer")
                 .bearerFormat("JWT")
-                .description("JWT Bearer Token from SSO (Client Credentials flow)");
+                .description("JWT Bearer Token from TPS SSO (paste access_token here)");
     }
 
-    private SecurityScheme createClientCredentialsScheme() {
-        var tokenUri = securityProperties.oauth2Client().tokenUri();
-        var scopes = securityProperties.oauth2Client().scopes();
+    private SecurityScheme createPasswordFlowScheme() {
+        PlatformSecurityProperties.OAuth2ClientConfig config = securityProperties.oauth2Client();
+
+        Scopes scopes = new Scopes();
+        config.scopes().forEach(scope -> scopes.addString(scope, "Server-configured scope"));
 
         return new SecurityScheme()
                 .type(SecurityScheme.Type.OAUTH2)
-                .description("OAuth2 Client Credentials")
                 .flows(new OAuthFlows()
-                        .clientCredentials(new OAuthFlow().tokenUrl(tokenUri).scopes(createScopes(scopes))));
-    }
-
-    private Scopes createScopes(List<String> configuredScopes) {
-        Scopes scopes = new Scopes();
-        configuredScopes.forEach(scope -> scopes.addString(scope, getScopeDescription(scope)));
-        return scopes;
-    }
-
-    private String getScopeDescription(String scope) {
-        return switch (scope) {
-            case "core" -> "Core banking operations";
-            case "client_credentials" -> "Client credentials flow";
-            case "upgrade_token" -> "Token privilege escalation";
-            default -> scope + " operations";
-        };
+                        .password(new OAuthFlow().tokenUrl(config.tokenUri()).scopes(scopes)))
+                .description("OAuth2 Password Flow - Enter username and password to obtain token");
     }
 }
