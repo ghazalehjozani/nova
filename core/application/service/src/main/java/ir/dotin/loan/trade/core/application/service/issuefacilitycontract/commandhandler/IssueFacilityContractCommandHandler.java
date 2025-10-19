@@ -12,12 +12,13 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
+import ir.dotin.platform.commons.security.AuthenticationContextHolder;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.PostTitle;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.IssueFacilityContractCommand;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.BankPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.TransactionPostingPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanTypeRepository;
@@ -40,7 +41,7 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
     private final TradeIssueContractTransactionService transactionService;
     private final TransactionPostingPort transactionPostingPort;
     private final IssueFacilityContractConfiguration configuration;
-    private final BankPort bankPort;
+    private final AuthenticationContextHolder authenticationContextHolder;
     private final Clock clock;
 
     @Override
@@ -83,7 +84,11 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
     private Result<LoanTransaction> createTransaction(
             TradeLoanFacility facility, TradeLoanType loanType, PostTitle postTitle) {
 
-        return transactionService.createIssueContractTransaction(
-                facility, loanType, bankPort.getCurrentBranchCode(), postTitle);
+        return Result.fromOptional(
+                        authenticationContextHolder.branchCode(),
+                        () -> Notification.ofError(IssueFacilityContractErrorCodes.BRANCH_CODE_NOT_FOUND))
+                .flatMap(BranchCode::of)
+                .flatMap(branchCode ->
+                        transactionService.createIssueContractTransaction(facility, loanType, branchCode, postTitle));
     }
 }
