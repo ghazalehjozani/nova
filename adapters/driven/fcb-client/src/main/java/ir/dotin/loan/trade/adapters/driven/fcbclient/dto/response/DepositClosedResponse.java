@@ -9,12 +9,12 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@XStreamAlias("com.fanap.business.cmplexpenditure.dto.ValidationResultDTO")
-public class EconomicalSectorValidationResponse extends FcbBaseResponse {
+@XStreamAlias("com.fanap.business.cmplexpenditure.dto.DepositClosedResultDTO")
+public class DepositClosedResponse extends FcbBaseResponse {
 
-    @XStreamAlias("successMessage")
-    private String successMessage;
+    @XStreamAlias("currencySwiftCode")
+    private String currencySwiftCode;
 
-    @XStreamAlias("valid")
-    private boolean valid;
+    @XStreamAlias("isClosed")
+    private Boolean isClosed;
 }

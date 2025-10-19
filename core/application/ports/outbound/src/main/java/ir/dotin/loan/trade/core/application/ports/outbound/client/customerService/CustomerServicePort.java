@@ -1,16 +1,17 @@
-package ir.dotin.loan.trade.core.application.ports.driven.client.customerService;
+package ir.dotin.loan.trade.core.application.ports.outbound.client.customerService;
 
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CustomerInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.feignclient.CustomerInfo;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.feignclient.CustomerInfoLoadOptions;
 
 public interface CustomerServicePort {
 
-    Result<CustomerInfo> getCustomerInfo(String customerNumber);
+    Result<CustomerInfo> loadCustomerInfo(String customerNumber, CustomerInfoLoadOptions options);
 
     Result<TransactionNumber> issueDocument(LoanTransaction loanTransaction);
 
