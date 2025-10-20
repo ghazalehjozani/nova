@@ -5,13 +5,13 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.feignclient.CustomerInfo;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.feignclient.CustomerInfoLoadOptions;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CustomerInfoLoadOptions;
 
 public interface CustomerServicePort {
 
-    Result<CustomerInfo> loadCustomerInfo(String customerNumber, CustomerInfoLoadOptions options);
+    Result<Party> loadCustomerInfo(String customerNumber, CustomerInfoLoadOptions options);
 
     Result<TransactionNumber> issueDocument(LoanTransaction loanTransaction);
 

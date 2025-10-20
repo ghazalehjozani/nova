@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.feignclient.CollateralValidation;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
@@ -19,6 +18,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMe
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.CollateralMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.CollateralServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralValidation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

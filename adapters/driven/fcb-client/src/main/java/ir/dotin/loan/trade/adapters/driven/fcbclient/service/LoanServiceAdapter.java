@@ -9,7 +9,6 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.feignclient.EconomicalSectionValidation;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
@@ -19,6 +18,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMe
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.LoanMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,7 +77,7 @@ public class LoanServiceAdapter implements LoanServicePort {
     }
 
     @Override
-    public Result<EconomicalSectionValidation> validateEconomicalSectionForLoanType(
+    public Result<EconomicalSectorValidation> validateEconomicalSectionForLoanType(
             EconomicSector economicSector, LoanTypeCode loanTypeCode) {
 
         log.info("Validating economical section {} for loan type {}", economicSector.code(), loanTypeCode.value());
@@ -122,10 +122,10 @@ public class LoanServiceAdapter implements LoanServicePort {
 
         FcbValidationResponse fcbResponse = fcbResult.orElseThrow();
 
-        Result<EconomicalSectionValidation> domainResult = LoanMapper.mapToDomainValidation(fcbResponse);
+        Result<EconomicalSectorValidation> domainResult = LoanMapper.mapToDomainValidation(fcbResponse);
 
         if (!domainResult.isFailure()) {
-            EconomicalSectionValidation validation = domainResult.orElseThrow();
+            EconomicalSectorValidation validation = domainResult.orElseThrow();
             log.info(
                     "Economical section validation completed: valid={}, message={}",
                     validation.isValid(),

@@ -18,7 +18,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Article;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.BoxTarget;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositTarget;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.feignclient.CustomerInfo;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CustomerInfoResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 
@@ -140,7 +139,7 @@ public class CustomerMapper {
         return loanTransaction.document().description();
     }
 
-    public Result<CustomerInfo> mapToDomainCustomerInfo(CustomerInfoResponse fcbResponse) {
+    public Result<Party> mapToDomainCustomerInfo(CustomerInfoResponse fcbResponse) {
 
         try {
             String firstName = fcbResponse.getFirstName();
@@ -148,7 +147,6 @@ public class CustomerMapper {
 
             PersonName personName = new PersonName(firstName, lastName);
             PartyType partyType = fcbResponse.getReal() ? PartyType.REAL : PartyType.LEGAL;
-            Party party = new Party(String.valueOf(fcbResponse.getCustomerNumber()), partyType, personName);
             Result<NationalCode> nationalCode = NationalCode.valueOf(fcbResponse.getNationalCode());
 
             if (fcbResponse.getCustomerNumber() == null) {
@@ -158,8 +156,10 @@ public class CustomerMapper {
                         "Customer number is missing in FCB response"));
             }
 
-            Result<CustomerInfo> result = CustomerInfo.of(
-                    party,
+            Result<Party> result = Party.of(
+                    String.valueOf(fcbResponse.getCustomerNumber()),
+                    partyType,
+                    personName,
                     nationalCode.getValue(),
                     fcbResponse.getIsInBlackList(),
                     fcbResponse.getIsIncapable(),

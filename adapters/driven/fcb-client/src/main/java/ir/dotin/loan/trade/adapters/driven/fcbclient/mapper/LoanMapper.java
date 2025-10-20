@@ -3,10 +3,10 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.mapper;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.feignclient.EconomicalSectionValidation;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.EconomicalSectionResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.FcbValidationResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -50,11 +50,11 @@ public class LoanMapper {
         }
     }
 
-    public Result<EconomicalSectionValidation> mapToDomainValidation(FcbValidationResponse fcbResponse) {
+    public Result<EconomicalSectorValidation> mapToDomainValidation(FcbValidationResponse fcbResponse) {
 
         try {
-            Result<EconomicalSectionValidation> result =
-                    EconomicalSectionValidation.of(fcbResponse.isValid(), fcbResponse.getSuccessMessage());
+            Result<EconomicalSectorValidation> result =
+                    EconomicalSectorValidation.of(fcbResponse.isValid(), fcbResponse.getSuccessMessage());
 
             if (result.isFailure()) {
                 log.error(

@@ -12,8 +12,6 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.DepositInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.feignclient.DebtorCreditorDepositValidation;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.feignclient.DepositClosedStatus;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
@@ -25,6 +23,8 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMe
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.DepositMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.depositservice.DepositServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.DebtorCreditorDepositValidation;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.DepositClosedStatus;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
