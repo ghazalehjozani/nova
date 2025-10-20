@@ -13,7 +13,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
@@ -26,6 +25,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.CustomerMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.customerService.CustomerServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CustomerInfoLoadOptions;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +41,7 @@ public class CustomerServiceAdapter implements CustomerServicePort {
     private final FcbBaseRequestBuilder requestBuilder;
 
     @Override
-    public Result<Party> loadCustomerInfo(String customerNumber, CustomerInfoLoadOptions options) {
+    public Result<PartyInfo> loadCustomerInfo(String customerNumber, CustomerInfoLoadOptions options) {
 
         log.info("Loading customer info: customerNumber={}, options={}", customerNumber, options);
 

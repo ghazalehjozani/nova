@@ -52,23 +52,9 @@ public class LoanMapper {
 
     public Result<EconomicalSectorValidation> mapToDomainValidation(FcbValidationResponse fcbResponse) {
 
-        try {
-            Result<EconomicalSectorValidation> result =
-                    EconomicalSectorValidation.of(fcbResponse.isValid(), fcbResponse.getSuccessMessage());
+        EconomicalSectorValidation economicalSectorValidation =
+                new EconomicalSectorValidation(fcbResponse.isValid(), fcbResponse.getSuccessMessage());
 
-            if (result.isFailure()) {
-                log.error(
-                        "Failed to create EconomicalSectionValidation: {}",
-                        result.notification().getErrorMessages());
-            }
-
-            return result;
-
-        } catch (Exception e) {
-            log.error("Failed to map FCB response to domain EconomicalSectionValidation", e);
-            return Result.failure(Notification.ofError(
-                    FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE,
-                    "Failed to parse validation result: " + e.getMessage()));
-        }
+        return Result.success(economicalSectorValidation);
     }
 }

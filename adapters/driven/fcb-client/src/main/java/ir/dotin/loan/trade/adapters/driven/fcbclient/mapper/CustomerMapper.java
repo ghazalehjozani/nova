@@ -20,6 +20,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositTarget;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CustomerInfoResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -139,45 +140,34 @@ public class CustomerMapper {
         return loanTransaction.document().description();
     }
 
-    public Result<Party> mapToDomainCustomerInfo(CustomerInfoResponse fcbResponse) {
+    public Result<PartyInfo> mapToDomainCustomerInfo(CustomerInfoResponse fcbResponse) {
 
-        try {
-            String firstName = fcbResponse.getFirstName();
-            String lastName = fcbResponse.getLastName();
+        String firstName = fcbResponse.getFirstName();
+        String lastName = fcbResponse.getLastName();
 
-            PersonName personName = new PersonName(firstName, lastName);
-            PartyType partyType = fcbResponse.getReal() ? PartyType.REAL : PartyType.LEGAL;
-            Result<NationalCode> nationalCode = NationalCode.valueOf(fcbResponse.getNationalCode());
+        PersonName personName = new PersonName(firstName, lastName);
+        PartyType partyType = fcbResponse.getReal() ? PartyType.REAL : PartyType.LEGAL;
+        Party party = new Party(String.valueOf(fcbResponse.getCustomerNumber()), partyType, personName);
+        Result<NationalCode> nationalCode = NationalCode.valueOf(fcbResponse.getNationalCode());
 
-            if (fcbResponse.getCustomerNumber() == null) {
-                log.error("FCB response missing customer number");
-                return Result.failure(Notification.ofError(
-                        FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE,
-                        "Customer number is missing in FCB response"));
-            }
-
-            Result<Party> result = Party.of(
-                    String.valueOf(fcbResponse.getCustomerNumber()),
-                    partyType,
-                    personName,
-                    nationalCode.getValue(),
-                    fcbResponse.getIsInBlackList(),
-                    fcbResponse.getIsIncapable(),
-                    fcbResponse.getIsInGrayList());
-
-            if (result.isFailure()) {
-                log.error(
-                        "Failed to create CustomerInfo: {}",
-                        result.notification().getErrorMessages());
-            }
-
-            return result;
-
-        } catch (Exception e) {
-            log.error("Failed to map FCB response to domain CustomerInfo", e);
+        if (fcbResponse.getCustomerNumber() == null) {
+            log.error("FCB response missing customer number");
             return Result.failure(Notification.ofError(
                     FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE,
-                    "Failed to parse customer info: " + e.getMessage()));
+                    "Customer number is missing in FCB response"));
         }
+
+        Boolean isInBlackListValue = fcbResponse.getIsInBlackList();
+        Boolean isIncapableValue = fcbResponse.getIsIncapable();
+        Boolean isInGrayListValue = fcbResponse.getIsInGrayList();
+
+        PartyInfo partyInfo = new PartyInfo(
+                party,
+                nationalCode.orElseThrow(),
+                isInBlackListValue != null && isInBlackListValue,
+                isIncapableValue != null && isIncapableValue,
+                isInGrayListValue != null && isInGrayListValue);
+
+        return Result.success(partyInfo);
     }
 }

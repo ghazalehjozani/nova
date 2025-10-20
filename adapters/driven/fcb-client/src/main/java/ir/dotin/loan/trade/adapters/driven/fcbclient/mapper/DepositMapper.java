@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.mapper;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.Direction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.DepositInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.DepositClosedResponse;
@@ -45,89 +46,50 @@ public class DepositMapper {
     }
 
     public Result<DepositClosedStatus> mapToDomainDepositClosedStatus(DepositClosedResponse fcbResponse) {
+        Notification notification = Notification.create();
 
-        try {
-            Boolean isClosedValue = fcbResponse.getIsClosed();
-            if (isClosedValue == null) {
-                log.warn("FCB response has null isClosed value, defaulting to false");
-                isClosedValue = false;
-            }
-
-            Result<DepositClosedStatus> result =
-                    DepositClosedStatus.of(isClosedValue, fcbResponse.getCurrencySwiftCode());
-
-            if (result.isFailure()) {
-                log.error(
-                        "Failed to create DepositClosedStatus: {}",
-                        result.notification().getErrorMessages());
-            }
-
-            return result;
-
-        } catch (Exception e) {
-            log.error("Failed to map FCB response to domain DepositClosedStatus", e);
-            return Result.failure(Notification.ofError(
+        if (fcbResponse.getCurrencySwiftCode() == null
+                || fcbResponse.getCurrencySwiftCode().isBlank()) {
+            log.error("FCB response missing currency swift code");
+            notification.addError(
                     FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE,
-                    "Failed to parse deposit closed status: " + e.getMessage()));
+                    "Currency swift code is missing in response");
         }
+
+        if (notification.hasErrors()) {
+            return Result.failure(notification);
+        }
+
+        Boolean isClosedValue = fcbResponse.getIsClosed();
+        if (isClosedValue == null) {
+            log.warn("FCB response has null isClosed value, defaulting to false");
+            isClosedValue = false;
+        }
+
+        DepositClosedStatus status = new DepositClosedStatus(isClosedValue, fcbResponse.getCurrencySwiftCode());
+
+        return Result.success(status);
     }
 
     public Result<DebtorCreditorDepositValidation> mapToDomainDebtorDepositValidation(
             ValidateDebtorDepositResponse fcbResponse) {
-
-        try {
-            Boolean isDebtorValue = fcbResponse.getIsDebtor();
-            if (isDebtorValue == null) {
-                log.warn("FCB response has null isDebtor value, defaulting to false");
-                isDebtorValue = false;
-            }
-
-            Result<DebtorCreditorDepositValidation> result = DebtorCreditorDepositValidation.of(isDebtorValue);
-
-            if (result.isFailure()) {
-                log.error(
-                        "Failed to create DebtorDepositValidation: {}",
-                        result.notification().getErrorMessages());
-            }
-
-            return result;
-
-        } catch (Exception e) {
-            log.error("Failed to map FCB response to domain DebtorDepositValidation", e);
-            return Result.failure(Notification.ofError(
-                    FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE,
-                    "Failed to parse debtor deposit validation: " + e.getMessage()));
+        Boolean isDebtorValue = fcbResponse.getIsDebtor();
+        if (isDebtorValue == null) {
+            log.warn("FCB response has null isDebtor value, defaulting to false");
         }
+
+        DebtorCreditorDepositValidation validation = new DebtorCreditorDepositValidation(Direction.DEBIT);
+        return Result.success(validation);
     }
 
     public Result<DebtorCreditorDepositValidation> mapToDomainCreditorDepositValidation(
             ValidateCreditorDepositResponse fcbResponse) {
-
-        try {
-            // Handle null isCreditor
-            Boolean isCreditorValue = fcbResponse.getIsCreditor();
-            if (isCreditorValue == null) {
-                log.warn("FCB response has null isCreditor value, defaulting to false");
-                isCreditorValue = false;
-            }
-
-            Result<DebtorCreditorDepositValidation> result = isCreditorValue
-                    ? DebtorCreditorDepositValidation.notDebtor()
-                    : DebtorCreditorDepositValidation.debtor();
-
-            if (result.isFailure()) {
-                log.error(
-                        "Failed to create CreditorDepositValidation: {}",
-                        result.notification().getErrorMessages());
-            }
-
-            return result;
-
-        } catch (Exception e) {
-            log.error("Failed to map FCB response to domain CreditorDepositValidation", e);
-            return Result.failure(Notification.ofError(
-                    FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE,
-                    "Failed to parse creditor deposit validation: " + e.getMessage()));
+        Boolean isCreditorValue = fcbResponse.getIsCreditor();
+        if (isCreditorValue == null) {
+            log.warn("FCB response has null isCreditor value, defaulting to false");
         }
+
+        DebtorCreditorDepositValidation validation = new DebtorCreditorDepositValidation(Direction.CREDIT);
+        return Result.success(validation);
     }
 }

@@ -87,17 +87,17 @@ public class DepositServiceAdapter implements DepositServicePort {
 
         DepositClosedResponse fcbResponse = fcbResult.orElseThrow();
 
-        Result<DepositClosedStatus> domainResult = DepositMapper.mapToDomainDepositClosedStatus(fcbResponse);
+        Result<DepositClosedStatus> result = DepositMapper.mapToDomainDepositClosedStatus(fcbResponse);
 
-        if (!domainResult.isFailure()) {
-            DepositClosedStatus status = domainResult.orElseThrow();
+        if (!result.isFailure()) {
+            DepositClosedStatus status = result.orElseThrow();
             log.info(
                     "Deposit closed status checked: isClosed={}, currency={}",
                     status.isClosed(),
-                    status.currencySwiftCode());
+                    status.currencyTypeCode());
         }
 
-        return domainResult;
+        return result;
     }
 
     @Override
@@ -135,15 +135,7 @@ public class DepositServiceAdapter implements DepositServicePort {
 
         ValidateDebtorDepositResponse fcbResponse = fcbResult.orElseThrow();
 
-        Result<DebtorCreditorDepositValidation> domainResult =
-                DepositMapper.mapToDomainDebtorDepositValidation(fcbResponse);
-
-        if (!domainResult.isFailure()) {
-            DebtorCreditorDepositValidation validation = domainResult.orElseThrow();
-            log.info("Debtor deposit validation completed: isDebtor={}", validation.isDebtor());
-        }
-
-        return domainResult;
+        return DepositMapper.mapToDomainDebtorDepositValidation(fcbResponse);
     }
 
     private Notification validateDepositInputs(String depositNumber, String currencySwiftCode) {

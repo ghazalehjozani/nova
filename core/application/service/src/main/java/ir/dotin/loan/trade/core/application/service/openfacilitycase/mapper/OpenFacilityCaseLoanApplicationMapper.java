@@ -7,7 +7,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import ir.dotin.platform.commons.domain.vo.Money;
-import ir.dotin.platform.commons.domain.vo.NationalCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Certificate;
@@ -37,7 +36,6 @@ public interface OpenFacilityCaseLoanApplicationMapper {
     @Mapping(target = "installmentScheduleId", ignore = true)
     TradeLoanApplication map(OpenFacilityCaseCommand.LoanApplicationDto loanApplication);
 
-    @Mapping(target = "nationalCode", ignore = true)
     Party map(OpenFacilityCaseCommand.PartyDto dto);
 
     PersonName map(OpenFacilityCaseCommand.PersonNameDto dto);
@@ -69,8 +67,6 @@ public interface OpenFacilityCaseLoanApplicationMapper {
     InstallmentCount map(OpenFacilityCaseCommand.InstallmentCountDto dto);
 
     Money map(OpenFacilityCaseCommand.MoneyDto dto);
-
-    NationalCode map(OpenFacilityCaseCommand.NationalCodeDto dto);
 
     default BranchCode mapBranchCode(String code) {
         return BranchCode.of(code).orElseThrow();

@@ -48,14 +48,7 @@ public record OpenFacilityCaseCommand(
             @Nullable CredibilityRankDto credibilityRank,
             @NotNull DisbursementMethod disbursementMethod) {}
 
-    public record PartyDto(
-            @NotBlank String customerNumber,
-            @NotNull PartyType type,
-            @NotNull PersonNameDto name,
-            NationalCodeDto nationalCode,
-            boolean isInBlackList,
-            boolean isIncapable,
-            boolean isInGrayList) {}
+    public record PartyDto(@NotBlank String customerNumber, @NotNull PartyType type, @NotNull PersonNameDto name) {}
 
     public record PersonNameDto(@NotBlank String firstName, @NotBlank String lastName) {}
 
@@ -91,6 +84,4 @@ public record OpenFacilityCaseCommand(
     public record InstallmentCountDto(@NotNull Integer value) {}
 
     public record EconomicSectorDto(@NotBlank String code, @NotBlank String name) {}
-
-    public record NationalCodeDto(String value) {}
 }
