@@ -17,7 +17,7 @@ public class FcbClientErrorDecoder implements ErrorDecoder {
         log.error("FCB client error: method={}, status={}, reason={}", methodKey, response.status(), response.reason());
 
         Notification notification;
-        switch (response.status()) {
+        switch (response.status()) { // TODO: fcb always response 200, switch on rs code for business exception
             case 400:
                 notification =
                         Notification.ofError(FcbBusinessLocalizedMessageCodes.FCB_BAD_REQUEST, response.reason());

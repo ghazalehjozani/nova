@@ -1,14 +1,19 @@
 package ir.dotin.loan.trade.adapters.driving.rest.base.advice;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import ir.dotin.loan.trade.adapters.driving.rest.base.ServiceError;
+import ir.dotin.loan.trade.adapters.driving.rest.base.response.ErrorResponse;
+import ir.dotin.platform.commons.core.NotificationError;
+import ir.dotin.platform.commons.core.exception.BusinessRuleViolationException;
+import ir.dotin.platform.commons.core.exception.OperationalException;
+import ir.dotin.platform.commons.core.exception.SystemFailureException;
+import ir.dotin.platform.dispatcher.starter.i18n.NotificationMessageResolver;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -30,15 +35,62 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import ir.dotin.loan.trade.adapters.driving.rest.base.ServiceError;
-import ir.dotin.loan.trade.adapters.driving.rest.base.response.ErrorResponse;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
-// TODO: Handle custom exception, fix messages, read messages from message.properties
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     private static final String SERVICE_PREFIX = "LOAN";
+
+    private final MessageSource messageSource;
+
+    // ==================== Platform Exception Hierarchy ====================
+
+    @ExceptionHandler(BusinessRuleViolationException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessRuleViolation(
+            BusinessRuleViolationException ex, HttpServletRequest request) {
+
+        log.warn("Business rule violation at {}: {}", request.getRequestURI(), ex.getMessage());
+        NotificationMessageResolver messageResolver = new NotificationMessageResolver(messageSource);
+        Set<NotificationError> notificationErrors = ex.getNotification().errors();
+        List<ServiceError> errors = new ArrayList<>();
+        notificationErrors.forEach(notificationError ->
+                errors.add(ServiceError.of(
+                        notificationError.messageKey().name(),
+                        messageResolver.resolve(notificationError.messageKey(), notificationError.getArgsAsArray())
+                ))
+        );
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ErrorResponse.of(errors));
+    }
+
+    @ExceptionHandler(OperationalException.class)
+    public ResponseEntity<ErrorResponse> handleOperationalException(
+            OperationalException ex, HttpServletRequest request) {
+
+        log.error("Operational exception at {}: {}", request.getRequestURI(), ex.getMessage());
+
+        String errorCode = ex.getErrorCode() != null ? ex.getErrorCode() : "OP-0001";
+        ErrorResponse error = ErrorResponse.of(errorCode, ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(error);
+    }
+
+    @ExceptionHandler(SystemFailureException.class)
+    public ResponseEntity<ErrorResponse> handleSystemFailure(
+            SystemFailureException ex, HttpServletRequest request) {
+
+        log.error("System failure at {}: {}", request.getRequestURI(), ex.getMessage(), ex);
+
+        String errorCode = ex.getErrorCode() != null ? ex.getErrorCode() : "SYS-0001";
+        ErrorResponse error = ErrorResponse.of(errorCode, ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
 
     // ==================== Authentication & Authorization (401, 403) ====================
 
@@ -100,14 +152,7 @@ public class GlobalExceptionHandler {
         List<ServiceError> errors = new ArrayList<>();
         for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
             errors.add(ServiceError.of(
-                    "VAL-"
-                            + String.format(
-                                    "%04d",
-                                    Math.abs(violation
-                                                    .getPropertyPath()
-                                                    .toString()
-                                                    .hashCode()
-                                            % 9999)),
+                    "VAL-" + String.format("%04d", Math.abs(violation.getPropertyPath().toString().hashCode() % 9999)),
                     violation.getPropertyPath() + ": " + violation.getMessage()));
         }
 
@@ -183,12 +228,7 @@ public class GlobalExceptionHandler {
         ErrorResponse error = ErrorResponse.of("METHOD-0001", "روش درخواست پشتیبانی نمی‌شود: " + ex.getMethod());
 
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
-                .header(
-                        "Allow",
-                        String.join(
-                                ", ",
-                                Objects.requireNonNull(ex.getSupportedHttpMethods())
-                                        .toString()))
+                .header("Allow", String.join(", ", Objects.requireNonNull(ex.getSupportedHttpMethods()).toString()))
                 .body(error);
     }
 

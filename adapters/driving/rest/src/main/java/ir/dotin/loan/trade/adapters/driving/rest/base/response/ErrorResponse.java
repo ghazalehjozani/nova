@@ -42,8 +42,4 @@ public record ErrorResponse(String rsCode, Boolean isSuccess, Void data, List<Se
         return new DataResponse<>(rsCode, isSuccess, null, errors);
     }
 
-    @Override
-    public HttpStatus httpStatus() {
-        return HttpStatusMapper.fromErrorCode(firstError().code());
-    }
 }

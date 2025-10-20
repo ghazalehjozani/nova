@@ -54,16 +54,6 @@ public sealed interface ServiceResponse<T> permits DataResponse, PagedResponse, 
     <R> ServiceResponse<R> flatMap(Function<? super T, ? extends ServiceResponse<R>> mapper);
 
     @JsonIgnore
-    default HttpStatus httpStatus() {
-        return hasErrors() ? HttpStatusMapper.fromErrorCode(firstError().code()) : HttpStatus.OK;
-    }
-
-    @JsonIgnore
-    default ResponseEntity<ServiceResponse<T>> toResponseEntity() {
-        return ResponseEntity.status(httpStatus()).body(this);
-    }
-
-    @JsonIgnore
     default ResponseEntity<ServiceResponse<T>> toResponseEntity(HttpStatus status) {
         return ResponseEntity.status(status).body(this);
     }
