@@ -2,7 +2,6 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,24 +13,22 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CustomerInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CustomerInfoResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ElectronicBillCustomerDTO;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.IssueDocumentResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.OpenAccountResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.CustomerMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
-import ir.dotin.loan.trade.core.application.ports.driven.client.customerService.CustomerServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.customerService.CustomerServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CustomerInfoLoadOptions;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @Service
@@ -44,32 +41,91 @@ public class CustomerServiceAdapter implements CustomerServicePort {
     private final FcbBaseRequestBuilder requestBuilder;
 
     @Override
-    public Result<CustomerInfo> getCustomerInfo(String customerNumber) {
-        Parameter parameter = Parameter.builder()
-                .type("constant")
-                .key("customerNumbers")
-                .value(customerNumber)
-                .build();
+    public Result<PartyInfo> loadCustomerInfo(String customerNumber, CustomerInfoLoadOptions options) {
 
-        Usecases usecases =
-                requestBuilder.buildUseCase("electronic-bill-customer-info", Collections.singletonList(parameter));
-        FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
+        log.info("Loading customer info: customerNumber={}, options={}", customerNumber, options);
 
-        Result<CustomerInfoResponse> customerInfoResponseResult =
-                fcbService.executeUsecase(fcbRequest, CustomerInfoResponse.class);
-
-        CustomerInfoResponse responseDto = customerInfoResponseResult.value();
-        List<ElectronicBillCustomerDTO> customerData =
-                requireNonNull(responseDto).getCustomerData();
-
-        if (customerData == null || customerData.isEmpty()) {
-            return Result.failure(
-                    Notification.ofError(FcbBusinessLocalizedMessageCodes.CUSTOMER_NOT_FOUND_IN_FCB, customerNumber));
+        Notification inputValidation = validateInputs(customerNumber, options);
+        if (inputValidation.hasErrors()) {
+            log.error("Input validation failed: {}", inputValidation.getErrorMessages());
+            return Result.failure(inputValidation);
         }
 
-        ElectronicBillCustomerDTO firstCustomerDto = customerData.getFirst();
+        List<Parameter> parameters = buildCustomerInfoParameters(customerNumber, options);
 
-        return CustomerMapper.mapToCustomerInfo(firstCustomerDto);
+        Usecases usecases = requestBuilder.buildUseCase("load-customer-info", parameters);
+        FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
+
+        log.debug("Executing FCB load-customer-info usecase");
+
+        Result<CustomerInfoResponse> fcbResult = fcbService.executeUsecase(fcbRequest, CustomerInfoResponse.class);
+
+        if (fcbResult.isFailure()) {
+            log.error(
+                    "FCB load-customer-info failed: {}",
+                    fcbResult.notification().getErrorMessages());
+            return Result.failure(fcbResult.notification());
+        }
+
+        CustomerInfoResponse fcbResponse = fcbResult.orElseThrow();
+
+        return CustomerMapper.mapToDomainCustomerInfo(fcbResponse);
+    }
+
+    private Notification validateInputs(String customerNumber, CustomerInfoLoadOptions options) {
+        Notification notification = Notification.create();
+
+        if (customerNumber == null || customerNumber.isBlank()) {
+            notification.addError(
+                    FcbBusinessLocalizedMessageCodes.FCB_BAD_REQUEST, "Customer number cannot be null or blank");
+        }
+
+        if (options == null) {
+            notification.addError(
+                    FcbBusinessLocalizedMessageCodes.FCB_BAD_REQUEST, "Customer info load options cannot be null");
+        }
+
+        return notification;
+    }
+
+    private List<Parameter> buildCustomerInfoParameters(String customerNumber, CustomerInfoLoadOptions options) {
+
+        List<Parameter> parameters = new ArrayList<>();
+
+        parameters.add(
+                Parameter.builder().key("customerNumber").value(customerNumber).build());
+
+        parameters.add(Parameter.builder()
+                .key("sequenceCode")
+                .value(options.sequenceCode())
+                .build());
+
+        parameters.add(
+                Parameter.builder().key("subsystem").value(options.subsystem()).build());
+
+        parameters.add(Parameter.builder()
+                .key("includeCapability")
+                .value(String.valueOf(options.includeCapability()))
+                .build());
+
+        parameters.add(Parameter.builder()
+                .key("includeBlackList")
+                .value(String.valueOf(options.includeBlackList()))
+                .build());
+
+        parameters.add(Parameter.builder()
+                .key("includeBaseInfo")
+                .value(String.valueOf(options.includeBaseInfo()))
+                .build());
+
+        parameters.add(Parameter.builder()
+                .key("includeGrayList")
+                .value(String.valueOf(options.includeGrayList()))
+                .build());
+
+        log.debug("Built customer info parameters for customer: {}", customerNumber);
+
+        return parameters;
     }
 
     @Override

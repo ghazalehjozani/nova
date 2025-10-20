@@ -10,7 +10,6 @@ import ir.dotin.platform.commons.domain.vo.NationalCode;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.Direction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CustomerInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
@@ -19,8 +18,9 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Article;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.BoxTarget;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositTarget;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ElectronicBillCustomerDTO;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CustomerInfoResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -140,17 +140,34 @@ public class CustomerMapper {
         return loanTransaction.document().description();
     }
 
-    public Result<CustomerInfo> mapToCustomerInfo(ElectronicBillCustomerDTO customerDto) {
-        String[] nameParts =
-                customerDto.getName() != null ? customerDto.getName().split(" ", 2) : new String[] {"", ""};
-        String firstName = nameParts[0];
-        String lastName = nameParts.length > 1 ? nameParts[1] : "";
+    public Result<PartyInfo> mapToDomainCustomerInfo(CustomerInfoResponse fcbResponse) {
+
+        String firstName = fcbResponse.getFirstName();
+        String lastName = fcbResponse.getLastName();
 
         PersonName personName = new PersonName(firstName, lastName);
-        PartyType partyType = PartyType.valueOf(customerDto.getCustomerType());
-        Party party = new Party(customerDto.getCustomerNumber(), partyType, personName);
-        Result<NationalCode> nationalCode = NationalCode.valueOf(customerDto.getNationalCode());
+        PartyType partyType = fcbResponse.getReal() ? PartyType.REAL : PartyType.LEGAL;
+        Party party = new Party(String.valueOf(fcbResponse.getCustomerNumber()), partyType, personName);
+        Result<NationalCode> nationalCode = NationalCode.valueOf(fcbResponse.getNationalCode());
 
-        return CustomerInfo.of(party, nationalCode.getValue());
+        if (fcbResponse.getCustomerNumber() == null) {
+            log.error("FCB response missing customer number");
+            return Result.failure(Notification.ofError(
+                    FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE,
+                    "Customer number is missing in FCB response"));
+        }
+
+        Boolean isInBlackListValue = fcbResponse.getIsInBlackList();
+        Boolean isIncapableValue = fcbResponse.getIsIncapable();
+        Boolean isInGrayListValue = fcbResponse.getIsInGrayList();
+
+        PartyInfo partyInfo = new PartyInfo(
+                party,
+                nationalCode.orElseThrow(),
+                isInBlackListValue != null && isInBlackListValue,
+                isIncapableValue != null && isIncapableValue,
+                isInGrayListValue != null && isInGrayListValue);
+
+        return Result.success(partyInfo);
     }
 }

@@ -9,16 +9,16 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicalSectionValidation;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.EconomicalSectionResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.EconomicalSectorValidationResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.FcbValidationResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.LoanMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
-import ir.dotin.loan.trade.core.application.ports.driven.client.loanservice.LoanServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,7 +77,7 @@ public class LoanServiceAdapter implements LoanServicePort {
     }
 
     @Override
-    public Result<EconomicalSectionValidation> validateEconomicalSectionForLoanType(
+    public Result<EconomicalSectorValidation> validateEconomicalSectionForLoanType(
             EconomicSector economicSector, LoanTypeCode loanTypeCode) {
 
         log.info("Validating economical section {} for loan type {}", economicSector.code(), loanTypeCode.value());
@@ -111,8 +111,7 @@ public class LoanServiceAdapter implements LoanServicePort {
 
         log.debug("Executing FCB validate economical section usecase");
 
-        Result<EconomicalSectorValidationResponse> fcbResult =
-                fcbService.executeUsecase(fcbRequest, EconomicalSectorValidationResponse.class);
+        Result<FcbValidationResponse> fcbResult = fcbService.executeUsecase(fcbRequest, FcbValidationResponse.class);
 
         if (fcbResult.isFailure()) {
             log.error(
@@ -121,12 +120,12 @@ public class LoanServiceAdapter implements LoanServicePort {
             return Result.failure(fcbResult.notification());
         }
 
-        EconomicalSectorValidationResponse fcbResponse = fcbResult.orElseThrow();
+        FcbValidationResponse fcbResponse = fcbResult.orElseThrow();
 
-        Result<EconomicalSectionValidation> domainResult = LoanMapper.mapToDomainValidation(fcbResponse);
+        Result<EconomicalSectorValidation> domainResult = LoanMapper.mapToDomainValidation(fcbResponse);
 
         if (!domainResult.isFailure()) {
-            EconomicalSectionValidation validation = domainResult.orElseThrow();
+            EconomicalSectorValidation validation = domainResult.orElseThrow();
             log.info(
                     "Economical section validation completed: valid={}, message={}",
                     validation.isValid(),

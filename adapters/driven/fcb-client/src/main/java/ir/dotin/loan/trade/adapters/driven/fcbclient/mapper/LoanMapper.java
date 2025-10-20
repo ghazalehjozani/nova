@@ -3,10 +3,10 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.mapper;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicalSectionValidation;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.EconomicalSectionResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.EconomicalSectorValidationResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.FcbValidationResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -32,30 +32,29 @@ public class LoanMapper {
                         "Economical section name is missing in response"));
             }
 
-            EconomicSector economicSector = new EconomicSector(fcbResponse.getCode(), fcbResponse.getName());
+            Result<EconomicSector> economicSector = EconomicSector.of(fcbResponse.getCode(), fcbResponse.getName());
 
-            return Result.success(economicSector);
+            if (economicSector.isFailure()) {
+                log.error(
+                        "Failed to create EconomicalSection: {}",
+                        economicSector.notification().getErrorMessages());
+            }
+
+            return economicSector;
 
         } catch (Exception e) {
-            log.error("Failed to map FCB response to domain EconomicalSection", e);
+            log.error("Failed to map FCB response to domain Economic Sector", e);
             return Result.failure(Notification.ofError(
                     FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE,
                     "Failed to parse economical section: " + e.getMessage()));
         }
     }
 
-    public Result<EconomicalSectionValidation> mapToDomainValidation(EconomicalSectorValidationResponse fcbResponse) {
-        try {
-            EconomicalSectionValidation validation =
-                    new EconomicalSectionValidation(fcbResponse.isValid(), fcbResponse.getSuccessMessage());
+    public Result<EconomicalSectorValidation> mapToDomainValidation(FcbValidationResponse fcbResponse) {
 
-            return Result.success(validation);
+        EconomicalSectorValidation economicalSectorValidation =
+                new EconomicalSectorValidation(fcbResponse.isValid(), fcbResponse.getSuccessMessage());
 
-        } catch (Exception e) {
-            log.error("Failed to map FCB response to domain EconomicalSectionValidation", e);
-            return Result.failure(Notification.ofError(
-                    FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE,
-                    "Failed to parse validation result: " + e.getMessage()));
-        }
+        return Result.success(economicalSectorValidation);
     }
 }
