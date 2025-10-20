@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.function.Function;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import org.springframework.http.HttpStatus;
 
 import ir.dotin.loan.trade.adapters.driving.rest.base.ServiceError;
 
@@ -41,5 +40,4 @@ public record ErrorResponse(String rsCode, Boolean isSuccess, Void data, List<Se
     public <R> ServiceResponse<R> flatMap(Function<? super Void, ? extends ServiceResponse<R>> mapper) {
         return new DataResponse<>(rsCode, isSuccess, null, errors);
     }
-
 }

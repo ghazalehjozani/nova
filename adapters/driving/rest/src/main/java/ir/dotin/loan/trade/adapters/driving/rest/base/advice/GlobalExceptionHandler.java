@@ -1,16 +1,13 @@
 package ir.dotin.loan.trade.adapters.driving.rest.base.advice;
 
-import ir.dotin.loan.trade.adapters.driving.rest.base.ServiceError;
-import ir.dotin.loan.trade.adapters.driving.rest.base.response.ErrorResponse;
-import ir.dotin.platform.commons.core.NotificationError;
-import ir.dotin.platform.commons.core.exception.BusinessRuleViolationException;
-import ir.dotin.platform.commons.core.exception.OperationalException;
-import ir.dotin.platform.commons.core.exception.SystemFailureException;
-import ir.dotin.platform.dispatcher.starter.i18n.NotificationMessageResolver;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import lombok.RequiredArgsConstructor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -35,10 +32,15 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import ir.dotin.platform.commons.core.NotificationError;
+import ir.dotin.platform.commons.core.exception.BusinessRuleViolationException;
+import ir.dotin.platform.commons.core.exception.OperationalException;
+import ir.dotin.platform.commons.core.exception.SystemFailureException;
+import ir.dotin.platform.dispatcher.starter.i18n.NotificationMessageResolver;
+import ir.dotin.loan.trade.adapters.driving.rest.base.ServiceError;
+import ir.dotin.loan.trade.adapters.driving.rest.base.response.ErrorResponse;
+
+import lombok.RequiredArgsConstructor;
 
 @RestControllerAdvice
 @RequiredArgsConstructor
@@ -59,12 +61,9 @@ public class GlobalExceptionHandler {
         NotificationMessageResolver messageResolver = new NotificationMessageResolver(messageSource);
         Set<NotificationError> notificationErrors = ex.getNotification().errors();
         List<ServiceError> errors = new ArrayList<>();
-        notificationErrors.forEach(notificationError ->
-                errors.add(ServiceError.of(
-                        notificationError.messageKey().name(),
-                        messageResolver.resolve(notificationError.messageKey(), notificationError.getArgsAsArray())
-                ))
-        );
+        notificationErrors.forEach(notificationError -> errors.add(ServiceError.of(
+                notificationError.messageKey().name(),
+                messageResolver.resolve(notificationError.messageKey(), notificationError.getArgsAsArray()))));
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ErrorResponse.of(errors));
     }
 
@@ -81,8 +80,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(SystemFailureException.class)
-    public ResponseEntity<ErrorResponse> handleSystemFailure(
-            SystemFailureException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleSystemFailure(SystemFailureException ex, HttpServletRequest request) {
 
         log.error("System failure at {}: {}", request.getRequestURI(), ex.getMessage(), ex);
 
@@ -152,7 +150,14 @@ public class GlobalExceptionHandler {
         List<ServiceError> errors = new ArrayList<>();
         for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
             errors.add(ServiceError.of(
-                    "VAL-" + String.format("%04d", Math.abs(violation.getPropertyPath().toString().hashCode() % 9999)),
+                    "VAL-"
+                            + String.format(
+                                    "%04d",
+                                    Math.abs(violation
+                                                    .getPropertyPath()
+                                                    .toString()
+                                                    .hashCode()
+                                            % 9999)),
                     violation.getPropertyPath() + ": " + violation.getMessage()));
         }
 
@@ -228,7 +233,12 @@ public class GlobalExceptionHandler {
         ErrorResponse error = ErrorResponse.of("METHOD-0001", "روش درخواست پشتیبانی نمی‌شود: " + ex.getMethod());
 
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
-                .header("Allow", String.join(", ", Objects.requireNonNull(ex.getSupportedHttpMethods()).toString()))
+                .header(
+                        "Allow",
+                        String.join(
+                                ", ",
+                                Objects.requireNonNull(ex.getSupportedHttpMethods())
+                                        .toString()))
                 .body(error);
     }
 

@@ -1,12 +1,12 @@
 package ir.dotin.loan.trade.adapters.driving.rest.base;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import ir.dotin.platform.commons.core.i18n.LocalizedMessage;
-import lombok.Builder;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import lombok.Builder;
 
 /**
  * Standard error structure for Dotin inter-service communication. Error code format: [PREFIX]-[SEQUENCE]
@@ -63,5 +63,4 @@ public record ServiceError(String code, String message, List<ErrorDetail> detail
             return ErrorDetail.builder().message(message).build();
         }
     }
-
 }
