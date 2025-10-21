@@ -1,6 +1,9 @@
 spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE}
+  messages:
+    basename: messages
+    encoding: UTF-8
   datasource:
     driver-class-name: org.postgresql.Driver
     hikari:
@@ -331,6 +334,13 @@ platform:
     dev-auth:
       enabled: true
       branch-code: "1"
+  rest:
+    service-prefix: LOAN
+    api-path-pattern: /v1/**
+    headers:
+      required: true
+      default-ttl-seconds: 60
+      default-language: fa
 fcb:
   integration:
     base-url: ${FCB_BASE_URL}

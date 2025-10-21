@@ -18,6 +18,10 @@
 
   <dependencies>
       <dependency>
+          <groupId>ir.dotin.platform</groupId>
+          <artifactId>platform-adapter-rest</artifactId>
+      </dependency>
+      <dependency>
           <groupId>ir.dotin.loan</groupId>
           <artifactId>trade-loan-core-application-query</artifactId>
       </dependency>

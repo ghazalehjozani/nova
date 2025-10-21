@@ -72,4 +72,31 @@
         <artifactId>trade-loan-adapters-driven-messaging</artifactId>
     </dependency>
   </dependencies>
+
+  <build>
+      <plugins>
+          <plugin>
+              <groupId>ir.dotin.platform</groupId>
+              <artifactId>i18n-extractor-maven-plugin</artifactId>
+              <version>1.0.0-SNAPSHOT</version>
+              <configuration>
+                  <basePackage>ir.dotin</basePackage>
+                  <outputDirectory>${project.basedir}/src/main/resources</outputDirectory>
+                  <scanDependencies>true</scanDependencies>
+                  <locales>
+                      <locale/>
+                      <locale>en</locale>
+                      <locale>fa</locale>
+                      <locale>ar</locale>
+                  </locales>
+                  <enableAutoTranslation>true</enableAutoTranslation>
+                  <translationApiBaseUrl>https://api.deepseek.com</translationApiBaseUrl>
+                  <translationModel>deepseek-chat</translationModel>
+                  <translationMaxRetries>3</translationMaxRetries>
+                  <translationTimeoutSeconds>30</translationTimeoutSeconds>
+                  <skipTranslationForEnglish>true</skipTranslationForEnglish>
+              </configuration>
+          </plugin>
+      </plugins>
+  </build>
 </project>
