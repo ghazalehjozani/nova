@@ -101,7 +101,8 @@ public record TradeLoanArrangementQueryDto(
     public record RegulatoryCompliancePolicyEmbDto(
             Integer overDuePeriod, Integer deferralPeriod, Integer suspiciousPeriod) implements Serializable {}
 
-    public record CollateralPolicyEmbDto(Integer totalPercent, Set<CollateralTypeEmbDto> collateralTypes)
+    public record CollateralPolicyEmbDto(
+            Integer totalPercent, Set<CollateralTypeEmbDto> collateralTypes, String collateralCalculationType)
             implements Serializable {
 
         public record CollateralTypeEmbDto(String code) implements Serializable {}

@@ -9,9 +9,13 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
+
+import ir.dotin.loan.baseloan.core.domain.shared.enums.CollateralCalculationType;
 
 import lombok.Data;
 
@@ -29,4 +33,8 @@ public class CollateralPolicyEmb implements Serializable {
             indexes = @Index(name = "idx_trade_loan_arrangement_collateral", columnList = "loan_arrangement_id"))
     @AttributeOverrides({@AttributeOverride(name = "code", column = @Column(name = "collateral_code", length = 50))})
     private Set<CollateralTypeEmb> collateralTypes = new HashSet<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "collateral_calculation_type", nullable = false)
+    private CollateralCalculationType collateralCalculationType;
 }
