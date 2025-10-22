@@ -22,12 +22,12 @@ public final class TradeLoanApplication extends AbstractLoanApplication<TradeLoa
 
     public static Result<TradeLoanApplication> create(Builder builder) {
         requireNonNull(builder, "Builder cannot be null for create");
-        return builder.id(LoanApplicationId.of(randomUUID())).build();
+        return Result.success(builder.id(LoanApplicationId.of(randomUUID())).build());
     }
 
     public static Result<TradeLoanApplication> reconstitute(Builder builder) {
         requireNonNull(builder, "Builder cannot be null for reconstitution");
-        return builder.build();
+        return Result.success(builder.build());
     }
 
     @Override

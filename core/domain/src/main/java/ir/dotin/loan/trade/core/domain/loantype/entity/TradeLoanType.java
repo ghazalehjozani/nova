@@ -82,14 +82,7 @@ public final class TradeLoanType extends AbstractLoanType {
             LoanTypeId currentAggregateId, AbstractLoanTypeBuilder<?, ?, ?> validatedBuilder, Clock clock) {
 
         Builder builder = (Builder) validatedBuilder;
-        Result<TradeLoanType> tradeLoanTypeResult = builder.build();
-
-        checkState(
-                !tradeLoanTypeResult.hasErrors(),
-                "Failed to build loan type from validated builder: %s",
-                tradeLoanTypeResult.notification().getErrorMessages());
-
-        TradeLoanType tradeLoanType = tradeLoanTypeResult.value();
+        TradeLoanType tradeLoanType = builder.build();
         requireNonNull(tradeLoanType, "tradeLoanType cannot be null after successful build");
         LoanTypeId newAggregateId = tradeLoanType.getId();
 

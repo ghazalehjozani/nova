@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.*;
@@ -26,6 +27,7 @@ import static java.time.ZoneOffset.UTC;
 import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TradeLoanFacility")
@@ -65,7 +67,7 @@ class TradeLoanFacilityTest {
                     branch,
                     requestReason,
                     disburseDestination);
-            var application = applicationBuilder.build().orElseThrow();
+            var application = assertDoesNotThrow(() -> applicationBuilder.build());
             var facilityId = LoanFacilityId.of(randomUUID());
             var loanTypeId = LoanTypeId.of(randomUUID());
 
@@ -137,7 +139,7 @@ class TradeLoanFacilityTest {
                     branch,
                     requestReason,
                     disburseDestination);
-            var application = applicationBuilder.build().orElseThrow();
+            var application = assertDoesNotThrow(() -> applicationBuilder.build());
             var facilityId = LoanFacilityId.of(randomUUID());
             var loanTypeId = LoanTypeId.of(randomUUID());
 
@@ -182,7 +184,7 @@ class TradeLoanFacilityTest {
                     branch,
                     requestReason,
                     disburseDestination);
-            var application = builder.build().orElseThrow();
+            var application = assertDoesNotThrow(() -> builder.build());
             var facilityId = LoanFacilityId.of(randomUUID());
             var loanTypeId = LoanTypeId.of(randomUUID());
             TradeLoanFacility facility =
@@ -215,7 +217,7 @@ class TradeLoanFacilityTest {
                     branch,
                     requestReason,
                     disburseDestination);
-            var application = builder.build().orElseThrow();
+            var application = assertDoesNotThrow(() -> builder.build());
             var facilityId = LoanFacilityId.of(randomUUID());
             var loanTypeId = LoanTypeId.of(randomUUID());
             TradeLoanFacility facility =
@@ -248,7 +250,7 @@ class TradeLoanFacilityTest {
                     branch,
                     requestReason,
                     disburseDestination);
-            var application = builder.build().orElseThrow();
+            var application = assertDoesNotThrow(() -> builder.build());
             var facilityId = LoanFacilityId.of(randomUUID());
             var loanTypeId = LoanTypeId.of(randomUUID());
             TradeLoanFacility facility =
@@ -286,7 +288,7 @@ class TradeLoanFacilityTest {
                     branch,
                     requestReason,
                     disburseDestination);
-            var application = builder.build().orElseThrow();
+            var application = assertDoesNotThrow(() -> builder.build());
             var facilityId = LoanFacilityId.of(randomUUID());
             var loanTypeId = LoanTypeId.of(randomUUID());
             TradeLoanFacility facility =
@@ -319,7 +321,7 @@ class TradeLoanFacilityTest {
                     branch,
                     requestReason,
                     disburseDestination);
-            var application = builder.build().orElseThrow();
+            var application = assertDoesNotThrow(() -> builder.build());
             var facilityId = LoanFacilityId.of(randomUUID());
             var loanTypeId = LoanTypeId.of(randomUUID());
             TradeLoanFacility facility =
@@ -357,6 +359,7 @@ class TradeLoanFacilityTest {
                 .economicSector(economicSector)
                 .branch(branch)
                 .requestReason(requestReason)
-                .disburseDestination(disburseDestination);
+                .disburseDestination(disburseDestination)
+                .disbursementMethod(DisbursementMethod.LUMP_SUM);
     }
 }

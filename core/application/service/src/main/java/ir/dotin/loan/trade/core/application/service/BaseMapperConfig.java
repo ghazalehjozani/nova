@@ -13,6 +13,5 @@ import org.mapstruct.ReportingPolicy;
         unmappedSourcePolicy = ReportingPolicy.WARN,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL,
         nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
-        injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        builder = @org.mapstruct.Builder(buildMethod = "buildInternal"))
+        injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface BaseMapperConfig {}

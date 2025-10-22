@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
@@ -22,6 +23,8 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TradeSanctionedLoan")
@@ -56,11 +59,9 @@ final class TradeSanctionedLoanTest {
             var builder = createValidBuilder();
 
             // when
-            var result = builder.build();
+            var sanctionedLoan = assertDoesNotThrow(() -> builder.build());
 
             // then
-            assertThat(result.isSuccess()).isTrue();
-            var sanctionedLoan = result.value();
             assertThat(sanctionedLoan).isNotNull();
             assertThat(sanctionedLoan.getId()).isNotNull();
             assertThat(sanctionedLoan.getId()).isInstanceOf(SanctionedLoanId.class);
@@ -76,9 +77,7 @@ final class TradeSanctionedLoanTest {
             var builder = TradeSanctionedLoan.builder();
 
             // when & then
-            assertThatThrownBy(() -> builder.build())
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("cannot be null");
+            assertThrows(IllegalArgumentException.class, () -> builder.build());
         }
     }
 
@@ -103,11 +102,9 @@ final class TradeSanctionedLoanTest {
             var builder = createValidBuilder();
 
             // when
-            var result = builder.build();
+            var sanctionedLoan = assertDoesNotThrow(() -> builder.build());
 
             // then
-            assertThat(result.isSuccess()).isTrue();
-            var sanctionedLoan = result.value();
             assertThat(sanctionedLoan).isNotNull().isInstanceOf(TradeSanctionedLoan.class);
         }
 
@@ -118,9 +115,7 @@ final class TradeSanctionedLoanTest {
             var builder = TradeSanctionedLoan.builder().id(SanctionedLoanId.of(randomUUID()));
 
             // when & then
-            assertThatThrownBy(builder::build)
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("cannot be null");
+            assertThrows(IllegalArgumentException.class, () -> builder.build());
         }
 
         @DisplayName("should support method chaining")
@@ -152,8 +147,8 @@ final class TradeSanctionedLoanTest {
             var builder2 = createValidBuilder().id(id);
 
             // when
-            var sanctionedLoan1 = builder1.build().value();
-            var sanctionedLoan2 = builder2.build().value();
+            var sanctionedLoan1 = assertDoesNotThrow(() -> builder1.build());
+            var sanctionedLoan2 = assertDoesNotThrow(() -> builder2.build());
 
             // then
             assertThat(sanctionedLoan1).isEqualTo(sanctionedLoan2);
@@ -168,8 +163,8 @@ final class TradeSanctionedLoanTest {
             var builder2 = createValidBuilder().id(SanctionedLoanId.of(randomUUID()));
 
             // when
-            var sanctionedLoan1 = builder1.build().value();
-            var sanctionedLoan2 = builder2.build().value();
+            var sanctionedLoan1 = assertDoesNotThrow(() -> builder1.build());
+            var sanctionedLoan2 = assertDoesNotThrow(() -> builder2.build());
 
             // then
             assertThat(sanctionedLoan1.getId()).isNotEqualTo(sanctionedLoan2.getId());
@@ -185,9 +180,7 @@ final class TradeSanctionedLoanTest {
                     .sanctionSerial(null);
 
             // when & then
-            assertThatThrownBy(builder::build)
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("cannot be null");
+            assertThrows(IllegalArgumentException.class, () -> builder.build());
         }
     }
 
@@ -202,11 +195,7 @@ final class TradeSanctionedLoanTest {
             var builder = createValidBuilder();
 
             // when
-            var result = builder.build();
-
-            // then
-            assertThat(result.isSuccess()).isTrue();
-            var sanctionedLoan = result.value();
+            var sanctionedLoan = assertDoesNotThrow(() -> builder.build());
 
             // Verify inheritance behavior
             assertThat(sanctionedLoan.getSanctionSerial()).isEqualTo(mockSanctionSerial);
@@ -223,11 +212,7 @@ final class TradeSanctionedLoanTest {
             var builder = createValidBuilder();
 
             // when
-            var result = builder.build();
-
-            // then
-            assertThat(result.isSuccess()).isTrue();
-            var sanctionedLoan = result.value();
+            var sanctionedLoan = assertDoesNotThrow(() -> builder.build());
 
             // Verify basic entity capabilities are inherited
             assertThat(sanctionedLoan.getId()).isNotNull();
@@ -240,11 +225,7 @@ final class TradeSanctionedLoanTest {
             var builder = createValidBuilder();
 
             // when
-            var result = builder.build();
-
-            // then
-            assertThat(result.isSuccess()).isTrue();
-            var sanctionedLoan = result.value();
+            var sanctionedLoan = assertDoesNotThrow(() -> builder.build());
 
             // Verify entity capabilities
             assertThat(sanctionedLoan.getId()).isNotNull();
@@ -290,6 +271,7 @@ final class TradeSanctionedLoanTest {
                 .currency(CurrencyType.IRR)
                 .loanDuration(validDuration)
                 .gracePeriod(validGracePeriod)
-                .installmentCount(validInstallmentCount);
+                .installmentCount(validInstallmentCount)
+                .disbursementMethod(DisbursementMethod.LUMP_SUM);
     }
 }

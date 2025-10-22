@@ -16,7 +16,6 @@ import ir.dotin.loan.trade.core.domain.loanarrangement.event.TradeLoanArrangemen
 import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanFacilityFormulaField;
 import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanParameterProvider;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
@@ -47,13 +46,7 @@ public final class TradeLoanArrangement
         builder.disable(new Disable(false));
         builder.previousVersion(null);
 
-        Result<TradeLoanArrangement> arrangementResult = builder.build();
-
-        if (arrangementResult.isFailure()) {
-            return Result.failure(arrangementResult.notification());
-        }
-
-        TradeLoanArrangement arrangement = arrangementResult.value();
+        TradeLoanArrangement arrangement = builder.build();
         requireNonNull(arrangement, "arrangement cannot be null after successful build");
 
         var payload = new TradeLoanArrangementCreated.Payload(arrangement.getId());
@@ -89,14 +82,8 @@ public final class TradeLoanArrangement
             AbstractBuilder<TradeLoanParameterProvider, TradeLoanFacilityFormulaField, ?, ?> validatedBuilder,
             Clock clock) {
         Builder morabeheBuilder = (Builder) validatedBuilder;
-        Result<TradeLoanArrangement> loanArrangementResult = morabeheBuilder.build();
+        TradeLoanArrangement loanArrangement = morabeheBuilder.build();
 
-        checkState(
-                !loanArrangementResult.hasErrors(),
-                "Failed to build loan arrangement from validated builder: %s",
-                loanArrangementResult.notification().getErrorMessages());
-
-        TradeLoanArrangement loanArrangement = loanArrangementResult.value();
         requireNonNull(loanArrangement, "loanArrangement cannot be null after successful build");
         LoanArrangementId newVersionId = loanArrangement.getId();
 

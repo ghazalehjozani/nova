@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
@@ -29,6 +30,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TradeLoanApplication")
@@ -122,7 +124,8 @@ final class TradeLoanApplicationTest {
                     .economicSector(mockEconomicSector)
                     .branch(mockBranch)
                     .requestReason(mockRequestReason)
-                    .disburseDestination(mockDisburseDestination);
+                    .disburseDestination(mockDisburseDestination)
+                    .disbursementMethod(DisbursementMethod.LUMP_SUM);
             // Intentionally missing some optional business validation fields
 
             // when
@@ -187,11 +190,9 @@ final class TradeLoanApplicationTest {
             var builder = createValidBuilder().id(LoanApplicationId.of(randomUUID()));
 
             // when
-            var result = builder.build();
+            var application = assertDoesNotThrow(() -> builder.build());
 
             // then
-            assertThat(result.isSuccess()).isTrue();
-            var application = result.value();
             assertThat(application).isNotNull().isInstanceOf(TradeLoanApplication.class);
         }
 
@@ -212,15 +213,13 @@ final class TradeLoanApplicationTest {
                     .economicSector(mockEconomicSector)
                     .branch(mockBranch)
                     .requestReason(mockRequestReason)
-                    .disburseDestination(mockDisburseDestination);
+                    .disburseDestination(mockDisburseDestination)
+                    .disbursementMethod(DisbursementMethod.LUMP_SUM);
             // This builder should pass basic validation
 
-            // when
-            var result = builder.build();
-
-            // then - since all required fields are present, this should actually succeed
+            // when & then - since all required fields are present, this should actually succeed
             // Changing test expectation to match reality
-            assertThat(result.isSuccess()).isTrue();
+            assertDoesNotThrow(() -> builder.build());
         }
     }
 
@@ -319,6 +318,7 @@ final class TradeLoanApplicationTest {
                 .branch(mockBranch)
                 .requestReason(mockRequestReason)
                 .disburseDestination(mockDisburseDestination)
+                .disbursementMethod(DisbursementMethod.LUMP_SUM)
                 .description(mockDescription);
     }
 }

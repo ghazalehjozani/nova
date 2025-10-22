@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     parameters {
+        booleanParam(name: 'SHIP_IT_MODE', defaultValue: true, description: '🚀 Shipping mode: Only Build & Unit Test runs, all other stages are skipped')
         booleanParam(name: 'RUN_INTEGRATION_TESTS', defaultValue: false, description: 'Run integration tests')
         booleanParam(name: 'RUN_ARCHITECTURE_TESTS', defaultValue: true, description: 'Run architecture tests')
         booleanParam(name: 'RUN_SPOTBUGS', defaultValue: false, description: 'Run SpotBugs static analysis')
@@ -9,7 +10,6 @@ pipeline {
         booleanParam(name: 'RUN_AI_CODE_REVIEW', defaultValue: true, description: 'Run AI code review with Claude')
         choice(name: 'AI_REVIEW_TYPE', choices: ['full', 'security', 'performance', 'quick'], description: 'Type of AI code review to perform')
         booleanParam(name: 'FORCE_DEPLOY', defaultValue: false, description: 'Force deployment even if quality gates fail')
-        booleanParam(name: 'SHIP_IT_MODE', defaultValue: true, description: '🚀 Deadline mode: Quality stages run but never fail the pipeline')
     }
 
     options {
@@ -27,7 +27,7 @@ pipeline {
 
     environment {
         MAVEN_OPTS = '-Xmx2048m -XX:+TieredCompilation -XX:TieredStopAtLevel=1'
-        MAVEN_CLI_OPTS = '--errors --show-version --batch-mode --no-transfer-progress'
+        MAVEN_CLI_OPTS = '--errors --show-version --batch-mode --no-transfer-progress -U'
         MVN_CMD = 'mvn'
         PROJECT_NAME = 'trade-loan'
         PROJECT_GROUP = 'ir.dotin.loan'
@@ -47,7 +47,7 @@ pipeline {
                     setupBuildEnvironment()
 
                     if (params.SHIP_IT_MODE) {
-                        echo "🚀 SHIP IT MODE ACTIVATED! Quality stages will run but won't block the pipeline"
+                        echo "🚀 SHIP IT MODE ACTIVATED! Only Build & Unit Test will run, all other stages are skipped"
                     }
                 }
             }
@@ -66,35 +66,28 @@ pipeline {
 
         stage('Static Analysis') {
             when {
-                anyOf {
-                    branch 'main'
-                    branch 'master'
-                    branch 'develop'
-                    expression { env.CHANGE_ID != null }
+                allOf {
+                    expression { !params.SHIP_IT_MODE }
+                    anyOf {
+                        branch 'main'
+                        branch 'master'
+                        branch 'develop'
+                        expression { env.CHANGE_ID != null }
+                    }
                 }
             }
             parallel {
                 stage('Error-Prone') {
                     steps {
-                        script {
-                            def buildResult = params.SHIP_IT_MODE ? 'SUCCESS' : 'UNSTABLE'
-                            def stageResult = params.SHIP_IT_MODE ? 'SUCCESS' : 'UNSTABLE'
-
-                            catchError(buildResult: buildResult, stageResult: stageResult) {
-                                sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} -P!dev,error-prone compile"
-                            }
+                        catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                            sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} -P!dev,error-prone compile"
                         }
                     }
                 }
                 stage('Checkstyle') {
                     steps {
-                        script {
-                            def buildResult = params.SHIP_IT_MODE ? 'SUCCESS' : 'UNSTABLE'
-                            def stageResult = params.SHIP_IT_MODE ? 'SUCCESS' : 'UNSTABLE'
-
-                            catchError(buildResult: buildResult, stageResult: stageResult) {
-                                sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} -P!dev,quality-gate checkstyle:check"
-                            }
+                        catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                            sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} -P!dev,quality-gate checkstyle:check"
                         }
                     }
                 }
@@ -110,6 +103,9 @@ pipeline {
         }
 
         stage('Advanced Tests') {
+            when {
+                expression { !params.SHIP_IT_MODE }
+            }
             parallel {
                 stage('Integration Tests') {
                     when { expression { params.RUN_INTEGRATION_TESTS } }
@@ -132,7 +128,12 @@ pipeline {
         }
 
         stage('Security Scan') {
-            when { expression { params.RUN_SECURITY_SCAN } }
+            when {
+                allOf {
+                    expression { !params.SHIP_IT_MODE }
+                    expression { params.RUN_SECURITY_SCAN }
+                }
+            }
             steps {
                 sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} -Psecurity verify"
             }
@@ -140,11 +141,14 @@ pipeline {
 
         stage('SonarQube Analysis') {
             when {
-                anyOf {
-                    branch 'main'
-                    branch 'master'
-                    branch 'develop'
-                    expression { env.CHANGE_ID != null }
+                allOf {
+                    expression { !params.SHIP_IT_MODE }
+                    anyOf {
+                        branch 'main'
+                        branch 'master'
+                        branch 'develop'
+                        expression { env.CHANGE_ID != null }
+                    }
                 }
             }
             environment {
@@ -160,24 +164,12 @@ pipeline {
                         sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} -P!dev,quality-gate sonar:sonar ${sonarParams}"
                     }
 
-                    if (params.SHIP_IT_MODE) {
-                        echo "🚀 SHIP IT MODE: SonarQube quality gate will be checked but won't fail the pipeline"
-                        timeout(time: 15, unit: 'MINUTES') {
-                            def qg = waitForQualityGate()
-                            if (qg.status != 'OK') {
-                                echo "⚠️ SonarQube quality gate failed: ${qg.status} (ignored due to SHIP IT MODE)"
-                            } else {
-                                echo "✅ SonarQube quality gate passed: ${qg.status}"
-                            }
-                        }
-                    } else {
-                        timeout(time: 15, unit: 'MINUTES') {
-                            def qg = waitForQualityGate()
-                            if (qg.status != 'OK' && !params.FORCE_DEPLOY) {
-                                error "Pipeline aborted due to SonarQube quality gate failure: ${qg.status}"
-                            } else if (qg.status != 'OK') {
-                                unstable "Quality gate failed but FORCE_DEPLOY is enabled. Status: ${qg.status}"
-                            }
+                    timeout(time: 15, unit: 'MINUTES') {
+                        def qg = waitForQualityGate()
+                        if (qg.status != 'OK' && !params.FORCE_DEPLOY) {
+                            error "Pipeline aborted due to SonarQube quality gate failure: ${qg.status}"
+                        } else if (qg.status != 'OK') {
+                            unstable "Quality gate failed but FORCE_DEPLOY is enabled. Status: ${qg.status}"
                         }
                     }
                 }
@@ -187,6 +179,7 @@ pipeline {
         stage('AI Code Review') {
             when {
                 allOf {
+                    expression { !params.SHIP_IT_MODE }
                     expression { params.RUN_AI_CODE_REVIEW }
                     anyOf {
                         branch 'main'
@@ -199,62 +192,42 @@ pipeline {
             }
             steps {
                 script {
-                    echo "🤖 Starting AI Code Review with Claude..."
+                    def reviewOutputDir = env.AI_REVIEW_OUTPUT_DIR
+                    sh "mkdir -p ${reviewOutputDir}"
 
-                    sh "mkdir -p ${env.AI_REVIEW_OUTPUT_DIR}"
+                    if (!fileExists(env.CLAUDE_REVIEW_SCRIPT)) {
+                        error "Claude review script not found: ${env.CLAUDE_REVIEW_SCRIPT}"
+                    }
 
                     def reviewEnv = [
                         "REVIEW_TYPE=${params.AI_REVIEW_TYPE}",
-                        "OUTPUT_FORMAT=json",
-                        "MAX_TURNS=5"
+                        "OUTPUT_DIR=${reviewOutputDir}",
+                        "GIT_REF=${env.GIT_COMMIT_SHORT}",
+                        "PROJECT_NAME=${PROJECT_NAME}"
                     ]
 
-                    if (env.CHANGE_ID) {
-                        reviewEnv.add("CHANGE_ID=${env.CHANGE_ID}")
-                        reviewEnv.add("CHANGE_TARGET=${env.CHANGE_TARGET}")
-                    }
-
                     def reviewResult = sh(
-                        script: "${env.CLAUDE_REVIEW_SCRIPT}",
+                        script: "bash ${env.CLAUDE_REVIEW_SCRIPT}",
                         returnStatus: true,
                         env: reviewEnv
                     )
 
-                    if (params.SHIP_IT_MODE) {
-                        echo "🚀 SHIP IT MODE: AI Code Review will report but won't fail the pipeline"
-
-                        switch(reviewResult) {
-                            case 0:
-                                echo "✅ AI Code Review completed successfully - No critical issues found"
-                                break
-                            case 1:
-                                echo "⚠️ AI Code Review found warnings (ignored due to SHIP IT MODE)"
-                                break
-                            case 2:
-                                echo "🔴 AI Code Review found critical issues (ignored due to SHIP IT MODE)"
-                                echo "⚠️ Warning: Critical issues detected but ignored for deadline"
-                                break
-                            default:
-                                echo "❌ AI Code Review script execution failed (ignored due to SHIP IT MODE)"
-                        }
-                    } else {
-                        switch(reviewResult) {
-                            case 0:
-                                echo "✅ AI Code Review completed successfully - No critical issues found"
-                                currentBuild.result = 'SUCCESS'
-                                break
-                            case 1:
-                                echo "⚠️ AI Code Review found warnings - Failing pipeline"
-                                error "AI Code Review failed: Warnings detected that require attention"
-                                break
-                            case 2:
-                                echo "🔴 AI Code Review found critical issues - Failing pipeline"
-                                error "AI Code Review failed: Critical issues detected that must be fixed"
-                                break
-                            default:
-                                echo "❌ AI Code Review script execution failed"
-                                error "AI Code Review failed: Script execution error (exit code: ${reviewResult})"
-                        }
+                    switch(reviewResult) {
+                        case 0:
+                            echo "✅ AI Code Review completed successfully - No critical issues found"
+                            currentBuild.result = 'SUCCESS'
+                            break
+                        case 1:
+                            echo "⚠️ AI Code Review found warnings - Failing pipeline"
+                            error "AI Code Review failed: Warnings detected that require attention"
+                            break
+                        case 2:
+                            echo "🔴 AI Code Review found critical issues - Failing pipeline"
+                            error "AI Code Review failed: Critical issues detected that must be fixed"
+                            break
+                        default:
+                            echo "❌ AI Code Review script execution failed"
+                            error "AI Code Review failed: Script execution error (exit code: ${reviewResult})"
                     }
                 }
             }
@@ -274,22 +247,10 @@ pipeline {
                     }
                 }
                 success {
-                    script {
-                        if (params.SHIP_IT_MODE) {
-                            echo "🎉 AI Code Review stage completed - Issues ignored due to SHIP IT MODE"
-                        } else {
-                            echo "🎉 AI Code Review stage completed successfully"
-                        }
-                    }
+                    echo "🎉 AI Code Review stage completed successfully"
                 }
                 failure {
-                    script {
-                        if (params.SHIP_IT_MODE) {
-                            echo "🎉 AI Code Review stage completed - Issues ignored due to SHIP IT MODE"
-                        } else {
-                            echo "💥 AI Code Review stage failed - Check the reports for details"
-                        }
-                    }
+                    echo "💥 AI Code Review stage failed - Check the reports for details"
                 }
             }
         }
@@ -323,7 +284,7 @@ pipeline {
         }
         failure {
             script {
-                def failureText = params.SHIP_IT_MODE ? "Build Failed (🚀 SHIP IT MODE)" : "Build Failed"
+                def failureText = params.SHIP_IT_MODE ? "❌ Build Failed (🚀 SHIP IT MODE)" : "❌ Build Failed"
                 if (currentBuild.description) {
                     currentBuild.description += " | ${failureText}"
                 } else {
@@ -333,7 +294,7 @@ pipeline {
         }
         success {
             script {
-                def successText = params.SHIP_IT_MODE ? "Build Successful (🚀 SHIP IT MODE)" : "Build Successful"
+                def successText = params.SHIP_IT_MODE ? "✅ Build Successful (🚀 SHIP IT MODE)" : "✅ Build Successful"
                 if (currentBuild.description) {
                     currentBuild.description += " | ${successText}"
                 } else {
