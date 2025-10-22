@@ -14,7 +14,8 @@ public class TradeLoanTypeValidationService implements LoanTypeValidationService
     @Override
     public Result<Boolean> validateLoanType(TradeLoanType loanType, TradeLoanArrangement loanArrangement) {
         return new LoanTypeLoanArrangementExistenceSpecification(loanArrangement.getId())
-                .and(new LoanTypeApplicationAllowedSpecification())
+                .and(new LoanTypeApplicationAllowedSpecification()) // TODO: Add checking of matching eco sector and
+                // currency match with provided loan arrangement
                 .isSatisfiedBy(loanType);
     }
 }

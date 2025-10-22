@@ -12,7 +12,4 @@ public class ConfirmTypeEmb implements Serializable {
 
     @Column(name = "confirm_person_code")
     private String personCode;
-
-    @Column(name = "confirm_person_name")
-    private String personName;
 }

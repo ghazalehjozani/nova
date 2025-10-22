@@ -27,9 +27,6 @@ public class CollateralPolicyEmb implements Serializable {
             name = "loan_arrangement_collateral_types",
             joinColumns = @JoinColumn(name = "loan_arrangement_id"),
             indexes = @Index(name = "idx_trade_loan_arrangement_collateral", columnList = "loan_arrangement_id"))
-    @AttributeOverrides({
-        @AttributeOverride(name = "code", column = @Column(name = "collateral_code")),
-        @AttributeOverride(name = "name", column = @Column(name = "collateral_name"))
-    })
+    @AttributeOverrides({@AttributeOverride(name = "code", column = @Column(name = "collateral_code", length = 50))})
     private Set<CollateralTypeEmb> collateralTypes = new HashSet<>();
 }

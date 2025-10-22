@@ -5,9 +5,8 @@ import java.util.Set;
 import java.util.UUID;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import javax.annotation.Nullable;
 
-import ir.dotin.platform.commons.domain.vo.CurrencyType;
-import ir.dotin.platform.commons.domain.vo.ValueType;
 import ir.dotin.platform.dispatcher.api.command.Command;
 import ir.dotin.loan.baseloan.core.domain.loantype.enums.SegmentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
@@ -15,7 +14,7 @@ import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
 public record DefineLoanTypeCommand(
         @NotNull UUID uid,
-        @NotNull Long version,
+        @Nullable Long version,
         @NotNull LoanTypeCodeDto code,
         @NotNull TitleDto title,
         @NotNull GatewayType gatewayType,
@@ -23,9 +22,8 @@ public record DefineLoanTypeCommand(
         @NotNull SegmentType segmentType,
         @NotNull Set<EconomicSectorCurrencyDto> economicSectorCurrencies,
         @NotNull Set<LoanArrangementIdDto> loanArrangementIds,
-        @NotNull Set<IncomeIdDto> incomeIds,
-        @NotNull LoanTypeGroupIdDto groupId,
-        @NotNull List<AttributeDto> attributes,
+        @Nullable Set<IncomeIdDto> incomeIds,
+        @Nullable LoanTypeGroupIdDto groupId,
         @NotNull List<RelationTypeLoanTopicDto> relationTypeLoanTopics)
         implements Command {
 
@@ -36,13 +34,9 @@ public record DefineLoanTypeCommand(
     public record LoanApplicationStatusDto(boolean isAllowed) {}
 
     public record EconomicSectorCurrencyDto(
-            @NotNull EconomicSectorDto economicSector,
-            @NotNull CurrencyType currencyType) {} // TODO: use CurrencyTypeDto
+            @NotNull EconomicSectorDto economicSector, @NotNull Set<CurrencyTypeDto> currencyTypes) {}
 
-    public record EconomicSectorDto(@NotBlank String code, @NotBlank String name) {}
-
-    public record AttributeDto(
-            @NotBlank String name, @NotBlank String code, @NotNull ValueType dataType, boolean mandatory) {}
+    public record EconomicSectorDto(@NotBlank String code) {}
 
     public record LoanArrangementIdDto(@NotNull UUID value) {}
 
@@ -50,12 +44,11 @@ public record DefineLoanTypeCommand(
 
     public record LoanTypeGroupIdDto(@NotNull UUID value) {}
 
+    public record CurrencyTypeDto(@NotBlank String value) {}
+
     public record RelationTypeLoanTopicDto(
-            @NotNull TradeRelationType relationTypeKey,
-            @NotNull RelationTypeDto relationType,
+            @NotNull TradeRelationType relationType,
             @NotBlank String topicName,
             @NotBlank String topicCode,
-            @NotNull EconomicSectorDto economicSector) {}
-
-    public record RelationTypeDto(@NotBlank String code, @NotBlank String name) {}
+            @NotNull Set<EconomicSectorDto> economicSectors) {}
 }

@@ -1,7 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loantype.entity;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -22,7 +21,6 @@ import org.hibernate.proxy.HibernateProxy;
 import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
 import ir.dotin.loan.baseloan.core.domain.loantype.enums.SegmentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.AttributeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.EconomicSectorCurrencyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.EditReasonEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.LoanTypeCodeEmb;
@@ -72,7 +70,7 @@ public class TradeLoanTypeEntity extends PersistentEntity {
             name = "loan_type_income_ids",
             joinColumns = @JoinColumn(name = "loan_type_id"),
             indexes = @Index(name = "idx_trade_loan_type_income", columnList = "loan_type_id"))
-    @Column(name = "income_id", nullable = false)
+    @Column(name = "income_id")
     private Set<UUID> incomeIds = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -90,14 +88,7 @@ public class TradeLoanTypeEntity extends PersistentEntity {
             indexes = @Index(name = "idx_trade_loan_type_topic", columnList = "loan_type_id"))
     private Set<RelationTypeLoanTopicEmb> relationTypeLoanTopics = new HashSet<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "loan_type_attributes",
-            joinColumns = @JoinColumn(name = "loan_type_id"),
-            indexes = @Index(name = "idx_trade_loan_type_attribute", columnList = "loan_type_id"))
-    private List<AttributeEmb> attributes;
-
-    @Column(name = "group_id", nullable = false)
+    @Column(name = "group_id")
     private UUID groupId;
 
     @Column(name = "active", nullable = false)

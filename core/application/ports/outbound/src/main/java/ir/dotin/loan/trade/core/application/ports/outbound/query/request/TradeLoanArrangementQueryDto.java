@@ -51,7 +51,7 @@ public record TradeLoanArrangementQueryDto(
 
     public record CurrencyTypeEmbDto(String value) implements Serializable {}
 
-    public record EconomicSectorEmbDto(String code, String name) implements Serializable {}
+    public record EconomicSectorEmbDto(String code) implements Serializable {}
 
     public record AmountRangeEmbDto(BigDecimal minAmount, BigDecimal maxAmount, String currency)
             implements Serializable {}
@@ -61,7 +61,7 @@ public record TradeLoanArrangementQueryDto(
         public record PeriodEmbDto(Integer years, Integer months, Integer days) implements Serializable {}
     }
 
-    public record ConfirmTypeEmbDto(String personCode, String personName) implements Serializable {}
+    public record ConfirmTypeEmbDto(String personCode) implements Serializable {}
 
     public record InterestPolicyEmbDto(
             BigDecimal baseInterestRate,
@@ -104,6 +104,6 @@ public record TradeLoanArrangementQueryDto(
     public record CollateralPolicyEmbDto(Integer totalPercent, Set<CollateralTypeEmbDto> collateralTypes)
             implements Serializable {
 
-        public record CollateralTypeEmbDto(String code, String name) implements Serializable {}
+        public record CollateralTypeEmbDto(String code) implements Serializable {}
     }
 }

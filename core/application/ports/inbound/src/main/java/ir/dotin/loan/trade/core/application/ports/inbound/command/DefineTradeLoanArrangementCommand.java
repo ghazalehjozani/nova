@@ -20,7 +20,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.SectionType;
 import lombok.Builder;
 
 @Builder
-public record EstablishTradeLoanArrangementCommand(
+public record DefineTradeLoanArrangementCommand(
         @NotNull UUID uid,
         @Nullable Long version,
         @NotNull LoanArrangementCodeDto code,
@@ -84,7 +84,7 @@ public record EstablishTradeLoanArrangementCommand(
 
     public record CollateralPolicyDto(@NotNull Integer totalPercent, @NotNull Set<CollateralTypeDto> collateralTypes) {}
 
-    public record CollateralTypeDto(@NotBlank String code, @NotBlank String name) {}
+    public record CollateralTypeDto(@NotBlank String code) {}
 
     public record LoanArrangementCodeDto(@NotBlank String value) {}
 
@@ -96,9 +96,9 @@ public record EstablishTradeLoanArrangementCommand(
 
     public record LoanDurationRangeDto(@NotNull Period minDays, @NotNull Period maxDays) {}
 
-    public record MoneyDto(@NotNull BigDecimal value, @NotNull CurrencyTypeDto currency) {}
+    public record MoneyDto(@NotNull BigDecimal value) {}
 
-    public record EconomicSectorDto(@NotBlank String code, @NotBlank String name) {}
+    public record EconomicSectorDto(@NotBlank String code) {}
 
-    public record ConfirmTypeDto(@NotBlank String personCode, @NotBlank String personName) {}
+    public record ConfirmTypeDto(@NotBlank String personCode) {}
 }

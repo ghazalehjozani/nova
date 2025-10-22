@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.core.application.ports.inbound.command;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 import java.util.Set;
@@ -46,6 +47,7 @@ public record OpenFacilityCaseCommand(
             @NotNull Set<CertificateDto> certificates,
             @Nullable ApplicationNumberDto applicationNumber,
             @Nullable CredibilityRankDto credibilityRank,
+            @Nullable UnequalInstallmentSchedule unequalInstallmentSchedule,
             @NotNull DisbursementMethod disbursementMethod) {}
 
     public record PartyDto(@NotBlank String customerNumber, @NotNull PartyType type, @NotNull PersonNameDto name) {}
@@ -72,6 +74,9 @@ public record OpenFacilityCaseCommand(
             @NotNull PartyDto party,
             @Nullable String respiteSerial,
             @NotBlank String derivedValue) {}
+
+    public record UnequalInstallmentSchedule(
+            @NotNull MoneyDto amount, @NotNull MoneyDto interest, @NotNull LocalDate dueDate) {}
 
     public record LoanTypeCodeDto(@NotBlank String value) {}
 

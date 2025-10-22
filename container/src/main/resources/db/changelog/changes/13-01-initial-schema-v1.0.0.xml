@@ -193,9 +193,6 @@
             <column name="economic_sector_code" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="economic_sector_name" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
             <column name="branch_code" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
@@ -241,9 +238,6 @@
                 <constraints nullable="false"/>
             </column>
             <column name="collateral_code" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="collateral_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -362,9 +356,6 @@
             <column name="economic_sector_code" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="economic_sector_name" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
             <column name="min_amount" type="DECIMAL(19, 4)"/>
             <column name="max_amount" type="DECIMAL(19, 4)"/>
             <column name="amount_currency" type="VARCHAR(255)"/>
@@ -375,7 +366,6 @@
             <column name="max_months" type="INT"/>
             <column name="max_days" type="INT"/>
             <column name="confirm_person_code" type="VARCHAR(255)"/>
-            <column name="confirm_person_name" type="VARCHAR(255)"/>
             <column name="base_interest_rate" type="DECIMAL(10, 6)"/>
             <column name="preferential_min_rate" type="DECIMAL(10, 6)"/>
             <column name="preferential_max_rate" type="DECIMAL(10, 6)"/>
@@ -696,25 +686,6 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet id="1760372562062-22" author="DOTIN\m.amirabdollahi">
-        <createTable tableName="loan_type_attributes">
-            <column name="loan_type_id" type="UUID">
-                <constraints nullable="false"/>
-            </column>
-            <column name="attribute_name" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="attribute_code" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="data_type" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="mandatory" type="BOOLEAN">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-    </changeSet>
     <changeSet id="1760372562062-23" author="DOTIN\m.amirabdollahi">
         <createTable tableName="loan_type_economic_sectors">
             <column name="loan_type_id" type="UUID">
@@ -723,10 +694,9 @@
             <column name="economic_sector_code" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="economic_sector_name" type="VARCHAR(255)">
+            <column name="economic_sector_currency_types" type="jsonb">
                 <constraints nullable="false"/>
             </column>
-            <column name="currency" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
     <changeSet id="1760372562062-24" author="DOTIN\m.amirabdollahi">
@@ -735,7 +705,6 @@
                 <constraints nullable="false"/>
             </column>
             <column name="income_id" type="UUID">
-                <constraints nullable="false"/>
             </column>
         </createTable>
     </changeSet>
@@ -816,16 +785,7 @@
             <column name="topic_code" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="relation_type_code" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="relation_type_name" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="topic_economic_sector_code" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="topic_economic_sector_name" type="VARCHAR(255)">
+            <column name="loan_topic_economic_sectors" type="jsonb">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -854,7 +814,6 @@
                 <constraints nullable="false"/>
             </column>
             <column name="group_id" type="UUID">
-                <constraints nullable="false"/>
             </column>
             <column name="active" type="BOOLEAN">
                 <constraints nullable="false"/>
@@ -870,7 +829,6 @@
                 <constraints nullable="false"/>
             </column>
             <column name="edit_reason" type="VARCHAR(500)">
-                <constraints nullable="false"/>
             </column>
         </createTable>
     </changeSet>
@@ -1010,9 +968,6 @@
     <changeSet id="1760372562062-75" author="DOTIN\m.amirabdollahi">
         <sql>CREATE INDEX idx_loan_type_arrangement_ids_arrangement_id_hash ON loan_type_arrangement_ids USING HASH (arrangement_id)</sql>
     </changeSet>
-    <changeSet id="1760372562062-76" author="DOTIN\m.amirabdollahi">
-        <sql>CREATE INDEX idx_loan_type_attributes_loan_type_id_hash ON loan_type_attributes USING HASH (loan_type_id)</sql>
-    </changeSet>
     <changeSet id="1760372562062-77" author="DOTIN\m.amirabdollahi">
         <sql>CREATE INDEX idx_loan_type_economic_sectors_loan_type_id_hash ON loan_type_economic_sectors USING HASH (loan_type_id)</sql>
     </changeSet>
@@ -1100,11 +1055,6 @@
     <changeSet id="1760372562062-57" author="DOTIN\m.amirabdollahi">
         <addForeignKeyConstraint baseColumnNames="loan_type_id" baseTableName="loan_type_arrangement_ids"
                                  constraintName="fk_loan_type_arrangement_ids_on_trade_loan_type_entity"
-                                 referencedColumnNames="id" referencedTableName="loan_types"/>
-    </changeSet>
-    <changeSet id="1760372562062-58" author="DOTIN\m.amirabdollahi">
-        <addForeignKeyConstraint baseColumnNames="loan_type_id" baseTableName="loan_type_attributes"
-                                 constraintName="fk_loan_type_attributes_on_trade_loan_type_entity"
                                  referencedColumnNames="id" referencedTableName="loan_types"/>
     </changeSet>
     <changeSet id="1760372562062-59" author="DOTIN\m.amirabdollahi">

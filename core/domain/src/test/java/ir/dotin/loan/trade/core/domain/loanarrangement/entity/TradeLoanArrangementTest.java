@@ -210,6 +210,6 @@ class TradeLoanArrangementTest {
                 .repaymentPriorityPolicy(repaymentPriorityPolicy)
                 .regulatoryCompliancePolicy(regulatoryCompliancePolicy)
                 .collateralPolicy(collateralPolicy)
-                .economicSector(new EconomicSector("EXCHANGE", "Exchange Sector"));
+                .economicSector(new EconomicSector("EXCHANGE"));
     }
 }
