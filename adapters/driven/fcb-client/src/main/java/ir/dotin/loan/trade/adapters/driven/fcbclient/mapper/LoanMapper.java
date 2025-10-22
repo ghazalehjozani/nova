@@ -32,7 +32,7 @@ public class LoanMapper {
                         "Economical section name is missing in response"));
             }
 
-            Result<EconomicSector> economicSector = EconomicSector.of(fcbResponse.getCode(), fcbResponse.getName());
+            Result<EconomicSector> economicSector = EconomicSector.of(fcbResponse.getCode());
 
             if (economicSector.isFailure()) {
                 log.error(

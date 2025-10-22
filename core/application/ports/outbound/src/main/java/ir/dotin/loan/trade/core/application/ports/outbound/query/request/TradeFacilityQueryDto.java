@@ -80,7 +80,7 @@ public record TradeFacilityQueryDto(
         public record DisburseDestinationEmbDto(String depositNumber, DisburseDestinationType type)
                 implements Serializable {}
 
-        public record EconomicSectorEmbDto(String code, String name) implements Serializable {}
+        public record EconomicSectorEmbDto(String code) implements Serializable {}
 
         public record BranchEmbDto(String code, String name) implements Serializable {}
 

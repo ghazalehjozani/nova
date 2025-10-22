@@ -9,6 +9,6 @@ import lombok.Data;
 @Data
 @Embeddable
 public class EditReasonEmb implements Serializable {
-    @Column(name = "edit_reason", nullable = false, length = 500)
+    @Column(name = "edit_reason", length = 500)
     private String editReason;
 }

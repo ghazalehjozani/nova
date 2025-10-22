@@ -2,11 +2,9 @@ package ir.dotin.loan.trade.core.application.ports.outbound.query.request;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import ir.dotin.platform.commons.domain.vo.ValueType;
 import ir.dotin.platform.dispatcher.api.query.QueryResult;
 import ir.dotin.loan.baseloan.core.domain.loantype.enums.SegmentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
@@ -29,7 +27,6 @@ public record TradeLoanTypeQueryDto(
         Set<UUID> incomeIds,
         Set<UUID> loanArrangementIds,
         Set<RelationTypeLoanTopicEmbDto> relationTypeLoanTopics,
-        List<AttributeEmbDto> attributes,
         UUID groupId,
         boolean active,
         boolean disable,
@@ -42,25 +39,18 @@ public record TradeLoanTypeQueryDto(
 
     public record EditReasonEmbDto(String editReason) implements Serializable {}
 
-    public record EconomicSectorCurrencyEmbDto(
-            String economicSectorCode, String economicSectorName, CurrencyTypeEmbDto currencyType)
-            implements Serializable {
+    public record EconomicSectorCurrencyEmbDto(String economicSectorCode, Set<CurrencyTypeEmbDto> currencyTypes)
+            implements Serializable {}
 
-        public record CurrencyTypeEmbDto(String value) implements Serializable {}
-    }
+    public record CurrencyTypeEmbDto(String value) implements Serializable {}
 
     public record RelationTypeLoanTopicEmbDto(
             TradeRelationType tradeRelationType,
             String topicName,
             String topicCode,
-            String relationTypeCode,
-            String relationTypeName,
-            EconomicSectorEmbDto economicSector)
+            Set<EconomicSectorEmbDto> economicSectors)
             implements Serializable {
 
-        public record EconomicSectorEmbDto(String code, String name) implements Serializable {}
+        public record EconomicSectorEmbDto(String code) implements Serializable {}
     }
-
-    public record AttributeEmbDto(String name, String code, ValueType dataType, boolean mandatory)
-            implements Serializable {}
 }

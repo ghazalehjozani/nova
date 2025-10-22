@@ -12,7 +12,4 @@ public class EconomicSectorEmb implements Serializable {
 
     @Column(name = "economic_sector_code", nullable = false)
     private String code;
-
-    @Column(name = "economic_sector_name", nullable = false)
-    private String name;
 }

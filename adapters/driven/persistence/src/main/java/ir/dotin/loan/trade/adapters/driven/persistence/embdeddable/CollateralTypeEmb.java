@@ -12,7 +12,4 @@ public class CollateralTypeEmb implements Serializable {
 
     @Column(name = "code", nullable = false)
     private String code;
-
-    @Column(name = "name", nullable = false)
-    private String name;
 }

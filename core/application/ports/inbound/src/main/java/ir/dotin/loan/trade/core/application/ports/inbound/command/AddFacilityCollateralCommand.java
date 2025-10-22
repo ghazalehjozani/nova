@@ -6,6 +6,9 @@ import jakarta.validation.constraints.NotNull;
 
 import ir.dotin.platform.dispatcher.api.command.Command;
 
+import lombok.Builder;
+
+@Builder
 public record AddFacilityCollateralCommand(
         @NotNull UUID uid,
         @NotNull Long version,

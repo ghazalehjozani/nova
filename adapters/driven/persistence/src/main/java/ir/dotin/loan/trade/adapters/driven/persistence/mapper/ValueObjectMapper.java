@@ -103,7 +103,6 @@ import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CurrencyTypeE
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.DescriptionEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.DisburseDestinationEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.EconomicSectorCurrencyEmb;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.EconomicSectorEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.EditReasonEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.GracePeriodEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.GracePeriodPolicyEmb;
@@ -285,10 +284,6 @@ public abstract class ValueObjectMapper {
 
     public abstract ConfirmType toConfirmType(ConfirmTypeEmb embeddable);
 
-    public abstract EconomicSectorEmb toEconomicSectorEmb(EconomicSector economicSector);
-
-    public abstract EconomicSector toEconomicSector(EconomicSectorEmb embeddable);
-
     public abstract EditReasonEmb toEditReasonEmb(EditReason editReason);
 
     public abstract EditReason toEditReason(EditReasonEmb embeddable);
@@ -316,12 +311,10 @@ public abstract class ValueObjectMapper {
     public abstract ScheduledTranche toScheduledTranche(ScheduledTrancheEmb embeddable);
 
     @Mapping(source = "economicSector.code", target = "economicSectorCode")
-    @Mapping(source = "economicSector.name", target = "economicSectorName")
     public abstract EconomicSectorCurrencyEmb toEconomicSectorCurrencyEmb(
             EconomicSectorCurrency economicSectorCurrency);
 
     @Mapping(source = "economicSectorCode", target = "economicSector.code")
-    @Mapping(source = "economicSectorName", target = "economicSector.name")
     public abstract EconomicSectorCurrency toEconomicSectorCurrency(EconomicSectorCurrencyEmb embeddable);
 
     public abstract LoanApplicationStatusEmb toLoanApplicationStatusEmb(LoanApplicationStatus loanApplicationStatus);
@@ -427,7 +420,6 @@ public abstract class ValueObjectMapper {
                 .map(collateralType -> {
                     CollateralTypeEmb typeEmb = new CollateralTypeEmb();
                     typeEmb.setCode(collateralType.code());
-                    typeEmb.setName(collateralType.name());
                     return typeEmb;
                 })
                 .collect(Collectors.toSet());
@@ -510,8 +502,8 @@ public abstract class ValueObjectMapper {
     public CollateralPolicy mapCollateralPolicyEmbToPolicy(CollateralPolicyEmb emb) {
         if (emb == null) return null;
         List<CollateralType> collateralTypes = emb.getCollateralTypes().stream()
-                .map(collateralTypeEmb -> CollateralType.of(collateralTypeEmb.getCode(), collateralTypeEmb.getName())
-                        .orElseThrow())
+                .map(collateralTypeEmb ->
+                        CollateralType.of(collateralTypeEmb.getCode()).orElseThrow())
                 .collect(Collectors.toList());
         return CollateralPolicy.of(collateralTypes, emb.getTotalPercent()).orElseThrow();
     }
@@ -802,9 +794,7 @@ public abstract class ValueObjectMapper {
             emb.setTradeRelationType(relationType);
             emb.setTopicName(loanTopic.name());
             emb.setTopicCode(loanTopic.code());
-            emb.setRelationTypeName(loanTopic.relationType().name());
-            emb.setRelationTypeCode(loanTopic.relationType().code());
-            emb.setEconomicSector(toEconomicSectorEmb(loanTopic.economicSector()));
+            emb.setEconomicSectors(toEconomicSectorEmb(loanTopic.economicSectors()));
             embs.add(emb);
         }
 
@@ -826,14 +816,31 @@ public abstract class ValueObjectMapper {
             LoanTopic loanTopic = LoanTopic.of(
                             emb.getTopicName(),
                             emb.getTopicCode(),
-                            new TopicRelationType(emb.getRelationTypeName(), emb.getRelationTypeCode()),
-                            toEconomicSector(emb.getEconomicSector()))
+                            TopicRelationType.of(emb.getTradeRelationType().name())
+                                    .getValue(),
+                            toEconomicSector(emb.getEconomicSectors()))
                     .orElseThrow();
 
             builder.put(emb.getTradeRelationType(), loanTopic);
         }
 
         return builder.build();
+    }
+
+    public Set<String> toEconomicSectorEmb(Set<EconomicSector> economicSectors) {
+        return economicSectors.stream()
+                .filter(java.util.Objects::nonNull)
+                .map(EconomicSector::code)
+                .collect(java.util.stream.Collectors.toCollection(java.util.LinkedHashSet::new));
+    }
+
+    public Set<EconomicSector> toEconomicSector(Set<String> economicSectors) {
+        return economicSectors.stream()
+                .filter(java.util.Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(code -> EconomicSector.of(code).getValue())
+                .collect(java.util.stream.Collectors.toCollection(java.util.LinkedHashSet::new));
     }
 
     public List<AttributeEmb> mapAttributesToEmbs(List<Attribute> value) {

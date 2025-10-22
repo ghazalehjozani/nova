@@ -1,13 +1,11 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.embdeddable;
 
 import java.io.Serializable;
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.AttributeOverrides;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import java.util.Set;
+import jakarta.persistence.*;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
@@ -31,16 +29,7 @@ public class RelationTypeLoanTopicEmb implements Serializable {
     @Column(name = "topic_code", nullable = false)
     private String topicCode;
 
-    @Column(name = "relation_type_code", nullable = false)
-    private String relationTypeCode;
-
-    @Column(name = "relation_type_name", nullable = false)
-    private String relationTypeName;
-
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "code", column = @Column(name = "topic_economic_sector_code", nullable = false)),
-        @AttributeOverride(name = "name", column = @Column(name = "topic_economic_sector_name", nullable = false))
-    })
-    private EconomicSectorEmb economicSector;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "loan_topic_economic_sectors", columnDefinition = "jsonb")
+    private Set<String> economicSectors;
 }

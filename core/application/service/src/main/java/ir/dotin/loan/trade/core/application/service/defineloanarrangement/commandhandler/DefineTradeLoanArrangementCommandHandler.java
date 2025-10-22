@@ -9,7 +9,7 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.EstablishTradeLoanArrangementCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.DefineTradeLoanArrangementCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.application.service.defineloanarrangement.i18n.DefineLoanArrangementErrorCodes;
 import ir.dotin.loan.trade.core.application.service.defineloanarrangement.mapper.DefineTradeLoanArrangementCommandMapper;
@@ -21,14 +21,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DefineTradeLoanArrangementCommandHandler implements CommandHandler<EstablishTradeLoanArrangementCommand> {
+public class DefineTradeLoanArrangementCommandHandler implements CommandHandler<DefineTradeLoanArrangementCommand> {
 
     private final DefineTradeLoanArrangementCommandMapper mapper;
     private final TradeLoanArrangementRepository repository;
     private final Clock clock;
 
     @Override
-    public Result<List<DomainEvent<?, ?>>> handle(EstablishTradeLoanArrangementCommand command) {
+    public Result<List<DomainEvent<?, ?>>> handle(DefineTradeLoanArrangementCommand command) {
         return Result.requireFalse(
                         repository.existsByCode(command.code().value()),
                         Notification.ofError(DefineLoanArrangementErrorCodes.DUPLICATE_CODE, command.code()))
