@@ -505,7 +505,8 @@ public abstract class ValueObjectMapper {
                 .map(collateralTypeEmb ->
                         CollateralType.of(collateralTypeEmb.getCode()).orElseThrow())
                 .collect(Collectors.toList());
-        return CollateralPolicy.of(collateralTypes, emb.getTotalPercent()).orElseThrow();
+        return CollateralPolicy.of(collateralTypes, emb.getTotalPercent(), emb.getCollateralCalculationType())
+                .orElseThrow();
     }
 
     @Named("toTransactionNumberEmbList")

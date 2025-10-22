@@ -175,7 +175,9 @@ public record DefineTradeLoanArrangementRequest(
             @Schema(description = "درصد کل وثایق", example = "120") @NotNull @JsonProperty("totalPercent")
                     Integer totalPercent,
             @Schema(description = "انواع وثیقه") @NotNull @JsonProperty("collateralTypes")
-                    Set<CollateralTypeDto> collateralTypes) {}
+                    Set<CollateralTypeDto> collateralTypes,
+            @Schema(description = "انواع روش محاسبه وثیقه") @NotNull @JsonProperty("collateralCalculationType")
+                    CollateralCalculationType collateralCalculationType) {}
 
     @Schema(name = "CollateralTypeDto", description = "نوع وثیقه")
     public record CollateralTypeDto(@NotBlank @JsonProperty("code") String code) {}

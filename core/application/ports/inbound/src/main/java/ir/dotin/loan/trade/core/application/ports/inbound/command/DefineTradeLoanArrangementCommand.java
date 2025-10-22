@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotNull;
 
 import ir.dotin.platform.dispatcher.api.command.Command;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.CollateralCalculationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.InstallmentPaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LifeInsurancePaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LoanSecondaryType;
@@ -82,7 +83,10 @@ public record DefineTradeLoanArrangementCommand(
     public record RegulatoryCompliancePolicyDto(
             @NotNull Integer overDuePeriod, @NotNull Integer deferralPeriod, @NotNull Integer suspiciousPeriod) {}
 
-    public record CollateralPolicyDto(@NotNull Integer totalPercent, @NotNull Set<CollateralTypeDto> collateralTypes) {}
+    public record CollateralPolicyDto(
+            @NotNull Integer totalPercent,
+            @NotNull Set<CollateralTypeDto> collateralTypes,
+            @NotNull CollateralCalculationType collateralCalculationType) {}
 
     public record CollateralTypeDto(@NotBlank String code) {}
 

@@ -155,7 +155,8 @@ public abstract class DefineTradeLoanArrangementCommandMapper {
         List<CollateralType> types = dto.collateralTypes().stream()
                 .map(ct -> CollateralType.of(ct.code()).orElseThrow())
                 .toList();
-        return CollateralPolicy.of(types, dto.totalPercent()).orElseThrow();
+        return CollateralPolicy.of(types, dto.totalPercent(), dto.collateralCalculationType())
+                .orElseThrow();
     }
 
     LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField>
