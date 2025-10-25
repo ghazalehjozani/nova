@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.core.application.ports.outbound.client.customerService;
 
+import java.util.List;
+
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
@@ -16,4 +18,6 @@ public interface CustomerServicePort {
     Result<TransactionNumber> issueDocument(LoanTransaction loanTransaction);
 
     Result<AccountId> openAccount(LoanTopic loanTopic, BranchCode branchCode);
+
+    Result<List<PartyInfo>> findRelatedCustomers(List<String> customerNumbers);
 }

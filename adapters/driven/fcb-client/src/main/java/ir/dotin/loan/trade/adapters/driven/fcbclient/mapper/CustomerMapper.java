@@ -19,6 +19,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.document.BoxTarget;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositTarget;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CustomerInfoResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.RelatedCustomersResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
 
@@ -169,5 +170,40 @@ public class CustomerMapper {
                 isInGrayListValue != null && isInGrayListValue);
 
         return Result.success(partyInfo);
+    }
+
+    public static Result<List<PartyInfo>> mapToCustomerInfoList(RelatedCustomersResponse fcbResponse) {
+
+        Notification notification = Notification.create();
+
+        if (fcbResponse.getCustomers() == null || fcbResponse.getCustomers().isEmpty()) {
+            log.warn("FCB response has no customers in the list");
+            return Result.success(List.of());
+        }
+
+        List<PartyInfo> customerInfoList = new ArrayList<>();
+
+        for (int i = 0; i < fcbResponse.getCustomers().size(); i++) {
+            CustomerInfoResponse customerResponse = fcbResponse.getCustomers().get(i);
+
+            Result<PartyInfo> customerResult = mapToDomainCustomerInfo(customerResponse);
+
+            if (customerResult.isFailure()) {
+                log.error(
+                        "Failed to map customer at index {}: {}",
+                        i,
+                        customerResult.notification().getErrorMessages());
+                notification.merge(customerResult.notification());
+            } else {
+                customerInfoList.add(customerResult.orElseThrow());
+            }
+        }
+
+        if (notification.hasErrors()) {
+            return Result.failure(notification);
+        }
+
+        log.info("Successfully mapped {} customers from FCB response", customerInfoList.size());
+        return Result.success(customerInfoList);
     }
 }
