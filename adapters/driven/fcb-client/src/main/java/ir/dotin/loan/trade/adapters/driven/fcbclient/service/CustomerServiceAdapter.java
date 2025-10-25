@@ -20,6 +20,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CustomerInfoResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.IssueDocumentResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.OpenAccountResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.RelatedCustomersResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.CustomerMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
@@ -166,6 +167,47 @@ public class CustomerServiceAdapter implements CustomerServicePort {
                     openAccountResponseResult.value().getAccountNumber()));
         }
         return AccountId.valueOf(openAccountResponseResult.value().getAccountNumber());
+    }
+
+    private List<Parameter> buildFindRelatedCustomersParameters(List<String> customerNumbers) {
+        List<Parameter> parameters = new ArrayList<>();
+
+        String customerNumbersValue = String.join(ITEM_SEPARATOR, customerNumbers);
+
+        parameters.add(Parameter.builder()
+                .key("customerNumbers")
+                .value(customerNumbersValue)
+                .build());
+
+        log.debug("Built find related customers parameters: customerNumbers={}", customerNumbersValue);
+
+        return parameters;
+    }
+
+    @Override
+    public Result<List<PartyInfo>> findRelatedCustomers(List<String> customerNumbers) {
+        log.info("Finding related customers: count={}, numbers={}", customerNumbers.size(), customerNumbers);
+
+        List<Parameter> parameters = buildFindRelatedCustomersParameters(customerNumbers);
+
+        Usecases usecases = requestBuilder.buildUseCase("find-related-customers", parameters);
+        FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
+
+        log.debug("Executing FCB find-related-customers usecase");
+
+        Result<RelatedCustomersResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, RelatedCustomersResponse.class);
+
+        if (fcbResult.isFailure()) {
+            log.error(
+                    "FCB find-related-customers failed: {}",
+                    fcbResult.notification().getErrorMessages());
+            return Result.failure(fcbResult.notification());
+        }
+
+        RelatedCustomersResponse fcbResponse = fcbResult.orElseThrow();
+
+        return CustomerMapper.mapToCustomerInfoList(fcbResponse);
     }
 
     @Override
