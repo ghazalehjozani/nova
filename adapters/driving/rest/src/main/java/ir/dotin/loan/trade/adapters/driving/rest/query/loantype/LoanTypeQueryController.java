@@ -30,6 +30,6 @@ public class LoanTypeQueryController {
     public DataResponse<TradeLoanTypeQueryDto> getById(@PathVariable UUID loanTypeId) {
         GetLoanTypeByIdQuery query =
                 GetLoanTypeByIdQuery.builder().loanTypeId(loanTypeId).build();
-        return DataResponse.success(dispatcher.dispatch(query));
+        return DataResponse.of(dispatcher.dispatch(query));
     }
 }

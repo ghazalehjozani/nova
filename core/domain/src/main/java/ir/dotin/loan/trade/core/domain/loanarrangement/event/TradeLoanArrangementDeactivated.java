@@ -9,7 +9,8 @@ import static java.util.Objects.requireNonNull;
 
 public record TradeLoanArrangementDeactivated(
         UUID eventId, LoanArrangementId aggregateId, Payload payload, Instant createdAt)
-        implements TradeLoanArrangementEvent<TradeLoanArrangementDeactivated, TradeLoanArrangementDeactivated.Payload> {
+        implements TradeLoanArrangementEvents<
+                TradeLoanArrangementDeactivated, TradeLoanArrangementDeactivated.Payload> {
 
     public TradeLoanArrangementDeactivated {
         requireNonNull(eventId, "eventId cannot be null");

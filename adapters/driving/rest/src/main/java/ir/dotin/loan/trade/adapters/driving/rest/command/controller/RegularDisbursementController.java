@@ -42,6 +42,6 @@ public class RegularDisbursementController {
                     RegularDisbursementRequest requestBody) {
         var command = mapper.toCommand(facilityId, requestBody);
         List<DomainEvent<?, ?>> domainEvents = dispatcher.dispatch(command);
-        return EventStreamResponse.success(domainEvents);
+        return EventStreamResponse.of(domainEvents);
     }
 }

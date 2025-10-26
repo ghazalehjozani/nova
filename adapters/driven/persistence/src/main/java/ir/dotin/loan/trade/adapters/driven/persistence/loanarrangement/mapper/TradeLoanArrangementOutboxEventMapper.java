@@ -16,6 +16,8 @@ public interface TradeLoanArrangementOutboxEventMapper
 
     @Override
     @Mapping(target = "aggregateType", source = "aggregateType", qualifiedByName = "classToString")
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "modifiedBy", ignore = true)
     TradeLoanArrangementOutboxEventEntity toEntity(OutboxEvent domain);
 
     @Override

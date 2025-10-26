@@ -47,6 +47,6 @@ public class AddFacilityCollateralController {
                     AddFacilityCollateralRequest request) {
         var command = mapper.toCommand(facilityId, collateralSerial, request);
         List<DomainEvent<?, ?>> domainEvents = dispatcher.dispatch(command);
-        return EventStreamResponse.success(domainEvents);
+        return EventStreamResponse.of(domainEvents);
     }
 }

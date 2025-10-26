@@ -13,9 +13,8 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
-public record TradeLoanFacilityCancelledEvent(
-        UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
-        implements TradeLoanFacilityEvent<TradeLoanFacilityCancelledEvent, TradeLoanFacilityCancelledEvent.Payload> {
+public record TradeLoanFacilityCancelled(UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
+        implements TradeLoanFacilityEvents<TradeLoanFacilityCancelled, TradeLoanFacilityCancelled.Payload> {
 
     public record Payload(Optional<SanctionedLoanId> sanctionedLoanId) {
         public Payload {
@@ -23,19 +22,19 @@ public record TradeLoanFacilityCancelledEvent(
         }
     }
 
-    public TradeLoanFacilityCancelledEvent {
+    public TradeLoanFacilityCancelled {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
         requireNonNull(payload);
         requireNonNull(createdAt);
     }
 
-    public static TradeLoanFacilityCancelledEvent of(LoanFacilityId id, Clock clock) {
-        return new TradeLoanFacilityCancelledEvent(randomUUID(), id, new Payload(Optional.empty()), clock.instant());
+    public static TradeLoanFacilityCancelled of(LoanFacilityId id, Clock clock) {
+        return new TradeLoanFacilityCancelled(randomUUID(), id, new Payload(Optional.empty()), clock.instant());
     }
 
-    public static TradeLoanFacilityCancelledEvent of(LoanFacilityId id, SanctionedLoanId sanId, Clock clock) {
-        return new TradeLoanFacilityCancelledEvent(randomUUID(), id, new Payload(Optional.of(sanId)), clock.instant());
+    public static TradeLoanFacilityCancelled of(LoanFacilityId id, SanctionedLoanId sanId, Clock clock) {
+        return new TradeLoanFacilityCancelled(randomUUID(), id, new Payload(Optional.of(sanId)), clock.instant());
     }
 
     @Override

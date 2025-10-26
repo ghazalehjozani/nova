@@ -21,7 +21,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.*;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
-import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCreatedEvent;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCreated;
 
 import static java.time.ZoneOffset.UTC;
 import static java.util.UUID.randomUUID;
@@ -150,9 +150,9 @@ class TradeLoanFacilityTest {
             assertThat(facility).isNotNull();
             var events = facility.domainEvents();
             assertThat(events).hasSize(1);
-            assertThat(events.getFirst()).isInstanceOf(TradeLoanFacilityCreatedEvent.class);
+            assertThat(events.getFirst()).isInstanceOf(TradeLoanFacilityCreated.class);
 
-            var createdEvent = (TradeLoanFacilityCreatedEvent) events.getFirst();
+            var createdEvent = (TradeLoanFacilityCreated) events.getFirst();
             assertThat(createdEvent.aggregateId()).isEqualTo(facility.getId());
             assertThat(createdEvent.payload().applicationId())
                     .isEqualTo(facility.getLoanApplication().getId());

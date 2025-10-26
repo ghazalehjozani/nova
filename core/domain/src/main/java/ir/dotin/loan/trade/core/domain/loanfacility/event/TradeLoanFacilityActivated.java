@@ -12,9 +12,8 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
-public record TradeLoanFacilityActivatedEvent(
-        UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
-        implements TradeLoanFacilityEvent<TradeLoanFacilityActivatedEvent, TradeLoanFacilityActivatedEvent.Payload> {
+public record TradeLoanFacilityActivated(UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
+        implements TradeLoanFacilityEvents<TradeLoanFacilityActivated, TradeLoanFacilityActivated.Payload> {
 
     public record Payload(SanctionedLoanId sanctionedLoanId) {
         public Payload {
@@ -22,15 +21,15 @@ public record TradeLoanFacilityActivatedEvent(
         }
     }
 
-    public TradeLoanFacilityActivatedEvent {
+    public TradeLoanFacilityActivated {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
         requireNonNull(payload);
         requireNonNull(createdAt);
     }
 
-    public static TradeLoanFacilityActivatedEvent of(LoanFacilityId id, SanctionedLoanId sanId, Clock clock) {
-        return new TradeLoanFacilityActivatedEvent(randomUUID(), id, new Payload(sanId), clock.instant());
+    public static TradeLoanFacilityActivated of(LoanFacilityId id, SanctionedLoanId sanId, Clock clock) {
+        return new TradeLoanFacilityActivated(randomUUID(), id, new Payload(sanId), clock.instant());
     }
 
     @Override

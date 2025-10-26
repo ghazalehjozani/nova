@@ -39,6 +39,6 @@ public class SubmitFacilityForApprovalController {
                     SubmitFacilityForApprovalRequest request) {
         var command = mapper.toCommand(facilityId, request);
         List<DomainEvent<?, ?>> domainEvents = dispatcher.dispatch(command);
-        return EventStreamResponse.success(domainEvents);
+        return EventStreamResponse.of(domainEvents);
     }
 }

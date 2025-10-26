@@ -32,10 +32,6 @@
       <artifactId>platform-dispatcher-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>ir.dotin.platform</groupId>
-      <artifactId>platform-commons-security</artifactId>
-    </dependency>
-    <dependency>
       <groupId>ir.dotin.loan</groupId>
       <artifactId>trade-loan-core-domain</artifactId>
     </dependency>

@@ -16,6 +16,8 @@ public interface InstallmentScheduleOutboxEventMapper
 
     @Override
     @Mapping(target = "aggregateType", source = "aggregateType", qualifiedByName = "classToString")
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "modifiedBy", ignore = true)
     InstallmentScheduleOutboxEventEntity toEntity(OutboxEvent domain);
 
     @Override

@@ -12,10 +12,9 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
-public record TradeLoanFacilityClosedDefaultedEvent(
+public record TradeLoanFacilityClosedDefaulted(
         UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
-        implements TradeLoanFacilityEvent<
-                TradeLoanFacilityClosedDefaultedEvent, TradeLoanFacilityClosedDefaultedEvent.Payload> {
+        implements TradeLoanFacilityEvents<TradeLoanFacilityClosedDefaulted, TradeLoanFacilityClosedDefaulted.Payload> {
 
     public record Payload(SanctionedLoanId sanctionedLoanId) {
         public Payload {
@@ -23,15 +22,15 @@ public record TradeLoanFacilityClosedDefaultedEvent(
         }
     }
 
-    public TradeLoanFacilityClosedDefaultedEvent {
+    public TradeLoanFacilityClosedDefaulted {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
         requireNonNull(payload);
         requireNonNull(createdAt);
     }
 
-    public static TradeLoanFacilityClosedDefaultedEvent of(LoanFacilityId id, SanctionedLoanId sanId, Clock clock) {
-        return new TradeLoanFacilityClosedDefaultedEvent(randomUUID(), id, new Payload(sanId), clock.instant());
+    public static TradeLoanFacilityClosedDefaulted of(LoanFacilityId id, SanctionedLoanId sanId, Clock clock) {
+        return new TradeLoanFacilityClosedDefaulted(randomUUID(), id, new Payload(sanId), clock.instant());
     }
 
     @Override

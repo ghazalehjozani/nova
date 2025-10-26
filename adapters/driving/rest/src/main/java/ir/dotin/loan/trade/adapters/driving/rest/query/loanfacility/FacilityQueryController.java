@@ -31,6 +31,6 @@ public class FacilityQueryController {
     public DataResponse<TradeFacilityQueryDto> getById(@PathVariable UUID facilityId) {
         GetFacilityByIdQuery query =
                 GetFacilityByIdQuery.builder().loanFacilityId(facilityId).build();
-        return DataResponse.success(dispatcher.dispatch(query));
+        return DataResponse.of(dispatcher.dispatch(query));
     }
 }

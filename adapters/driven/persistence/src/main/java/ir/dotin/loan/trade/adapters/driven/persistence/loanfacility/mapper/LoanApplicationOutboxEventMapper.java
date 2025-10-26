@@ -15,6 +15,8 @@ public interface LoanApplicationOutboxEventMapper extends BaseOutboxEventMapper<
 
     @Override
     @Mapping(target = "aggregateType", source = "aggregateType", qualifiedByName = "classToString")
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "modifiedBy", ignore = true)
     TradeLoanFacilityOutboxEventEntity toEntity(OutboxEvent domain);
 
     @Override

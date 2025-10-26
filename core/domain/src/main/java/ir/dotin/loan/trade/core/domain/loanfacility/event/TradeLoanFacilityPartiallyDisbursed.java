@@ -13,10 +13,10 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
-public record TradeLoanFacilityPartiallyDisbursedEvent(
+public record TradeLoanFacilityPartiallyDisbursed(
         UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
-        implements TradeLoanFacilityEvent<
-                TradeLoanFacilityPartiallyDisbursedEvent, TradeLoanFacilityPartiallyDisbursedEvent.Payload> {
+        implements TradeLoanFacilityEvents<
+                TradeLoanFacilityPartiallyDisbursed, TradeLoanFacilityPartiallyDisbursed.Payload> {
 
     public record Payload(SanctionedLoanId sanctionId, Money totalDisbursedAmount) {
         public Payload {
@@ -25,16 +25,16 @@ public record TradeLoanFacilityPartiallyDisbursedEvent(
         }
     }
 
-    public TradeLoanFacilityPartiallyDisbursedEvent {
+    public TradeLoanFacilityPartiallyDisbursed {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
         requireNonNull(payload);
         requireNonNull(createdAt);
     }
 
-    public static TradeLoanFacilityPartiallyDisbursedEvent of(
+    public static TradeLoanFacilityPartiallyDisbursed of(
             LoanFacilityId facilityId, SanctionedLoanId sanctionId, Money totalDisbursedAmount, Clock clock) {
-        return new TradeLoanFacilityPartiallyDisbursedEvent(
+        return new TradeLoanFacilityPartiallyDisbursed(
                 randomUUID(), facilityId, new Payload(sanctionId, totalDisbursedAmount), clock.instant());
     }
 

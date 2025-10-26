@@ -14,7 +14,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumbers;
-import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityEvent;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityEvents;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
 import static java.util.Objects.requireNonNull;
@@ -69,7 +69,7 @@ public final class TradeLoanFacility
     }
 
     @Override
-    protected LoanFacilityEventFactory<TradeLoanFacilityEvent<?, ?>> createEventFactory() {
+    protected LoanFacilityEventFactory<TradeLoanFacilityEvents<?, ?>> createEventFactory() {
         return new TradeLoanFacilityEventFactory();
     }
 

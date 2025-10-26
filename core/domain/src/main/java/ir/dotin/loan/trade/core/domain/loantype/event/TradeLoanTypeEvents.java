@@ -6,7 +6,7 @@ import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 
-public sealed interface TradeLoanTypeEvent<T extends Record & TradeLoanTypeEvent<T, P>, P> extends DomainEvent<T, P>
+public sealed interface TradeLoanTypeEvents<T extends Record & TradeLoanTypeEvents<T, P>, P> extends DomainEvent<T, P>
         permits TradeLoanTypeActivated,
                 TradeLoanTypeCreated,
                 TradeLoanTypeDeactivated,

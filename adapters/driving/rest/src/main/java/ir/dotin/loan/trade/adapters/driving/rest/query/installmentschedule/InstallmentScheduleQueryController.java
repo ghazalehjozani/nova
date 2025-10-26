@@ -32,6 +32,6 @@ public class InstallmentScheduleQueryController {
         GetInstallmentScheduleByIdQuery query = GetInstallmentScheduleByIdQuery.builder()
                 .installmentScheduleId(installmentScheduleId)
                 .build();
-        return DataResponse.success(dispatcher.dispatch(query));
+        return DataResponse.of(dispatcher.dispatch(query));
     }
 }

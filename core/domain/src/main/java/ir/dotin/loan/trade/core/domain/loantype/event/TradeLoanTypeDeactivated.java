@@ -8,7 +8,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 import static java.util.Objects.requireNonNull;
 
 public record TradeLoanTypeDeactivated(UUID eventId, LoanTypeId aggregateId, Payload payload, Instant createdAt)
-        implements TradeLoanTypeEvent<TradeLoanTypeDeactivated, TradeLoanTypeDeactivated.Payload> {
+        implements TradeLoanTypeEvents<TradeLoanTypeDeactivated, TradeLoanTypeDeactivated.Payload> {
 
     public TradeLoanTypeDeactivated {
         requireNonNull(eventId);

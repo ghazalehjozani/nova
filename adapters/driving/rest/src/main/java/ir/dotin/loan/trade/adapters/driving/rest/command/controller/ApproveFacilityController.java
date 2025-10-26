@@ -46,6 +46,6 @@ public class ApproveFacilityController {
 
         var command = mapper.toCommand(facilityId, sanctionSerial, request);
         List<DomainEvent<?, ?>> domainEvents = dispatcher.dispatch(command);
-        return EventStreamResponse.success(domainEvents);
+        return EventStreamResponse.of(domainEvents);
     }
 }

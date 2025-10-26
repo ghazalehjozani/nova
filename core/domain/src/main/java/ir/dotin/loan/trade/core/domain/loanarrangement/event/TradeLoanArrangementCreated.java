@@ -9,7 +9,7 @@ import static java.util.Objects.requireNonNull;
 
 public record TradeLoanArrangementCreated(
         UUID eventId, LoanArrangementId aggregateId, Payload payload, Instant createdAt)
-        implements TradeLoanArrangementEvent<TradeLoanArrangementCreated, TradeLoanArrangementCreated.Payload> {
+        implements TradeLoanArrangementEvents<TradeLoanArrangementCreated, TradeLoanArrangementCreated.Payload> {
 
     public static final String CREATED = "CREATED";
 

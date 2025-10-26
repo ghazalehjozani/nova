@@ -12,10 +12,10 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
-public record TradeLoanFacilityApprovalSubmittedEvent(
+public record TradeLoanFacilityApprovalSubmitted(
         UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
-        implements TradeLoanFacilityEvent<
-        TradeLoanFacilityApprovalSubmittedEvent, TradeLoanFacilityApprovalSubmittedEvent.Payload> {
+        implements TradeLoanFacilityEvents<
+                TradeLoanFacilityApprovalSubmitted, TradeLoanFacilityApprovalSubmitted.Payload> {
 
     public record Payload(LoanApplicationId applicationId) {
         public Payload {
@@ -23,15 +23,15 @@ public record TradeLoanFacilityApprovalSubmittedEvent(
         }
     }
 
-    public TradeLoanFacilityApprovalSubmittedEvent {
+    public TradeLoanFacilityApprovalSubmitted {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
         requireNonNull(payload);
         requireNonNull(createdAt);
     }
 
-    public static TradeLoanFacilityApprovalSubmittedEvent of(LoanFacilityId id, LoanApplicationId appId, Clock clock) {
-        return new TradeLoanFacilityApprovalSubmittedEvent(randomUUID(), id, new Payload(appId), clock.instant());
+    public static TradeLoanFacilityApprovalSubmitted of(LoanFacilityId id, LoanApplicationId appId, Clock clock) {
+        return new TradeLoanFacilityApprovalSubmitted(randomUUID(), id, new Payload(appId), clock.instant());
     }
 
     @Override

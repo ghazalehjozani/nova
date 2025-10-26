@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.*;
 
 @DisplayName("TradeLoanFacilityContractIssuedEvent Tests")
 @SuppressWarnings({"NullAway", "TimeZoneUsage"})
-final class TradeLoanFacilityContractIssuedEventTest {
+final class TradeLoanFacilityContractIssuedTest {
 
     private static final LoanFacilityId FACILITY_ID = LoanFacilityId.of(randomUUID());
     private static final SanctionedLoanId SANCTIONED_LOAN_ID = SanctionedLoanId.of(randomUUID());
@@ -33,8 +33,8 @@ final class TradeLoanFacilityContractIssuedEventTest {
             Clock clock = Clock.systemUTC();
             List<String> transactionNumbers = ImmutableList.of("TXN-TRADE-001", "TXN-TRADE-002");
 
-            TradeLoanFacilityContractIssuedEvent event =
-                    TradeLoanFacilityContractIssuedEvent.of(FACILITY_ID, SANCTIONED_LOAN_ID, transactionNumbers, clock);
+            TradeLoanFacilityContractIssued event =
+                    TradeLoanFacilityContractIssued.of(FACILITY_ID, SANCTIONED_LOAN_ID, transactionNumbers, clock);
 
             assertThat(event.eventId()).isNotNull();
             assertThat(event.aggregateId()).isEqualTo(FACILITY_ID);
@@ -51,8 +51,8 @@ final class TradeLoanFacilityContractIssuedEventTest {
             Clock clock = Clock.systemUTC();
             List<String> transactionNumbers = ImmutableList.of("TXN-001");
 
-            TradeLoanFacilityContractIssuedEvent event =
-                    TradeLoanFacilityContractIssuedEvent.of(FACILITY_ID, SANCTIONED_LOAN_ID, transactionNumbers, clock);
+            TradeLoanFacilityContractIssued event =
+                    TradeLoanFacilityContractIssued.of(FACILITY_ID, SANCTIONED_LOAN_ID, transactionNumbers, clock);
 
             assertThat(event.eventType()).isEqualTo("TRADE_LOAN_FACILITY_CONTRACT_ISSUED");
         }
@@ -63,10 +63,10 @@ final class TradeLoanFacilityContractIssuedEventTest {
             Clock clock = Clock.systemUTC();
             List<String> transactionNumbers = ImmutableList.of("TXN-001");
 
-            TradeLoanFacilityContractIssuedEvent event1 =
-                    TradeLoanFacilityContractIssuedEvent.of(FACILITY_ID, SANCTIONED_LOAN_ID, transactionNumbers, clock);
-            TradeLoanFacilityContractIssuedEvent event2 =
-                    TradeLoanFacilityContractIssuedEvent.of(FACILITY_ID, SANCTIONED_LOAN_ID, transactionNumbers, clock);
+            TradeLoanFacilityContractIssued event1 =
+                    TradeLoanFacilityContractIssued.of(FACILITY_ID, SANCTIONED_LOAN_ID, transactionNumbers, clock);
+            TradeLoanFacilityContractIssued event2 =
+                    TradeLoanFacilityContractIssued.of(FACILITY_ID, SANCTIONED_LOAN_ID, transactionNumbers, clock);
 
             assertThat(event1.eventId()).isNotEqualTo(event2.eventId());
         }
@@ -81,8 +81,8 @@ final class TradeLoanFacilityContractIssuedEventTest {
         void shouldCreatePayloadWithSanctionedLoanIdAndTransactionNumbers() {
             List<String> transactionNumbers = ImmutableList.of("TXN-TRADE-001", "TXN-TRADE-002", "TXN-TRADE-003");
 
-            TradeLoanFacilityContractIssuedEvent.Payload payload =
-                    new TradeLoanFacilityContractIssuedEvent.Payload(SANCTIONED_LOAN_ID, transactionNumbers);
+            TradeLoanFacilityContractIssued.Payload payload =
+                    new TradeLoanFacilityContractIssued.Payload(SANCTIONED_LOAN_ID, transactionNumbers);
 
             assertThat(payload.sanctionedLoanId()).isEqualTo(SANCTIONED_LOAN_ID);
             assertThat(payload.transactionNumbers()).containsExactlyElementsOf(transactionNumbers);
@@ -94,8 +94,8 @@ final class TradeLoanFacilityContractIssuedEventTest {
         void shouldPreserveTransactionNumbersImmutabilityInPayload() {
             List<String> originalTransactionNumbers = ImmutableList.of("TXN-TRADE-001", "TXN-TRADE-002");
 
-            TradeLoanFacilityContractIssuedEvent.Payload payload =
-                    new TradeLoanFacilityContractIssuedEvent.Payload(SANCTIONED_LOAN_ID, originalTransactionNumbers);
+            TradeLoanFacilityContractIssued.Payload payload =
+                    new TradeLoanFacilityContractIssued.Payload(SANCTIONED_LOAN_ID, originalTransactionNumbers);
 
             List<String> retrievedTransactionNumbers = payload.transactionNumbers();
             assertThat(retrievedTransactionNumbers).containsExactlyElementsOf(originalTransactionNumbers);
@@ -108,8 +108,8 @@ final class TradeLoanFacilityContractIssuedEventTest {
         void shouldHandleEmptyTransactionNumbersList() {
             List<String> emptyTransactionNumbers = ImmutableList.of();
 
-            TradeLoanFacilityContractIssuedEvent.Payload payload =
-                    new TradeLoanFacilityContractIssuedEvent.Payload(SANCTIONED_LOAN_ID, emptyTransactionNumbers);
+            TradeLoanFacilityContractIssued.Payload payload =
+                    new TradeLoanFacilityContractIssued.Payload(SANCTIONED_LOAN_ID, emptyTransactionNumbers);
 
             assertThat(payload.transactionNumbers()).isEmpty();
             assertThat(payload.transactionNumbers()).isNotNull();
@@ -120,14 +120,14 @@ final class TradeLoanFacilityContractIssuedEventTest {
         void shouldRejectNullSanctionedLoanIdInPayload() {
             List<String> transactionNumbers = ImmutableList.of("TXN-001");
 
-            assertThatCode(() -> new TradeLoanFacilityContractIssuedEvent.Payload(null, transactionNumbers))
+            assertThatCode(() -> new TradeLoanFacilityContractIssued.Payload(null, transactionNumbers))
                     .isInstanceOf(NullPointerException.class);
         }
 
         @DisplayName("should reject null transaction numbers in payload")
         @Test
         void shouldRejectNullTransactionNumbersInPayload() {
-            assertThatCode(() -> new TradeLoanFacilityContractIssuedEvent.Payload(SANCTIONED_LOAN_ID, null))
+            assertThatCode(() -> new TradeLoanFacilityContractIssued.Payload(SANCTIONED_LOAN_ID, null))
                     .isInstanceOf(NullPointerException.class);
         }
     }
@@ -142,7 +142,7 @@ final class TradeLoanFacilityContractIssuedEventTest {
             Clock clock = Clock.systemUTC();
             List<String> originalTransactionNumbers = ImmutableList.of("TXN-TRADE-001", "TXN-TRADE-002");
 
-            TradeLoanFacilityContractIssuedEvent event = TradeLoanFacilityContractIssuedEvent.of(
+            TradeLoanFacilityContractIssued event = TradeLoanFacilityContractIssued.of(
                     FACILITY_ID, SANCTIONED_LOAN_ID, originalTransactionNumbers, clock);
 
             List<String> eventTransactionNumbers = event.payload().transactionNumbers();
@@ -157,8 +157,8 @@ final class TradeLoanFacilityContractIssuedEventTest {
             Clock clock = Clock.systemUTC();
             List<String> singleTransactionNumber = ImmutableList.of("TXN-SINGLE-001");
 
-            TradeLoanFacilityContractIssuedEvent event = TradeLoanFacilityContractIssuedEvent.of(
-                    FACILITY_ID, SANCTIONED_LOAN_ID, singleTransactionNumber, clock);
+            TradeLoanFacilityContractIssued event =
+                    TradeLoanFacilityContractIssued.of(FACILITY_ID, SANCTIONED_LOAN_ID, singleTransactionNumber, clock);
 
             assertThat(event.payload().transactionNumbers()).hasSize(1);
             assertThat(event.payload().transactionNumbers().getFirst()).isEqualTo("TXN-SINGLE-001");
@@ -171,7 +171,7 @@ final class TradeLoanFacilityContractIssuedEventTest {
             List<String> multipleTransactionNumbers =
                     ImmutableList.of("TXN-MULTI-001", "TXN-MULTI-002", "TXN-MULTI-003", "TXN-MULTI-004");
 
-            TradeLoanFacilityContractIssuedEvent event = TradeLoanFacilityContractIssuedEvent.of(
+            TradeLoanFacilityContractIssued event = TradeLoanFacilityContractIssued.of(
                     FACILITY_ID, SANCTIONED_LOAN_ID, multipleTransactionNumbers, clock);
 
             assertThat(event.payload().transactionNumbers()).hasSize(4);
@@ -188,10 +188,10 @@ final class TradeLoanFacilityContractIssuedEventTest {
         void shouldRejectNullEventId() {
             Instant now = Instant.now();
             List<String> transactionNumbers = ImmutableList.of("TXN-001");
-            TradeLoanFacilityContractIssuedEvent.Payload payload =
-                    new TradeLoanFacilityContractIssuedEvent.Payload(SANCTIONED_LOAN_ID, transactionNumbers);
+            TradeLoanFacilityContractIssued.Payload payload =
+                    new TradeLoanFacilityContractIssued.Payload(SANCTIONED_LOAN_ID, transactionNumbers);
 
-            assertThatCode(() -> new TradeLoanFacilityContractIssuedEvent(null, FACILITY_ID, payload, now))
+            assertThatCode(() -> new TradeLoanFacilityContractIssued(null, FACILITY_ID, payload, now))
                     .isInstanceOf(NullPointerException.class);
         }
 
@@ -201,10 +201,10 @@ final class TradeLoanFacilityContractIssuedEventTest {
             UUID eventId = randomUUID();
             Instant now = Instant.now();
             List<String> transactionNumbers = ImmutableList.of("TXN-001");
-            TradeLoanFacilityContractIssuedEvent.Payload payload =
-                    new TradeLoanFacilityContractIssuedEvent.Payload(SANCTIONED_LOAN_ID, transactionNumbers);
+            TradeLoanFacilityContractIssued.Payload payload =
+                    new TradeLoanFacilityContractIssued.Payload(SANCTIONED_LOAN_ID, transactionNumbers);
 
-            assertThatCode(() -> new TradeLoanFacilityContractIssuedEvent(eventId, null, payload, now))
+            assertThatCode(() -> new TradeLoanFacilityContractIssued(eventId, null, payload, now))
                     .isInstanceOf(NullPointerException.class);
         }
 
@@ -214,7 +214,7 @@ final class TradeLoanFacilityContractIssuedEventTest {
             UUID eventId = randomUUID();
             Instant now = Instant.now();
 
-            assertThatCode(() -> new TradeLoanFacilityContractIssuedEvent(eventId, FACILITY_ID, null, now))
+            assertThatCode(() -> new TradeLoanFacilityContractIssued(eventId, FACILITY_ID, null, now))
                     .isInstanceOf(NullPointerException.class);
         }
 
@@ -223,10 +223,10 @@ final class TradeLoanFacilityContractIssuedEventTest {
         void shouldRejectNullCreatedAtTimestamp() {
             UUID eventId = randomUUID();
             List<String> transactionNumbers = ImmutableList.of("TXN-001");
-            TradeLoanFacilityContractIssuedEvent.Payload payload =
-                    new TradeLoanFacilityContractIssuedEvent.Payload(SANCTIONED_LOAN_ID, transactionNumbers);
+            TradeLoanFacilityContractIssued.Payload payload =
+                    new TradeLoanFacilityContractIssued.Payload(SANCTIONED_LOAN_ID, transactionNumbers);
 
-            assertThatCode(() -> new TradeLoanFacilityContractIssuedEvent(eventId, FACILITY_ID, payload, null))
+            assertThatCode(() -> new TradeLoanFacilityContractIssued(eventId, FACILITY_ID, payload, null))
                     .isInstanceOf(NullPointerException.class);
         }
     }

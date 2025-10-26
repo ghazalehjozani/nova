@@ -88,7 +88,7 @@ final class TradeLoanFacilityEventFactoryTest {
         void shouldCreatePendingApprovalEvent() {
             var event = factory.createPendingApprovalEvent(mockFacilityId, mockApplicationId, fixedClock);
 
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityPendingApprovalEvent.class);
+            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityApprovalSubmitted.class);
         }
 
         @Test
@@ -96,7 +96,7 @@ final class TradeLoanFacilityEventFactoryTest {
         void shouldCreateApprovedEvent() {
             var event = factory.createApprovedEvent(mockFacilityId, mockSanctionId, mockSanctionSerial, fixedClock);
 
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityApprovedEvent.class);
+            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityApproved.class);
         }
 
         @Test
@@ -104,7 +104,7 @@ final class TradeLoanFacilityEventFactoryTest {
         void shouldCreateRejectedEvent() {
             var event = factory.createRejectedEvent(mockFacilityId, mockApplicationId, fixedClock);
 
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityRejectedEvent.class);
+            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityRejected.class);
         }
 
         @Test
@@ -112,15 +112,7 @@ final class TradeLoanFacilityEventFactoryTest {
         void shouldCreateContractIssuedEvent() {
             var event = factory.createContractIssuedEvent(mockFacilityId, mockSanctionId, List.of("trx1"), fixedClock);
 
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityContractIssuedEvent.class);
-        }
-
-        @Test
-        @DisplayName("should create pending disbursement event")
-        void shouldCreatePendingDisbursementEvent() {
-            var event = factory.createPendingDisbursementEvent(mockFacilityId, mockSanctionId, fixedClock);
-
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityPendingDisbursementEvent.class);
+            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityContractIssued.class);
         }
 
         @Test
@@ -129,7 +121,7 @@ final class TradeLoanFacilityEventFactoryTest {
             var event = factory.createDisbursementFailedEvent(
                     mockFacilityId, mockSanctionId, mockFailureReason, fixedClock);
 
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityDisbursementFailedEvent.class);
+            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityDisbursementFailed.class);
         }
 
         @Test
@@ -137,7 +129,7 @@ final class TradeLoanFacilityEventFactoryTest {
         void shouldCreateActivatedEvent() {
             var event = factory.createActivatedEvent(mockFacilityId, mockSanctionId, fixedClock);
 
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityActivatedEvent.class);
+            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityActivated.class);
         }
 
         @Test
@@ -145,7 +137,7 @@ final class TradeLoanFacilityEventFactoryTest {
         void shouldCreateClosedPaidOffEvent() {
             var event = factory.createClosedPaidOffEvent(mockFacilityId, mockSanctionId, fixedClock);
 
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityClosedPaidOffEvent.class);
+            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityPaidOffClosed.class);
         }
 
         @Test
@@ -153,7 +145,7 @@ final class TradeLoanFacilityEventFactoryTest {
         void shouldCreateClosedDefaultedEvent() {
             var event = factory.createClosedDefaultedEvent(mockFacilityId, mockSanctionId, fixedClock);
 
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityClosedDefaultedEvent.class);
+            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityClosedDefaulted.class);
         }
 
         @Test
@@ -161,7 +153,7 @@ final class TradeLoanFacilityEventFactoryTest {
         void shouldCreateCancelledEvent() {
             var event = factory.createCancelledEvent(mockFacilityId, fixedClock);
 
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityCancelledEvent.class);
+            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityCancelled.class);
         }
 
         @Test
@@ -170,7 +162,7 @@ final class TradeLoanFacilityEventFactoryTest {
             var event = factory.createCollateralAddedEvent(
                     mockFacilityId, mockSanctionId, mockCollateralSerial, fixedClock);
 
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityCollateralAddedEvent.class);
+            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityCollateralAdded.class);
         }
 
         @Test
@@ -178,7 +170,7 @@ final class TradeLoanFacilityEventFactoryTest {
         void shouldCreateCreatedEvent() {
             var event = factory.createCreatedEvent(mockFacilityId, mockApplicationId, mockCustomer, fixedClock);
 
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityCreatedEvent.class);
+            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityCreated.class);
         }
 
         @Test
@@ -186,7 +178,7 @@ final class TradeLoanFacilityEventFactoryTest {
         void shouldCreatePartiallyDisbursedEvent() {
             var event = factory.createPartiallyDisbursedEvent(mockFacilityId, mockSanctionId, mockMoney, fixedClock);
 
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityPartiallyDisbursedEvent.class);
+            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityPartiallyDisbursed.class);
         }
 
         @Test
@@ -195,7 +187,7 @@ final class TradeLoanFacilityEventFactoryTest {
             var event = factory.createAdditionalDisbursementCompletedEvent(
                     mockFacilityId, mockSanctionId, mockMoney, fixedClock);
 
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityAdditionalDisbursementCompletedEvent.class);
+            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityAdditionalDisbursementCompleted.class);
         }
     }
 

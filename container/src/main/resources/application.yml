@@ -128,11 +128,12 @@ platform:
         lock-ttl: 30s
         cleanup-interval: 5m
         cleanup-threshold: 100
+        cache-strategy: REDIS
     query:
       sync-timeout: 10s
       middleware-enabled: true
       caching-enabled: true
-      cache-type: redis
+      cache-strategy: REDIS
       cache-ttl: 2m
     events:
       publisher: spring
@@ -156,7 +157,6 @@ platform:
       add-mdc-entries: true
       trace-id-header: X-Trace-Id
       span-id-header: X-Span-Id
-      correlation-id-header: X-Correlation-Id
   messaging:
     enabled: true
     kafka:
@@ -187,16 +187,29 @@ platform:
       enable-cleanup: true
       enable-metrics: true
       lock-timeout: 5m
-      default-topic: trade-loan-domain-events
       topic-mappings:
         InstallmentSchedule:
-          - fcb-installment-schedule
+          - corridor.core.loan.installment.equal-installments-created.topic.v1
+          - corridor.core.loan.installment.equal-installments-created.topic.v1
         TradeLoanArrangement:
-          - fcb-trade-loan-arrangement
+          - corridor.core.loan.arrangement.trade-loan-arrangement-created.topic.v1
         TradeLoanFacility:
-          - fcb-trade-loan-facility
+          - corridor.core.loan.facility.trade-loan-facility-activated.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-additional-disbursement-completed.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-approved.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-cancelled.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-closed-defaulted.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-paid-off-closed.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-collateral-added.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-contract-issued.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-created.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-disbursement-failed.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-irregularly-disbursed.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-partially-disbursed.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-approval-submitted.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-rejected.topic.v1
         TradeLoanType:
-          - fcb-trade-loan-type
+          - corridor.core.loan.type.trade-loan-type-created.topic.v1
     inbox:
       enabled: true
       processor-threads: 3
@@ -253,12 +266,6 @@ platform:
       enabled: true
       default-lock-at-most-for: 10m
       default-lock-at-least-for: 1m
-    topics:
-      outbox-events: fcb-domain-events
-      inbox-events: fcb-inbox-events
-      dead-letter: fcb-deadletter
-      partitions: ${KAFKA_TOPIC_PARTITIONS:3}
-      replicas: ${KAFKA_TOPIC_REPLICAS:1}
   security:
     enabled: true
     resource-server:

@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.mapper;
 import java.util.UUID;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
@@ -17,5 +18,7 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.IssueFacilityC
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface LumpSumDisbursementRequestToCommandMapper {
 
-    IssueFacilityContractCommand toCommand(UUID loanFacilityId, LumpSumDisbursementRequest request);
+    @Mapping(target = "branchCode", ignore = true)
+    IssueFacilityContractCommand toCommand(
+            UUID loanFacilityId, LumpSumDisbursementRequest request); // TODO: no need mapper
 }

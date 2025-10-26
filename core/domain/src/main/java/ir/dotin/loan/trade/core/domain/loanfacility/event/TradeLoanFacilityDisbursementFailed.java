@@ -13,10 +13,10 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
-public record TradeLoanFacilityDisbursementFailedEvent(
+public record TradeLoanFacilityDisbursementFailed(
         UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
-        implements TradeLoanFacilityEvent<
-                TradeLoanFacilityDisbursementFailedEvent, TradeLoanFacilityDisbursementFailedEvent.Payload> {
+        implements TradeLoanFacilityEvents<
+                TradeLoanFacilityDisbursementFailed, TradeLoanFacilityDisbursementFailed.Payload> {
 
     public record Payload(SanctionedLoanId sanctionedLoanId, FailureReason reason) {
         public Payload {
@@ -25,17 +25,16 @@ public record TradeLoanFacilityDisbursementFailedEvent(
         }
     }
 
-    public TradeLoanFacilityDisbursementFailedEvent {
+    public TradeLoanFacilityDisbursementFailed {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
         requireNonNull(payload);
         requireNonNull(createdAt);
     }
 
-    public static TradeLoanFacilityDisbursementFailedEvent of(
+    public static TradeLoanFacilityDisbursementFailed of(
             LoanFacilityId id, SanctionedLoanId sanId, FailureReason reason, Clock clock) {
-        return new TradeLoanFacilityDisbursementFailedEvent(
-                randomUUID(), id, new Payload(sanId, reason), clock.instant());
+        return new TradeLoanFacilityDisbursementFailed(randomUUID(), id, new Payload(sanId, reason), clock.instant());
     }
 
     @Override

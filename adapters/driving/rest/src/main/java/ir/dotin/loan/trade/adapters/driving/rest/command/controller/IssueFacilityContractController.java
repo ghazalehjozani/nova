@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ir.dotin.platform.adapter.rest.headers.CommandEndpoint;
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
+import ir.dotin.platform.commons.security.AuthenticationContextHolder;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.IssueFacilityContractRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.IssueFacilityContractRequestToCommandMapper;
@@ -26,6 +27,7 @@ public class IssueFacilityContractController {
 
     private final CommandDispatcher dispatcher;
     private final IssueFacilityContractRequestToCommandMapper mapper;
+    private final AuthenticationContextHolder authenticationContextHolder;
 
     @PostMapping
     @Operation(
@@ -40,8 +42,11 @@ public class IssueFacilityContractController {
                     UUID facilityId,
             @Parameter(description = "جزئیات صدور قرارداد تسهیلات", required = true) @RequestBody
                     IssueFacilityContractRequest request) {
-        var command = mapper.toCommand(facilityId, request);
-        List<DomainEvent<?, ?>> domainEvents = dispatcher.dispatch(command);
-        return EventStreamResponse.success(domainEvents);
+        var command = mapper.toCommand(facilityId, request); // TODO: No need mapper
+        var contractCommand = command.toBuilder()
+                .branchCode(authenticationContextHolder.branchCode().orElseThrow())
+                .build();
+        List<DomainEvent<?, ?>> domainEvents = dispatcher.dispatch(contractCommand);
+        return EventStreamResponse.of(domainEvents);
     }
 }

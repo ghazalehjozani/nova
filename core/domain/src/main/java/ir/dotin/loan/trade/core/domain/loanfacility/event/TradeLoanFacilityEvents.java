@@ -6,22 +6,22 @@ import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
-public sealed interface TradeLoanFacilityEvent<T extends Record & TradeLoanFacilityEvent<T, P>, P>
+public sealed interface TradeLoanFacilityEvents<T extends Record & TradeLoanFacilityEvents<T, P>, P>
         extends DomainEvent<T, P>
-        permits TradeLoanFacilityActivatedEvent,
-                TradeLoanFacilityAdditionalDisbursementCompletedEvent,
-                TradeLoanFacilityApprovedEvent,
-                TradeLoanFacilityCancelledEvent,
-                TradeLoanFacilityClosedDefaultedEvent,
-        TradeLoanFacilityPaidOffClosedEvent,
-                TradeLoanFacilityCollateralAddedEvent,
-                TradeLoanFacilityContractIssuedEvent,
-                TradeLoanFacilityCreatedEvent,
-                TradeLoanFacilityDisbursementFailedEvent,
-        TradeLoanFacilityIrregularlyDisbursedEvent,
-                TradeLoanFacilityPartiallyDisbursedEvent,
-        TradeLoanFacilityApprovalSubmittedEvent,
-        TradeLoanFacilityRejectedEvent {
+        permits TradeLoanFacilityActivated,
+                TradeLoanFacilityAdditionalDisbursementCompleted,
+                TradeLoanFacilityApproved,
+                TradeLoanFacilityCancelled,
+                TradeLoanFacilityClosedDefaulted,
+                TradeLoanFacilityPaidOffClosed,
+                TradeLoanFacilityCollateralAdded,
+                TradeLoanFacilityContractIssued,
+                TradeLoanFacilityCreated,
+                TradeLoanFacilityDisbursementFailed,
+                TradeLoanFacilityIrregularlyDisbursed,
+                TradeLoanFacilityPartiallyDisbursed,
+                TradeLoanFacilityApprovalSubmitted,
+                TradeLoanFacilityRejected {
 
     String EVENT_TYPE_PREFIX = "TRADE_LOAN_FACILITY_";
 

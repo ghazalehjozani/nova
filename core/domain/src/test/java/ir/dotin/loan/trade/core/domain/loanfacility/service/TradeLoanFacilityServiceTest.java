@@ -130,7 +130,7 @@ class TradeLoanFacilityServiceTest {
         @Test
         void shouldNotAllowCollateralWhenFacilityIsPending() {
             // given
-            when(mockFacility.getCurrentState()).thenReturn(FacilityStatus.PENDING_APPROVAL);
+            when(mockFacility.getCurrentState()).thenReturn(FacilityStatus.APPROVAL_SUBMITTED);
 
             // when
             var canAdd = service.canAddCollateral(mockFacility, mockCollateralSerial);
@@ -148,7 +148,7 @@ class TradeLoanFacilityServiceTest {
         @Test
         void shouldAllowCancellationWhenFacilityIsPendingApproval() {
             // given
-            when(mockFacility.getCurrentState()).thenReturn(FacilityStatus.PENDING_APPROVAL);
+            when(mockFacility.getCurrentState()).thenReturn(FacilityStatus.APPROVAL_SUBMITTED);
 
             // when
             var canCancel = service.canCancel(mockFacility);

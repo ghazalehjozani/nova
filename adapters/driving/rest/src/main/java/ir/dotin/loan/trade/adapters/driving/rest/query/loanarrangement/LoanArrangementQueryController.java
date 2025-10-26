@@ -31,6 +31,6 @@ public class LoanArrangementQueryController {
         GetLoanArrangementByIdQuery query = GetLoanArrangementByIdQuery.builder()
                 .loanArrangementId(loanArrangementId)
                 .build();
-        return DataResponse.success(dispatcher.dispatch(query));
+        return DataResponse.of(dispatcher.dispatch(query));
     }
 }

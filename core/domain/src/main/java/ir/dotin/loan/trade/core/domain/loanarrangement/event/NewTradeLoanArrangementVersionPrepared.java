@@ -8,7 +8,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import static java.util.Objects.requireNonNull;
 
 public record NewTradeLoanArrangementVersionPrepared(UUID eventId, LoanArrangementId aggregateId, Instant createdAt)
-        implements TradeLoanArrangementEvent<NewTradeLoanArrangementVersionPrepared, Void> {
+        implements TradeLoanArrangementEvents<NewTradeLoanArrangementVersionPrepared, Void> {
 
     public NewTradeLoanArrangementVersionPrepared {
         requireNonNull(eventId, "eventId cannot be null");

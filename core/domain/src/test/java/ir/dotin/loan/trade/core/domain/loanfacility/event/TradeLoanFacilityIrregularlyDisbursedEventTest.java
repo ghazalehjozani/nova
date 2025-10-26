@@ -20,7 +20,7 @@ import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
-final class TradeLoanFacilityIrregularDisbursementEventTest {
+final class TradeLoanFacilityIrregularlyDisbursedEventTest {
 
     private static final Instant FIXED_TIMESTAMP = Instant.parse("2025-01-01T10:00:00Z");
     private static final Clock FIXED_CLOCK = Clock.fixed(FIXED_TIMESTAMP, UTC);
@@ -44,9 +44,9 @@ final class TradeLoanFacilityIrregularDisbursementEventTest {
         @DisplayName("should create event successfully with valid arguments")
         void shouldCreateEventSuccessfullyWithValidArguments() {
             UUID eventId = randomUUID();
-            TradeLoanFacilityIrregularDisbursementEvent.Payload payload =
-                    new TradeLoanFacilityIrregularDisbursementEvent.Payload(sanctionedLoanId);
-            TradeLoanFacilityIrregularDisbursementEvent event = new TradeLoanFacilityIrregularDisbursementEvent(
+            TradeLoanFacilityIrregularlyDisbursed.Payload payload =
+                    new TradeLoanFacilityIrregularlyDisbursed.Payload(sanctionedLoanId);
+            TradeLoanFacilityIrregularlyDisbursed event = new TradeLoanFacilityIrregularlyDisbursed(
                     eventId, aggregateId, payload, amountToDisburse, FIXED_TIMESTAMP);
 
             assertThat(event).isNotNull();
@@ -61,10 +61,10 @@ final class TradeLoanFacilityIrregularDisbursementEventTest {
         @DisplayName("should throw NullPointerException if eventId is null")
         @SuppressWarnings("NullAway")
         void shouldThrowExceptionIfEventIdIsNull() {
-            assertThatThrownBy(() -> new TradeLoanFacilityIrregularDisbursementEvent(
+            assertThatThrownBy(() -> new TradeLoanFacilityIrregularlyDisbursed(
                             null,
                             aggregateId,
-                            new TradeLoanFacilityIrregularDisbursementEvent.Payload(sanctionedLoanId),
+                            new TradeLoanFacilityIrregularlyDisbursed.Payload(sanctionedLoanId),
                             amountToDisburse,
                             FIXED_TIMESTAMP))
                     .isInstanceOf(NullPointerException.class);
@@ -74,10 +74,10 @@ final class TradeLoanFacilityIrregularDisbursementEventTest {
         @DisplayName("should throw NullPointerException if aggregateId is null")
         @SuppressWarnings("NullAway")
         void shouldThrowExceptionIfAggregateIdIsNull() {
-            assertThatThrownBy(() -> new TradeLoanFacilityIrregularDisbursementEvent(
+            assertThatThrownBy(() -> new TradeLoanFacilityIrregularlyDisbursed(
                             randomUUID(),
                             null,
-                            new TradeLoanFacilityIrregularDisbursementEvent.Payload(sanctionedLoanId),
+                            new TradeLoanFacilityIrregularlyDisbursed.Payload(sanctionedLoanId),
                             amountToDisburse,
                             FIXED_TIMESTAMP))
                     .isInstanceOf(NullPointerException.class);
@@ -87,7 +87,7 @@ final class TradeLoanFacilityIrregularDisbursementEventTest {
         @DisplayName("should throw NullPointerException if payload is null")
         @SuppressWarnings("NullAway")
         void shouldThrowExceptionIfPayloadIsNull() {
-            assertThatThrownBy(() -> new TradeLoanFacilityIrregularDisbursementEvent(
+            assertThatThrownBy(() -> new TradeLoanFacilityIrregularlyDisbursed(
                             randomUUID(), aggregateId, null, amountToDisburse, FIXED_TIMESTAMP))
                     .isInstanceOf(NullPointerException.class);
         }
@@ -96,10 +96,10 @@ final class TradeLoanFacilityIrregularDisbursementEventTest {
         @DisplayName("should throw NullPointerException if amountToDisburse is null")
         @SuppressWarnings("NullAway")
         void shouldThrowExceptionIfAmountToDisburseIsNull() {
-            assertThatThrownBy(() -> new TradeLoanFacilityIrregularDisbursementEvent(
+            assertThatThrownBy(() -> new TradeLoanFacilityIrregularlyDisbursed(
                             randomUUID(),
                             aggregateId,
-                            new TradeLoanFacilityIrregularDisbursementEvent.Payload(sanctionedLoanId),
+                            new TradeLoanFacilityIrregularlyDisbursed.Payload(sanctionedLoanId),
                             null,
                             FIXED_TIMESTAMP))
                     .isInstanceOf(NullPointerException.class);
@@ -109,10 +109,10 @@ final class TradeLoanFacilityIrregularDisbursementEventTest {
         @DisplayName("should throw NullPointerException if createdAt is null")
         @SuppressWarnings("NullAway")
         void shouldThrowExceptionIfCreatedAtIsNull() {
-            assertThatThrownBy(() -> new TradeLoanFacilityIrregularDisbursementEvent(
+            assertThatThrownBy(() -> new TradeLoanFacilityIrregularlyDisbursed(
                             randomUUID(),
                             aggregateId,
-                            new TradeLoanFacilityIrregularDisbursementEvent.Payload(sanctionedLoanId),
+                            new TradeLoanFacilityIrregularlyDisbursed.Payload(sanctionedLoanId),
                             amountToDisburse,
                             null))
                     .isInstanceOf(NullPointerException.class);
@@ -122,7 +122,7 @@ final class TradeLoanFacilityIrregularDisbursementEventTest {
         @DisplayName("Payload should throw NullPointerException if sanctionedLoanId is null")
         @SuppressWarnings("NullAway")
         void payloadShouldThrowExceptionIfSanctionedLoanIdIsNull() {
-            assertThatThrownBy(() -> new TradeLoanFacilityIrregularDisbursementEvent.Payload(null))
+            assertThatThrownBy(() -> new TradeLoanFacilityIrregularlyDisbursed.Payload(null))
                     .isInstanceOf(NullPointerException.class);
         }
     }
@@ -134,7 +134,7 @@ final class TradeLoanFacilityIrregularDisbursementEventTest {
         @Test
         @DisplayName("should create event with 'of()' factory method")
         void shouldCreateEventWithOfMethod() {
-            TradeLoanFacilityIrregularDisbursementEvent event = TradeLoanFacilityIrregularDisbursementEvent.of(
+            TradeLoanFacilityIrregularlyDisbursed event = TradeLoanFacilityIrregularlyDisbursed.of(
                     aggregateId, sanctionedLoanId, amountToDisburse, FIXED_CLOCK);
 
             assertThat(event).isNotNull();
@@ -149,9 +149,9 @@ final class TradeLoanFacilityIrregularDisbursementEventTest {
         @Test
         @DisplayName("should generate unique event ID for each event")
         void shouldGenerateUniqueEventIdForEachEvent() {
-            TradeLoanFacilityIrregularDisbursementEvent event1 = TradeLoanFacilityIrregularDisbursementEvent.of(
+            TradeLoanFacilityIrregularlyDisbursed event1 = TradeLoanFacilityIrregularlyDisbursed.of(
                     aggregateId, sanctionedLoanId, amountToDisburse, FIXED_CLOCK);
-            TradeLoanFacilityIrregularDisbursementEvent event2 = TradeLoanFacilityIrregularDisbursementEvent.of(
+            TradeLoanFacilityIrregularlyDisbursed event2 = TradeLoanFacilityIrregularlyDisbursed.of(
                     aggregateId, sanctionedLoanId, amountToDisburse, FIXED_CLOCK);
 
             assertThat(event1.eventId()).isNotEqualTo(event2.eventId());
@@ -161,7 +161,7 @@ final class TradeLoanFacilityIrregularDisbursementEventTest {
         @DisplayName("should throw NullPointerException if id for 'of()' is null")
         @SuppressWarnings("NullAway")
         void shouldThrowExceptionIfIdIsNull() {
-            assertThatThrownBy(() -> TradeLoanFacilityIrregularDisbursementEvent.of(
+            assertThatThrownBy(() -> TradeLoanFacilityIrregularlyDisbursed.of(
                             null, sanctionedLoanId, amountToDisburse, FIXED_CLOCK))
                     .isInstanceOf(NullPointerException.class);
         }
@@ -170,8 +170,8 @@ final class TradeLoanFacilityIrregularDisbursementEventTest {
         @DisplayName("should throw NullPointerException if sanId for 'of()' is null")
         @SuppressWarnings("NullAway")
         void shouldThrowExceptionIfSanIdIsNull() {
-            assertThatThrownBy(() -> TradeLoanFacilityIrregularDisbursementEvent.of(
-                            aggregateId, null, amountToDisburse, FIXED_CLOCK))
+            assertThatThrownBy(() ->
+                            TradeLoanFacilityIrregularlyDisbursed.of(aggregateId, null, amountToDisburse, FIXED_CLOCK))
                     .isInstanceOf(NullPointerException.class);
         }
 
@@ -179,8 +179,8 @@ final class TradeLoanFacilityIrregularDisbursementEventTest {
         @DisplayName("should throw NullPointerException if amountToDisburse for 'of()' is null")
         @SuppressWarnings("NullAway")
         void shouldThrowExceptionIfAmountToDisburseIsNull() {
-            assertThatThrownBy(() -> TradeLoanFacilityIrregularDisbursementEvent.of(
-                            aggregateId, sanctionedLoanId, null, FIXED_CLOCK))
+            assertThatThrownBy(() ->
+                            TradeLoanFacilityIrregularlyDisbursed.of(aggregateId, sanctionedLoanId, null, FIXED_CLOCK))
                     .isInstanceOf(NullPointerException.class);
         }
     }
@@ -192,10 +192,10 @@ final class TradeLoanFacilityIrregularDisbursementEventTest {
         @Test
         @DisplayName("should return correct event type string")
         void shouldReturnCorrectEventType() {
-            TradeLoanFacilityIrregularDisbursementEvent event = TradeLoanFacilityIrregularDisbursementEvent.of(
+            TradeLoanFacilityIrregularlyDisbursed event = TradeLoanFacilityIrregularlyDisbursed.of(
                     aggregateId, sanctionedLoanId, amountToDisburse, FIXED_CLOCK);
 
-            String expectedEventType = TradeLoanFacilityEvent.EVENT_TYPE_PREFIX + "IRREGULAR_DISBURSEMENT";
+            String expectedEventType = TradeLoanFacilityEvents.EVENT_TYPE_PREFIX + "IRREGULAR_DISBURSEMENT";
             assertThat(event.eventType()).isEqualTo(expectedEventType);
         }
     }

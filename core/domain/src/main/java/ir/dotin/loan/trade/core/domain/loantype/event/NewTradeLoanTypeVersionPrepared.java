@@ -3,13 +3,12 @@ package ir.dotin.loan.trade.core.domain.loantype.event;
 import java.time.Instant;
 import java.util.UUID;
 
-import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 
 import static java.util.Objects.requireNonNull;
 
 public record NewTradeLoanTypeVersionPrepared(UUID eventId, LoanTypeId aggregateId, Payload payload, Instant createdAt)
-        implements TradeLoanTypeEvent<NewTradeLoanTypeVersionPrepared, NewTradeLoanTypeVersionPrepared.Payload> {
+        implements TradeLoanTypeEvents<NewTradeLoanTypeVersionPrepared, NewTradeLoanTypeVersionPrepared.Payload> {
 
     public NewTradeLoanTypeVersionPrepared {
         requireNonNull(eventId);
