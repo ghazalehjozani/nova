@@ -195,7 +195,7 @@ final class TradeLoanFacilityIrregularlyDisbursedEventTest {
             TradeLoanFacilityIrregularlyDisbursed event = TradeLoanFacilityIrregularlyDisbursed.of(
                     aggregateId, sanctionedLoanId, amountToDisburse, FIXED_CLOCK);
 
-            String expectedEventType = TradeLoanFacilityEvents.EVENT_TYPE_PREFIX + "IRREGULAR_DISBURSEMENT";
+            String expectedEventType = TradeLoanFacilityEvents.EVENT_TYPE_PREFIX + "IRREGULARLY_DISBURSED";
             assertThat(event.eventType()).isEqualTo(expectedEventType);
         }
     }
