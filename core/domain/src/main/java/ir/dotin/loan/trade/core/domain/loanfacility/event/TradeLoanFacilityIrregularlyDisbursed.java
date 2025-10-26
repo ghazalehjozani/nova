@@ -13,10 +13,10 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
-public record TradeLoanFacilityIrregularDisbursementEvent(
+public record TradeLoanFacilityIrregularlyDisbursedEvent(
         UUID eventId, LoanFacilityId aggregateId, Payload payload, Money amountToDisburse, Instant createdAt)
         implements TradeLoanFacilityEvent<
-                TradeLoanFacilityIrregularDisbursementEvent, TradeLoanFacilityIrregularDisbursementEvent.Payload> {
+        TradeLoanFacilityIrregularlyDisbursedEvent, TradeLoanFacilityIrregularlyDisbursedEvent.Payload> {
 
     public record Payload(SanctionedLoanId sanctionedLoanId) {
         public Payload {
@@ -24,7 +24,7 @@ public record TradeLoanFacilityIrregularDisbursementEvent(
         }
     }
 
-    public TradeLoanFacilityIrregularDisbursementEvent {
+    public TradeLoanFacilityIrregularlyDisbursedEvent {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
         requireNonNull(payload);
@@ -32,18 +32,18 @@ public record TradeLoanFacilityIrregularDisbursementEvent(
         requireNonNull(createdAt);
     }
 
-    public static TradeLoanFacilityIrregularDisbursementEvent of(
+    public static TradeLoanFacilityIrregularlyDisbursedEvent of(
             LoanFacilityId id, SanctionedLoanId sanId, Money amountToDisburse, Clock clock) {
-        return new TradeLoanFacilityIrregularDisbursementEvent(
+        return new TradeLoanFacilityIrregularlyDisbursedEvent(
                 randomUUID(),
                 id,
-                new TradeLoanFacilityIrregularDisbursementEvent.Payload(sanId),
+                new TradeLoanFacilityIrregularlyDisbursedEvent.Payload(sanId),
                 amountToDisburse,
                 clock.instant());
     }
 
     @Override
     public @NonNull String eventType() {
-        return EVENT_TYPE_PREFIX + "IRREGULAR_DISBURSEMENT";
+        return EVENT_TYPE_PREFIX + "IRREGULARLY_DISBURSED";
     }
 }

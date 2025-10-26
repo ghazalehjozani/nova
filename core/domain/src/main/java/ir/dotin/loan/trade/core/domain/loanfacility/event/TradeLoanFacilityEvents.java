@@ -13,16 +13,15 @@ public sealed interface TradeLoanFacilityEvent<T extends Record & TradeLoanFacil
                 TradeLoanFacilityApprovedEvent,
                 TradeLoanFacilityCancelledEvent,
                 TradeLoanFacilityClosedDefaultedEvent,
-                TradeLoanFacilityClosedPaidOffEvent,
+        TradeLoanFacilityPaidOffClosedEvent,
                 TradeLoanFacilityCollateralAddedEvent,
                 TradeLoanFacilityContractIssuedEvent,
                 TradeLoanFacilityCreatedEvent,
                 TradeLoanFacilityDisbursementFailedEvent,
-                TradeLoanFacilityIrregularDisbursementEvent,
+        TradeLoanFacilityIrregularlyDisbursedEvent,
                 TradeLoanFacilityPartiallyDisbursedEvent,
-                TradeLoanFacilityPendingApprovalEvent,
-                TradeLoanFacilityPendingDisbursementEvent,
-                TradeLoanFacilityRejectedEvent {
+        TradeLoanFacilityApprovalSubmittedEvent,
+        TradeLoanFacilityRejectedEvent {
 
     String EVENT_TYPE_PREFIX = "TRADE_LOAN_FACILITY_";
 
