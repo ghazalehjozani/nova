@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 import java.util.List;
 import java.util.UUID;
 
+import ir.dotin.platform.adapter.rest.controller.BaseController;
 import org.springframework.web.bind.annotation.*;
 
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
@@ -20,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/facilities/{facilityId}/close-paid-off")
 @Tag(name = "عملیات بستن تسهیلات پرداخت شده", description = "عملیات مربوط به بستن تسهیلات پرداخت شده")
 @RequiredArgsConstructor
-public class CloseFacilityPaidOffController {
+public class CloseFacilityPaidOffController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final CloseFacilityPaidOffRequestToCommandMapper mapper;
@@ -39,7 +40,6 @@ public class CloseFacilityPaidOffController {
             @Parameter(description = "جزئیات بستن تسهیلات پرداخت شده", required = true) @RequestBody
                     CloseFacilityPaidOffRequest request) {
         var command = mapper.toCommand(facilityId, request);
-        List<DomainEvent<?, ?>> domainEvents = dispatcher.dispatch(command);
-        return EventStreamResponse.of(domainEvents);
+        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
     }
 }

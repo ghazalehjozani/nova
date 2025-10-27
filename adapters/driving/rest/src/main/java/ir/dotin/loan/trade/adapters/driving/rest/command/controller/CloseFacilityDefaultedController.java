@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 import java.util.List;
 import java.util.UUID;
 
+import ir.dotin.platform.adapter.rest.controller.BaseController;
 import org.springframework.web.bind.annotation.*;
 
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
@@ -20,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/facilities/{facilityId}/close-defaulted")
 @Tag(name = "عملیات بستن تسهیلات", description = "عملیات مربوط به بستن تسهیلات")
 @RequiredArgsConstructor
-public class CloseFacilityDefaultedController {
+public class CloseFacilityDefaultedController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final CloseFacilityDefaultedRequestToCommandMapper mapper;
@@ -39,7 +40,6 @@ public class CloseFacilityDefaultedController {
             @Parameter(description = "جزئیات عملیات بستن تسهیلات", required = true) @RequestBody
                     CloseFacilityDefaultedRequest request) {
         var command = mapper.toCommand(facilityId, request);
-        List<DomainEvent<?, ?>> domainEvents = dispatcher.dispatch(command);
-        return EventStreamResponse.of(domainEvents);
+        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
     }
 }

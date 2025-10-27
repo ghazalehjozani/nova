@@ -190,3 +190,5 @@ container/.env
 container/k8s/**/secret*.yml
 !container/k8s/**/sealed-secret*.yml
 /container/logs/
+project-knowledge.xml
+/doc/.exports/

@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
 import java.util.List;
 
+import ir.dotin.platform.adapter.rest.controller.BaseController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/loan-types/define")
 @Tag(name = "عملیات مدیریت نوع تسهیلات", description = "عملیات مربوط به مدیریت نوع تسهیلات")
 @RequiredArgsConstructor
-public class DefineLoanTypeController {
+public class DefineLoanTypeController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final DefineLoanTypeRequestToCommandMapper mapper;
@@ -35,7 +36,6 @@ public class DefineLoanTypeController {
             @Parameter(description = "جزئیات ایجاد نوع تسهیلات", required = true) @RequestBody
                     DefineLoanTypeRequest request) {
         var command = mapper.toCommand(request);
-        List<DomainEvent<?, ?>> domainEvents = dispatcher.dispatch(command);
-        return EventStreamResponse.of(domainEvents);
+        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
     }
 }

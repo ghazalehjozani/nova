@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 import java.util.List;
 import java.util.UUID;
 
+import ir.dotin.platform.adapter.rest.controller.BaseController;
 import org.springframework.web.bind.annotation.*;
 
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
@@ -20,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/facilities/{facilityId}/disburse/lump-sum")
 @Tag(name = "عملیات پرداخت یکجا", description = "عملیات مربوط به پرداخت یکجای تسهیلات")
 @RequiredArgsConstructor
-public class LumpSumDisbursementController {
+public class LumpSumDisbursementController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final LumpSumDisbursementRequestToCommandMapper mapper;
@@ -39,7 +40,6 @@ public class LumpSumDisbursementController {
             @Parameter(description = "جزئیات درخواست پرداخت یکجا", required = true) @RequestBody
                     LumpSumDisbursementRequest requestBody) {
         var command = mapper.toCommand(facilityId, requestBody);
-        List<DomainEvent<?, ?>> domainEvents = dispatcher.dispatch(command);
-        return EventStreamResponse.of(domainEvents);
+        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
     }
 }

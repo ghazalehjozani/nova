@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 import java.util.List;
 import java.util.UUID;
 
+import ir.dotin.platform.adapter.rest.controller.BaseController;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/facilities/{facilityId}/submit-for-approval")
 @Tag(name = "ثبت درخواست تصویب مصوبه", description = "عملیات مربوط به ثبت درخواست تصویب مصوبه")
 @RequiredArgsConstructor
-public class SubmitFacilityForApprovalController {
+public class SubmitFacilityForApprovalController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final SubmitFacilityForApprovalRequestToCommandMapper mapper;
@@ -36,7 +37,6 @@ public class SubmitFacilityForApprovalController {
             @Parameter(description = "جزئیات ثبت درخواست تصویب مصوبه", required = true) @RequestBody
                     SubmitFacilityForApprovalRequest request) {
         var command = mapper.toCommand(facilityId, request);
-        List<DomainEvent<?, ?>> domainEvents = dispatcher.dispatch(command);
-        return EventStreamResponse.of(domainEvents);
+        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
     }
 }

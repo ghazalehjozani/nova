@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 import java.util.List;
 import java.util.UUID;
 
+import ir.dotin.platform.adapter.rest.controller.BaseController;
 import org.springframework.web.bind.annotation.*;
 
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
@@ -20,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/facilities/{facilityId}/reject")
 @Tag(name = "عملیات رد تسهیلات", description = "عملیات مربوط به رد تسهیلات")
 @RequiredArgsConstructor
-public class RejectFacilityController {
+public class RejectFacilityController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final RejectFacilityRequestToCommandMapper mapper;
@@ -38,7 +39,6 @@ public class RejectFacilityController {
                     UUID facilityId,
             @Parameter(description = "جزئیات رد تسهیلات", required = true) @RequestBody RejectFacilityRequest request) {
         var command = mapper.toCommand(facilityId, request);
-        List<DomainEvent<?, ?>> domainEvents = dispatcher.dispatch(command);
-        return EventStreamResponse.of(domainEvents);
+        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
     }
 }

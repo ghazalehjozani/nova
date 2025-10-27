@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 import java.util.List;
 import java.util.UUID;
 
+import ir.dotin.platform.adapter.rest.controller.BaseController;
 import org.springframework.web.bind.annotation.*;
 
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
@@ -21,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/facilities/{facilityId}/issue-contract")
 @Tag(name = "عملیات صدور قرارداد", description = "عملیات مربوط به صدور قرارداد تسهیلات")
 @RequiredArgsConstructor
-public class IssueFacilityContractController {
+public class IssueFacilityContractController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final IssueFacilityContractRequestToCommandMapper mapper;
@@ -44,7 +45,6 @@ public class IssueFacilityContractController {
         var contractCommand = command.toBuilder()
                 .branchCode(authenticationContextHolder.branchCode().orElseThrow())
                 .build();
-        List<DomainEvent<?, ?>> domainEvents = dispatcher.dispatch(contractCommand);
-        return EventStreamResponse.of(domainEvents);
+        return EventStreamResponse.of(unwrap(dispatcher.dispatch(contractCommand)));
     }
 }
