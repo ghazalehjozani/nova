@@ -21,48 +21,26 @@ public record DefineLoanTypeRequest(
                         description = "شناسه یکتا",
                         example = "a1b2c3d4-e5f6-7890-abcd-1234567890ef",
                         requiredMode = Schema.RequiredMode.REQUIRED)
-                @NotNull(message = "شناسه یکتا الزامی است.")
-                @JsonProperty("uid")
+                @NotNull
                 UUID uid,
-        @Schema(description = "کد نوع تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED)
-                @NotNull(message = "کد نوع تسهیلات الزامی است.")
-                @JsonProperty("code")
+        @Schema(description = "کد نوع تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
                 LoanTypeCodeDto code,
-        @Schema(description = "عنوان نوع تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED)
-                @NotNull(message = "عنوان نوع تسهیلات الزامی است.")
-                @JsonProperty("title")
-                TitleDto title,
-        @Schema(description = "درگاه ارتباطی", requiredMode = Schema.RequiredMode.REQUIRED)
-                @NotNull(message = "درگاه ارتباطی الزامی است.")
-                @JsonProperty("gatewayType")
+        @Schema(description = "عنوان نوع تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull TitleDto title,
+        @Schema(description = "درگاه ارتباطی", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
                 GatewayType gatewayType,
-        @Schema(description = "وضعیت مجاز بودن درخواست تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED)
-                @NotNull(message = "وضعیت مجاز بودن درخواست الزامی است.")
-                @JsonProperty("loanApplicationAllowed")
+        @Schema(description = "وضعیت مجاز بودن درخواست تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
                 LoanApplicationStatusDto loanApplicationAllowed,
-        @Schema(description = "نوع بخش‌بندی مشتریان", requiredMode = Schema.RequiredMode.REQUIRED)
-                @NotNull(message = "نوع بخش‌بندی الزامی است.")
-                @JsonProperty("segmentType")
+        @Schema(description = "نوع بخش‌بندی مشتریان", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
                 SegmentType segmentType,
-        @Schema(description = "بخش‌های اقتصادی و نوع ارز مرتبط", requiredMode = Schema.RequiredMode.REQUIRED)
-                @NotNull(message = "بخش‌های اقتصادی الزامی است.")
-                @JsonProperty("economicSectorCurrencies")
+        @Schema(description = "بخش‌های اقتصادی و نوع ارز مرتبط", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
                 Set<EconomicSectorCurrencyDto> economicSectorCurrencies,
-        @Schema(description = "شناسه‌های نوع قرارداد تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED)
-                @NotNull(message = "شناسه‌های نوع قرارداد تسهیلات الزامی است.")
-                @JsonProperty("loanArrangementIds")
+        @Schema(description = "شناسه‌های نوع قرارداد تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
                 Set<LoanArrangementIdDto> loanArrangementIds,
-        @Schema(description = "شناسه‌های منبع درآمد", requiredMode = Schema.RequiredMode.REQUIRED)
-                @Nullable
-                @JsonProperty("incomeIds")
+        @Schema(description = "شناسه‌های منبع درآمد", requiredMode = Schema.RequiredMode.REQUIRED) @Nullable
                 Set<IncomeIdDto> incomeIds,
-        @Schema(description = "شناسه گروه نوع تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED)
-                @Nullable
-                @JsonProperty("groupId")
+        @Schema(description = "شناسه گروه نوع تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED) @Nullable
                 LoanTypeGroupIdDto groupId,
-        @Schema(description = "روابط نوع تسهیلات با موضوعات", requiredMode = Schema.RequiredMode.REQUIRED)
-                @NotNull(message = "روابط نوع تسهیلات الزامی است.")
-                @JsonProperty("relationTypeLoanTopics")
+        @Schema(description = "روابط نوع تسهیلات با موضوعات", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
                 List<RelationTypeLoanTopicDto> relationTypeLoanTopics) {
 
     @Schema(name = "LoanTypeCodeDto", description = "کد نوع تسهیلات")
@@ -71,8 +49,7 @@ public record DefineLoanTypeRequest(
                             description = "مقدار کد نوع تسهیلات",
                             example = "LNT-001",
                             requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotBlank(message = "کد نوع تسهیلات الزامی است.")
-                    @JsonProperty("value")
+                    @NotBlank
                     String value) {}
 
     @Schema(name = "TitleDto", description = "عنوان نوع تسهیلات")
@@ -81,8 +58,7 @@ public record DefineLoanTypeRequest(
                             description = "مقدار عنوان",
                             example = "تسهیلات کوتاه‌مدت",
                             requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotBlank(message = "عنوان الزامی است.")
-                    @JsonProperty("value")
+                    @NotBlank
                     String value) {}
 
     @Schema(name = "LoanApplicationStatusDto", description = "وضعیت مجاز بودن درخواست تسهیلات")
@@ -91,26 +67,20 @@ public record DefineLoanTypeRequest(
                             description = "آیا درخواست تسهیلات مجاز است؟",
                             example = "true",
                             requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull(message = "وضعیت مجاز بودن الزامی است.")
-                    @JsonProperty("isAllowed")
+                    @NotNull
                     boolean isAllowed) {}
 
     @Schema(name = "EconomicSectorCurrencyDto", description = "بخش اقتصادی و نوع ارز مرتبط")
     public record EconomicSectorCurrencyDto(
-            @Schema(description = "بخش اقتصادی", requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull(message = "بخش اقتصادی الزامی است.")
-                    @JsonProperty("economicSector")
+            @Schema(description = "بخش اقتصادی", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
                     EconomicSectorDto economicSector,
-            @Schema(description = "نوع ارز", example = "IRR", requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull(message = "نوع ارز الزامی است.")
-                    @JsonProperty("currencyType")
+            @Schema(description = "نوع ارز", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
                     Set<CurrencyTypeDto> currencyTypes) {}
 
     @Schema(name = "EconomicSectorDto", description = "بخش اقتصادی")
     public record EconomicSectorDto(
             @Schema(description = "کد بخش اقتصادی", example = "SEC-001", requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotBlank(message = "کد بخش اقتصادی الزامی است.")
-                    @JsonProperty("code")
+                    @NotBlank
                     String code) {}
 
     @Schema(name = "LoanArrangementIdDto", description = "شناسه نوع قرارداد تسهیلات")
@@ -119,8 +89,7 @@ public record DefineLoanTypeRequest(
                             description = "شناسه قرارداد تسهیلات",
                             example = "b7e4b41c-1f1f-43a2-954f-d1a0a912f789",
                             requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull(message = "شناسه قرارداد تسهیلات الزامی است.")
-                    @JsonProperty("value")
+                    @NotNull
                     UUID value) {}
 
     @Schema(name = "IncomeIdDto", description = "شناسه منبع درآمد")
@@ -129,8 +98,7 @@ public record DefineLoanTypeRequest(
                             description = "شناسه منبع درآمد",
                             example = "9ad13a5a-4c74-4963-93e3-8d7c3e87f812",
                             requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull(message = "شناسه منبع درآمد الزامی است.")
-                    @JsonProperty("value")
+                    @NotNull
                     UUID value) {}
 
     @Schema(name = "LoanTypeGroupIdDto", description = "شناسه گروه نوع تسهیلات")
@@ -139,36 +107,33 @@ public record DefineLoanTypeRequest(
                             description = "شناسه گروه نوع تسهیلات",
                             example = "d3dcb2f8-93e5-4bc9-a84a-b11b51e21c2f",
                             requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull(message = "شناسه گروه نوع تسهیلات الزامی است.")
-                    @JsonProperty("value")
+                    @NotNull
                     UUID value) {}
 
     @Schema(name = "RelationTypeLoanTopicDto", description = "رابطه نوع تسهیلات با موضوع")
     public record RelationTypeLoanTopicDto(
-            @Schema(description = "نوع رابطه", requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull(message = "نوع رابطه الزامی است.")
-                    @JsonProperty("relationTypeKey")
+            @Schema(description = "نوع رابطه", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
                     TradeRelationType relationType,
             @Schema(
                             description = "نام موضوع مرتبط",
                             example = "تسهیلات صادراتی",
                             requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotBlank(message = "نام موضوع الزامی است.")
+                    @NotBlank
                     @JsonProperty("topicName")
                     String topicName,
             @Schema(description = "کد موضوع مرتبط", example = "EXPORT", requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotBlank(message = "کد موضوع الزامی است.")
+                    @NotBlank
                     @JsonProperty("topicCode")
                     String topicCode,
             @Schema(description = "بخش اقتصادی مرتبط", requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull(message = "بخش اقتصادی مرتبط الزامی است.")
+                    @NotNull
                     @JsonProperty("economicSector")
                     Set<EconomicSectorDto> economicSectors) {}
 
     @Schema(name = "RelationTypeDto", description = "نوع رابطه")
     public record RelationTypeDto(
             @Schema(description = "کد رابطه", example = "REL-001", requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotBlank(message = "کد رابطه الزامی است.")
+                    @NotBlank
                     @JsonProperty("code")
                     String code) {}
 

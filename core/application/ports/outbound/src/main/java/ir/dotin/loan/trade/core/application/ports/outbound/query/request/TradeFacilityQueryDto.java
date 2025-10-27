@@ -32,7 +32,6 @@ public record TradeFacilityQueryDto(
         MoneyEmbDto totalDisbursedAmount,
         List<TransactionNumberEmbDto> issueContractTransactionNumbers,
         List<TransactionNumberEmbDto> disbursementTransactionNumbers,
-        AccountEmbDto disbursementDestinationAccount,
         String facilityType)
         implements QueryResult {
 
@@ -82,11 +81,11 @@ public record TradeFacilityQueryDto(
 
         public record EconomicSectorEmbDto(String code) implements Serializable {}
 
-        public record BranchEmbDto(String code, String name) implements Serializable {}
+        public record BranchEmbDto(String code) implements Serializable {}
 
-        public record RequestReasonEmbDto(String core, String name) implements Serializable {}
+        public record RequestReasonEmbDto(String core) implements Serializable {}
 
-        public record SubSourceEmbDto(String core, String name) implements Serializable {}
+        public record SubSourceEmbDto(String core) implements Serializable {}
 
         public record DescriptionEmbDto(String value) implements Serializable {}
 
@@ -100,7 +99,7 @@ public record TradeFacilityQueryDto(
                 String derivedValue)
                 implements Serializable {
 
-            public record BranchEmbDto(String code, String name) implements Serializable {}
+            public record BranchEmbDto(String code) implements Serializable {}
 
             public record LoanTypeCodeEmbDto(String value) implements Serializable {}
 
@@ -174,9 +173,5 @@ public record TradeFacilityQueryDto(
             Instant createdAt,
             String trackingId,
             TransactionStatus status)
-            implements Serializable {}
-
-    public record AccountEmbDto(
-            String accountNumber, String accountHolder, String bankCode, String branchCode, String iban)
             implements Serializable {}
 }

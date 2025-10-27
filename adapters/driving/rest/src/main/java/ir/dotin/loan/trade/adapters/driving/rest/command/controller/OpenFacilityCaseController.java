@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
+import ir.dotin.platform.commons.security.AuthenticationContextHolder;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.OpenFacilityCaseRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.OpenFacilityCaseRequestToCommandMapper;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OpenFacilityCaseCommand;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,6 +28,7 @@ public class OpenFacilityCaseController {
 
     private final CommandDispatcher dispatcher;
     private final OpenFacilityCaseRequestToCommandMapper mapper;
+    private final AuthenticationContextHolder authenticationContextHolder;
 
     @PostMapping
     @Operation(
@@ -34,8 +37,14 @@ public class OpenFacilityCaseController {
     public EventStreamResponse openFacilityCase(
             @Parameter(description = "جزئیات درخواست باز کردن پرونده تسهیلات", required = true) @RequestBody
                     OpenFacilityCaseRequest request) {
+        String branchCode = authenticationContextHolder.branchCode().orElse(null);
         var command = mapper.toCommand(request);
-        List<DomainEvent<?, ?>> domainEvents = dispatcher.dispatch(command);
+        var applicationDto = command.loanApplication().toBuilder()
+                .branch(new OpenFacilityCaseCommand.BranchDto(branchCode))
+                .build();
+        var openFacilityCaseCommand =
+                command.toBuilder().loanApplication(applicationDto).build();
+        List<DomainEvent<?, ?>> domainEvents = dispatcher.dispatch(openFacilityCaseCommand);
         return EventStreamResponse.of(domainEvents);
     }
 }

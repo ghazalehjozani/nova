@@ -36,7 +36,7 @@ public class ApproveFacilityController {
                     @PathVariable
                     UUID facilityId,
             @Parameter(description = "شماره سریال یکتای مضوبه جهت تصویب", example = "SAN-2025-001", required = true)
-                    @NotBlank(message = "شماره سریال مصوبه نمی‌تواند خالی باشد.")
+                    @NotBlank
                     @PathVariable
                     String sanctionSerial,
             @Parameter(description = "جزئیات تصویب نصوبه", required = true) @RequestBody

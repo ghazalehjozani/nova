@@ -184,11 +184,9 @@ public abstract class ValueObjectMapper {
     }
 
     @Mapping(source = "code.value", target = "code")
-    @Mapping(source = "name", target = "name")
     public abstract BranchEmb toBranchEmb(Branch branch);
 
     @Mapping(source = "code", target = "code.value")
-    @Mapping(source = "name", target = "name")
     public abstract Branch toBranch(BranchEmb embeddable);
 
     public abstract CertificateEmb toCertificateEmb(Certificate certificate);

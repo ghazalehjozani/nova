@@ -12,7 +12,4 @@ public class SubSourceEmb implements Serializable {
 
     @Column(name = "request_reason_code", length = 500)
     private String core;
-
-    @Column(name = "request_reason_name", length = 500)
-    private String name;
 }

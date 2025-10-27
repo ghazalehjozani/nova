@@ -1,8 +1,8 @@
 package ir.dotin.loan.trade.core.application.service.openfacilitycase.commandhandler;
 
 import java.time.Clock;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
@@ -12,12 +12,17 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
-import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.InstallmentPaymentType;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OpenFacilityCaseCommand;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.customerService.CustomerServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CustomerInfoLoadOptions;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanTypeRepository;
@@ -42,16 +47,17 @@ public class OpenFacilityCaseCommandHandler implements CommandHandler<OpenFacili
     private final TradeLoanTypeRepository tradeLoanTypeRepository;
     private final OpenFacilityCaseLoanApplicationMapper applicationMapper;
     private final TradeLoanFacilityValidationService validationService;
-    private final CommandDispatcher commandDispatcher;
+    private final CustomerServicePort customerServicePort;
     private final Clock clock;
 
     @Override
     public Result<List<DomainEvent<?, ?>>> handle(@NonNull OpenFacilityCaseCommand command) {
-        return loadDependencies(command).flatMap(context -> createFacility(command)
-                .flatMap(facility -> validateFacility(facility, command, context))
-                .flatMap(this::saveFacility)
-                .flatMap(savedFacility -> handleGradualScheduleIfRequired(savedFacility, command))
-                .map(AbstractAggregateRoot::domainEvents));
+        return loadDependencies(command).flatMap(context -> createFacility(command, context)
+                .flatMap(facility -> {
+                    Result<TradeLoanFacility> loanFacilityResult = validateFacility(facility, command, context);
+                    loanFacilityResult.flatMap(this::saveFacility);
+                    return loanFacilityResult;
+                }).map(AbstractAggregateRoot::domainEvents));
     }
 
     private Result<FacilityCreationContext> loadDependencies(OpenFacilityCaseCommand command) {
@@ -72,15 +78,20 @@ public class OpenFacilityCaseCommandHandler implements CommandHandler<OpenFacili
                 Notification.ofError(OpenFacilityCaseErrorCodes.INVALID_LOAN_TYPE, loanTypeId));
     }
 
-    private Result<TradeLoanFacility> createFacility(OpenFacilityCaseCommand command) {
+    private Result<TradeLoanFacility> createFacility(OpenFacilityCaseCommand command, FacilityCreationContext context) {
         try {
-            TradeLoanApplication application = applicationMapper.map(command.loanApplication());
+            TradeLoanApplication application = prepareTradeLoanApplication(command, context);
+
             TradeLoanFacility facility = TradeLoanFacility.create(
                     LoanFacilityId.of(UUID.randomUUID()),
                     application,
                     LoanTypeId.of(command.loanTypeId()),
                     LoanArrangementId.of(command.loanArrangementId()),
-                    clock);
+                    clock,
+                    Objects.requireNonNull(command.installmentSchedule()
+                                    .map(schedule -> InstallmentScheduleId.of(schedule.uid()))
+                                    .orElse(null))
+                            .getValue());
 
             log.debug("Facility created with ID: {}", facility.getId().value());
             return Result.success(facility);
@@ -89,6 +100,50 @@ public class OpenFacilityCaseCommandHandler implements CommandHandler<OpenFacili
             return Result.failure(
                     Notification.ofError(OpenFacilityCaseErrorCodes.FACILITY_CREATION_FAILED, e.getMessage()));
         }
+    }
+
+    private TradeLoanApplication prepareTradeLoanApplication(
+            OpenFacilityCaseCommand command, FacilityCreationContext context) {
+
+        Result<PartyInfo> customerResult = customerServicePort.loadCustomerInfo(
+                command.loanApplication().customer().customerNumber(), CustomerInfoLoadOptions.baseInfoOnly());
+        PartyInfo customerInfo = customerResult.getValue();
+        Party mainCustomer = createPartyDtoFromPartyInfo(customerInfo);
+
+        Branch branch = Branch.of(BranchCode.of(Objects.requireNonNull(
+                                command.loanApplication().branch().code()))
+                        .value())
+                .value();
+
+        // TODO must change DerivedValue (index)
+        String derivedValue = generateDerivedValue(
+                command.loanApplication().branch().code(),
+                context.loanType.getCode().value(),
+                customerInfo.party().customerNumber());
+        ApplicationNumber applicationNumber = new ApplicationNumber(
+                Objects.requireNonNull(branch),
+                Objects.requireNonNull(
+                        LoanTypeCode.of(context.loanType.getCode().value()).value()),
+                mainCustomer,
+                Optional.empty(),
+                derivedValue);
+
+        Set<Party> enrichedGuarantors = command.loanApplication().guarantors().stream()
+                .map(guarantor -> {
+                    Result<PartyInfo> guarantorResult = customerServicePort.loadCustomerInfo(
+                            guarantor.customerNumber(), CustomerInfoLoadOptions.baseInfoOnly());
+                    PartyInfo guarantorInfo = guarantorResult.getValue();
+                    return createPartyDtoFromPartyInfo(guarantorInfo);
+                })
+                .collect(Collectors.toSet());
+
+        return TradeLoanApplication.create(applicationMapper
+                        .map(command.loanApplication())
+                        .customer(mainCustomer)
+                        .applicationNumber(applicationNumber)
+                        .guarantors(enrichedGuarantors)
+                        .branch(branch))
+                .value();
     }
 
     private Result<TradeLoanFacility> validateFacility(
@@ -109,35 +164,17 @@ public class OpenFacilityCaseCommandHandler implements CommandHandler<OpenFacili
         }
     }
 
-    private Result<TradeLoanFacility> handleGradualScheduleIfRequired(
-            TradeLoanFacility facility, OpenFacilityCaseCommand command) {
-        return loadArrangement(command.loanArrangementId()).flatMap(arrangement -> {
-            if (arrangement.getInstallmentPolicy().installmentPaymentType() == InstallmentPaymentType.GRADUAL) {
-                return dispatchGradualScheduleCommand(facility, command);
-            }
-            return Result.success(facility);
-        });
+    private Party createPartyDtoFromPartyInfo(PartyInfo partyInfo) {
+        return new Party(
+                partyInfo.party().customerNumber(),
+                partyInfo.party().type(),
+                new PersonName(
+                        partyInfo.party().name().firstName(),
+                        partyInfo.party().name().lastName()));
     }
 
-    private Result<TradeLoanFacility> dispatchGradualScheduleCommand(
-            TradeLoanFacility facility, OpenFacilityCaseCommand command) {
-        return Result.fromOptional(
-                        command.installmentSchedule(),
-                        () -> Notification.ofError(
-                                OpenFacilityCaseErrorCodes.INSTALLMENT_SCHEDULE_IS_MANDATORY_IN_GRADUAL))
-                .flatMap(scheduleCommand -> {
-                    var planCommand = scheduleCommand.toBuilder()
-                            .loanFacilityId(facility.getId().value())
-                            .uid(command.uid())
-                            .version(null)
-                            .build();
-
-                    commandDispatcher.dispatch(planCommand);
-                    log.debug(
-                            "Gradual installment schedule command dispatched for facility: {}",
-                            facility.getId().value());
-                    return Result.success(facility);
-                });
+    private String generateDerivedValue(String branchCode, String loanTypeCode, String customerNumber) {
+        return branchCode + "-" + loanTypeCode + "-" + customerNumber;
     }
 
     private record FacilityCreationContext(TradeLoanArrangement arrangement, TradeLoanType loanType) {}
