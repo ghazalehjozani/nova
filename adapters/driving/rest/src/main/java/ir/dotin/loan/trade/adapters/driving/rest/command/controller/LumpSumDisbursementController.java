@@ -1,13 +1,12 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
-import java.util.List;
 import java.util.UUID;
 
-import ir.dotin.platform.adapter.rest.controller.BaseController;
 import org.springframework.web.bind.annotation.*;
 
+import ir.dotin.platform.adapter.rest.controller.BaseController;
+import ir.dotin.platform.adapter.rest.request.DataRequest;
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
-import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.LumpSumDisbursementRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.LumpSumDisbursementRequestToCommandMapper;
@@ -38,8 +37,8 @@ public class LumpSumDisbursementController extends BaseController {
                     @PathVariable
                     UUID facilityId,
             @Parameter(description = "جزئیات درخواست پرداخت یکجا", required = true) @RequestBody
-                    LumpSumDisbursementRequest requestBody) {
-        var command = mapper.toCommand(facilityId, requestBody);
+                    DataRequest<LumpSumDisbursementRequest> requestBody) {
+        var command = mapper.toCommand(facilityId, requestBody.payload());
         return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
     }
 }

@@ -1,15 +1,17 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
-import java.util.List;
 import java.util.UUID;
-
-import ir.dotin.platform.adapter.rest.controller.BaseController;
 import jakarta.validation.constraints.NotBlank;
 
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import ir.dotin.platform.adapter.rest.controller.BaseController;
+import ir.dotin.platform.adapter.rest.request.DataRequest;
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
-import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.AddFacilityCollateralRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.AddFacilityCollateralRequestToCommandMapper;
@@ -44,8 +46,8 @@ public class AddFacilityCollateralController extends BaseController {
                     @PathVariable
                     String collateralSerial,
             @Parameter(description = "جزئیات افزودن وثیقه به تسهیلات", required = true) @RequestBody
-                    AddFacilityCollateralRequest request) {
-        var command = mapper.toCommand(facilityId, collateralSerial, request);
+                    DataRequest<AddFacilityCollateralRequest> request) {
+        var command = mapper.toCommand(facilityId, collateralSerial, request.payload());
         return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
     }
 }

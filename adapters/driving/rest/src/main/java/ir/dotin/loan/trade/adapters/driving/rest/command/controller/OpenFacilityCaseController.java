@@ -1,15 +1,13 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
-import java.util.List;
-
-import ir.dotin.platform.adapter.rest.controller.BaseController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ir.dotin.platform.adapter.rest.controller.BaseController;
+import ir.dotin.platform.adapter.rest.request.DataRequest;
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
-import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.commons.security.AuthenticationContextHolder;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.OpenFacilityCaseRequest;
@@ -37,9 +35,9 @@ public class OpenFacilityCaseController extends BaseController {
             description = "این عملیات یک پرونده تسهیلات جدید با تمام جزئیات لازم ایجاد می‌کند.")
     public EventStreamResponse openFacilityCase(
             @Parameter(description = "جزئیات درخواست باز کردن پرونده تسهیلات", required = true) @RequestBody
-                    OpenFacilityCaseRequest request) {
+                    DataRequest<OpenFacilityCaseRequest> request) {
         String branchCode = authenticationContextHolder.branchCode().orElse(null);
-        var command = mapper.toCommand(request);
+        var command = mapper.toCommand(request.payload());
         var applicationDto = command.loanApplication().toBuilder()
                 .branch(new OpenFacilityCaseCommand.BranchDto(branchCode))
                 .build();

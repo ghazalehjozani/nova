@@ -1,13 +1,12 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
-import java.util.List;
 import java.util.UUID;
 
-import ir.dotin.platform.adapter.rest.controller.BaseController;
 import org.springframework.web.bind.annotation.*;
 
+import ir.dotin.platform.adapter.rest.controller.BaseController;
+import ir.dotin.platform.adapter.rest.request.DataRequest;
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
-import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.commons.security.AuthenticationContextHolder;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.IssueFacilityContractRequest;
@@ -40,8 +39,8 @@ public class IssueFacilityContractController extends BaseController {
                     @PathVariable
                     UUID facilityId,
             @Parameter(description = "جزئیات صدور قرارداد تسهیلات", required = true) @RequestBody
-                    IssueFacilityContractRequest request) {
-        var command = mapper.toCommand(facilityId, request); // TODO: No need mapper
+                    DataRequest<IssueFacilityContractRequest> request) {
+        var command = mapper.toCommand(facilityId, request.payload()); // TODO: No need mapper
         var contractCommand = command.toBuilder()
                 .branchCode(authenticationContextHolder.branchCode().orElseThrow())
                 .build();

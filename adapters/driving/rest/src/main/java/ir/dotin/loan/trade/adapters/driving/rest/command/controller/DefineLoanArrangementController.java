@@ -1,15 +1,13 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
-import java.util.List;
-
-import ir.dotin.platform.adapter.rest.controller.BaseController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ir.dotin.platform.adapter.rest.controller.BaseController;
+import ir.dotin.platform.adapter.rest.request.DataRequest;
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
-import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.DefineTradeLoanArrangementRequestToCommandMapper;
@@ -34,8 +32,8 @@ public class DefineLoanArrangementController extends BaseController {
             description = "در این عملیات شرایط اعطا با توجه به اطلاعات وارد شده ساخته می شود.")
     public EventStreamResponse defineLoanArrangement(
             @Parameter(description = "جزئیات ایجاد شرط اعطا", required = true) @RequestBody
-                    DefineTradeLoanArrangementRequest request) {
-        var command = mapper.toCommand(request);
+                    DataRequest<DefineTradeLoanArrangementRequest> request) {
+        var command = mapper.toCommand(request.payload());
         return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
     }
 }
