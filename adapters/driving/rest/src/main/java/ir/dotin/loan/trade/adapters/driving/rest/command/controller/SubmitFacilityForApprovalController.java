@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ir.dotin.platform.adapter.rest.headers.CommandEndpoint;
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
@@ -25,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/facilities/{facilityId}/submit-for-approval")
 @Tag(name = "ثبت درخواست تصویب مصوبه", description = "عملیات مربوط به ثبت درخواست تصویب مصوبه")
 @RequiredArgsConstructor
-@CommandEndpoint
 public class SubmitFacilityForApprovalController {
 
     private final CommandDispatcher dispatcher;

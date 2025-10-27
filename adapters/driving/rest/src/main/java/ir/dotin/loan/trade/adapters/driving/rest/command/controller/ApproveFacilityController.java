@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 
 import org.springframework.web.bind.annotation.*;
 
-import ir.dotin.platform.adapter.rest.headers.CommandEndpoint;
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
@@ -22,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/facilities/{facilityId}/approve")
 @Tag(name = "عملیات تصویب مصوبه", description = "عملیات مربوط به تصویب مصوبه")
 @RequiredArgsConstructor
-@CommandEndpoint
 public class ApproveFacilityController {
 
     private final CommandDispatcher dispatcher;

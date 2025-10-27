@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.springframework.web.bind.annotation.*;
 
-import ir.dotin.platform.adapter.rest.headers.CommandEndpoint;
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.commons.security.AuthenticationContextHolder;
@@ -22,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/facilities/{facilityId}/issue-contract")
 @Tag(name = "عملیات صدور قرارداد", description = "عملیات مربوط به صدور قرارداد تسهیلات")
 @RequiredArgsConstructor
-@CommandEndpoint
 public class IssueFacilityContractController {
 
     private final CommandDispatcher dispatcher;

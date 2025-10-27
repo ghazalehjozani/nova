@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ir.dotin.platform.adapter.rest.headers.CommandEndpoint;
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
@@ -23,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/loan-arrangements/define")
 @Tag(name = "عملیات مدیریت شرایط اعطا", description = "عملیات مربوط به مدیریت شرایط اعطا")
 @RequiredArgsConstructor
-@CommandEndpoint
 public class DefineLoanArrangementController {
 
     private final CommandDispatcher dispatcher;

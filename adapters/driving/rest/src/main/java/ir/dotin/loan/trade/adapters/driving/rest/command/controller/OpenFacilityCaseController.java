@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ir.dotin.platform.adapter.rest.headers.CommandEndpoint;
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
@@ -23,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/facilities/open-case")
 @Tag(name = "عملیات ایجاد پرونده تسهیلات", description = "عملیات مربوط به ایجاد پرونده تسهیلات")
 @RequiredArgsConstructor
-@CommandEndpoint
 public class OpenFacilityCaseController {
 
     private final CommandDispatcher dispatcher;
