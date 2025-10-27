@@ -35,6 +35,7 @@ public interface TradeLoanFacilityPersistenceMapper {
     })
     @Mapping(target = "installmentScheduleId", ignore = true)
     TradeLoanFacilityEntity map(TradeLoanFacility domain);
-
+    // TODO must remove
+    @Mapping(target = "disbursementDestinationAccount", ignore = true)
     TradeLoanFacility map(TradeLoanFacilityEntity entity);
 }

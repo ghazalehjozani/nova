@@ -9,6 +9,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
@@ -35,6 +36,7 @@ public interface DefineLoanTypeCommandMapper {
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "disable", ignore = true)
     @Mapping(target = "previousVersion", ignore = true)
+    @Mapping(target = "economicSectorCurrencies", source = "economicSectorCurrencies")
     TradeLoanType.Builder toBuilder(DefineLoanTypeCommand command);
 
     LoanTypeCode map(DefineLoanTypeCommand.LoanTypeCodeDto dto);
@@ -43,6 +45,7 @@ public interface DefineLoanTypeCommandMapper {
 
     LoanApplicationStatus map(DefineLoanTypeCommand.LoanApplicationStatusDto dto);
 
+    @Named("mapEconomicSectorCurrency")
     default EconomicSectorCurrency map(DefineLoanTypeCommand.EconomicSectorCurrencyDto dto) {
         Set<CurrencyType> currencyTypes = new HashSet<>();
         for (var cu : dto.currencyTypes()) {

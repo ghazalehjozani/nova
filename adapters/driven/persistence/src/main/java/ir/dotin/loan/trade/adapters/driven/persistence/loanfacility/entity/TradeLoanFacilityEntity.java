@@ -24,7 +24,6 @@ import org.hibernate.proxy.HibernateProxy;
 import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
 import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.AccountEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.TransactionNumberEmb;
 
 import lombok.Getter;
@@ -79,9 +78,6 @@ public class TradeLoanFacilityEntity extends PersistentEntity {
             name = "loan_facility_disbursement_transaction_numbers",
             joinColumns = @JoinColumn(name = "loan_facility_id"))
     private List<TransactionNumberEmb> disbursementTransactionNumbers = new ArrayList<>();
-
-    @Embedded
-    private AccountEmb disbursementDestinationAccount;
 
     @Column(name = "facility_type")
     private String facilityType = "TRADE";

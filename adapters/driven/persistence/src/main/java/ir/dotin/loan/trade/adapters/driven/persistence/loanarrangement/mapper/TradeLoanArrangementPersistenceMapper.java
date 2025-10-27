@@ -21,12 +21,9 @@ public interface TradeLoanArrangementPersistenceMapper {
     @Mapping(source = "code", target = "code", qualifiedByName = "loanArrangementCodeToString")
     @Mapping(source = "amountRange", target = "amountRange", qualifiedByName = "mapAmountRangeToEmb")
     @Mapping(source = "durationRange", target = "durationRange", qualifiedByName = "loanDurationToPeriodRangeEmb")
-    @Mapping(target = "interestPolicy.preferentialMinRate", ignore = true) // This field use custom mapping
-    @Mapping(target = "interestPolicy.preferentialMaxRate", ignore = true) // This field use custom mapping
-    @Mapping(target = "installmentPolicy.defineAutomaticInstallment", ignore = true) // This field use custom mapping
-    @Mapping(target = "installmentPolicy.installmentPeriodDays", ignore = true) // This field use custom mapping
-    @Mapping(target = "gracePeriodPolicy.minGracePeriodDays", ignore = true) // This field use custom mapping
-    @Mapping(target = "gracePeriodPolicy.maxGracePeriodDays", ignore = true) // This field use custom mapping
+    @Mapping(source = "interestPolicy", target = "interestPolicy", qualifiedByName = "mapInterestPolicyToEmb")
+    @Mapping(source = "installmentPolicy", target = "installmentPolicy", qualifiedByName = "mapInstallmentPolicyToEmb")
+    @Mapping(source = "gracePeriodPolicy", target = "gracePeriodPolicy", qualifiedByName = "mapGracePeriodPolicyToEmb")
     TradeLoanArrangementEntity map(TradeLoanArrangement domain);
 
     @Mapping(source = "code", target = "code", qualifiedByName = "stringToLoanArrangementCode")

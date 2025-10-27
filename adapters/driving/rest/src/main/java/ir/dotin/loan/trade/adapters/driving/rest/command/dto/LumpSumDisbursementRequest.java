@@ -3,8 +3,6 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.dto;
 import java.util.UUID;
 import jakarta.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.MoneyDto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,17 +13,13 @@ public record LumpSumDisbursementRequest(
                         description = "مبلغ درخواستی پرداخت یکجا",
                         example = "1000000",
                         requiredMode = Schema.RequiredMode.REQUIRED)
-                @NotNull(message = "مبلغ درخواستی پرداخت الزامی است.")
-                @JsonProperty("fullAmount")
+                @NotNull
                 MoneyDto fullAmount,
         @Schema(
                         description = "شناسه عملیات",
                         example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
                         requiredMode = Schema.RequiredMode.REQUIRED)
-                @NotNull(message = "شناسه عملیات الزامی است.")
-                @JsonProperty("uid")
+                @NotNull
                 UUID uid,
-        @Schema(description = "نسخه عملیات", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-                @NotNull(message = "نسخه عملیات الزامی است.")
-                @JsonProperty("version")
+        @Schema(description = "نسخه عملیات", example = "1", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
                 Integer version) {}

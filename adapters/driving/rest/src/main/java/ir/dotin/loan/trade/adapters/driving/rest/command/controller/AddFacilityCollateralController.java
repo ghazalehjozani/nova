@@ -38,7 +38,7 @@ public class AddFacilityCollateralController {
                     @PathVariable
                     UUID facilityId,
             @Parameter(description = "شماره سریال یکتای وثیقه جهت افزودن", example = "COLL-2025-001", required = true)
-                    @NotBlank(message = "شماره سریال وثیقه نمی‌تواند خالی باشد.")
+                    @NotBlank
                     @PathVariable
                     String collateralSerial,
             @Parameter(description = "جزئیات افزودن وثیقه به تسهیلات", required = true) @RequestBody

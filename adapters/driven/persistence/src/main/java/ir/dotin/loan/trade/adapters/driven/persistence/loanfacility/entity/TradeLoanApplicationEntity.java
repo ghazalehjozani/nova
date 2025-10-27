@@ -24,21 +24,9 @@ import org.hibernate.proxy.HibernateProxy;
 import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
 import ir.dotin.platform.adapter.persistence.embeddable.PeriodEmb;
 import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
-import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ApplicationNumberEmb;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.BranchEmb;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CertificateEmb;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CredibilityRankEmb;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.DescriptionEmb;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.DisburseDestinationEmb;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.EconomicSectorEmb;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.GracePeriodEmb;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.InstallmentCountEmb;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.PartyEmb;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RequestReasonEmb;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.SubSourceEmb;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.*;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -71,7 +59,7 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
     private MoneyEmb requestedAmount;
 
     @Embedded
-    private CurrencyType currency;
+    private CurrencyTypeEmb currency;
 
     @Embedded
     @AttributeOverrides({
@@ -109,7 +97,6 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "core", column = @Column(name = "sub_source_request_reason_code", length = 500)),
-        @AttributeOverride(name = "name", column = @Column(name = "sub_source_request_reason_name", length = 500))
     })
     private SubSourceEmb subSource;
 
@@ -122,7 +109,6 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "branch.code", column = @Column(name = "application_branch_code", nullable = false)),
-        @AttributeOverride(name = "branch.name", column = @Column(name = "application_branch_name", nullable = false)),
         @AttributeOverride(
                 name = "party.customerNumber",
                 column = @Column(name = "application_customer_number", nullable = false)),

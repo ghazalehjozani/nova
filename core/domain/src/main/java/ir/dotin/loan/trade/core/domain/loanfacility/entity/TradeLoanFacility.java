@@ -10,10 +10,7 @@ import ir.dotin.platform.commons.domain.vo.Rate;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractLoanFacility;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.LoanFacilityEventFactory;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumbers;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityEvents;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
@@ -36,7 +33,8 @@ public final class TradeLoanFacility
             TradeLoanApplication application,
             LoanTypeId loanTypeId,
             LoanArrangementId loanArrangementId,
-            Clock clock) {
+            Clock clock,
+            InstallmentScheduleId installmentScheduleId) {
 
         requireNonNull(id, "Facility ID cannot be null");
         requireNonNull(application, "Application cannot be null");
@@ -49,6 +47,7 @@ public final class TradeLoanFacility
                 .loanApplication(application)
                 .loanTypeId(loanTypeId)
                 .loanArrangementId(loanArrangementId)
+                .installmentScheduleId(installmentScheduleId)
                 .currentState(FacilityStatus.APPLICATION_SUBMITTED)
                 .buildInternal();
 

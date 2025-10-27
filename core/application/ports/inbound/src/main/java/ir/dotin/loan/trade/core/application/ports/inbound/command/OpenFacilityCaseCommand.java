@@ -2,7 +2,6 @@ package ir.dotin.loan.trade.core.application.ports.inbound.command;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 import java.util.Set;
@@ -11,28 +10,30 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.dispatcher.api.command.Command;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 
+import lombok.Builder;
+
+@Builder(toBuilder = true)
 public record OpenFacilityCaseCommand(
         @NotNull UUID uid,
-        @NotNull Long version,
+        @Nullable Long version,
         @NotNull UUID loanTypeId,
         @NotNull UUID loanArrangementId,
         @NotNull LoanApplicationDto loanApplication,
-        @NotNull Optional<PlanGradualInstallmentScheduleCommand> installmentSchedule,
-        @NotNull String customerId)
+        @NotNull Optional<PlanGradualInstallmentScheduleCommand> installmentSchedule)
         implements Command {
 
+    @Builder(toBuilder = true)
     public record LoanApplicationDto(
             @NotNull Instant requestDate,
             @NotNull PartyDto customer,
             @NotNull MoneyDto requestedAmount,
-            @NotNull CurrencyType currency,
+            @NotNull CurrencyTypeDto currency,
             @NotNull LoanDurationDto requestedLoanDuration,
             @NotNull ApplicantChannel applicantChannel,
             @NotNull GracePeriodDto gracePeriod,
@@ -47,14 +48,13 @@ public record OpenFacilityCaseCommand(
             @NotNull Set<CertificateDto> certificates,
             @Nullable ApplicationNumberDto applicationNumber,
             @Nullable CredibilityRankDto credibilityRank,
-            @Nullable UnequalInstallmentSchedule unequalInstallmentSchedule,
             @NotNull DisbursementMethod disbursementMethod) {}
 
-    public record PartyDto(@NotBlank String customerNumber, @NotNull PartyType type, @NotNull PersonNameDto name) {}
+    public record PartyDto(@Nullable String customerNumber, @Nullable PartyType type, @Nullable PersonNameDto name) {}
 
-    public record PersonNameDto(@NotBlank String firstName, @NotBlank String lastName) {}
+    public record PersonNameDto(@Nullable String firstName, @Nullable String lastName) {}
 
-    public record BranchDto(@NotBlank String code, @NotBlank String name) {}
+    public record BranchDto(@Nullable String code) {}
 
     public record CertificateDto(@NotBlank String serial) {}
 
@@ -64,23 +64,20 @@ public record OpenFacilityCaseCommand(
 
     public record DisburseDestinationDto(@Nullable String depositNumber, @NotNull DisburseDestinationType type) {}
 
-    public record RequestReasonDto(@NotBlank String code, @NotBlank String name) {}
-
-    public record SubSourceDto(@NotBlank String code, @NotBlank String name) {}
+    public record RequestReasonDto(@NotBlank String code) {}
 
     public record ApplicationNumberDto(
-            @NotNull BranchDto branch,
-            @NotNull LoanTypeCodeDto loanTypeCode,
-            @NotNull PartyDto party,
+            @Nullable BranchDto branch,
+            @Nullable LoanTypeCodeDto loanTypeCode,
+            @Nullable PartyDto party,
             @Nullable String respiteSerial,
-            @NotBlank String derivedValue) {}
-
-    public record UnequalInstallmentSchedule(
-            @NotNull MoneyDto amount, @NotNull MoneyDto interest, @NotNull LocalDate dueDate) {}
+            @Nullable String derivedValue) {}
 
     public record LoanTypeCodeDto(@NotBlank String value) {}
 
-    public record MoneyDto(@NotNull BigDecimal value, @NotNull CurrencyType currency) {}
+    public record SubSourceDto(@NotBlank String code) {}
+
+    public record MoneyDto(@NotNull BigDecimal value) {}
 
     public record LoanDurationDto(@NotNull Period value) {}
 
@@ -88,5 +85,7 @@ public record OpenFacilityCaseCommand(
 
     public record InstallmentCountDto(@NotNull Integer value) {}
 
-    public record EconomicSectorDto(@NotBlank String code, @NotBlank String name) {}
+    public record EconomicSectorDto(@NotBlank String code) {}
+
+    public record CurrencyTypeDto(@NotBlank String value) {}
 }

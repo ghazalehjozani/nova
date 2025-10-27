@@ -180,6 +180,9 @@
             <column name="customer_last_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="currency" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
             <column name="requested_amount" type="DECIMAL(19, 4)"/>
             <column name="requested_currency" type="VARCHAR(3)"/>
             <column name="requested_duration_years" type="INT"/>
@@ -201,19 +204,11 @@
             <column name="branch_code" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="branch_name" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
             <column name="request_reason_code" type="VARCHAR(500)"/>
-            <column name="request_reason_name" type="VARCHAR(500)"/>
             <column name="sub_source_request_reason_code" type="VARCHAR(500)"/>
-            <column name="sub_source_request_reason_name" type="VARCHAR(500)"/>
             <column name="description" type="TEXT"/>
             <column name="credibility_rank" type="VARCHAR(255)"/>
             <column name="application_branch_code" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="application_branch_name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="loan_type_code" type="VARCHAR(255)">
@@ -472,17 +467,6 @@
             <column name="facility_type" type="VARCHAR(255)"/>
             <column name="total_disbursed_amount" type="DECIMAL(19, 4)"/>
             <column name="total_disbursed_currency" type="VARCHAR(3)"/>
-            <column name="account_number" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="account_holder" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="bank_code" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="branch_code" type="VARCHAR(255)"/>
-            <column name="iban" type="VARCHAR(255)"/>
         </createTable>
     </changeSet>
     <changeSet id="1761465209583-15" author="DOTIN\m.amirabdollahi">

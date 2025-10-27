@@ -3,27 +3,16 @@ package ir.dotin.loan.trade.core.application.service.openfacilitycase.mapper;
 import java.util.Optional;
 
 import org.jspecify.annotations.Nullable;
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
+import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Certificate;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CredibilityRank;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Description;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.DisburseDestination;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.RequestReason;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.*;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.RespiteSerial;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OpenFacilityCaseCommand;
 import ir.dotin.loan.trade.core.application.service.BaseMapperConfig;
@@ -34,13 +23,12 @@ public interface OpenFacilityCaseLoanApplicationMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "installmentScheduleId", ignore = true)
-    TradeLoanApplication map(OpenFacilityCaseCommand.LoanApplicationDto loanApplication);
-
-    Party map(OpenFacilityCaseCommand.PartyDto dto);
-
-    PersonName map(OpenFacilityCaseCommand.PersonNameDto dto);
-
-    Branch map(OpenFacilityCaseCommand.BranchDto dto);
+    @Mapping(target = "requestedAmount", ignore = true)
+    @Mapping(target = "applicationNumber", ignore = true)
+    @Mapping(target = "branch", ignore = true)
+    @Mapping(target = "customer", ignore = true)
+    @Mapping(target = "guarantors", ignore = true)
+    TradeLoanApplication.Builder map(OpenFacilityCaseCommand.LoanApplicationDto loanApplication);
 
     Certificate map(OpenFacilityCaseCommand.CertificateDto dto);
 
@@ -54,10 +42,6 @@ public interface OpenFacilityCaseLoanApplicationMapper {
 
     SubSource map(OpenFacilityCaseCommand.SubSourceDto dto);
 
-    ApplicationNumber map(OpenFacilityCaseCommand.ApplicationNumberDto dto);
-
-    LoanTypeCode map(OpenFacilityCaseCommand.LoanTypeCodeDto dto);
-
     EconomicSector map(OpenFacilityCaseCommand.EconomicSectorDto dto);
 
     LoanDuration map(OpenFacilityCaseCommand.LoanDurationDto dto);
@@ -65,12 +49,6 @@ public interface OpenFacilityCaseLoanApplicationMapper {
     GracePeriod map(OpenFacilityCaseCommand.GracePeriodDto dto);
 
     InstallmentCount map(OpenFacilityCaseCommand.InstallmentCountDto dto);
-
-    Money map(OpenFacilityCaseCommand.MoneyDto dto);
-
-    default BranchCode mapBranchCode(String code) {
-        return BranchCode.of(code).orElseThrow();
-    }
 
     default Optional<DepositNumber> mapDepositNumber(@Nullable String depositNumber) {
         return depositNumber != null ? Optional.of(new DepositNumber(depositNumber)) : Optional.empty();
@@ -81,4 +59,14 @@ public interface OpenFacilityCaseLoanApplicationMapper {
                 ? Optional.of(RespiteSerial.of(respiteSerial).getValue())
                 : Optional.empty();
     }
+
+    @AfterMapping
+    default void fillCurrency(
+            @MappingTarget TradeLoanApplication.Builder builder,
+            OpenFacilityCaseCommand.LoanApplicationDto loanApplication) {
+        CurrencyType currency = map(loanApplication.currency());
+        builder.requestedAmount(new Money(loanApplication.requestedAmount().value(), currency));
+    }
+
+    CurrencyType map(OpenFacilityCaseCommand.CurrencyTypeDto dto);
 }
