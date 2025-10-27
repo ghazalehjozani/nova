@@ -15,7 +15,6 @@ import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.InstallmentPaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
@@ -57,7 +56,8 @@ public class OpenFacilityCaseCommandHandler implements CommandHandler<OpenFacili
                     Result<TradeLoanFacility> loanFacilityResult = validateFacility(facility, command, context);
                     loanFacilityResult.flatMap(this::saveFacility);
                     return loanFacilityResult;
-                }).map(AbstractAggregateRoot::domainEvents));
+                })
+                .map(AbstractAggregateRoot::domainEvents));
     }
 
     private Result<FacilityCreationContext> loadDependencies(OpenFacilityCaseCommand command) {
@@ -137,13 +137,13 @@ public class OpenFacilityCaseCommandHandler implements CommandHandler<OpenFacili
                 })
                 .collect(Collectors.toSet());
 
-        return TradeLoanApplication.create(applicationMapper
-                        .map(command.loanApplication())
-                        .customer(mainCustomer)
-                        .applicationNumber(applicationNumber)
-                        .guarantors(enrichedGuarantors)
-                        .branch(branch))
-                .value();
+        TradeLoanApplication.Builder builder = applicationMapper
+                .map(command.loanApplication())
+                .customer(mainCustomer)
+                .applicationNumber(applicationNumber)
+                .guarantors(enrichedGuarantors)
+                .branch(branch);
+        return TradeLoanApplication.create(builder).value();
     }
 
     private Result<TradeLoanFacility> validateFacility(

@@ -13,7 +13,6 @@ import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.*;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.RespiteSerial;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OpenFacilityCaseCommand;
 import ir.dotin.loan.trade.core.application.service.BaseMapperConfig;
@@ -27,11 +26,9 @@ public interface OpenFacilityCaseLoanApplicationMapper {
     @Mapping(target = "requestedAmount", ignore = true)
     @Mapping(target = "applicationNumber", ignore = true)
     @Mapping(target = "branch", ignore = true)
+    @Mapping(target = "customer", ignore = true)
+    @Mapping(target = "guarantors", ignore = true)
     TradeLoanApplication.Builder map(OpenFacilityCaseCommand.LoanApplicationDto loanApplication);
-
-    default Party map(OpenFacilityCaseCommand.PartyDto dto) {
-        return Party.of(dto.customerNumber(), null, null).orElseThrow();
-    }
 
     Certificate map(OpenFacilityCaseCommand.CertificateDto dto);
 
