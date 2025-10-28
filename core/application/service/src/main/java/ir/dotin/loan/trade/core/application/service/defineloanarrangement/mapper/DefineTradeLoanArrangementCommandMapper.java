@@ -65,7 +65,7 @@ public abstract class DefineTradeLoanArrangementCommandMapper {
     }
 
     Range<LoanDuration> mapDurationRange(DefineTradeLoanArrangementCommand.LoanDurationRangeDto dto) {
-        return Range.closed(map(dto.minDays()), map(dto.maxDays()));
+        return Range.closed(map(dto.min()), map(dto.max()));
     }
 
     LoanDuration map(Period period) {
