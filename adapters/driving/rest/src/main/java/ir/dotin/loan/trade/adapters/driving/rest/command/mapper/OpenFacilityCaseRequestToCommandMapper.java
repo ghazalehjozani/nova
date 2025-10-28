@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.mapper;
 
+import java.math.BigDecimal;
+import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -23,25 +25,74 @@ public interface OpenFacilityCaseRequestToCommandMapper {
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "loanApplication.applicationNumber", ignore = true)
     @Mapping(target = "loanApplication.branch", ignore = true)
-    @Mapping(target = "loanApplication.customer", source = "loanApplication.customer", qualifiedByName = "mapCustomer")
+    @Mapping(
+            target = "loanApplication.customer",
+            source = "loanApplication.customerNumber",
+            qualifiedByName = "mapCustomerNumber")
     @Mapping(
             target = "loanApplication.guarantors",
-            source = "loanApplication.guarantors",
-            qualifiedByName = "mapGuarantors")
+            source = "loanApplication.guarantorNumbers",
+            qualifiedByName = "mapGuarantorNumbers")
+    @Mapping(
+            target = "loanApplication.requestedAmount",
+            source = "loanApplication.requestedAmount",
+            qualifiedByName = "mapRequestedAmount")
+    @Mapping(target = "loanApplication.currency", source = "loanApplication.currency", qualifiedByName = "mapCurrency")
+    @Mapping(
+            target = "loanApplication.requestedLoanDuration",
+            source = "loanApplication.requestedLoanDuration",
+            qualifiedByName = "mapRequestedLoanDuration")
+    @Mapping(
+            target = "loanApplication.gracePeriod",
+            source = "loanApplication.gracePeriod",
+            qualifiedByName = "mapGracePeriod")
+    @Mapping(
+            target = "loanApplication.installmentCount",
+            source = "loanApplication.installmentCount",
+            qualifiedByName = "mapInstallmentCount")
+    @Mapping(
+            target = "loanApplication.economicSector",
+            source = "loanApplication.economicSectorCode",
+            qualifiedByName = "mapEconomicSectorCode")
+    @Mapping(
+            target = "loanApplication.requestReason",
+            source = "loanApplication.requestReasonCode",
+            qualifiedByName = "mapRequestReasonCode")
+    @Mapping(
+            target = "loanApplication.subSource",
+            source = "loanApplication.subSourceCode",
+            qualifiedByName = "mapSubSourceCode")
+    @Mapping(
+            target = "loanApplication.description",
+            source = "loanApplication.description",
+            qualifiedByName = "mapDescription")
+    @Mapping(
+            target = "loanApplication.certificates",
+            source = "loanApplication.certificateSerials",
+            qualifiedByName = "mapCertificateSerials")
+    @Mapping(
+            target = "loanApplication.credibilityRank",
+            source = "loanApplication.credibilityRank",
+            qualifiedByName = "mapCredibilityRank")
+    @Mapping(
+            target = "loanApplication.disburseDestination.depositNumber",
+            source = "loanApplication.disburseDestination.depositNumber",
+            qualifiedByName = "mapDisbursementDepositNumber")
+    @Mapping(target = "loanApplication.disburseDestination.type", source = "loanApplication.disburseDestination.type")
     OpenFacilityCaseCommand toCommand(OpenFacilityCaseRequest request);
 
-    @Named("mapCustomer")
-    default OpenFacilityCaseCommand.PartyDto mapCustomer(OpenFacilityCaseRequest.PartyDto customer) {
-        return new OpenFacilityCaseCommand.PartyDto(customer.customerNumber(), null, null);
+    @Named("mapCustomerNumber")
+    default OpenFacilityCaseCommand.PartyDto mapCustomerNumber(String customerNumber) {
+        return new OpenFacilityCaseCommand.PartyDto(customerNumber, null, null);
     }
 
-    @Named("mapGuarantors")
-    default Set<OpenFacilityCaseCommand.PartyDto> mapGuarantors(Set<OpenFacilityCaseRequest.PartyDto> guarantors) {
-        if (guarantors == null) {
+    @Named("mapGuarantorNumbers")
+    default Set<OpenFacilityCaseCommand.PartyDto> mapGuarantorNumbers(Set<String> guarantorNumbers) {
+        if (guarantorNumbers == null) {
             return Set.of();
         }
-        return guarantors.stream()
-                .map(guarantor -> new OpenFacilityCaseCommand.PartyDto(guarantor.customerNumber(), null, null))
+        return guarantorNumbers.stream()
+                .map(guarantorNumber -> new OpenFacilityCaseCommand.PartyDto(guarantorNumber, null, null))
                 .collect(Collectors.toSet());
     }
 
@@ -71,7 +122,72 @@ public interface OpenFacilityCaseRequestToCommandMapper {
                 dto.dueDate(), mapMoneyToCommandDto(dto.principalAmount()), mapMoneyToCommandDto(dto.interestAmount()));
     }
 
-    default PlanGradualInstallmentScheduleCommand.MoneyDto mapMoneyToCommandDto(OpenFacilityCaseRequest.MoneyDto dto) {
-        return new PlanGradualInstallmentScheduleCommand.MoneyDto(dto.value());
+    default PlanGradualInstallmentScheduleCommand.MoneyDto mapMoneyToCommandDto(BigDecimal amount) {
+        return new PlanGradualInstallmentScheduleCommand.MoneyDto(amount);
+    }
+
+    @Named("mapRequestedAmount")
+    default OpenFacilityCaseCommand.MoneyDto mapRequestedAmount(BigDecimal amount) {
+        return new OpenFacilityCaseCommand.MoneyDto(amount);
+    }
+
+    @Named("mapCurrency")
+    default OpenFacilityCaseCommand.CurrencyTypeDto mapCurrency(String currency) {
+        return new OpenFacilityCaseCommand.CurrencyTypeDto(currency);
+    }
+
+    @Named("mapRequestedLoanDuration")
+    default OpenFacilityCaseCommand.LoanDurationDto mapRequestedLoanDuration(Period period) {
+        return new OpenFacilityCaseCommand.LoanDurationDto(period);
+    }
+
+    @Named("mapGracePeriod")
+    default OpenFacilityCaseCommand.GracePeriodDto mapGracePeriod(Period period) {
+        return new OpenFacilityCaseCommand.GracePeriodDto(period);
+    }
+
+    @Named("mapInstallmentCount")
+    default OpenFacilityCaseCommand.InstallmentCountDto mapInstallmentCount(Integer count) {
+        return new OpenFacilityCaseCommand.InstallmentCountDto(count);
+    }
+
+    @Named("mapEconomicSectorCode")
+    default OpenFacilityCaseCommand.EconomicSectorDto mapEconomicSectorCode(String code) {
+        return new OpenFacilityCaseCommand.EconomicSectorDto(code);
+    }
+
+    @Named("mapRequestReasonCode")
+    default OpenFacilityCaseCommand.RequestReasonDto mapRequestReasonCode(String code) {
+        return new OpenFacilityCaseCommand.RequestReasonDto(code);
+    }
+
+    @Named("mapSubSourceCode")
+    default OpenFacilityCaseCommand.SubSourceDto mapSubSourceCode(String code) {
+        return new OpenFacilityCaseCommand.SubSourceDto(code);
+    }
+
+    @Named("mapDescription")
+    default OpenFacilityCaseCommand.DescriptionDto mapDescription(String description) {
+        return new OpenFacilityCaseCommand.DescriptionDto(description);
+    }
+
+    @Named("mapCertificateSerials")
+    default Set<OpenFacilityCaseCommand.CertificateDto> mapCertificateSerials(Set<String> certificateSerials) {
+        if (certificateSerials == null) {
+            return Set.of();
+        }
+        return certificateSerials.stream()
+                .map(OpenFacilityCaseCommand.CertificateDto::new)
+                .collect(Collectors.toSet());
+    }
+
+    @Named("mapCredibilityRank")
+    default OpenFacilityCaseCommand.CredibilityRankDto mapCredibilityRank(String rank) {
+        return new OpenFacilityCaseCommand.CredibilityRankDto(rank);
+    }
+
+    @Named("mapDisbursementDepositNumber")
+    default String mapDisbursementDepositNumber(String depositNumber) {
+        return depositNumber;
     }
 }

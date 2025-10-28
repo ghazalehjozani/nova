@@ -98,7 +98,7 @@ public record DefineTradeLoanArrangementCommand(
 
     public record AmountRangeDto(@NotNull MoneyDto min, @NotNull MoneyDto max) {}
 
-    public record LoanDurationRangeDto(@NotNull Period minDays, @NotNull Period maxDays) {}
+    public record LoanDurationRangeDto(@NotNull Period min, @NotNull Period max) {}
 
     public record MoneyDto(@NotNull BigDecimal value) {}
 
