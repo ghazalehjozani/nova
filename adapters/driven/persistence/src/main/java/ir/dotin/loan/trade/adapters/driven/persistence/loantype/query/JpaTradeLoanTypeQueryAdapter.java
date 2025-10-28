@@ -7,14 +7,14 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.loan.trade.adapters.driven.persistence.loantype.query.mapper.TradeLoanTypeQueryModelMapper;
 import ir.dotin.loan.trade.adapters.driven.persistence.loantype.repository.TradeLoanTypeJpaRepository;
-import ir.dotin.loan.trade.core.application.ports.outbound.query.repository.TradeLoanTypeQueryPort;
-import ir.dotin.loan.trade.core.application.ports.outbound.query.request.TradeLoanTypeQueryDto;
+import ir.dotin.loan.trade.core.application.query.loantype.dto.TradeLoanTypeQueryDto;
+import ir.dotin.loan.trade.core.application.query.loantype.repository.TradeLoanTypeQueryRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class JpaTradeLoanTypeQueryAdapter implements TradeLoanTypeQueryPort {
+public class JpaTradeLoanTypeQueryAdapter implements TradeLoanTypeQueryRepository {
 
     private final TradeLoanTypeJpaRepository tradeLoanTypeJpaRepository;
     private final TradeLoanTypeQueryModelMapper queryModelMapper;

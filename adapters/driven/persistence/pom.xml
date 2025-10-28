@@ -50,6 +50,10 @@
           <artifactId>jackson-databind</artifactId>
           <groupId>com.fasterxml.jackson.core</groupId>
       </dependency>
+      <dependency>
+          <artifactId>trade-loan-core-application-query</artifactId>
+          <groupId>ir.dotin.loan</groupId>
+      </dependency>
   </dependencies>
 
 </project>

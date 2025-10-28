@@ -1,9 +1,9 @@
-package ir.dotin.loan.trade.core.application.ports.outbound.query.response;
+package ir.dotin.loan.trade.core.application.query.loantype.request;
 
 import java.util.UUID;
 
 import ir.dotin.platform.dispatcher.api.query.Query;
-import ir.dotin.loan.trade.core.application.ports.outbound.query.request.TradeLoanTypeQueryDto;
+import ir.dotin.loan.trade.core.application.query.loantype.dto.TradeLoanTypeQueryDto;
 
 import lombok.Builder;
 

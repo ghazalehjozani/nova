@@ -3,9 +3,9 @@ package ir.dotin.loan.trade.core.application.query.loanarrangement.handler;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.dispatcher.api.query.QueryHandler;
-import ir.dotin.loan.trade.core.application.ports.outbound.query.repository.TradeLoanArrangementQueryPort;
-import ir.dotin.loan.trade.core.application.ports.outbound.query.request.TradeLoanArrangementQueryDto;
-import ir.dotin.loan.trade.core.application.ports.outbound.query.response.GetLoanArrangementByIdQuery;
+import ir.dotin.loan.trade.core.application.query.loanarrangement.dto.TradeLoanArrangementQueryDto;
+import ir.dotin.loan.trade.core.application.query.loanarrangement.repository.TradeLoanArrangementQueryRepository;
+import ir.dotin.loan.trade.core.application.query.loanarrangement.request.GetLoanArrangementByIdQuery;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 public class GetLoanArrangementByIdQueryHandler
         implements QueryHandler<GetLoanArrangementByIdQuery, TradeLoanArrangementQueryDto> {
 
-    private final TradeLoanArrangementQueryPort queryRepository;
+    private final TradeLoanArrangementQueryRepository queryRepository;
 
     @Override
     public TradeLoanArrangementQueryDto handle(GetLoanArrangementByIdQuery query) {

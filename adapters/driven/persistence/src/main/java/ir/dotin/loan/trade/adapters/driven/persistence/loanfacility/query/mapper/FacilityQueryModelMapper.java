@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity.TradeLoanFacilityEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.mapper.BaseMapperConfig;
-import ir.dotin.loan.trade.core.application.ports.outbound.query.request.TradeFacilityQueryDto;
+import ir.dotin.loan.trade.core.application.query.loanfacility.dto.TradeFacilityQueryDto;
 
 @Mapper(
         config = BaseMapperConfig.class,

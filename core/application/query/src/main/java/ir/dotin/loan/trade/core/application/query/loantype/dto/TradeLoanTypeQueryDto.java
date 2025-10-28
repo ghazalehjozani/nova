@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.core.application.ports.outbound.query.request;
+package ir.dotin.loan.trade.core.application.query.loantype.dto;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

@@ -6,7 +6,7 @@ import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.EconomicSecto
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RelationTypeLoanTopicEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.loantype.entity.TradeLoanTypeEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.mapper.BaseMapperConfig;
-import ir.dotin.loan.trade.core.application.ports.outbound.query.request.TradeLoanTypeQueryDto;
+import ir.dotin.loan.trade.core.application.query.loantype.dto.TradeLoanTypeQueryDto;
 
 @Mapper(config = BaseMapperConfig.class)
 public interface TradeLoanTypeQueryModelMapper {

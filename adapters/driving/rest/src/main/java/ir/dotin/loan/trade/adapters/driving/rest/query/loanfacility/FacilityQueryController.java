@@ -1,34 +1,102 @@
 package ir.dotin.loan.trade.adapters.driving.rest.query.loanfacility;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import ir.dotin.platform.adapter.rest.response.CursorPaginationInfo;
 import ir.dotin.platform.adapter.rest.response.DataResponse;
+import ir.dotin.platform.adapter.rest.response.OffsetPaginationInfo;
+import ir.dotin.platform.adapter.rest.response.PagedResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.QueryDispatcher;
-import ir.dotin.loan.trade.core.application.ports.outbound.query.request.TradeFacilityQueryDto;
-import ir.dotin.loan.trade.core.application.ports.outbound.query.response.GetFacilityByIdQuery;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
+import ir.dotin.loan.trade.core.application.query.loanfacility.dto.LoanFacilityQueryResult;
+import ir.dotin.loan.trade.core.application.query.loanfacility.dto.TradeFacilityQueryDto;
+import ir.dotin.loan.trade.core.application.query.loanfacility.request.FindAllLoanFacilitiesQuery;
+import ir.dotin.loan.trade.core.application.query.loanfacility.request.GetFacilityByIdQuery;
+import ir.dotin.loan.trade.core.application.query.loanfacility.request.LoanFacilityFilterQuery;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/facilities")
+@RequestMapping("/v1/loan-facilities")
 @RequiredArgsConstructor
 @Tag(name = "Facility Queries", description = "Query loan facilities")
 public class FacilityQueryController {
 
-    private final QueryDispatcher dispatcher;
+    private final QueryDispatcher queryDispatcher;
 
     @GetMapping("/{facilityId}")
     @Operation(summary = "Get facility by ID")
     public DataResponse<TradeFacilityQueryDto> getById(@PathVariable UUID facilityId) {
         GetFacilityByIdQuery query =
                 GetFacilityByIdQuery.builder().loanFacilityId(facilityId).build();
-        return DataResponse.of(dispatcher.dispatch(query));
+        return DataResponse.of(queryDispatcher.dispatch(query));
+    }
+
+    @GetMapping
+    public ResponseEntity<PagedResponse<LoanFacilityQueryResult>> findAll(
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int pageSize) {
+        FindAllLoanFacilitiesQuery query = FindAllLoanFacilitiesQuery.builder()
+                .cursor(cursor)
+                .pageSize(pageSize)
+                .build();
+
+        LoanFacilityQueryResult result = queryDispatcher.dispatch(query);
+
+        CursorPaginationInfo paginationInfo = CursorPaginationInfo.of(
+                result.nextCursor(), result.previousCursor(), result.hasNext(), result.hasPrevious());
+
+        return ResponseEntity.ok(PagedResponse.success(result, paginationInfo));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<PagedResponse<LoanFacilityQueryResult>> searchFacilities(
+            @RequestParam(required = false) UUID loanTypeId,
+            @RequestParam(required = false) String customerNumber,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                    LocalDateTime createDateFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                    LocalDateTime createDateTo,
+            @RequestParam(required = false) BigDecimal requestAmountMin,
+            @RequestParam(required = false) BigDecimal requestAmountMax,
+            @RequestParam(required = false) FacilityStatus status,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int pageSize) {
+        LoanFacilityFilterQuery query = LoanFacilityFilterQuery.of(
+                loanTypeId,
+                customerNumber,
+                createDateFrom,
+                createDateTo,
+                requestAmountMin,
+                requestAmountMax,
+                status,
+                page,
+                pageSize);
+
+        LoanFacilityQueryResult result = queryDispatcher.dispatch(query);
+
+        OffsetPaginationInfo paginationInfo = OffsetPaginationInfo.of(
+                result.currentPage(),
+                result.pageSize(),
+                result.totalElements(),
+                result.totalPages(),
+                result.hasNext(),
+                result.hasPrevious());
+
+        return ResponseEntity.ok(PagedResponse.success(result, paginationInfo));
     }
 }
