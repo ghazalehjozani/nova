@@ -38,13 +38,11 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
       KAFKA_SASL_ENABLED_MECHANISMS: SCRAM-SHA-256
-      KAFKA_LISTENER_NAME_SASL_PLAINTEXT_SCRAM_SHA_256_SASL_JAAS_CONFIG: |
-        org.apache.kafka.common.security.scram.ScramLoginModule required
-        username="admin"
-        password="abcd1234";
       KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/kafka_jaas.conf"
+      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
     volumes:
       - ./kafka_jaas.conf:/etc/kafka/kafka_jaas.conf:ro
+      - kafka-data:/var/lib/kafka/data
     ports:
       - "127.0.0.1:9092:9092"
       - "127.0.0.1:9093:9093"
@@ -94,6 +92,7 @@ services:
 volumes:
   postgres-data:
   redis-data:
+  kafka-data:
 
 networks:
   app-network:
