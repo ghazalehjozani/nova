@@ -6,9 +6,7 @@ import java.util.UUID;
 
 import org.jspecify.annotations.NonNull;
 
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
@@ -16,10 +14,10 @@ import static java.util.UUID.randomUUID;
 public record TradeLoanFacilityCreated(UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
         implements TradeLoanFacilityEvents<TradeLoanFacilityCreated, TradeLoanFacilityCreated.Payload> {
 
-    public record Payload(LoanApplicationId applicationId, Party customer) {
+    public record Payload(LoanFacilityId loanFacilityId, String applicationNumber) {
         public Payload {
-            requireNonNull(applicationId);
-            requireNonNull(customer);
+            requireNonNull(loanFacilityId);
+            requireNonNull(applicationNumber);
         }
     }
 
@@ -30,8 +28,9 @@ public record TradeLoanFacilityCreated(UUID eventId, LoanFacilityId aggregateId,
         requireNonNull(createdAt);
     }
 
-    public static TradeLoanFacilityCreated of(LoanFacilityId id, LoanApplicationId appId, Party customer, Clock clock) {
-        return new TradeLoanFacilityCreated(randomUUID(), id, new Payload(appId, customer), clock.instant());
+    public static TradeLoanFacilityCreated of(
+            LoanFacilityId id, LoanFacilityId appId, String applicationNumber, Clock clock) {
+        return new TradeLoanFacilityCreated(randomUUID(), id, new Payload(appId, applicationNumber), clock.instant());
     }
 
     @Override

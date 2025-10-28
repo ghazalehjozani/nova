@@ -28,6 +28,7 @@ import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TradeLoanFacility")
@@ -69,7 +70,7 @@ class TradeLoanFacilityTest {
                     branch,
                     requestReason,
                     disburseDestination);
-            var application = assertDoesNotThrow(() -> applicationBuilder.build());
+            var application = assertDoesNotThrow(applicationBuilder::build);
             var facilityId = LoanFacilityId.of(randomUUID());
             var loanTypeId = LoanTypeId.of(randomUUID());
 
@@ -173,9 +174,7 @@ class TradeLoanFacilityTest {
 
             var createdEvent = (TradeLoanFacilityCreated) events.getFirst();
             assertThat(createdEvent.aggregateId()).isEqualTo(facility.getId());
-            assertThat(createdEvent.payload().applicationId())
-                    .isEqualTo(facility.getLoanApplication().getId());
-            assertThat(createdEvent.payload().customer()).isEqualTo(customer);
+            assertThat(createdEvent.payload().loanFacilityId()).isEqualTo(facility.getId());
         }
     }
 
@@ -364,6 +363,7 @@ class TradeLoanFacilityTest {
             @Mock RequestReason requestReason,
             @Mock DisburseDestination disburseDestination) {
         // Create a minimal builder that will pass validation
+        given(applicationNumber.formattedApplicationNumber()).willReturn("appNumber");
         return TradeLoanApplication.builder()
                 .id(LoanApplicationId.of(randomUUID())) // Add the required ID
                 .applicationNumber(applicationNumber)

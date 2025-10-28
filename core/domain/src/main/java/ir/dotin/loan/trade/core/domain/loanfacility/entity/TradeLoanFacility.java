@@ -54,8 +54,7 @@ public final class TradeLoanFacility
         var createdEvent = facility.getEventFactory()
                 .createCreatedEvent(
                         facility.getId(),
-                        facility.getLoanApplication().getId(),
-                        facility.getLoanApplication().getCustomer(),
+                        facility.getLoanApplication().getApplicationNumber().orElseThrow(),
                         clock);
         facility.registerEvent(createdEvent);
 

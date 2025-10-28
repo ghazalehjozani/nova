@@ -13,13 +13,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.*;
 
 import static java.time.ZoneOffset.UTC;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 
 @DisplayName("TradeLoanFacilityEventFactory Test")
 @ExtendWith(MockitoExtension.class)
@@ -45,7 +46,7 @@ final class TradeLoanFacilityEventFactoryTest {
     private FailureReason mockFailureReason;
 
     @Mock
-    private Party mockCustomer;
+    private ApplicationNumber mockApplicationNumber;
 
     @Mock
     private TransactionNumber mockTransactionNumber;
@@ -168,7 +169,8 @@ final class TradeLoanFacilityEventFactoryTest {
         @Test
         @DisplayName("should create created event")
         void shouldCreateCreatedEvent() {
-            var event = factory.createCreatedEvent(mockFacilityId, mockApplicationId, mockCustomer, fixedClock);
+            given(mockApplicationNumber.formattedApplicationNumber()).willReturn("appNumber");
+            var event = factory.createCreatedEvent(mockFacilityId, mockApplicationNumber, fixedClock);
 
             assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityCreated.class);
         }
