@@ -15,7 +15,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.RelatedCustome
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.CustomerMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.customerService.CustomerServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.customerservice.CustomerServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CustomerInfoLoadOptions;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
 

@@ -1,8 +1,14 @@
 package ir.dotin.loan.trade.core.application.service.openfacilitycase.commandhandler;
 
 import java.time.Clock;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
@@ -15,11 +21,15 @@ import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OpenFacilityCaseCommand;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.customerService.CustomerServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.customerservice.CustomerServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CustomerInfoLoadOptions;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
@@ -105,9 +115,24 @@ public class OpenFacilityCaseCommandHandler implements CommandHandler<OpenFacili
     private TradeLoanApplication prepareTradeLoanApplication(
             OpenFacilityCaseCommand command, FacilityCreationContext context) {
 
-        Result<PartyInfo> customerResult = customerServicePort.loadCustomerInfo(
-                command.loanApplication().customer().customerNumber(), CustomerInfoLoadOptions.baseInfoOnly());
-        PartyInfo customerInfo = customerResult.getValue();
+        CompletableFuture<PartyInfo> mainCustomerFuture = CompletableFuture.supplyAsync(() -> customerServicePort
+                .loadCustomerInfo(
+                        command.loanApplication().customer().customerNumber(), CustomerInfoLoadOptions.baseInfoOnly())
+                .getValue());
+
+        List<CompletableFuture<PartyInfo>> guarantorFutures = command.loanApplication().guarantors().stream()
+                .map(guarantor -> CompletableFuture.supplyAsync(() -> customerServicePort
+                        .loadCustomerInfo(guarantor.customerNumber(), CustomerInfoLoadOptions.baseInfoOnly())
+                        .getValue()))
+                .toList();
+
+        CompletableFuture<Void> allFutures =
+                CompletableFuture.allOf(Stream.concat(Stream.of(mainCustomerFuture), guarantorFutures.stream())
+                        .toArray(CompletableFuture[]::new));
+
+        allFutures.join();
+
+        PartyInfo customerInfo = mainCustomerFuture.join();
         Party mainCustomer = createPartyDtoFromPartyInfo(customerInfo);
 
         Branch branch = Branch.of(BranchCode.of(Objects.requireNonNull(
@@ -115,11 +140,11 @@ public class OpenFacilityCaseCommandHandler implements CommandHandler<OpenFacili
                         .value())
                 .value();
 
-        // TODO must change DerivedValue (index)
         String derivedValue = generateDerivedValue(
                 command.loanApplication().branch().code(),
                 context.loanType.getCode().value(),
                 customerInfo.party().customerNumber());
+
         ApplicationNumber applicationNumber = new ApplicationNumber(
                 Objects.requireNonNull(branch),
                 Objects.requireNonNull(
@@ -128,13 +153,8 @@ public class OpenFacilityCaseCommandHandler implements CommandHandler<OpenFacili
                 Optional.empty(),
                 derivedValue);
 
-        Set<Party> enrichedGuarantors = command.loanApplication().guarantors().stream()
-                .map(guarantor -> {
-                    Result<PartyInfo> guarantorResult = customerServicePort.loadCustomerInfo(
-                            guarantor.customerNumber(), CustomerInfoLoadOptions.baseInfoOnly());
-                    PartyInfo guarantorInfo = guarantorResult.getValue();
-                    return createPartyDtoFromPartyInfo(guarantorInfo);
-                })
+        Set<Party> enrichedGuarantors = guarantorFutures.stream()
+                .map(future -> createPartyDtoFromPartyInfo(future.join()))
                 .collect(Collectors.toSet());
 
         TradeLoanApplication.Builder builder = applicationMapper
@@ -143,6 +163,7 @@ public class OpenFacilityCaseCommandHandler implements CommandHandler<OpenFacili
                 .applicationNumber(applicationNumber)
                 .guarantors(enrichedGuarantors)
                 .branch(branch);
+
         return TradeLoanApplication.create(builder).value();
     }
 

@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.core.application.ports.outbound.client.customerService;
+package ir.dotin.loan.trade.core.application.ports.outbound.client.customerservice;
 
 import java.util.List;
 

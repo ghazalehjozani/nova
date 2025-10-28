@@ -272,8 +272,8 @@ public class FcbHealthIndicator implements HealthIndicator {
                     result.getResponseTimeMs() < 1000
                             ? "EXCELLENT"
                             : result.getResponseTimeMs() < 3000
-                            ? "GOOD"
-                            : result.getResponseTimeMs() < 5000 ? "ACCEPTABLE" : "SLOW");
+                                    ? "GOOD"
+                                    : result.getResponseTimeMs() < 5000 ? "ACCEPTABLE" : "SLOW");
         }
 
         // Failure tracking

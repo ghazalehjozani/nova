@@ -57,10 +57,6 @@ public class FormulaFieldMappingService {
             return null;
         }
 
-        if (!serialized.trim().startsWith("{")) {
-            return deserializeLegacyFormula(serialized);
-        }
-
         try {
             FormulaData data = objectMapper.readValue(serialized, FormulaData.class);
 

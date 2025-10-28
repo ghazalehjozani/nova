@@ -119,18 +119,18 @@ platform:
     query-cache: false
   dispatcher:
     command:
-      sync-timeout: 30s
-      shutdown-timeout: 30s
+      sync-timeout: 60s
+      shutdown-timeout: 60s
       middleware-enabled: true
       idempotency:
         enabled: true
         ttl: 24h
-        lock-ttl: 30s
+        lock-ttl: 60s
         cleanup-interval: 5m
         cleanup-threshold: 100
         cache-strategy: REDIS
     query:
-      sync-timeout: 10s
+      sync-timeout: 30s
       middleware-enabled: true
       caching-enabled: true
       cache-strategy: REDIS
@@ -304,6 +304,7 @@ platform:
         - /actuator/info
         - /swagger-ui/**
         - /v3/api-docs/**
+        - /v3/api-docs
         - /api/dev/auth/token
       require-authentication-by-default: true
     audit:

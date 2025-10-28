@@ -12,9 +12,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import ir.dotin.platform.adapter.persistence.query.QueryCriteria;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity.TradeLoanFacilityEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query.mapper.FacilityQueryModelMapper;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.repository.TradeLoanFacilityJpaRepository;
@@ -61,15 +63,18 @@ public class JpaFacilityQueryAdapter implements TradeLoanFacilityQueryRepository
         Pageable pageable = PageRequest.of(
                 filter.offsetPageRequest().page(), filter.offsetPageRequest().pageSize(), sort);
 
-        Page<TradeLoanFacilityEntity> page = repository.findByFilter(
-                filter.loanTypeId(),
-                filter.customerNumber(),
-                filter.createDateFrom(),
-                filter.createDateTo(),
-                filter.requestAmountMin(),
-                filter.requestAmountMax(),
-                filter.status(),
-                pageable);
+        QueryCriteria<TradeLoanFacilityEntity> criteria = new QueryCriteria<>();
+
+        Specification<TradeLoanFacilityEntity> spec = criteria.where("loanTypeId", filter.loanTypeId())
+                .whereNested("loanApplication.customer.customerNumber", filter.customerNumber())
+                .whereGreaterThanOrEqual("createdAt", filter.createDateFrom())
+                .whereLessThanOrEqual("createdAt", filter.createDateTo())
+                .whereNestedGreaterThanOrEqual("loanApplication.requestedAmount.amount", filter.requestAmountMin())
+                .whereNestedLessThanOrEqual("loanApplication.requestedAmount.amount", filter.requestAmountMax())
+                .where("currentState", filter.status())
+                .toSpecification();
+
+        Page<TradeLoanFacilityEntity> page = repository.findAll(spec, pageable);
 
         List<TradeFacilityQueryDto> facilities =
                 page.getContent().stream().map(mapper::toQueryModel).toList();

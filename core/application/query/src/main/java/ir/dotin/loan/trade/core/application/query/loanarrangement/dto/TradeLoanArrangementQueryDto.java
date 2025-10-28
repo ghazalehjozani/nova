@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.core.application.query.loanarrangement.dto;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -12,6 +13,8 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.LifeInsurancePaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LoanSecondaryType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.SectionType;
+
+import lombok.Builder;
 
 public record TradeLoanArrangementQueryDto(
         UUID id,
@@ -67,25 +70,28 @@ public record TradeLoanArrangementQueryDto(
             BigDecimal baseInterestRate,
             BigDecimal preferentialMinRate,
             BigDecimal preferentialMaxRate,
-            String interestFormula,
-            String refundInterestFormula,
+            FormulaDto interestFormula,
+            FormulaDto refundInterestFormula,
             Boolean dailyInterest)
             implements Serializable {}
 
     public record PenaltyPolicyEmbDto(
-            BigDecimal penaltyRate, BigDecimal deferralInterestRate, String penaltyFormula, String penaltyPaymentType)
+            BigDecimal penaltyRate,
+            BigDecimal deferralInterestRate,
+            FormulaDto penaltyFormula,
+            String penaltyPaymentType)
             implements Serializable {}
 
     public record InstallmentPolicyEmbDto(
             Integer installmentPeriodDays,
-            String installmentFormula,
-            String interestComponentFormula,
+            FormulaDto installmentFormula,
+            FormulaDto interestComponentFormula,
             String installmentPaymentType,
             Boolean defineAutomaticInstallment)
             implements Serializable {}
 
     public record GracePeriodPolicyEmbDto(
-            Integer minGracePeriodDays, Integer maxGracePeriodDays, String gracePeriodFormula)
+            Integer minGracePeriodDays, Integer maxGracePeriodDays, FormulaDto gracePeriodFormula)
             implements Serializable {}
 
     public record RepaymentPriorityPolicyEmbDto(
@@ -107,4 +113,7 @@ public record TradeLoanArrangementQueryDto(
 
         public record CollateralTypeEmbDto(String code) implements Serializable {}
     }
+
+    @Builder
+    public record FormulaDto(String expression, Map<Character, String> fieldMappings) {}
 }
