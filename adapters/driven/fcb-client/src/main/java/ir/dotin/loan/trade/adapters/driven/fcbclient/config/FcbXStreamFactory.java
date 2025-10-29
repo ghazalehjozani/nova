@@ -10,8 +10,10 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.DepositClosedR
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.DepositInfoResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.EconomicalSectionResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.FcbValidationResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.IssueDocumentResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.HasAllowedCurrencyResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.OpenAccountResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ReasonTypeResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.TransferMoneyResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ValidateCreditorDepositResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ValidateDebtorDepositResponse;
 
@@ -35,8 +37,6 @@ public class FcbXStreamFactory {
 
         xstream.alias("com.fanap.business.cmplexpenditure.dto.DepositInfoDTO", DepositInfoResponse.class);
 
-        xstream.alias("ir.dotin.lc.dto.ilccredit.bill.ElectronicBillIssueDocumentVO", IssueDocumentResponse.class);
-
         xstream.alias("com.fanap.business.cmplexpenditure.dto.EconomicalSectionDTO", EconomicalSectionResponse.class);
 
         xstream.alias("com.fanap.business.cmplexpenditure.dto.ValidationResultDTO", FcbValidationResponse.class);
@@ -52,6 +52,14 @@ public class FcbXStreamFactory {
                 ValidateCreditorDepositResponse.class);
 
         xstream.alias("com.fanap.business.cmplexpenditure.dto.CustomerInfoResultDTO", CustomerInfoResponse.class);
+
+        xstream.alias(
+                "com.fanap.business.deposit.service.valueobjects.TransferMoneyReturnVO", TransferMoneyResponse.class);
+
+        xstream.alias("com.fanap.business.cmplexpenditure.dto.ReasonTypeDTO", ReasonTypeResponse.class);
+
+        xstream.alias("com.fanap.business.cmplexpenditure.dto.HasAllowedCurrencyResultDTO", HasAllowedCurrencyResponse.class);
+
 
         xstream.autodetectAnnotations(true);
 

@@ -4,7 +4,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.HasAllowedCurrencyResponse;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
@@ -33,6 +36,9 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class DepositServiceAdapter implements DepositServicePort {
+
+    private static final String SEPARATOR = "#";
+
 
     private final FcbService fcbService;
     private final FcbBaseRequestBuilder requestBuilder;
@@ -232,5 +238,63 @@ public class DepositServiceAdapter implements DepositServicePort {
                 amount);
 
         return parameters;
+    }
+
+    @Override
+    public Result<EconomicalSectorValidation> hasDepositAllowedCurrencies(DepositNumber depositNumber, List<CurrencyType> currencyTypes) {
+
+        try {
+            List<Parameter> parameters = new ArrayList<>();
+
+            parameters.add(Parameter.builder()
+                    .key("depositNumber")
+                    .value(depositNumber.value())
+                    .build());
+
+            String currenciesValue = currencyTypes.stream()
+                    .map(String::valueOf).collect(Collectors.joining(SEPARATOR));
+
+            parameters.add(Parameter.builder()
+                    .key("currencies")
+                    .value(currenciesValue)
+                    .build());
+
+            Usecases usecases = requestBuilder.buildUseCase("has-deposit-allowed-currencies", parameters);
+            FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
+
+            log.debug("Executing FCB has-deposit-allowed-currencies usecase");
+
+            Result<HasAllowedCurrencyResponse> fcbResult =
+                    fcbService.executeUsecase(fcbRequest, HasAllowedCurrencyResponse.class);
+
+            if (fcbResult.isFailure()) {
+                log.error("FCB has-deposit-allowed-currencies failed: {}",
+                        fcbResult.notification().getErrorMessages());
+                return Result.failure(fcbResult.notification());
+            }
+
+            HasAllowedCurrencyResponse response = fcbResult.orElseThrow();
+
+            log.info("Currency check completed - deposit: {}, allowed: {}, message: {}",
+                    depositNumber.value(),
+                    response.isAllowed(),
+                    response.getSuccessMessage());
+
+            EconomicalSectorValidation economicalSectorValidation =new EconomicalSectorValidation(response.isAllowed(),
+                    response.getSuccessMessage());
+
+            return Result.success(economicalSectorValidation);
+
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid request parameters: {}", e.getMessage());
+            return Result.failure(Notification.ofError(
+                    FcbBusinessLocalizedMessageCodes.FCB_BAD_REQUEST,
+                    e.getMessage()));
+        } catch (Exception e) {
+            log.error("Unexpected error checking deposit currencies", e);
+            return Result.failure(Notification.ofError(
+                    FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR,
+                    "Failed to check deposit currencies: " + e.getMessage()));
+        }
     }
 }

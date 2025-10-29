@@ -5,8 +5,10 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.EconomicalSectionResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.FcbValidationResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ReasonTypeResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.ReasonType;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -56,5 +58,27 @@ public class LoanMapper {
                 new EconomicalSectorValidation(fcbResponse.isValid(), fcbResponse.getSuccessMessage());
 
         return Result.success(economicalSectorValidation);
+    }
+
+    public static Result<ReasonType> mapToDomainReasonType(ReasonTypeResponse response) {
+        log.debug("Mapping ReasonTypeResponse to domain ReasonType - code: {}", response.getCode());
+
+        Notification notification = Notification.create();
+
+        if (response.getCode() == null || response.getCode().isBlank()) {
+            notification.addError(
+                    FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE, "Reason type code is missing in response");
+            return Result.failure(notification);
+        }
+
+        ReasonType reasonType = new ReasonType(
+                response.getCode(),
+                response.getCentralBankCode(),
+                response.getDescription() != null ? response.getDescription() : "",
+                response.getReasonType(),
+                response.getShouldHasSerial() != null && response.getShouldHasSerial(),
+                response.getExemptionOfInquiryNumber() != null && response.getExemptionOfInquiryNumber());
+
+        return Result.success(reasonType);
     }
 }

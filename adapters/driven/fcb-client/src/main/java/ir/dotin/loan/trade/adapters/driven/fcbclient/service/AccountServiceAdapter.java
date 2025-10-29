@@ -218,17 +218,10 @@ public class AccountServiceAdapter implements AccountServicePort {
     private TransactionNumber extractTransactionNumber(List<TransferMoneyResponse> returns) {
         String documentNumber = returns.stream()
                 .filter(TransferMoneyResponse::isSuccess)
-                .map(TransferMoneyResponse::getDocumentNumber)
+                .map(TransferMoneyResponse::getIdentifier)
                 .filter(num -> num != null && !num.isBlank())
                 .findFirst()
-                .orElseGet(() -> {
-                    return returns.stream()
-                            .filter(TransferMoneyResponse::isSuccess)
-                            .map(TransferMoneyResponse::getReferenceNumber)
-                            .filter(ref -> ref != null && !ref.isBlank())
-                            .findFirst()
-                            .orElse("UNKNOWN");
-                });
+                .orElse("");
 
         Result<TransactionNumber> result = TransactionNumber.of(documentNumber);
         if (result.isFailure()) {
