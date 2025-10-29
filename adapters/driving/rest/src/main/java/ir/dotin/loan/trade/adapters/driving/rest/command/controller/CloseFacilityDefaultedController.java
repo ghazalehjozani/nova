@@ -10,6 +10,7 @@ import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.CloseFacilityDefaultedRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.CloseFacilityDefaultedRequestToCommandMapper;
+import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/v1/facilities/{facilityId}/close-defaulted")
-@Tag(name = "عملیات بستن تسهیلات", description = "عملیات مربوط به بستن تسهیلات")
+@Tag(name = SwaggerConfig.TAG_FACILITY_CLOSURE_DEFAULTED, description = "عملیات مربوط به بستن تسهیلات معوق")
 @RequiredArgsConstructor
 public class CloseFacilityDefaultedController extends BaseController {
 
@@ -26,9 +27,7 @@ public class CloseFacilityDefaultedController extends BaseController {
     private final CloseFacilityDefaultedRequestToCommandMapper mapper;
 
     @PostMapping
-    @Operation(
-            summary = "بستن تسهیلات",
-            description = "این عملیات تسهیلات را به صورت نهایی می‌بندد و از انجام عملیات بیشتر جلوگیری می‌کند.")
+    @Operation(summary = "بستن تسهیلات معوق")
     public EventStreamResponse closeFacilityDefaulted(
             @Parameter(
                             description = "شناسه یکتای تسهیلات معوق جهت بستن",

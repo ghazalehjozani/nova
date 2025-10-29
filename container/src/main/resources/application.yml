@@ -375,9 +375,9 @@ springdoc:
     enabled: true
     path: /swagger-ui.html
     operations-sorter: method
-    tags-sorter: alpha
     display-request-duration: true
     persist-authorization: true
-  show-actuator: false
+    tags-sorter: none
+  show-actuator: true
   default-consumes-media-type: application/json
   default-produces-media-type: application/json

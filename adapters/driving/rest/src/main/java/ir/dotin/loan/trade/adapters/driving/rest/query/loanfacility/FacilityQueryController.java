@@ -22,6 +22,7 @@ import ir.dotin.platform.adapter.rest.response.PagedResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.QueryDispatcher;
 import ir.dotin.platform.dispatcher.core.context.StandardHeaders;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
+import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.query.loanfacility.dto.LoanFacilityQueryResult;
 import ir.dotin.loan.trade.core.application.query.loanfacility.dto.TradeFacilityQueryDto;
 import ir.dotin.loan.trade.core.application.query.loanfacility.request.FindAllLoanFacilitiesQuery;
@@ -35,13 +36,13 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/v1/loan-facilities")
 @RequiredArgsConstructor
-@Tag(name = "Facility Queries", description = "Query loan facilities")
+@Tag(name = SwaggerConfig.TAG_FACILITY_QUERIES, description = "استعلام تسهیلات")
 public class FacilityQueryController {
 
     private final QueryDispatcher queryDispatcher;
 
     @GetMapping("/{facilityId}")
-    @Operation(summary = "Get facility by ID")
+    @Operation(summary = "دریافت تسهیلات بر اساس شناسه")
     public DataResponse<TradeFacilityQueryDto> getById(@PathVariable UUID facilityId) {
         GetFacilityByIdQuery query =
                 GetFacilityByIdQuery.builder().loanFacilityId(facilityId).build();
@@ -49,6 +50,7 @@ public class FacilityQueryController {
     }
 
     @GetMapping
+    @Operation(summary = "دریافت لیست تمام تسهیلات")
     public ResponseEntity<PagedResponse<LoanFacilityQueryResult>> findAll(
             @RequestParam(required = false) String cursor,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int pageSize) {
@@ -74,6 +76,7 @@ public class FacilityQueryController {
     }
 
     @GetMapping("/search")
+    @Operation(summary = "جستجوی تسهیلات با فیلترهای مختلف")
     public ResponseEntity<PagedResponse<LoanFacilityQueryResult>> searchFacilities(
             @RequestParam(required = false) UUID loanTypeId,
             @RequestParam(required = false) String customerNumber,

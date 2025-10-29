@@ -11,6 +11,7 @@ import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.DefineTradeLoanArrangementRequestToCommandMapper;
+import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/v1/loan-arrangements/define")
-@Tag(name = "عملیات مدیریت شرایط اعطا", description = "عملیات مربوط به مدیریت شرایط اعطا")
+@Tag(name = SwaggerConfig.TAG_LOAN_ARRANGEMENT_MANAGEMENT, description = "عملیات مربوط به مدیریت شرایط اعطا")
 @RequiredArgsConstructor
 public class DefineLoanArrangementController extends BaseController {
 
@@ -27,9 +28,7 @@ public class DefineLoanArrangementController extends BaseController {
     private final DefineTradeLoanArrangementRequestToCommandMapper mapper;
 
     @PostMapping
-    @Operation(
-            summary = "افزودن شرط اعطا",
-            description = "در این عملیات شرایط اعطا با توجه به اطلاعات وارد شده ساخته می شود.")
+    @Operation(summary = "ایجاد شرط اعطا")
     public EventStreamResponse defineLoanArrangement(
             @Parameter(description = "جزئیات ایجاد شرط اعطا", required = true) @RequestBody
                     DataRequest<DefineTradeLoanArrangementRequest> request) {

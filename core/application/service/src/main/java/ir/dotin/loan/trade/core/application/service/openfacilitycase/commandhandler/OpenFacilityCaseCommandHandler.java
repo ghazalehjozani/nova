@@ -137,18 +137,16 @@ public class OpenFacilityCaseCommandHandler implements CommandHandler<OpenFacili
 
         Branch branch = Branch.of(BranchCode.of(Objects.requireNonNull(
                                 command.loanApplication().branch().code()))
-                        .value())
-                .value();
+                        .orElseThrow())
+                .orElseThrow();
 
-        String derivedValue = generateDerivedValue(
-                command.loanApplication().branch().code(),
-                context.loanType.getCode().value(),
-                customerInfo.party().customerNumber());
+        String derivedValue = String.valueOf(generateDerivedValue(
+                branch.code(), context.loanType.getId(), customerInfo.party().customerNumber()));
 
         ApplicationNumber applicationNumber = new ApplicationNumber(
                 Objects.requireNonNull(branch),
                 Objects.requireNonNull(
-                        LoanTypeCode.of(context.loanType.getCode().value()).value()),
+                        LoanTypeCode.of(context.loanType.getCode().value()).orElseThrow()),
                 mainCustomer,
                 Optional.empty(),
                 derivedValue);
@@ -194,8 +192,9 @@ public class OpenFacilityCaseCommandHandler implements CommandHandler<OpenFacili
                         partyInfo.party().name().lastName()));
     }
 
-    private String generateDerivedValue(String branchCode, String loanTypeCode, String customerNumber) {
-        return branchCode + "-" + loanTypeCode + "-" + customerNumber;
+    private Long generateDerivedValue(BranchCode branchCode, LoanTypeId loanTypeId, String customerNumber) {
+        return loanFacilityRepository.countByBranchCodeAndLoanTypeIdAndCustomerNumber(
+                branchCode, loanTypeId, customerNumber);
     }
 
     private record FacilityCreationContext(TradeLoanArrangement arrangement, TradeLoanType loanType) {}

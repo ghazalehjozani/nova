@@ -11,6 +11,7 @@ import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineLoanTypeRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.DefineLoanTypeRequestToCommandMapper;
+import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/v1/loan-types/define")
-@Tag(name = "عملیات مدیریت نوع تسهیلات", description = "عملیات مربوط به مدیریت نوع تسهیلات")
+@Tag(name = SwaggerConfig.TAG_LOAN_TYPE_MANAGEMENT, description = "عملیات مربوط به مدیریت نوع تسهیلات")
 @RequiredArgsConstructor
 public class DefineLoanTypeController extends BaseController {
 
@@ -27,9 +28,7 @@ public class DefineLoanTypeController extends BaseController {
     private final DefineLoanTypeRequestToCommandMapper mapper;
 
     @PostMapping
-    @Operation(
-            summary = "ایجاد نوع تسهیلات",
-            description = "در این عملیات نوع تسهیلات با توجه به اطلاعات وارد شده ساخته می شود.")
+    @Operation(summary = "ایجاد نوع تسهیلات")
     public EventStreamResponse defineLoanType(
             @Parameter(description = "جزئیات ایجاد نوع تسهیلات", required = true) @RequestBody
                     DataRequest<DefineLoanTypeRequest> request) {

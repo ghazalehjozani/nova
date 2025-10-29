@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ir.dotin.platform.adapter.rest.response.DataResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.QueryDispatcher;
+import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.query.loantype.dto.TradeLoanTypeQueryDto;
 import ir.dotin.loan.trade.core.application.query.loantype.request.GetLoanTypeByIdQuery;
 
@@ -19,12 +20,12 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/v1/loan-types")
 @RequiredArgsConstructor
-@Tag(name = "Loan Type Queries", description = "Query loan type")
+@Tag(name = SwaggerConfig.TAG_LOAN_TYPE_QUERIES, description = "استعلام نوع تسهیلات")
 public class LoanTypeQueryController {
     private final QueryDispatcher dispatcher;
 
     @GetMapping("/{loanTypeId}")
-    @Operation(summary = "Get loanType by ID")
+    @Operation(summary = "دریافت نوع تسهیلات بر اساس شناسه")
     public DataResponse<TradeLoanTypeQueryDto> getById(@PathVariable UUID loanTypeId) {
         GetLoanTypeByIdQuery query =
                 GetLoanTypeByIdQuery.builder().loanTypeId(loanTypeId).build();

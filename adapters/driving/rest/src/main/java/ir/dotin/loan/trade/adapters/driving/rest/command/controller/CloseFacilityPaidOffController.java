@@ -10,6 +10,7 @@ import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.CloseFacilityPaidOffRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.CloseFacilityPaidOffRequestToCommandMapper;
+import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/v1/facilities/{facilityId}/close-paid-off")
-@Tag(name = "عملیات بستن تسهیلات پرداخت شده", description = "عملیات مربوط به بستن تسهیلات پرداخت شده")
+@Tag(name = SwaggerConfig.TAG_FACILITY_CLOSURE_PAID_OFF, description = "عملیات مربوط به بستن تسهیلات پرداخت شده")
 @RequiredArgsConstructor
 public class CloseFacilityPaidOffController extends BaseController {
 
@@ -26,9 +27,7 @@ public class CloseFacilityPaidOffController extends BaseController {
     private final CloseFacilityPaidOffRequestToCommandMapper mapper;
 
     @PostMapping
-    @Operation(
-            summary = "بستن تسهیلات پرداخت شده",
-            description = "این عملیات تسهیلاتی که پرداخت شده را می‌بندد و از انجام عملیات بیشتر جلوگیری می‌کند.")
+    @Operation(summary = "بستن تسهیلات پرداخت شده")
     public EventStreamResponse closeFacilityPaidOff(
             @Parameter(
                             description = "شناسه یکتای تسهیلات پرداخت شده جهت بستن",

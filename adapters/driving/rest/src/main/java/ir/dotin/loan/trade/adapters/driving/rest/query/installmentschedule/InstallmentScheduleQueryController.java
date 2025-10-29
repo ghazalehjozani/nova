@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ir.dotin.platform.adapter.rest.response.DataResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.QueryDispatcher;
+import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.query.installmentschedule.dto.TradeInstallmentScheduleQueryDto;
 import ir.dotin.loan.trade.core.application.query.installmentschedule.request.GetInstallmentScheduleByIdQuery;
 
@@ -19,13 +20,13 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/v1/installment-schedules")
 @RequiredArgsConstructor
-@Tag(name = "Installment Schedule Queries", description = "Query Installment Schedule ")
+@Tag(name = SwaggerConfig.TAG_INSTALLMENT_SCHEDULE_QUERIES, description = "استعلام اقساط")
 public class InstallmentScheduleQueryController {
 
     private final QueryDispatcher dispatcher;
 
     @GetMapping("/{installmentScheduleId}")
-    @Operation(summary = "Get installmentSchedule by ID")
+    @Operation(summary = "دریافت برنامه اقساط بر اساس شناسه")
     public DataResponse<TradeInstallmentScheduleQueryDto> getById(@PathVariable UUID installmentScheduleId) {
         GetInstallmentScheduleByIdQuery query = GetInstallmentScheduleByIdQuery.builder()
                 .installmentScheduleId(installmentScheduleId)

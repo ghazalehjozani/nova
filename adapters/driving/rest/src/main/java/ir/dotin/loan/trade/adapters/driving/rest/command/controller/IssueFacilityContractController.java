@@ -11,6 +11,7 @@ import ir.dotin.platform.commons.security.AuthenticationContextHolder;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.IssueFacilityContractRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.IssueFacilityContractRequestToCommandMapper;
+import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/v1/facilities/{facilityId}/issue-contract")
-@Tag(name = "عملیات صدور قرارداد", description = "عملیات مربوط به صدور قرارداد تسهیلات")
+@Tag(name = SwaggerConfig.TAG_FACILITY_CONTRACT_ISSUANCE, description = "عملیات مربوط به صدور قرارداد تسهیلات")
 @RequiredArgsConstructor
 public class IssueFacilityContractController extends BaseController {
 
@@ -28,9 +29,7 @@ public class IssueFacilityContractController extends BaseController {
     private final AuthenticationContextHolder authenticationContextHolder;
 
     @PostMapping
-    @Operation(
-            summary = "صدور قرارداد تسهیلات",
-            description = "این عملیات قرارداد تسهیلات را صادر کرده و آماده اجرا می‌کند.")
+    @Operation(summary = "صدور قرارداد")
     public EventStreamResponse issueFacilityContract(
             @Parameter(
                             description = "شناسه یکتای تسهیلات جهت صدور قرارداد",

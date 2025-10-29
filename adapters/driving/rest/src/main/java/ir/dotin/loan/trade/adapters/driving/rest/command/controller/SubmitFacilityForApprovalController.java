@@ -13,6 +13,7 @@ import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.SubmitFacilityForApprovalRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.SubmitFacilityForApprovalRequestToCommandMapper;
+import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/v1/facilities/{facilityId}/submit-for-approval")
-@Tag(name = "ثبت درخواست تصویب مصوبه", description = "عملیات مربوط به ثبت درخواست تصویب مصوبه")
+@Tag(name = SwaggerConfig.TAG_FACILITY_APPROVAL_SUBMISSION, description = "عملیات مربوط به ثبت درخواست تصویب مصوبه")
 @RequiredArgsConstructor
 public class SubmitFacilityForApprovalController extends BaseController {
 
@@ -30,7 +31,7 @@ public class SubmitFacilityForApprovalController extends BaseController {
     private final SubmitFacilityForApprovalRequestToCommandMapper mapper;
 
     @PostMapping
-    @Operation(summary = "ثبت درخواست تصویب مصوبه", description = "این عملیات درخواست تصویب مصوبه را ثبت میکند.")
+    @Operation(summary = "رد تسهیلات")
     public EventStreamResponse submitFacilityForApproval(
             @PathVariable UUID facilityId,
             @Parameter(description = "جزئیات ثبت درخواست تصویب مصوبه", required = true) @RequestBody

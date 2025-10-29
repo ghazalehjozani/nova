@@ -10,6 +10,7 @@ import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.LumpSumDisbursementRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.LumpSumDisbursementRequestToCommandMapper;
+import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/v1/facilities/{facilityId}/disburse/lump-sum")
-@Tag(name = "عملیات پرداخت یکجا", description = "عملیات مربوط به پرداخت یکجای تسهیلات")
+@Tag(name = SwaggerConfig.TAG_LUMP_SUM_DISBURSEMENT, description = "عملیات مربوط به پرداخت یکجای تسهیلات")
 @RequiredArgsConstructor
 public class LumpSumDisbursementController extends BaseController {
 
@@ -26,9 +27,7 @@ public class LumpSumDisbursementController extends BaseController {
     private final LumpSumDisbursementRequestToCommandMapper mapper;
 
     @PostMapping
-    @Operation(
-            summary = "پرداخت یکجای تسهیلات",
-            description = "این عملیات کل مبلغ تسهیلات را به صورت یکجا پرداخت می‌کند.")
+    @Operation(summary = "پرداخت یکجا")
     public EventStreamResponse lumpSumDisbursement(
             @Parameter(
                             description = "شناسه یکتای تسهیلات",

@@ -21,9 +21,9 @@ public record DefineLoanTypeRequest(
                         requiredMode = Schema.RequiredMode.REQUIRED)
                 @NotNull
                 UUID uid,
-        @Schema(description = "مقدار کد نوع تسهیلات", example = "LNT-001", requiredMode = Schema.RequiredMode.REQUIRED)
-                @NotBlank
-                String code,
+        @Schema(description = "مقدار کد نوع تسهیلات", example = "001", requiredMode = Schema.RequiredMode.REQUIRED)
+                @NotNull
+                Integer code,
         @Schema(description = "مقدار عنوان", example = "تسهیلات کوتاه‌مدت", requiredMode = Schema.RequiredMode.REQUIRED)
                 @NotBlank
                 String title,

@@ -11,6 +11,7 @@ import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.ApproveFacilityRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.ApproveFacilityRequestToCommandMapper;
+import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/v1/facilities/{facilityId}/approve")
-@Tag(name = "عملیات تصویب مصوبه", description = "عملیات مربوط به تصویب مصوبه")
+@Tag(name = SwaggerConfig.TAG_FACILITY_APPROVAL, description = "عملیات مربوط به تصویب مصوبه")
 @RequiredArgsConstructor
 public class ApproveFacilityController extends BaseController {
 
@@ -27,7 +28,7 @@ public class ApproveFacilityController extends BaseController {
     private final ApproveFacilityRequestToCommandMapper mapper;
 
     @PostMapping("/{sanctionSerial}")
-    @Operation(summary = "تصویب مصوبه", description = "این عملیات با شماره سریال، مصوبه را تصویب می کند.")
+    @Operation(summary = "تصویب مصوبه")
     public EventStreamResponse approveFacility(
             @Parameter(
                             description = "شناسه یکتای تسهیلات",

@@ -10,6 +10,7 @@ import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.IrregularDisbursementRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.IrregularDisbursementRequestToCommandMapper;
+import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/v1/facilities/{facilityId}/disburse/irregular")
-@Tag(name = "عملیات پرداخت نامنظم", description = "عملیات مربوط به پرداخت نامنظم تسهیلات")
+@Tag(name = SwaggerConfig.TAG_IRREGULAR_DISBURSEMENT, description = "عملیات مربوط به پرداخت نامنظم تسهیلات")
 @RequiredArgsConstructor
 public class IrregularDisbursementController extends BaseController {
 
@@ -26,9 +27,7 @@ public class IrregularDisbursementController extends BaseController {
     private final IrregularDisbursementRequestToCommandMapper mapper;
 
     @PostMapping
-    @Operation(
-            summary = "پرداخت نامنظم تسهیلات",
-            description = "این عملیات امکان پرداخت مبلغ متغیر خارج از برنامه عادی را فراهم می‌کند.")
+    @Operation(summary = "پرداخت نامنظم")
     public EventStreamResponse irregularDisbursement(
             @Parameter(
                             description = "شناسه یکتای تسهیلات",

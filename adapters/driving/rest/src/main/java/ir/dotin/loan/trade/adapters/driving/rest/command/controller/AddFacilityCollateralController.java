@@ -15,6 +15,7 @@ import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.AddFacilityCollateralRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.AddFacilityCollateralRequestToCommandMapper;
+import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/v1/facilities/{facilityId}/collateral")
-@Tag(name = "عملیات مدیریت وثایق تسهیلات", description = "عملیات مربوط به مدیریت وثایق تسهیلات")
+@Tag(name = SwaggerConfig.TAG_FACILITY_COLLATERAL_MANAGEMENT, description = "عملیات مربوط به مدیریت وثایق تسهیلات")
 @RequiredArgsConstructor
 public class AddFacilityCollateralController extends BaseController {
 
@@ -31,9 +32,7 @@ public class AddFacilityCollateralController extends BaseController {
     private final AddFacilityCollateralRequestToCommandMapper mapper;
 
     @PostMapping("/{collateralSerial}")
-    @Operation(
-            summary = "افزودن وثیقه به تسهیلات",
-            description = "این عملیات شماره سریال وثیقه را با تسهیلات موجود مرتبط می‌کند.")
+    @Operation(summary = "افزودن وثیقه")
     public EventStreamResponse addCollateral(
             @Parameter(
                             description = "شناسه یکتای تسهیلات",

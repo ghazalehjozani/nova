@@ -10,6 +10,7 @@ import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.CancelFacilityRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.CancelFacilityRequestToCommandMapper;
+import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/v1/facilities/{facilityId}/cancel")
-@Tag(name = "عملیات لغو تسهیلات", description = "عملیات مربوط به لغو تسهیلات")
+@Tag(name = SwaggerConfig.TAG_FACILITY_CANCELLATION, description = "عملیات مربوط به لغو تسهیلات")
 @RequiredArgsConstructor
 public class CancelFacilityController extends BaseController {
 
@@ -26,10 +27,7 @@ public class CancelFacilityController extends BaseController {
     private final CancelFacilityRequestToCommandMapper mapper;
 
     @PostMapping
-    @Operation(
-            summary = "لغو تسهیلات",
-            description =
-                    "این عملیات تسهیلات را به عنوان لغو شده علامت‌گذاری کرده و از انجام عملیات بیشتر جلوگیری می‌کند. ")
+    @Operation(summary = "لغو تسهیلات")
     public EventStreamResponse cancelFacility(
             @Parameter(
                             description = "شناسه یکتای تسهیلات جهت لغو",

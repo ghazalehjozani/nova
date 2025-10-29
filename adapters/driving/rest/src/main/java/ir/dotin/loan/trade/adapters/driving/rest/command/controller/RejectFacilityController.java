@@ -10,6 +10,7 @@ import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.RejectFacilityRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.RejectFacilityRequestToCommandMapper;
+import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/v1/facilities/{facilityId}/reject")
-@Tag(name = "عملیات رد تسهیلات", description = "عملیات مربوط به رد تسهیلات")
+@Tag(name = SwaggerConfig.TAG_FACILITY_REJECTION, description = "عملیات مربوط به رد تسهیلات")
 @RequiredArgsConstructor
 public class RejectFacilityController extends BaseController {
 
@@ -26,9 +27,7 @@ public class RejectFacilityController extends BaseController {
     private final RejectFacilityRequestToCommandMapper mapper;
 
     @PostMapping
-    @Operation(
-            summary = "رد تسهیلات",
-            description = "این عملیات تسهیلات را به عنوان رد شده علامت‌گذاری کرده و از ادامه فرآیند جلوگیری می‌کند.")
+    @Operation(summary = "رد تسهیلات")
     public EventStreamResponse rejectFacility(
             @Parameter(
                             description = "شناسه یکتای تسهیلات جهت رد",
