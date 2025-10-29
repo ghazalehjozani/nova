@@ -17,6 +17,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@XStreamAlias("com.fanap.business.deposit.service.valueobjects.TransferMoneyReturnVO")
 public class TransferMoneyResponse extends FcbBaseResponse {
 
     @XStreamAlias("depositNumber")
@@ -52,12 +53,6 @@ public class TransferMoneyResponse extends FcbBaseResponse {
     @XStreamAlias("parentIdentifier")
     private String parentIdentifier;
 
-    @XStreamAlias("documentNumber")
-    private String documentNumber;
-
-    @XStreamAlias("referenceNumber")
-    private String referenceNumber;
-
     private Map<String, Object> otherValues = new HashMap<>();
 
     public void setCurrentAmount(BigDecimal currentAmount) {
@@ -92,37 +87,6 @@ public class TransferMoneyResponse extends FcbBaseResponse {
         } catch (NumberFormatException e) {
             return BigDecimal.ZERO;
         }
-    }
-
-    public BigDecimal getCurrentWithdrawableAmountAsBigDecimal() {
-        if (currentWithdrawableAmount == null || currentWithdrawableAmount.isEmpty()) {
-            return BigDecimal.ZERO;
-        }
-        try {
-            return new BigDecimal(currentWithdrawableAmount);
-        } catch (NumberFormatException e) {
-            return BigDecimal.ZERO;
-        }
-    }
-
-    public void setDocumentNumber(String documentNumber) {
-        this.documentNumber = documentNumber;
-        this.otherValues.put("documentNumber", documentNumber);
-    }
-
-    public void setEndToEndId(String endToEndId) {
-        this.referenceNumber = endToEndId;
-        this.otherValues.put("referenceNumber", endToEndId);
-    }
-
-    /** Get other value by key */
-    public Object getOtherValue(String key) {
-        return otherValues.get(key);
-    }
-
-    /** Set other value */
-    public void setOtherValue(String key, Object value) {
-        this.otherValues.put(key, value);
     }
 
     @Override

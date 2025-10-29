@@ -7,18 +7,22 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.LoanOperationType;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.EconomicalSectionResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.FcbValidationResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ReasonTypeResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.LoanMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.ReasonType;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -133,5 +137,42 @@ public class LoanServiceAdapter implements LoanServicePort {
         }
 
         return domainResult;
+    }
+
+    public Result<ReasonType> loadReasonType(String reasonTypeCode, FacilityStatus facilityStatus) {
+
+        LoanOperationType operation = LoanMapper.FACILITY_STATUS_TO_OPERATION_MAPPING.get(facilityStatus);
+        List<Parameter> parameters = buildParameters(reasonTypeCode, operation);
+
+        Usecases usecases = requestBuilder.buildUseCase("load-reason-type", parameters);
+        FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
+
+        log.debug("Executing FCB load-reason-type usecase");
+
+        Result<ReasonTypeResponse> fcbResult = fcbService.executeUsecase(fcbRequest, ReasonTypeResponse.class);
+
+        if (fcbResult.isFailure()) {
+            log.error(
+                    "FCB load reason type failed: {}", fcbResult.notification().getErrorMessages());
+            return Result.failure(fcbResult.notification());
+        }
+
+        ReasonTypeResponse fcbResponse = fcbResult.orElseThrow();
+
+        Result<ReasonType> domainResult = LoanMapper.mapToDomainReasonType(fcbResponse);
+
+        return domainResult;
+    }
+
+    private List<Parameter> buildParameters(String reasonTypeCode, LoanOperationType operation) {
+        List<Parameter> parameters = new ArrayList<>();
+
+        parameters.add(
+                Parameter.builder().key("reasonTypeCode").value(reasonTypeCode).build());
+
+        parameters.add(
+                Parameter.builder().key("loanOperation").value(operation.name()).build());
+
+        return parameters;
     }
 }

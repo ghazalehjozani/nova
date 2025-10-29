@@ -1,9 +1,11 @@
 package ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice;
 
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.ReasonType;
 
 public interface LoanServicePort {
 
@@ -11,4 +13,6 @@ public interface LoanServicePort {
 
     Result<EconomicalSectorValidation> validateEconomicalSectionForLoanType(
             EconomicSector economicSector, LoanTypeCode loanTypeCode);
+
+    Result<ReasonType> loadReasonType(String reasonTypeCode, FacilityStatus facilityStatus);
 }
