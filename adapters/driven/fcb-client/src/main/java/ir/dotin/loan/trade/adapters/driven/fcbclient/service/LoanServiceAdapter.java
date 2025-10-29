@@ -7,9 +7,11 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.LoanOperationType;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.EconomicalSectionResponse;
@@ -19,7 +21,6 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMe
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.LoanMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.request.LoanOperationType;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.ReasonType;
 
@@ -138,8 +139,9 @@ public class LoanServiceAdapter implements LoanServicePort {
         return domainResult;
     }
 
-    public Result<ReasonType> loadReasonType(String reasonTypeCode, LoanOperationType operation) {
+    public Result<ReasonType> loadReasonType(String reasonTypeCode, FacilityStatus facilityStatus) {
 
+        LoanOperationType operation = LoanMapper.FACILITY_STATUS_TO_OPERATION_MAPPING.get(facilityStatus);
         List<Parameter> parameters = buildParameters(reasonTypeCode, operation);
 
         Usecases usecases = requestBuilder.buildUseCase("load-reason-type", parameters);

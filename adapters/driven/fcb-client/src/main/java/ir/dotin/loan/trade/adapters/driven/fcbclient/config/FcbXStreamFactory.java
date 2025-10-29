@@ -58,8 +58,8 @@ public class FcbXStreamFactory {
 
         xstream.alias("com.fanap.business.cmplexpenditure.dto.ReasonTypeDTO", ReasonTypeResponse.class);
 
-        xstream.alias("com.fanap.business.cmplexpenditure.dto.HasAllowedCurrencyResultDTO", HasAllowedCurrencyResponse.class);
-
+        xstream.alias(
+                "com.fanap.business.cmplexpenditure.dto.HasAllowedCurrencyResultDTO", HasAllowedCurrencyResponse.class);
 
         xstream.autodetectAnnotations(true);
 

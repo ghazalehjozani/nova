@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.core.application.ports.outbound.client.request;
+package ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request;
 
 import ir.dotin.platform.commons.core.i18n.LocalizedEnum;
 

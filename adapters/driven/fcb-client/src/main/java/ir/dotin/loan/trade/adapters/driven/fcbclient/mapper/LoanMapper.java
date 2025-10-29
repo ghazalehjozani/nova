@@ -1,8 +1,12 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.mapper;
 
+import java.util.Map;
+
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.LoanOperationType;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.EconomicalSectionResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.FcbValidationResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ReasonTypeResponse;
@@ -81,4 +85,15 @@ public class LoanMapper {
 
         return Result.success(reasonType);
     }
+
+    public static final Map<FacilityStatus, LoanOperationType> FACILITY_STATUS_TO_OPERATION_MAPPING = Map.of(
+            FacilityStatus.APPLICATION_SUBMITTED, LoanOperationType.RECEIVE_LOAN,
+            FacilityStatus.APPROVAL_SUBMITTED, LoanOperationType.RECEIVE_LOAN,
+            FacilityStatus.APPROVED, LoanOperationType.RECEIVE_LOAN,
+            FacilityStatus.REJECTED, LoanOperationType.REVOKE_CONTRACT,
+            FacilityStatus.CANCELLED, LoanOperationType.REVOKE_CONTRACT,
+            FacilityStatus.ISSUE_CONTRACT, LoanOperationType.ISSUE_SANCTION,
+            FacilityStatus.ACTIVE, LoanOperationType.RECEIVE_LOAN,
+            FacilityStatus.CLOSED_PAID_OFF, LoanOperationType.REVOKE_CONTRACT,
+            FacilityStatus.CLOSED_DEFAULTED, LoanOperationType.REVOKE_CONTRACT);
 }
