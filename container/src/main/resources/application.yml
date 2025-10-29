@@ -194,7 +194,7 @@ platform:
       topic-mappings:
         InstallmentSchedule:
           - corridor.core.loan.installment.equal-installments-created.topic.v1
-          - corridor.core.loan.installment.unequal-installments-created.topic.v1
+          - corridor.core.loan.installment.gradual-installments-created.topic.v1
           - corridor.core.loan.installment.schedule-activated.topic.v1
           - corridor.core.loan.installment.schedule-cancelled.topic.v1
           - corridor.core.loan.installment.schedule-completed.topic.v1

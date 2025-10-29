@@ -42,7 +42,7 @@ public class InstallmentScheduleEventFactoryImpl implements InstallmentScheduleE
             @NonNull BigDecimal totalAmount,
             @NonNull List<InstallmentId> specifications,
             @NonNull Instant createdAt) {
-        return UnequalInstallmentsCreated.of(
+        return GradualInstallmentsCreated.of(
                 scheduleId,
                 loanFacilityId,
                 totalAmount,

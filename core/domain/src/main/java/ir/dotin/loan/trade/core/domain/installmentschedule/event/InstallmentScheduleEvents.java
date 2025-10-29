@@ -9,7 +9,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 public sealed interface InstallmentScheduleEvents<T extends Record & InstallmentScheduleEvents<T, P>, P>
         extends DomainEvent<T, P>
         permits EqualInstallmentsCreated,
-                UnequalInstallmentsCreated,
+        GradualInstallmentsCreated,
                 ScheduleRestructured,
                 ScheduleCancelled,
                 ScheduleActivated,

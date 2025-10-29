@@ -15,9 +15,9 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
-public record UnequalInstallmentsCreated(
+public record GradualInstallmentsCreated(
         UUID eventId, InstallmentScheduleId aggregateId, Payload payload, Instant createdAt)
-        implements InstallmentScheduleEvents<UnequalInstallmentsCreated, UnequalInstallmentsCreated.Payload> {
+        implements InstallmentScheduleEvents<GradualInstallmentsCreated, GradualInstallmentsCreated.Payload> {
 
     public record Payload(LoanFacilityId loanFacilityId, BigDecimal totalAmount, List<InstallmentId> specifications) {
         public Payload {
@@ -27,25 +27,25 @@ public record UnequalInstallmentsCreated(
         }
     }
 
-    public UnequalInstallmentsCreated {
+    public GradualInstallmentsCreated {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
         requireNonNull(payload);
         requireNonNull(createdAt);
     }
 
-    public static UnequalInstallmentsCreated of(
+    public static GradualInstallmentsCreated of(
             InstallmentScheduleId scheduleId,
             LoanFacilityId loanFacilityId,
             BigDecimal totalAmount,
             List<InstallmentId> specifications,
             Clock clock) {
-        return new UnequalInstallmentsCreated(
+        return new GradualInstallmentsCreated(
                 randomUUID(), scheduleId, new Payload(loanFacilityId, totalAmount, specifications), clock.instant());
     }
 
     @Override
     public @NonNull String eventType() {
-        return EVENT_TYPE_PREFIX + "UNEQUAL_INSTALLMENTS_CREATED";
+        return EVENT_TYPE_PREFIX + "GRADUAL_INSTALLMENTS_CREATED";
     }
 }
