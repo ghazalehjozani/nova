@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.core.application.service.openfacilitycase.i18n;
+package ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n;
 
 import ir.dotin.platform.commons.core.i18n.LocalizedMessage;
 
@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public enum OpenFacilityCaseErrorCodes implements LocalizedMessage<OpenFacilityCaseErrorCodes> {
+public enum OriginateLoanFacilityErrorCodes implements LocalizedMessage<OriginateLoanFacilityErrorCodes> {
     FACILITY_ALREADY_EXISTS("Facility with ID {0} already exists"),
     INVALID_LOAN_TYPE("Invalid loan type ID: {0}"),
     INVALID_AMOUNT("Invalid requested amount: {0}"),
@@ -17,6 +17,7 @@ public enum OpenFacilityCaseErrorCodes implements LocalizedMessage<OpenFacilityC
     INSTALLMENT_SCHEDULE_IS_MANDATORY_IN_GRADUAL("Installment schedule is mandatory for gradual payment"),
     FACILITY_CREATION_FAILED("Failed to create facility: {0}"),
     FACILITY_SAVE_FAILED("Failed to save facility: {0}"),
+    FACILITY_PERSISTENCE_FAILED("Failed to persist facility: {0}"),
     SCHEDULE_DISPATCH_FAILED("Failed to dispatch installment schedule command: {0}");
 
     private final String defaultMessageFormat;

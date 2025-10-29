@@ -46,19 +46,15 @@ public class InstallmentEntity extends PersistentEntity {
 
     @Embedded
     @AttributeOverrides({
-        @AttributeOverride(
-                name = "amount",
-                column = @Column(name = "paid_amount_amount", precision = 19, scale = 4, nullable = false)),
-        @AttributeOverride(name = "currency", column = @Column(name = "paid_amount_currency", nullable = false))
+        @AttributeOverride(name = "amount", column = @Column(name = "paid_amount_amount", precision = 19, scale = 4)),
+        @AttributeOverride(name = "currency", column = @Column(name = "paid_amount_currency"))
     })
     private MoneyEmb paidAmount;
 
     @Embedded
     @AttributeOverrides({
-        @AttributeOverride(
-                name = "amount",
-                column = @Column(name = "outstanding_amount", precision = 19, scale = 4, nullable = false)),
-        @AttributeOverride(name = "currency", column = @Column(name = "outstanding_amount_currency", nullable = false))
+        @AttributeOverride(name = "amount", column = @Column(name = "outstanding_amount", precision = 19, scale = 4)),
+        @AttributeOverride(name = "currency", column = @Column(name = "outstanding_amount_currency"))
     })
     private MoneyEmb outstandingAmount;
 

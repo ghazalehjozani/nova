@@ -27,12 +27,15 @@ public class InstallmentScheduleRepositoryAdapter implements InstallmentSchedule
     @Transactional
     public InstallmentSchedule save(InstallmentSchedule installmentSchedule) {
         var scheduleEntity = installmentScheduleMapper.map(installmentSchedule);
+        scheduleEntity.getInstallments().forEach(installment -> installment.setInstallmentSchedule(scheduleEntity));
         var saved = installmentScheduleJpaRepository.save(scheduleEntity);
-        return installmentScheduleMapper.map(saved);
+        return installmentScheduleMapper.map(saved).build();
     }
 
     @Override
     public Optional<InstallmentSchedule> findById(InstallmentScheduleId id) {
-        return installmentScheduleJpaRepository.findById(id.value()).map(installmentScheduleMapper::map);
+        return installmentScheduleJpaRepository
+                .findById(id.value())
+                .map(entity -> installmentScheduleMapper.map(entity).build());
     }
 }

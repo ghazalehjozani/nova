@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1761745205165-1" author="DOTIN\m.amirabdollahi">
+        <dropNotNullConstraint columnDataType="decimal(19,4)" columnName="outstanding_amount"
+                               tableName="loan_installments"/>
+    </changeSet>
+    <changeSet id="1761745205165-2" author="DOTIN\m.amirabdollahi">
+        <dropNotNullConstraint columnDataType="varchar(255)" columnName="outstanding_amount_currency"
+                               tableName="loan_installments"/>
+    </changeSet>
+    <changeSet id="1761745205165-3" author="DOTIN\m.amirabdollahi">
+        <dropNotNullConstraint columnDataType="decimal(19,4)" columnName="paid_amount_amount"
+                               tableName="loan_installments"/>
+    </changeSet>
+    <changeSet id="1761745205165-4" author="DOTIN\m.amirabdollahi">
+        <dropNotNullConstraint columnDataType="varchar(255)" columnName="paid_amount_currency"
+                               tableName="loan_installments"/>
+    </changeSet>
+
+</databaseChangeLog>

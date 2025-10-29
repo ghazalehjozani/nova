@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,10 +12,10 @@ import ir.dotin.platform.adapter.rest.request.DataRequest;
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.commons.security.AuthenticationContextHolder;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.OpenFacilityCaseRequest;
-import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.OpenFacilityCaseRequestToCommandMapper;
+import ir.dotin.loan.trade.adapters.driving.rest.command.dto.OriginateLoanFacilityRequest;
+import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.OriginateLoanFacilityRequestMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OpenFacilityCaseCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,21 +29,24 @@ import lombok.RequiredArgsConstructor;
 public class OpenFacilityCaseController extends BaseController {
 
     private final CommandDispatcher dispatcher;
-    private final OpenFacilityCaseRequestToCommandMapper mapper;
+    private final OriginateLoanFacilityRequestMapper mapper;
     private final AuthenticationContextHolder authenticationContextHolder;
 
     @PostMapping
     @Operation(summary = "ایجاد پرونده تسهیلات")
     public EventStreamResponse openFacilityCase(
-            @Parameter(description = "جزئیات درخواست باز کردن پرونده تسهیلات", required = true) @RequestBody
-                    DataRequest<OpenFacilityCaseRequest> request) {
+            @Parameter(required = true) @Valid @RequestBody DataRequest<OriginateLoanFacilityRequest> request) {
+
         String branchCode = authenticationContextHolder.branchCode().orElse(null);
-        var command = mapper.toCommand(request.payload());
-        var applicationDto = command.loanApplication().toBuilder()
-                .branch(new OpenFacilityCaseCommand.BranchDto(branchCode))
+
+        OriginateLoanFacilityCommand command = mapper.toCommand(request.payload());
+
+        OriginateLoanFacilityCommand enrichedCommand = command.toBuilder()
+                .loanApplication(command.loanApplication().toBuilder()
+                        .branch(new OriginateLoanFacilityCommand.BranchDto(branchCode))
+                        .build())
                 .build();
-        var openFacilityCaseCommand =
-                command.toBuilder().loanApplication(applicationDto).build();
-        return EventStreamResponse.of(unwrap(dispatcher.dispatch(openFacilityCaseCommand)));
+
+        return EventStreamResponse.of(unwrap(dispatcher.dispatch(enrichedCommand)));
     }
 }

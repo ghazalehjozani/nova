@@ -7,6 +7,7 @@ import java.time.Period;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
 import org.jspecify.annotations.Nullable;
@@ -17,8 +18,8 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestination
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(name = "OpenFacilityCaseRequest", description = "درخواست باز کردن پرونده تسهیلات")
-public record OpenFacilityCaseRequest(
+@Schema(name = "OriginateLoanFacilityRequest", description = "درخواست ایجاد تسهیلات")
+public record OriginateLoanFacilityRequest(
         @Schema(
                         description = "شناسه نوع تسهیلات",
                         example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
@@ -37,10 +38,22 @@ public record OpenFacilityCaseRequest(
                         requiredMode = Schema.RequiredMode.REQUIRED)
                 @NotNull
                 UUID loanArrangementId,
-        @Schema(description = "درخواست تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
+        @Schema(description = "درخواست تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull @Valid
                 LoanApplicationDto loanApplication,
-        @Schema(description = "اقساط", requiredMode = Schema.RequiredMode.NOT_REQUIRED) @Nullable
-                PlanGradualInstallmentScheduleDTO installmentSchedule) {
+        @Schema(
+                        description =
+                                """
+        برنامه اقساط - الزامی بودن بستگی به نوع پرداخت اقساط در  وام دارد:
+
+        • GRADUAL: الزامی است - برنامه اقساط باید توسط کاربر ارسال شود
+        • ONE_TIME: اختیاری - اقساط به صورت یک‌جا در سررسید پرداخت می‌شود
+        • SCHEDULED: اختیاری - اقساط به صورت خودکار در مرحله اعطا بر اساس سیاست‌های آرایش وام ایجاد می‌شود
+        ...
+        """,
+                        requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+                @Nullable
+                @Valid
+                InstallmentSchedulePlanDto installmentSchedulePlan) {
 
     @Schema(name = "LoanApplicationDto", description = "اطلاعات درخواست تسهیلات")
     public record LoanApplicationDto(
@@ -127,26 +140,31 @@ public record OpenFacilityCaseRequest(
                     @NotNull(message = "نوع مقصد پرداخت الزامی است.")
                     DisburseDestinationType type) {}
 
-    @Schema(name = "InstallmentSpecDto", description = "اقساط")
+    @Schema(name = "InstallmentSchedulePlanDto", description = "برنامه اقساط")
+    public record InstallmentSchedulePlanDto(
+            @Schema(description = "اطلاعات اقساط", requiredMode = Schema.RequiredMode.REQUIRED) @NotEmpty @Valid
+                    List<InstallmentSpecDto> installments) {}
+
+    @Schema(name = "InstallmentSpecDto", description = "مشخصات قسط")
     public record InstallmentSpecDto(
-            @Schema(description = "مبلغ قسط", example = "10000.00", requiredMode = Schema.RequiredMode.REQUIRED)
+            @Schema(description = "شماره ترتیب قسط", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+                    @NotNull
+                    Integer sequenceNumber,
+            @Schema(
+                            description = "سررسید قسط",
+                            example = "2025-03-04T00:00:00Z",
+                            requiredMode = Schema.RequiredMode.REQUIRED)
+                    @NotNull
+                    LocalDate dueDate,
+            @Schema(description = "مبلغ اصل", example = "10000.00", requiredMode = Schema.RequiredMode.REQUIRED)
                     @NotNull
                     BigDecimal principalAmount,
-            @Schema(description = "سود قسط", example = "1000.00", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
+            @Schema(description = "مبلغ سود", example = "1000.00", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
                     BigDecimal interestAmount,
-            @Schema(description = "سررسید قسط", example = "2025-03-04", requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull
-                    LocalDate dueDate) {}
-
-    @Schema(name = "PlanGradualInstallmentScheduleDTO", description = "جزئیات اقساط")
-    public record PlanGradualInstallmentScheduleDTO(
-            @Schema(description = "مبلغ پرونده", example = "10000.00", requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull
-                    BigDecimal totalLoanAmount,
-            @Schema(description = "نرخ سود", example = "2", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
-                    BigDecimal interestRate,
-            @Schema(description = "دوره تنفس", example = "1", requiredMode = Schema.RequiredMode.REQUIRED) @Nullable
-                    Integer gracePeriodDays,
-            @Schema(description = "اطلاعات اقساط", requiredMode = Schema.RequiredMode.REQUIRED) @Nullable
-                    List<InstallmentSpecDto> installments) {}
+            @Schema(description = "مبلغ جریمه", example = "100.00", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+                    @Nullable
+                    BigDecimal penaltyAmount,
+            @Schema(description = "مبلغ کارمزد", example = "50.00", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+                    @Nullable
+                    BigDecimal feeAmount) {}
 }

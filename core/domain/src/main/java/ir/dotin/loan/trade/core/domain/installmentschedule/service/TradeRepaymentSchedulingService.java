@@ -6,12 +6,12 @@ import org.jspecify.annotations.NonNull;
 
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.annotation.DomainService;
-import ir.dotin.loan.baseloan.core.domain.installmentschedule.event.InstallmentScheduleEventFactory;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.service.impl.AbstractRepaymentSchedulingService;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.service.InterestCalculationService;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
+import ir.dotin.loan.trade.core.domain.installmentschedule.event.InstallmentScheduleEventFactoryImpl;
 import ir.dotin.loan.trade.core.domain.installmentschedule.intraction.LoanFacilityProvider;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
+import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeInterestCalculationService;
 import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanFacilityFormulaField;
 import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanParameterProvider;
 import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanParameterProviderImpl;
@@ -23,9 +23,8 @@ public class TradeRepaymentSchedulingService
     private final LoanFacilityProvider loanFacilityProvider;
 
     public TradeRepaymentSchedulingService(
-            InterestCalculationService<TradeLoanParameterProvider, TradeLoanFacilityFormulaField>
-                    interestCalculationService, // TODO: Impl This
-            InstallmentScheduleEventFactory installmentScheduleEventFactory,
+            TradeInterestCalculationService interestCalculationService,
+            InstallmentScheduleEventFactoryImpl installmentScheduleEventFactory,
             Clock clock,
             LoanFacilityProvider loanFacilityProvider) {
         super(interestCalculationService, installmentScheduleEventFactory, clock);

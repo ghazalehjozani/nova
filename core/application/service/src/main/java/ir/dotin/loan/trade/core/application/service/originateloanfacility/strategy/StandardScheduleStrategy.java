@@ -1,0 +1,38 @@
+package ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy;
+
+import java.util.Optional;
+
+import org.jspecify.annotations.NonNull;
+import org.springframework.stereotype.Component;
+
+import ir.dotin.platform.commons.core.Result;
+import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Component
+public class StandardScheduleStrategy implements InstallmentScheduleStrategy {
+
+    @Override
+    @NonNull
+    public Result<Optional<InstallmentSchedule>> planSchedule(
+            @NonNull OriginateLoanFacilityCommand command,
+            @NonNull TradeLoanApplication application,
+            @NonNull FacilityOriginationContext context) {
+
+        log.debug(
+                "No installment schedule planning required for {} payment type",
+                context.arrangement().getInstallmentPolicy().installmentPaymentType());
+
+        return Result.success(Optional.empty());
+    }
+
+    @Override
+    @NonNull
+    public Result<Void> validateCommand(@NonNull OriginateLoanFacilityCommand command) {
+        return Result.success();
+    }
+}

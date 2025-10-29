@@ -2,12 +2,15 @@ package ir.dotin.loan.trade.core.application.ports.inbound.command;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.Period;
-import java.util.Optional;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import ir.dotin.platform.dispatcher.api.command.Command;
@@ -19,13 +22,13 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import lombok.Builder;
 
 @Builder(toBuilder = true)
-public record OpenFacilityCaseCommand(
+public record OriginateLoanFacilityCommand(
         @NotNull UUID uid,
         @Nullable Long version,
         @NotNull UUID loanTypeId,
         @NotNull UUID loanArrangementId,
-        @NotNull LoanApplicationDto loanApplication,
-        @NotNull Optional<PlanGradualInstallmentScheduleCommand> installmentSchedule)
+        @NotNull @Valid LoanApplicationDto loanApplication,
+        @Nullable @Valid InstallmentSchedulePlanDto installmentSchedulePlan)
         implements Command {
 
     @Builder(toBuilder = true)
@@ -49,6 +52,18 @@ public record OpenFacilityCaseCommand(
             @Nullable ApplicationNumberDto applicationNumber,
             @Nullable CredibilityRankDto credibilityRank,
             @NotNull DisbursementMethod disbursementMethod) {}
+
+    @Builder(toBuilder = true)
+    public record InstallmentSchedulePlanDto(@NotEmpty @Valid List<InstallmentSpecDto> installments) {}
+
+    @Builder(toBuilder = true)
+    public record InstallmentSpecDto(
+            @NotNull Integer sequenceNumber,
+            @NotNull LocalDate dueDate,
+            @NotNull MoneyDto principalAmount,
+            @NotNull MoneyDto interestAmount,
+            @Nullable MoneyDto penaltyAmount,
+            @Nullable MoneyDto feeAmount) {}
 
     public record PartyDto(@Nullable String customerNumber, @Nullable PartyType type, @Nullable PersonNameDto name) {}
 
