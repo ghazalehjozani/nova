@@ -40,7 +40,7 @@ public final class TradeLoanArrangement
         requireNonNull(clock, "Clock cannot be null for creation");
         requireNonNull(builder, "Builder cannot be null for creation");
 
-        builder.id(LoanArrangementId.of(randomUUID()));
+        builder.id(LoanArrangementId.generate());
 
         builder.active(new Active(true));
         builder.disable(new Disable(false));

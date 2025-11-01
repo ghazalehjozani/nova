@@ -67,7 +67,7 @@ public class GradualScheduleStrategy implements InstallmentScheduleStrategy {
 
         // Create temporary facility for schedule planning
         TradeLoanFacility tempFacility = TradeLoanFacility.create(
-                LoanFacilityId.of(UUID.randomUUID()),
+                LoanFacilityId.generate(),
                 application,
                 context.loanType().getId(),
                 context.arrangement().getId(),

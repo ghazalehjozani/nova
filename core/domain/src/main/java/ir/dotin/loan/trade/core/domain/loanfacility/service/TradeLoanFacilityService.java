@@ -84,7 +84,7 @@ public class TradeLoanFacilityService
 
         // Create a TradeSanctionedLoan.Builder from the loan application data
         var builder = TradeSanctionedLoan.builder()
-                .id(SanctionedLoanId.of(randomUUID()))
+                .id(SanctionedLoanId.generate())
                 .sanctionSerial(SanctionSerial.of("AUTO_GENERATED-" + System.currentTimeMillis(), SanctionType.GENERAL)
                         .orElseThrow())
                 .approvedAmount(loanApplication.getRequestedAmount())

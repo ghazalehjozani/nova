@@ -46,7 +46,7 @@ public class FacilityBuilder {
             TradeLoanApplication application = buildApplication(command, context, scheduleId);
 
             TradeLoanFacility facility = TradeLoanFacility.create(
-                    LoanFacilityId.of(UUID.randomUUID()),
+                    LoanFacilityId.generate(), // TODO? need to get real id
                     application,
                     LoanTypeId.of(command.loanTypeId()),
                     LoanArrangementId.of(command.loanArrangementId()),

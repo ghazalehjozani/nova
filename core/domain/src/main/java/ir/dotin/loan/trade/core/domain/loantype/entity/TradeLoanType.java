@@ -37,7 +37,7 @@ public final class TradeLoanType extends AbstractLoanType {
         requireNonNull(clock, "Clock cannot be null for creation");
         requireNonNull(builder, "Builder cannot be null for creation");
 
-        builder.id(LoanTypeId.of(randomUUID()));
+        builder.id(LoanTypeId.generate());
         builder.active(new Active(true));
         builder.disable(new Disable(false));
 

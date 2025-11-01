@@ -31,7 +31,7 @@ public class SubmitFacilityForApprovalController extends BaseController {
     private final SubmitFacilityForApprovalRequestToCommandMapper mapper;
 
     @PostMapping
-    @Operation(summary = "رد تسهیلات")
+    @Operation(summary = "ثبت درخواست تصویب تسهیلات")
     public EventStreamResponse submitFacilityForApproval(
             @PathVariable UUID facilityId,
             @Parameter(description = "جزئیات ثبت درخواست تصویب مصوبه", required = true) @RequestBody
