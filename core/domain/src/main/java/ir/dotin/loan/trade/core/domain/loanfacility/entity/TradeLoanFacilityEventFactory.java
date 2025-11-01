@@ -5,12 +5,12 @@ import java.util.List;
 
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.LoanFacilityEventFactory;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.*;
 
@@ -31,8 +31,12 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
 
     @Override
     public TradeLoanFacilityApproved createApprovedEvent(
-            LoanFacilityId facilityId, SanctionedLoanId sanctionId, SanctionSerial sanctionSerial, Clock clock) {
-        return TradeLoanFacilityApproved.of(facilityId, sanctionId, sanctionSerial, clock);
+            LoanFacilityId facilityId,
+            SanctionedLoanId sanctionId,
+            String sanctionSerial,
+            SanctionType sanctionType,
+            Clock clock) {
+        return TradeLoanFacilityApproved.of(facilityId, sanctionId, sanctionSerial, sanctionType, clock);
     }
 
     @Override

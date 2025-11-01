@@ -35,8 +35,8 @@ public class CloseFacilityPaidOffCommandHandler implements CommandHandler<CloseF
                         repository.findById(loanFacilityId),
                         () -> Notification.ofError(
                                 CloseFacilityPaidOffErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId()))
+                .flatMap(facility -> domainService.closePaidOff(facility).map(v -> facility))
                 .peekValue(facility -> {
-                    domainService.closePaidOff(facility);
                     repository.save(facility);
                     log.debug("Facility closed as paid off: {}", command.loanFacilityId());
                 })

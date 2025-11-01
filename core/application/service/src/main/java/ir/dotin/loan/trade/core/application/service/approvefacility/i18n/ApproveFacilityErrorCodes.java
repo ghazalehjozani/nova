@@ -13,7 +13,13 @@ public enum ApproveFacilityErrorCodes implements LocalizedMessage<ApproveFacilit
     LOAN_ARRANGEMENT_NOT_FOUND("Loan Arrangement with ID {0} not found"),
     FACILITY_NOT_SUBMITTED("Facility {0} has not been submitted for approval"),
     INVALID_STATE("Facility {0} is in invalid state for approval"),
-    INVALID_AMOUNT("Invalid approved amount: {0}");
+    INVALID_AMOUNT("Invalid approved amount: {0}"),
+    SANCTION_SERIAL_REQUIRED_FOR_MANUAL_APPROVAL("Sanction serial is required for manual approval"),
+    SANCTION_SERIAL_NOT_ALLOWED_FOR_AUTO_APPROVAL("Sanction serial is not allowed for auto approval"),
+    AUTO_APPROVAL_NOT_ENABLED("Auto approval is not enabled for loan arrangement {0}"),
+    MANUAL_APPROVAL_NOT_ALLOWED("Manual approval is not allowed for loan arrangement {0}"),
+    SANCTION_DETAILS_SERVICE_NOT_IMPLEMENTED("Sanction details service is not implemented for serial {0}"),
+    INVALID_SANCTION_DETAILS("Invalid sanction details: {0}");
 
     private final String defaultMessageFormat;
 }

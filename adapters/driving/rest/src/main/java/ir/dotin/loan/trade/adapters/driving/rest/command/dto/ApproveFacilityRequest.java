@@ -14,4 +14,4 @@ public record ApproveFacilityRequest(
                 @NotNull
                 UUID uid,
         @Schema(description = "نسخه عملیات", example = "1", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
-                Integer version) {}
+                Long version) {}

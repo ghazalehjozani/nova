@@ -35,8 +35,8 @@ public class SubmitFacilityForApprovalCommandHandler implements CommandHandler<S
                         repository.findById(loanFacilityId),
                         () -> Notification.ofError(
                                 SubmitFacilityForApprovalErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId()))
+                .flatMap(facility -> domainService.submitForApproval(facility).map(v -> facility))
                 .peekValue(facility -> {
-                    domainService.submitForApproval(facility);
                     repository.save(facility);
                     log.info("Facility submitted for approval: {}", command.loanFacilityId());
                 })

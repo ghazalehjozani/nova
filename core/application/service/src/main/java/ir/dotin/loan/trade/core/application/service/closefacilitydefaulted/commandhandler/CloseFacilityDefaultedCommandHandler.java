@@ -35,8 +35,8 @@ public class CloseFacilityDefaultedCommandHandler implements CommandHandler<Clos
                         repository.findById(loanFacilityId),
                         () -> Notification.ofError(
                                 CloseFacilityDefaultedErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId()))
+                .flatMap(facility -> domainService.closeDefaulted(facility).map(v -> facility))
                 .peekValue(facility -> {
-                    domainService.closeDefaulted(facility);
                     repository.save(facility);
                     log.debug("Facility closed as defaulted: {}", command.loanFacilityId());
                 })

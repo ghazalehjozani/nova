@@ -6,8 +6,8 @@ import java.util.UUID;
 
 import org.jspecify.annotations.NonNull;
 
+import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 
 import static java.util.Objects.requireNonNull;
@@ -16,7 +16,7 @@ import static java.util.UUID.randomUUID;
 public record TradeLoanFacilityApproved(UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
         implements TradeLoanFacilityEvents<TradeLoanFacilityApproved, TradeLoanFacilityApproved.Payload> {
 
-    public record Payload(SanctionedLoanId sanctionedLoanId, SanctionSerial sanctionSerial) {
+    public record Payload(SanctionedLoanId sanctionedLoanId, String sanctionSerial, SanctionType sanctionType) {
         public Payload {
             requireNonNull(sanctionedLoanId);
             requireNonNull(sanctionSerial);
@@ -31,8 +31,9 @@ public record TradeLoanFacilityApproved(UUID eventId, LoanFacilityId aggregateId
     }
 
     public static TradeLoanFacilityApproved of(
-            LoanFacilityId id, SanctionedLoanId sanId, SanctionSerial sanctionSerial, Clock clock) {
-        return new TradeLoanFacilityApproved(randomUUID(), id, new Payload(sanId, sanctionSerial), clock.instant());
+            LoanFacilityId id, SanctionedLoanId sanId, String sanctionSerial, SanctionType sanctionType, Clock clock) {
+        return new TradeLoanFacilityApproved(
+                randomUUID(), id, new Payload(sanId, sanctionSerial, sanctionType), clock.instant());
     }
 
     @Override

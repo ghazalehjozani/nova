@@ -35,8 +35,10 @@ public class CancelFacilityCommandHandler implements CommandHandler<CancelFacili
                         repository.findById(loanFacilityId),
                         () -> Notification.ofError(
                                 CancelFacilityErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId()))
+                .flatMap(facility -> domainService
+                        .cancel(facility, command.cancellationNotes())
+                        .map(v -> facility))
                 .peekValue(facility -> {
-                    domainService.cancel(facility, command.cancellationNotes());
                     repository.save(facility);
                     log.debug("Facility cancelled: {}", command.loanFacilityId());
                 })

@@ -13,10 +13,27 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
-import ir.dotin.loan.trade.core.domain.loanfacility.event.*;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityActivated;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityAdditionalDisbursementCompleted;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityApprovalSubmitted;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityApproved;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCancelled;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityClosedDefaulted;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCollateralAdded;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityContractIssued;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCreated;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityDisbursementFailed;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityPaidOffClosed;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityPartiallyDisbursed;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityRejected;
 
 import static java.time.ZoneOffset.UTC;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,9 +52,6 @@ final class TradeLoanFacilityEventFactoryTest {
 
     @Mock
     private SanctionedLoanId mockSanctionId;
-
-    @Mock
-    private SanctionSerial mockSanctionSerial;
 
     @Mock
     private CollateralSerial mockCollateralSerial;
@@ -95,7 +109,8 @@ final class TradeLoanFacilityEventFactoryTest {
         @Test
         @DisplayName("should create approved event")
         void shouldCreateApprovedEvent() {
-            var event = factory.createApprovedEvent(mockFacilityId, mockSanctionId, mockSanctionSerial, fixedClock);
+            var event = factory.createApprovedEvent(
+                    mockFacilityId, mockSanctionId, "SanctionSerial", SanctionType.GENERAL, fixedClock);
 
             assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityApproved.class);
         }

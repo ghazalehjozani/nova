@@ -77,7 +77,7 @@ public class TradeSanctionedLoanEntity extends PersistentEntity {
     private CollateralSerialEmb collateralSerial;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "disbursement_schedule_id", nullable = false)
+    @JoinColumn(name = "disbursement_schedule_id")
     private DisbursementScheduleEntity disbursementSchedule;
 
     @Embedded

@@ -89,7 +89,8 @@ public class TradeLoanFacilityService
                 .currency(loanApplication.getCurrency())
                 .gracePeriod(loanApplication.getGracePeriod())
                 .installmentCount(loanApplication.getInstallmentCount())
-                .loanDuration(loanApplication.getRequestedLoanDuration());
+                .loanDuration(loanApplication.getRequestedLoanDuration())
+                .disbursementMethod(loanApplication.getDisbursementMethod());
 
         return Result.success(builder);
     }

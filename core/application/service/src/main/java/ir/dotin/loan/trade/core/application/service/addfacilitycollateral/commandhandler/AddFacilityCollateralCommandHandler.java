@@ -34,13 +34,14 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
     @Override
     public Result<List<DomainEvent<?, ?>>> handle(AddFacilityCollateralCommand command) {
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
+        CollateralSerial collateralSerial = mapper.toCollateralSerial(command.collateralSerialDto());
         return Result.fromOptional(
                         repository.findById(loanFacilityId),
                         () -> Notification.ofError(
                                 AddFacilityCollateralErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId()))
+                .flatMap(facility ->
+                        domainService.addCollateral(facility, collateralSerial).map(v -> facility))
                 .peekValue(facility -> {
-                    CollateralSerial collateralSerial = mapper.toCollateralSerial(command.collateralSerialDto());
-                    domainService.addCollateral(facility, collateralSerial);
                     repository.save(facility);
                     log.debug("Collateral added to facility: {}", command.loanFacilityId());
                 })

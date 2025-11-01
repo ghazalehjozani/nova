@@ -14,10 +14,9 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.ApproveFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
+import ir.dotin.loan.trade.core.application.service.approvefacility.factory.ApprovalStrategyFactory;
 import ir.dotin.loan.trade.core.application.service.approvefacility.i18n.ApproveFacilityErrorCodes;
-import ir.dotin.loan.trade.core.application.service.approvefacility.mapper.ApproveFacilityCommandMapper;
-import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan;
-import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilityService;
+import ir.dotin.loan.trade.core.application.service.approvefacility.strategy.ApprovalStrategy;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,14 +26,14 @@ public class ApproveFacilityCommandHandler implements CommandHandler<ApproveFaci
 
     private static final Logger log = LoggerFactory.getLogger(ApproveFacilityCommandHandler.class);
 
-    private final ApproveFacilityCommandMapper mapper;
     private final TradeLoanFacilityRepository loanFacilityRepository;
     private final TradeLoanArrangementRepository loanArrangementRepository;
-    private final TradeLoanFacilityService domainService;
+    private final ApprovalStrategyFactory strategyFactory;
 
     @Override
     public Result<List<DomainEvent<?, ?>>> handle(ApproveFacilityCommand command) {
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
+
         return Result.fromOptional(
                         loanFacilityRepository.findById(loanFacilityId),
                         () -> Notification.ofError(
@@ -44,12 +43,15 @@ public class ApproveFacilityCommandHandler implements CommandHandler<ApproveFaci
                                 () -> Notification.ofError(
                                         ApproveFacilityErrorCodes.LOAN_ARRANGEMENT_NOT_FOUND,
                                         facility.getLoanArrangementId()))
-                        .mapNonNull(arrangement -> {
-                            TradeSanctionedLoan.Builder sanctionBuilder = mapper.toBuilder(command);
-                            domainService.approve(facility, sanctionBuilder, arrangement);
-                            loanFacilityRepository.save(facility);
-                            log.debug("Facility approved: {}", command.loanFacilityId());
-                            return facility.domainEvents();
+                        .flatMap(arrangement -> {
+                            ApprovalStrategy strategy = strategyFactory.getStrategy(command);
+                            return strategy.validate(command, facility, arrangement)
+                                    .flatMap(ignored -> strategy.approve(facility, arrangement))
+                                    .map(ignored -> {
+                                        loanFacilityRepository.save(facility);
+                                        log.debug("Facility approved: {}", command.loanFacilityId());
+                                        return facility.domainEvents();
+                                    });
                         }));
     }
 }
