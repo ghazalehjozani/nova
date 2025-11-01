@@ -47,7 +47,9 @@ public class FeignConfiguration {
 
     @Bean
     public Request.Options requestOptions() {
-        return new Request.Options(fcbConfiguration.getConnectionTimeout(), fcbConfiguration.getReadTimeout());
+        return new Request.Options(
+                fcbConfiguration.integration().connectionTimeout(),
+                fcbConfiguration.integration().readTimeout());
     }
 
     @Bean

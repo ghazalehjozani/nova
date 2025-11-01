@@ -42,7 +42,10 @@ public class FcbServiceImpl implements FcbService {
             log.debug("Request XML (usecaseListXML parameter): {}", usecaseListXML);
 
             try (Response response = fcbFeignClient.executeUseCase(
-                    usecaseListXML, fcbConfiguration.isShowExceptions(), fcbConfiguration.isSameSession(), true)) {
+                    usecaseListXML,
+                    fcbConfiguration.integration().showExceptions(),
+                    fcbConfiguration.integration().sameSession(),
+                    true)) {
 
                 return processResponse(response, responseClass);
             }

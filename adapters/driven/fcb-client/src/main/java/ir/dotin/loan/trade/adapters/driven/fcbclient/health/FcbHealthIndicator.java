@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.config.FcbConfiguration;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.config.FcbHealthProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.base.FcbBaseResponse;
@@ -33,7 +32,6 @@ public class FcbHealthIndicator implements HealthIndicator {
 
     private final FcbService fcbService;
     private final FcbBaseRequestBuilder requestBuilder;
-    private final FcbHealthProperties healthProperties;
     private final FcbConfiguration fcbConfiguration;
     private final MeterRegistry meterRegistry;
 
@@ -50,13 +48,11 @@ public class FcbHealthIndicator implements HealthIndicator {
     public FcbHealthIndicator(
             FcbService fcbService,
             FcbBaseRequestBuilder requestBuilder,
-            FcbHealthProperties healthProperties,
             FcbConfiguration fcbConfiguration,
             MeterRegistry meterRegistry) {
 
         this.fcbService = fcbService;
         this.requestBuilder = requestBuilder;
-        this.healthProperties = healthProperties;
         this.fcbConfiguration = fcbConfiguration;
         this.meterRegistry = meterRegistry;
 
@@ -76,7 +72,7 @@ public class FcbHealthIndicator implements HealthIndicator {
 
     @Override
     public Health health() {
-        if (!healthProperties.isEnabled()) {
+        if (!fcbConfiguration.health().enabled()) {
             return Health.up()
                     .withDetail("status", "disabled")
                     .withDetail("message", "FCB health check is disabled")
@@ -116,12 +112,13 @@ public class FcbHealthIndicator implements HealthIndicator {
         Instant startTime = Instant.now();
         HealthCheckResult result = new HealthCheckResult();
         result.setCheckTime(startTime);
-        result.setFcbBaseUrl(fcbConfiguration.getBaseUrl());
-        result.setFcbServicePath(fcbConfiguration.getServicePath());
+        result.setFcbBaseUrl(fcbConfiguration.integration().baseUrl());
+        result.setFcbServicePath(fcbConfiguration.integration().servicePath());
 
         try {
             log.debug(
-                    "Performing FCB health check - attempting connection to {}", fcbConfiguration.getFullServiceUrl());
+                    "Performing FCB health check - attempting connection to {}",
+                    fcbConfiguration.integration().getFullServiceUrl());
 
             // Execute lightweight test usecase with timeout
             Result<FcbBaseResponse> testResult = executeTestUsecaseWithTimeout();
@@ -157,9 +154,12 @@ public class FcbHealthIndicator implements HealthIndicator {
             }
 
         } catch (java.util.concurrent.TimeoutException e) {
-            log.error("FCB health check timed out after {} seconds", healthProperties.getTimeoutSeconds());
+            log.error(
+                    "FCB health check timed out after {} seconds",
+                    fcbConfiguration.health().timeoutSeconds());
             result.setHealthy(false);
-            result.setMessage("Health check timed out after " + healthProperties.getTimeoutSeconds() + " seconds");
+            result.setMessage(
+                    "Health check timed out after " + fcbConfiguration.health().timeoutSeconds() + " seconds");
             result.setError("TimeoutException");
             result.setErrorDetails(e.getMessage());
         } catch (Exception e) {
@@ -177,8 +177,8 @@ public class FcbHealthIndicator implements HealthIndicator {
 
         try {
             // Create a minimal test request
-            Usecases usecases =
-                    requestBuilder.buildUseCase(healthProperties.getTestUsecase(), java.util.Collections.emptyList());
+            Usecases usecases = requestBuilder.buildUseCase(
+                    fcbConfiguration.health().testUsecase(), java.util.Collections.emptyList());
 
             FcbRequest request = FcbRequest.builder().usecase(usecases).build();
 
@@ -187,10 +187,12 @@ public class FcbHealthIndicator implements HealthIndicator {
                     java.util.concurrent.CompletableFuture.supplyAsync(
                             () -> fcbService.executeUsecase(request, FcbBaseResponse.class));
 
-            return future.get(healthProperties.getTimeoutSeconds(), TimeUnit.SECONDS);
+            return future.get(fcbConfiguration.health().timeoutSeconds(), TimeUnit.SECONDS);
 
         } catch (java.util.concurrent.TimeoutException e) {
-            log.error("FCB test usecase timed out after {} seconds", healthProperties.getTimeoutSeconds());
+            log.error(
+                    "FCB test usecase timed out after {} seconds",
+                    fcbConfiguration.health().timeoutSeconds());
             throw e;
         } catch (Exception e) {
             log.error("Test usecase execution failed", e);
@@ -224,7 +226,7 @@ public class FcbHealthIndicator implements HealthIndicator {
             return false;
         }
 
-        Duration cacheDuration = Duration.ofSeconds(healthProperties.getCacheDurationSeconds());
+        Duration cacheDuration = Duration.ofSeconds(fcbConfiguration.health().cacheDurationSeconds());
         Duration timeSinceLastCheck = Duration.between(lastCheckTime, Instant.now());
 
         return timeSinceLastCheck.compareTo(cacheDuration) < 0;
@@ -242,7 +244,8 @@ public class FcbHealthIndicator implements HealthIndicator {
 
     private Health buildHealth(HealthCheckResult result, boolean fromCache) {
         // Determine overall health status based on consecutive failures
-        boolean isDown = !result.isHealthy() || consecutiveFailures.get() >= healthProperties.getFailureThreshold();
+        boolean isDown = !result.isHealthy()
+                || consecutiveFailures.get() >= fcbConfiguration.health().failureThreshold();
 
         Health.Builder builder = isDown ? Health.down() : Health.up();
 
@@ -261,7 +264,8 @@ public class FcbHealthIndicator implements HealthIndicator {
         connectionInfo.put("servicePath", result.getFcbServicePath());
         connectionInfo.put(
                 "fullUrl",
-                result.getFcbBaseUrl() + "/" + fcbConfiguration.getAppName() + "/" + result.getFcbServicePath());
+                result.getFcbBaseUrl() + "/" + fcbConfiguration.integration().appName() + "/"
+                        + result.getFcbServicePath());
         details.put("connection", connectionInfo);
 
         // Performance metrics
@@ -279,12 +283,14 @@ public class FcbHealthIndicator implements HealthIndicator {
         // Failure tracking
         Map<String, Object> failureInfo = new HashMap<>();
         failureInfo.put("consecutiveFailures", consecutiveFailures.get());
-        failureInfo.put("failureThreshold", healthProperties.getFailureThreshold());
-        failureInfo.put("thresholdReached", consecutiveFailures.get() >= healthProperties.getFailureThreshold());
+        failureInfo.put("failureThreshold", fcbConfiguration.health().failureThreshold());
+        failureInfo.put(
+                "thresholdReached",
+                consecutiveFailures.get() >= fcbConfiguration.health().failureThreshold());
         details.put("failures", failureInfo);
 
         // FCB response details (only if showDetails is enabled)
-        if (healthProperties.isShowDetails()) {
+        if (fcbConfiguration.health().showDetails()) {
             if (result.getTransactionCode() != null) {
                 details.put("transactionCode", result.getTransactionCode());
             }
