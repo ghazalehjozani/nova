@@ -372,6 +372,14 @@ fcb:
     encoding: UTF-8
     show-exceptions: true
     same-session: false
+  health:
+    enabled: true
+    test-usecase: system-health-check
+    timeout-seconds: 10
+    cache-duration-seconds: 30
+    failure-threshold: 3
+    show-details: true
+    metrics-enabled: true
 
 springdoc:
   api-docs:

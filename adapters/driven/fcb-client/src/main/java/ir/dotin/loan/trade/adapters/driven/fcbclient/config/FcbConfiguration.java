@@ -1,52 +1,42 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.config;
 
-import java.util.concurrent.TimeUnit;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.validation.annotation.Validated;
 
-import lombok.Data;
-
-@Data
 @Validated
-@ConfigurationProperties(prefix = "fcb.integration")
-public class FcbConfiguration {
+@ConfigurationProperties(prefix = FcbConfiguration.BASE)
+public record FcbConfiguration(@NotNull Integration integration, @NotNull Health health) {
 
-    @NotBlank
-    private String baseUrl;
+    public static final String BASE = "fcb";
 
-    @NotBlank
-    private String appName;
+    public record Integration(
+            @NotBlank String baseUrl,
+            @NotBlank String appName,
+            @NotBlank String servicePath,
+            @NotNull Integer connectionTimeout,
+            @NotNull Integer readTimeout,
+            @NotNull Credentials credentials,
+            @DefaultValue("UTF-8") String encoding,
+            @DefaultValue("true") boolean showExceptions,
+            @DefaultValue("false") boolean sameSession) {
 
-    @NotBlank
-    private String servicePath;
-
-    @NotNull
-    private Integer connectionTimeout = (int) TimeUnit.MINUTES.toMillis(5);
-
-    @NotNull
-    private Integer readTimeout = (int) TimeUnit.MINUTES.toMillis(6);
-
-    private Credentials credentials;
-
-    private String encoding = "UTF-8";
-
-    private boolean showExceptions = true;
-
-    private boolean sameSession = false;
-
-    @Data
-    public static class Credentials {
-        @NotBlank
-        private String username;
-
-        @NotBlank
-        private String password;
+        public String getFullServiceUrl() {
+            return String.format("%s/%s/%s", baseUrl, appName, servicePath);
+        }
     }
 
-    public String getFullServiceUrl() {
-        return String.format("%s/%s/%s", baseUrl, appName, servicePath);
-    }
+    public record Health(
+            @DefaultValue("true") boolean enabled,
+            @DefaultValue("system-health-check") @NotBlank String testUsecase,
+            @DefaultValue("10") int timeoutSeconds,
+            @DefaultValue("30") int cacheDurationSeconds,
+            @DefaultValue("3") int failureThreshold,
+            @DefaultValue("true") boolean showDetails,
+            @DefaultValue("true") boolean metricsEnabled) {}
+
+    public record Credentials(@NotBlank String username, @NotBlank String password) {}
 }
