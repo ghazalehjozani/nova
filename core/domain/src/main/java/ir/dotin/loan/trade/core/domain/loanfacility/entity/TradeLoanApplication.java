@@ -8,7 +8,6 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractLoanApplic
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 
 import static java.util.Objects.requireNonNull;
-import static java.util.UUID.randomUUID;
 
 public final class TradeLoanApplication extends AbstractLoanApplication<TradeLoanApplication.Builder> {
 

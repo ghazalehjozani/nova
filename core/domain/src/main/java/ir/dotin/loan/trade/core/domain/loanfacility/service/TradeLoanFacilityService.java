@@ -18,8 +18,6 @@ import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan;
 import ir.dotin.loan.trade.core.domain.loanfacility.i18n.TradeLoanFacilityLocalizedMessageCodes;
 
-import static java.util.UUID.randomUUID;
-
 @DomainService
 public class TradeLoanFacilityService
         extends AbstractLoanFacilityService<TradeLoanApplication, TradeSanctionedLoan, TradeLoanFacility> {
