@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +14,11 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
@@ -40,12 +45,13 @@ public class FacilityBuilder {
     public Result<TradeLoanFacility> buildFacility(
             OriginateLoanFacilityCommand command,
             FacilityOriginationContext context,
-            @Nullable InstallmentScheduleId scheduleId) {
+            @Nullable InstallmentScheduleId scheduleId,
+            @NonNull LoanFacilityId facilityId) {
         try {
             TradeLoanApplication application = buildApplication(command, context, scheduleId);
 
             TradeLoanFacility facility = TradeLoanFacility.create(
-                    LoanFacilityId.generate(), // TODO? need to get real id
+                    facilityId,
                     application,
                     LoanTypeId.of(command.loanTypeId()),
                     LoanArrangementId.of(command.loanArrangementId()),

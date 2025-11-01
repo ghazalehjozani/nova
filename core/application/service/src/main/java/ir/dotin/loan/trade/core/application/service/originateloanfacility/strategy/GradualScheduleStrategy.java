@@ -39,7 +39,8 @@ public class GradualScheduleStrategy implements InstallmentScheduleStrategy {
     public Result<Optional<InstallmentSchedule>> planSchedule(
             @NonNull OriginateLoanFacilityCommand command,
             @NonNull TradeLoanApplication application,
-            @NonNull FacilityOriginationContext context) {
+            @NonNull FacilityOriginationContext context,
+            @NonNull LoanFacilityId facilityId) {
 
         if (command.installmentSchedulePlan() == null) {
             log.error("Installment schedule plan is mandatory for GRADUAL payment type");
@@ -47,7 +48,7 @@ public class GradualScheduleStrategy implements InstallmentScheduleStrategy {
                     Notification.ofError(OriginateLoanFacilityErrorCodes.INSTALLMENT_SCHEDULE_IS_MANDATORY_IN_GRADUAL));
         }
 
-        return planInstallmentSchedule(command.installmentSchedulePlan(), application, context)
+        return planInstallmentSchedule(command.installmentSchedulePlan(), application, context, facilityId)
                 .map(Optional::of);
     }
 
@@ -62,11 +63,11 @@ public class GradualScheduleStrategy implements InstallmentScheduleStrategy {
     private Result<InstallmentSchedule> planInstallmentSchedule(
             OriginateLoanFacilityCommand.InstallmentSchedulePlanDto planDto,
             TradeLoanApplication application,
-            FacilityOriginationContext context) {
+            FacilityOriginationContext context,
+            LoanFacilityId facilityId) {
 
-        // Create temporary facility for schedule planning
         TradeLoanFacility tempFacility = TradeLoanFacility.create(
-                LoanFacilityId.generate(),
+                facilityId,
                 application,
                 context.loanType().getId(),
                 context.arrangement().getId(),

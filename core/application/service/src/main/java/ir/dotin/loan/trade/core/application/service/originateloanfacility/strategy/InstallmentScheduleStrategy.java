@@ -6,6 +6,7 @@ import org.jspecify.annotations.NonNull;
 
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
 
@@ -15,7 +16,8 @@ public interface InstallmentScheduleStrategy {
     Result<Optional<InstallmentSchedule>> planSchedule(
             @NonNull OriginateLoanFacilityCommand command,
             @NonNull TradeLoanApplication application,
-            @NonNull FacilityOriginationContext context);
+            @NonNull FacilityOriginationContext context,
+            @NonNull LoanFacilityId facilityId);
 
     @NonNull
     Result<Void> validateCommand(@NonNull OriginateLoanFacilityCommand command);
