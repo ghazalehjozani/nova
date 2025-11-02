@@ -119,8 +119,8 @@ platform:
     query-cache: false
   dispatcher:
     command:
-      sync-timeout: 60s
-      shutdown-timeout: 60s
+      sync-timeout: 3000s
+      shutdown-timeout: 30s
       middleware-enabled: true
       idempotency:
         enabled: true

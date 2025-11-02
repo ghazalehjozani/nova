@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,14 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import ir.dotin.platform.adapter.rest.response.CursorPaginationInfo;
 import ir.dotin.platform.adapter.rest.response.DataResponse;
 import ir.dotin.platform.adapter.rest.response.OffsetPaginationInfo;
 import ir.dotin.platform.adapter.rest.response.PagedResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.QueryDispatcher;
-import ir.dotin.platform.dispatcher.core.context.StandardHeaders;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
+import ir.dotin.loan.trade.adapters.driving.rest.shared.pagination.CursorPaginationHelper;
 import ir.dotin.loan.trade.core.application.query.loanfacility.dto.LoanFacilityQueryResult;
 import ir.dotin.loan.trade.core.application.query.loanfacility.dto.TradeFacilityQueryDto;
 import ir.dotin.loan.trade.core.application.query.loanfacility.request.FindAllLoanFacilitiesQuery;
@@ -61,18 +59,8 @@ public class FacilityQueryController {
 
         LoanFacilityQueryResult result = queryDispatcher.dispatch(query);
 
-        CursorPaginationInfo paginationInfo = CursorPaginationInfo.of(
-                result.nextCursor(), result.previousCursor(), result.hasNext(), result.hasPrevious());
-
-        HttpHeaders headers = new HttpHeaders();
-        if (result.nextCursor() != null) {
-            headers.add(StandardHeaders.X_PAGINATION_NEXT_CURSOR.toString(), result.nextCursor());
-        }
-        if (result.previousCursor() != null) {
-            headers.add(StandardHeaders.X_PAGINATION_PREVIOUS_CURSOR.toString(), result.previousCursor());
-        }
-
-        return ResponseEntity.ok().headers(headers).body(PagedResponse.success(result, paginationInfo));
+        return CursorPaginationHelper.createPaginatedResponse(
+                result, result.nextCursor(), result.previousCursor(), result.hasNext(), result.hasPrevious());
     }
 
     @GetMapping("/search")
