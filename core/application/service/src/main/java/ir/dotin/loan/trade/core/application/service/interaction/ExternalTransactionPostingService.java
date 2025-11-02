@@ -6,7 +6,7 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.interaction.ExternalTransactionPostingClient;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.ExternalTransactionPostingPort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.ExternalTransactionPostingPort;
 
 import lombok.RequiredArgsConstructor;
 

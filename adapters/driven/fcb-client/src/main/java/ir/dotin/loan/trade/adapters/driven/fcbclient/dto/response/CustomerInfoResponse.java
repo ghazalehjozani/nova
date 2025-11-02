@@ -1,6 +1,9 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response;
 
+import java.util.List;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamImplicit;
 
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.base.FcbBaseResponse;
 
@@ -39,7 +42,7 @@ public class CustomerInfoResponse extends FcbBaseResponse {
     @XStreamAlias("isInGrayList")
     private Boolean isInGrayList;
 
-    // Additional fields that might be useful
+    // Additional fields
     @XStreamAlias("fatherNameOrCompanyType")
     private String fatherNameOrCompanyType;
 
@@ -75,4 +78,48 @@ public class CustomerInfoResponse extends FcbBaseResponse {
 
     @XStreamAlias("shahabServiceStatus")
     private String shahabServiceStatus;
+
+    // Complex nested objects - FCB may return these but we ignore most of them
+    @XStreamImplicit(itemFieldName = "addresses")
+    private List<Object> addresses; // Ignore nested addresses structure
+
+    @XStreamImplicit(itemFieldName = "jobs")
+    private List<Object> jobs; // Ignore nested jobs
+
+    @XStreamImplicit(itemFieldName = "phones")
+    private List<Object> phones; // Ignore nested phones
+
+    @XStreamImplicit(itemFieldName = "customerActivities")
+    private List<Object> customerActivities; // Ignore nested activities
+
+    // More fields from actual FCB response that we want to capture
+    @XStreamAlias("sex")
+    private String sex;
+
+    @XStreamAlias("nationalityCode")
+    private String nationalityCode;
+
+    @XStreamAlias("birthLocation")
+    private String birthLocation;
+
+    @XStreamAlias("birthLocationCode")
+    private String birthLocationCode;
+
+    @XStreamAlias("isPolitical")
+    private Boolean isPolitical;
+
+    @XStreamAlias("verifiedCellPhoneNumber")
+    private Boolean verifiedCellPhoneNumber;
+
+    @XStreamAlias("customerGroup")
+    private String customerGroup;
+
+    @XStreamAlias("levelStatus")
+    private String levelStatus;
+
+    @XStreamAlias("zonActivityTypeTitle")
+    private String zoneActivityTypeTitle;
+
+    @XStreamAlias("ssoId")
+    private Integer ssoId;
 }
