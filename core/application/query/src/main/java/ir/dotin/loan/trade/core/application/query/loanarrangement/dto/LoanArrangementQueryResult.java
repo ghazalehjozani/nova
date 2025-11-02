@@ -1,0 +1,55 @@
+package ir.dotin.loan.trade.core.application.query.loanarrangement.dto;
+
+import java.util.List;
+
+import ir.dotin.platform.dispatcher.api.query.QueryResult;
+
+import lombok.Builder;
+
+@Builder
+public record LoanArrangementQueryResult(
+        List<TradeLoanArrangementQueryDto> loanArrangements,
+        String nextCursor,
+        String previousCursor,
+        boolean hasNext,
+        boolean hasPrevious,
+        Integer currentPage,
+        Integer pageSize,
+        Long totalElements,
+        Integer totalPages)
+        implements QueryResult {
+
+    public static LoanArrangementQueryResult forCursor(
+            List<TradeLoanArrangementQueryDto> loanArrangements,
+            String nextCursor,
+            String previousCursor,
+            boolean hasNext,
+            boolean hasPrevious) {
+        return LoanArrangementQueryResult.builder()
+                .loanArrangements(loanArrangements)
+                .nextCursor(nextCursor)
+                .previousCursor(previousCursor)
+                .hasNext(hasNext)
+                .hasPrevious(hasPrevious)
+                .build();
+    }
+
+    public static LoanArrangementQueryResult forOffset(
+            List<TradeLoanArrangementQueryDto> loanArrangements,
+            int currentPage,
+            int pageSize,
+            long totalElements,
+            int totalPages,
+            boolean hasNext,
+            boolean hasPrevious) {
+        return LoanArrangementQueryResult.builder()
+                .loanArrangements(loanArrangements)
+                .currentPage(currentPage)
+                .pageSize(pageSize)
+                .totalElements(totalElements)
+                .totalPages(totalPages)
+                .hasNext(hasNext)
+                .hasPrevious(hasPrevious)
+                .build();
+    }
+}

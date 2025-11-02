@@ -1,7 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,47 +13,63 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import ir.dotin.platform.adapter.persistence.query.QueryCriteria;
+import ir.dotin.platform.adapter.persistence.repository.PersistentRepository;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity.TradeLoanFacilityEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query.mapper.FacilityQueryModelMapper;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.repository.TradeLoanFacilityJpaRepository;
+import ir.dotin.loan.trade.adapters.driven.persistence.shared.query.AbstractCursorPagingAdapter;
+import ir.dotin.loan.trade.adapters.driven.persistence.shared.query.SortBuilder;
 import ir.dotin.loan.trade.core.application.query.loanfacility.dto.TradeFacilityQueryDto;
 import ir.dotin.loan.trade.core.application.query.loanfacility.repository.TradeLoanFacilityQueryRepository;
 import ir.dotin.loan.trade.core.application.query.loanfacility.request.LoanFacilityFilterQuery;
-import ir.dotin.loan.trade.core.application.query.shared.exception.InvalidCursorException;
 import ir.dotin.loan.trade.core.application.query.shared.pagination.CursorEncoder;
 import ir.dotin.loan.trade.core.application.query.shared.pagination.CursorPage;
 import ir.dotin.loan.trade.core.application.query.shared.pagination.CursorPageRequest;
 import ir.dotin.loan.trade.core.application.query.shared.pagination.CursorPosition;
 import ir.dotin.loan.trade.core.application.query.shared.pagination.OffsetPage;
 
-import lombok.RequiredArgsConstructor;
-
 @Repository
-@Transactional(readOnly = true)
-@RequiredArgsConstructor
-public class JpaFacilityQueryAdapter implements TradeLoanFacilityQueryRepository {
+public class JpaFacilityQueryAdapter extends AbstractCursorPagingAdapter<TradeLoanFacilityEntity, TradeFacilityQueryDto>
+        implements TradeLoanFacilityQueryRepository {
 
     private final TradeLoanFacilityJpaRepository repository;
     private final FacilityQueryModelMapper mapper;
-    private final CursorEncoder cursorEncoder;
 
-    @Override
-    public Optional<TradeFacilityQueryDto> findById(UUID facilityId) {
-        return repository.findById(facilityId).map(mapper::toQueryModel);
+    public JpaFacilityQueryAdapter(
+            TradeLoanFacilityJpaRepository repository, FacilityQueryModelMapper mapper, CursorEncoder cursorEncoder) {
+        super(cursorEncoder);
+        this.repository = repository;
+        this.mapper = mapper;
     }
 
     @Override
     public CursorPage<TradeFacilityQueryDto> findAll(CursorPageRequest pageRequest) {
         ScrollPosition scrollPosition = buildScrollPosition(pageRequest);
-        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt").and(Sort.by(Sort.Direction.DESC, "id"));
-
+        Sort sort = SortBuilder.buildCursorSort();
         Window<TradeLoanFacilityEntity> window =
                 repository.findAllBy(scrollPosition, Limit.of(pageRequest.pageSize()), sort);
+        return buildCursorPageFromWindow(window, pageRequest, mapper::toQueryModel);
+    }
 
-        return buildCursorPage(window, pageRequest);
+    @Override
+    protected Window<TradeLoanFacilityEntity> findAllWithCursor(
+            CursorPageRequest pageRequest, PersistentRepository<TradeLoanFacilityEntity> repository) {
+        ScrollPosition scrollPosition = buildScrollPosition(pageRequest);
+        Sort sort = SortBuilder.buildCursorSort();
+        return ((TradeLoanFacilityJpaRepository) repository)
+                .findAllBy(scrollPosition, Limit.of(pageRequest.pageSize()), sort);
+    }
+
+    @Override
+    protected CursorPosition createCursorPosition(TradeFacilityQueryDto queryDto) {
+        return CursorPosition.of(queryDto.createdAt(), queryDto.id());
+    }
+
+    @Override
+    public Optional<TradeFacilityQueryDto> findById(UUID facilityId) {
+        return findById(facilityId, repository, mapper::toQueryModel);
     }
 
     @Override
@@ -89,47 +104,7 @@ public class JpaFacilityQueryAdapter implements TradeLoanFacilityQueryRepository
                 page.hasPrevious());
     }
 
-    private ScrollPosition buildScrollPosition(CursorPageRequest pageRequest) {
-        if (pageRequest.cursor() == null || pageRequest.cursor().isBlank()) {
-            return ScrollPosition.keyset();
-        }
-
-        try {
-            cursorEncoder.validate(pageRequest.cursor());
-            CursorPosition position = cursorEncoder.decode(pageRequest.cursor());
-
-            return ScrollPosition.forward(Map.of(
-                    "createdAt", position.timestamp(),
-                    "id", position.id()));
-        } catch (Exception e) {
-            throw new InvalidCursorException("Failed to decode cursor position", e);
-        }
-    }
-
-    private CursorPage<TradeFacilityQueryDto> buildCursorPage(
-            Window<TradeLoanFacilityEntity> window, CursorPageRequest pageRequest) {
-        List<TradeFacilityQueryDto> facilities =
-                window.getContent().stream().map(mapper::toQueryModel).toList();
-
-        String nextCursor = null;
-        String previousCursor = pageRequest.cursor();
-
-        if (window.hasNext() && !facilities.isEmpty()) {
-            TradeFacilityQueryDto lastFacility = facilities.getLast();
-            CursorPosition position = CursorPosition.of(lastFacility.createdAt(), lastFacility.id());
-            nextCursor = cursorEncoder.encode(position);
-        }
-
-        return new CursorPage<>(facilities, nextCursor, previousCursor, window.hasNext(), !pageRequest.isFirstPage());
-    }
-
     private Sort buildSort(ir.dotin.loan.trade.core.application.query.shared.pagination.OffsetPageRequest pageRequest) {
-        Sort.Direction direction = pageRequest.direction()
-                        == ir.dotin.loan.trade.core.application.query.shared.pagination.OffsetPageRequest.SortDirection
-                                .ASC
-                ? Sort.Direction.ASC
-                : Sort.Direction.DESC;
-
-        return Sort.by(direction, pageRequest.sortBy()).and(Sort.by(Sort.Direction.DESC, "id"));
+        return SortBuilder.buildOffsetSort(pageRequest);
     }
 }
