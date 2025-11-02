@@ -72,7 +72,6 @@ public class FeignConfiguration {
 
     @Bean
     public Encoder formEncoder() {
-        // FormEncoder wraps SpringEncoder to handle @RequestParam as form data
         return new FormEncoder(new SpringEncoder(new ObjectFactory<HttpMessageConverters>() {
             @Override
             public HttpMessageConverters getObject() {

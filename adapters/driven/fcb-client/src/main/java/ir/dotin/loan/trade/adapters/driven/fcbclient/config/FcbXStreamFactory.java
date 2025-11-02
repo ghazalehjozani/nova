@@ -31,8 +31,15 @@ public class FcbXStreamFactory {
         xstream.addPermission(NullPermission.NULL);
         xstream.addPermission(PrimitiveTypePermission.PRIMITIVES);
 
-        xstream.allowTypesByWildcard(
-                new String[] {"ir.dotin.loan.trade.adapters.driven.fcbclient.dto.**", "java.util.**", "java.lang.**"});
+        xstream.allowTypesByWildcard(new String[] {
+            "ir.dotin.loan.trade.adapters.driven.fcbclient.dto.**",
+            "java.util.**",
+            "java.lang.**",
+            "com.fanap.service.customer.serviceobjects.**", // Add FCB response DTOs
+            "com.fanap.business.cmplexpenditure.dto.**",
+            "com.fanap.business.deposit.**"
+        });
+
         xstream.alias("ir.dotin.lc.dto.ilccredit.bill.ElectronicBillAccountVO", OpenAccountResponse.class);
 
         xstream.alias("com.fanap.business.cmplexpenditure.dto.DepositInfoDTO", DepositInfoResponse.class);

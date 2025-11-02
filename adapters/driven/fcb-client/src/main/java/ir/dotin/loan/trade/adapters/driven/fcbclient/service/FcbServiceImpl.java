@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -36,24 +37,44 @@ public class FcbServiceImpl implements FcbService {
     @Override
     public <T> Result<T> executeUsecase(FcbRequest request, Class<T> responseClass) {
         try {
-            log.debug("Executing FCB usecase: {}", request);
+            log.debug("Executing FCB usecase for response type: {}", responseClass.getSimpleName());
 
             String usecaseListXML = marshalToXml(request);
-            log.debug("Request XML (usecaseListXML parameter): {}", usecaseListXML);
+            log.debug("Generated request XML: {}", usecaseListXML);
 
-            try (Response response = fcbFeignClient.executeUseCase(
+            Response response = fcbFeignClient.executeUseCase(
                     usecaseListXML,
                     fcbConfiguration.integration().showExceptions(),
                     fcbConfiguration.integration().sameSession(),
-                    true)) {
+                    true);
 
-                return processResponse(response, responseClass);
+            // Read the response body immediately and store it
+            String responseXml = readResponseBody(response);
+
+            // Close the response body to prevent resource leaks
+            if (response.body() != null) {
+                try {
+                    response.body().close();
+                } catch (IOException e) {
+                    log.warn("Error closing response body", e);
+                }
             }
+
+            return processResponseXml(responseXml, response, responseClass);
         } catch (Exception e) {
             log.error("An unexpected integration error occurred executing FCB usecase", e);
             return Result.failure(
                     Notification.ofError(FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, e.getMessage()));
         }
+    }
+
+    private String readResponseBody(Response response) throws IOException {
+        if (response.body() == null) {
+            return null;
+        }
+
+        byte[] bodyBytes = response.body().asInputStream().readAllBytes();
+        return new String(bodyBytes, StandardCharsets.UTF_8);
     }
 
     private String marshalToXml(FcbRequest request) throws Exception {
@@ -68,6 +89,54 @@ public class FcbServiceImpl implements FcbService {
         marshaller.marshal(request, writer);
 
         return writer.toString();
+    }
+
+    private <T> Result<T> processResponseXml(String responseXml, Response response, Class<T> responseClass) {
+        try {
+            int status = response.status();
+            log.debug("Response status: {}", status);
+            log.debug("Response headers: {}", response.headers());
+
+            if (status != 200) {
+                log.error("Unexpected status code: {}", status);
+                return Result.failure(Notification.ofError(
+                        FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, "Service returned status: " + status));
+            }
+
+            if (responseXml == null || responseXml.isEmpty()) {
+                log.error("Response body is empty");
+
+                Collection<String> location = response.headers().get("location");
+                if (location != null && !location.isEmpty()) {
+                    log.error("Service returned redirect to: {}", location);
+                    return Result.failure(Notification.ofError(
+                            FcbBusinessLocalizedMessageCodes.FCB_AUTHENTICATION_FAILED,
+                            "Service redirected - authentication may be required"));
+                }
+
+                return Result.failure(Notification.ofError(
+                        FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, "Empty response from FCB service"));
+            }
+
+            log.debug("Response body length: {} characters", responseXml.length());
+            log.debug("FCB response XML: {}", responseXml);
+
+            String trimmedResponse = responseXml.trim();
+
+            if (!trimmedResponse.startsWith("<")) {
+                log.error("Response is not XML. Content: {}", responseXml);
+                return Result.failure(Notification.ofError(
+                        FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR,
+                        "Invalid response format from FCB service"));
+            }
+
+            return parseAndValidateResponse(trimmedResponse, responseClass);
+        } catch (Exception e) {
+            log.error("Error processing response", e);
+            return Result.failure(Notification.ofError(
+                    FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR,
+                    "Failed to process response: " + e.getMessage()));
+        }
     }
 
     private <T> Result<T> processResponse(Response response, Class<T> responseClass) throws Exception {
