@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 
 import java.time.Clock;
+import java.util.List;
 
 import org.jspecify.annotations.NonNull;
 
@@ -71,18 +72,6 @@ public final class TradeLoanFacility
         return new TradeLoanFacilityEventFactory();
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public TrackedTransactionNumbers<TradeRelationType> getIssueContractTransactionNumbers() {
-        return (TrackedTransactionNumbers<TradeRelationType>) super.issueContractTransactionNumbers;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public TrackedTransactionNumbers<TradeRelationType> getDisbursementTransactionNumbers() {
-        return (TrackedTransactionNumbers<TradeRelationType>) super.disbursementTransactionNumbers;
-    }
-
     public Money getCommissionAmount() {
         return getSanctionedLoan()
                 .map(sanctioned -> Money.zero(sanctioned.getCurrency()).orElseThrow())
@@ -128,15 +117,13 @@ public final class TradeLoanFacility
         }
 
         @Override
-        public Builder issueContractTransactionNumbers(
-                TrackedTransactionNumbers<TradeRelationType> newTransactionNumbers) {
+        public Builder issueContractTransactionNumbers(List<TrackedTransactionNumber> newTransactionNumbers) {
             super.issueContractTransactionNumbers(newTransactionNumbers);
             return this;
         }
 
         @Override
-        public Builder disbursementTransactionNumbers(
-                TrackedTransactionNumbers<TradeRelationType> newTransactionNumbers) {
+        public Builder disbursementTransactionNumbers(List<TrackedTransactionNumber> newTransactionNumbers) {
             super.disbursementTransactionNumbers(newTransactionNumbers);
             return this;
         }

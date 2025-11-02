@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.UUID;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import javax.annotation.Nullable;
 
 import ir.dotin.loan.baseloan.core.domain.loantype.enums.SegmentType;
@@ -23,7 +24,8 @@ public record DefineLoanTypeRequest(
                 UUID uid,
         @Schema(description = "مقدار کد نوع تسهیلات", example = "001", requiredMode = Schema.RequiredMode.REQUIRED)
                 @NotNull
-                Integer code,
+                @Pattern(regexp = "^\\d+$")
+                String code,
         @Schema(description = "مقدار عنوان", example = "تسهیلات کوتاه‌مدت", requiredMode = Schema.RequiredMode.REQUIRED)
                 @NotBlank
                 String title,

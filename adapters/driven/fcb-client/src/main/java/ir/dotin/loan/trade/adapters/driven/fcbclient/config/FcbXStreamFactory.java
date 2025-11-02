@@ -27,50 +27,45 @@ public class FcbXStreamFactory {
         XStream xstream = new XStream();
 
         xstream.addPermission(NoTypePermission.NONE);
-
         xstream.addPermission(NullPermission.NULL);
         xstream.addPermission(PrimitiveTypePermission.PRIMITIVES);
 
         xstream.allowTypesByWildcard(new String[] {
-            "ir.dotin.loan.trade.adapters.driven.fcbclient.dto.**",
-            "java.util.**",
-            "java.lang.**",
-            "com.fanap.service.customer.serviceobjects.**", // Add FCB response DTOs
-            "com.fanap.business.cmplexpenditure.dto.**",
-            "com.fanap.business.deposit.**"
+            "ir.dotin.loan.trade.adapters.driven.fcbclient.dto.**", "java.util.**", "java.lang.**", "com.fanap.**"
         });
 
+        xstream.alias("com.fanap.service.customer.serviceobjects.SharedAddress", Object.class);
+        xstream.alias("com.fanap.service.customer.serviceobjects.SharedJob", Object.class);
+        xstream.alias("com.fanap.service.customer.serviceobjects.SharedPhone", Object.class);
+        xstream.alias("com.fanap.service.customer.serviceobjects.SharedCustomerActivities", Object.class);
+        xstream.alias("com.fanap.service.customer.serviceobjects.Job", Object.class);
+        xstream.alias("com.fanap.service.customer.serviceobjects.Phone", Object.class);
+        xstream.alias("com.fanap.service.customer.serviceobjects.CustomerActivity", Object.class);
+        xstream.alias("com.fanap.business.deposit.valueobjects.GeneralVO", Object.class);
+        xstream.alias(
+                "com.fanap.business.lc.valueobjects.ilccredit.bill.ElectronicBillAccountVO", OpenAccountResponse.class);
+
         xstream.alias("ir.dotin.lc.dto.ilccredit.bill.ElectronicBillAccountVO", OpenAccountResponse.class);
-
         xstream.alias("com.fanap.business.cmplexpenditure.dto.DepositInfoDTO", DepositInfoResponse.class);
-
         xstream.alias("com.fanap.business.cmplexpenditure.dto.EconomicalSectionDTO", EconomicalSectionResponse.class);
-
         xstream.alias("com.fanap.business.cmplexpenditure.dto.ValidationResultDTO", FcbValidationResponse.class);
-
         xstream.alias("com.fanap.business.cmplexpenditure.dto.DepositClosedResultDTO", DepositClosedResponse.class);
-
         xstream.alias(
                 "com.fanap.business.cmplexpenditure.dto.ValidateDebtorDepositResultDTO",
                 ValidateDebtorDepositResponse.class);
-
         xstream.alias(
                 "com.fanap.business.cmplexpenditure.dto.ValidateCreditorDepositResultDTO",
                 ValidateCreditorDepositResponse.class);
-
         xstream.alias("com.fanap.business.cmplexpenditure.dto.CustomerInfoResultDTO", CustomerInfoResponse.class);
-
         xstream.alias(
                 "com.fanap.business.deposit.service.valueobjects.TransferMoneyReturnVO", TransferMoneyResponse.class);
-
         xstream.alias("com.fanap.business.cmplexpenditure.dto.ReasonTypeDTO", ReasonTypeResponse.class);
-
         xstream.alias(
                 "com.fanap.business.cmplexpenditure.dto.HasAllowedCurrencyResultDTO", HasAllowedCurrencyResponse.class);
 
         xstream.autodetectAnnotations(true);
-
         xstream.ignoreUnknownElements();
+
         return xstream;
     }
 }

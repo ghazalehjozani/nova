@@ -59,13 +59,7 @@ public class CustomerServiceAdapter implements CustomerServicePort {
                 return Result.failure(fcbResult.notification());
             }
 
-            CustomerInfoResponse fcbResponse = fcbResult.orElseThrow();
-
-            if (fcbResponse == null) {
-                log.error("FCB returned null response");
-                return Result.failure(Notification.ofError(
-                        FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE, "FCB service returned null response"));
-            }
+            CustomerInfoResponse fcbResponse = fcbResult.orElseThrow(); // TODO: add exception
 
             if (fcbResponse.isError()) {
                 log.error(

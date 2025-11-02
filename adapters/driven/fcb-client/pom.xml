@@ -59,6 +59,10 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <artifactId>platform-commons-security</artifactId>
+            <groupId>ir.dotin.platform</groupId>
+        </dependency>
     </dependencies>
 
 </project>

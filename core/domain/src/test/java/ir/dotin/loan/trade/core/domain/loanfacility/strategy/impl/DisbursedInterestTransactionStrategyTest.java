@@ -17,7 +17,7 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.annotation.DomainComponent;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
-import ir.dotin.loan.baseloan.core.domain.shared.interaction.FindAccountByRelationTypeClient;
+import ir.dotin.loan.baseloan.core.domain.shared.interaction.OpenAccountClient;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.CalculationContext;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.factory.DebitCreditArticleSpecFactory;
 import ir.dotin.loan.baseloan.core.domain.shared.validator.ArticleBalanceValidator;
@@ -42,7 +42,7 @@ import static org.mockito.Mockito.never;
 final class DisbursedInterestTransactionStrategyTest {
 
     @Mock
-    private FindAccountByRelationTypeClient mockFindAccountClient;
+    private OpenAccountClient mockOpenAccountClient;
 
     @Mock
     private DebitCreditArticleSpecFactory<DisbursedInterestArticleType, TradeRelationType> mockSpecFactory;
@@ -65,7 +65,7 @@ final class DisbursedInterestTransactionStrategyTest {
     @BeforeEach
     void setUp() {
         strategy = new DisbursedInterestTransactionStrategy(
-                mockFindAccountClient, mockSpecFactory, mockArticleBalanceValidator);
+                mockOpenAccountClient, mockSpecFactory, mockArticleBalanceValidator);
 
         setupMoneyMocks();
         setupBasicMocks();
@@ -93,7 +93,7 @@ final class DisbursedInterestTransactionStrategyTest {
     }
 
     private void setupBasicMocks() {
-        lenient().when(mockCalculationContext.transactionCurrency()).thenReturn(DEFAULT_CURRENCY);
+        lenient().when(mockCalculationContext.currencyType()).thenReturn(DEFAULT_CURRENCY);
         lenient()
                 .when(mockSpecFactory.getDebitArticleType())
                 .thenReturn(DisbursedInterestArticleType.INTEREST_DEBIT_LEG);
@@ -110,7 +110,7 @@ final class DisbursedInterestTransactionStrategyTest {
         @DisplayName("should create strategy with valid parameters")
         void shouldCreateStrategyWithValidParameters() {
             var newStrategy = new DisbursedInterestTransactionStrategy(
-                    mockFindAccountClient, mockSpecFactory, mockArticleBalanceValidator);
+                    mockOpenAccountClient, mockSpecFactory, mockArticleBalanceValidator);
 
             assertThat(newStrategy).isNotNull();
         }
@@ -119,7 +119,7 @@ final class DisbursedInterestTransactionStrategyTest {
         @DisplayName("should throw exception when spec factory is null")
         void shouldThrowExceptionWhenSpecFactoryIsNull() {
             assertThatThrownBy(() -> new DisbursedInterestTransactionStrategy(
-                            mockFindAccountClient, null, mockArticleBalanceValidator))
+                            mockOpenAccountClient, null, mockArticleBalanceValidator))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessageContaining("Spec factory cannot be null");
         }
@@ -128,7 +128,7 @@ final class DisbursedInterestTransactionStrategyTest {
         @DisplayName("should throw exception when balance validator is null")
         void shouldThrowExceptionWhenBalanceValidatorIsNull() {
             assertThatThrownBy(() ->
-                            new DisbursedInterestTransactionStrategy(mockFindAccountClient, mockSpecFactory, null))
+                            new DisbursedInterestTransactionStrategy(mockOpenAccountClient, mockSpecFactory, null))
                     .isInstanceOf(NullPointerException.class)
                     .hasMessageContaining("Balance validator cannot be null");
         }

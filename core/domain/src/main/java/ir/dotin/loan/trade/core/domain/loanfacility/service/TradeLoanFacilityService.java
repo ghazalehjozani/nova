@@ -11,8 +11,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.service.AbstractLoanFacilityService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumbers;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan;
@@ -28,12 +27,12 @@ public class TradeLoanFacilityService
 
     @Override
     protected Result<Void> validateTransactionNumbers(
-            TradeLoanFacility facility, TrackedTransactionNumbers<?> transactionNumbers) {
+            TradeLoanFacility facility, TrackedTransactionNumber transactionNumbers) {
 
-        if (transactionNumbers == null || transactionNumbers.isEmpty()) {
+        if (transactionNumbers == null) {
             return Result.failure(Notification.ofError(
                     TradeLoanFacilityLocalizedMessageCodes.BUILDER_VALIDATION_FAILED,
-                    "Transaction numbers cannot be null or empty for trade loans"));
+                    "Transaction numbers cannot be null for trade loans"));
         }
 
         return Result.success();
@@ -82,11 +81,9 @@ public class TradeLoanFacilityService
 
         // Create a TradeSanctionedLoan.Builder from the loan application data
         var builder = TradeSanctionedLoan.builder()
-                .id(SanctionedLoanId.generate())
                 .sanctionSerial(SanctionSerial.of("AUTO_GENERATED-" + System.currentTimeMillis(), SanctionType.GENERAL)
                         .orElseThrow())
                 .approvedAmount(loanApplication.getRequestedAmount())
-                .currency(loanApplication.getCurrency())
                 .gracePeriod(loanApplication.getGracePeriod())
                 .installmentCount(loanApplication.getInstallmentCount())
                 .loanDuration(loanApplication.getRequestedLoanDuration())

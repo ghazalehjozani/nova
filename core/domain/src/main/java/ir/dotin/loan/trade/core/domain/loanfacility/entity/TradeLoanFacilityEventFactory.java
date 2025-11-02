@@ -1,7 +1,6 @@
 package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 
 import java.time.Clock;
-import java.util.List;
 
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.LoanFacilityEventFactory;
@@ -14,14 +13,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.*;
 
-import static java.util.UUID.randomUUID;
-
 final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<TradeLoanFacilityEvents<?, ?>> {
-
-    @Override
-    public SanctionedLoanId generateSanctionedLoanId() {
-        return new SanctionedLoanId(randomUUID());
-    }
 
     @Override
     public TradeLoanFacilityApprovalSubmitted createPendingApprovalEvent(
@@ -47,8 +39,8 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
 
     @Override
     public TradeLoanFacilityContractIssued createContractIssuedEvent(
-            LoanFacilityId facilityId, SanctionedLoanId sanctionId, List<String> transactionNumbers, Clock clock) {
-        return TradeLoanFacilityContractIssued.of(facilityId, sanctionId, transactionNumbers, clock);
+            LoanFacilityId facilityId, SanctionedLoanId sanctionId, String transactionNumber, Clock clock) {
+        return TradeLoanFacilityContractIssued.of(facilityId, sanctionId, transactionNumber, clock);
     }
 
     @Override

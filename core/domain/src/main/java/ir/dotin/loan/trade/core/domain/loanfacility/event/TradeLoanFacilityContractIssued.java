@@ -2,7 +2,6 @@ package ir.dotin.loan.trade.core.domain.loanfacility.event;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 import org.jspecify.annotations.NonNull;
@@ -17,10 +16,10 @@ public record TradeLoanFacilityContractIssued(
         UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
         implements TradeLoanFacilityEvents<TradeLoanFacilityContractIssued, TradeLoanFacilityContractIssued.Payload> {
 
-    public record Payload(SanctionedLoanId sanctionedLoanId, List<String> transactionNumbers) {
+    public record Payload(SanctionedLoanId sanctionedLoanId, String transactionNumber) {
         public Payload {
             requireNonNull(sanctionedLoanId);
-            requireNonNull(transactionNumbers);
+            requireNonNull(transactionNumber);
         }
     }
 
@@ -32,9 +31,9 @@ public record TradeLoanFacilityContractIssued(
     }
 
     public static TradeLoanFacilityContractIssued of(
-            LoanFacilityId id, SanctionedLoanId sanId, List<String> transactionNumbers, Clock clock) {
+            LoanFacilityId id, SanctionedLoanId sanId, String transactionNumber, Clock clock) {
         return new TradeLoanFacilityContractIssued(
-                randomUUID(), id, new Payload(sanId, transactionNumbers), clock.instant());
+                randomUUID(), id, new Payload(sanId, transactionNumber), clock.instant());
     }
 
     @Override

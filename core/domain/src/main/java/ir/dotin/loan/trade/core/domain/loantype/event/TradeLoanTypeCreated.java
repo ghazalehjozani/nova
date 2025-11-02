@@ -3,7 +3,6 @@ package ir.dotin.loan.trade.core.domain.loantype.event;
 import java.time.Instant;
 import java.util.UUID;
 
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 
 import static java.util.Objects.requireNonNull;
@@ -17,7 +16,7 @@ public record TradeLoanTypeCreated(UUID eventId, LoanTypeId aggregateId, Payload
         requireNonNull(payload);
     }
 
-    public record Payload(LoanTypeCode code) {
+    public record Payload(UUID loanTypeId, String code) {
         public Payload {
             requireNonNull(code);
         }

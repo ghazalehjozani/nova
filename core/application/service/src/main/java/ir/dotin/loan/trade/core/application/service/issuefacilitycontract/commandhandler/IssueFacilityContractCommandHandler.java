@@ -13,12 +13,15 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
+import ir.dotin.loan.baseloan.core.domain.shared.factory.DocumentMetadataFactory;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.PostTitle;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.document.metadata.OperationalInfo;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.IssueFacilityContractCommand;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.TransactionPostingPort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanTypeRepository;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.configuration.IssueFacilityContractConfiguration;
@@ -44,14 +47,16 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
 
     @Override
     public Result<List<DomainEvent<?, ?>>> handle(IssueFacilityContractCommand command) {
-
+        TransactionConfig transactionConfig =
+                TransactionConfig.defaultBranchConfig("1234"); // TODO: should get from token and command
         return loadFacility(command.loanFacilityId()).flatMap(facility -> loadLoanType(facility)
                 .flatMap(loanType -> createPostTitle(facility)
                         .flatMap(postTitle -> createTransaction(
                                 facility,
                                 loanType,
                                 postTitle,
-                                BranchCode.of(command.branchCode()).getValue())))
+                                BranchCode.of(command.branchCode()).getValue(),
+                                transactionConfig)))
                 .flatMap(transactionPostingPort::postTransaction)
                 .mapNonNull(transactionNumbers -> {
                     facility.issueContract(transactionNumbers, clock);
@@ -84,7 +89,31 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
     }
 
     private Result<LoanTransaction> createTransaction(
-            TradeLoanFacility facility, TradeLoanType loanType, PostTitle postTitle, BranchCode branchCode) {
-        return transactionService.createIssueContractTransaction(facility, loanType, branchCode, postTitle);
+            TradeLoanFacility facility,
+            TradeLoanType loanType,
+            PostTitle postTitle,
+            BranchCode branchCode,
+            TransactionConfig config) {
+
+        return DocumentMetadataFactory.builder()
+                .terminal(DocumentMetadataFactory.TerminalConfig.of(
+                        config.terminalType(), branchCode.value(), config.terminalIp()))
+                .product(DocumentMetadataFactory.ProductConfig.of(
+                        config.productCode(),
+                        loanType.getCode().value(),
+                        facility.getLoanApplication()
+                                .getApplicationNumber()
+                                .get()
+                                .formattedApplicationNumber()))
+                .party(DocumentMetadataFactory.PartyConfig.of(
+                        facility.getLoanApplication().getCustomer().customerNumber(),
+                        facility.getLoanApplication().getCustomer().name().fullName(),
+                        List.of()))
+                .tool(DocumentMetadataFactory.ToolConfig.of(config.userId(), config.toolSource()))
+                .network(DocumentMetadataFactory.NetworkConfig.of(config.networkType(), config.channel()))
+                .operational(OperationalInfo.builder().build())
+                .build()
+                .flatMap(metadata -> transactionService.createIssueContractTransaction(
+                        facility, loanType, branchCode, postTitle, metadata));
     }
 }

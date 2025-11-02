@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1762092448899-2" author="DOTIN\m.amirabdollahi">
+        <dropColumn columnName="relation_type" tableName="loan_facility_disbursement_transaction_numbers"/>
+    </changeSet>
+    <changeSet id="1762092448899-3" author="DOTIN\m.amirabdollahi">
+        <dropColumn columnName="relation_type" tableName="loan_facility_issue_contract_transaction_numbers"/>
+    </changeSet>
+
+</databaseChangeLog>

@@ -2,7 +2,6 @@ package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -126,7 +125,7 @@ final class TradeLoanFacilityEventFactoryTest {
         @Test
         @DisplayName("should create contract issued event")
         void shouldCreateContractIssuedEvent() {
-            var event = factory.createContractIssuedEvent(mockFacilityId, mockSanctionId, List.of("trx1"), fixedClock);
+            var event = factory.createContractIssuedEvent(mockFacilityId, mockSanctionId, "trx1", fixedClock);
 
             assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityContractIssued.class);
         }
@@ -205,28 +204,6 @@ final class TradeLoanFacilityEventFactoryTest {
                     mockFacilityId, mockSanctionId, mockMoney, fixedClock);
 
             assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityAdditionalDisbursementCompleted.class);
-        }
-    }
-
-    @Nested
-    @DisplayName("ID Generation Tests")
-    final class IdGenerationTests {
-
-        @Test
-        @DisplayName("should generate sanctioned loan id")
-        void shouldGenerateSanctionedLoanId() {
-            var id = factory.generateSanctionedLoanId();
-
-            assertThat(id).isNotNull().isInstanceOf(SanctionedLoanId.class);
-        }
-
-        @Test
-        @DisplayName("should generate different ids on multiple calls")
-        void shouldGenerateDifferentIdsOnMultipleCalls() {
-            var id1 = factory.generateSanctionedLoanId();
-            var id2 = factory.generateSanctionedLoanId();
-
-            assertThat(id1).isNotEqualTo(id2);
         }
     }
 }

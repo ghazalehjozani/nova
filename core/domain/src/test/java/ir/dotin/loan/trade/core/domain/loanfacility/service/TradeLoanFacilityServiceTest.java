@@ -23,7 +23,8 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumbers;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan;
@@ -48,14 +49,15 @@ class TradeLoanFacilityServiceTest {
     private CollateralSerial mockCollateralSerial;
 
     private TradeLoanFacilityService service;
-    private TrackedTransactionNumbers<?> validTradeTransactionNumbers;
+    private TrackedTransactionNumber validTradeTransactionNumbers;
 
     @BeforeEach
     void setUp() {
         Clock testClock = Clock.fixed(Instant.parse("2023-01-01T00:00:00Z"), UTC);
         service = new TradeLoanFacilityService(testClock);
 
-        validTradeTransactionNumbers = TrackedTransactionNumbers.empty();
+        validTradeTransactionNumbers =
+                TrackedTransactionNumber.create("TXN-001", TransactionStatus.POSTED, Clock.systemUTC());
     }
 
     @DisplayName("when validating transaction numbers")
@@ -78,17 +80,6 @@ class TradeLoanFacilityServiceTest {
         void shouldFailWhenTransactionNumbersAreNull() {
             // when
             var result = service.validateTransactionNumbers(mockFacility, null);
-
-            // then
-            assertThat(result.isFailure()).isTrue();
-            assertThat(result.notification().hasErrors()).isTrue();
-        }
-
-        @DisplayName("should fail when transaction numbers are empty")
-        @Test
-        void shouldFailWhenTransactionNumbersAreEmpty() {
-            // when
-            var result = service.validateTransactionNumbers(mockFacility, TrackedTransactionNumbers.empty());
 
             // then
             assertThat(result.isFailure()).isTrue();

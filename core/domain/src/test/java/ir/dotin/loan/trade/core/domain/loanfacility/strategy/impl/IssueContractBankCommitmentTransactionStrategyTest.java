@@ -93,7 +93,7 @@
 //    }
 //
 //    private void setupBasicMocks() {
-//        lenient().when(mockCalculationContext.transactionCurrency()).thenReturn(DEFAULT_CURRENCY);
+//        lenient().when(mockCalculationContext.currencyType()).thenReturn(DEFAULT_CURRENCY);
 //        lenient()
 //                .when(mockSpecFactory.getDebitArticleType())
 //                .thenReturn(IssueContractBankCommitmentArticleType.BANK_COMMITMENT_DEBIT_LEG);

@@ -52,7 +52,8 @@ public final class TradeLoanType extends AbstractLoanType {
 
         TradeLoanType loanType = builder.buildInternal();
 
-        var payload = new TradeLoanTypeCreated.Payload(loanType.getCode());
+        var payload = new TradeLoanTypeCreated.Payload(
+                loanType.getId().value(), loanType.getCode().value());
 
         var creationEvent = new TradeLoanTypeCreated(randomUUID(), loanType.getId(), payload, clock.instant());
         loanType.registerEvent(creationEvent);

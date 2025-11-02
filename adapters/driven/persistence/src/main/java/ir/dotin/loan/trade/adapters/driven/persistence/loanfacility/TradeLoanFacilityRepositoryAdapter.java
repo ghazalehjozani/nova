@@ -14,20 +14,17 @@ import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.repository.T
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
+import lombok.RequiredArgsConstructor;
+
 import static java.util.Objects.requireNonNull;
 
 @Repository
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class TradeLoanFacilityRepositoryAdapter implements TradeLoanFacilityRepository {
 
     private final TradeLoanFacilityJpaRepository jpaRepository;
     private final TradeLoanFacilityPersistenceMapper mapper;
-
-    public TradeLoanFacilityRepositoryAdapter(
-            TradeLoanFacilityJpaRepository jpaRepository, TradeLoanFacilityPersistenceMapper mapper) {
-        this.jpaRepository = jpaRepository;
-        this.mapper = mapper;
-    }
 
     @Override
     @Transactional

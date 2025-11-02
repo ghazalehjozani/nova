@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.interaction.ExternalTransactionPostingClient;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.ExternalTransactionPostingPort;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,10 +14,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ExternalTransactionPostingService implements ExternalTransactionPostingClient {
 
-    private final ExternalTransactionPostingPort externalTransactionPostingPort;
+    private final TransactionPostingPort externalTransactionPostingPort;
 
     @Override
-    public Result<TransactionNumber> postTransaction(LoanTransaction transactionToPost) {
+    public Result<TrackedTransactionNumber> postTransaction(LoanTransaction transactionToPost) {
         return externalTransactionPostingPort.postTransaction(transactionToPost);
     }
 }

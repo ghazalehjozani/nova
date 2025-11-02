@@ -15,7 +15,6 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestination
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
-import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
 public record TradeFacilityQueryDto(
         UUID id,
@@ -167,11 +166,6 @@ public record TradeFacilityQueryDto(
 
     public record MoneyEmbDto(BigDecimal amount, String currency) implements Serializable {}
 
-    public record TransactionNumberEmbDto(
-            String value,
-            TradeRelationType relationType,
-            Instant createdAt,
-            String trackingId,
-            TransactionStatus status)
+    public record TransactionNumberEmbDto(String value, Instant createdAt, String trackingId, TransactionStatus status)
             implements Serializable {}
 }

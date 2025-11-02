@@ -81,7 +81,8 @@ public class TradeDisbursementTransactionService {
                                 branchCode,
                                 components,
                                 postTitle,
-                                findStrategy(DisburseBankCommitmentArticleType.class)))
+                                findStrategy(DisburseBankCommitmentArticleType.class),
+                                null)) // TODO: create base in app service
                         .orElseGet(() -> Result.failure(Notification.ofError(
                                 TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND_FOR_FACILITY))));
     }
@@ -108,7 +109,8 @@ public class TradeDisbursementTransactionService {
                                 branchCode,
                                 components,
                                 postTitle,
-                                findStrategy(PaymentAmountArticleType.class)))
+                                findStrategy(PaymentAmountArticleType.class),
+                                null)) // TODO: create base in app service
                         .orElseGet(() -> Result.failure(Notification.ofError(
                                 TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND))));
     }
@@ -135,7 +137,8 @@ public class TradeDisbursementTransactionService {
                                 branchCode,
                                 components,
                                 postTitle,
-                                findStrategy(DisbursedInterestArticleType.class)))
+                                findStrategy(DisbursedInterestArticleType.class),
+                                null)) // TODO: create base in app service
                         .orElseGet(() -> Result.failure(Notification.ofError(
                                 TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND))));
     }

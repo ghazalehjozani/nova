@@ -32,7 +32,6 @@ public class FcbServiceImpl implements FcbService {
     private final FcbFeignClient fcbFeignClient;
     private final FcbBaseRequestBuilder requestBuilder;
     private final FcbConfiguration fcbConfiguration;
-    private final XStream xStream = new XStream();
 
     @Override
     public <T> Result<T> executeUsecase(FcbRequest request, Class<T> responseClass) {
@@ -53,7 +52,7 @@ public class FcbServiceImpl implements FcbService {
 
             // Close the response body to prevent resource leaks
             if (response.body() != null) {
-                try {
+                try { // TODO: Nested try catch !!!!
                     response.body().close();
                 } catch (IOException e) {
                     log.warn("Error closing response body", e);

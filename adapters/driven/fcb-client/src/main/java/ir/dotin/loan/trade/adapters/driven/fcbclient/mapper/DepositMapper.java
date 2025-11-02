@@ -17,8 +17,6 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.response.Depos
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Objects;
-
 @Slf4j
 @UtilityClass
 public class DepositMapper {
@@ -38,7 +36,6 @@ public class DepositMapper {
             }
         } else {
             log.warn("Currency information is null for deposit: {}", response.getNumber());
-
         }
 
         if (notification.hasErrors()) {

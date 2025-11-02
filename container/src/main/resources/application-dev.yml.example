@@ -11,6 +11,9 @@ spring:
   docker:
     compose:
       lifecycle-management: start_only
+  devtools:
+    restart:
+      enabled: true
 server:
   ssl:
     enabled: false

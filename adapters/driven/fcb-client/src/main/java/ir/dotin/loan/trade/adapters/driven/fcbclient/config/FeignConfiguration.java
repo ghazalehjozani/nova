@@ -13,7 +13,6 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
-import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -72,12 +71,8 @@ public class FeignConfiguration {
 
     @Bean
     public Encoder formEncoder() {
-        return new FormEncoder(new SpringEncoder(new ObjectFactory<HttpMessageConverters>() {
-            @Override
-            public HttpMessageConverters getObject() {
-                return new HttpMessageConverters(new StringHttpMessageConverter(StandardCharsets.UTF_8));
-            }
-        }));
+        return new FormEncoder(new SpringEncoder(
+                () -> new HttpMessageConverters(new StringHttpMessageConverter(StandardCharsets.UTF_8))));
     }
 
     @Bean
@@ -119,9 +114,7 @@ public class FeignConfiguration {
         private final XStream xstream;
 
         public XmlDecoder() {
-            this.xstream = new XStream();
-            XStream.setupDefaultSecurity(this.xstream);
-            this.xstream.allowTypesByWildcard(new String[] {"**"});
+            this.xstream = FcbXStreamFactory.createXStream();
         }
 
         @Override

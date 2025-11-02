@@ -1,12 +1,16 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 
+import java.time.Clock;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.IssueDocumentRequest;
@@ -18,7 +22,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMe
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.AccountMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.IssueDocumentRequestBuilder;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.ExternalTransactionPostingPort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,14 +30,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ExternalTransactionPostingAdapter implements ExternalTransactionPostingPort {
+public class TransactionPostingAdapter implements TransactionPostingPort {
 
     private final FcbService fcbService;
     private final FcbBaseRequestBuilder requestBuilder;
     private final IssueDocumentRequestBuilder issueDocumentRequestBuilder;
+    private final Clock clock;
 
     @Override
-    public Result<TransactionNumber> postTransaction(LoanTransaction loanTransaction) {
+    public Result<TrackedTransactionNumber> postTransaction(LoanTransaction loanTransaction) {
+        UUID trackingId = UUID.randomUUID(); // TODO: send this as transaction ID
         log.info(
                 "Issuing document from LoanTransaction - facilityId: {}, articles: {}",
                 loanTransaction.loanFacilityId().value(),
@@ -71,8 +77,8 @@ public class ExternalTransactionPostingAdapter implements ExternalTransactionPos
                     "Document issued successfully - transactionNumber: {}, processed items: {}",
                     transactionNumber.value(),
                     returns.size());
-
-            return Result.success(transactionNumber);
+            return Result.success(TrackedTransactionNumber.create(
+                    transactionNumber.value(), trackingId.toString(), TransactionStatus.POSTED, clock));
 
         } catch (Exception e) {
             log.error("Unexpected error issuing document from LoanTransaction", e);

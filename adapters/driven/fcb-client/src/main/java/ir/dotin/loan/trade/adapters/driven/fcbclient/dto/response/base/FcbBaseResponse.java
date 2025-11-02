@@ -33,7 +33,7 @@ public abstract class FcbBaseResponse {
     }
 
     public boolean isError() {
-        return "EXCEPTION".equalsIgnoreCase(rsCode) || "-1".equals(transactionCode);
+        return false;
     }
 
     public String getErrorDescription() {

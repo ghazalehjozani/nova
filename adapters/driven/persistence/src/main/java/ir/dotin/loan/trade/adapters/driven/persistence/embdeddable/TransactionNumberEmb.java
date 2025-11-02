@@ -9,7 +9,6 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
-import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
 import lombok.Data;
 
@@ -19,10 +18,6 @@ public class TransactionNumberEmb implements Serializable {
 
     @Column(name = "transaction_number_value", nullable = false)
     private String value;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "relation_type", nullable = false)
-    private TradeRelationType relationType;
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;

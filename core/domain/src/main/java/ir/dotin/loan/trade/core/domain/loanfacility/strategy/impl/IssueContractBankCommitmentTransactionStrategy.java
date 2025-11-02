@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableList;
 
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.annotation.DomainService;
-import ir.dotin.loan.baseloan.core.domain.shared.interaction.FindAccountByRelationTypeClient;
+import ir.dotin.loan.baseloan.core.domain.shared.interaction.OpenAccountClient;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.AbstractMultiArticleCalculationStrategy;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.CalculationContext;
 import ir.dotin.loan.baseloan.core.domain.shared.validator.ArticleBalanceValidator;
@@ -28,7 +28,7 @@ public final class IssueContractBankCommitmentTransactionStrategy
     private final IssueContractBankCommitmentArticleSpecFactory specFactory;
 
     public IssueContractBankCommitmentTransactionStrategy(
-            FindAccountByRelationTypeClient findAccountClient,
+            OpenAccountClient findAccountClient,
             IssueContractBankCommitmentArticleSpecFactory bankCommitmentArticleSpecFactory,
             ArticleBalanceValidator articleBalanceValidator) {
         super(findAccountClient, requireNonNull(articleBalanceValidator, "Balance validator cannot be null"));

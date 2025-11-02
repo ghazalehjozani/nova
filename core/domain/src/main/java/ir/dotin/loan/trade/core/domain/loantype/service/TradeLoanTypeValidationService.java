@@ -7,6 +7,7 @@ import ir.dotin.loan.baseloan.core.domain.loantype.specification.LoanTypeApplica
 import ir.dotin.loan.baseloan.core.domain.loantype.specification.LoanTypeLoanArrangementExistenceSpecification;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
+import ir.dotin.loan.trade.core.domain.loantype.specification.MandatoryRelationTypeLoanTopicSpecification;
 
 @DomainService
 public class TradeLoanTypeValidationService implements LoanTypeValidationService<TradeLoanType, TradeLoanArrangement> {
@@ -14,8 +15,12 @@ public class TradeLoanTypeValidationService implements LoanTypeValidationService
     @Override
     public Result<Boolean> validateLoanType(TradeLoanType loanType, TradeLoanArrangement loanArrangement) {
         return new LoanTypeLoanArrangementExistenceSpecification(loanArrangement.getId())
-                .and(new LoanTypeApplicationAllowedSpecification()) // TODO: Add checking of matching eco sector and
-                // currency match with provided loan arrangement
+                .and(new LoanTypeApplicationAllowedSpecification())
+                .and(new MandatoryRelationTypeLoanTopicSpecification())
                 .isSatisfiedBy(loanType);
+    }
+
+    public Result<Boolean> validateMandatoryRelationTypeLoanTopics(TradeLoanType loanType) {
+        return new MandatoryRelationTypeLoanTopicSpecification().isSatisfiedBy(loanType);
     }
 }

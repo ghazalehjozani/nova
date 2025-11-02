@@ -16,6 +16,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.Tr
 import ir.dotin.loan.trade.core.application.service.defineloantype.i18n.DefineLoanTypeErrorCodes;
 import ir.dotin.loan.trade.core.application.service.defineloantype.mapper.DefineLoanTypeCommandMapper;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
+import ir.dotin.loan.trade.core.domain.loantype.service.TradeLoanTypeValidationService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,18 +28,22 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
 
     private final DefineLoanTypeCommandMapper mapper;
     private final TradeLoanTypeRepository repository;
+    private final TradeLoanTypeValidationService loanTypeValidationService;
     private final Clock clock;
 
     @Override
     public Result<List<DomainEvent<?, ?>>> handle(DefineLoanTypeCommand command) {
         return TradeLoanType.create(mapper.toBuilder(command), clock)
                 .flatMap(loanType -> repository
-                        .existsById(loanType.getId())
+                        .existsByCode(loanType.getCode())
                         .flatMap(exists -> Result.requireFalse(
                                 exists,
                                 Notification.ofError(
                                         DefineLoanTypeErrorCodes.LOAN_TYPE_ALREADY_EXISTS,
-                                        loanType.getId().value())))
+                                        loanType.getCode().value())))
+                        .map(ignored -> loanType))
+                .flatMap(loanType -> loanTypeValidationService
+                        .validateMandatoryRelationTypeLoanTopics(loanType)
                         .map(ignored -> loanType))
                 .peekValue(loanType -> {
                     repository.save(loanType);

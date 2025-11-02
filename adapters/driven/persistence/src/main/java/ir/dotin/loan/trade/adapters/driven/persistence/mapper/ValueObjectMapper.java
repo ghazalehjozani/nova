@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driven.persistence.mapper;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -86,7 +87,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TopicRelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumbers;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.AccountEmb;
@@ -323,11 +323,9 @@ public abstract class ValueObjectMapper {
 
     public abstract InstallmentAmount toInstallmentAmount(InstallmentAmountEmb embeddable);
 
-    public abstract TransactionNumberEmb toTransactionNumberEmb(
-            TrackedTransactionNumber<TradeRelationType> trackedTransactionNumber);
+    public abstract TransactionNumberEmb toTransactionNumberEmb(TrackedTransactionNumber trackedTransactionNumber);
 
-    public abstract TrackedTransactionNumber<TradeRelationType> toTrackedTransactionNumber(
-            TransactionNumberEmb embeddable);
+    public abstract TrackedTransactionNumber toTrackedTransactionNumber(TransactionNumberEmb embeddable);
 
     public abstract AccountEmb toAccountEmb(DestinationAccount destinationAccount);
 
@@ -509,25 +507,22 @@ public abstract class ValueObjectMapper {
 
     @Named("toTransactionNumberEmbList")
     public List<TransactionNumberEmb> toTransactionNumberEmbList(
-            TrackedTransactionNumbers<TradeRelationType> trackedTransactionNumbers) {
+            List<TrackedTransactionNumber> trackedTransactionNumbers) {
         if (trackedTransactionNumbers == null || trackedTransactionNumbers.isEmpty()) {
             return List.of();
         }
-        return trackedTransactionNumbers.getAllSorted().stream()
+        return trackedTransactionNumbers.stream()
                 .map(this::toTransactionNumberEmb)
                 .collect(Collectors.toList());
     }
 
     public abstract RegulatoryCompliancePolicyEmb toRegulatoryCompliancePolicy(RegulatoryCompliancePolicy policy);
 
-    public TrackedTransactionNumbers<TradeRelationType> toTrackedTransactionNumbers(
-            List<TransactionNumberEmb> embeddables) {
+    public List<TrackedTransactionNumber> toTrackedTransactionNumber(List<TransactionNumberEmb> embeddables) {
         if (embeddables == null || embeddables.isEmpty()) {
-            return TrackedTransactionNumbers.empty();
+            return new ArrayList<>();
         }
-        List<TrackedTransactionNumber<TradeRelationType>> numbers =
-                embeddables.stream().map(this::toTrackedTransactionNumber).collect(Collectors.toList());
-        return TrackedTransactionNumbers.of(numbers);
+        return embeddables.stream().map(this::toTrackedTransactionNumber).collect(Collectors.toList());
     }
 
     public Set<CollateralTypeEmb> toCollateralTypeEmbSet(List<CollateralType> collateralTypes) {
@@ -580,9 +575,8 @@ public abstract class ValueObjectMapper {
     }
 
     @Named("embToTrackedTransactionNumber")
-    public TrackedTransactionNumber<TradeRelationType> embToTrackedTransactionNumber(TransactionNumberEmb emb) {
-        return new TrackedTransactionNumber<>(
-                emb.getValue(), emb.getRelationType(), emb.getCreatedAt(), emb.getTrackingId(), emb.getStatus());
+    public TrackedTransactionNumber embToTrackedTransactionNumber(TransactionNumberEmb emb) {
+        return new TrackedTransactionNumber(emb.getValue(), emb.getCreatedAt(), emb.getTrackingId(), emb.getStatus());
     }
 
     public String mapParameterizedFormulaToString(
@@ -850,9 +844,13 @@ public abstract class ValueObjectMapper {
         return value != null ? value.stream().map(this::toAttribute).collect(Collectors.toList()) : null;
     }
 
-    public abstract UUID map(SanctionedLoanId value);
+    public UUID map(SanctionedLoanId value) {
+        return value != null ? value.value() : null;
+    }
 
-    public abstract SanctionedLoanId mapToSanctionedLoanId(UUID value);
+    public SanctionedLoanId mapToSanctionedLoanId(UUID value) {
+        return value != null ? SanctionedLoanId.of(value) : null;
+    }
 
     public LifeInsuranceId stringToLifeInsuranceId(String value) {
         return new LifeInsuranceId(value);
@@ -887,12 +885,12 @@ public abstract class ValueObjectMapper {
     }
 
     @Named("loanArrangementCodeToString")
-    public String stringToLoanArrangementCode(LoanArrangementCode loanArrangementCode) {
+    public String loanArrangementCodeToString(LoanArrangementCode loanArrangementCode) {
         return loanArrangementCode.value();
     }
 
     @Named("stringToLoanArrangementCode")
-    public LoanArrangementCode loanArrangementCodeToString(String loanArrangementCode) {
+    public LoanArrangementCode stringToLoanArrangementCode(String loanArrangementCode) {
         return new LoanArrangementCode(loanArrangementCode);
     }
 }
