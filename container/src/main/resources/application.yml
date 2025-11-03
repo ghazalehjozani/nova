@@ -59,6 +59,13 @@ management:
   endpoint:
     health:
       show-details: always
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState,db,redis,messaging,tpsSso,dispatcher,diskSpace
+      probes:
+        enabled: true
   metrics:
     distribution:
       percentiles-histogram:
@@ -311,6 +318,8 @@ platform:
     authorization:
       public-paths:
         - /actuator/health
+        - /actuator/health/liveness
+        - /actuator/health/readiness
         - /actuator/info
         - /swagger-ui/**
         - /v3/api-docs/**

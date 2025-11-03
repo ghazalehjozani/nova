@@ -38,13 +38,7 @@ mvn clean package -Pk8s,spring-boot-application -DskipTests
 echo -e "\n${YELLOW}Building Docker image...${NC}"
 docker build -t trade-loan-service:latest .
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    DOCKER_HOST_IP="host.docker.internal"
-elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    DOCKER_HOST_IP=$(minikube ssh "ip route show default" | awk '/default/ {print $3}')
-else
-    DOCKER_HOST_IP="host.docker.internal"
-fi
+DOCKER_HOST_IP=$(minikube ssh "ip route show default" | awk '/default/ {print $3}')
 
 echo -e "\n${YELLOW}Creating secrets...${NC}"
 DB_URL="jdbc:postgresql://${DOCKER_HOST_IP}:${DB_PORT}/${DB_NAME}"
@@ -85,5 +79,5 @@ kubectl get pods -l app=trade-loan-service
 
 echo -e "\n${GREEN}=== Access Commands ===${NC}"
 echo -e "Logs: ${YELLOW}kubectl logs -f deployment/trade-loan-service${NC}"
-echo -e "Port forward: ${YELLOW}kubectl port-forward service/trade-loan-service 8080:8080${NC}"
-echo -e "Health: ${YELLOW}curl http://localhost:8080/actuator/health${NC}"
+echo -e "Port forward: ${YELLOW}kubectl port-forward service/trade-loan-service 8085:8080${NC}"
+echo -e "Health: ${YELLOW}curl http://localhost:8085/actuator/health${NC}"
