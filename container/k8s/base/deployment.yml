@@ -46,27 +46,65 @@ spec:
                   name: trade-loan-service-secrets
                   key: platform.messaging.encryption.password
             - name: KAFKA_BOOTSTRAP_SERVERS
-              value: "kafka:9092"
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: kafka.bootstrap.servers
             - name: KAFKA_CONSUMER_GROUP
-              value: "trade-loan-events"
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: kafka.consumer.group
             - name: REDIS_PASSWORD
-              value: ""
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: redis.password
             - name: SPRING_DATA_REDIS_HOST
-              value: "redis"
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: spring.data.redis.host
+            - name: SPRING_DATA_REDIS_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: spring.data.redis.port
             - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
-              value: "http://127.0.0.1:4318/v1/traces"
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: otel.traces.endpoint
             - name: OTEL_EXPORTER_OTLP_METRICS_ENDPOINT
-              value: "http://127.0.0.1:4318/v1/metrics"
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: otel.metrics.endpoint
             - name: OAUTH2_CLIENT_ID
-              value: ""
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: oauth2.client.id
             - name: OAUTH2_CLIENT_SECRET
-              value: ""
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: oauth2.client.secret
             - name: FCB_BASE_URL
-              value: ""
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: fcb.base.url
             - name: FCB_USERNAME
-              value: ""
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: fcb.username
             - name: FCB_PASSWORD
-              value: ""
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: fcb.password
           resources:
             requests:
               memory: "512Mi"
@@ -78,7 +116,7 @@ spec:
             httpGet:
               path: /actuator/health/liveness
               port: 8080
-            initialDelaySeconds: 90
+            initialDelaySeconds: 120
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
@@ -86,7 +124,7 @@ spec:
             httpGet:
               path: /actuator/health/readiness
               port: 8080
-            initialDelaySeconds: 60
+            initialDelaySeconds: 90
             periodSeconds: 5
             timeoutSeconds: 3
             failureThreshold: 3
