@@ -3,23 +3,17 @@ spring:
     name: trade-loan-service
   profiles:
     active: ${SPRING_PROFILES_ACTIVE}
----
-spring:
-  config:
-    activate:
-      on-profile: k8s
   cloud:
     kubernetes:
       enabled: true
       config:
         enabled: true
-        sources:
-          - name: application-config
-          - name: ${spring.application.name}-config
+        name: trade-loan-service-config
+        namespace: default
       secrets:
         enabled: true
-        sources:
-          - name: ${spring.application.name}-secrets
+        name: trade-loan-service-secrets
+        namespace: default
       reload:
         enabled: true
         mode: event

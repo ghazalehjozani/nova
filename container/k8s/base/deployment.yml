@@ -23,6 +23,8 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "k8s"
+            - name: SPRING_CLOUD_KUBERNETES_CONFIG_NAME
+              value: "trade-loan-service-config"
             - name: SPRING_DATASOURCE_URL
               valueFrom:
                 secretKeyRef:
@@ -45,6 +47,26 @@ spec:
                   key: platform.messaging.encryption.password
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: "kafka:9092"
+            - name: KAFKA_CONSUMER_GROUP
+              value: "trade-loan-events"
+            - name: REDIS_PASSWORD
+              value: ""
+            - name: SPRING_DATA_REDIS_HOST
+              value: "redis"
+            - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+              value: "http://127.0.0.1:4318/v1/traces"
+            - name: OTEL_EXPORTER_OTLP_METRICS_ENDPOINT
+              value: "http://127.0.0.1:4318/v1/metrics"
+            - name: OAUTH2_CLIENT_ID
+              value: ""
+            - name: OAUTH2_CLIENT_SECRET
+              value: ""
+            - name: FCB_BASE_URL
+              value: ""
+            - name: FCB_USERNAME
+              value: ""
+            - name: FCB_PASSWORD
+              value: ""
           resources:
             requests:
               memory: "512Mi"
@@ -56,11 +78,15 @@ spec:
             httpGet:
               path: /actuator/health/liveness
               port: 8080
-            initialDelaySeconds: 60
+            initialDelaySeconds: 90
             periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: 8080
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
