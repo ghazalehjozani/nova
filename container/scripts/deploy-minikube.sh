@@ -48,8 +48,14 @@ echo -e "\n${YELLOW}Patching deployment...${NC}"
 kubectl patch deployment trade-loan-service -p '{"spec":{"template":{"spec":{"containers":[{"name":"trade-loan-service","imagePullPolicy":"Never"}]}}}}'
 
 echo -e "\n${YELLOW}Waiting for deployment...${NC}"
-kubectl rollout restart deployment/trade-loan-service
+kubectl get pods -l app=trade-loan-service -w &
+WATCH_PID=$!
+
 kubectl wait --for=condition=available --timeout=300s deployment/trade-loan-service
+kill $WATCH_PID 2>/dev/null || true
+
+echo -e "\n${GREEN}✓ Deployment successful!${NC}\n"
+kubectl get pods -l app=trade-loan-service
 
 echo -e "\n${GREEN}✓ Deployment successful!${NC}\n"
 kubectl get pods -l app=trade-loan-service
