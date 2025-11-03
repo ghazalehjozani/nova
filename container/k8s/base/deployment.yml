@@ -60,12 +60,12 @@ spec:
                 secretKeyRef:
                   name: trade-loan-service-secrets
                   key: redis.password
-            - name: SPRING_DATA_REDIS_HOST
+            - name: REDIS_HOST
               valueFrom:
                 secretKeyRef:
                   name: trade-loan-service-secrets
                   key: spring.data.redis.host
-            - name: SPRING_DATA_REDIS_PORT
+            - name: REDIS_PORT
               valueFrom:
                 secretKeyRef:
                   name: trade-loan-service-secrets
