@@ -1,0 +1,17 @@
+# Setup commands:
+# sudo nano /etc/systemd/system/k8s-portforward.service
+# sudo systemctl daemon-reload
+# sudo systemctl enable --now k8s-portforward
+[Unit]
+Description=Kubernetes Port Forward
+After=network.target
+
+[Service]
+Type=simple
+User=amirabdollahi
+Environment="KUBECONFIG=/home/amirabdollahi/.kube/config"
+ExecStart=/snap/bin/kubectl port-forward --address 0.0.0.0 svc/trade-loan-service 8085:8080 -n default
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

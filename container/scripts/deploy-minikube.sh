@@ -35,8 +35,17 @@ eval $(minikube docker-env)
 echo -e "\n${YELLOW}Building application...${NC}"
 mvn clean package -Pk8s,spring-boot-application -DskipTests
 
+mkdir ca-certificates
+
+cp /usr/local/share/ca-certificates/* ca-certificates/
+
 echo -e "\n${YELLOW}Building Docker image...${NC}"
-docker build -t trade-loan-service:latest .
+docker buildx build \
+  --build-context certs=/usr/local/share \
+  -t trade-loan-service:latest \
+  --load .
+
+rm -rf ca-certificates
 
 echo -e "\n${YELLOW}Creating/updating secrets...${NC}"
 ./scripts/create-secrets.sh
@@ -57,10 +66,12 @@ kill $WATCH_PID 2>/dev/null || true
 echo -e "\n${GREEN}✓ Deployment successful!${NC}\n"
 kubectl get pods -l app=trade-loan-service
 
-echo -e "\n${GREEN}✓ Deployment successful!${NC}\n"
-kubectl get pods -l app=trade-loan-service
-
 echo -e "\n${GREEN}=== Access Commands ===${NC}"
 echo -e "Logs: ${YELLOW}kubectl logs -f deployment/trade-loan-service${NC}"
-echo -e "Port forward: ${YELLOW}kubectl port-forward service/trade-loan-service 8085:8080${NC}"
 echo -e "Health: ${YELLOW}curl http://localhost:8085/actuator/health${NC}"
+
+echo -e "\n${YELLOW}=== Port-forward Setup (run manually once) ===${NC}"
+echo -e "${YELLOW}sudo cp scripts/k8s-portforward.service /etc/systemd/system/${NC}"
+echo -e "${YELLOW}sudo systemctl daemon-reload${NC}"
+echo -e "${YELLOW}sudo systemctl enable k8s-portforward${NC}"
+echo -e "${YELLOW}sudo systemctl restart k8s-portforward${NC}"
