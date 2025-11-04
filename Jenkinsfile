@@ -269,8 +269,7 @@ pipeline {
                 script {
                     dir('container') {
                         sh '''
-                            chmod +x scripts/*.sh
-                            ./container/scripts/deploy-minikube.sh
+                        bash ./scripts/deploy-minikube.sh
                         '''
                     }
                 }
