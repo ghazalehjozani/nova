@@ -5,14 +5,18 @@ import com.thoughtworks.xstream.security.NoTypePermission;
 import com.thoughtworks.xstream.security.NullPermission;
 import com.thoughtworks.xstream.security.PrimitiveTypePermission;
 
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CancelTransferMoneyResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CustomerBirthInfoResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CustomerInfoResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.DepositClosedResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.DepositInfoResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.EconomicalSectionResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.FcbValidationResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.HasAllowedCurrencyResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.LoanTopicResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.OpenAccountResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ReasonTypeResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ResourceResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.TransferMoneyResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ValidateCreditorDepositResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ValidateDebtorDepositResponse;
@@ -62,6 +66,11 @@ public class FcbXStreamFactory {
         xstream.alias("com.fanap.business.cmplexpenditure.dto.ReasonTypeDTO", ReasonTypeResponse.class);
         xstream.alias(
                 "com.fanap.business.cmplexpenditure.dto.HasAllowedCurrencyResultDTO", HasAllowedCurrencyResponse.class);
+        xstream.alias("ir.dotin.lc.dto.ilccredit.bill.SharedTopicElectronicBillVO", LoanTopicResponse.class);
+        xstream.alias("com.fanap.business.cmplexpenditure.dto.ResourceDTO", ResourceResponse.class);
+        xstream.alias("com.fanap.business.cmplexpenditure.dto.CustomerInfoResultDTO", CustomerBirthInfoResponse.class);
+        xstream.alias(
+                "com.fanap.business.cmplexpenditure.dto.CancelTransferMoneyDTO", CancelTransferMoneyResponse.class);
 
         xstream.autodetectAnnotations(true);
         xstream.ignoreUnknownElements();

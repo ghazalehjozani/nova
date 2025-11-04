@@ -42,7 +42,6 @@ public class CustomerInfoResponse extends FcbBaseResponse {
     @XStreamAlias("isInGrayList")
     private Boolean isInGrayList;
 
-    // Additional fields
     @XStreamAlias("fatherNameOrCompanyType")
     private String fatherNameOrCompanyType;
 
@@ -79,20 +78,18 @@ public class CustomerInfoResponse extends FcbBaseResponse {
     @XStreamAlias("shahabServiceStatus")
     private String shahabServiceStatus;
 
-    // Complex nested objects - FCB may return these but we ignore most of them
     @XStreamImplicit(itemFieldName = "addresses")
-    private List<Object> addresses; // Ignore nested addresses structure
+    private List<Object> addresses;
 
     @XStreamImplicit(itemFieldName = "jobs")
-    private List<Object> jobs; // Ignore nested jobs
+    private List<Object> jobs;
 
     @XStreamImplicit(itemFieldName = "phones")
-    private List<Object> phones; // Ignore nested phones
+    private List<Object> phones;
 
     @XStreamImplicit(itemFieldName = "customerActivities")
-    private List<Object> customerActivities; // Ignore nested activities
+    private List<Object> customerActivities;
 
-    // More fields from actual FCB response that we want to capture
     @XStreamAlias("sex")
     private String sex;
 
