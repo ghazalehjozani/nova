@@ -47,10 +47,8 @@ public class FcbServiceImpl implements FcbService {
                     fcbConfiguration.integration().sameSession(),
                     true);
 
-            // Read the response body immediately and store it
             String responseXml = readResponseBody(response);
 
-            // Close the response body to prevent resource leaks
             if (response.body() != null) {
                 try { // TODO: Nested try catch !!!!
                     response.body().close();

@@ -3,7 +3,6 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.mapper;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.Direction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.DepositInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.DepositClosedResponse;
@@ -11,7 +10,8 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.DepositInfoRes
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ValidateCreditorDepositResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ValidateDebtorDepositResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.response.DebtorCreditorDepositValidation;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CreditorDepositValidation;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.DebtorDepositValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.DepositClosedStatus;
 
 import lombok.experimental.UtilityClass;
@@ -78,25 +78,25 @@ public class DepositMapper {
         return Result.success(status);
     }
 
-    public Result<DebtorCreditorDepositValidation> mapToDomainDebtorDepositValidation(
+    public Result<DebtorDepositValidation> mapToDomainDebtorDepositValidation(
             ValidateDebtorDepositResponse fcbResponse) {
         Boolean isDebtorValue = fcbResponse.getIsDebtor();
         if (isDebtorValue == null) {
             log.warn("FCB response has null isDebtor value, defaulting to false");
         }
 
-        DebtorCreditorDepositValidation validation = new DebtorCreditorDepositValidation(Direction.DEBIT);
+        DebtorDepositValidation validation = new DebtorDepositValidation(fcbResponse.getIsDebtor());
         return Result.success(validation);
     }
 
-    public Result<DebtorCreditorDepositValidation> mapToDomainCreditorDepositValidation(
+    public Result<CreditorDepositValidation> mapToDomainCreditorDepositValidation(
             ValidateCreditorDepositResponse fcbResponse) {
         Boolean isCreditorValue = fcbResponse.getIsCreditor();
         if (isCreditorValue == null) {
             log.warn("FCB response has null isCreditor value, defaulting to false");
         }
 
-        DebtorCreditorDepositValidation validation = new DebtorCreditorDepositValidation(Direction.CREDIT);
+        CreditorDepositValidation validation = new CreditorDepositValidation(fcbResponse.getIsCreditor());
         return Result.success(validation);
     }
 }

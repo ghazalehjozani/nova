@@ -10,6 +10,7 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CustomerBirthInfoResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CustomerInfoResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.RelatedCustomersResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
@@ -17,6 +18,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.CustomerMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.customerservice.CustomerServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CustomerInfoLoadOptions;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyBirthInfo;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
 
 import lombok.RequiredArgsConstructor;
@@ -61,7 +63,7 @@ public class CustomerServiceAdapter implements CustomerServicePort {
 
             CustomerInfoResponse fcbResponse = fcbResult.orElseThrow(); // TODO: add exception
 
-            if (fcbResponse.isError()) {
+            if (!fcbResponse.getRsCode().contains("01")) {
                 log.error(
                         "FCB business error: rsCode={}, error={}",
                         fcbResponse.getRsCode(),
@@ -183,6 +185,40 @@ public class CustomerServiceAdapter implements CustomerServicePort {
 
         RelatedCustomersResponse fcbResponse = fcbResult.orElseThrow();
 
-        return CustomerMapper.mapToCustomerInfoList(fcbResponse);
+        return CustomerMapper.mapToCustomerInfoList(fcbResponse.getCustomers());
+    }
+
+    @Override
+    public Result<PartyBirthInfo> loadCustomerBirthInfo(String customerNumber) {
+        log.info("Loading customer birth info: customerNumber={}", customerNumber);
+
+        if (customerNumber == null || customerNumber.isBlank()) {
+            log.error("Customer number cannot be null or blank");
+            return Result.failure(Notification.ofError(
+                    FcbBusinessLocalizedMessageCodes.FCB_BAD_REQUEST, "Customer number is required"));
+        }
+
+        List<Parameter> parameters = new ArrayList<>();
+        parameters.add(
+                Parameter.builder().key("customerNumber").value(customerNumber).build());
+
+        Usecases usecases = requestBuilder.buildUseCase("load-customer-birth-info", parameters);
+        FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
+
+        log.debug("Executing FCB load-customer-birth-info usecase");
+
+        Result<CustomerBirthInfoResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, CustomerBirthInfoResponse.class);
+
+        if (fcbResult.isFailure()) {
+            log.error(
+                    "FCB load customer birth info failed: {}",
+                    fcbResult.notification().getErrorMessages());
+            return Result.failure(fcbResult.notification());
+        }
+
+        CustomerBirthInfoResponse fcbResponse = fcbResult.orElseThrow();
+
+        return CustomerMapper.mapToCustomerBirthInfo(fcbResponse);
     }
 }

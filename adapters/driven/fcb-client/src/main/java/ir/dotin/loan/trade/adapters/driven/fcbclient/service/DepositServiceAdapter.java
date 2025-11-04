@@ -18,16 +18,20 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.DepositClosedResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.DepositInfoResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.DepositSignerOwnersResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.HasAllowedCurrencyResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ValidateCreditorDepositResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ValidateDebtorDepositResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.CustomerMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.DepositMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.depositservice.DepositServicePort;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.response.DebtorCreditorDepositValidation;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CreditorDepositValidation;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.DebtorDepositValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.DepositClosedStatus;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -106,7 +110,7 @@ public class DepositServiceAdapter implements DepositServicePort {
     }
 
     @Override
-    public Result<DebtorCreditorDepositValidation> validateDebtorDeposit(
+    public Result<DebtorDepositValidation> validateDebtorDeposit(
             DepositNumber depositNumber, CurrencyType currencyType) {
 
         log.info(
@@ -176,7 +180,7 @@ public class DepositServiceAdapter implements DepositServicePort {
     }
 
     @Override
-    public Result<DebtorCreditorDepositValidation> validateCreditorDeposit(
+    public Result<CreditorDepositValidation> validateCreditorDeposit(
             DepositNumber depositNumber, CurrencyType currencyType, BigDecimal amount) {
 
         log.info(
@@ -294,5 +298,41 @@ public class DepositServiceAdapter implements DepositServicePort {
                     FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR,
                     "Failed to check deposit currencies: " + e.getMessage()));
         }
+    }
+
+    @Override
+    public Result<List<PartyInfo>> getAllDepositSignerOwnerCustomer(String depositNumber) {
+        log.info("Getting all deposit signer owner customers: depositNumber={}", depositNumber);
+
+        if (depositNumber == null || depositNumber.isBlank()) {
+            log.error("Deposit number cannot be null or blank");
+            return Result.failure(Notification.ofError(
+                    FcbBusinessLocalizedMessageCodes.FCB_BAD_REQUEST, "Deposit number is required"));
+        }
+
+        List<Parameter> parameters = new ArrayList<>();
+        parameters.add(
+                Parameter.builder().key("depositNumber").value(depositNumber).build());
+
+        Usecases usecases = requestBuilder.buildUseCase("get-all-deposit-signer-owner-customer", parameters);
+        FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
+
+        log.debug("Executing FCB get-all-deposit-signer-owner-customer usecase");
+
+        Result<DepositSignerOwnersResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, DepositSignerOwnersResponse.class);
+
+        if (fcbResult.isFailure()) {
+            log.error(
+                    "FCB get deposit signers failed: {}",
+                    fcbResult.notification().getErrorMessages());
+            return Result.failure(fcbResult.notification());
+        }
+
+        DepositSignerOwnersResponse fcbResponse = fcbResult.orElseThrow();
+
+        Result<List<PartyInfo>> domainResult = CustomerMapper.mapToCustomerInfoList(fcbResponse.getCustomers());
+
+        return domainResult;
     }
 }

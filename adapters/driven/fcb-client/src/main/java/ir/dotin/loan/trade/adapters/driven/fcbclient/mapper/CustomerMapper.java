@@ -18,9 +18,10 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Article;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.BoxTarget;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositTarget;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CustomerBirthInfoResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CustomerInfoResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.RelatedCustomersResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyBirthInfo;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
 
 import lombok.experimental.UtilityClass;
@@ -122,19 +123,19 @@ public class CustomerMapper {
         return Result.success(partyInfo);
     }
 
-    public static Result<List<PartyInfo>> mapToCustomerInfoList(RelatedCustomersResponse fcbResponse) {
+    public static Result<List<PartyInfo>> mapToCustomerInfoList(List<CustomerInfoResponse> customers) {
 
         Notification notification = Notification.create();
 
-        if (fcbResponse.getCustomers() == null || fcbResponse.getCustomers().isEmpty()) {
+        if (customers == null || customers.isEmpty()) {
             log.warn("FCB response has no customers in the list");
             return Result.success(List.of());
         }
 
         List<PartyInfo> customerInfoList = new ArrayList<>();
 
-        for (int i = 0; i < fcbResponse.getCustomers().size(); i++) {
-            CustomerInfoResponse customerResponse = fcbResponse.getCustomers().get(i);
+        for (int i = 0; i < customers.size(); i++) {
+            CustomerInfoResponse customerResponse = customers.get(i);
 
             Result<PartyInfo> customerResult = mapToDomainCustomerInfo(customerResponse);
 
@@ -155,5 +156,36 @@ public class CustomerMapper {
 
         log.info("Successfully mapped {} customers from FCB response", customerInfoList.size());
         return Result.success(customerInfoList);
+    }
+
+    public static Result<PartyBirthInfo> mapToCustomerBirthInfo(CustomerBirthInfoResponse fcbResponse) {
+
+        Notification notification = Notification.create();
+
+        if (fcbResponse.getCustomerNumber() == null) {
+            log.error("FCB response missing customer number");
+            notification.addError(
+                    FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE, "Customer number is missing in response");
+        }
+
+        if (notification.hasErrors()) {
+            return Result.failure(notification);
+        }
+
+        PartyBirthInfo birthInfo = getPartyBirthInfo(fcbResponse);
+
+        return Result.success(birthInfo);
+    }
+
+    private static PartyBirthInfo getPartyBirthInfo(CustomerBirthInfoResponse fcbResponse) {
+        String customerNumberStr = String.valueOf(fcbResponse.getCustomerNumber());
+
+        return new PartyBirthInfo(
+                customerNumberStr,
+                fcbResponse.getAge(),
+                fcbResponse.getGrowthOrder() != null && fcbResponse.getGrowthOrder(),
+                fcbResponse.getIsUnderEighteenYearsOld() != null && fcbResponse.getIsUnderEighteenYearsOld(),
+                fcbResponse.getBirthDate(),
+                fcbResponse.getCheckGrowthAge() != null && fcbResponse.getCheckGrowthAge());
     }
 }

@@ -5,13 +5,17 @@ import java.util.Map;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.LoanOperationType;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.EconomicalSectionResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.FcbValidationResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.LoanTopicResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ReasonTypeResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ResourceResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.LoanTopicInfo;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.ReasonType;
 
 import lombok.experimental.UtilityClass;
@@ -96,4 +100,45 @@ public class LoanMapper {
             FacilityStatus.ACTIVE, LoanOperationType.RECEIVE_LOAN,
             FacilityStatus.CLOSED_PAID_OFF, LoanOperationType.REVOKE_CONTRACT,
             FacilityStatus.CLOSED_DEFAULTED, LoanOperationType.REVOKE_CONTRACT);
+
+    public static Result<LoanTopicInfo> mapToLoanTopic(LoanTopicResponse fcbResponse) {
+
+        Boolean mainTopicIsDebtor = fcbResponse.getMainTopicIsDebtor();
+        Boolean bankCommitmentsTopicIsDebtor = fcbResponse.getBankCommitmentsTopicIsDebtor();
+        Boolean customerCommitmentsTopicIsDebtor = fcbResponse.getCustomerCommitmentsTopicIsDebtor();
+        Boolean temporaryDebtorsTopicIsDebtor = fcbResponse.getTemporaryDebtorsTopicIsDebtor();
+
+        LoanTopicInfo topic = new LoanTopicInfo(
+                mainTopicIsDebtor != null && mainTopicIsDebtor,
+                bankCommitmentsTopicIsDebtor != null && bankCommitmentsTopicIsDebtor,
+                customerCommitmentsTopicIsDebtor != null && customerCommitmentsTopicIsDebtor,
+                temporaryDebtorsTopicIsDebtor != null && temporaryDebtorsTopicIsDebtor);
+
+        return Result.success(topic);
+    }
+
+    public static Result<SubSource> mapToResource(ResourceResponse fcbResponse) {
+
+        Notification notification = Notification.create();
+
+        if (fcbResponse.getCode() == null || fcbResponse.getCode().isBlank()) {
+            log.error("FCB response missing resource code");
+            notification.addError(
+                    FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE, "Resource code is missing in response");
+        }
+
+        if (fcbResponse.getName() == null || fcbResponse.getName().isBlank()) {
+            log.error("FCB response missing resource name");
+            notification.addError(
+                    FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE, "Resource name is missing in response");
+        }
+
+        if (notification.hasErrors()) {
+            return Result.failure(notification);
+        }
+
+        SubSource subSource = new SubSource(fcbResponse.getCode());
+
+        return Result.success(subSource);
+    }
 }
