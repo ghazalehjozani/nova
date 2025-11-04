@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        label 'minikube'
+    }
 
     parameters {
         booleanParam(name: 'SHIP_IT_MODE', defaultValue: true, description: '🚀 Shipping mode: Only Build & Unit Test runs, all other stages are skipped')
@@ -255,10 +257,38 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy to Minikube') {
             when {
                 allOf {
-                    anyOf { branch 'develop'; branch 'master'; branch 'main' }
+                    branch 'develop'
+                    expression { env.CHANGE_ID == null }
+                    expression { currentBuild.result != 'FAILURE' }
+                }
+            }
+            steps {
+                script {
+                    dir('container') {
+                        sh '''
+                            chmod +x scripts/*.sh
+                            ./container/scripts/deploy-minikube.sh
+                        '''
+                    }
+                }
+            }
+            post {
+                success {
+                    echo "✅ Deployment to Minikube successful - Access: http://localhost:8085/actuator/health"
+                }
+                failure {
+                    echo "❌ Deployment to Minikube failed"
+                }
+            }
+        }
+
+        stage('Deploy Artifacts') {
+            when {
+                allOf {
+                    anyOf { branch 'master'; branch 'main' }
                     expression { env.CHANGE_ID == null }
                     expression { currentBuild.result != 'FAILURE' }
                 }
