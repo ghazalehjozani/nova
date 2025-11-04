@@ -16,7 +16,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Article;
@@ -84,8 +83,7 @@ public class AccountServiceAdapter implements AccountServicePort {
         return AccountInfo.of(
                 AccountId.valueOf(openAccountResponseResult.value().getAccountNumber())
                         .getValue(),
-                loanTopic,
-                Title.of("").getValue()); // TODO: Fix inner result
+                loanTopic);
     }
 
     @Override

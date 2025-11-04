@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.core.application.service.issuefacilitycontract.comma
 
 import java.time.Clock;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -13,10 +14,12 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.factory.DocumentMetadataFactory;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.PostTitle;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.metadata.OperationalInfo;
@@ -47,25 +50,30 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
 
     @Override
     public Result<List<DomainEvent<?, ?>>> handle(IssueFacilityContractCommand command) {
-        TransactionConfig transactionConfig =
-                TransactionConfig.defaultBranchConfig("1234"); // TODO: should get from token and command
-        return loadFacility(command.loanFacilityId()).flatMap(facility -> loadLoanType(facility)
-                .flatMap(loanType -> createPostTitle(facility)
-                        .flatMap(postTitle -> createTransaction(
-                                facility,
-                                loanType,
-                                postTitle,
-                                BranchCode.of(command.branchCode()).getValue(),
-                                transactionConfig)))
-                .flatMap(transactionPostingPort::postTransaction)
-                .mapNonNull(transactionNumbers -> {
-                    facility.issueContract(transactionNumbers, clock);
-                    facilityRepository.save(facility);
-                    log.info(
-                            "Contract issued for facility: {}", facility.getId().value());
-                    return facility;
-                })
-                .mapNonNull(AbstractAggregateRoot::domainEvents));
+        TransactionConfig transactionConfig = TransactionConfig.defaultBranchConfig("1234"); // TODO: get from command
+
+        return loadFacility(command.loanFacilityId())
+                .flatMap(facility -> buildTransaction(facility, command.branchCode(), transactionConfig)
+                        .flatMap(transaction -> issueContract(facility, transaction)))
+                .mapNonNull(AbstractAggregateRoot::domainEvents);
+    }
+
+    private Result<LoanTransaction> buildTransaction(
+            TradeLoanFacility facility, String branchCode, TransactionConfig config) {
+        return loadLoanType(facility).flatMap(loanType -> createPostTitle(facility)
+                .flatMap(postTitle -> createTransaction(
+                        facility, loanType, postTitle, BranchCode.of(branchCode).getValue(), config)));
+    }
+
+    private Result<TradeLoanFacility> issueContract(TradeLoanFacility facility, LoanTransaction transaction) {
+        Map<RelationType<?>, AccountId> accountIds = transaction.extractAccountIdsByRelationType();
+
+        return transactionPostingPort.postTransaction(transaction).mapNonNull(transactionNumbers -> {
+            facility.issueContract(transactionNumbers, accountIds, clock);
+            facilityRepository.save(facility);
+            log.info("Contract issued for facility: {}", facility.getId().value());
+            return facility;
+        });
     }
 
     private Result<TradeLoanFacility> loadFacility(UUID facilityId) {

@@ -4,8 +4,10 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Period;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -85,9 +87,9 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.RespiteSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.TopicRelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.AccountEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ApplicationNumberEmb;
@@ -809,8 +811,7 @@ public abstract class ValueObjectMapper {
             LoanTopic loanTopic = LoanTopic.of(
                             emb.getTopicName(),
                             emb.getTopicCode(),
-                            TopicRelationType.of(emb.getTradeRelationType().name())
-                                    .getValue(),
+                            emb.getTradeRelationType(),
                             toEconomicSector(emb.getEconomicSectors()))
                     .orElseThrow();
 
@@ -818,6 +819,25 @@ public abstract class ValueObjectMapper {
         }
 
         return builder.build();
+    }
+
+    @Named("toAccountInfoMapEmb")
+    public Map<String, String> toAccountInfoMapEmb(Map<RelationType<?>, AccountId> domainMap) {
+        if (domainMap == null || domainMap.isEmpty()) return new HashMap<>();
+        Map<String, String> result = new HashMap<>();
+        domainMap.forEach((rt, aid) -> result.put(rt.toString(), aid.value()));
+        return result;
+    }
+
+    @Named("fromAccountInfoMapEmb")
+    public Map<RelationType<?>, AccountId> fromAccountInfoMapEmb(Map<String, String> entityMap) {
+        if (entityMap == null || entityMap.isEmpty()) return new HashMap<>();
+        Map<RelationType<?>, AccountId> result = new HashMap<>();
+        entityMap.forEach((rtStr, aidStr) -> {
+            TradeRelationType trt = TradeRelationType.valueOf(rtStr);
+            result.put(trt, AccountId.valueOf(aidStr).orElseThrow());
+        });
+        return result;
     }
 
     public Set<String> toEconomicSectorEmb(Set<EconomicSector> economicSectors) {

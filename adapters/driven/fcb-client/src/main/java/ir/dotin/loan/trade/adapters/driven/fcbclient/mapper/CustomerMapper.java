@@ -8,6 +8,7 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.NationalCode;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.Direction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
@@ -36,7 +37,7 @@ public class CustomerMapper {
         String targetIdentifier;
 
         switch (article.target()) {
-            case AccountTarget(AccountId accountId) -> {
+            case AccountTarget(AccountId accountId, RelationType<?> relationType) -> {
                 targetType = "ACCOUNT";
                 targetIdentifier = accountId.value();
             }

@@ -1,7 +1,9 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import jakarta.persistence.AttributeOverride;
@@ -16,6 +18,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -78,6 +81,12 @@ public class TradeLoanFacilityEntity extends PersistentEntity {
             name = "loan_facility_disbursement_transaction_numbers",
             joinColumns = @JoinColumn(name = "loan_facility_id"))
     private List<TransactionNumberEmb> disbursementTransactionNumbers = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "loan_facility_accounts", joinColumns = @JoinColumn(name = "facility_id"))
+    @MapKeyColumn(name = "relation_type")
+    @Column(name = "account_id")
+    private Map<String, String> accountInfoMap = new HashMap<>();
 
     @Column(name = "facility_type")
     private String facilityType = "TRADE";

@@ -22,7 +22,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeGroupId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.TopicRelationType;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.DefineLoanTypeCommand;
 import ir.dotin.loan.trade.core.application.service.BaseMapperConfig;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
@@ -76,10 +75,7 @@ public interface DefineLoanTypeCommandMapper {
 
         for (var dto : dtos) {
             LoanTopic loanTopic = LoanTopic.of(
-                            dto.topicName(),
-                            dto.topicCode(),
-                            TopicRelationType.of(dto.relationType().name()).getValue(),
-                            map(dto.economicSectors()))
+                            dto.topicName(), dto.topicCode(), dto.relationType(), map(dto.economicSectors()))
                     .orElseThrow();
 
             multimap.put(dto.relationType(), loanTopic);
