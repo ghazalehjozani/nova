@@ -269,6 +269,7 @@ pipeline {
                 script {
                     dir('container') {
                         sh '''
+                        cp $HOME/nova/.env .
                         bash ./scripts/deploy-minikube.sh
                         '''
                     }
