@@ -8,9 +8,9 @@ import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.DepositInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CreditorDepositValidation;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CurrencyValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.DebtorDepositValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.DepositClosedStatus;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
 
 public interface DepositServicePort {
@@ -24,7 +24,7 @@ public interface DepositServicePort {
     Result<CreditorDepositValidation> validateCreditorDeposit(
             DepositNumber depositNumber, CurrencyType currencyType, BigDecimal amount);
 
-    Result<EconomicalSectorValidation> hasDepositAllowedCurrencies(
+    Result<CurrencyValidation> hasDepositAllowedCurrencies(
             DepositNumber depositNumber, List<CurrencyType> currencyTypes);
 
     Result<List<PartyInfo>> getAllDepositSignerOwnerCustomer(String depositNumber);

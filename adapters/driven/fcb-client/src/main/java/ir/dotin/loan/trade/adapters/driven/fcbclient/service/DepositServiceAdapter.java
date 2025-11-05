@@ -28,9 +28,9 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.DepositMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.depositservice.DepositServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CreditorDepositValidation;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CurrencyValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.DebtorDepositValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.DepositClosedStatus;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
 
 import lombok.RequiredArgsConstructor;
@@ -244,7 +244,7 @@ public class DepositServiceAdapter implements DepositServicePort {
     }
 
     @Override
-    public Result<EconomicalSectorValidation> hasDepositAllowedCurrencies(
+    public Result<CurrencyValidation> hasDepositAllowedCurrencies(
             DepositNumber depositNumber, List<CurrencyType> currencyTypes) {
 
         try {
@@ -283,10 +283,10 @@ public class DepositServiceAdapter implements DepositServicePort {
                     response.isAllowed(),
                     response.getSuccessMessage());
 
-            EconomicalSectorValidation economicalSectorValidation =
-                    new EconomicalSectorValidation(response.isAllowed(), response.getSuccessMessage());
+            CurrencyValidation currencyValidation =
+                    new CurrencyValidation(response.isAllowed(), response.getSuccessMessage());
 
-            return Result.success(economicalSectorValidation);
+            return Result.success(currencyValidation);
 
         } catch (IllegalArgumentException e) {
             log.error("Invalid request parameters: {}", e.getMessage());
