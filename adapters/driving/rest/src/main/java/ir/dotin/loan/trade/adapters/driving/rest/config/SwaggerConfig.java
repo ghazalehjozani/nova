@@ -104,11 +104,6 @@ public class SwaggerConfig extends BaseSwaggerConfig {
     }
 
     @Override
-    protected String getTokenUrl() {
-        return contextPath.isEmpty() ? "/api/dev/auth/token" : contextPath + "/api/dev/auth/token";
-    }
-
-    @Override
     protected boolean isDevProfile() {
         return "dev".equals(activeProfile);
     }

@@ -400,6 +400,14 @@ springdoc:
     display-request-duration: true
     persist-authorization: true
     tags-sorter: none
+    oauth:
+      client-id: ${OAUTH2_CLIENT_ID}
+      client-secret: ${OAUTH2_CLIENT_SECRET}
+      use-basic-authentication-with-access-code-grant: false
+      scopes:
+        - openid
+        - core
+        - offline_access
   show-actuator: true
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
