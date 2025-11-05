@@ -294,7 +294,7 @@ platform:
       branch-code-claim: branch_code
       server-address-claim: server_address
       validate-azp-claim: true
-      validate-branch-code: false
+      validate-branch-code: true
       allowed-clients:
         - 1ebad0ab-39d1-4718-9690-ec1873c6914f # nova-service-client-dev
     oauth2-client:
@@ -323,7 +323,7 @@ platform:
         - /swagger-ui/**
         - /v3/api-docs/**
         - /v3/api-docs
-        - /api/dev/auth/token
+        - /api/dev/auth/callback
       require-authentication-by-default: true
     audit:
       enabled: true
