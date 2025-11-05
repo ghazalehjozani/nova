@@ -463,7 +463,7 @@ pipeline {
         stage('Deploy Artifacts') {
             when {
                 allOf {
-                    anyOf { branch 'master'; branch 'main' }
+                    anyOf { branch 'develop' }
                     expression { env.CHANGE_ID == null }
                     expression { currentBuild.result != 'FAILURE' }
                 }
