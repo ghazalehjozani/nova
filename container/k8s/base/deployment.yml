@@ -22,7 +22,7 @@ spec:
             - containerPort: 8080
           env:
             - name: SPRING_PROFILES_ACTIVE
-              value: "k8s"
+              value: "k8s,stage"
             - name: SPRING_CLOUD_KUBERNETES_CONFIG_NAME
               value: "trade-loan-service-config"
             - name: SPRING_DATASOURCE_URL

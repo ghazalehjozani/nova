@@ -12,6 +12,7 @@ pipeline {
         booleanParam(name: 'RUN_AI_CODE_REVIEW', defaultValue: true, description: 'Run AI code review with Claude')
         choice(name: 'AI_REVIEW_TYPE', choices: ['full', 'security', 'performance', 'quick'], description: 'Type of AI code review to perform')
         booleanParam(name: 'FORCE_DEPLOY', defaultValue: false, description: 'Force deployment even if quality gates fail')
+        booleanParam(name: 'PUBLISH_TO_NEXUS', defaultValue: false, description: 'Publish Docker image to Nexus registry')
     }
 
     options {
@@ -33,7 +34,10 @@ pipeline {
         MVN_CMD = 'mvn'
         PROJECT_NAME = 'trade-loan'
         PROJECT_GROUP = 'ir.dotin.loan'
-
+        DOCKER_IMAGE_NAME = 'trade-loan-service'
+        DOCKER_IMAGE_TAG = 'latest'
+        NEXUS_REPOSITORY_NAME = 'expenditures'
+        K8S_NAMESPACE = 'default'
         CLAUDE_REVIEW_SCRIPT = 'claude-code-review.sh'
         AI_REVIEW_OUTPUT_DIR = 'ai-review-reports'
     }
@@ -257,7 +261,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Minikube') {
+        stage('Prepare Deployment') {
             when {
                 allOf {
                     branch 'develop'
@@ -268,19 +272,190 @@ pipeline {
             steps {
                 script {
                     dir('container') {
-                        sh '''
-                        cp $HOME/nova/.env .
-                        bash ./scripts/deploy-minikube.sh
-                        '''
+                        sh 'cp $HOME/nova/.env .'
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            when {
+                allOf {
+                    branch 'develop'
+                    expression { env.CHANGE_ID == null }
+                    expression { currentBuild.result != 'FAILURE' }
+                }
+            }
+            steps {
+                script {
+                    dir('container') {
+                        sh """
+                            mkdir -p ca-certificates
+                            cp -r $HOME/nova/ca-certificates/* ca-certificates/ 2>/dev/null || true
+                            docker build -t ${env.DOCKER_IMAGE_NAME}:${env.DOCKER_IMAGE_TAG} \
+                                         -t ${env.DOCKER_IMAGE_NAME}:${env.GIT_COMMIT_SHORT} \
+                                         -f Dockerfile .
+                        """
                     }
                 }
             }
             post {
                 success {
-                    echo "✅ Deployment to Minikube successful - Access: http://localhost:8085/actuator/health"
+                    echo "✅ Docker image built successfully: ${env.DOCKER_IMAGE_NAME}:${env.DOCKER_IMAGE_TAG}"
+                }
+                failure {
+                    echo "❌ Docker image build failed"
+                }
+            }
+        }
+
+        stage('Publish Docker Image to Nexus') {
+            when {
+                allOf {
+                    expression { params.PUBLISH_TO_NEXUS }
+                    branch 'develop'
+                    expression { env.CHANGE_ID == null }
+                    expression { currentBuild.result != 'FAILURE' }
+                }
+            }
+            environment {
+                NEXUS_REGISTRY_URL = credentials('NEXUS_REGISTRY_URL')
+                NEXUS_USERNAME = credentials('NEXUS_USERNAME')
+                NEXUS_PASSWORD = credentials('NEXUS_PASSWORD')
+            }
+            steps {
+                script {
+                    sh """
+                        docker login ${NEXUS_REGISTRY_URL} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}
+                        docker tag ${env.DOCKER_IMAGE_NAME}:${env.DOCKER_IMAGE_TAG} ${NEXUS_REGISTRY_URL}/${env.NEXUS_REPOSITORY_NAME}/${env.DOCKER_IMAGE_NAME}:${env.DOCKER_IMAGE_TAG}
+                        docker tag ${env.DOCKER_IMAGE_NAME}:${env.GIT_COMMIT_SHORT} ${NEXUS_REGISTRY_URL}/${env.NEXUS_REPOSITORY_NAME}/${env.DOCKER_IMAGE_NAME}:${env.GIT_COMMIT_SHORT}
+                        docker push ${NEXUS_REGISTRY_URL}/${env.NEXUS_REPOSITORY_NAME}/${env.DOCKER_IMAGE_NAME}:${env.DOCKER_IMAGE_TAG}
+                        docker push ${NEXUS_REGISTRY_URL}/${env.NEXUS_REPOSITORY_NAME}/${env.DOCKER_IMAGE_NAME}:${env.GIT_COMMIT_SHORT}
+                        docker logout ${NEXUS_REGISTRY_URL}
+                    """
+                }
+            }
+            post {
+                success {
+                    echo "✅ Docker image published to Nexus: ${NEXUS_REGISTRY_URL}/${env.NEXUS_REPOSITORY_NAME}/${env.DOCKER_IMAGE_NAME}:${env.DOCKER_IMAGE_TAG}"
+                }
+                failure {
+                    echo "❌ Failed to publish Docker image to Nexus"
+                }
+            }
+        }
+
+        stage('Sync K8s Configs') {
+            when {
+                allOf {
+                    branch 'develop'
+                    expression { env.CHANGE_ID == null }
+                    expression { currentBuild.result != 'FAILURE' }
+                }
+            }
+            steps {
+                script {
+                    dir('container') {
+                        sh './scripts/sync-configs.sh'
+                    }
+                }
+            }
+            post {
+                success {
+                    echo "✅ Kubernetes configurations synced"
+                }
+                failure {
+                    echo "❌ Failed to sync Kubernetes configurations"
+                }
+            }
+        }
+
+        stage('Create K8s Secrets') {
+            when {
+                allOf {
+                    branch 'develop'
+                    expression { env.CHANGE_ID == null }
+                    expression { currentBuild.result != 'FAILURE' }
+                }
+            }
+            steps {
+                script {
+                    dir('container') {
+                        sh './scripts/create-secrets.sh'
+                    }
+                }
+            }
+            post {
+                success {
+                    echo "✅ Kubernetes secrets created"
+                }
+                failure {
+                    echo "❌ Failed to create Kubernetes secrets"
+                }
+            }
+        }
+
+        stage('Deploy to K8s') {
+            when {
+                allOf {
+                    branch 'develop'
+                    expression { env.CHANGE_ID == null }
+                    expression { currentBuild.result != 'FAILURE' }
+                }
+            }
+            steps {
+                script {
+                    dir('container') {
+                        sh """
+                            kubectl apply -f k8s/base/rbac.yml -n ${env.K8S_NAMESPACE}
+                            kubectl apply -f k8s/base/configmap-trade-loan.yml -n ${env.K8S_NAMESPACE}
+                            kubectl apply -f k8s/base/service.yml -n ${env.K8S_NAMESPACE}
+                            kubectl apply -f k8s/base/deployment.yml -n ${env.K8S_NAMESPACE}
+                        """
+                    }
+                }
+            }
+            post {
+                success {
+                    echo "✅ Application deployed to Minikube - Access: http://localhost:8085/actuator/health"
                 }
                 failure {
                     echo "❌ Deployment to Minikube failed"
+                }
+            }
+        }
+
+        stage('Verify Deployment') {
+            when {
+                allOf {
+                    branch 'develop'
+                    expression { env.CHANGE_ID == null }
+                    expression { currentBuild.result != 'FAILURE' }
+                }
+            }
+            steps {
+                script {
+                    dir('container') {
+                        timeout(time: 5, unit: 'MINUTES') {
+                            sh """
+                                kubectl wait --for=condition=ready pod \
+                                    -l app=${env.DOCKER_IMAGE_NAME} \
+                                    -n ${env.K8S_NAMESPACE} \
+                                    --timeout=300s
+
+                                kubectl get pods -n ${env.K8S_NAMESPACE} -l app=${env.DOCKER_IMAGE_NAME}
+                                kubectl get services -n ${env.K8S_NAMESPACE} -l app=${env.DOCKER_IMAGE_NAME}
+                            """
+                        }
+                    }
+                }
+            }
+            post {
+                success {
+                    echo "✅ Deployment verification successful"
+                }
+                failure {
+                    echo "❌ Deployment verification failed"
                 }
             }
         }
