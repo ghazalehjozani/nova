@@ -105,6 +105,6 @@ public class SwaggerConfig extends BaseSwaggerConfig {
 
     @Override
     protected boolean isDevProfile() {
-        return "dev".equals(activeProfile) || "stage".equals(activeProfile);
+        return !"prod".equals(activeProfile);
     }
 }
