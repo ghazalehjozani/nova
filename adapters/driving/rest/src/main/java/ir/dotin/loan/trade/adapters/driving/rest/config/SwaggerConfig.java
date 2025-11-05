@@ -28,7 +28,7 @@ public class SwaggerConfig extends BaseSwaggerConfig {
     @Value("${server.servlet.context-path:}")
     private String contextPath;
 
-    @Value("${spring.profiles.active:prod}")
+    @Value("${spring.profiles.active}")
     private String activeProfile;
 
     public static final String TAG_FACILITY_CASE_OPENING = "Facility Case Opening";
@@ -105,6 +105,6 @@ public class SwaggerConfig extends BaseSwaggerConfig {
 
     @Override
     protected boolean isDevProfile() {
-        return "dev".equals(activeProfile);
+        return "dev".equals(activeProfile) || "stage".equals(activeProfile);
     }
 }
