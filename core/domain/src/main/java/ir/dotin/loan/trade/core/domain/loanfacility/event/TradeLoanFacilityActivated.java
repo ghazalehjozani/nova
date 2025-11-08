@@ -15,7 +15,7 @@ import static java.util.UUID.randomUUID;
 public record TradeLoanFacilityActivated(UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
         implements TradeLoanFacilityEvents<TradeLoanFacilityActivated, TradeLoanFacilityActivated.Payload> {
 
-    public record Payload(SanctionedLoanId sanctionedLoanId) {
+    public record Payload(UUID loanFacilityId, UUID sanctionedLoanId) {
         public Payload {
             requireNonNull(sanctionedLoanId);
         }
@@ -29,7 +29,8 @@ public record TradeLoanFacilityActivated(UUID eventId, LoanFacilityId aggregateI
     }
 
     public static TradeLoanFacilityActivated of(LoanFacilityId id, SanctionedLoanId sanId, Clock clock) {
-        return new TradeLoanFacilityActivated(randomUUID(), id, new Payload(sanId), clock.instant());
+        return new TradeLoanFacilityActivated(
+                randomUUID(), id, new Payload(id.value(), sanId.value()), clock.instant());
     }
 
     @Override

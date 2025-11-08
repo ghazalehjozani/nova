@@ -158,7 +158,7 @@ class TradeLoanFacilityTest {
                     branch,
                     requestReason,
                     disburseDestination);
-            var application = assertDoesNotThrow(() -> applicationBuilder.build());
+            var application = assertDoesNotThrow(applicationBuilder::build);
             var facilityId = LoanFacilityId.of(randomUUID());
             var loanTypeId = LoanTypeId.of(randomUUID());
 
@@ -174,7 +174,8 @@ class TradeLoanFacilityTest {
 
             var createdEvent = (TradeLoanFacilityCreated) events.getFirst();
             assertThat(createdEvent.aggregateId()).isEqualTo(facility.getId());
-            assertThat(createdEvent.payload().loanFacilityId()).isEqualTo(facility.getId());
+            assertThat(createdEvent.payload().loanFacilityId())
+                    .isEqualTo(facility.getId().value());
         }
     }
 

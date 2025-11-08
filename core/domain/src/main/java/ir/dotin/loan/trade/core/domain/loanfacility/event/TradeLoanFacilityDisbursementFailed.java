@@ -18,7 +18,7 @@ public record TradeLoanFacilityDisbursementFailed(
         implements TradeLoanFacilityEvents<
                 TradeLoanFacilityDisbursementFailed, TradeLoanFacilityDisbursementFailed.Payload> {
 
-    public record Payload(SanctionedLoanId sanctionedLoanId, FailureReason reason) {
+    public record Payload(UUID loanFacilityId, UUID sanctionedLoanId, FailureReason reason) {
         public Payload {
             requireNonNull(sanctionedLoanId);
             requireNonNull(reason);
@@ -34,7 +34,8 @@ public record TradeLoanFacilityDisbursementFailed(
 
     public static TradeLoanFacilityDisbursementFailed of(
             LoanFacilityId id, SanctionedLoanId sanId, FailureReason reason, Clock clock) {
-        return new TradeLoanFacilityDisbursementFailed(randomUUID(), id, new Payload(sanId, reason), clock.instant());
+        return new TradeLoanFacilityDisbursementFailed(
+                randomUUID(), id, new Payload(id.value(), sanId.value(), reason), clock.instant());
     }
 
     @Override

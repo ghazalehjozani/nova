@@ -18,7 +18,7 @@ public record TradeLoanFacilityIrregularlyDisbursed(
         implements TradeLoanFacilityEvents<
                 TradeLoanFacilityIrregularlyDisbursed, TradeLoanFacilityIrregularlyDisbursed.Payload> {
 
-    public record Payload(SanctionedLoanId sanctionedLoanId) {
+    public record Payload(UUID loanFacilityId, UUID sanctionedLoanId) {
         public Payload {
             requireNonNull(sanctionedLoanId);
         }
@@ -37,7 +37,7 @@ public record TradeLoanFacilityIrregularlyDisbursed(
         return new TradeLoanFacilityIrregularlyDisbursed(
                 randomUUID(),
                 id,
-                new TradeLoanFacilityIrregularlyDisbursed.Payload(sanId),
+                new TradeLoanFacilityIrregularlyDisbursed.Payload(id.value(), sanId.value()),
                 amountToDisburse,
                 clock.instant());
     }

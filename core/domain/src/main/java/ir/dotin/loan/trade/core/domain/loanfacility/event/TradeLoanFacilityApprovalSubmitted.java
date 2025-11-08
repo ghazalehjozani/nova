@@ -17,7 +17,7 @@ public record TradeLoanFacilityApprovalSubmitted(
         implements TradeLoanFacilityEvents<
                 TradeLoanFacilityApprovalSubmitted, TradeLoanFacilityApprovalSubmitted.Payload> {
 
-    public record Payload(LoanApplicationId applicationId) {
+    public record Payload(UUID loanFacilityId, UUID applicationId) {
         public Payload {
             requireNonNull(applicationId);
         }
@@ -31,7 +31,8 @@ public record TradeLoanFacilityApprovalSubmitted(
     }
 
     public static TradeLoanFacilityApprovalSubmitted of(LoanFacilityId id, LoanApplicationId appId, Clock clock) {
-        return new TradeLoanFacilityApprovalSubmitted(randomUUID(), id, new Payload(appId), clock.instant());
+        return new TradeLoanFacilityApprovalSubmitted(
+                randomUUID(), id, new Payload(id.value(), appId.value()), clock.instant());
     }
 
     @Override

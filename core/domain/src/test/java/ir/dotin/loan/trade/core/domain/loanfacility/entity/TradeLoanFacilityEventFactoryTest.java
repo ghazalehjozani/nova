@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +20,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityActivated;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityAdditionalDisbursementCompleted;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityApprovalSubmitted;
@@ -37,6 +37,7 @@ import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityRejec
 import static java.time.ZoneOffset.UTC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.lenient;
 
 @DisplayName("TradeLoanFacilityEventFactory Test")
 @ExtendWith(MockitoExtension.class)
@@ -62,9 +63,6 @@ final class TradeLoanFacilityEventFactoryTest {
     private ApplicationNumber mockApplicationNumber;
 
     @Mock
-    private TransactionNumber mockTransactionNumber;
-
-    @Mock
     private Money mockMoney;
 
     private TradeLoanFacilityEventFactory factory;
@@ -74,6 +72,9 @@ final class TradeLoanFacilityEventFactoryTest {
     void setUp() {
         factory = new TradeLoanFacilityEventFactory();
         fixedClock = Clock.fixed(Instant.parse("2023-01-01T00:00:00Z"), UTC);
+        lenient().when(mockFacilityId.value()).thenReturn(UUID.randomUUID());
+        lenient().when(mockApplicationId.value()).thenReturn(UUID.randomUUID());
+        lenient().when(mockSanctionId.value()).thenReturn(UUID.randomUUID());
     }
 
     @Nested
@@ -174,6 +175,7 @@ final class TradeLoanFacilityEventFactoryTest {
         @Test
         @DisplayName("should create collateral added event")
         void shouldCreateCollateralAddedEvent() {
+            given(mockCollateralSerial.value()).willReturn("serial");
             var event = factory.createCollateralAddedEvent(
                     mockFacilityId, mockSanctionId, mockCollateralSerial, fixedClock);
 

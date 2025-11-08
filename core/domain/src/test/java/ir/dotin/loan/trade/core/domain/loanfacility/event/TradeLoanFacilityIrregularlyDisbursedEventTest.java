@@ -45,7 +45,7 @@ final class TradeLoanFacilityIrregularlyDisbursedEventTest {
         void shouldCreateEventSuccessfullyWithValidArguments() {
             UUID eventId = randomUUID();
             TradeLoanFacilityIrregularlyDisbursed.Payload payload =
-                    new TradeLoanFacilityIrregularlyDisbursed.Payload(sanctionedLoanId);
+                    new TradeLoanFacilityIrregularlyDisbursed.Payload(aggregateId.value(), sanctionedLoanId.value());
             TradeLoanFacilityIrregularlyDisbursed event = new TradeLoanFacilityIrregularlyDisbursed(
                     eventId, aggregateId, payload, amountToDisburse, FIXED_TIMESTAMP);
 
@@ -64,7 +64,8 @@ final class TradeLoanFacilityIrregularlyDisbursedEventTest {
             assertThatThrownBy(() -> new TradeLoanFacilityIrregularlyDisbursed(
                             null,
                             aggregateId,
-                            new TradeLoanFacilityIrregularlyDisbursed.Payload(sanctionedLoanId),
+                            new TradeLoanFacilityIrregularlyDisbursed.Payload(
+                                    aggregateId.value(), sanctionedLoanId.value()),
                             amountToDisburse,
                             FIXED_TIMESTAMP))
                     .isInstanceOf(NullPointerException.class);
@@ -77,7 +78,8 @@ final class TradeLoanFacilityIrregularlyDisbursedEventTest {
             assertThatThrownBy(() -> new TradeLoanFacilityIrregularlyDisbursed(
                             randomUUID(),
                             null,
-                            new TradeLoanFacilityIrregularlyDisbursed.Payload(sanctionedLoanId),
+                            new TradeLoanFacilityIrregularlyDisbursed.Payload(
+                                    aggregateId.value(), sanctionedLoanId.value()),
                             amountToDisburse,
                             FIXED_TIMESTAMP))
                     .isInstanceOf(NullPointerException.class);
@@ -99,7 +101,8 @@ final class TradeLoanFacilityIrregularlyDisbursedEventTest {
             assertThatThrownBy(() -> new TradeLoanFacilityIrregularlyDisbursed(
                             randomUUID(),
                             aggregateId,
-                            new TradeLoanFacilityIrregularlyDisbursed.Payload(sanctionedLoanId),
+                            new TradeLoanFacilityIrregularlyDisbursed.Payload(
+                                    aggregateId.value(), sanctionedLoanId.value()),
                             null,
                             FIXED_TIMESTAMP))
                     .isInstanceOf(NullPointerException.class);
@@ -112,7 +115,8 @@ final class TradeLoanFacilityIrregularlyDisbursedEventTest {
             assertThatThrownBy(() -> new TradeLoanFacilityIrregularlyDisbursed(
                             randomUUID(),
                             aggregateId,
-                            new TradeLoanFacilityIrregularlyDisbursed.Payload(sanctionedLoanId),
+                            new TradeLoanFacilityIrregularlyDisbursed.Payload(
+                                    aggregateId.value(), sanctionedLoanId.value()),
                             amountToDisburse,
                             null))
                     .isInstanceOf(NullPointerException.class);
@@ -122,7 +126,7 @@ final class TradeLoanFacilityIrregularlyDisbursedEventTest {
         @DisplayName("Payload should throw NullPointerException if sanctionedLoanId is null")
         @SuppressWarnings("NullAway")
         void payloadShouldThrowExceptionIfSanctionedLoanIdIsNull() {
-            assertThatThrownBy(() -> new TradeLoanFacilityIrregularlyDisbursed.Payload(null))
+            assertThatThrownBy(() -> new TradeLoanFacilityIrregularlyDisbursed.Payload(null, null))
                     .isInstanceOf(NullPointerException.class);
         }
     }
@@ -143,7 +147,7 @@ final class TradeLoanFacilityIrregularlyDisbursedEventTest {
             assertThat(event.amountToDisburse()).isEqualTo(amountToDisburse);
             assertThat(event.createdAt()).isEqualTo(FIXED_CLOCK.instant());
             assertThat(event.payload()).isNotNull();
-            assertThat(event.payload().sanctionedLoanId()).isEqualTo(sanctionedLoanId);
+            assertThat(event.payload().sanctionedLoanId()).isEqualTo(sanctionedLoanId.value());
         }
 
         @Test

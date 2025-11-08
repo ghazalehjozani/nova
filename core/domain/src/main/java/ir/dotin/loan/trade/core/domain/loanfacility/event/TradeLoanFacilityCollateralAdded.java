@@ -17,7 +17,7 @@ public record TradeLoanFacilityCollateralAdded(
         UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
         implements TradeLoanFacilityEvents<TradeLoanFacilityCollateralAdded, TradeLoanFacilityCollateralAdded.Payload> {
 
-    public record Payload(SanctionedLoanId sanctionedLoanId, CollateralSerial collateralSerial) {
+    public record Payload(UUID loanFacilityId, UUID sanctionedLoanId, String collateralSerial) {
         public Payload {
             requireNonNull(sanctionedLoanId);
             requireNonNull(collateralSerial);
@@ -34,7 +34,7 @@ public record TradeLoanFacilityCollateralAdded(
     public static TradeLoanFacilityCollateralAdded of(
             LoanFacilityId id, SanctionedLoanId sanId, CollateralSerial collateralSerial, Clock clock) {
         return new TradeLoanFacilityCollateralAdded(
-                randomUUID(), id, new Payload(sanId, collateralSerial), clock.instant());
+                randomUUID(), id, new Payload(id.value(), sanId.value(), collateralSerial.value()), clock.instant());
     }
 
     @Override

@@ -19,11 +19,12 @@ public record GradualInstallmentsCreated(
         UUID eventId, InstallmentScheduleId aggregateId, Payload payload, Instant createdAt)
         implements InstallmentScheduleEvents<GradualInstallmentsCreated, GradualInstallmentsCreated.Payload> {
 
-    public record Payload(LoanFacilityId loanFacilityId, BigDecimal totalAmount, List<InstallmentId> specifications) {
+    public record Payload(
+            UUID loanFacilityId, UUID installmentScheduleId, BigDecimal totalAmount, List<UUID> installmentIds) {
         public Payload {
             requireNonNull(loanFacilityId);
             requireNonNull(totalAmount);
-            requireNonNull(specifications);
+            requireNonNull(installmentIds);
         }
     }
 
@@ -40,8 +41,13 @@ public record GradualInstallmentsCreated(
             BigDecimal totalAmount,
             List<InstallmentId> specifications,
             Clock clock) {
+        List<@NonNull UUID> installmentIds =
+                specifications.stream().map(InstallmentId::value).toList();
         return new GradualInstallmentsCreated(
-                randomUUID(), scheduleId, new Payload(loanFacilityId, totalAmount, specifications), clock.instant());
+                randomUUID(),
+                scheduleId,
+                new Payload(loanFacilityId.value(), scheduleId.value(), totalAmount, installmentIds),
+                clock.instant());
     }
 
     @Override

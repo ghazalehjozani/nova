@@ -16,7 +16,7 @@ import static java.util.UUID.randomUUID;
 public record TradeLoanFacilityCancelled(UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
         implements TradeLoanFacilityEvents<TradeLoanFacilityCancelled, TradeLoanFacilityCancelled.Payload> {
 
-    public record Payload(Optional<SanctionedLoanId> sanctionedLoanId) {
+    public record Payload(UUID loanFacilityId, Optional<UUID> sanctionedLoanId) {
         public Payload {
             requireNonNull(sanctionedLoanId);
         }
@@ -30,11 +30,13 @@ public record TradeLoanFacilityCancelled(UUID eventId, LoanFacilityId aggregateI
     }
 
     public static TradeLoanFacilityCancelled of(LoanFacilityId id, Clock clock) {
-        return new TradeLoanFacilityCancelled(randomUUID(), id, new Payload(Optional.empty()), clock.instant());
+        return new TradeLoanFacilityCancelled(
+                randomUUID(), id, new Payload(id.value(), Optional.empty()), clock.instant());
     }
 
     public static TradeLoanFacilityCancelled of(LoanFacilityId id, SanctionedLoanId sanId, Clock clock) {
-        return new TradeLoanFacilityCancelled(randomUUID(), id, new Payload(Optional.of(sanId)), clock.instant());
+        return new TradeLoanFacilityCancelled(
+                randomUUID(), id, new Payload(id.value(), Optional.of(sanId.value())), clock.instant());
     }
 
     @Override

@@ -16,7 +16,7 @@ public record TradeLoanFacilityClosedDefaulted(
         UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
         implements TradeLoanFacilityEvents<TradeLoanFacilityClosedDefaulted, TradeLoanFacilityClosedDefaulted.Payload> {
 
-    public record Payload(SanctionedLoanId sanctionedLoanId) {
+    public record Payload(UUID loanFacilityId, UUID sanctionedLoanId) {
         public Payload {
             requireNonNull(sanctionedLoanId);
         }
@@ -30,7 +30,8 @@ public record TradeLoanFacilityClosedDefaulted(
     }
 
     public static TradeLoanFacilityClosedDefaulted of(LoanFacilityId id, SanctionedLoanId sanId, Clock clock) {
-        return new TradeLoanFacilityClosedDefaulted(randomUUID(), id, new Payload(sanId), clock.instant());
+        return new TradeLoanFacilityClosedDefaulted(
+                randomUUID(), id, new Payload(id.value(), sanId.value()), clock.instant());
     }
 
     @Override

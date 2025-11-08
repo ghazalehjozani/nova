@@ -72,8 +72,7 @@ public class FcbXStreamFactory {
         xstream.alias("com.fanap.business.cmplexpenditure.dto.CustomerInfoResultDTO", CustomerBirthInfoResponse.class);
         xstream.alias(
                 "com.fanap.business.cmplexpenditure.dto.CancelTransferMoneyDTO", CancelTransferMoneyResponse.class);
-        xstream.alias(
-                "com.fanap.business.cmplexpenditure.dto.BranchDTO", BranchResponse.class);
+        xstream.alias("com.fanap.business.cmplexpenditure.dto.BranchDTO", BranchResponse.class);
 
         xstream.autodetectAnnotations(true);
         xstream.ignoreUnknownElements();

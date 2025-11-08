@@ -18,7 +18,7 @@ public record TradeLoanFacilityPartiallyDisbursed(
         implements TradeLoanFacilityEvents<
                 TradeLoanFacilityPartiallyDisbursed, TradeLoanFacilityPartiallyDisbursed.Payload> {
 
-    public record Payload(SanctionedLoanId sanctionId, Money totalDisbursedAmount) {
+    public record Payload(UUID loanFacilityId, UUID sanctionId, Money totalDisbursedAmount) {
         public Payload {
             requireNonNull(sanctionId);
             requireNonNull(totalDisbursedAmount);
@@ -35,7 +35,10 @@ public record TradeLoanFacilityPartiallyDisbursed(
     public static TradeLoanFacilityPartiallyDisbursed of(
             LoanFacilityId facilityId, SanctionedLoanId sanctionId, Money totalDisbursedAmount, Clock clock) {
         return new TradeLoanFacilityPartiallyDisbursed(
-                randomUUID(), facilityId, new Payload(sanctionId, totalDisbursedAmount), clock.instant());
+                randomUUID(),
+                facilityId,
+                new Payload(facilityId.value(), sanctionId.value(), totalDisbursedAmount),
+                clock.instant());
     }
 
     @Override
