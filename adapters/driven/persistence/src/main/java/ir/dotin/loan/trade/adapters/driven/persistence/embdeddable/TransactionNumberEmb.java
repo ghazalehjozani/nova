@@ -1,4 +1,3 @@
-// TrackedTransactionNumberEmb.java
 package ir.dotin.loan.trade.adapters.driven.persistence.embdeddable;
 
 import java.io.Serializable;
