@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
@@ -270,7 +272,7 @@ public class AccountMapper {
                     .userMetaData(List.of(userData))
                     .build();
 
-            String json = extraInfo.toJsonString();
+            String json = new ObjectMapper().writeValueAsString(extraInfo);
             log.debug("Created document extra info JSON: {}", json);
             return json;
 

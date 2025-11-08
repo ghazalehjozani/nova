@@ -2,9 +2,7 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 
 import java.time.Clock;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -167,20 +165,18 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
     }
 
     private Result<TransactionNumber> extractTransactionNumber(List<TransferMoneyResponse> returns) {
-        List<TransferMoneyResponse> successfulResponses = returns.stream()
-                .filter(TransferMoneyResponse::isSuccess)
-                .toList();
+        List<TransferMoneyResponse> successfulResponses =
+                returns.stream().filter(TransferMoneyResponse::isSuccess).toList();
 
         if (successfulResponses.isEmpty()) {
             log.warn("No successful TransferMoneyResponse found in the list.");
-            return Result.failure(Notification.ofError(
-                    FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE));
+            return Result.failure(Notification.ofError(FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE));
         }
 
         if (successfulResponses.size() > 1) {
             log.warn("Multiple successful responses found ({}), expected only one", successfulResponses.size());
-            return Result.failure(Notification.ofError(
-                    FcbBusinessLocalizedMessageCodes.FCB_MULTIPLE_TRANSACTION_CODES));
+            return Result.failure(
+                    Notification.ofError(FcbBusinessLocalizedMessageCodes.FCB_MULTIPLE_TRANSACTION_CODES));
         }
 
         TransferMoneyResponse successResponse = successfulResponses.getFirst();
@@ -190,7 +186,6 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
             return TransactionNumber.of(transactionCode);
         }
 
-        return Result.failure(Notification.ofError(
-                FcbBusinessLocalizedMessageCodes.FCB_MISSING_TRANSACTION_CODE));
+        return Result.failure(Notification.ofError(FcbBusinessLocalizedMessageCodes.FCB_MISSING_TRANSACTION_CODE));
     }
 }
