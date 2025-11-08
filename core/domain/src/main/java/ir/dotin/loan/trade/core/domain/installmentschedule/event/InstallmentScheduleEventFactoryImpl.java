@@ -38,12 +38,14 @@ public class InstallmentScheduleEventFactoryImpl implements InstallmentScheduleE
     @Override
     public DomainEvent<?, ?> createUnequalInstallmentsCreatedEvent(
             @NonNull InstallmentScheduleId scheduleId,
+            @NonNull InstallmentScheduleStatus installmentScheduleStatus,
             @NonNull LoanFacilityId loanFacilityId,
             @NonNull BigDecimal totalAmount,
             @NonNull List<InstallmentId> specifications,
             @NonNull Instant createdAt) {
         return GradualInstallmentsCreated.of(
                 scheduleId,
+                installmentScheduleStatus,
                 loanFacilityId,
                 totalAmount,
                 specifications,

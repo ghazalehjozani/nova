@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.jspecify.annotations.NonNull;
 
+import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleStatus;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -20,7 +21,11 @@ public record GradualInstallmentsCreated(
         implements InstallmentScheduleEvents<GradualInstallmentsCreated, GradualInstallmentsCreated.Payload> {
 
     public record Payload(
-            UUID loanFacilityId, UUID installmentScheduleId, BigDecimal totalAmount, List<UUID> installmentIds) {
+            UUID loanFacilityId,
+            UUID installmentScheduleId,
+            String status,
+            BigDecimal totalAmount,
+            List<UUID> installmentIds) {
         public Payload {
             requireNonNull(loanFacilityId);
             requireNonNull(totalAmount);
@@ -37,6 +42,7 @@ public record GradualInstallmentsCreated(
 
     public static GradualInstallmentsCreated of(
             InstallmentScheduleId scheduleId,
+            InstallmentScheduleStatus installmentScheduleStatus,
             LoanFacilityId loanFacilityId,
             BigDecimal totalAmount,
             List<InstallmentId> specifications,
@@ -46,7 +52,12 @@ public record GradualInstallmentsCreated(
         return new GradualInstallmentsCreated(
                 randomUUID(),
                 scheduleId,
-                new Payload(loanFacilityId.value(), scheduleId.value(), totalAmount, installmentIds),
+                new Payload(
+                        loanFacilityId.value(),
+                        scheduleId.value(),
+                        installmentScheduleStatus.name(),
+                        totalAmount,
+                        installmentIds),
                 clock.instant());
     }
 
