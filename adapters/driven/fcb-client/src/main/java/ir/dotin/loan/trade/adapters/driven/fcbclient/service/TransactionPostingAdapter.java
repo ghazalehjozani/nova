@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 
 import java.time.Clock;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -39,14 +40,16 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
 
     @Override
     public Result<TrackedTransactionNumber> postTransaction(LoanTransaction loanTransaction) {
-        UUID trackingId = UUID.randomUUID(); // TODO: send this as transaction ID
+        UUID trackingId = UUID.randomUUID();
         log.info(
                 "Issuing document from LoanTransaction - facilityId: {}, articles: {}",
                 loanTransaction.loanFacilityId().value(),
                 loanTransaction.document().articles().size());
 
         try {
-            Result<IssueDocumentRequest> mappingResult = AccountMapper.mapToIssueDocumentRequest(loanTransaction);
+            Result<IssueDocumentRequest> mappingResult =
+                    AccountMapper.mapToIssueDocumentRequest(loanTransaction, trackingId);
+
             if (mappingResult.isFailure()) {
                 log.error(
                         "Failed to map LoanTransaction to IssueDocumentRequest: {}",
@@ -65,11 +68,6 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
             }
 
             List<TransferMoneyResponse> returns = issueResult.orElseThrow();
-
-            Result<Void> validationResult = AccountMapper.validateTransferMoneyReturns(returns);
-            if (validationResult.isFailure()) {
-                return Result.failure(validationResult.notification());
-            }
 
             TransactionNumber transactionNumber = extractTransactionNumber(returns);
 
@@ -121,14 +119,6 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
                 return validationResult;
             }
 
-            log.info(
-                    "FCB document issued - documentNumber: {}, successful items: {}/{}",
-                    response.getDocumentNumber(),
-                    response.getSuccessfulItemsCount(),
-                    response.getTransferMoneyReturns() != null
-                            ? response.getTransferMoneyReturns().size()
-                            : 0);
-
             return Result.success(response.getTransferMoneyReturns());
 
         } catch (IllegalArgumentException e) {
@@ -177,17 +167,24 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
 
     private TransactionNumber extractTransactionNumber(List<TransferMoneyResponse> returns) {
         String documentNumber = returns.stream()
-                .filter(TransferMoneyResponse::isSuccess)
-                .map(TransferMoneyResponse::getIdentifier)
+                .map(response -> {
+                    if (response.getOtherValues() instanceof Map) {
+                        try {
+                            @SuppressWarnings("unchecked")
+                            Map<String, String> otherValuesMap = (Map<String, String>) response.getOtherValues();
+                            return otherValuesMap.get("documentNumber");
+                        } catch (ClassCastException e) {
+                            log.warn("Could not cast otherValues map in TransferMoneyResponse: {}", e.getMessage());
+                            return null;
+                        }
+                    }
+                    return response.getTransactionCode();
+                })
                 .filter(num -> num != null && !num.isBlank())
                 .findFirst()
                 .orElse("");
 
         Result<TransactionNumber> result = TransactionNumber.of(documentNumber);
-        if (result.isFailure()) {
-            log.warn("Failed to create TransactionNumber from '{}', using fallback", documentNumber);
-            return TransactionNumber.of("FCB-" + System.currentTimeMillis()).orElseThrow();
-        }
 
         return result.orElseThrow();
     }

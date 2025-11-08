@@ -1,28 +1,24 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.mapper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.Direction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountTarget;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Article;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleTarget;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.BoxTarget;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositTarget;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Document;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.ExtraInfoVO;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.IssueDocumentRequest;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.TransferMoneyResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.base.FcbBaseResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 
 import lombok.experimental.UtilityClass;
@@ -36,20 +32,14 @@ public class AccountMapper {
     private static final String ITEM_FORMAT_DEPOSIT = "DEPOSIT,%s,%s,%s";
     private static final String ITEM_FORMAT_BOX = "BOX,%s,%s";
 
-    /**
-     * Map LoanTransaction to IssueDocumentRequest for FCB
-     *
-     * @param loanTransaction The domain loan transaction
-     * @return Result containing IssueDocumentRequest or validation errors
-     */
-    public static Result<IssueDocumentRequest> mapToIssueDocumentRequest(LoanTransaction loanTransaction) {
+    public static Result<IssueDocumentRequest> mapToIssueDocumentRequest(
+            LoanTransaction loanTransaction, UUID trackingId) {
         log.debug(
                 "Mapping LoanTransaction to IssueDocumentRequest - facilityId: {}",
                 loanTransaction.loanFacilityId().value());
 
         Notification notification = Notification.create();
 
-        // Validate loan transaction
         Notification validationResult = loanTransaction.validate();
         if (validationResult.hasErrors()) {
             log.error("LoanTransaction validation failed: {}", validationResult.getErrorMessages());
@@ -59,28 +49,24 @@ public class AccountMapper {
 
         Document document = loanTransaction.document();
 
-        // Extract branch code
         String branchCode = document.branchCode().value();
         if (branchCode.isBlank()) {
             notification.addError(FcbBusinessLocalizedMessageCodes.FCB_BAD_REQUEST, "Branch code is required");
             return Result.failure(notification);
         }
 
-        // Extract ISO code (currency)
         String isoCode = extractIsoCode(loanTransaction);
         if (isoCode == null || isoCode.isBlank()) {
             notification.addError(FcbBusinessLocalizedMessageCodes.FCB_BAD_REQUEST, "ISO code (currency) is required");
             return Result.failure(notification);
         }
 
-        // Extract description
         String comment = document.description();
         if (comment.isBlank()) {
             notification.addError(FcbBusinessLocalizedMessageCodes.FCB_BAD_REQUEST, "Document description is required");
             return Result.failure(notification);
         }
 
-        // Map articles to items and item comments
         Result<List<String>> itemsResult = mapArticlesToItems(document.articles());
         if (itemsResult.isFailure()) {
             notification.merge(itemsResult.notification());
@@ -93,22 +79,17 @@ public class AccountMapper {
             return Result.failure(notification);
         }
 
-        // Create document extra info
-        ExtraInfoVO documentExtraInfo = createDocumentExtraInfo(loanTransaction);
+        String documentExtraInfoJson = createDocumentExtraInfoJson(loanTransaction);
 
-        // Create item extra info list
-        List<ExtraInfoVO> itemExtraInfoList = createItemExtraInfoList(document.articles(), loanTransaction);
-
-        // Build the request
         IssueDocumentRequest request = IssueDocumentRequest.builder()
+                .transactionId(String.valueOf(trackingId))
                 .comment(comment)
                 .isoCode(isoCode)
                 .branchCode(branchCode)
+                .skipTransferMoneyBillNumber(false)
                 .items(itemsResult.orElseThrow())
                 .itemComments(itemCommentsResult.orElseThrow())
-                .skipTransferMoneyBillNumber(false)
-                .documentExtraInfo(documentExtraInfo)
-                .documentItemExtraInfoList(itemExtraInfoList)
+                .documentExtraInfo(documentExtraInfoJson)
                 .build();
 
         log.info(
@@ -122,10 +103,9 @@ public class AccountMapper {
         if (loanTransaction.document().isoCode().isPresent()) {
             return loanTransaction.document().isoCode().get().value();
         }
-
         try {
             CurrencyType currency = loanTransaction.getTransactionCurrency();
-            return currency.getCode();
+            return String.valueOf(currency.getNumericCode());
         } catch (Exception e) {
             log.error("Failed to extract ISO code from transaction", e);
             return null;
@@ -143,8 +123,8 @@ public class AccountMapper {
 
         for (int i = 0; i < articles.size(); i++) {
             Article article = articles.get(i);
-
             Result<String> itemResult = mapArticleToItem(article, i);
+
             if (itemResult.isFailure()) {
                 notification.merge(itemResult.notification());
             } else {
@@ -168,15 +148,22 @@ public class AccountMapper {
 
             String item =
                     switch (target) {
-                        case AccountTarget accountTarget -> {
-                            AccountId accountId = accountTarget.accountId();
-                            yield String.format(ITEM_FORMAT_ACCOUNT, accountId.value(), isDebtor, amount);
-                        }
-                        case DepositTarget depositTarget -> {
-                            DepositNumber depositNumber = depositTarget.depositNumber();
-                            yield String.format(ITEM_FORMAT_DEPOSIT, depositNumber.value(), isDebtor, amount);
-                        }
+                        case AccountTarget accountTarget ->
+                            String.format(
+                                    ITEM_FORMAT_ACCOUNT,
+                                    accountTarget.accountId().value(),
+                                    isDebtor,
+                                    amount);
+
+                        case DepositTarget depositTarget ->
+                            String.format(
+                                    ITEM_FORMAT_DEPOSIT,
+                                    depositTarget.depositNumber().value(),
+                                    isDebtor,
+                                    amount);
+
                         case BoxTarget boxTarget -> String.format(ITEM_FORMAT_BOX, isDebtor, amount);
+
                         default -> {
                             log.error(
                                     "Unknown article target type at index {}: {}",
@@ -237,11 +224,7 @@ public class AccountMapper {
         String targetType = getTargetTypeInPersian(article.target());
         String identifier = extractTargetIdentifier(article.target());
 
-        String baseComment = article.comment() != null
-                ? String.valueOf(article.comment())
-                : String.format("بند سند %s %s - %s", direction, targetType, identifier);
-
-        return baseComment;
+        return String.format("بند سند %s %s - %s", direction, targetType, identifier);
     }
 
     private static String getTargetTypeInPersian(ArticleTarget target) {
@@ -262,87 +245,38 @@ public class AccountMapper {
         };
     }
 
-    private static ExtraInfoVO createDocumentExtraInfo(LoanTransaction loanTransaction) {
-        Map<String, Object> systemMetaData = new HashMap<>();
-        systemMetaData.put("loanFacilityId", loanTransaction.loanFacilityId().value());
-        systemMetaData.put("createdAt", loanTransaction.createdAt().toString());
-        systemMetaData.put("branchCode", loanTransaction.document().branchCode().value());
-        systemMetaData.put("totalDebit", loanTransaction.getTotalDebit().value().toPlainString());
-        systemMetaData.put(
-                "totalCredit", loanTransaction.getTotalCredit().value().toPlainString());
+    private static String createDocumentExtraInfoJson(LoanTransaction loanTransaction) {
+        try {
+            Map<String, Object> systemMetaData = new LinkedHashMap<>();
+            systemMetaData.put(
+                    "loanFacilityId", loanTransaction.loanFacilityId().value());
+            systemMetaData.put("createdAt", loanTransaction.createdAt().toString());
+            systemMetaData.put(
+                    "branchCode", loanTransaction.document().branchCode().value());
+            systemMetaData.put(
+                    "totalDebit", loanTransaction.getTotalDebit().value().toPlainString());
+            systemMetaData.put(
+                    "totalCredit", loanTransaction.getTotalCredit().value().toPlainString());
 
-        List<Map<String, Object>> userMetaData = new ArrayList<>();
-        Map<String, Object> userData = new HashMap<>();
-        userData.put("transactionType", "loan-transaction");
-        userData.put("description", loanTransaction.document().description());
-        userMetaData.add(userData);
+            Map<String, Object> userData = new LinkedHashMap<>();
+            userData.put("transactionType", "loan-transaction");
+            userData.put("description", loanTransaction.document().description());
 
-        return ExtraInfoVO.builder()
-                .type("document")
-                .scope("loan-facility")
-                .token(String.valueOf(loanTransaction.loanFacilityId().value()))
-                .systemMetaData(systemMetaData)
-                .userMetaData(userMetaData)
-                .build();
-    }
+            ExtraInfoVO extraInfo = ExtraInfoVO.builder()
+                    .type("document")
+                    .scope("loan-facility")
+                    .token(String.valueOf(loanTransaction.loanFacilityId().value()))
+                    .systemMetaData(systemMetaData)
+                    .userMetaData(List.of(userData))
+                    .build();
 
-    private static List<ExtraInfoVO> createItemExtraInfoList(List<Article> articles, LoanTransaction loanTransaction) {
+            String json = extraInfo.toJsonString();
+            log.debug("Created document extra info JSON: {}", json);
+            return json;
 
-        return articles.stream()
-                .map(article -> createItemExtraInfo(article, loanTransaction))
-                .collect(Collectors.toList());
-    }
-
-    private static ExtraInfoVO createItemExtraInfo(Article article, LoanTransaction loanTransaction) {
-        Map<String, Object> systemMetaData = new HashMap<>();
-        systemMetaData.put("articleDirection", article.direction().name());
-        systemMetaData.put("articleAmount", article.amount().value().toPlainString());
-        systemMetaData.put("articleCurrency", article.amount().currency().getCode());
-        systemMetaData.put("targetType", article.target().getClass().getSimpleName());
-
-        systemMetaData.put("metadata", article.articleMetadata().toString());
-
-        List<Map<String, Object>> userMetaData = new ArrayList<>();
-        Map<String, Object> userData = new HashMap<>();
-        userData.put("targetIdentifier", extractTargetIdentifier(article.target()));
-        userData.put("direction", article.direction().name());
-        userData.put("comment", article.comment());
-        userMetaData.add(userData);
-
-        return ExtraInfoVO.builder()
-                .type("item")
-                .scope("loan-article")
-                .token(loanTransaction.loanFacilityId().value() + "-" + article.hashCode())
-                .systemMetaData(systemMetaData)
-                .userMetaData(userMetaData)
-                .build();
-    }
-
-    public static Result<Void> validateTransferMoneyReturns(List<TransferMoneyResponse> returns) {
-
-        Notification notification = Notification.create();
-
-        if (returns == null || returns.isEmpty()) {
-            notification.addError(
-                    FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE, "No transfer money returns received");
-            return Result.failure(notification);
+        } catch (Exception e) {
+            log.error("Failed to create document extra info JSON", e);
+            return "{}";
         }
-
-        long failedCount = returns.stream().filter(FcbBaseResponse::isError).count();
-
-        if (failedCount > 0) {
-            log.warn("Document issued with {} failed items out of {}", failedCount, returns.size());
-
-            returns.stream().filter(FcbBaseResponse::isError).forEach(item -> {
-                String errorMsg = String.format(
-                        "Item failed - deposit: %s, error: %s", item.getDepositNumber(), item.getErrorMessage());
-                notification.addError(FcbBusinessLocalizedMessageCodes.FCB_TRANSACTION_FAILED, errorMsg);
-            });
-
-            return Result.failure(notification);
-        }
-
-        log.info("All {} transfer money items processed successfully", returns.size());
-        return Result.success();
     }
 }

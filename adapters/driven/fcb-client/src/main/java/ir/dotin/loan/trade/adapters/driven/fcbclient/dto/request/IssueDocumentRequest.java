@@ -41,11 +41,14 @@ public class IssueDocumentRequest {
 
     private List<String> itemSOCs;
 
-    private ExtraInfoVO documentExtraInfo;
+    private String documentExtraInfo;
 
     private List<ExtraInfoVO> documentItemExtraInfoList;
 
     public void validate() {
+        if (transactionId == null || transactionId.isBlank()) {
+            throw new IllegalArgumentException("Transaction ID is required");
+        }
         if (comment == null || comment.isBlank()) {
             throw new IllegalArgumentException("Comment is required");
         }
@@ -64,13 +67,6 @@ public class IssueDocumentRequest {
         if (items.size() != itemComments.size()) {
             throw new IllegalArgumentException(String.format(
                     "Items size (%d) must match itemComments size (%d)", items.size(), itemComments.size()));
-        }
-        if (documentItemExtraInfoList != null && !documentItemExtraInfoList.isEmpty()) {
-            if (documentItemExtraInfoList.size() != items.size()) {
-                throw new IllegalArgumentException(String.format(
-                        "documentItemExtraInfoList size (%d) must match items size (%d)",
-                        documentItemExtraInfoList.size(), items.size()));
-            }
         }
     }
 }
