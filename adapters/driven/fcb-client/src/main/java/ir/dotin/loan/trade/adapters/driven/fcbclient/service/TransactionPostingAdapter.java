@@ -69,14 +69,14 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
 
             List<TransferMoneyResponse> returns = issueResult.orElseThrow();
 
-            TransactionNumber transactionNumber = extractTransactionNumber(returns);
+            Result<TransactionNumber> transactionNumber = extractTransactionNumber(returns);
 
             log.info(
                     "Document issued successfully - transactionNumber: {}, processed items: {}",
                     transactionNumber.value(),
                     returns.size());
             return Result.success(TrackedTransactionNumber.create(
-                    transactionNumber.value(), trackingId.toString(), TransactionStatus.POSTED, clock));
+                    transactionNumber.value().value(), trackingId.toString(), TransactionStatus.POSTED, clock));
 
         } catch (Exception e) {
             log.error("Unexpected error issuing document from LoanTransaction", e);
@@ -165,27 +165,26 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
         return Result.success(response.getTransferMoneyReturns());
     }
 
-    private TransactionNumber extractTransactionNumber(List<TransferMoneyResponse> returns) {
-        String documentNumber = returns.stream()
-                .map(response -> {
-                    if (response.getOtherValues() instanceof Map) {
-                        try {
-                            @SuppressWarnings("unchecked")
-                            Map<String, String> otherValuesMap = (Map<String, String>) response.getOtherValues();
-                            return otherValuesMap.get("documentNumber");
-                        } catch (ClassCastException e) {
-                            log.warn("Could not cast otherValues map in TransferMoneyResponse: {}", e.getMessage());
-                            return null;
-                        }
-                    }
-                    return response.getTransactionCode();
-                })
-                .filter(num -> num != null && !num.isBlank())
+    private Result<TransactionNumber> extractTransactionNumber(List<TransferMoneyResponse> returns) {
+        TransferMoneyResponse successResponse = returns.stream()
+                .filter(TransferMoneyResponse::isSuccess)
                 .findFirst()
-                .orElse("");
+                .orElse(null);
 
-        Result<TransactionNumber> result = TransactionNumber.of(documentNumber);
+        if (successResponse == null) {
+            log.warn("No successful TransferMoneyResponse found in the list.");
+            return Result.failure(Notification.ofError(
+                    FcbBusinessLocalizedMessageCodes.FCB_TRANSACTION_FAILED,
+                    "No successful transaction item returned from FCB"));
+        }
 
-        return result.orElseThrow();
+        String transactionCode = successResponse.getTransactionCode();
+        if (transactionCode != null && !transactionCode.isBlank()) {
+            return TransactionNumber.of(transactionCode);
+        }
+
+        return Result.failure(Notification.ofError(
+                FcbBusinessLocalizedMessageCodes.FCB_TRANSACTION_FAILED,
+                "Successful FCB response did not contain a transaction number"));
     }
 }
