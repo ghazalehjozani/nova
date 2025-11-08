@@ -5,6 +5,7 @@ import com.thoughtworks.xstream.security.NoTypePermission;
 import com.thoughtworks.xstream.security.NullPermission;
 import com.thoughtworks.xstream.security.PrimitiveTypePermission;
 
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.BranchResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CancelTransferMoneyResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CustomerBirthInfoResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CustomerInfoResponse;
@@ -71,6 +72,8 @@ public class FcbXStreamFactory {
         xstream.alias("com.fanap.business.cmplexpenditure.dto.CustomerInfoResultDTO", CustomerBirthInfoResponse.class);
         xstream.alias(
                 "com.fanap.business.cmplexpenditure.dto.CancelTransferMoneyDTO", CancelTransferMoneyResponse.class);
+        xstream.alias(
+                "com.fanap.business.cmplexpenditure.dto.BranchDTO", BranchResponse.class);
 
         xstream.autodetectAnnotations(true);
         xstream.ignoreUnknownElements();

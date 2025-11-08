@@ -10,11 +10,13 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.LoanOperationType;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CoveredBranchesResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.EconomicalSectionResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.FcbValidationResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.LoanTopicResponse;
@@ -261,5 +263,34 @@ public class LoanServiceAdapter implements LoanServicePort {
         }
 
         return domainResult;
+    }
+
+    @Override
+    public Result<List<BranchCode>> loadCoveredBranches(BranchCode branchCode) {
+        log.info("Loading covered branches for branch code: {}", branchCode);
+
+        List<Parameter> parameters = new ArrayList<>();
+
+        parameters.add(
+                Parameter.builder().key("branchCode").value(branchCode.value()).build());
+
+        Usecases usecases = requestBuilder.buildUseCase("load-covered-branches", parameters);
+        FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
+
+        log.debug("Executing FCB load-covered-branches usecase");
+
+        Result<CoveredBranchesResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, CoveredBranchesResponse.class);
+
+        if (fcbResult.isFailure()) {
+            log.error(
+                    "FCB load covered branches failed: {}",
+                    fcbResult.notification().getErrorMessages());
+            return Result.failure(fcbResult.notification());
+        }
+
+        CoveredBranchesResponse fcbResponse = fcbResult.orElseThrow();
+
+        return LoanMapper.mapToBranchCodeList(fcbResponse);
     }
 }

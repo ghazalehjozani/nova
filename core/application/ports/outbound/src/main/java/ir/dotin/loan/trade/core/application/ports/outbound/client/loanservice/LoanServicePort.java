@@ -6,6 +6,7 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.LoanTopicInfo;
@@ -23,4 +24,6 @@ public interface LoanServicePort {
     Result<SubSource> loadResourceByCode(String subSourceCode);
 
     Result<LoanTopicInfo> loadTopicByCode(List<String> topicCodes);
+
+    Result<List<BranchCode>> loadCoveredBranches(BranchCode branchCode);
 }
