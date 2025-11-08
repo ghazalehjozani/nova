@@ -1,13 +1,18 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.mapper;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.LoanOperationType;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.BranchResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CoveredBranchesResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.EconomicalSectionResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.FcbValidationResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.LoanTopicResponse;
@@ -140,5 +145,59 @@ public class LoanMapper {
         SubSource subSource = new SubSource(fcbResponse.getCode());
 
         return Result.success(subSource);
+    }
+
+    public static Result<BranchCode> mapToBranchCode(BranchResponse fcbResponse) {
+
+        Notification notification = Notification.create();
+
+        if (fcbResponse.getCode() == null || fcbResponse.getCode().isBlank()) {
+            log.error("FCB response missing branch code");
+            notification.addError(
+                    FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE, "Branch code is missing in response");
+        }
+
+        if (notification.hasErrors()) {
+            return Result.failure(notification);
+        }
+
+        BranchCode branchCode = new BranchCode(fcbResponse.getCode());
+
+        return Result.success(branchCode);
+    }
+
+    public static Result<List<BranchCode>> mapToBranchCodeList(CoveredBranchesResponse fcbResponse) {
+
+        Notification notification = Notification.create();
+
+        if (fcbResponse.getBranches() == null || fcbResponse.getBranches().isEmpty()) {
+            log.warn("FCB response has no branches in the list");
+            return Result.success(List.of());
+        }
+
+        List<BranchCode> branchList = new ArrayList<>();
+
+        for (int i = 0; i < fcbResponse.getBranches().size(); i++) {
+            BranchResponse branchResponse = fcbResponse.getBranches().get(i);
+
+            Result<BranchCode> branchResult = mapToBranchCode(branchResponse);
+
+            if (branchResult.isFailure()) {
+                log.error(
+                        "Failed to map branch at index {}: {}",
+                        i,
+                        branchResult.notification().getErrorMessages());
+                notification.merge(branchResult.notification());
+            } else {
+                branchList.add(branchResult.orElseThrow());
+            }
+        }
+
+        if (notification.hasErrors()) {
+            return Result.failure(notification);
+        }
+
+        log.info("Successfully mapped {} branches from FCB response", branchList.size());
+        return Result.success(branchList);
     }
 }
