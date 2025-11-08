@@ -18,7 +18,9 @@ public enum FcbBusinessLocalizedMessageCodes implements LocalizedMessage<FcbBusi
     FCB_TRANSACTION_FAILED("FCB transaction failed: {0}"),
     FCB_INVALID_RESPONSE("Invalid response from FCB: {0}"),
     CUSTOMER_NOT_FOUND_IN_FCB("Customer with national code {0} not found in FCB"),
-    ACCOUNT_NUMBER_NOT_FOUND("Account number {0} not found");
+    ACCOUNT_NUMBER_NOT_FOUND("Account number {0} not found"),
+    FCB_MULTIPLE_TRANSACTION_CODES("Multiple successful responses returned from FCB"),
+    FCB_MISSING_TRANSACTION_CODE("Missing transaction code");
 
     private final String defaultMessageFormat;
 }
