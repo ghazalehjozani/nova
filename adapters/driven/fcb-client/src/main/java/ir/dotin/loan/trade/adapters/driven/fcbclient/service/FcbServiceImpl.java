@@ -35,13 +35,14 @@ public class FcbServiceImpl implements FcbService {
 
     @Override
     public <T> Result<T> executeUsecase(FcbRequest request, Class<T> responseClass) {
+        Response response = null;
         try {
             log.debug("Executing FCB usecase for response type: {}", responseClass.getSimpleName());
 
             String usecaseListXML = marshalToXml(request);
             log.debug("Generated request XML: {}", usecaseListXML);
 
-            Response response = fcbFeignClient.executeUseCase(
+            response = fcbFeignClient.executeUseCase(
                     usecaseListXML,
                     fcbConfiguration.integration().showExceptions(),
                     fcbConfiguration.integration().sameSession(),
@@ -49,19 +50,20 @@ public class FcbServiceImpl implements FcbService {
 
             String responseXml = readResponseBody(response);
 
-            if (response.body() != null) {
-                try { // TODO: Nested try catch !!!!
+            return processResponseXml(responseXml, response, responseClass);
+
+        } catch (Exception e) {
+            log.error("An unexpected integration error occurred executing FCB usecase", e);
+            return Result.failure(
+                    Notification.ofError(FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, e.getMessage()));
+        } finally {
+            if (response != null && response.body() != null) {
+                try {
                     response.body().close();
                 } catch (IOException e) {
                     log.warn("Error closing response body", e);
                 }
             }
-
-            return processResponseXml(responseXml, response, responseClass);
-        } catch (Exception e) {
-            log.error("An unexpected integration error occurred executing FCB usecase", e);
-            return Result.failure(
-                    Notification.ofError(FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, e.getMessage()));
         }
     }
 

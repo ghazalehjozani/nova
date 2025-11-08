@@ -39,14 +39,16 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
 
     @Override
     public Result<TrackedTransactionNumber> postTransaction(LoanTransaction loanTransaction) {
-        UUID trackingId = UUID.randomUUID(); // TODO: send this as transaction ID
+        UUID trackingId = UUID.randomUUID();
         log.info(
                 "Issuing document from LoanTransaction - facilityId: {}, articles: {}",
                 loanTransaction.loanFacilityId().value(),
                 loanTransaction.document().articles().size());
 
         try {
-            Result<IssueDocumentRequest> mappingResult = AccountMapper.mapToIssueDocumentRequest(loanTransaction);
+            Result<IssueDocumentRequest> mappingResult =
+                    AccountMapper.mapToIssueDocumentRequest(loanTransaction, trackingId);
+
             if (mappingResult.isFailure()) {
                 log.error(
                         "Failed to map LoanTransaction to IssueDocumentRequest: {}",
@@ -66,19 +68,14 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
 
             List<TransferMoneyResponse> returns = issueResult.orElseThrow();
 
-            Result<Void> validationResult = AccountMapper.validateTransferMoneyReturns(returns);
-            if (validationResult.isFailure()) {
-                return Result.failure(validationResult.notification());
-            }
-
-            TransactionNumber transactionNumber = extractTransactionNumber(returns);
+            Result<TransactionNumber> transactionNumber = extractTransactionNumber(returns);
 
             log.info(
                     "Document issued successfully - transactionNumber: {}, processed items: {}",
                     transactionNumber.value(),
                     returns.size());
             return Result.success(TrackedTransactionNumber.create(
-                    transactionNumber.value(), trackingId.toString(), TransactionStatus.POSTED, clock));
+                    transactionNumber.value().value(), trackingId.toString(), TransactionStatus.POSTED, clock));
 
         } catch (Exception e) {
             log.error("Unexpected error issuing document from LoanTransaction", e);
@@ -120,14 +117,6 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
             if (validationResult.isFailure()) {
                 return validationResult;
             }
-
-            log.info(
-                    "FCB document issued - documentNumber: {}, successful items: {}/{}",
-                    response.getDocumentNumber(),
-                    response.getSuccessfulItemsCount(),
-                    response.getTransferMoneyReturns() != null
-                            ? response.getTransferMoneyReturns().size()
-                            : 0);
 
             return Result.success(response.getTransferMoneyReturns());
 
@@ -175,20 +164,28 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
         return Result.success(response.getTransferMoneyReturns());
     }
 
-    private TransactionNumber extractTransactionNumber(List<TransferMoneyResponse> returns) {
-        String documentNumber = returns.stream()
-                .filter(TransferMoneyResponse::isSuccess)
-                .map(TransferMoneyResponse::getIdentifier)
-                .filter(num -> num != null && !num.isBlank())
-                .findFirst()
-                .orElse("");
+    private Result<TransactionNumber> extractTransactionNumber(List<TransferMoneyResponse> returns) {
+        List<TransferMoneyResponse> successfulResponses =
+                returns.stream().filter(TransferMoneyResponse::isSuccess).toList();
 
-        Result<TransactionNumber> result = TransactionNumber.of(documentNumber);
-        if (result.isFailure()) {
-            log.warn("Failed to create TransactionNumber from '{}', using fallback", documentNumber);
-            return TransactionNumber.of("FCB-" + System.currentTimeMillis()).orElseThrow();
+        if (successfulResponses.isEmpty()) {
+            log.warn("No successful TransferMoneyResponse found in the list.");
+            return Result.failure(Notification.ofError(FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE));
         }
 
-        return result.orElseThrow();
+        if (successfulResponses.size() > 1) {
+            log.warn("Multiple successful responses found ({}), expected only one", successfulResponses.size());
+            return Result.failure(
+                    Notification.ofError(FcbBusinessLocalizedMessageCodes.FCB_MULTIPLE_TRANSACTION_CODES));
+        }
+
+        TransferMoneyResponse successResponse = successfulResponses.getFirst();
+
+        String transactionCode = successResponse.getTransactionCode();
+        if (transactionCode != null && !transactionCode.isBlank()) {
+            return TransactionNumber.of(transactionCode);
+        }
+
+        return Result.failure(Notification.ofError(FcbBusinessLocalizedMessageCodes.FCB_MISSING_TRANSACTION_CODE));
     }
 }
