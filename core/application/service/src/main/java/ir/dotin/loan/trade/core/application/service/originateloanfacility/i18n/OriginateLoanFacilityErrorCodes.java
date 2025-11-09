@@ -18,7 +18,11 @@ public enum OriginateLoanFacilityErrorCodes implements LocalizedMessage<Originat
     FACILITY_CREATION_FAILED("Failed to create facility: {0}"),
     FACILITY_SAVE_FAILED("Failed to save facility: {0}"),
     FACILITY_PERSISTENCE_FAILED("Failed to persist facility: {0}"),
-    SCHEDULE_DISPATCH_FAILED("Failed to dispatch installment schedule command: {0}");
+    INVALID_DEPOSIT_CURRENCY("Invalid deposit currency: {0}"),
+    INVALID_CREDITOR_DEPOSIT("Invalid creditor deposit: {0}"),
+    INVALID_DEBTOR_DEPOSIT("Invalid debtor deposit: {0}"),
+    DISBURSE_DESTINATION_DEPOSIT_IS_CLOSED("Disburse destination deposit is closed. deposit: {0}. "),
+    INVALID_ECONOMIC_SECTOR_FOR_LOAN_TYPE("Economic sector {0} is not allowed for loan type {1}");
 
     private final String defaultMessageFormat;
 }
