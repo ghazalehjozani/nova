@@ -5,14 +5,13 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
-import org.jspecify.annotations.NonNull;
-
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
-public record ScheduleRestructured(UUID eventId, InstallmentScheduleId aggregateId, Payload payload, Instant createdAt)
+public record ScheduleRestructured(
+        UUID eventId, UUID aggregateId, String eventName, String eventType, Payload payload, Instant createdAt)
         implements InstallmentScheduleEvents<ScheduleRestructured, ScheduleRestructured.Payload> {
 
     public record Payload(String reason, Map<String, Object> changes) {
@@ -25,17 +24,20 @@ public record ScheduleRestructured(UUID eventId, InstallmentScheduleId aggregate
     public ScheduleRestructured {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
+        requireNonNull(eventName);
+        requireNonNull(eventType);
         requireNonNull(payload);
         requireNonNull(createdAt);
     }
 
     public static ScheduleRestructured of(
             InstallmentScheduleId scheduleId, String reason, Map<String, Object> changes, Clock clock) {
-        return new ScheduleRestructured(randomUUID(), scheduleId, new Payload(reason, changes), clock.instant());
-    }
-
-    @Override
-    public @NonNull String eventType() {
-        return EVENT_TYPE_PREFIX + "RESTRUCTURED";
+        return new ScheduleRestructured(
+                randomUUID(),
+                scheduleId.value(),
+                ScheduleRestructured.class.getSimpleName(),
+                InstallmentScheduleEventType.RESTRUCTURED.getFullType(),
+                new Payload(reason, changes),
+                clock.instant());
     }
 }

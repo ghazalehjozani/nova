@@ -1,9 +1,10 @@
-package ir.dotin.loan.trade.core.domain.loanfacility.service;
+package ir.dotin.loan.trade.core.domain.loanfacility.service.transaction;
 
 import java.util.Map;
 
+import org.jspecify.annotations.NonNull;
+
 import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.NotificationError;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.shared.builder.ArticleComponentMapBuilder;
@@ -36,27 +37,27 @@ public class TradeIssueContractTransactionService {
     }
 
     public Result<LoanTransaction> createIssueContractTransaction(
-            TradeLoanFacility facility,
-            TradeLoanType loanType,
-            BranchCode branchCode,
-            PostTitle postTitle,
-            ArticleMetadata baseMetadata) {
+            @NonNull TradeLoanFacility facility,
+            @NonNull TradeLoanType loanType,
+            @NonNull BranchCode branchCode,
+            @NonNull PostTitle postTitle,
+            @NonNull ArticleMetadata baseMetadata) {
 
-        return validateInputs(facility, loanType, branchCode, postTitle).flatMap(ignored -> facility.getSanctionedLoan()
+        return facility.getSanctionedLoan()
                 .map(sanctionedLoan ->
                         buildTransaction(facility, sanctionedLoan, loanType, branchCode, postTitle, baseMetadata))
                 .orElseGet(() -> Result.failure(Notification.ofError(
                         TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND_FOR_FACILITY,
-                        facility.getId().value()))));
+                        facility.getId().value())));
     }
 
     private Result<LoanTransaction> buildTransaction(
-            TradeLoanFacility facility,
-            TradeSanctionedLoan sanctionedLoan,
-            TradeLoanType loanType,
-            BranchCode branchCode,
-            PostTitle postTitle,
-            ArticleMetadata baseMetadata) {
+            @NonNull TradeLoanFacility facility,
+            @NonNull TradeSanctionedLoan sanctionedLoan,
+            @NonNull TradeLoanType loanType,
+            @NonNull BranchCode branchCode,
+            @NonNull PostTitle postTitle,
+            @NonNull ArticleMetadata baseMetadata) {
 
         return buildArticleComponents(facility, sanctionedLoan, loanType)
                 .flatMap(components -> documentBuilderService.buildTransaction(
@@ -70,41 +71,17 @@ public class TradeIssueContractTransactionService {
     }
 
     private Result<Map<IssueContractBankCommitmentArticleType, ArticleComponent>> buildArticleComponents(
-            TradeLoanFacility facility, TradeSanctionedLoan sanctionedLoan, TradeLoanType loanType) {
+            @NonNull TradeLoanFacility facility,
+            @NonNull TradeSanctionedLoan sanctionedLoan,
+            @NonNull TradeLoanType loanType) {
 
         ArticleComponentMapBuilder<TradeRelationType> builder = new ArticleComponentMapBuilder<>(
                 loanType.getRelationTypeLoanTopics(),
-                facility.getLoanApplication().getEconomicSector());
+                requireNonNull(facility.getLoanApplication()).getEconomicSector());
 
         return builder.buildSinglePair(
                 IssueContractBankCommitmentArticleType.BANK_COMMITMENT_DEBIT_LEG,
                 IssueContractBankCommitmentArticleType.BANK_COMMITMENT_CREDIT_LEG,
                 sanctionedLoan.getApprovedAmount());
-    }
-
-    private Result<Void> validateInputs(
-            TradeLoanFacility facility, TradeLoanType loanType, BranchCode branchCode, PostTitle postTitle) {
-
-        if (facility == null) {
-            return Result.failure(Notification.ofError(
-                    NotificationError.of(TradeLoanFacilityLocalizedMessageCodes.FACILITY_CANNOT_BE_NULL)));
-        }
-
-        if (loanType == null) {
-            return Result.failure(Notification.ofError(
-                    NotificationError.of(TradeLoanFacilityLocalizedMessageCodes.LOAN_TYPE_CANNOT_BE_NULL)));
-        }
-
-        if (branchCode == null) {
-            return Result.failure(Notification.ofError(
-                    NotificationError.of(TradeLoanFacilityLocalizedMessageCodes.BRANCH_CODE_CANNOT_BE_NULL)));
-        }
-
-        if (postTitle == null) {
-            return Result.failure(Notification.ofError(
-                    NotificationError.of(TradeLoanFacilityLocalizedMessageCodes.POST_TITLE_CANNOT_BE_NULL)));
-        }
-
-        return Result.success();
     }
 }

@@ -4,8 +4,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
 
-import org.jspecify.annotations.NonNull;
-
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 
@@ -13,11 +11,11 @@ import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
 public record TradeLoanFacilityApprovalSubmitted(
-        UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
+        UUID eventId, UUID aggregateId, String eventName, String eventType, Payload payload, Instant createdAt)
         implements TradeLoanFacilityEvents<
                 TradeLoanFacilityApprovalSubmitted, TradeLoanFacilityApprovalSubmitted.Payload> {
 
-    public record Payload(UUID loanFacilityId, UUID applicationId) {
+    public record Payload(UUID applicationId) {
         public Payload {
             requireNonNull(applicationId);
         }
@@ -26,17 +24,19 @@ public record TradeLoanFacilityApprovalSubmitted(
     public TradeLoanFacilityApprovalSubmitted {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
+        requireNonNull(eventName);
+        requireNonNull(eventType);
         requireNonNull(payload);
         requireNonNull(createdAt);
     }
 
     public static TradeLoanFacilityApprovalSubmitted of(LoanFacilityId id, LoanApplicationId appId, Clock clock) {
         return new TradeLoanFacilityApprovalSubmitted(
-                randomUUID(), id, new Payload(id.value(), appId.value()), clock.instant());
-    }
-
-    @Override
-    public @NonNull String eventType() {
-        return EVENT_TYPE_PREFIX + "PENDING_APPROVAL";
+                randomUUID(),
+                id.value(),
+                TradeLoanFacilityApprovalSubmitted.class.getSimpleName(),
+                TradeLoanFacilityEventType.PENDING_APPROVAL.getFullType(),
+                new Payload(appId.value()),
+                clock.instant());
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.DependencyLoader;
@@ -44,7 +45,7 @@ public class FacilityOriginationOrchestrator {
                     context.arrangement().getInstallmentPolicy().installmentPaymentType());
 
             return strategy.validateCommand(command)
-                    .flatMap(ignored -> planSchedule(command, strategy, context, facilityId))
+                    .flatMap(ignored -> planScheduleIfNeeded(command, strategy, context, facilityId))
                     .flatMap(scheduleOpt -> createAndValidateFacility(command, context, scheduleOpt, facilityId))
                     .flatMap((FacilityWithSchedule facility) ->
                             facilityPersister.persist(facility.facility(), facility.schedule()))
@@ -52,7 +53,7 @@ public class FacilityOriginationOrchestrator {
         });
     }
 
-    private Result<Optional<InstallmentSchedule>> planSchedule(
+    private Result<Optional<InstallmentSchedule>> planScheduleIfNeeded(
             OriginateLoanFacilityCommand command,
             InstallmentScheduleStrategy strategy,
             FacilityOriginationContext context,
@@ -68,13 +69,11 @@ public class FacilityOriginationOrchestrator {
             FacilityOriginationContext context,
             Optional<InstallmentSchedule> scheduleOpt,
             LoanFacilityId facilityId) {
-
+        InstallmentScheduleId scheduleId = scheduleOpt
+                .flatMap(schedule -> Optional.of(schedule.getId()))
+                .orElseThrow(() -> new IllegalStateException("Schedule or ID is missing"));
         return facilityBuilder
-                .buildFacility(
-                        command,
-                        context,
-                        scheduleOpt.map(InstallmentSchedule::getId).orElse(null),
-                        facilityId)
+                .buildFacility(command, context, scheduleId, facilityId)
                 .flatMap(facility -> validateFacility(facility, context)
                         .map(validatedFacility -> new FacilityWithSchedule(validatedFacility, scheduleOpt)));
     }

@@ -11,7 +11,6 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
-import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -42,10 +41,11 @@ public class RegularDisbursementCommandHandler implements CommandHandler<Regular
                         () -> Notification.ofError(
                                 RegularDisbursementErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId()))
                 .flatMap(this::validateDisbursementMethod)
-                .flatMap(facility -> {
-                    Money trancheAmount = mapper.toMoney(command.trancheAmount());
-                    return facility.completeDisbursement(trancheAmount, clock).map(ignored -> facility);
-                })
+                //                .flatMap(facility -> {
+                //                    Money trancheAmount = mapper.toMoney(command.trancheAmount());
+                //                    return facility.disbursement(trancheAmount, trackedNumbers, accountIds,
+                // clock).map(ignored -> facility);
+                //                })
                 .peekValue(facility -> {
                     repository.save(facility);
                     log.info(

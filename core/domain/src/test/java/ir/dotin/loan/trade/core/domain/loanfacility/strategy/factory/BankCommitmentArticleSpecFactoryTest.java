@@ -18,7 +18,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.TransactionType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.MetadataSection;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.ArticleSpec;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleComponent;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountArticleComponent;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.metadata.TransactionInfo;
 import ir.dotin.loan.trade.core.domain.loanfacility.enums.DisburseBankCommitmentArticleType;
 import ir.dotin.loan.trade.core.domain.loanfacility.strategy.config.BankCommitmentMetadataConfig;
@@ -38,7 +38,7 @@ final class BankCommitmentArticleSpecFactoryTest {
     private BankCommitmentMetadataConfig mockMetadataConfig;
 
     @Mock
-    private ArticleComponent mockComponent;
+    private AccountArticleComponent mockComponent;
 
     @Mock
     private Money mockAmount;
@@ -112,7 +112,7 @@ final class BankCommitmentArticleSpecFactoryTest {
             ArticleSpec<DisburseBankCommitmentArticleType> spec = result.orElseThrow();
             assertThat(spec.articleType()).isEqualTo(DisburseBankCommitmentArticleType.BANK_COMMITMENT_DEBIT_LEG);
             assertThat(spec.amount()).isEqualTo(mockAmount);
-            assertThat(spec.topic()).isEqualTo(mockTopic);
+            assertThat(spec.topic()).contains(mockTopic);
             assertThat(spec.transactionInfo()).isEqualTo(expectedTransactionInfo);
             then(mockMetadataConfig)
                     .should()
@@ -132,7 +132,7 @@ final class BankCommitmentArticleSpecFactoryTest {
             ArticleSpec<DisburseBankCommitmentArticleType> spec = result.orElseThrow();
             assertThat(spec.articleType()).isEqualTo(DisburseBankCommitmentArticleType.BANK_COMMITMENT_CREDIT_LEG);
             assertThat(spec.amount()).isEqualTo(mockAmount);
-            assertThat(spec.topic()).isEqualTo(mockTopic);
+            assertThat(spec.topic()).contains(mockTopic);
             assertThat(spec.transactionInfo()).isEqualTo(expectedTransactionInfo);
             then(mockMetadataConfig)
                     .should()
