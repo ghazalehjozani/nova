@@ -1,17 +1,5 @@
 package ir.dotin.loan.trade.core.application.service.originateloanfacility.component;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.springframework.stereotype.Component;
-
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.NotificationError;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.DepositInfo;
@@ -26,9 +14,19 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.request.Custom
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.*;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanTypeRepository;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
-
+import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.commons.core.NotificationError;
+import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 @Component
@@ -69,29 +67,22 @@ public class FacilityValidator {
         CompletableFuture<Result<Void>> validateDepositCurrencyFuture =
                 CompletableFuture.supplyAsync(() -> validateDepositCurrency(command), VIRTUAL_EXECUTOR);
 
-        // Wait for all validations to complete
-        CompletableFuture.allOf(
-                        depositFuture,
-                        isDepositClosedFuture,
-                        validateEconomicalSectorFuture,
-                        validateEconomicalSectionForLoanTypeFuture,
-                        validateDebtorDepositFuture,
-                        validateCreditorDepositFuture,
-                        validateSubSourceFuture,
-                        validateDepositCurrencyFuture)
-                .join();
+        List<CompletableFuture<Result<Void>>> futures = List.of(
+                depositFuture,
+                isDepositClosedFuture,
+                validateEconomicalSectorFuture,
+                validateEconomicalSectionForLoanTypeFuture,
+                validateDebtorDepositFuture,
+                validateCreditorDepositFuture,
+                validateSubSourceFuture,
+                validateDepositCurrencyFuture);
 
-        // Merge all notifications and return final result
+        CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
+
         Notification aggregatedNotification = Notification.create();
-        aggregatedNotification.merge(depositFuture.join().notification());
-        aggregatedNotification.merge(isDepositClosedFuture.join().notification());
-        aggregatedNotification.merge(validateEconomicalSectorFuture.join().notification());
-        aggregatedNotification.merge(
-                validateEconomicalSectionForLoanTypeFuture.join().notification());
-        aggregatedNotification.merge(validateDebtorDepositFuture.join().notification());
-        aggregatedNotification.merge(validateCreditorDepositFuture.join().notification());
-        aggregatedNotification.merge(validateSubSourceFuture.join().notification());
-        aggregatedNotification.merge(validateDepositCurrencyFuture.join().notification());
+        futures.stream()
+                .map(CompletableFuture::join)
+                .forEach(result -> aggregatedNotification.merge(result.notification()));
 
         return aggregatedNotification.hasErrors() ? Result.failure(aggregatedNotification) : Result.success();
     }
@@ -101,9 +92,7 @@ public class FacilityValidator {
         Result<DepositInfo> depositInfo = getDepositInfo(depositNumber);
 
         return depositInfo.isFailure()
-                ? Result.failure(depositInfo
-                        .notification()
-                        .addError(NotificationError.of(OriginateLoanFacilityErrorCodes.INVALID_DEPOSIT, depositNumber)))
+                ? Result.failure(depositInfo.notification())
                 : Result.success();
     }
 
@@ -111,10 +100,7 @@ public class FacilityValidator {
         String economicSectorCode = command.loanApplication().economicSector().code();
         Result<EconomicSector> economicSector = loadEconomicalSectorByCode(economicSectorCode);
         return economicSector.isFailure()
-                ? Result.failure(economicSector
-                        .notification()
-                        .addError(NotificationError.of(
-                                OriginateLoanFacilityErrorCodes.INVALID_ECONOMIC_SECTOR, economicSectorCode)))
+                ? Result.failure(economicSector.notification())
                 : Result.success();
     }
 
@@ -190,8 +176,7 @@ public class FacilityValidator {
         return validationResult.isFailure()
                 ? Result.failure(validationResult
                         .notification()
-                        .addError(NotificationError.of(
-                                OriginateLoanFacilityErrorCodes.INVALID_SUB_SOURCE, subSourceCode)))
+                      )
                 : Result.success();
     }
 

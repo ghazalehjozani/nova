@@ -50,4 +50,9 @@ public class TradeLoanTypeRepositoryAdapter implements TradeLoanTypeRepository {
     public Result<Boolean> existsByCode(LoanTypeCode code) {
         return Result.success(jpaRepository.existsByCode_Value(code.value()));
     }
+
+    @Override
+    public Optional<String> getLoanTypeCode(LoanTypeId id) {
+        return jpaRepository.findCode(id.value());
+    }
 }

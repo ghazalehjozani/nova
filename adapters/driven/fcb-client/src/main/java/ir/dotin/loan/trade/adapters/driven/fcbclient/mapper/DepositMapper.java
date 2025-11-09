@@ -17,6 +17,8 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.response.Depos
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Objects;
+
 @Slf4j
 @UtilityClass
 public class DepositMapper {
@@ -27,7 +29,7 @@ public class DepositMapper {
         Result<DepositNumber> numberResult = DepositNumber.valueOf(response.getNumber());
         if (numberResult.isFailure()) notification.merge(numberResult.notification());
 
-        Result<CurrencyType> currencyResult = Result.success(null);
+        Result<CurrencyType> currencyResult = null;
 
         if (response.getCurrency() != null && response.getCurrency().getCode() != null) {
             currencyResult = CurrencyType.valueOf(response.getCurrency().getCode());
@@ -45,7 +47,7 @@ public class DepositMapper {
                 numberResult.getValue(),
                 response.getTitle(),
                 response.getType(),
-                currencyResult.getValue(),
+                Objects.nonNull(currencyResult) ? currencyResult.getValue() : null,
                 String.valueOf(response.getStatus()),
                 response.getIsExternalDeposit(),
                 response.getBranchCode(),

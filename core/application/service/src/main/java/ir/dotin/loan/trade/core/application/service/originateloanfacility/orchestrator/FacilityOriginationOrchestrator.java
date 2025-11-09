@@ -13,6 +13,7 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanF
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.DependencyLoader;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.FacilityBuilder;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.FacilityPersister;
+import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.FacilityValidator;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy.FacilityOriginationContext;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy.InstallmentScheduleStrategy;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy.InstallmentScheduleStrategySelector;
@@ -33,11 +34,18 @@ public class FacilityOriginationOrchestrator {
     private final FacilityBuilder facilityBuilder;
     private final TradeLoanFacilityValidationService validationService;
     private final FacilityPersister facilityPersister;
+    private final FacilityValidator facilityValidator;
 
     public Result<List<DomainEvent<?, ?>>> originate(OriginateLoanFacilityCommand command) {
         log.info("Starting facility origination process");
 
         LoanFacilityId facilityId = LoanFacilityId.generate();
+
+        Result<Void> serviceValidationResult = facilityValidator.callAndValidateServices(command);
+        if (serviceValidationResult.isFailure()) {
+            log.error("Service validation failed: {}", serviceValidationResult.notification().getErrorMessages());
+            return Result.failure(serviceValidationResult.notification());
+        }
 
         return dependencyLoader.loadDependencies(command).flatMap(context -> {
             InstallmentScheduleStrategy strategy = strategySelector.selectStrategy(
