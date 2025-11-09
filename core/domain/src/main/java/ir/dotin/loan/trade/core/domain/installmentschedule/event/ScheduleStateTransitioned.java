@@ -4,7 +4,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
 
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleStatus;
@@ -14,7 +13,7 @@ import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
 public record ScheduleStateTransitioned(
-        UUID eventId, InstallmentScheduleId aggregateId, Payload payload, Instant createdAt)
+        UUID eventId, UUID aggregateId, String eventName, String eventType, Payload payload, Instant createdAt)
         implements InstallmentScheduleEvents<ScheduleStateTransitioned, ScheduleStateTransitioned.Payload> {
 
     public record Payload(
@@ -28,6 +27,8 @@ public record ScheduleStateTransitioned(
     public ScheduleStateTransitioned {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
+        requireNonNull(eventName);
+        requireNonNull(eventType);
         requireNonNull(payload);
         requireNonNull(createdAt);
     }
@@ -39,11 +40,11 @@ public record ScheduleStateTransitioned(
             @Nullable String reason,
             Clock clock) {
         return new ScheduleStateTransitioned(
-                randomUUID(), scheduleId, new Payload(fromStatus, toStatus, reason), clock.instant());
-    }
-
-    @Override
-    public @NonNull String eventType() {
-        return EVENT_TYPE_PREFIX + "STATE_TRANSITIONED";
+                randomUUID(),
+                scheduleId.value(),
+                ScheduleStateTransitioned.class.getSimpleName(),
+                InstallmentScheduleEventType.STATE_TRANSITIONED.getFullType(),
+                new Payload(fromStatus, toStatus, reason),
+                clock.instant());
     }
 }

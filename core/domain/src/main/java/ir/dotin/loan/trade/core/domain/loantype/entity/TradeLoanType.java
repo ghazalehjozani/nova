@@ -21,7 +21,6 @@ import ir.dotin.loan.trade.core.domain.loantype.event.TradeLoanTypeDeactivated;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
-import static java.util.UUID.randomUUID;
 
 public final class TradeLoanType extends AbstractLoanType {
 
@@ -52,10 +51,8 @@ public final class TradeLoanType extends AbstractLoanType {
 
         TradeLoanType loanType = builder.buildInternal();
 
-        var payload = new TradeLoanTypeCreated.Payload(
-                loanType.getId().value(), loanType.getCode().value());
-
-        var creationEvent = new TradeLoanTypeCreated(randomUUID(), loanType.getId(), payload, clock.instant());
+        var creationEvent =
+                TradeLoanTypeCreated.of(loanType.getId(), loanType.getCode().value(), clock);
         loanType.registerEvent(creationEvent);
 
         return Result.success(loanType);
@@ -68,14 +65,12 @@ public final class TradeLoanType extends AbstractLoanType {
 
     @Override
     protected DomainEvent<?, ?> getLoanTypeActivatedEvent(LoanTypeId aggregateId, Clock clock) {
-        var payload = new TradeLoanTypeActivated.Payload();
-        return new TradeLoanTypeActivated(randomUUID(), aggregateId, payload, clock.instant());
+        return TradeLoanTypeActivated.of(aggregateId, clock);
     }
 
     @Override
     protected DomainEvent<?, ?> getLoanTypeDeactivatedEvent(LoanTypeId aggregateId, Clock clock) {
-        var payload = new TradeLoanTypeDeactivated.Payload();
-        return new TradeLoanTypeDeactivated(randomUUID(), aggregateId, payload, clock.instant());
+        return TradeLoanTypeDeactivated.of(aggregateId, clock);
     }
 
     @Override
@@ -87,8 +82,7 @@ public final class TradeLoanType extends AbstractLoanType {
         requireNonNull(tradeLoanType, "tradeLoanType cannot be null after successful build");
         LoanTypeId newAggregateId = tradeLoanType.getId();
 
-        var payload = new NewTradeLoanTypeVersionPrepared.Payload(newAggregateId, currentAggregateId);
-        return new NewTradeLoanTypeVersionPrepared(randomUUID(), newAggregateId, payload, clock.instant());
+        return NewTradeLoanTypeVersionPrepared.of(newAggregateId, currentAggregateId, clock);
     }
 
     @Override

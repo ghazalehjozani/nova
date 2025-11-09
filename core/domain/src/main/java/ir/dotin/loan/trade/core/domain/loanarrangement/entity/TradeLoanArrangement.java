@@ -17,7 +17,6 @@ import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanFacilityFormulaFi
 import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanParameterProvider;
 
 import static java.util.Objects.requireNonNull;
-import static java.util.UUID.randomUUID;
 
 public final class TradeLoanArrangement
         extends AbstractLoanArrangement<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> {
@@ -51,8 +50,7 @@ public final class TradeLoanArrangement
 
         var payload = new TradeLoanArrangementCreated.Payload(arrangement.getId());
 
-        TradeLoanArrangementCreated creationEvent =
-                new TradeLoanArrangementCreated(randomUUID(), arrangement.getId(), payload, clock.instant());
+        TradeLoanArrangementCreated creationEvent = TradeLoanArrangementCreated.of(arrangement.getId(), clock);
 
         arrangement.registerEvent(creationEvent);
 
@@ -66,14 +64,12 @@ public final class TradeLoanArrangement
 
     @Override
     protected DomainEvent<?, ?> getArrangementActivatedEvent(LoanArrangementId aggregateId, Clock clock) {
-        var payload = new TradeLoanArrangementActivated.Payload();
-        return new TradeLoanArrangementActivated(randomUUID(), aggregateId, payload, clock.instant());
+        return TradeLoanArrangementActivated.of(aggregateId, clock);
     }
 
     @Override
     protected DomainEvent<?, ?> getArrangementDeactivatedEvent(LoanArrangementId aggregateId, Clock clock) {
-        var payload = new TradeLoanArrangementDeactivated.Payload();
-        return new TradeLoanArrangementDeactivated(randomUUID(), aggregateId, payload, clock.instant());
+        return TradeLoanArrangementDeactivated.of(aggregateId, clock);
     }
 
     @Override
@@ -87,7 +83,7 @@ public final class TradeLoanArrangement
         requireNonNull(loanArrangement, "loanArrangement cannot be null after successful build");
         LoanArrangementId newVersionId = loanArrangement.getId();
 
-        return new NewTradeLoanArrangementVersionPrepared(randomUUID(), newVersionId, clock.instant());
+        return NewTradeLoanArrangementVersionPrepared.of(newVersionId, clock);
     }
 
     @Override

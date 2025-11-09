@@ -17,17 +17,13 @@ import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
 public record GradualInstallmentsCreated(
-        UUID eventId, InstallmentScheduleId aggregateId, Payload payload, Instant createdAt)
+        UUID eventId, UUID aggregateId, String eventName, String eventType, Payload payload, Instant createdAt)
         implements InstallmentScheduleEvents<GradualInstallmentsCreated, GradualInstallmentsCreated.Payload> {
 
-    public record Payload(
-            UUID loanFacilityId,
-            UUID installmentScheduleId,
-            String status,
-            BigDecimal totalAmount,
-            List<UUID> installmentIds) {
+    public record Payload(UUID loanFacilityId, String status, BigDecimal totalAmount, List<UUID> installmentIds) {
         public Payload {
             requireNonNull(loanFacilityId);
+            requireNonNull(status);
             requireNonNull(totalAmount);
             requireNonNull(installmentIds);
         }
@@ -36,6 +32,8 @@ public record GradualInstallmentsCreated(
     public GradualInstallmentsCreated {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
+        requireNonNull(eventName);
+        requireNonNull(eventType);
         requireNonNull(payload);
         requireNonNull(createdAt);
     }
@@ -51,18 +49,10 @@ public record GradualInstallmentsCreated(
                 specifications.stream().map(InstallmentId::value).toList();
         return new GradualInstallmentsCreated(
                 randomUUID(),
-                scheduleId,
-                new Payload(
-                        loanFacilityId.value(),
-                        scheduleId.value(),
-                        installmentScheduleStatus.name(),
-                        totalAmount,
-                        installmentIds),
+                scheduleId.value(),
+                GradualInstallmentsCreated.class.getSimpleName(),
+                InstallmentScheduleEventType.GRADUAL_INSTALLMENTS_CREATED.getFullType(),
+                new Payload(loanFacilityId.value(), installmentScheduleStatus.name(), totalAmount, installmentIds),
                 clock.instant());
-    }
-
-    @Override
-    public @NonNull String eventType() {
-        return EVENT_TYPE_PREFIX + "GRADUAL_INSTALLMENTS_CREATED";
     }
 }

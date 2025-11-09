@@ -81,8 +81,7 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
     @Override
     public TradeLoanFacilityCreated createCreatedEvent(
             LoanFacilityId facilityId, ApplicationNumber applicationNumber, Clock clock) {
-        return TradeLoanFacilityCreated.of(
-                facilityId, facilityId, applicationNumber.formattedApplicationNumber(), clock);
+        return TradeLoanFacilityCreated.of(facilityId, applicationNumber.formattedApplicationNumber(), clock);
     }
 
     @Override

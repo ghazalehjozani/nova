@@ -18,7 +18,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.TransactionType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.MetadataSection;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.ArticleSpec;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleComponent;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountArticleComponent;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.metadata.TransactionInfo;
 import ir.dotin.loan.trade.core.domain.loanfacility.enums.DisbursedInterestArticleType;
 import ir.dotin.loan.trade.core.domain.loanfacility.strategy.config.DisbursedInterestMetadataConfig;
@@ -38,7 +38,7 @@ final class DisbursedInterestArticleSpecFactoryTest {
     private DisbursedInterestMetadataConfig mockMetadataConfig;
 
     @Mock
-    private ArticleComponent mockComponent;
+    private AccountArticleComponent mockComponent;
 
     @Mock
     private Money mockAmount;
@@ -113,7 +113,7 @@ final class DisbursedInterestArticleSpecFactoryTest {
             ArticleSpec<DisbursedInterestArticleType> spec = result.orElseThrow();
             assertThat(spec.articleType()).isEqualTo(DisbursedInterestArticleType.INTEREST_DEBIT_LEG);
             assertThat(spec.amount()).isEqualTo(mockAmount);
-            assertThat(spec.topic()).isEqualTo(mockTopic);
+            assertThat(spec.topic()).contains(mockTopic);
             assertThat(spec.transactionInfo()).isEqualTo(expectedTransactionInfo);
             then(mockMetadataConfig).should().getMetadataSections(DisbursedInterestArticleType.INTEREST_DEBIT_LEG);
         }
@@ -131,7 +131,7 @@ final class DisbursedInterestArticleSpecFactoryTest {
             ArticleSpec<DisbursedInterestArticleType> spec = result.orElseThrow();
             assertThat(spec.articleType()).isEqualTo(DisbursedInterestArticleType.INTEREST_CREDIT_LEG);
             assertThat(spec.amount()).isEqualTo(mockAmount);
-            assertThat(spec.topic()).isEqualTo(mockTopic);
+            assertThat(spec.topic()).contains(mockTopic);
             assertThat(spec.transactionInfo()).isEqualTo(expectedTransactionInfo);
             then(mockMetadataConfig).should().getMetadataSections(DisbursedInterestArticleType.INTEREST_CREDIT_LEG);
         }

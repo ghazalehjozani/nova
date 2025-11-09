@@ -5,8 +5,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
 
-import org.jspecify.annotations.NonNull;
-
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 
@@ -14,7 +12,7 @@ import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
 public record EqualInstallmentsCreated(
-        UUID eventId, InstallmentScheduleId aggregateId, Payload payload, Instant createdAt)
+        UUID eventId, UUID aggregateId, String eventName, String eventType, Payload payload, Instant createdAt)
         implements InstallmentScheduleEvents<EqualInstallmentsCreated, EqualInstallmentsCreated.Payload> {
 
     public record Payload(LoanFacilityId loanFacilityId, BigDecimal totalAmount, int installmentCount) {
@@ -27,6 +25,8 @@ public record EqualInstallmentsCreated(
     public EqualInstallmentsCreated {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
+        requireNonNull(eventName);
+        requireNonNull(eventType);
         requireNonNull(payload);
         requireNonNull(createdAt);
     }
@@ -38,11 +38,11 @@ public record EqualInstallmentsCreated(
             int installmentCount,
             Clock clock) {
         return new EqualInstallmentsCreated(
-                randomUUID(), scheduleId, new Payload(loanFacilityId, totalAmount, installmentCount), clock.instant());
-    }
-
-    @Override
-    public @NonNull String eventType() {
-        return EVENT_TYPE_PREFIX + "EQUAL_INSTALLMENTS_CREATED";
+                randomUUID(),
+                scheduleId.value(),
+                EqualInstallmentsCreated.class.getSimpleName(),
+                InstallmentScheduleEventType.EQUAL_INSTALLMENTS_CREATED.getFullType(),
+                new Payload(loanFacilityId, totalAmount, installmentCount),
+                clock.instant());
     }
 }
