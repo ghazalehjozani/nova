@@ -159,7 +159,7 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
 
         return createBaseMetadata(facility, context)
                 .flatMap(metadata -> createTransactions(facility, context, metadata))
-                .flatMap(this::postTransactionsInBatch)
+                .flatMap(loanTransactions -> postTransactionsInBatch(facility.getId(), loanTransactions))
                 .flatMap(transactionResults -> performDisbursementOperations(facility, context, transactionResults));
     }
 
@@ -181,15 +181,20 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
                 context.schedule());
     }
 
-    private Result<List<TransactionResult>> postTransactionsInBatch(List<LoanTransaction> transactions) {
-        return transactionPostingPort.postTransactions(transactions).map(trackedNumbers -> {
-            List<TransactionResult> results = new ArrayList<>();
-            for (int i = 0; i < transactions.size(); i++) {
-                results.add(new TransactionResult(
-                        trackedNumbers.get(i), transactions.get(i).extractAccountIdsByRelationType()));
-            }
-            return results;
-        });
+    private Result<List<TransactionResult>> postTransactionsInBatch(
+            LoanFacilityId facilityId, List<LoanTransaction> transactions) {
+        return transactionPostingPort
+                .postTransactions(facilityId, configuration.fcbMergedDocumentTitle(), transactions)
+                .map(trackedNumbers -> {
+                    int count = Math.min(trackedNumbers.size(), transactions.size());
+                    List<TransactionResult> results = new ArrayList<>();
+                    for (int i = 0; i < count; i++) {
+                        results.add(new TransactionResult(
+                                trackedNumbers.get(i),
+                                transactions.get(i).extractAccountIdsByRelationType()));
+                    }
+                    return results;
+                });
     }
 
     private Result<DisbursementOperationResult> performDisbursementOperations(
@@ -206,7 +211,12 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
         return facility.getSanctionedLoan()
                 .map(AbstractSanctionedLoan::getApprovedAmount)
                 .map(approvedAmount -> performScheduleOperationBeforeDisbursement(context.schedule())
-                        .flatMap(ignored -> facility.disbursement(approvedAmount, trackedNumbers, accountIds, clock))
+                        .flatMap(ignored -> facility.lumpSumDisbursement(
+                                approvedAmount,
+                                trackedNumbers,
+                                accountIds,
+                                context.arrangement.getInstallmentPolicy().installmentPaymentType(),
+                                clock))
                         .flatMap(ignored -> performScheduleOperationAfterDisbursement(context.schedule()))
                         .map(ignored -> new DisbursementOperationResult(facility, context.schedule())))
                 .orElseGet(() -> Result.failure(Notification.ofError(

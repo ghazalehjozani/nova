@@ -5,7 +5,7 @@ import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 public sealed interface TradeLoanFacilityEvents<T extends Record & TradeLoanFacilityEvents<T, P>, P>
         extends DomainEvent<T, P>
-        permits TradeLoanFacilityActivated,
+        permits TradeLoanFacilityLumpSumDisbursed,
                 TradeLoanFacilityAdditionalDisbursementCompleted,
                 TradeLoanFacilityApproved,
                 TradeLoanFacilityCancelled,

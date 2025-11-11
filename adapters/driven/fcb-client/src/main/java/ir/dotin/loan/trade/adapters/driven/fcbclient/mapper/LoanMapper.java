@@ -102,7 +102,7 @@ public class LoanMapper {
             FacilityStatus.REJECTED, LoanOperationType.REVOKE_CONTRACT,
             FacilityStatus.CANCELLED, LoanOperationType.REVOKE_CONTRACT,
             FacilityStatus.ISSUE_CONTRACT, LoanOperationType.ISSUE_SANCTION,
-            FacilityStatus.ACTIVE, LoanOperationType.RECEIVE_LOAN,
+            FacilityStatus.FULLY_DISBURSED, LoanOperationType.RECEIVE_LOAN,
             FacilityStatus.CLOSED_PAID_OFF, LoanOperationType.REVOKE_CONTRACT,
             FacilityStatus.CLOSED_DEFAULTED, LoanOperationType.REVOKE_CONTRACT);
 
