@@ -159,7 +159,7 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
 
         return createBaseMetadata(facility, context)
                 .flatMap(metadata -> createTransactions(facility, context, metadata))
-                .flatMap(this::postTransactionsInParallel)
+                .flatMap(this::postTransactionsInBatch)
                 .flatMap(transactionResults -> performDisbursementOperations(facility, context, transactionResults));
     }
 
@@ -181,33 +181,15 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
                 context.schedule());
     }
 
-    private Result<List<TransactionResult>> postTransactionsInParallel(List<LoanTransaction> transactions) {
-        List<Result<TransactionResult>> futures =
-                transactions.stream().map(this::postTransaction).toList();
-
-        return collectTransactionResults(futures);
-    }
-
-    private Result<TransactionResult> postTransaction(LoanTransaction transaction) {
-        return transactionPostingPort
-                .postTransaction(transaction)
-                .map(trackedNumber ->
-                        new TransactionResult(trackedNumber, transaction.extractAccountIdsByRelationType()));
-    }
-
-    private Result<List<TransactionResult>> collectTransactionResults(List<Result<TransactionResult>> resultList) {
-
-        List<TransactionResult> results = new ArrayList<>();
-        Notification aggregatedNotification = Notification.create();
-
-        for (Result<TransactionResult> result : resultList) {
-            aggregatedNotification.merge(result.notification());
-            if (result.hasValue()) {
-                results.add(result.value());
+    private Result<List<TransactionResult>> postTransactionsInBatch(List<LoanTransaction> transactions) {
+        return transactionPostingPort.postTransactions(transactions).map(trackedNumbers -> {
+            List<TransactionResult> results = new ArrayList<>();
+            for (int i = 0; i < transactions.size(); i++) {
+                results.add(new TransactionResult(
+                        trackedNumbers.get(i), transactions.get(i).extractAccountIdsByRelationType()));
             }
-        }
-
-        return aggregatedNotification.hasErrors() ? Result.failure(aggregatedNotification) : Result.success(results);
+            return results;
+        });
     }
 
     private Result<DisbursementOperationResult> performDisbursementOperations(
