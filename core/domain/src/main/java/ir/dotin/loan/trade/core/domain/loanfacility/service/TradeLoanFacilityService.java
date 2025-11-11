@@ -49,7 +49,7 @@ public class TradeLoanFacilityService
     protected boolean canCancel(TradeLoanFacility facility) {
         // Trade loans can be cancelled if not yet disbursed
         var status = facility.getCurrentState();
-        return status != FacilityStatus.ACTIVE
+        return status != FacilityStatus.FULLY_DISBURSED
                 && status != FacilityStatus.CLOSED_PAID_OFF
                 && status != FacilityStatus.CLOSED_DEFAULTED;
     }

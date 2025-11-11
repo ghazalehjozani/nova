@@ -3,7 +3,6 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -14,8 +13,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Article;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Document;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.IssueDocumentRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
@@ -26,6 +23,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMe
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.AccountMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.IssueDocumentRequestBuilder;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.util.LoanTransactionMerger;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
 
 import lombok.RequiredArgsConstructor;
@@ -94,14 +92,17 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
     }
 
     @Override
-    public Result<List<TrackedTransactionNumber>> postTransactions(List<LoanTransaction> transactions) {
+    public Result<List<TrackedTransactionNumber>> postTransactions(
+            LoanFacilityId facilityId, String documentComment, List<LoanTransaction> transactions) {
         if (transactions == null || transactions.isEmpty()) {
             return Result.success(List.of());
         }
 
         log.info("Batch posting {} transactions", transactions.size());
 
-        Result<LoanTransaction> mergedTransactionResult = mergeLoanTransactions(transactions);
+        Result<LoanTransaction> mergedTransactionResult =
+                LoanTransactionMerger.merge(clock, facilityId, documentComment, transactions);
+
         if (mergedTransactionResult.isFailure()) {
             log.error(
                     "Failed to merge transactions: {}",
@@ -116,56 +117,7 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
 
         TrackedTransactionNumber sharedTrackedNumber = postResult.orElseThrow();
 
-        List<TrackedTransactionNumber> results =
-                transactions.stream().map(tx -> sharedTrackedNumber).toList();
-
-        log.info(
-                "Batch posting completed successfully - {} transactions posted with tracking number: {}",
-                results.size(),
-                sharedTrackedNumber.value());
-
-        return Result.success(results);
-    }
-
-    private Result<LoanTransaction> mergeLoanTransactions(List<LoanTransaction> transactions) {
-        if (transactions.isEmpty()) {
-            return Result.failure(Notification.ofError(
-                    FcbBusinessLocalizedMessageCodes.FCB_BAD_REQUEST, "Cannot merge empty transaction list"));
-        }
-
-        if (transactions.size() == 1) {
-            return Result.success(transactions.getFirst());
-        }
-
-        LoanTransaction first = transactions.getFirst();
-        LoanFacilityId facilityId = first.loanFacilityId();
-
-        for (LoanTransaction tx : transactions) {
-            if (!tx.loanFacilityId().equals(facilityId)) {
-                return Result.failure(Notification.ofError(
-                        FcbBusinessLocalizedMessageCodes.FCB_BAD_REQUEST,
-                        "All transactions must belong to the same facility"));
-            }
-        }
-
-        List<Article> allArticles = transactions.stream()
-                .flatMap(tx -> tx.document().articles().stream())
-                .collect(Collectors.toList());
-
-        log.debug(
-                "Merging {} transactions into one document with {} articles", transactions.size(), allArticles.size());
-
-        Result<Document> mergedDocumentResult = Document.of(
-                first.document().description(),
-                first.document().branchCode(),
-                first.document().isoCode().orElse(null),
-                allArticles);
-
-        if (mergedDocumentResult.isFailure()) {
-            return Result.failure(mergedDocumentResult.notification());
-        }
-
-        return LoanTransaction.ofWithDetails(first.createdAt(), facilityId, mergedDocumentResult.orElseThrow());
+        return Result.success(List.of(sharedTrackedNumber));
     }
 
     private Result<List<TransferMoneyResponse>> issueGeneralDocument(IssueDocumentRequest request) {

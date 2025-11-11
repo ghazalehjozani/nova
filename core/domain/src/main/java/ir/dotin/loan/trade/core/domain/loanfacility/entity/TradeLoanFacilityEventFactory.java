@@ -1,16 +1,22 @@
 package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 
 import java.time.Clock;
+import java.util.List;
+
+import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.LoanFacilityEventFactory;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.InstallmentPaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.*;
 
 final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<TradeLoanFacilityEvents<?, ?>> {
@@ -44,15 +50,28 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
     }
 
     @Override
-    public TradeLoanFacilityDisbursementFailed createDisbursementFailedEvent(
+    public TradeLoanFacilityDisbursementFailed createDisbursementFailedEvent( // TODO: Remove
             LoanFacilityId facilityId, SanctionedLoanId sanctionId, FailureReason reason, Clock clock) {
         return TradeLoanFacilityDisbursementFailed.of(facilityId, sanctionId, reason, clock);
     }
 
     @Override
-    public TradeLoanFacilityActivated createActivatedEvent(
-            LoanFacilityId facilityId, SanctionedLoanId sanctionId, Clock clock) {
-        return TradeLoanFacilityActivated.of(facilityId, sanctionId, clock);
+    public TradeLoanFacilityLumpSumDisbursed createLumpSumDisbursedEvent(
+            LoanFacilityId facilityId,
+            SanctionedLoanId sanctionId,
+            InstallmentPaymentType installmentPaymentType,
+            ApplicationNumber applicationNumber,
+            List<TrackedTransactionNumber> trackedTransactionNumbers,
+            @Nullable InstallmentScheduleId installmentScheduleId,
+            Clock clock) {
+        return TradeLoanFacilityLumpSumDisbursed.of(
+                facilityId,
+                sanctionId,
+                installmentPaymentType,
+                applicationNumber,
+                trackedTransactionNumbers,
+                installmentScheduleId,
+                clock);
     }
 
     @Override
@@ -85,7 +104,7 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
     }
 
     @Override
-    public TradeLoanFacilityIrregularlyDisbursed createIrregularDisbursementRequestedEvent(
+    public TradeLoanFacilityIrregularlyDisbursed createIrregularDisbursementRequestedEvent( // TODO: Remove
             LoanFacilityId facilityId, SanctionedLoanId sanctionId, Money amountToDisburse, Clock clock) {
         return TradeLoanFacilityIrregularlyDisbursed.of(facilityId, sanctionId, amountToDisburse, clock);
     }
@@ -97,7 +116,7 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
     }
 
     @Override
-    public TradeLoanFacilityAdditionalDisbursementCompleted createAdditionalDisbursementCompletedEvent(
+    public TradeLoanFacilityAdditionalDisbursementCompleted createAdditionalDisbursementCompletedEvent( // TODO: Remove
             LoanFacilityId facilityId, SanctionedLoanId sanctionId, Money totalDisbursedAmount, Clock clock) {
         return TradeLoanFacilityAdditionalDisbursementCompleted.of(facilityId, sanctionId, totalDisbursedAmount, clock);
     }

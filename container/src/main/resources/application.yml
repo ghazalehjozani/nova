@@ -210,7 +210,7 @@ platform:
         TradeLoanArrangement:
           - corridor.core.loan.arrangement.trade-loan-arrangement-created.topic.v1
         TradeLoanFacility:
-          - corridor.core.loan.facility.trade-loan-facility-activated.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-lump-sum-disbursed.topic.v1
           - corridor.core.loan.facility.trade-loan-facility-additional-disbursement-completed.topic.v1
           - corridor.core.loan.facility.trade-loan-facility-approved.topic.v1
           - corridor.core.loan.facility.trade-loan-facility-cancelled.topic.v1

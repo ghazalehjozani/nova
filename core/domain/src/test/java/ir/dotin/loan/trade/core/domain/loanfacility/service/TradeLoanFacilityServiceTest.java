@@ -165,7 +165,7 @@ class TradeLoanFacilityServiceTest {
         @Test
         void shouldNotAllowCancellationWhenFacilityIsActive() {
             // given
-            when(mockFacility.getCurrentState()).thenReturn(FacilityStatus.ACTIVE);
+            when(mockFacility.getCurrentState()).thenReturn(FacilityStatus.FULLY_DISBURSED);
 
             // when
             var canCancel = service.canCancel(mockFacility);
