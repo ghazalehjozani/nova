@@ -25,6 +25,7 @@ public final class TradeInterestCalculationService
                 requireNonNull(formulaEvaluationService, "formulaEvaluationService cannot be null.");
     }
 
+    @Deprecated(forRemoval = true)
     public Result<Money> calculate(
             TradeLoanFacility facility,
             LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> interestFormula,

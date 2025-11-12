@@ -4,8 +4,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
 
-import org.jspecify.annotations.NonNull;
-
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 
@@ -13,10 +11,10 @@ import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
 public record TradeLoanFacilityContractIssued(
-        UUID eventId, LoanFacilityId aggregateId, Payload payload, Instant createdAt)
+        UUID eventId, UUID aggregateId, String eventName, String eventType, Payload payload, Instant createdAt)
         implements TradeLoanFacilityEvents<TradeLoanFacilityContractIssued, TradeLoanFacilityContractIssued.Payload> {
 
-    public record Payload(UUID loanFacilityId, UUID sanctionedLoanId, String transactionNumber) {
+    public record Payload(UUID sanctionedLoanId, String transactionNumber) {
         public Payload {
             requireNonNull(sanctionedLoanId);
             requireNonNull(transactionNumber);
@@ -26,6 +24,8 @@ public record TradeLoanFacilityContractIssued(
     public TradeLoanFacilityContractIssued {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
+        requireNonNull(eventName);
+        requireNonNull(eventType);
         requireNonNull(payload);
         requireNonNull(createdAt);
     }
@@ -33,11 +33,11 @@ public record TradeLoanFacilityContractIssued(
     public static TradeLoanFacilityContractIssued of(
             LoanFacilityId id, SanctionedLoanId sanId, String transactionNumber, Clock clock) {
         return new TradeLoanFacilityContractIssued(
-                randomUUID(), id, new Payload(id.value(), sanId.value(), transactionNumber), clock.instant());
-    }
-
-    @Override
-    public @NonNull String eventType() {
-        return EVENT_TYPE_PREFIX + "CONTRACT_ISSUED";
+                randomUUID(),
+                id.value(),
+                TradeLoanFacilityContractIssued.class.getSimpleName(),
+                TradeLoanFacilityEventType.CONTRACT_ISSUED.getFullType(),
+                new Payload(sanId.value(), transactionNumber),
+                clock.instant());
     }
 }

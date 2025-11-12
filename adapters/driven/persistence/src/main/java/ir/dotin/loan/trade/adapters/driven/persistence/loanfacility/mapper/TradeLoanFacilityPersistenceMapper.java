@@ -34,7 +34,6 @@ public interface TradeLoanFacilityPersistenceMapper {
                 qualifiedByName = "toTransactionNumberEmbList"),
         @Mapping(target = "accountInfoMap", source = "accountInfoMap", qualifiedByName = "toAccountInfoMapEmb")
     })
-    @Mapping(target = "installmentScheduleId", ignore = true)
     TradeLoanFacilityEntity map(TradeLoanFacility domain);
     // TODO must remove
     @Mapping(target = "disbursementDestinationAccount", ignore = true)

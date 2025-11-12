@@ -20,7 +20,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.interaction.OpenAccountClient;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.CalculationContext;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.factory.DebitCreditArticleSpecFactory;
 import ir.dotin.loan.baseloan.core.domain.shared.validator.ArticleBalanceValidator;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleComponent;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountArticleComponent;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.enums.PaymentAmountArticleType;
 import ir.dotin.loan.trade.core.domain.loanfacility.i18n.TradeLoanFacilityLocalizedMessageCodes;
@@ -53,7 +53,7 @@ final class PaymentAmountTransactionStrategyTest {
     private CalculationContext<TradeLoanFacility, TradeRelationType, PaymentAmountArticleType> mockCalculationContext;
 
     @Mock
-    private ArticleComponent mockArticleComponent;
+    private AccountArticleComponent mockArticleComponent;
 
     private PaymentAmountTransactionStrategy strategy;
     private Money moneyZero;

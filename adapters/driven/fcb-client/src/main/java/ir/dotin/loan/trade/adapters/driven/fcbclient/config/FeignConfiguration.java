@@ -4,11 +4,16 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.security.cert.X509Certificate;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Unmarshaller;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import com.thoughtworks.xstream.XStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -19,6 +24,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cloud.openfeign.support.SpringEncoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.converter.StringHttpMessageConverter;
 
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbClientErrorDecoder;
@@ -53,7 +59,23 @@ public class FeignConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
+    @Profile({"dev", "stage"})
     public Client feignClient() {
+        BasicCookieStore cookieStore = new BasicCookieStore();
+
+        final CloseableHttpClient httpClient = HttpClientBuilder.create()
+                .setRedirectStrategy(new LaxRedirectStrategy())
+                .setDefaultCookieStore(cookieStore)
+                .setSSLContext(trustAllSslContext())
+                .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                .build();
+
+        return new feign.httpclient.ApacheHttpClient(httpClient);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public Client feignClientProd() {
         BasicCookieStore cookieStore = new BasicCookieStore();
 
         final CloseableHttpClient httpClient = HttpClientBuilder.create()
@@ -107,6 +129,32 @@ public class FeignConfiguration {
                 log.warn("Content-Type header not set!");
             }
         };
+    }
+
+    private SSLContext trustAllSslContext() {
+        try {
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(
+                    null,
+                    new TrustManager[] {
+                        new X509TrustManager() {
+                            @Override
+                            public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+
+                            @Override
+                            public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+
+                            @Override
+                            public X509Certificate[] getAcceptedIssuers() {
+                                return new X509Certificate[0];
+                            }
+                        }
+                    },
+                    new java.security.SecureRandom());
+            return sslContext;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create SSL context", e);
+        }
     }
 
     public static class XmlDecoder implements Decoder {

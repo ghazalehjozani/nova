@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
@@ -22,6 +23,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMe
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.AccountMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.IssueDocumentRequestBuilder;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.util.LoanTransactionMerger;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
 
 import lombok.RequiredArgsConstructor;
@@ -68,20 +70,54 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
 
             List<TransferMoneyResponse> returns = issueResult.orElseThrow();
 
-            Result<TransactionNumber> transactionNumber = extractTransactionNumber(returns);
+            Result<TransactionNumber> transactionNumberResult = extractTransactionNumber(returns);
+            if (transactionNumberResult.isFailure()) {
+                return Result.failure(transactionNumberResult.notification());
+            }
+
+            TransactionNumber transactionNumber = transactionNumberResult.orElseThrow();
 
             log.info(
                     "Document issued successfully - transactionNumber: {}, processed items: {}",
                     transactionNumber.value(),
                     returns.size());
             return Result.success(TrackedTransactionNumber.create(
-                    transactionNumber.value().value(), trackingId.toString(), TransactionStatus.POSTED, clock));
+                    transactionNumber.value(), trackingId.toString(), TransactionStatus.POSTED, clock));
 
         } catch (Exception e) {
             log.error("Unexpected error issuing document from LoanTransaction", e);
             return Result.failure(Notification.ofError(
                     FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, "Failed to issue document: " + e.getMessage()));
         }
+    }
+
+    @Override
+    public Result<List<TrackedTransactionNumber>> postTransactions(
+            LoanFacilityId facilityId, String documentComment, List<LoanTransaction> transactions) {
+        if (transactions == null || transactions.isEmpty()) {
+            return Result.success(List.of());
+        }
+
+        log.info("Batch posting {} transactions", transactions.size());
+
+        Result<LoanTransaction> mergedTransactionResult =
+                LoanTransactionMerger.merge(clock, facilityId, documentComment, transactions);
+
+        if (mergedTransactionResult.isFailure()) {
+            log.error(
+                    "Failed to merge transactions: {}",
+                    mergedTransactionResult.notification().getErrorMessages());
+            return Result.failure(mergedTransactionResult.notification());
+        }
+
+        Result<TrackedTransactionNumber> postResult = postTransaction(mergedTransactionResult.orElseThrow());
+        if (postResult.isFailure()) {
+            return Result.failure(postResult.notification());
+        }
+
+        TrackedTransactionNumber sharedTrackedNumber = postResult.orElseThrow();
+
+        return Result.success(List.of(sharedTrackedNumber));
     }
 
     private Result<List<TransferMoneyResponse>> issueGeneralDocument(IssueDocumentRequest request) {

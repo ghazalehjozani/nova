@@ -240,9 +240,20 @@ public abstract class ValueObjectMapper {
         return Optional.of(new DepositNumber(depositNumber));
     }
 
-    public abstract GracePeriodEmb toGracePeriodEmb(GracePeriod gracePeriod);
+    public GracePeriodEmb toGracePeriodEmb(GracePeriod gracePeriod) {
+        if (gracePeriod == null) {
+            return null;
+        }
+        return periodToEmb(gracePeriod.value());
+    }
 
-    public abstract GracePeriod toGracePeriod(GracePeriodEmb embeddable);
+    public GracePeriod toGracePeriod(GracePeriodEmb embeddable) {
+        if (embeddable == null) {
+            return null;
+        }
+        Period period = embToPeriod(embeddable);
+        return new GracePeriod(period);
+    }
 
     public abstract InstallmentCountEmb toInstallmentCountEmb(InstallmentCount installmentCount);
 
@@ -878,6 +889,10 @@ public abstract class ValueObjectMapper {
 
     public String map(Optional<LifeInsuranceId> value) {
         return value.map(LifeInsuranceId::value).orElse(null);
+    }
+
+    public UUID mapInstallmentScheduleId(Optional<InstallmentScheduleId> value) {
+        return value.map(InstallmentScheduleId::value).orElse(null);
     }
 
     public UUID map(InstallmentScheduleId installmentScheduleId) {

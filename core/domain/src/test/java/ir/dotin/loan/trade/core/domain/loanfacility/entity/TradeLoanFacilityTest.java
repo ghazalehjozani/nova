@@ -173,9 +173,7 @@ class TradeLoanFacilityTest {
             assertThat(events.getFirst()).isInstanceOf(TradeLoanFacilityCreated.class);
 
             var createdEvent = (TradeLoanFacilityCreated) events.getFirst();
-            assertThat(createdEvent.aggregateId()).isEqualTo(facility.getId());
-            assertThat(createdEvent.payload().loanFacilityId())
-                    .isEqualTo(facility.getId().value());
+            assertThat(createdEvent.aggregateId()).isEqualTo(facility.getId().value());
         }
     }
 

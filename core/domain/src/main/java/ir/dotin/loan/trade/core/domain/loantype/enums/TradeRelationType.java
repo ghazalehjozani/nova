@@ -40,8 +40,7 @@ public enum TradeRelationType implements RelationType<TradeRelationType>, Locali
     CURRENT_DEBT_RECEIVABLES(Direction.DEBIT), // مطالبات دین حال
 
     // --- Contextual/Metadata Relations ---
-    DISBURSEMENT_TRANSACTION_CONTEXT(Direction.CREDIT), // زمینه تراکنش پرداخت (Disbursement transaction context)
-    INTEREST_CALCULATION_CONTEXT(Direction.DEBIT); // زمینه محاسبه سود (Interest calculation context)
+    DISBURSEMENT_TRANSACTION_CONTEXT(Direction.CREDIT); // زمینه تراکنش پرداخت (Disbursement transaction context)
 
     private final Direction direction;
 
@@ -52,5 +51,10 @@ public enum TradeRelationType implements RelationType<TradeRelationType>, Locali
     @Override
     public Direction getDirection() {
         return direction;
+    }
+
+    @Override
+    public boolean isContextual() {
+        return this == DISBURSEMENT_TRANSACTION_CONTEXT;
     }
 }

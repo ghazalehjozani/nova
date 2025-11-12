@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -16,11 +17,13 @@ import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.InstallmentPaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
-import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityActivated;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityAdditionalDisbursementCompleted;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityApprovalSubmitted;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityApproved;
@@ -30,6 +33,7 @@ import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityColla
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityContractIssued;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCreated;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityDisbursementFailed;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityLumpSumDisbursed;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityPaidOffClosed;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityPartiallyDisbursed;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityRejected;
@@ -65,6 +69,9 @@ final class TradeLoanFacilityEventFactoryTest {
     @Mock
     private Money mockMoney;
 
+    @Mock
+    private TrackedTransactionNumber mockTrackedTransactionNumber;
+
     private TradeLoanFacilityEventFactory factory;
     private Clock fixedClock;
 
@@ -75,6 +82,8 @@ final class TradeLoanFacilityEventFactoryTest {
         lenient().when(mockFacilityId.value()).thenReturn(UUID.randomUUID());
         lenient().when(mockApplicationId.value()).thenReturn(UUID.randomUUID());
         lenient().when(mockSanctionId.value()).thenReturn(UUID.randomUUID());
+        lenient().when(mockApplicationNumber.formattedApplicationNumber()).thenReturn("APP-12345");
+        lenient().when(mockTrackedTransactionNumber.value()).thenReturn("TRX-67890");
     }
 
     @Nested
@@ -143,9 +152,16 @@ final class TradeLoanFacilityEventFactoryTest {
         @Test
         @DisplayName("should create activated event")
         void shouldCreateActivatedEvent() {
-            var event = factory.createActivatedEvent(mockFacilityId, mockSanctionId, fixedClock);
+            var event = factory.createLumpSumDisbursedEvent(
+                    mockFacilityId,
+                    mockSanctionId,
+                    InstallmentPaymentType.ONE_TIME,
+                    mockApplicationNumber,
+                    List.of(mockTrackedTransactionNumber),
+                    new InstallmentScheduleId(UUID.randomUUID()),
+                    fixedClock);
 
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityActivated.class);
+            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityLumpSumDisbursed.class);
         }
 
         @Test

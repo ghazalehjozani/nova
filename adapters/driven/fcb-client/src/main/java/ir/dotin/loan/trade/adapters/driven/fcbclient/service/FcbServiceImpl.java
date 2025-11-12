@@ -49,6 +49,7 @@ public class FcbServiceImpl implements FcbService {
                     true);
 
             String responseXml = readResponseBody(response);
+            log.debug("Generated response XML: {}", responseXml);
 
             return processResponseXml(responseXml, response, responseClass);
 

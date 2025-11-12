@@ -8,5 +8,5 @@ import ir.dotin.platform.dispatcher.api.command.Command;
 import lombok.Builder;
 
 @Builder(toBuilder = true)
-public record IssueFacilityContractCommand(
-        @NotNull UUID uid, @NotNull Long version, @NotNull UUID loanFacilityId, String branchCode) implements Command {}
+public record IssueFacilityContractCommand(@NotNull Long version, @NotNull UUID loanFacilityId, String branchCode)
+        implements Command {}

@@ -6,4 +6,10 @@ import ir.dotin.loan.trade.core.domain.loanfacility.enums.DisbursedInterestArtic
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
 public interface AddedValueCalculationStrategy
-        extends DocumentCalculationStrategy<TradeLoanFacility, TradeRelationType, DisbursedInterestArticleType> {}
+        extends DocumentCalculationStrategy<TradeLoanFacility, TradeRelationType, DisbursedInterestArticleType> {
+
+    @Override
+    default Class<DisbursedInterestArticleType> getArticleTypeClass() {
+        return DisbursedInterestArticleType.class;
+    }
+}

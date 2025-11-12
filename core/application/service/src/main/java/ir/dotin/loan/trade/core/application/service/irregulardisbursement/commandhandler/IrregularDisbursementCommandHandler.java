@@ -11,7 +11,6 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
-import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -42,13 +41,14 @@ public class IrregularDisbursementCommandHandler implements CommandHandler<Irreg
                         () -> Notification.ofError(
                                 IrregularDisbursementErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId()))
                 .flatMap(this::validateDisbursementMethod)
-                .flatMap(facility -> {
-                    Money requestedAmount = mapper.toMoney(command.requestedAmount());
-                    // First request the disbursement
-                    return facility.requestIrregularDisbursement(requestedAmount, clock)
-                            .flatMap(ignored -> facility.completeDisbursement(requestedAmount, clock))
-                            .map(ignored -> facility);
-                })
+                //                .flatMap(facility -> {
+                //                    Money requestedAmount = mapper.toMoney(command.requestedAmount());
+                //                    // First request the disbursement
+                //                    return facility.requestIrregularDisbursement(requestedAmount, clock)
+                //                            .flatMap(ignored -> facility.disbursement(requestedAmount, trackedNumbers,
+                // accountIds, clock))
+                //                            .map(ignored -> facility);
+                //                })
                 .peekValue(facility -> {
                     repository.save(facility);
                     log.info(
