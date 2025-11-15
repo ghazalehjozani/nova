@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.core.application.service.irregulardisbursement.mapper;
+package ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.mapper;
 
 import org.mapstruct.Mapper;
 

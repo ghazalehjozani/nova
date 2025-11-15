@@ -14,6 +14,7 @@ public enum TradeLoanFacilityEventType {
     DISBURSEMENT_FAILED,
     CLOSED_PAID_OFF,
     CLOSED_DEFAULTED,
+    FULLY_DISBURSED,
     CANCELLED;
 
     private static final String PREFIX = "TRADE_LOAN_FACILITY_";

@@ -61,6 +61,9 @@ public class InstallmentEntity extends PersistentEntity {
     @Column(name = "last_payment_date")
     private LocalDate lastPaymentDate;
 
+    @Column(name = "paid_date")
+    private LocalDate paidDate;
+
     @ManyToOne
     @JoinColumn(name = "installment_schedule_id", nullable = false)
     private InstallmentScheduleEntity installmentSchedule;

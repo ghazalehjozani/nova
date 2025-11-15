@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
@@ -84,6 +85,10 @@ final class TradeLoanFacilityEventFactoryTest {
         lenient().when(mockSanctionId.value()).thenReturn(UUID.randomUUID());
         lenient().when(mockApplicationNumber.formattedApplicationNumber()).thenReturn("APP-12345");
         lenient().when(mockTrackedTransactionNumber.value()).thenReturn("TRX-67890");
+
+        // Mock Money behavior to avoid NullPointerException
+        lenient().when(mockMoney.currency()).thenReturn(CurrencyType.IRR);
+        lenient().when(mockMoney.toString()).thenReturn("1000000");
     }
 
     @Nested

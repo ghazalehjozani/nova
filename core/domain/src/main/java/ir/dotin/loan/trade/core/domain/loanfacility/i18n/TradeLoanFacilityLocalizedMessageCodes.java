@@ -37,6 +37,8 @@ public enum TradeLoanFacilityLocalizedMessageCodes implements LocalizedMessage<T
     SANCTIONED_LOAN_NOT_FOUND_FOR_FACILITY("Sanctioned loan not found for facility {0}"),
     SANCTIONED_LOAN_NOT_FOUND("Sanctioned loan not found"),
     NO_ARTICLE_COMPONENTS_ADDED("No article components added"),
+    INCREMENTAL_INTEREST_CANNOT_BE_NEGATIVE(
+            "New schedule total interest ({0}) cannot be less than current schedule total interest ({1})"),
     ARTICLE_METADATA_BUILD_FAILED("Failed to build article metadata.");
 
     private final String messageFormat;

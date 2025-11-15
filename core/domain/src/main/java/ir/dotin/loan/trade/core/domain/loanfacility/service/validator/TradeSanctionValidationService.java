@@ -21,8 +21,6 @@ public final class TradeSanctionValidationService
                 .and(new SanctionDurationSpecification(loanFacility))
                 .and(new SanctionGracePeriodSpecification(loanArrangement))
                 .and(new SanctionPreferentialRateSpecification(loanArrangement))
-                .and(new DisbursementSchedulePresencePolicySpecification(loanArrangement))
-                .and(new DisbursementScheduledTrancheSumSpecification(loanArrangement))
                 .isSatisfiedBy(sanction);
     }
 

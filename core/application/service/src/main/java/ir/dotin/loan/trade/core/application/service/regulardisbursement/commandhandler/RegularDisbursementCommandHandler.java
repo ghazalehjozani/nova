@@ -60,7 +60,7 @@ public class RegularDisbursementCommandHandler implements CommandHandler<Regular
 
     private Result<TradeLoanFacility> validateDisbursementMethod(TradeLoanFacility facility) {
         return facility.getSanctionedLoan()
-                .filter(sl -> sl.getDisbursementMethod() == DisbursementMethod.STAGED_REGULAR)
+                .filter(sl -> sl.getDisbursementMethod() == DisbursementMethod.REGULAR_PROGRESSIVE)
                 .map(sl -> Result.success(facility))
                 .orElseGet(() -> Result.failure(Notification.ofError(
                         RegularDisbursementErrorCodes.INVALID_DISBURSEMENT_METHOD,

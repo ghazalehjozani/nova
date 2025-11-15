@@ -29,10 +29,17 @@ public abstract class InstallmentSchedulePersistenceMapper {
     @Mapping(target = "modifiedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "modifiedBy", ignore = true)
+    @Mapping(target = "scheduleHistory", source = "scheduleHistory", qualifiedByName = "toScheduleHistoryEmb")
+    @Mapping(
+            target = "restructuringRecord",
+            source = "restructuringRecord",
+            qualifiedByName = "toRestructuringRecordEmb")
     public abstract InstallmentScheduleEntity map(InstallmentSchedule domain);
 
     @Mapping(target = "clock", ignore = true)
     @Mapping(target = "eventFactory", ignore = true)
+    @Mapping(target = "scheduleHistory", source = "scheduleHistory", qualifiedByName = "toScheduleHistory")
+    @Mapping(target = "restructuringRecord", source = "restructuringRecord", qualifiedByName = "toRestructuringRecord")
     public abstract InstallmentSchedule.Builder map(InstallmentScheduleEntity entity);
 
     @AfterMapping
