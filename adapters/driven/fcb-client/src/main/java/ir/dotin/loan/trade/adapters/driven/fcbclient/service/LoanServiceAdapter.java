@@ -7,21 +7,14 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.LoanOperationType;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CoveredBranchesResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.EconomicalSectionResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.FcbValidationResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.LoanTopicResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ReasonTypeResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ResourceResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.*;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.LoanMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
@@ -147,41 +140,78 @@ public class LoanServiceAdapter implements LoanServicePort {
         return domainResult;
     }
 
-    public Result<ReasonType> loadReasonType(String reasonTypeCode, FacilityStatus facilityStatus) {
+    @Override
+    public Result<ReasonType> loadReasonTypeForCreate(String reasonTypeCode) {
 
-        LoanOperationType operation = LoanMapper.FACILITY_STATUS_TO_OPERATION_MAPPING.get(facilityStatus);
-        List<Parameter> parameters = buildParameters(reasonTypeCode, operation);
+        log.info("FCB service Loading load-reason-type-for-create for reasonTypeCode :{}", reasonTypeCode);
 
-        Usecases usecases = requestBuilder.buildUseCase("load-reason-type", parameters);
+        Parameter reasonTypeCodeParam =
+                Parameter.builder().key("reasonTypeCode").value(reasonTypeCode).build();
+
+        List<Parameter> parameters = List.of(reasonTypeCodeParam);
+
+        Usecases usecases = requestBuilder.buildUseCase("load-reason-type-for-create", parameters);
         FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
 
-        log.debug("Executing FCB load-reason-type usecase");
+        log.debug("Executing FCB load-reason-type-for-create use case");
 
         Result<ReasonTypeResponse> fcbResult = fcbService.executeUsecase(fcbRequest, ReasonTypeResponse.class);
 
         if (fcbResult.isFailure()) {
             log.error(
-                    "FCB load reason type failed: {}", fcbResult.notification().getErrorMessages());
+                    "FCB load-reason-type-for-create failed: {}",
+                    fcbResult.notification().getErrorMessages());
             return Result.failure(fcbResult.notification());
         }
 
         ReasonTypeResponse fcbResponse = fcbResult.orElseThrow();
 
-        Result<ReasonType> domainResult = LoanMapper.mapToDomainReasonType(fcbResponse);
+        Result<ReasonType> mapDtoResult = LoanMapper.mapToDomainReasonType(fcbResponse);
+        if (mapDtoResult.isFailure()) {
+            log.error(
+                    "map load-reason-type-for-create result failed: {}",
+                    fcbResult.notification().getErrorMessages());
+            return Result.failure(fcbResult.notification());
+        }
 
-        return domainResult;
+        return mapDtoResult;
     }
 
-    private List<Parameter> buildParameters(String reasonTypeCode, LoanOperationType operation) {
-        List<Parameter> parameters = new ArrayList<>();
+    @Override
+    public Result<ReasonType> loadReasonTypeForRevoke(String reasonTypeCode) {
 
-        parameters.add(
-                Parameter.builder().key("reasonTypeCode").value(reasonTypeCode).build());
+        log.info("FCB service Loading load-reason-type-for-revoke for reasonTypeCode :{}", reasonTypeCode);
 
-        parameters.add(
-                Parameter.builder().key("loanOperation").value(operation.name()).build());
+        Parameter reasonTypeCodeParam =
+                Parameter.builder().key("reasonTypeCode").value(reasonTypeCode).build();
 
-        return parameters;
+        List<Parameter> parameters = List.of(reasonTypeCodeParam);
+
+        Usecases usecases = requestBuilder.buildUseCase("load-reason-type-for-revoke", parameters);
+        FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
+
+        log.debug("Executing FCB load-reason-type-for-revoke use case");
+
+        Result<ReasonTypeResponse> fcbResult = fcbService.executeUsecase(fcbRequest, ReasonTypeResponse.class);
+
+        if (fcbResult.isFailure()) {
+            log.error(
+                    "FCB load-reason-type-for-revoke failed: {}",
+                    fcbResult.notification().getErrorMessages());
+            return Result.failure(fcbResult.notification());
+        }
+
+        ReasonTypeResponse fcbResponse = fcbResult.orElseThrow();
+
+        Result<ReasonType> mapDtoResult = LoanMapper.mapToDomainReasonType(fcbResponse);
+        if (mapDtoResult.isFailure()) {
+            log.error(
+                    "map load-reason-type-for-revoke result failed: {}",
+                    fcbResult.notification().getErrorMessages());
+            return Result.failure(fcbResult.notification());
+        }
+
+        return mapDtoResult;
     }
 
     @Override

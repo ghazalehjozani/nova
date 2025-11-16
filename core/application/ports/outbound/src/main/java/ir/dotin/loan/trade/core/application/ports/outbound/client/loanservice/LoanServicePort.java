@@ -3,7 +3,6 @@ package ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice;
 import java.util.List;
 
 import ir.dotin.platform.commons.core.Result;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
@@ -19,7 +18,9 @@ public interface LoanServicePort {
     Result<EconomicalSectorValidation> validateEconomicalSectorForLoanType(
             EconomicSector economicSector, LoanTypeCode loanTypeCode);
 
-    Result<ReasonType> loadReasonType(String reasonTypeCode, FacilityStatus facilityStatus);
+    Result<ReasonType> loadReasonTypeForCreate(String reasonTypeCode);
+
+    Result<ReasonType> loadReasonTypeForRevoke(String reasonTypeCode);
 
     Result<SubSource> loadResourceByCode(String subSourceCode);
 

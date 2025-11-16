@@ -44,7 +44,9 @@ public class FacilityOriginationOrchestrator {
 
         Result<Void> serviceValidationResult = facilityValidator.callAndValidateServices(command);
         if (serviceValidationResult.isFailure()) {
-            log.error("Service validation failed: {}", serviceValidationResult.notification().getErrorMessages());
+            log.error(
+                    "Service validation failed: {}",
+                    serviceValidationResult.notification().getErrorMessages());
             return Result.failure(serviceValidationResult.notification());
         }
 

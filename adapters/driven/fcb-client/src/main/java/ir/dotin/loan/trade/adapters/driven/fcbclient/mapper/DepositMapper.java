@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.mapper;
 
+import java.util.Objects;
+
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
@@ -16,8 +18,6 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.response.Depos
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Objects;
 
 @Slf4j
 @UtilityClass

@@ -84,15 +84,13 @@ public class LoanMapper {
             return Result.failure(notification);
         }
 
-        ReasonType reasonType = new ReasonType(
+        return ReasonType.of(
                 response.getCode(),
                 response.getCentralBankCode(),
                 response.getDescription() != null ? response.getDescription() : "",
                 response.getReasonType(),
                 response.getShouldHasSerial() != null && response.getShouldHasSerial(),
                 response.getExemptionOfInquiryNumber() != null && response.getExemptionOfInquiryNumber());
-
-        return Result.success(reasonType);
     }
 
     public static final Map<FacilityStatus, LoanOperationType> FACILITY_STATUS_TO_OPERATION_MAPPING = Map.of(

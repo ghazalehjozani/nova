@@ -255,7 +255,8 @@ public class DepositServiceAdapter implements DepositServicePort {
                     .value(depositNumber.value())
                     .build());
 
-            String currenciesValue = currencyTypes.stream().map(CurrencyType::getCode).collect(Collectors.joining(SEPARATOR));
+            String currenciesValue =
+                    currencyTypes.stream().map(CurrencyType::getCode).collect(Collectors.joining(SEPARATOR));
 
             parameters.add(
                     Parameter.builder().key("currencies").value(currenciesValue).build());

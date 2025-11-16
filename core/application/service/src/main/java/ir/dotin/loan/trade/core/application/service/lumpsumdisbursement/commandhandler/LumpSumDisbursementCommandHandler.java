@@ -190,8 +190,7 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
                     List<TransactionResult> results = new ArrayList<>();
                     for (int i = 0; i < count; i++) {
                         results.add(new TransactionResult(
-                                trackedNumbers.get(i),
-                                transactions.get(i).extractAccountIdsByRelationType()));
+                                trackedNumbers.get(i), transactions.get(i).extractAccountIdsByRelationType()));
                     }
                     return results;
                 });
