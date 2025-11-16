@@ -17,24 +17,24 @@ import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
 public record GradualInstallmentsCreated(
-        UUID eventId, UUID aggregateId, String eventName, String eventType, Payload payload, Instant createdAt)
-        implements InstallmentScheduleEvents<GradualInstallmentsCreated, GradualInstallmentsCreated.Payload> {
-
-    public record Payload(UUID loanFacilityId, String status, BigDecimal totalAmount, List<UUID> installmentIds) {
-        public Payload {
-            requireNonNull(loanFacilityId);
-            requireNonNull(status);
-            requireNonNull(totalAmount);
-            requireNonNull(installmentIds);
-        }
-    }
+        UUID eventId,
+        UUID aggregateId,
+        String eventType,
+        UUID loanFacilityId,
+        String status,
+        BigDecimal totalAmount,
+        List<UUID> installmentIds,
+        Instant createdAt)
+        implements InstallmentScheduleEvents<GradualInstallmentsCreated> {
 
     public GradualInstallmentsCreated {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
-        requireNonNull(eventName);
         requireNonNull(eventType);
-        requireNonNull(payload);
+        requireNonNull(loanFacilityId);
+        requireNonNull(status);
+        requireNonNull(totalAmount);
+        requireNonNull(installmentIds);
         requireNonNull(createdAt);
     }
 
@@ -50,9 +50,11 @@ public record GradualInstallmentsCreated(
         return new GradualInstallmentsCreated(
                 randomUUID(),
                 scheduleId.value(),
-                GradualInstallmentsCreated.class.getSimpleName(),
                 InstallmentScheduleEventType.GRADUAL_INSTALLMENTS_CREATED.getFullType(),
-                new Payload(loanFacilityId.value(), installmentScheduleStatus.name(), totalAmount, installmentIds),
+                loanFacilityId.value(),
+                installmentScheduleStatus.name(),
+                totalAmount,
+                installmentIds,
                 clock.instant());
     }
 }

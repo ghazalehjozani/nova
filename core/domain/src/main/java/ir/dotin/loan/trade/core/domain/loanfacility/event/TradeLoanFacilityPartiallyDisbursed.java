@@ -12,23 +12,20 @@ import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
 public record TradeLoanFacilityPartiallyDisbursed(
-        UUID eventId, UUID aggregateId, String eventName, String eventType, Payload payload, Instant createdAt)
-        implements TradeLoanFacilityEvents<
-                TradeLoanFacilityPartiallyDisbursed, TradeLoanFacilityPartiallyDisbursed.Payload> {
-
-    public record Payload(UUID sanctionId, Money totalDisbursedAmount) {
-        public Payload {
-            requireNonNull(sanctionId);
-            requireNonNull(totalDisbursedAmount);
-        }
-    }
+        UUID eventId,
+        UUID aggregateId,
+        String eventType,
+        UUID sanctionId,
+        Money totalDisbursedAmount,
+        Instant createdAt)
+        implements TradeLoanFacilityEvents<TradeLoanFacilityPartiallyDisbursed> {
 
     public TradeLoanFacilityPartiallyDisbursed {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
-        requireNonNull(eventName);
         requireNonNull(eventType);
-        requireNonNull(payload);
+        requireNonNull(sanctionId);
+        requireNonNull(totalDisbursedAmount);
         requireNonNull(createdAt);
     }
 
@@ -37,9 +34,9 @@ public record TradeLoanFacilityPartiallyDisbursed(
         return new TradeLoanFacilityPartiallyDisbursed(
                 randomUUID(),
                 facilityId.value(),
-                TradeLoanFacilityPartiallyDisbursed.class.getSimpleName(),
                 TradeLoanFacilityEventType.PARTIALLY_DISBURSED.getFullType(),
-                new Payload(sanctionId.value(), totalDisbursedAmount),
+                sanctionId.value(),
+                totalDisbursedAmount,
                 clock.instant());
     }
 }

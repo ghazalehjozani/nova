@@ -31,7 +31,7 @@ public class ApproveFacilityCommandHandler implements CommandHandler<ApproveFaci
     private final ApprovalStrategyFactory strategyFactory;
 
     @Override
-    public Result<List<DomainEvent<?, ?>>> handle(ApproveFacilityCommand command) {
+    public Result<List<DomainEvent<?>>> handle(ApproveFacilityCommand command) {
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
 
         return Result.fromOptional(

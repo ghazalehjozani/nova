@@ -64,17 +64,17 @@ public final class TradeLoanType extends AbstractLoanType {
     }
 
     @Override
-    protected DomainEvent<?, ?> getLoanTypeActivatedEvent(LoanTypeId aggregateId, Clock clock) {
+    protected DomainEvent<?> getLoanTypeActivatedEvent(LoanTypeId aggregateId, Clock clock) {
         return TradeLoanTypeActivated.of(aggregateId, clock);
     }
 
     @Override
-    protected DomainEvent<?, ?> getLoanTypeDeactivatedEvent(LoanTypeId aggregateId, Clock clock) {
+    protected DomainEvent<?> getLoanTypeDeactivatedEvent(LoanTypeId aggregateId, Clock clock) {
         return TradeLoanTypeDeactivated.of(aggregateId, clock);
     }
 
     @Override
-    protected DomainEvent<?, ?> getNewVersionPreparedEvent(
+    protected DomainEvent<?> getNewVersionPreparedEvent(
             LoanTypeId currentAggregateId, AbstractLoanTypeBuilder<?, ?, ?> validatedBuilder, Clock clock) {
 
         Builder builder = (Builder) validatedBuilder;

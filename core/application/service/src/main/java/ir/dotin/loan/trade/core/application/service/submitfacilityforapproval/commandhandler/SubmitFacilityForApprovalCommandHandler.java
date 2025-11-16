@@ -29,7 +29,7 @@ public class SubmitFacilityForApprovalCommandHandler implements CommandHandler<S
     private final TradeLoanFacilityService domainService;
 
     @Override
-    public Result<List<DomainEvent<?, ?>>> handle(SubmitFacilityForApprovalCommand command) {
+    public Result<List<DomainEvent<?>>> handle(SubmitFacilityForApprovalCommand command) {
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
         return Result.fromOptional(
                         repository.findById(loanFacilityId),

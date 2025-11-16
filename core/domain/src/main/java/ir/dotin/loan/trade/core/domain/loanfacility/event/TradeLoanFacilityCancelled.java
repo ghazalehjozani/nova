@@ -12,21 +12,14 @@ import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
 public record TradeLoanFacilityCancelled(
-        UUID eventId, UUID aggregateId, String eventName, String eventType, Payload payload, Instant createdAt)
-        implements TradeLoanFacilityEvents<TradeLoanFacilityCancelled, TradeLoanFacilityCancelled.Payload> {
-
-    public record Payload(Optional<UUID> sanctionedLoanId) {
-        public Payload {
-            requireNonNull(sanctionedLoanId);
-        }
-    }
+        UUID eventId, UUID aggregateId, String eventType, Optional<UUID> sanctionedLoanId, Instant createdAt)
+        implements TradeLoanFacilityEvents<TradeLoanFacilityCancelled> {
 
     public TradeLoanFacilityCancelled {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
-        requireNonNull(eventName);
         requireNonNull(eventType);
-        requireNonNull(payload);
+        requireNonNull(sanctionedLoanId);
         requireNonNull(createdAt);
     }
 
@@ -34,9 +27,8 @@ public record TradeLoanFacilityCancelled(
         return new TradeLoanFacilityCancelled(
                 randomUUID(),
                 id.value(),
-                TradeLoanFacilityCancelled.class.getSimpleName(),
                 TradeLoanFacilityEventType.CANCELLED.getFullType(),
-                new Payload(Optional.empty()),
+                Optional.empty(),
                 clock.instant());
     }
 
@@ -44,9 +36,8 @@ public record TradeLoanFacilityCancelled(
         return new TradeLoanFacilityCancelled(
                 randomUUID(),
                 id.value(),
-                TradeLoanFacilityCancelled.class.getSimpleName(),
                 TradeLoanFacilityEventType.CANCELLED.getFullType(),
-                new Payload(Optional.of(sanId.value())),
+                Optional.of(sanId.value()),
                 clock.instant());
     }
 }

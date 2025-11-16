@@ -10,7 +10,7 @@ public enum InstallmentScheduleEventType {
     RESTRUCTURED,
     STATE_TRANSITIONED;
 
-    private static final String PREFIX = "INSTALLMENT_SCHEDULE_";
+    private static final String PREFIX = "TRADE_LOAN_INSTALLMENT_SCHEDULE_";
 
     public String getFullType() {
         return PREFIX + name();

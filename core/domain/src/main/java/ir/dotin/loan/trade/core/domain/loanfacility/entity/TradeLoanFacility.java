@@ -68,7 +68,7 @@ public final class TradeLoanFacility
     }
 
     @Override
-    protected LoanFacilityEventFactory<TradeLoanFacilityEvents<?, ?>> createEventFactory() {
+    protected LoanFacilityEventFactory<TradeLoanFacilityEvents<?>> createEventFactory() {
         return new TradeLoanFacilityEventFactory();
     }
 

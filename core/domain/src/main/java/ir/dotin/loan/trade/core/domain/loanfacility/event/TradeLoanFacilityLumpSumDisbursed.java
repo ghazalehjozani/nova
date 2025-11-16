@@ -19,30 +19,25 @@ import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
 public record TradeLoanFacilityLumpSumDisbursed(
-        UUID eventId, UUID aggregateId, String eventName, String eventType, Payload payload, Instant createdAt)
-        implements TradeLoanFacilityEvents<
-                TradeLoanFacilityLumpSumDisbursed, TradeLoanFacilityLumpSumDisbursed.Payload> {
-
-    public record Payload(
-            UUID sanctionedLoanId,
-            List<String> transactionNumbers,
-            String installmentPaymentType,
-            String applicationNumber,
-            UUID installmentScheduleId) {
-        public Payload {
-            requireNonNull(sanctionedLoanId);
-            requireNonNull(installmentPaymentType);
-            requireNonNull(applicationNumber);
-            requireNonNull(transactionNumbers);
-        }
-    }
+        UUID eventId,
+        UUID aggregateId,
+        String eventType,
+        UUID sanctionedLoanId,
+        List<String> transactionNumbers,
+        String installmentPaymentType,
+        String applicationNumber,
+        @Nullable UUID installmentScheduleId,
+        Instant createdAt)
+        implements TradeLoanFacilityEvents<TradeLoanFacilityLumpSumDisbursed> {
 
     public TradeLoanFacilityLumpSumDisbursed {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
-        requireNonNull(eventName);
         requireNonNull(eventType);
-        requireNonNull(payload);
+        requireNonNull(sanctionedLoanId);
+        requireNonNull(transactionNumbers);
+        requireNonNull(installmentPaymentType);
+        requireNonNull(applicationNumber);
         requireNonNull(createdAt);
     }
 
@@ -61,14 +56,12 @@ public record TradeLoanFacilityLumpSumDisbursed(
         return new TradeLoanFacilityLumpSumDisbursed(
                 randomUUID(),
                 id.value(),
-                TradeLoanFacilityLumpSumDisbursed.class.getSimpleName(),
                 TradeLoanFacilityEventType.LUMP_SUM_DISBURSED.getFullType(),
-                new Payload(
-                        sanId.value(),
-                        trxNumbers,
-                        installmentPaymentType.name(),
-                        applicationNumber.formattedApplicationNumber(),
-                        scheduleId),
+                sanId.value(),
+                trxNumbers,
+                installmentPaymentType.name(),
+                applicationNumber.formattedApplicationNumber(),
+                scheduleId,
                 clock.instant());
     }
 }

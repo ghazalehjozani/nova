@@ -32,7 +32,7 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
     private final Clock clock;
 
     @Override
-    public Result<List<DomainEvent<?, ?>>> handle(DefineLoanTypeCommand command) {
+    public Result<List<DomainEvent<?>>> handle(DefineLoanTypeCommand command) {
         return TradeLoanType.create(mapper.toBuilder(command), clock)
                 .flatMap(loanType -> repository
                         .existsByCode(loanType.getCode())

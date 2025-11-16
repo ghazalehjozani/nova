@@ -33,7 +33,7 @@ public class RegularDisbursementCommandHandler implements CommandHandler<Regular
     private final Clock clock;
 
     @Override
-    public Result<List<DomainEvent<?, ?>>> handle(RegularDisbursementCommand command) {
+    public Result<List<DomainEvent<?>>> handle(RegularDisbursementCommand command) {
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
 
         return Result.fromOptional(

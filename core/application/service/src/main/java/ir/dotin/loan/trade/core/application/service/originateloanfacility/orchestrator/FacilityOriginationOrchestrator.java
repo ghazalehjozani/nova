@@ -37,7 +37,7 @@ public class FacilityOriginationOrchestrator {
     private final FacilityPersister facilityPersister;
     private final FacilityValidator facilityValidator;
 
-    public Result<List<DomainEvent<?, ?>>> originate(OriginateLoanFacilityCommand command) {
+    public Result<List<DomainEvent<?>>> originate(OriginateLoanFacilityCommand command) {
         log.info("Starting facility origination process");
 
         LoanFacilityId facilityId = LoanFacilityId.generate();

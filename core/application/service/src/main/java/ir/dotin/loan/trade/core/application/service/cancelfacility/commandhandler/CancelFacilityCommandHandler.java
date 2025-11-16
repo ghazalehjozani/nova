@@ -29,7 +29,7 @@ public class CancelFacilityCommandHandler implements CommandHandler<CancelFacili
     private final TradeLoanFacilityService domainService;
 
     @Override
-    public Result<List<DomainEvent<?, ?>>> handle(CancelFacilityCommand command) {
+    public Result<List<DomainEvent<?>>> handle(CancelFacilityCommand command) {
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
         return Result.fromOptional(
                         repository.findById(loanFacilityId),

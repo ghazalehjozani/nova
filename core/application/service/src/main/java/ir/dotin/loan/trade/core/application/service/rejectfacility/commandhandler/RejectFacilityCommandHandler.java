@@ -29,7 +29,7 @@ public class RejectFacilityCommandHandler implements CommandHandler<RejectFacili
     private final Clock clock;
 
     @Override
-    public Result<List<DomainEvent<?, ?>>> handle(RejectFacilityCommand command) {
+    public Result<List<DomainEvent<?>>> handle(RejectFacilityCommand command) {
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
         return Result.fromOptional(
                         repository.findById(loanFacilityId),
