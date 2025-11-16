@@ -12,22 +12,21 @@ import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
 public record EqualInstallmentsCreated(
-        UUID eventId, UUID aggregateId, String eventName, String eventType, Payload payload, Instant createdAt)
-        implements InstallmentScheduleEvents<EqualInstallmentsCreated, EqualInstallmentsCreated.Payload> {
-
-    public record Payload(LoanFacilityId loanFacilityId, BigDecimal totalAmount, int installmentCount) {
-        public Payload {
-            requireNonNull(loanFacilityId);
-            requireNonNull(totalAmount);
-        }
-    }
+        UUID eventId,
+        UUID aggregateId,
+        String eventType,
+        LoanFacilityId loanFacilityId,
+        BigDecimal totalAmount,
+        int installmentCount,
+        Instant createdAt)
+        implements InstallmentScheduleEvents<EqualInstallmentsCreated> {
 
     public EqualInstallmentsCreated {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
-        requireNonNull(eventName);
         requireNonNull(eventType);
-        requireNonNull(payload);
+        requireNonNull(loanFacilityId);
+        requireNonNull(totalAmount);
         requireNonNull(createdAt);
     }
 
@@ -40,9 +39,10 @@ public record EqualInstallmentsCreated(
         return new EqualInstallmentsCreated(
                 randomUUID(),
                 scheduleId.value(),
-                EqualInstallmentsCreated.class.getSimpleName(),
                 InstallmentScheduleEventType.EQUAL_INSTALLMENTS_CREATED.getFullType(),
-                new Payload(loanFacilityId, totalAmount, installmentCount),
+                loanFacilityId,
+                totalAmount,
+                installmentCount,
                 clock.instant());
     }
 }

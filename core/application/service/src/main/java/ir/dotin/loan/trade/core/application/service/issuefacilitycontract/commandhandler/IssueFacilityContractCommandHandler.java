@@ -49,7 +49,7 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
     private final Clock clock;
 
     @Override
-    public Result<List<DomainEvent<?, ?>>> handle(IssueFacilityContractCommand command) {
+    public Result<List<DomainEvent<?>>> handle(IssueFacilityContractCommand command) {
         TransactionConfig transactionConfig = TransactionConfig.defaultBranchConfig("1234"); // TODO: get from command
 
         return loadFacility(command.loanFacilityId())

@@ -11,21 +11,14 @@ import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
 public record TradeLoanFacilityPaidOffClosed(
-        UUID eventId, UUID aggregateId, String eventName, String eventType, Payload payload, Instant createdAt)
-        implements TradeLoanFacilityEvents<TradeLoanFacilityPaidOffClosed, TradeLoanFacilityPaidOffClosed.Payload> {
-
-    public record Payload(UUID sanctionedLoanId) {
-        public Payload {
-            requireNonNull(sanctionedLoanId);
-        }
-    }
+        UUID eventId, UUID aggregateId, String eventType, UUID sanctionedLoanId, Instant createdAt)
+        implements TradeLoanFacilityEvents<TradeLoanFacilityPaidOffClosed> {
 
     public TradeLoanFacilityPaidOffClosed {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
-        requireNonNull(eventName);
         requireNonNull(eventType);
-        requireNonNull(payload);
+        requireNonNull(sanctionedLoanId);
         requireNonNull(createdAt);
     }
 
@@ -33,9 +26,8 @@ public record TradeLoanFacilityPaidOffClosed(
         return new TradeLoanFacilityPaidOffClosed(
                 randomUUID(),
                 id.value(),
-                TradeLoanFacilityPaidOffClosed.class.getSimpleName(),
                 TradeLoanFacilityEventType.CLOSED_PAID_OFF.getFullType(),
-                new Payload(sanId.value()),
+                sanId.value(),
                 clock.instant());
     }
 }

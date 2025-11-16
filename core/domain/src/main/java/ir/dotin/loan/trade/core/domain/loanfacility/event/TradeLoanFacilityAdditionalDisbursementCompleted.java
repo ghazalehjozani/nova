@@ -12,24 +12,20 @@ import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
 public record TradeLoanFacilityAdditionalDisbursementCompleted(
-        UUID eventId, UUID aggregateId, String eventName, String eventType, Payload payload, Instant createdAt)
-        implements TradeLoanFacilityEvents<
-                TradeLoanFacilityAdditionalDisbursementCompleted,
-                TradeLoanFacilityAdditionalDisbursementCompleted.Payload> {
-
-    public record Payload(UUID sanctionId, Money totalDisbursedAmount) {
-        public Payload {
-            requireNonNull(sanctionId);
-            requireNonNull(totalDisbursedAmount);
-        }
-    }
+        UUID eventId,
+        UUID aggregateId,
+        String eventType,
+        UUID sanctionId,
+        Money totalDisbursedAmount,
+        Instant createdAt)
+        implements TradeLoanFacilityEvents<TradeLoanFacilityAdditionalDisbursementCompleted> {
 
     public TradeLoanFacilityAdditionalDisbursementCompleted {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
-        requireNonNull(eventName);
         requireNonNull(eventType);
-        requireNonNull(payload);
+        requireNonNull(sanctionId);
+        requireNonNull(totalDisbursedAmount);
         requireNonNull(createdAt);
     }
 
@@ -38,9 +34,9 @@ public record TradeLoanFacilityAdditionalDisbursementCompleted(
         return new TradeLoanFacilityAdditionalDisbursementCompleted(
                 randomUUID(),
                 facilityId.value(),
-                TradeLoanFacilityAdditionalDisbursementCompleted.class.getSimpleName(),
                 TradeLoanFacilityEventType.ADDITIONAL_DISBURSEMENT_COMPLETED.getFullType(),
-                new Payload(sanctionId.value(), totalDisbursedAmount),
+                sanctionId.value(),
+                totalDisbursedAmount,
                 clock.instant());
     }
 }

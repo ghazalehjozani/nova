@@ -59,7 +59,7 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
     private final Clock clock;
 
     @Override
-    public Result<List<DomainEvent<?, ?>>> handle(LumpSumDisbursementCommand command) {
+    public Result<List<DomainEvent<?>>> handle(LumpSumDisbursementCommand command) {
         log.info("Starting lump sum disbursement for facility: {}", command.loanFacilityId());
 
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
@@ -240,14 +240,14 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
         tradeLoanFacilityRepository.save(operationResult.facility());
         log.info("Facility saved: {}", operationResult.facility().getId().value());
 
-        List<DomainEvent<?, ?>> allEvents = aggregateEvents(operationResult);
+        List<DomainEvent<?>> allEvents = aggregateEvents(operationResult);
 
         return Result.success(
                 new DisbursementResult(operationResult.facility(), operationResult.schedule(), allEvents));
     }
 
-    private List<DomainEvent<?, ?>> aggregateEvents(DisbursementOperationResult result) {
-        List<DomainEvent<?, ?>> allEvents = new ArrayList<>();
+    private List<DomainEvent<?>> aggregateEvents(DisbursementOperationResult result) {
+        List<DomainEvent<?>> allEvents = new ArrayList<>();
         allEvents.addAll(result.schedule().domainEvents());
         allEvents.addAll(result.facility().domainEvents());
         return allEvents;
@@ -267,5 +267,5 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
     private record DisbursementOperationResult(TradeLoanFacility facility, InstallmentSchedule schedule) {}
 
     private record DisbursementResult(
-            TradeLoanFacility facility, InstallmentSchedule schedule, List<DomainEvent<?, ?>> events) {}
+            TradeLoanFacility facility, InstallmentSchedule schedule, List<DomainEvent<?>> events) {}
 }

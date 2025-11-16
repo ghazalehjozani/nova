@@ -10,25 +10,23 @@ import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
 public record NewTradeLoanTypeVersionPrepared(
-        UUID eventId, UUID aggregateId, String eventName, String eventType, Payload payload, Instant createdAt)
-        implements TradeLoanTypeEvents<NewTradeLoanTypeVersionPrepared, NewTradeLoanTypeVersionPrepared.Payload> {
-
-    public record Payload(LoanTypeId newAggregateId, LoanTypeId previousAggregateId) {
-        public Payload {
-            requireNonNull(newAggregateId);
-            requireNonNull(previousAggregateId);
-        }
-    }
+        UUID eventId,
+        UUID aggregateId,
+        String eventType,
+        LoanTypeId newAggregateId,
+        LoanTypeId previousAggregateId,
+        Instant createdAt)
+        implements TradeLoanTypeEvents<NewTradeLoanTypeVersionPrepared> {
 
     public NewTradeLoanTypeVersionPrepared {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
-        requireNonNull(eventName);
         requireNonNull(eventType);
-        requireNonNull(payload);
+        requireNonNull(newAggregateId);
+        requireNonNull(previousAggregateId);
         requireNonNull(createdAt);
-        if (!aggregateId.equals(payload.newAggregateId().value()))
-            throw new IllegalArgumentException("aggregateId must match payload.newAggregateId");
+        if (!aggregateId.equals(newAggregateId.value()))
+            throw new IllegalArgumentException("aggregateId must match newAggregateId");
     }
 
     public static NewTradeLoanTypeVersionPrepared of(
@@ -36,9 +34,9 @@ public record NewTradeLoanTypeVersionPrepared(
         return new NewTradeLoanTypeVersionPrepared(
                 randomUUID(),
                 newAggregateId.value(),
-                NewTradeLoanTypeVersionPrepared.class.getSimpleName(),
                 TradeLoanTypeEventType.VERSION_PREPARED.getFullType(),
-                new Payload(newAggregateId, previousAggregateId),
+                newAggregateId,
+                previousAggregateId,
                 clock.instant());
     }
 }

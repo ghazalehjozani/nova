@@ -6,7 +6,7 @@ public enum TradeLoanArrangementEventType {
     DEACTIVATED,
     VERSION_PREPARED;
 
-    private static final String PREFIX = "TRADE_ARRANGEMENT_";
+    private static final String PREFIX = "TRADE_LOAN_ARRANGEMENT_";
 
     public String getFullType() {
         return PREFIX + name();

@@ -28,7 +28,7 @@ public class DefineTradeLoanArrangementCommandHandler implements CommandHandler<
     private final Clock clock;
 
     @Override
-    public Result<List<DomainEvent<?, ?>>> handle(DefineTradeLoanArrangementCommand command) {
+    public Result<List<DomainEvent<?>>> handle(DefineTradeLoanArrangementCommand command) {
         return Result.requireFalse(
                         repository.existsByCode(command.code().value()),
                         Notification.ofError(DefineLoanArrangementErrorCodes.DUPLICATE_CODE, command.code()))

@@ -21,7 +21,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 public class InstallmentScheduleEventFactoryImpl implements InstallmentScheduleEventFactory {
 
     @Override
-    public DomainEvent<?, ?> createEqualInstallmentsCreatedEvent(
+    public DomainEvent<?> createEqualInstallmentsCreatedEvent(
             @NonNull InstallmentScheduleId scheduleId,
             @NonNull LoanFacilityId loanFacilityId,
             @NonNull BigDecimal totalAmount,
@@ -36,7 +36,7 @@ public class InstallmentScheduleEventFactoryImpl implements InstallmentScheduleE
     }
 
     @Override
-    public DomainEvent<?, ?> createUnequalInstallmentsCreatedEvent(
+    public DomainEvent<?> createUnequalInstallmentsCreatedEvent(
             @NonNull InstallmentScheduleId scheduleId,
             @NonNull InstallmentScheduleStatus installmentScheduleStatus,
             @NonNull LoanFacilityId loanFacilityId,
@@ -53,7 +53,7 @@ public class InstallmentScheduleEventFactoryImpl implements InstallmentScheduleE
     }
 
     @Override
-    public DomainEvent<?, ?> createScheduleRestructuredEvent(
+    public DomainEvent<?> createScheduleRestructuredEvent(
             @NonNull InstallmentScheduleId scheduleId,
             @NonNull String reason,
             @NonNull Map<String, Object> changes,
@@ -63,31 +63,31 @@ public class InstallmentScheduleEventFactoryImpl implements InstallmentScheduleE
     }
 
     @Override
-    public DomainEvent<?, ?> createScheduleCancelledEvent(
+    public DomainEvent<?> createScheduleCancelledEvent(
             @NonNull InstallmentScheduleId scheduleId, @NonNull String reason, @NonNull Instant occurredAt) {
         return ScheduleCancelled.of(scheduleId, reason, Clock.fixed(occurredAt, java.time.ZoneId.systemDefault()));
     }
 
     @Override
-    public DomainEvent<?, ?> createScheduleActivatedEvent(
+    public DomainEvent<?> createScheduleActivatedEvent(
             @NonNull InstallmentScheduleId scheduleId, @NonNull Instant occurredAt) {
         return ScheduleActivated.of(scheduleId, Clock.fixed(occurredAt, java.time.ZoneId.systemDefault()));
     }
 
     @Override
-    public DomainEvent<?, ?> createScheduleOnHoldEvent(
+    public DomainEvent<?> createScheduleOnHoldEvent(
             @NonNull InstallmentScheduleId scheduleId, @NonNull String reason, @NonNull Instant occurredAt) {
         return ScheduleOnHold.of(scheduleId, reason, Clock.fixed(occurredAt, java.time.ZoneId.systemDefault()));
     }
 
     @Override
-    public DomainEvent<?, ?> createScheduleCompletedEvent(
+    public DomainEvent<?> createScheduleCompletedEvent(
             @NonNull InstallmentScheduleId scheduleId, @NonNull Instant occurredAt) {
         return ScheduleCompleted.of(scheduleId, Clock.fixed(occurredAt, java.time.ZoneId.systemDefault()));
     }
 
     @Override
-    public DomainEvent<?, ?> createStateTransitionEvent(
+    public DomainEvent<?> createStateTransitionEvent(
             @NonNull InstallmentScheduleId scheduleId,
             @NonNull InstallmentScheduleStatus fromStatus,
             @NonNull InstallmentScheduleStatus toStatus,

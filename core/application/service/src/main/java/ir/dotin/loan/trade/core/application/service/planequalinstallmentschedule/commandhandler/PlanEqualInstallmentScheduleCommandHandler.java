@@ -41,7 +41,7 @@ public class PlanEqualInstallmentScheduleCommandHandler implements CommandHandle
     private final Clock clock;
 
     @Override
-    public Result<List<DomainEvent<?, ?>>> handle(PlanEqualInstallmentScheduleCommand command) {
+    public Result<List<DomainEvent<?>>> handle(PlanEqualInstallmentScheduleCommand command) {
         return loadDependencies(command)
                 .flatMap(this::planSchedule)
                 .peekValue(installmentScheduleRepository::save)

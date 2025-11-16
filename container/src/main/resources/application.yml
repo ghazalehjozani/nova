@@ -199,14 +199,14 @@ platform:
       lock-timeout: 5m
       topic-mappings:
         InstallmentSchedule:
-          - corridor.core.loan.installment.equal-installments-created.topic.v1
-          - corridor.core.loan.installment.gradual-installments-created.topic.v1
-          - corridor.core.loan.installment.schedule-activated.topic.v1
-          - corridor.core.loan.installment.schedule-cancelled.topic.v1
-          - corridor.core.loan.installment.schedule-completed.topic.v1
-          - corridor.core.loan.installment.schedule-on-held.topic.v1
-          - corridor.core.loan.installment.schedule-restructured.topic.v1
-          - corridor.core.loan.installment.schedule-state-transitioned.topic.v1
+          - corridor.core.loan.installment.trade-loan-installment-schedule-equal-installments-created.topic.v1
+          - corridor.core.loan.installment.trade-loan-installment-schedule-gradual-installments-created.topic.v1
+          - corridor.core.loan.installment.trade-loan-installment-schedule-activated.topic.v1
+          - corridor.core.loan.installment.trade-loan-installment-schedule-cancelled.topic.v1
+          - corridor.core.loan.installment.trade-loan-installment-schedule-completed.topic.v1
+          - corridor.core.loan.installment.trade-loan-installment-schedule-on-held.topic.v1
+          - corridor.core.loan.installment.trade-loan-installment-schedule-restructured.topic.v1
+          - corridor.core.loan.installment.trade-loan-installment-schedule-state-transitioned.topic.v1
         TradeLoanArrangement:
           - corridor.core.loan.arrangement.trade-loan-arrangement-created.topic.v1
         TradeLoanFacility:

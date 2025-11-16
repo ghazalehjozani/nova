@@ -9,19 +9,13 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
-public record TradeLoanArrangementDeactivated(
-        UUID eventId, UUID aggregateId, String eventName, String eventType, Payload payload, Instant createdAt)
-        implements TradeLoanArrangementEvents<
-                TradeLoanArrangementDeactivated, TradeLoanArrangementDeactivated.Payload> {
-
-    public record Payload() {}
+public record TradeLoanArrangementDeactivated(UUID eventId, UUID aggregateId, String eventType, Instant createdAt)
+        implements TradeLoanArrangementEvents<TradeLoanArrangementDeactivated> {
 
     public TradeLoanArrangementDeactivated {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
-        requireNonNull(eventName);
         requireNonNull(eventType);
-        requireNonNull(payload);
         requireNonNull(createdAt);
     }
 
@@ -29,9 +23,7 @@ public record TradeLoanArrangementDeactivated(
         return new TradeLoanArrangementDeactivated(
                 randomUUID(),
                 loanArrangementId.value(),
-                TradeLoanArrangementDeactivated.class.getSimpleName(),
                 TradeLoanArrangementEventType.DEACTIVATED.getFullType(),
-                new Payload(),
                 clock.instant());
     }
 }

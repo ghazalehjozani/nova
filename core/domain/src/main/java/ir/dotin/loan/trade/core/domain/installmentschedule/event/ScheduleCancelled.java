@@ -9,22 +9,14 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
-public record ScheduleCancelled(
-        UUID eventId, UUID aggregateId, String eventName, String eventType, Payload payload, Instant createdAt)
-        implements InstallmentScheduleEvents<ScheduleCancelled, ScheduleCancelled.Payload> {
-
-    public record Payload(String reason) {
-        public Payload {
-            requireNonNull(reason);
-        }
-    }
+public record ScheduleCancelled(UUID eventId, UUID aggregateId, String eventType, String reason, Instant createdAt)
+        implements InstallmentScheduleEvents<ScheduleCancelled> {
 
     public ScheduleCancelled {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
-        requireNonNull(eventName);
         requireNonNull(eventType);
-        requireNonNull(payload);
+        requireNonNull(reason);
         requireNonNull(createdAt);
     }
 
@@ -32,9 +24,8 @@ public record ScheduleCancelled(
         return new ScheduleCancelled(
                 randomUUID(),
                 scheduleId.value(),
-                ScheduleCancelled.class.getSimpleName(),
                 InstallmentScheduleEventType.CANCELLED.getFullType(),
-                new Payload(reason),
+                reason,
                 clock.instant());
     }
 }

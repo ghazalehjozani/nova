@@ -33,7 +33,7 @@ public class IrregularDisbursementCommandHandler implements CommandHandler<Irreg
     private final Clock clock;
 
     @Override
-    public Result<List<DomainEvent<?, ?>>> handle(IrregularDisbursementCommand command) {
+    public Result<List<DomainEvent<?>>> handle(IrregularDisbursementCommand command) {
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
 
         return Result.fromOptional(

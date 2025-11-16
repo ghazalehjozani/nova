@@ -37,8 +37,8 @@ public class FacilityPersister {
         return Result.success(new OriginationResult(facility, scheduleOpt));
     }
 
-    public List<DomainEvent<?, ?>> aggregateEvents(OriginationResult result) {
-        List<DomainEvent<?, ?>> allEvents = new ArrayList<>(result.facility().domainEvents());
+    public List<DomainEvent<?>> aggregateEvents(OriginationResult result) {
+        List<DomainEvent<?>> allEvents = new ArrayList<>(result.facility().domainEvents());
         result.installmentSchedule().ifPresent(schedule -> allEvents.addAll(schedule.domainEvents()));
         return allEvents;
     }

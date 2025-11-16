@@ -29,7 +29,7 @@ public class CloseFacilityPaidOffCommandHandler implements CommandHandler<CloseF
     private final TradeLoanFacilityRepository repository;
 
     @Override
-    public Result<List<DomainEvent<?, ?>>> handle(CloseFacilityPaidOffCommand command) {
+    public Result<List<DomainEvent<?>>> handle(CloseFacilityPaidOffCommand command) {
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
         return Result.fromOptional(
                         repository.findById(loanFacilityId),

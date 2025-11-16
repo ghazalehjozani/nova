@@ -32,7 +32,7 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
     private final TradeLoanFacilityService domainService;
 
     @Override
-    public Result<List<DomainEvent<?, ?>>> handle(AddFacilityCollateralCommand command) {
+    public Result<List<DomainEvent<?>>> handle(AddFacilityCollateralCommand command) {
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
         CollateralSerial collateralSerial = mapper.toCollateralSerial(command.collateralSerialDto());
         return Result.fromOptional(

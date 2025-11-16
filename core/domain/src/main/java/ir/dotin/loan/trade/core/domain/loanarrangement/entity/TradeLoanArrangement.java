@@ -48,8 +48,6 @@ public final class TradeLoanArrangement
         TradeLoanArrangement arrangement = builder.build();
         requireNonNull(arrangement, "arrangement cannot be null after successful build");
 
-        var payload = new TradeLoanArrangementCreated.Payload(arrangement.getId());
-
         TradeLoanArrangementCreated creationEvent = TradeLoanArrangementCreated.of(arrangement.getId(), clock);
 
         arrangement.registerEvent(creationEvent);
@@ -63,17 +61,17 @@ public final class TradeLoanArrangement
     }
 
     @Override
-    protected DomainEvent<?, ?> getArrangementActivatedEvent(LoanArrangementId aggregateId, Clock clock) {
+    protected DomainEvent<?> getArrangementActivatedEvent(LoanArrangementId aggregateId, Clock clock) {
         return TradeLoanArrangementActivated.of(aggregateId, clock);
     }
 
     @Override
-    protected DomainEvent<?, ?> getArrangementDeactivatedEvent(LoanArrangementId aggregateId, Clock clock) {
+    protected DomainEvent<?> getArrangementDeactivatedEvent(LoanArrangementId aggregateId, Clock clock) {
         return TradeLoanArrangementDeactivated.of(aggregateId, clock);
     }
 
     @Override
-    protected DomainEvent<?, ?> getNewArrangementVersionPreparedEvent(
+    protected DomainEvent<?> getNewArrangementVersionPreparedEvent(
             LoanArrangementId currentAggregateId,
             AbstractBuilder<TradeLoanParameterProvider, TradeLoanFacilityFormulaField, ?, ?> validatedBuilder,
             Clock clock) {

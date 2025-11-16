@@ -13,23 +13,21 @@ import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
 public record ScheduleStateTransitioned(
-        UUID eventId, UUID aggregateId, String eventName, String eventType, Payload payload, Instant createdAt)
-        implements InstallmentScheduleEvents<ScheduleStateTransitioned, ScheduleStateTransitioned.Payload> {
-
-    public record Payload(
-            InstallmentScheduleStatus fromStatus, InstallmentScheduleStatus toStatus, @Nullable String reason) {
-        public Payload {
-            requireNonNull(fromStatus);
-            requireNonNull(toStatus);
-        }
-    }
+        UUID eventId,
+        UUID aggregateId,
+        String eventType,
+        InstallmentScheduleStatus fromStatus,
+        InstallmentScheduleStatus toStatus,
+        @Nullable String reason,
+        Instant createdAt)
+        implements InstallmentScheduleEvents<ScheduleStateTransitioned> {
 
     public ScheduleStateTransitioned {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
-        requireNonNull(eventName);
         requireNonNull(eventType);
-        requireNonNull(payload);
+        requireNonNull(fromStatus);
+        requireNonNull(toStatus);
         requireNonNull(createdAt);
     }
 
@@ -42,9 +40,10 @@ public record ScheduleStateTransitioned(
         return new ScheduleStateTransitioned(
                 randomUUID(),
                 scheduleId.value(),
-                ScheduleStateTransitioned.class.getSimpleName(),
                 InstallmentScheduleEventType.STATE_TRANSITIONED.getFullType(),
-                new Payload(fromStatus, toStatus, reason),
+                fromStatus,
+                toStatus,
+                reason,
                 clock.instant());
     }
 }
