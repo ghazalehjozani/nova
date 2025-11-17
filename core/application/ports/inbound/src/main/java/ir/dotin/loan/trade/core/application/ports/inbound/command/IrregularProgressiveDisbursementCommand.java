@@ -18,7 +18,6 @@ public record IrregularProgressiveDisbursementCommand(
         @NotNull UUID loanFacilityId,
         @NotNull BigDecimal trancheAmount,
         @NotNull Long version,
-        @NotBlank String currency,
         @NotBlank String branchCode,
         @NotBlank String terminalType,
         @NotBlank String terminalIp,

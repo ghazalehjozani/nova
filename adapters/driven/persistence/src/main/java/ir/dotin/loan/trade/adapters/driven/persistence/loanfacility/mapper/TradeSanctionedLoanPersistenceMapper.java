@@ -17,7 +17,6 @@ public interface TradeSanctionedLoanPersistenceMapper {
     @Mapping(target = "modifiedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "modifiedBy", ignore = true)
-    @Mapping(target = "installmentScheduleId", ignore = true)
     @Mapping(target = "disbursementSchedule", ignore = true)
     @Mapping(
             target = "disbursementHistory",

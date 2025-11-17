@@ -9,15 +9,13 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
-public record TradeLoanArrangementCreated(
-        UUID eventId, UUID aggregateId, String eventType, LoanArrangementId loanArrangementId, Instant createdAt)
+public record TradeLoanArrangementCreated(UUID eventId, UUID aggregateId, String eventType, Instant createdAt)
         implements TradeLoanArrangementEvents<TradeLoanArrangementCreated> {
 
     public TradeLoanArrangementCreated {
         requireNonNull(eventId);
         requireNonNull(aggregateId);
         requireNonNull(eventType);
-        requireNonNull(loanArrangementId);
         requireNonNull(createdAt);
     }
 
@@ -26,7 +24,6 @@ public record TradeLoanArrangementCreated(
                 randomUUID(),
                 loanArrangementId.value(),
                 TradeLoanArrangementEventType.CREATED.getFullType(),
-                loanArrangementId,
                 clock.instant());
     }
 }

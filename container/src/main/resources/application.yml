@@ -129,7 +129,7 @@ platform:
       shutdown-timeout: 60s
       middleware-enabled: true
       idempotency:
-        enabled: true
+        enabled: false
         ttl: 24h
         lock-ttl: 60s
         cleanup-interval: 5m
@@ -210,19 +210,18 @@ platform:
         TradeLoanArrangement:
           - corridor.core.loan.arrangement.trade-loan-arrangement-created.topic.v1
         TradeLoanFacility:
-          - corridor.core.loan.facility.trade-loan-facility-lump-sum-disbursed.topic.v1
-          - corridor.core.loan.facility.trade-loan-facility-additional-disbursement-completed.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-created.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-approval-submitted.topic.v1
           - corridor.core.loan.facility.trade-loan-facility-approved.topic.v1
-          - corridor.core.loan.facility.trade-loan-facility-cancelled.topic.v1
-          - corridor.core.loan.facility.trade-loan-facility-closed-defaulted.topic.v1
-          - corridor.core.loan.facility.trade-loan-facility-paid-off-closed.topic.v1
           - corridor.core.loan.facility.trade-loan-facility-collateral-added.topic.v1
           - corridor.core.loan.facility.trade-loan-facility-contract-issued.topic.v1
-          - corridor.core.loan.facility.trade-loan-facility-created.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-lump-sum-disbursed.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-fully-disbursed.topic.v1
           - corridor.core.loan.facility.trade-loan-facility-disbursement-failed.topic.v1
-          - corridor.core.loan.facility.trade-loan-facility-irregularly-disbursed.topic.v1
-          - corridor.core.loan.facility.trade-loan-facility-partially-disbursed.topic.v1
-          - corridor.core.loan.facility.trade-loan-facility-approval-submitted.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-irregular-tranche-disbursed.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-closed-defaulted.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-paid-off-closed.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-cancelled.topic.v1
           - corridor.core.loan.facility.trade-loan-facility-rejected.topic.v1
         TradeLoanType:
           - corridor.core.loan.type.trade-loan-type-created.topic.v1

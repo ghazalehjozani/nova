@@ -44,7 +44,6 @@ public class IrregularProgressiveDisbursementController extends BaseController {
         var command = IrregularProgressiveDisbursementCommand.builder()
                 .loanFacilityId(facilityId)
                 .trancheAmount(payload.trancheAmount())
-                .currency(payload.trancheAmount().toString())
                 .version(payload.version())
                 .installmentSchedulePlan(mapInstallmentPlan(payload.installmentSchedulePlan()))
                 .branchCode(authenticationContextHolder.branchCode().orElseThrow())

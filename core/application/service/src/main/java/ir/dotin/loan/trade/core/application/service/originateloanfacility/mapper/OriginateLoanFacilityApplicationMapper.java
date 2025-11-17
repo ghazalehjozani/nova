@@ -22,13 +22,13 @@ import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
 public interface OriginateLoanFacilityApplicationMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "installmentScheduleId", ignore = true)
     @Mapping(target = "requestedAmount", ignore = true)
     @Mapping(target = "applicationNumber", ignore = true)
     @Mapping(target = "branch", ignore = true)
     @Mapping(target = "customer", ignore = true)
     @Mapping(target = "guarantors", ignore = true)
     @Mapping(target = "version", ignore = true)
+    @Mapping(target = "disbursementMethod", ignore = true)
     TradeLoanApplication.Builder map(OriginateLoanFacilityCommand.LoanApplicationDto loanApplication);
 
     Certificate map(OriginateLoanFacilityCommand.CertificateDto dto);

@@ -25,7 +25,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
-import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityAdditionalDisbursementCompleted;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityApprovalSubmitted;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityApproved;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCancelled;
@@ -36,7 +35,6 @@ import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCreat
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityDisbursementFailed;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityLumpSumDisbursed;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityPaidOffClosed;
-import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityPartiallyDisbursed;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityRejected;
 
 import static java.time.ZoneOffset.UTC;
@@ -210,23 +208,6 @@ final class TradeLoanFacilityEventFactoryTest {
             var event = factory.createCreatedEvent(mockFacilityId, mockApplicationNumber, fixedClock);
 
             assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityCreated.class);
-        }
-
-        @Test
-        @DisplayName("should create partially disbursed event")
-        void shouldCreatePartiallyDisbursedEvent() {
-            var event = factory.createPartiallyDisbursedEvent(mockFacilityId, mockSanctionId, mockMoney, fixedClock);
-
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityPartiallyDisbursed.class);
-        }
-
-        @Test
-        @DisplayName("should create additional disbursement completed event")
-        void shouldCreateAdditionalDisbursementCompletedEvent() {
-            var event = factory.createAdditionalDisbursementCompletedEvent(
-                    mockFacilityId, mockSanctionId, mockMoney, fixedClock);
-
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityAdditionalDisbursementCompleted.class);
         }
     }
 }

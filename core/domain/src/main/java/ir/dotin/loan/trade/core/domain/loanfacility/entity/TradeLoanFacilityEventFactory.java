@@ -80,8 +80,10 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
             SanctionedLoanId sanctionedLoanId,
             String totalDisbursed,
             int totalTranches,
+            List<TrackedTransactionNumber> trackedNumbers,
             Clock clock) {
-        return TradeLoanFacilityFullyDisbursed.of(facilityId, sanctionedLoanId, totalDisbursed, totalTranches, clock);
+        return TradeLoanFacilityFullyDisbursed.of(
+                facilityId, sanctionedLoanId, totalDisbursed, totalTranches, trackedNumbers, clock);
     }
 
     @Override
@@ -114,39 +116,18 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
     }
 
     @Override
-    public TradeLoanFacilityIrregularlyDisbursed createIrregularDisbursementRequestedEvent(
-            LoanFacilityId facilityId, SanctionedLoanId sanctionId, Money amountToDisburse, Clock clock) {
-        return TradeLoanFacilityIrregularlyDisbursed.of(facilityId, sanctionId, amountToDisburse, clock);
-    }
-
-    @Override
-    public TradeLoanFacilityPartiallyDisbursed createPartiallyDisbursedEvent(
-            LoanFacilityId loanFacilityId, SanctionedLoanId sanctionedLoanId, Money totalDisbursedAmount, Clock clock) {
-        return TradeLoanFacilityPartiallyDisbursed.of(
-                loanFacilityId,
-                sanctionedLoanId,
-                List.of(),
-                totalDisbursedAmount.toString(),
-                totalDisbursedAmount.toString(),
-                Money.zero(totalDisbursedAmount.currency()).getValue().toString(),
-                1,
-                InstallmentScheduleId.generate().orElseThrow(),
-                clock);
-    }
-
-    @Override
-    public TradeLoanFacilityPartiallyDisbursed createPartiallyDisbursedEvent(
-            LoanFacilityId loanFacilityId,
+    public TradeLoanFacilityIrregularTrancheDisbursed createIrregularTrancheDisbursedEvent(
+            LoanFacilityId facilityId,
             SanctionedLoanId sanctionedLoanId,
             List<TrackedTransactionNumber> trackedNumbers,
-            String trancheAmount,
+            Money trancheAmount,
             String totalDisbursed,
             String remainingCapacity,
             int trancheNumber,
             InstallmentScheduleId scheduleId,
             Clock clock) {
-        return TradeLoanFacilityPartiallyDisbursed.of(
-                loanFacilityId,
+        return TradeLoanFacilityIrregularTrancheDisbursed.of(
+                facilityId,
                 sanctionedLoanId,
                 trackedNumbers,
                 trancheAmount,
@@ -155,11 +136,5 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
                 trancheNumber,
                 scheduleId,
                 clock);
-    }
-
-    @Override
-    public TradeLoanFacilityAdditionalDisbursementCompleted createAdditionalDisbursementCompletedEvent(
-            LoanFacilityId facilityId, SanctionedLoanId sanctionId, Money totalDisbursedAmount, Clock clock) {
-        return TradeLoanFacilityAdditionalDisbursementCompleted.of(facilityId, sanctionId, totalDisbursedAmount, clock);
     }
 }

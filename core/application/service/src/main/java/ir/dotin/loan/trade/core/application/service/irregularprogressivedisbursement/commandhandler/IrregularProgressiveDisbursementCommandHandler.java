@@ -47,6 +47,8 @@ import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import static java.util.Objects.requireNonNull;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -101,9 +103,9 @@ public class IrregularProgressiveDisbursementCommandHandler
 
     private Result<ProcessingContext> loadDependencies(
             TradeLoanFacility facility, IrregularProgressiveDisbursementCommand command) {
-        CurrencyType currencyType = CurrencyType.valueOf(command.currency()).orElseThrow();
-        Money trancheAmount =
-                Money.valueOf(command.trancheAmount(), currencyType).getValue();
+        CurrencyType currencyType = facility.getSanctionedLoan().orElseThrow().getCurrency();
+        Money trancheAmount = Money.valueOf(command.trancheAmount(), requireNonNull(currencyType))
+                .getValue();
 
         List<InstallmentSpec> customPlan = null;
         if (command.installmentSchedulePlan() != null) {
@@ -272,13 +274,19 @@ public class IrregularProgressiveDisbursementCommandHandler
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (existing, replacement) -> existing));
 
         int trancheNumber = context.schedule().getScheduleHistory().count() + 1;
-        String reason = String.format("Tranche %d disbursement: %s", trancheNumber, context.trancheAmount());
-
+        String reason = String.format(
+                "Tranche %d disbursement: %s",
+                trancheNumber, context.trancheAmount().value());
+        Money totalTranche = facility.getTotalDisbursedAmount()
+                .add(context.trancheAmount())
+                .orElseThrow(() -> new IllegalStateException("Creating zero Money failed unexpectedly."));
         return context.schedule()
                 .restructureSchedule(
                         recalculatedInstallments,
                         reason,
-                        context.trancheAmount(),
+                        totalTranche,
+                        requireNonNull(
+                                facility.getSanctionedLoan().orElseThrow().getApprovedAmount()),
                         clock,
                         context.config().userId())
                 .flatMap(newSchedule -> newSchedule
@@ -300,8 +308,8 @@ public class IrregularProgressiveDisbursementCommandHandler
 
         List<DomainEvent<?>> events = new ArrayList<>();
         events.addAll(operationResult.oldSchedule().domainEvents());
-        events.addAll(newSchedule.domainEvents());
-        events.addAll(savedFacility.domainEvents());
+        events.addAll(operationResult.newSchedule().domainEvents());
+        events.addAll(operationResult.facility().domainEvents());
 
         return Result.success(new DisbursementResult(savedFacility, newSchedule, events));
     }

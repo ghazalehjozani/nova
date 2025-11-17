@@ -4,8 +4,7 @@ import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 public sealed interface TradeLoanFacilityEvents<T extends Record & TradeLoanFacilityEvents<T>> extends DomainEvent<T>
-        permits TradeLoanFacilityAdditionalDisbursementCompleted,
-                TradeLoanFacilityApprovalSubmitted,
+        permits TradeLoanFacilityApprovalSubmitted,
                 TradeLoanFacilityApproved,
                 TradeLoanFacilityCancelled,
                 TradeLoanFacilityClosedDefaulted,
@@ -14,10 +13,9 @@ public sealed interface TradeLoanFacilityEvents<T extends Record & TradeLoanFaci
                 TradeLoanFacilityCreated,
                 TradeLoanFacilityDisbursementFailed,
                 TradeLoanFacilityFullyDisbursed,
-                TradeLoanFacilityIrregularlyDisbursed,
+                TradeLoanFacilityIrregularTrancheDisbursed,
                 TradeLoanFacilityLumpSumDisbursed,
                 TradeLoanFacilityPaidOffClosed,
-                TradeLoanFacilityPartiallyDisbursed,
                 TradeLoanFacilityRejected {
 
     @Override
