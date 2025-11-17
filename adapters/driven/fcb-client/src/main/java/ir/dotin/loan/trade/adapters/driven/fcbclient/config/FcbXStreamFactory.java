@@ -14,10 +14,10 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.DepositInfoRes
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.EconomicalSectionResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.FcbValidationResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.HasAllowedCurrencyResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.LoanTopicResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.OpenAccountResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ReasonTypeResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ResourceResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.TopicResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.TransferMoneyResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ValidateCreditorDepositResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ValidateDebtorDepositResponse;
@@ -67,7 +67,7 @@ public class FcbXStreamFactory {
         xstream.alias("com.fanap.business.cmplexpenditure.dto.ReasonTypeDTO", ReasonTypeResponse.class);
         xstream.alias(
                 "com.fanap.business.cmplexpenditure.dto.HasAllowedCurrencyResultDTO", HasAllowedCurrencyResponse.class);
-        xstream.alias("ir.dotin.lc.dto.ilccredit.bill.SharedTopicElectronicBillVO", LoanTopicResponse.class);
+        xstream.alias("com.fanap.business.cmplexpenditure.dto.TopicInfoDTO", TopicResponse.class);
         xstream.alias("com.fanap.business.cmplexpenditure.dto.ResourceDTO", ResourceResponse.class);
         xstream.alias("com.fanap.business.cmplexpenditure.dto.CustomerInfoResultDTO", CustomerBirthInfoResponse.class);
         xstream.alias(

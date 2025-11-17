@@ -11,20 +11,16 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.LoanOperationType;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.BranchResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CoveredBranchesResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.EconomicalSectionResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.FcbValidationResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.LoanTopicResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ReasonTypeResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ResourceResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.*;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.response.LoanTopicInfo;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.ReasonType;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.TopicInfo;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Slf4j
 @UtilityClass
@@ -104,20 +100,18 @@ public class LoanMapper {
             FacilityStatus.CLOSED_PAID_OFF, LoanOperationType.REVOKE_CONTRACT,
             FacilityStatus.CLOSED_DEFAULTED, LoanOperationType.REVOKE_CONTRACT);
 
-    public static Result<LoanTopicInfo> mapToLoanTopic(LoanTopicResponse fcbResponse) {
+    public static Result<TopicInfo> mapToLoanTopic(TopicResponse response) {
 
-        Boolean mainTopicIsDebtor = fcbResponse.getMainTopicIsDebtor();
-        Boolean bankCommitmentsTopicIsDebtor = fcbResponse.getBankCommitmentsTopicIsDebtor();
-        Boolean customerCommitmentsTopicIsDebtor = fcbResponse.getCustomerCommitmentsTopicIsDebtor();
-        Boolean temporaryDebtorsTopicIsDebtor = fcbResponse.getTemporaryDebtorsTopicIsDebtor();
-
-        LoanTopicInfo topic = new LoanTopicInfo(
-                mainTopicIsDebtor != null && mainTopicIsDebtor,
-                bankCommitmentsTopicIsDebtor != null && bankCommitmentsTopicIsDebtor,
-                customerCommitmentsTopicIsDebtor != null && customerCommitmentsTopicIsDebtor,
-                temporaryDebtorsTopicIsDebtor != null && temporaryDebtorsTopicIsDebtor);
-
-        return Result.success(topic);
+        return TopicInfo.of(
+                response.getId(),
+                response.getTitle(),
+                response.getCode(),
+                response.getIsDebtor(),
+                response.getIsUnderLine(),
+                response.getType(),
+                response.getHasOppositeAccount(),
+                response.getNumOfOpenableAccounts(),
+                response.getIsPermanent());
     }
 
     public static Result<SubSource> mapToResource(ResourceResponse fcbResponse) {
@@ -197,5 +191,34 @@ public class LoanMapper {
 
         log.info("Successfully mapped {} branches from FCB response", branchList.size());
         return Result.success(branchList);
+    }
+
+    public static Result<List<TopicInfo>> mapToTopicInfoList(List<TopicResponse> responses) {
+        Notification notification = Notification.create();
+
+        if (isEmpty(responses)) {
+            log.warn("FCB response has no topic in the list");
+            return Result.success(List.of());
+        }
+
+        List<TopicInfo> topicInfoList = new ArrayList<>();
+
+        for (TopicResponse response : responses) {
+
+            Result<TopicInfo> topicInfoResult = mapToLoanTopic(response);
+
+            if (topicInfoResult.isFailure()) {
+                notification.merge(topicInfoResult.notification());
+            } else {
+                topicInfoList.add(topicInfoResult.orElseThrow());
+            }
+        }
+
+        if (notification.hasErrors()) {
+            return Result.failure(notification);
+        }
+
+        log.info("Successfully mapped {} topicInfoList from FCB response", topicInfoList.size());
+        return Result.success(topicInfoList);
     }
 }

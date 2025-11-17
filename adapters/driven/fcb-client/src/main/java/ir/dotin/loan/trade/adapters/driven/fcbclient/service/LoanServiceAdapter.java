@@ -20,8 +20,8 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.LoanMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.response.LoanTopicInfo;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.ReasonType;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.TopicInfo;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -215,43 +215,40 @@ public class LoanServiceAdapter implements LoanServicePort {
     }
 
     @Override
-    public Result<LoanTopicInfo> loadTopicByCode(List<String> topicCodes) {
-        log.info("Loading topic by codes for bill service: count={}, codes={}", topicCodes.size(), topicCodes);
+    public Result<List<TopicInfo>> loadTopicByCode(List<String> topicCodes) {
+        log.info("Loading load-topic-by-code: count={}, codes={}", topicCodes.size(), topicCodes);
 
         List<Parameter> parameters = buildLoanTopicParameters(topicCodes);
 
-        Usecases usecases = requestBuilder.buildUseCase("load-topic-by-code-for-bill-service", parameters);
+        Usecases usecases = requestBuilder.buildUseCase("load-topic-by-code", parameters);
         FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
 
-        log.debug("Executing FCB load-topic-by-code-for-bill-service usecase");
-
-        Result<LoanTopicResponse> fcbResult = fcbService.executeUsecase(fcbRequest, LoanTopicResponse.class);
-
+        log.debug("Executing FCB load-topic-by-code use case");
+        Result<LoadTopicByCodeResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, LoadTopicByCodeResponse.class);
         if (fcbResult.isFailure()) {
-            log.error("FCB load topic failed: {}", fcbResult.notification().getErrorMessages());
+            log.error(
+                    "FCB load-topic-by-code failed: {}",
+                    fcbResult.notification().getErrorMessages());
             return Result.failure(fcbResult.notification());
         }
+        List<TopicResponse> responses = (List<TopicResponse>) fcbResult.orElseThrow();
 
-        LoanTopicResponse fcbResponse = fcbResult.orElseThrow();
-
-        Result<LoanTopicInfo> domainResult = LoanMapper.mapToLoanTopic(fcbResponse);
-
-        if (!domainResult.isFailure()) {
-            LoanTopicInfo topic = domainResult.orElseThrow();
-            log.info(
-                    "Topic loaded successfully: mainDebtor={}, bankCommitments={}",
-                    topic.mainTopicIsDebtor(),
-                    topic.bankCommitmentsTopicIsDebtor());
+        Result<List<TopicInfo>> mapDtoResult = LoanMapper.mapToTopicInfoList(responses);
+        if (mapDtoResult.isFailure()) {
+            log.error(
+                    "map load-topic-by-code failed: {}",
+                    mapDtoResult.notification().getErrorMessages());
+            return Result.failure(mapDtoResult.notification());
         }
-
-        return domainResult;
+        return mapDtoResult;
     }
 
     private List<Parameter> buildLoanTopicParameters(List<String> topicCodes) {
         List<Parameter> parameters = new ArrayList<>();
 
         String topicsValue = String.join(PARAMETER_SEPARATOR, topicCodes);
-        parameters.add(Parameter.builder().key("topics").value(topicsValue).build());
+        parameters.add(Parameter.builder().key("topicCode").value(topicsValue).build());
 
         log.debug("Built topic parameters: topics={}", topicsValue);
         return parameters;
@@ -274,7 +271,7 @@ public class LoanServiceAdapter implements LoanServicePort {
         Usecases usecases = requestBuilder.buildUseCase("load-resource-by-code", parameters);
         FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
 
-        log.debug("Executing FCB load-resource-by-code usecase");
+        log.debug("Executing FCB load-resource-by-code use case");
 
         Result<ResourceResponse> fcbResult = fcbService.executeUsecase(fcbRequest, ResourceResponse.class);
 

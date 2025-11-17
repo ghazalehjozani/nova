@@ -8,8 +8,8 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.response.LoanTopicInfo;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.ReasonType;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.TopicInfo;
 
 public interface LoanServicePort {
 
@@ -24,7 +24,7 @@ public interface LoanServicePort {
 
     Result<SubSource> loadResourceByCode(String subSourceCode);
 
-    Result<LoanTopicInfo> loadTopicByCode(List<String> topicCodes);
+    Result<List<TopicInfo>> loadTopicByCode(List<String> topicCodes);
 
     Result<List<BranchCode>> loadCoveredBranches(BranchCode branchCode);
 }
