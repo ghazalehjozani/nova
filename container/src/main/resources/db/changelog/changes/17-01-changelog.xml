@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1763361094761-2" author="DOTIN\m.amirabdollahi">
+        <createTable tableName="loan_disbursement_records">
+            <column name="sanctioned_loan_id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_disbursement_records"/>
+            </column>
+            <column name="disbursed_amount" type="DECIMAL(19, 4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="disbursed_currency" type="VARCHAR(3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="disbursed_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="disbursed_by" type="VARCHAR(50)"/>
+            <column name="record_order" type="INT">
+                <constraints primaryKey="true" primaryKeyName="pk_loan_disbursement_records"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1763361094761-3" author="DOTIN\m.amirabdollahi">
+        <addForeignKeyConstraint baseColumnNames="sanctioned_loan_id" baseTableName="loan_disbursement_records"
+                                 constraintName="fk_loan_disbursement_records_on_trade_sanctioned_loan_entity"
+                                 referencedColumnNames="id" referencedTableName="sanctioned_loans"/>
+    </changeSet>
+    <changeSet id="1763361094761-5" author="DOTIN\m.amirabdollahi">
+        <dropColumn columnName="installment_schedule_id" tableName="loan_applications"/>
+    </changeSet>
+    <changeSet id="1763361094761-6" author="DOTIN\m.amirabdollahi">
+        <dropColumn columnName="installment_schedule_id" tableName="sanctioned_loans"/>
+    </changeSet>
+    <changeSet id="1763361094761-1" author="DOTIN\m.amirabdollahi">
+        <dropNotNullConstraint columnDataType="varchar(255)" columnName="currency" tableName="loan_applications"/>
+    </changeSet>
+
+</databaseChangeLog>
