@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
@@ -24,7 +25,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
-import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityAdditionalDisbursementCompleted;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityApprovalSubmitted;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityApproved;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCancelled;
@@ -35,7 +35,6 @@ import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCreat
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityDisbursementFailed;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityLumpSumDisbursed;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityPaidOffClosed;
-import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityPartiallyDisbursed;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityRejected;
 
 import static java.time.ZoneOffset.UTC;
@@ -84,6 +83,10 @@ final class TradeLoanFacilityEventFactoryTest {
         lenient().when(mockSanctionId.value()).thenReturn(UUID.randomUUID());
         lenient().when(mockApplicationNumber.formattedApplicationNumber()).thenReturn("APP-12345");
         lenient().when(mockTrackedTransactionNumber.value()).thenReturn("TRX-67890");
+
+        // Mock Money behavior to avoid NullPointerException
+        lenient().when(mockMoney.currency()).thenReturn(CurrencyType.IRR);
+        lenient().when(mockMoney.toString()).thenReturn("1000000");
     }
 
     @Nested
@@ -205,23 +208,6 @@ final class TradeLoanFacilityEventFactoryTest {
             var event = factory.createCreatedEvent(mockFacilityId, mockApplicationNumber, fixedClock);
 
             assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityCreated.class);
-        }
-
-        @Test
-        @DisplayName("should create partially disbursed event")
-        void shouldCreatePartiallyDisbursedEvent() {
-            var event = factory.createPartiallyDisbursedEvent(mockFacilityId, mockSanctionId, mockMoney, fixedClock);
-
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityPartiallyDisbursed.class);
-        }
-
-        @Test
-        @DisplayName("should create additional disbursement completed event")
-        void shouldCreateAdditionalDisbursementCompletedEvent() {
-            var event = factory.createAdditionalDisbursementCompletedEvent(
-                    mockFacilityId, mockSanctionId, mockMoney, fixedClock);
-
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityAdditionalDisbursementCompleted.class);
         }
     }
 }

@@ -43,6 +43,7 @@ import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 
 import lombok.RequiredArgsConstructor;
 
+// TODO: transaction after disburse method
 @Service
 @RequiredArgsConstructor
 public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSumDisbursementCommand> {

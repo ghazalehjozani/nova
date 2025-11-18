@@ -3,8 +3,8 @@ package ir.dotin.loan.trade.core.domain.installmentschedule.event;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
-import java.util.Map;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -32,7 +32,7 @@ public class InstallmentScheduleEventFactoryImpl implements InstallmentScheduleE
                 loanFacilityId,
                 totalAmount,
                 installmentCount,
-                Clock.fixed(createdAt, java.time.ZoneId.systemDefault()));
+                Clock.fixed(createdAt, ZoneId.systemDefault()));
     }
 
     @Override
@@ -49,41 +49,44 @@ public class InstallmentScheduleEventFactoryImpl implements InstallmentScheduleE
                 loanFacilityId,
                 totalAmount,
                 specifications,
-                Clock.fixed(createdAt, java.time.ZoneId.systemDefault()));
+                Clock.fixed(createdAt, ZoneId.systemDefault()));
     }
 
     @Override
     public DomainEvent<?> createScheduleRestructuredEvent(
             @NonNull InstallmentScheduleId scheduleId,
             @NonNull String reason,
-            @NonNull Map<String, Object> changes,
+            List<InstallmentScheduleId> installmentScheduleHistories,
             @NonNull Instant occurredAt) {
         return ScheduleRestructured.of(
-                scheduleId, reason, changes, Clock.fixed(occurredAt, java.time.ZoneId.systemDefault()));
+                scheduleId, reason, installmentScheduleHistories, Clock.fixed(occurredAt, ZoneId.systemDefault()));
     }
 
     @Override
     public DomainEvent<?> createScheduleCancelledEvent(
             @NonNull InstallmentScheduleId scheduleId, @NonNull String reason, @NonNull Instant occurredAt) {
-        return ScheduleCancelled.of(scheduleId, reason, Clock.fixed(occurredAt, java.time.ZoneId.systemDefault()));
+        return ScheduleCancelled.of(scheduleId, reason, Clock.fixed(occurredAt, ZoneId.systemDefault()));
     }
 
     @Override
     public DomainEvent<?> createScheduleActivatedEvent(
-            @NonNull InstallmentScheduleId scheduleId, @NonNull Instant occurredAt) {
-        return ScheduleActivated.of(scheduleId, Clock.fixed(occurredAt, java.time.ZoneId.systemDefault()));
+            @NonNull InstallmentScheduleId scheduleId,
+            List<InstallmentScheduleId> installmentScheduleHistories,
+            @NonNull Instant occurredAt) {
+        return ScheduleActivated.of(
+                scheduleId, installmentScheduleHistories, Clock.fixed(occurredAt, ZoneId.systemDefault()));
     }
 
     @Override
     public DomainEvent<?> createScheduleOnHoldEvent(
             @NonNull InstallmentScheduleId scheduleId, @NonNull String reason, @NonNull Instant occurredAt) {
-        return ScheduleOnHold.of(scheduleId, reason, Clock.fixed(occurredAt, java.time.ZoneId.systemDefault()));
+        return ScheduleOnHold.of(scheduleId, reason, Clock.fixed(occurredAt, ZoneId.systemDefault()));
     }
 
     @Override
     public DomainEvent<?> createScheduleCompletedEvent(
             @NonNull InstallmentScheduleId scheduleId, @NonNull Instant occurredAt) {
-        return ScheduleCompleted.of(scheduleId, Clock.fixed(occurredAt, java.time.ZoneId.systemDefault()));
+        return ScheduleCompleted.of(scheduleId, Clock.fixed(occurredAt, ZoneId.systemDefault()));
     }
 
     @Override
@@ -94,6 +97,6 @@ public class InstallmentScheduleEventFactoryImpl implements InstallmentScheduleE
             @Nullable String reason,
             @NonNull Instant occurredAt) {
         return ScheduleStateTransitioned.of(
-                scheduleId, fromStatus, toStatus, reason, Clock.fixed(occurredAt, java.time.ZoneId.systemDefault()));
+                scheduleId, fromStatus, toStatus, reason, Clock.fixed(occurredAt, ZoneId.systemDefault()));
     }
 }

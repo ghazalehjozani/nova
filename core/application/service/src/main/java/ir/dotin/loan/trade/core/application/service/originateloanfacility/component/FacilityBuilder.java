@@ -48,7 +48,7 @@ public class FacilityBuilder {
             @Nullable InstallmentScheduleId scheduleId,
             @NonNull LoanFacilityId facilityId) {
         try {
-            TradeLoanApplication application = buildApplication(command, context, scheduleId);
+            TradeLoanApplication application = buildApplication(command, context);
 
             TradeLoanFacility facility = TradeLoanFacility.create(
                     facilityId,
@@ -68,9 +68,7 @@ public class FacilityBuilder {
     }
 
     public TradeLoanApplication buildApplication(
-            OriginateLoanFacilityCommand command,
-            FacilityOriginationContext context,
-            @Nullable InstallmentScheduleId scheduleId) {
+            OriginateLoanFacilityCommand command, FacilityOriginationContext context) {
 
         Party mainCustomer = createPartyFromPartyInfo(context.mainCustomer());
 
@@ -99,11 +97,8 @@ public class FacilityBuilder {
                 .customer(mainCustomer)
                 .applicationNumber(applicationNumber)
                 .guarantors(enrichedGuarantors)
+                .disbursementMethod(context.arrangement().getDisbursementMethod())
                 .branch(branch);
-
-        if (scheduleId != null) {
-            builder.installmentScheduleId(scheduleId);
-        }
 
         return TradeLoanApplication.create(builder).value();
     }

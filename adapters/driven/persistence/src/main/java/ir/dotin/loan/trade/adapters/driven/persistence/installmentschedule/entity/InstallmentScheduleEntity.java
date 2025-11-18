@@ -27,6 +27,8 @@ import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentS
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleType;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CurrencyTypeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.GracePeriodEmb;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RestructuringRecordEmb;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ScheduleHistoryEmb;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -46,6 +48,9 @@ public class InstallmentScheduleEntity extends PersistentEntity {
             orphanRemoval = true)
     @OrderBy("sequenceNumber ASC")
     private List<InstallmentEntity> installments = new ArrayList<>();
+
+    @Embedded
+    private ScheduleHistoryEmb scheduleHistory;
 
     @Column(name = "loan_facility_id", nullable = false)
     private UUID loanFacilityId;
@@ -78,6 +83,9 @@ public class InstallmentScheduleEntity extends PersistentEntity {
 
     @Column(name = "interest_rate", precision = 10, scale = 6, nullable = false)
     private BigDecimal interestRate;
+
+    @Embedded
+    private RestructuringRecordEmb restructuringRecord;
 
     @Override
     public final boolean equals(Object o) {

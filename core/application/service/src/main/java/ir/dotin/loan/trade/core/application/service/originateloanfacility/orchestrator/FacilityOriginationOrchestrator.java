@@ -69,7 +69,7 @@ public class FacilityOriginationOrchestrator {
             FacilityOriginationContext context,
             LoanFacilityId facilityId) {
 
-        TradeLoanApplication tempApplication = facilityBuilder.buildApplication(command, context, null);
+        TradeLoanApplication tempApplication = facilityBuilder.buildApplication(command, context);
 
         return strategy.planSchedule(command, tempApplication, context, facilityId);
     }

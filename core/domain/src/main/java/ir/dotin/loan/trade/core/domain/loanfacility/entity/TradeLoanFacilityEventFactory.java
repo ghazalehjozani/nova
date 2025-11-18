@@ -50,7 +50,7 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
     }
 
     @Override
-    public TradeLoanFacilityDisbursementFailed createDisbursementFailedEvent( // TODO: Remove
+    public TradeLoanFacilityDisbursementFailed createDisbursementFailedEvent(
             LoanFacilityId facilityId, SanctionedLoanId sanctionId, FailureReason reason, Clock clock) {
         return TradeLoanFacilityDisbursementFailed.of(facilityId, sanctionId, reason, clock);
     }
@@ -72,6 +72,18 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
                 trackedTransactionNumbers,
                 installmentScheduleId,
                 clock);
+    }
+
+    @Override
+    public TradeLoanFacilityFullyDisbursed createFullyDisbursedEvent(
+            LoanFacilityId facilityId,
+            SanctionedLoanId sanctionedLoanId,
+            String totalDisbursed,
+            int totalTranches,
+            List<TrackedTransactionNumber> trackedNumbers,
+            Clock clock) {
+        return TradeLoanFacilityFullyDisbursed.of(
+                facilityId, sanctionedLoanId, totalDisbursed, totalTranches, trackedNumbers, clock);
     }
 
     @Override
@@ -104,20 +116,25 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
     }
 
     @Override
-    public TradeLoanFacilityIrregularlyDisbursed createIrregularDisbursementRequestedEvent( // TODO: Remove
-            LoanFacilityId facilityId, SanctionedLoanId sanctionId, Money amountToDisburse, Clock clock) {
-        return TradeLoanFacilityIrregularlyDisbursed.of(facilityId, sanctionId, amountToDisburse, clock);
-    }
-
-    @Override
-    public TradeLoanFacilityPartiallyDisbursed createPartiallyDisbursedEvent(
-            LoanFacilityId loanFacilityId, SanctionedLoanId sanctionedLoanId, Money totalDisbursedAmount, Clock clock) {
-        return TradeLoanFacilityPartiallyDisbursed.of(loanFacilityId, sanctionedLoanId, totalDisbursedAmount, clock);
-    }
-
-    @Override
-    public TradeLoanFacilityAdditionalDisbursementCompleted createAdditionalDisbursementCompletedEvent( // TODO: Remove
-            LoanFacilityId facilityId, SanctionedLoanId sanctionId, Money totalDisbursedAmount, Clock clock) {
-        return TradeLoanFacilityAdditionalDisbursementCompleted.of(facilityId, sanctionId, totalDisbursedAmount, clock);
+    public TradeLoanFacilityIrregularTrancheDisbursed createIrregularTrancheDisbursedEvent(
+            LoanFacilityId facilityId,
+            SanctionedLoanId sanctionedLoanId,
+            List<TrackedTransactionNumber> trackedNumbers,
+            Money trancheAmount,
+            String totalDisbursed,
+            String remainingCapacity,
+            int trancheNumber,
+            InstallmentScheduleId scheduleId,
+            Clock clock) {
+        return TradeLoanFacilityIrregularTrancheDisbursed.of(
+                facilityId,
+                sanctionedLoanId,
+                trackedNumbers,
+                trancheAmount,
+                totalDisbursed,
+                remainingCapacity,
+                trancheNumber,
+                scheduleId,
+                clock);
     }
 }

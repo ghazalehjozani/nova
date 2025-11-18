@@ -26,7 +26,7 @@ public record TradeLoanFacilityApprovalSubmitted(
         return new TradeLoanFacilityApprovalSubmitted(
                 randomUUID(),
                 id.value(),
-                TradeLoanFacilityEventType.PENDING_APPROVAL.getFullType(),
+                TradeLoanFacilityEventType.APPROVAL_SUBMITTED.getFullType(),
                 appId.value(),
                 clock.instant());
     }

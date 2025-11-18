@@ -14,7 +14,6 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import ir.dotin.platform.dispatcher.api.command.Command;
-import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
@@ -50,8 +49,7 @@ public record OriginateLoanFacilityCommand(
             @NotNull Set<PartyDto> guarantors,
             @NotNull Set<CertificateDto> certificates,
             @Nullable ApplicationNumberDto applicationNumber,
-            @Nullable CredibilityRankDto credibilityRank,
-            @NotNull DisbursementMethod disbursementMethod) {}
+            @Nullable CredibilityRankDto credibilityRank) {}
 
     @Builder(toBuilder = true)
     public record InstallmentSchedulePlanDto(@NotEmpty @Valid List<InstallmentSpecDto> installments) {}

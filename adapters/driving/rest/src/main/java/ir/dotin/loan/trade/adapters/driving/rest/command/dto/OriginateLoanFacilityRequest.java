@@ -12,7 +12,6 @@ import jakarta.validation.constraints.*;
 
 import org.jspecify.annotations.Nullable;
 
-import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
 
@@ -123,10 +122,7 @@ public record OriginateLoanFacilityRequest(
             @Schema(description = "مقدار رتبه اعتباری", example = "A", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
                     @Nullable
                     @NotBlank
-                    String credibilityRank,
-            @Schema(description = "روش پرداخت", example = "LUMP_SUM", requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull
-                    DisbursementMethod disbursementMethod) {}
+                    String credibilityRank) {}
 
     @Schema(name = "DisburseDestinationDto", description = "مقصد پرداخت")
     public record DisburseDestinationDto(

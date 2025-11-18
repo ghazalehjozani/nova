@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.CollectionTable;
@@ -90,9 +89,6 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
 
     @Embedded
     private RequestReasonEmb requestReason;
-
-    @Column(name = "installment_schedule_id")
-    private UUID installmentScheduleId;
 
     @Embedded
     @AttributeOverrides({

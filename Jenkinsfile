@@ -12,7 +12,7 @@ pipeline {
         booleanParam(name: 'RUN_AI_CODE_REVIEW', defaultValue: true, description: 'Run AI code review with Claude')
         choice(name: 'AI_REVIEW_TYPE', choices: ['full', 'security', 'performance', 'quick'], description: 'Type of AI code review to perform')
         booleanParam(name: 'FORCE_DEPLOY', defaultValue: false, description: 'Force deployment even if quality gates fail')
-        booleanParam(name: 'PUBLISH_TO_NEXUS', defaultValue: false, description: 'Publish Docker image to Nexus registry')
+        booleanParam(name: 'PUBLISH_TO_NEXUS', defaultValue: true, description: 'Publish Docker image to Nexus registry')
     }
 
     options {

@@ -38,6 +38,8 @@ import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.platform.commons.domain.vo.Rate;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentAmount;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentId;
+import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.RestructuringRecord;
+import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.ScheduleHistory;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.CollateralPolicy;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.CollateralType;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.GracePeriodPolicy;
@@ -54,6 +56,8 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CredibilityRank;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Description;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.DisburseDestination;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.DisbursementHistory;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.DisbursementRecord;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.DisbursementScheduleId;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
@@ -61,7 +65,6 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.RequestReason;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.RevocationReason;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ScheduledTranche;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.EconomicSectorCurrency;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanApplicationStatus;
@@ -69,7 +72,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Active;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Attribute;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.DestinationAccount;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Disable;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EditReason;
@@ -91,7 +93,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.AccountEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ApplicationNumberEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.AttributeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.BranchEmb;
@@ -104,6 +105,8 @@ import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CredibilityRa
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CurrencyTypeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.DescriptionEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.DisburseDestinationEmb;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.DisbursementHistoryEmb;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.DisbursementRecordEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.EconomicSectorCurrencyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.EditReasonEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.GracePeriodEmb;
@@ -121,9 +124,10 @@ import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RegulatoryCom
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RelationTypeLoanTopicEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RequestReasonEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RespiteSerialEmb;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RestructuringRecordEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RevocationReasonEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.SanctionSerialEmb;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ScheduledTrancheEmb;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ScheduleHistoryEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.SubSourceEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.TitleEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.TransactionNumberEmb;
@@ -199,6 +203,102 @@ public abstract class ValueObjectMapper {
 
     public CollateralSerialEmb toCollateralSerialEmb(Optional<CollateralSerial> collateralSerial) {
         return collateralSerial.map(this::toCollateralSerialEmb).orElse(null);
+    }
+
+    @Named("toScheduleHistoryEmb")
+    public ScheduleHistoryEmb toScheduleHistoryEmb(ScheduleHistory scheduleHistory) {
+        if (scheduleHistory == null) {
+            return null;
+        }
+        ScheduleHistoryEmb emb = new ScheduleHistoryEmb();
+        emb.setPreviousScheduleIds(scheduleHistory.getScheduleIds().stream()
+                .map(InstallmentScheduleId::value)
+                .collect(Collectors.toList()));
+        return emb;
+    }
+
+    @Named("toScheduleHistory")
+    public ScheduleHistory toScheduleHistory(ScheduleHistoryEmb emb) {
+        if (emb == null || emb.getPreviousScheduleIds() == null) {
+            return ScheduleHistory.empty();
+        }
+        List<InstallmentScheduleId> scheduleIds = emb.getPreviousScheduleIds().stream()
+                .map(InstallmentScheduleId::new)
+                .collect(Collectors.toList());
+        return ScheduleHistory.of(scheduleIds);
+    }
+
+    @Named("toDisbursementHistoryEmb")
+    public DisbursementHistoryEmb toDisbursementHistoryEmb(DisbursementHistory history) {
+        if (history == null) {
+            return null;
+        }
+        DisbursementHistoryEmb emb = new DisbursementHistoryEmb();
+        emb.setRecords(
+                history.getRecords().stream().map(this::toDisbursementRecordEmb).collect(Collectors.toList()));
+        return emb;
+    }
+
+    @Named("toDisbursementHistory")
+    public DisbursementHistory toDisbursementHistory(DisbursementHistoryEmb emb) {
+        if (emb == null || emb.getRecords() == null) {
+            return DisbursementHistory.empty();
+        }
+        List<DisbursementRecord> records =
+                emb.getRecords().stream().map(this::toDisbursementRecord).collect(Collectors.toList());
+        return DisbursementHistory.of(records);
+    }
+
+    public DisbursementRecordEmb toDisbursementRecordEmb(DisbursementRecord record) {
+        if (record == null) return null;
+        DisbursementRecordEmb emb = new DisbursementRecordEmb();
+        emb.setAmount(toMoneyEmb(record.amount()));
+        emb.setDisbursedAt(record.disbursedAt());
+        emb.setDisbursedBy(record.disbursedBy());
+        return emb;
+    }
+
+    public DisbursementRecord toDisbursementRecord(DisbursementRecordEmb emb) {
+        if (emb == null) return null;
+        return new DisbursementRecord(toMoney(emb.getAmount()), emb.getDisbursedAt(), emb.getDisbursedBy());
+    }
+
+    @Named("toRestructuringRecordEmb")
+    public RestructuringRecordEmb toRestructuringRecordEmb(RestructuringRecord record) {
+        if (record == null) return null;
+
+        RestructuringRecordEmb emb = new RestructuringRecordEmb();
+        emb.setReason(record.reason());
+        emb.setRestructuringAmount(record.addedPrincipal().value());
+        emb.setRestructuringAmountCurrency(record.addedPrincipal().currency().getCode());
+        emb.setPreviousInstallmentCount(record.previousInstallmentCount());
+        emb.setNewInstallmentCount(record.newInstallmentCount());
+        emb.setUnpaidInstallmentsCount(record.unpaidInstallmentsCount());
+        emb.setPreservedInstallmentsCount(record.preservedInstallmentsCount());
+        emb.setRestructuredAt(record.restructuredAt());
+        emb.setRestructuredBy(record.restructuredBy());
+        return emb;
+    }
+
+    @Named("toRestructuringRecord")
+    public RestructuringRecord toRestructuringRecord(RestructuringRecordEmb emb) {
+        if (emb == null) return null;
+
+        Money addedPrincipal = Money.valueOf(
+                        emb.getRestructuringAmount(),
+                        CurrencyType.valueOf(emb.getRestructuringAmountCurrency())
+                                .orElseThrow())
+                .orElseThrow();
+
+        return new RestructuringRecord(
+                emb.getReason(),
+                addedPrincipal,
+                emb.getPreviousInstallmentCount(),
+                emb.getNewInstallmentCount(),
+                emb.getUnpaidInstallmentsCount(),
+                emb.getPreservedInstallmentsCount(),
+                emb.getRestructuredAt(),
+                emb.getRestructuredBy());
     }
 
     public abstract CollateralSerial toCollateralSerial(CollateralSerialEmb embeddable);
@@ -317,10 +417,6 @@ public abstract class ValueObjectMapper {
 
     public abstract CollateralType toCollateralType(CollateralTypeEmb embeddable);
 
-    public abstract ScheduledTrancheEmb toScheduledTrancheEmb(ScheduledTranche collateralType);
-
-    public abstract ScheduledTranche toScheduledTranche(ScheduledTrancheEmb embeddable);
-
     @Mapping(source = "economicSector.code", target = "economicSectorCode")
     public abstract EconomicSectorCurrencyEmb toEconomicSectorCurrencyEmb(
             EconomicSectorCurrency economicSectorCurrency);
@@ -339,22 +435,6 @@ public abstract class ValueObjectMapper {
     public abstract TransactionNumberEmb toTransactionNumberEmb(TrackedTransactionNumber trackedTransactionNumber);
 
     public abstract TrackedTransactionNumber toTrackedTransactionNumber(TransactionNumberEmb embeddable);
-
-    public abstract AccountEmb toAccountEmb(DestinationAccount destinationAccount);
-
-    public abstract DestinationAccount toDestinationAccount(AccountEmb embeddable);
-
-    public abstract AccountEmb toAccountEmb(Optional<DestinationAccount> destinationAccount);
-
-    public Optional<DestinationAccount> toDestinationAccountOpt(AccountEmb embeddable) {
-        DestinationAccount destinationAccount = new DestinationAccount(
-                embeddable.getAccountNumber(),
-                embeddable.getAccountHolder(),
-                embeddable.getBankCode(),
-                embeddable.getBankCode(),
-                embeddable.getIban());
-        return Optional.of(destinationAccount);
-    }
 
     @Named("mapAmountRangeToEmb")
     public AmountRangeEmb mapAmountRangeToEmb(Range<Money> amountRange) {

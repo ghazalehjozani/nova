@@ -1,7 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity;
 
 import java.util.Objects;
-import java.util.UUID;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.CascadeType;
@@ -23,6 +22,7 @@ import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralSerialEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CurrencyTypeEmb;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.DisbursementHistoryEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.GracePeriodEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.InstallmentCountEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RevocationReasonEmb;
@@ -70,15 +70,15 @@ public class TradeSanctionedLoanEntity extends PersistentEntity {
     @Column(name = "life_insurance_id")
     private String lifeInsuranceId;
 
-    @Column(name = "installment_schedule_id")
-    private UUID installmentScheduleId;
-
     @Embedded
     private CollateralSerialEmb collateralSerial;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "disbursement_schedule_id")
     private DisbursementScheduleEntity disbursementSchedule;
+
+    @Embedded
+    private DisbursementHistoryEmb disbursementHistory;
 
     @Embedded
     private RevocationReasonEmb revocationReason;
