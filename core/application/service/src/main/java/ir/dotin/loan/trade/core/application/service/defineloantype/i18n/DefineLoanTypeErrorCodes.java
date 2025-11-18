@@ -13,7 +13,8 @@ public enum DefineLoanTypeErrorCodes implements LocalizedMessage<DefineLoanTypeE
     DUPLICATE_CODE("Loan type with code {0} already exists"),
     INVALID_ARRANGEMENT_IDS("Invalid loan arrangement IDs provided"),
     INVALID_INCOME_IDS("Invalid income IDs provided"),
-    EMPTY_TOPIC_ASSIGNMENTS("Topic assignments cannot be empty");
+    EMPTY_TOPIC_ASSIGNMENTS("Topic assignments cannot be empty"),
+    INVALID_ECONOMIC_SECTOR_FOR_LOAN_TYPE("Economic sector for loan type {0} does not exist");
 
     private final String defaultMessageFormat;
 }

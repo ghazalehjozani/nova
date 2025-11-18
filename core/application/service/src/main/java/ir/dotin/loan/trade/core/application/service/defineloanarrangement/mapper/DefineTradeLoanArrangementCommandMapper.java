@@ -165,7 +165,7 @@ public abstract class DefineTradeLoanArrangementCommandMapper {
                 .orElseThrow();
     }
 
-    abstract EconomicSector map(DefineTradeLoanArrangementCommand.EconomicSectorDto dto);
+    public abstract EconomicSector map(DefineTradeLoanArrangementCommand.EconomicSectorDto dto);
 
     abstract CurrencyType map(DefineTradeLoanArrangementCommand.CurrencyTypeDto dto);
 }
