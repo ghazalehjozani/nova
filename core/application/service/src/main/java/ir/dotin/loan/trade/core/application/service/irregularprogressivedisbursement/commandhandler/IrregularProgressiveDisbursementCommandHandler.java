@@ -170,11 +170,13 @@ public class IrregularProgressiveDisbursementCommandHandler
     private Result<TransactionConfig> createTransactionConfig(IrregularProgressiveDisbursementCommand command) {
         return Result.success(new TransactionConfig(
                 command.terminalType(),
+                command.terminalId(),
                 command.terminalIp(),
                 command.productCode(),
                 command.userId(),
                 command.toolSource(),
                 command.networkType(),
+                command.branchCode(),
                 command.channel()));
     }
 

@@ -12,6 +12,7 @@ import ir.dotin.loan.trade.adapters.driving.rest.command.dto.RejectFacilityReque
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.RejectFacilityRequestToCommandMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/facilities/{facilityId}/reject")
 @Tag(name = SwaggerConfig.TAG_FACILITY_REJECTION, description = "عملیات مربوط به رد تسهیلات")
 @RequiredArgsConstructor
+@Hidden
 public class RejectFacilityController extends BaseController {
 
     private final CommandDispatcher dispatcher;

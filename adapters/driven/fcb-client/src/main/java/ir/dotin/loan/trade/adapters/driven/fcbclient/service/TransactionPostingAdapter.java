@@ -120,6 +120,12 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
         return Result.success(List.of(sharedTrackedNumber));
     }
 
+    @Override
+    public Result<Void> reverseTransactions(TrackedTransactionNumber transactionNumber) {
+        log.info("reverseTransactions {}", transactionNumber.value());
+        return Result.success(); // TODO: No Op
+    }
+
     private Result<List<TransferMoneyResponse>> issueGeneralDocument(IssueDocumentRequest request) {
         log.debug(
                 "Issuing general document - transactionId: {}, branchCode: {}, items count: {}",

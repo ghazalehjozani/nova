@@ -21,6 +21,7 @@ public record IrregularProgressiveDisbursementCommand(
         @NotBlank String branchCode,
         @NotBlank String terminalType,
         @NotBlank String terminalIp,
+        @NotBlank String terminalId,
         @NotBlank String productCode,
         @NotBlank String userId,
         @NotBlank String toolSource,

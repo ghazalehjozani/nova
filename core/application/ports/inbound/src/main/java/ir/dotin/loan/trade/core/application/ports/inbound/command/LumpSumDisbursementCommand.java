@@ -14,6 +14,7 @@ public record LumpSumDisbursementCommand(
         @NotNull String branchCode,
         @NotNull String terminalType,
         @NotNull String terminalIp,
+        @NotNull String terminalId,
         @NotNull String productCode,
         @NotNull String userId,
         @NotNull String toolSource,

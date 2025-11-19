@@ -108,7 +108,7 @@ final class PaymentAmountArticleSpecFactoryTest {
 
             Result<ArticleSpec<PaymentAmountArticleType>> result = factory.createDebitSpec(mockComponent);
 
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             ArticleSpec<PaymentAmountArticleType> spec = result.orElseThrow();
             assertThat(spec.articleType()).isEqualTo(PaymentAmountArticleType.PRINCIPAL_DEBIT_LEG);
             assertThat(spec.amount()).isEqualTo(mockAmount);
@@ -126,7 +126,7 @@ final class PaymentAmountArticleSpecFactoryTest {
 
             Result<ArticleSpec<PaymentAmountArticleType>> result = factory.createCreditSpec(mockComponent);
 
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             ArticleSpec<PaymentAmountArticleType> spec = result.orElseThrow();
             assertThat(spec.articleType()).isEqualTo(PaymentAmountArticleType.DISBURSEMENT_CREDIT);
             assertThat(spec.amount()).isEqualTo(mockAmount);
@@ -149,7 +149,7 @@ final class PaymentAmountArticleSpecFactoryTest {
 
             Result<ArticleSpec<PaymentAmountArticleType>> result = factory.createDebitSpec(mockComponent);
 
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             ArticleSpec<PaymentAmountArticleType> spec = result.orElseThrow();
             assertThat(spec.transactionInfo().transactionType()).isEqualTo(TransactionType.CODE_10004);
         }
@@ -163,7 +163,7 @@ final class PaymentAmountArticleSpecFactoryTest {
 
             Result<ArticleSpec<PaymentAmountArticleType>> result = factory.createCreditSpec(mockComponent);
 
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             ArticleSpec<PaymentAmountArticleType> spec = result.orElseThrow();
             assertThat(spec.transactionInfo().transactionCause()).isEqualTo(TransactionCause.LRPA);
         }

@@ -163,6 +163,14 @@ platform:
       add-mdc-entries: true
       trace-id-header: X-Trace-Id
       span-id-header: X-Span-Id
+  saga:
+    persistence:
+      table-name: saga_instance
+      compensation-table: saga_compensation
+    execution:
+      default-timeout: 300000
+      executor-core-pool-size: 4
+      shutdown-timeout-seconds: 30
   messaging:
     enabled: true
     kafka:

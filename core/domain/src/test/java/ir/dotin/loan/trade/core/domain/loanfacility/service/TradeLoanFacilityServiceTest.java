@@ -72,7 +72,7 @@ class TradeLoanFacilityServiceTest {
             var result = service.validateTransactionNumbers(mockFacility, validTradeTransactionNumbers);
 
             // then
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
         }
 
         @DisplayName("should fail when transaction numbers are null")
@@ -212,7 +212,7 @@ class TradeLoanFacilityServiceTest {
             var result = service.verifyZeroBalance(mockFacility);
 
             // then
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithoutValue()).isTrue();
         }
     }
 
@@ -227,7 +227,7 @@ class TradeLoanFacilityServiceTest {
             var result = service.verifyDefaultConditions(mockFacility);
 
             // then
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithoutValue()).isTrue();
         }
     }
 
@@ -259,7 +259,7 @@ class TradeLoanFacilityServiceTest {
                     service.createSanctionedLoanFromApplication(mockLoanApplication);
 
             // then
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
 
             var builder = result.orElseThrow();
             assertThat(builder).isInstanceOf(TradeSanctionedLoan.Builder.class);

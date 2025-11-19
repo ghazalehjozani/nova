@@ -9,9 +9,9 @@ import ir.dotin.platform.adapter.rest.request.DataRequest;
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.RegularDisbursementRequest;
-import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.RegularDisbursementRequestToCommandMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,10 +21,10 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/facilities/{facilityId}/disburse/regular")
 @Tag(name = SwaggerConfig.TAG_REGULAR_DISBURSEMENT, description = "عملیات مربوط به پرداخت عادی تسهیلات")
 @RequiredArgsConstructor
+@Hidden
 public class RegularDisbursementController extends BaseController {
 
     private final CommandDispatcher dispatcher;
-    private final RegularDisbursementRequestToCommandMapper mapper;
 
     @PostMapping
     @Operation(summary = "پرداخت عادی")
@@ -37,7 +37,6 @@ public class RegularDisbursementController extends BaseController {
                     UUID facilityId,
             @Parameter(description = "جزئیات درخواست پرداخت عادی", required = true) @RequestBody
                     DataRequest<RegularDisbursementRequest> requestBody) {
-        var command = mapper.toCommand(facilityId, requestBody.payload());
-        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
+        throw new UnsupportedOperationException("No impl");
     }
 }

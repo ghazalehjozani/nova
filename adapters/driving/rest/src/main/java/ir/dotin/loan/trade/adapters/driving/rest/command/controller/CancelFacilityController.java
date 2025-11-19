@@ -12,6 +12,7 @@ import ir.dotin.loan.trade.adapters.driving.rest.command.dto.CancelFacilityReque
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.CancelFacilityRequestToCommandMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/facilities/{facilityId}/cancel")
 @Tag(name = SwaggerConfig.TAG_FACILITY_CANCELLATION, description = "عملیات مربوط به لغو تسهیلات")
 @RequiredArgsConstructor
+@Hidden
 public class CancelFacilityController extends BaseController {
 
     private final CommandDispatcher dispatcher;
