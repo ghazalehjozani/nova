@@ -117,7 +117,7 @@ final class IssueContractBankCommitmentArticleSpecFactoryTest {
 
             Result<ArticleSpec<IssueContractBankCommitmentArticleType>> result = factory.createDebitSpec(mockComponent);
 
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             ArticleSpec<IssueContractBankCommitmentArticleType> spec = result.orElseThrow();
             assertThat(spec.articleType()).isEqualTo(IssueContractBankCommitmentArticleType.BANK_COMMITMENT_DEBIT_LEG);
             assertThat(spec.amount()).isEqualTo(mockAmount);
@@ -139,7 +139,7 @@ final class IssueContractBankCommitmentArticleSpecFactoryTest {
             Result<ArticleSpec<IssueContractBankCommitmentArticleType>> result =
                     factory.createCreditSpec(mockComponent);
 
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             ArticleSpec<IssueContractBankCommitmentArticleType> spec = result.orElseThrow();
             assertThat(spec.articleType()).isEqualTo(IssueContractBankCommitmentArticleType.BANK_COMMITMENT_CREDIT_LEG);
             assertThat(spec.amount()).isEqualTo(mockAmount);
@@ -165,7 +165,7 @@ final class IssueContractBankCommitmentArticleSpecFactoryTest {
 
             Result<ArticleSpec<IssueContractBankCommitmentArticleType>> result = factory.createDebitSpec(mockComponent);
 
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             ArticleSpec<IssueContractBankCommitmentArticleType> spec = result.orElseThrow();
             assertThat(spec.transactionInfo().transactionType()).isEqualTo(TransactionType.CODE_11009);
         }
@@ -181,7 +181,7 @@ final class IssueContractBankCommitmentArticleSpecFactoryTest {
             Result<ArticleSpec<IssueContractBankCommitmentArticleType>> result =
                     factory.createCreditSpec(mockComponent);
 
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             ArticleSpec<IssueContractBankCommitmentArticleType> spec = result.orElseThrow();
             assertThat(spec.transactionInfo().transactionCause()).isEqualTo(TransactionCause.SET_BANK_COMMITMENT);
         }

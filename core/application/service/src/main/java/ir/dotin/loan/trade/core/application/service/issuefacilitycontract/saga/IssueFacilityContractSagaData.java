@@ -10,7 +10,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
 
-public record IssueFacilityContractInput(
+public record IssueFacilityContractSagaData(
         LoanFacilityId facilityId,
         String branchCode,
         TransactionConfig transactionConfig,
@@ -18,20 +18,20 @@ public record IssueFacilityContractInput(
         TrackedTransactionNumber postedTransactionNumber,
         Map<RelationType<?>, AccountId> accountIds) {
 
-    public static IssueFacilityContractInput initial(
+    public static IssueFacilityContractSagaData initial(
             UUID facilityId, String branchCode, TransactionConfig transactionConfig) {
-        return new IssueFacilityContractInput(
+        return new IssueFacilityContractSagaData(
                 LoanFacilityId.of(facilityId), branchCode, transactionConfig, null, null, null);
     }
 
-    public IssueFacilityContractInput withPreparedTransaction(
+    public IssueFacilityContractSagaData withPreparedTransaction(
             LoanTransaction transaction, Map<RelationType<?>, AccountId> accountIds) {
-        return new IssueFacilityContractInput(
+        return new IssueFacilityContractSagaData(
                 facilityId, branchCode, transactionConfig, transaction, postedTransactionNumber, accountIds);
     }
 
-    public IssueFacilityContractInput withPostedTransaction(TrackedTransactionNumber transactionNumber) {
-        return new IssueFacilityContractInput(
+    public IssueFacilityContractSagaData withPostedTransaction(TrackedTransactionNumber transactionNumber) {
+        return new IssueFacilityContractSagaData(
                 facilityId, branchCode, transactionConfig, preparedTransaction, transactionNumber, accountIds);
     }
 }

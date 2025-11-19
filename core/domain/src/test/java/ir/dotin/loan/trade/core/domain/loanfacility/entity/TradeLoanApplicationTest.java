@@ -89,7 +89,7 @@ final class TradeLoanApplicationTest {
             var result = TradeLoanApplication.create(builder);
 
             // then
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             var application = result.value();
             assertThat(application).isNotNull();
             assertThat(application.getId()).isNotNull();
@@ -133,7 +133,7 @@ final class TradeLoanApplicationTest {
 
             // then - since all required constructor fields are provided, creation should succeed
             // The test was expecting failure but with proper required fields it should pass
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
         }
     }
 
@@ -152,7 +152,7 @@ final class TradeLoanApplicationTest {
             var result = TradeLoanApplication.reconstitute(builder);
 
             // then
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             var application = result.value();
             assertThat(application).isNotNull();
             assertThat(application.getId()).isEqualTo(existingId);
@@ -275,7 +275,7 @@ final class TradeLoanApplicationTest {
             var result = TradeLoanApplication.create(builder);
 
             // then
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             var application = result.value();
 
             // Verify inheritance behavior
@@ -296,7 +296,7 @@ final class TradeLoanApplicationTest {
             var result = TradeLoanApplication.create(builder);
 
             // then
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             var application = result.value();
 
             // Verify basic entity capabilities are inherited

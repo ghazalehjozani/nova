@@ -19,4 +19,6 @@ public interface TransactionPostingPort {
 
     Result<List<TrackedTransactionNumber>> postTransactions(
             LoanFacilityId facilityId, String documentComment, List<LoanTransaction> transactionsToPost);
+
+    Result<Void> reverseTransactions(TrackedTransactionNumber transactionNumber);
 }

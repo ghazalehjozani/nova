@@ -142,11 +142,13 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
     private Result<TransactionConfig> createTransactionConfig(LumpSumDisbursementCommand command) {
         return Result.success(new TransactionConfig(
                 command.terminalType(),
+                command.terminalId(),
                 command.terminalIp(),
                 command.productCode(),
                 command.userId(),
                 command.toolSource(),
                 command.networkType(),
+                command.branchCode(),
                 command.channel()));
     }
 

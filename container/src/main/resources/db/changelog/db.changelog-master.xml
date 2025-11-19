@@ -13,4 +13,5 @@
     <include file="/db/changelog/changes/04-01-changelog.xml"/>
     <include file="db/changelog/changes/15-01-changelog.xml"/>
     <include file="db/changelog/changes/17-01-changelog.xml"/>
+    <include file="db/changelog/2025/11/create_saga_tables.xml"/>
 </databaseChangeLog>
