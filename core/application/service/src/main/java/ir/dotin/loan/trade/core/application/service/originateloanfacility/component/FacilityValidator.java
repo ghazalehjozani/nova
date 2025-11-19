@@ -69,6 +69,9 @@ public class FacilityValidator {
         CompletableFuture<Result<Void>> validateDepositCurrencyFuture =
                 CompletableFuture.supplyAsync(() -> validateDepositCurrency(command), VIRTUAL_EXECUTOR);
 
+        CompletableFuture<Result<Void>> validateRequestReasonFuture =
+                CompletableFuture.supplyAsync(() -> validateRequestReason(command), VIRTUAL_EXECUTOR);
+
         List<CompletableFuture<Result<Void>>> futures = List.of(
                 depositFuture,
                 isDepositClosedFuture,
@@ -77,7 +80,8 @@ public class FacilityValidator {
                 validateDebtorDepositFuture,
                 validateCreditorDepositFuture,
                 validateSubSourceFuture,
-                validateDepositCurrencyFuture);
+                validateDepositCurrencyFuture,
+                validateRequestReasonFuture);
 
         CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
 
@@ -174,6 +178,14 @@ public class FacilityValidator {
         return validationResult.isFailure() ? Result.failure(validationResult.notification()) : Result.success();
     }
 
+    private Result<Void> validateRequestReason(OriginateLoanFacilityCommand command) {
+        String requestReasonCode = Objects.requireNonNull(
+                Objects.requireNonNull(command.loanApplication().requestReason()).code());
+        Result<ReasonType> validationResult = loadRequestReasonByCode(requestReasonCode);
+
+        return validationResult.isFailure() ? Result.failure(validationResult.notification()) : Result.success();
+    }
+
     private Result<Void> validateDepositCurrency(OriginateLoanFacilityCommand command) {
         String depositNumber = command.loanApplication().disburseDestination().depositNumber();
         String currencyCode = command.loanApplication().currency().value();
@@ -219,6 +231,10 @@ public class FacilityValidator {
 
     private Result<SubSource> loadResourceByCode(String subSourceCode) {
         return loanServicePort.loadResourceByCode(subSourceCode);
+    }
+
+    private Result<ReasonType> loadRequestReasonByCode(String requestReasonCode) {
+        return loanServicePort.loadReasonTypeForCreate(requestReasonCode);
     }
 
     private Result<DepositClosedStatus> isDepositClosed(String depositNumber, String currencyCode) {

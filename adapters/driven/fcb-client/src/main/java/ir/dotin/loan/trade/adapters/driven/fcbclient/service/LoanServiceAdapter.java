@@ -58,7 +58,7 @@ public class LoanServiceAdapter implements LoanServicePort {
         log.debug("Executing FCB load economical section usecase");
 
         Result<EconomicalSectionResponse> fcbResult =
-                fcbService.executeUsecase(fcbRequest, EconomicalSectionResponse.class);
+                fcbService.executeUsecase(fcbRequest, EconomicalSectionResponse.class, economicSector.code());
 
         if (fcbResult.isFailure()) {
             log.error(
@@ -116,7 +116,8 @@ public class LoanServiceAdapter implements LoanServicePort {
 
         log.debug("Executing FCB validate economical section usecase");
 
-        Result<FcbValidationResponse> fcbResult = fcbService.executeUsecase(fcbRequest, FcbValidationResponse.class);
+        Result<FcbValidationResponse> fcbResult = fcbService.executeUsecase(
+                fcbRequest, FcbValidationResponse.class, loanTypeCode.value(), economicSector.code());
 
         if (fcbResult.isFailure()) {
             log.error(
@@ -155,7 +156,7 @@ public class LoanServiceAdapter implements LoanServicePort {
 
         log.debug("Executing FCB load-reason-type-for-create use case");
 
-        Result<ReasonTypeResponse> fcbResult = fcbService.executeUsecase(fcbRequest, ReasonTypeResponse.class);
+        Result<ReasonTypeResponse> fcbResult = fcbService.executeUsecase(fcbRequest, ReasonTypeResponse.class, reasonTypeCode);
 
         if (fcbResult.isFailure()) {
             log.error(
@@ -273,7 +274,8 @@ public class LoanServiceAdapter implements LoanServicePort {
 
         log.debug("Executing FCB load-resource-by-code use case");
 
-        Result<ResourceResponse> fcbResult = fcbService.executeUsecase(fcbRequest, ResourceResponse.class);
+        Result<ResourceResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, ResourceResponse.class, resourceCode);
 
         if (fcbResult.isFailure()) {
             log.error("FCB load resource failed: {}", fcbResult.notification().getErrorMessages());

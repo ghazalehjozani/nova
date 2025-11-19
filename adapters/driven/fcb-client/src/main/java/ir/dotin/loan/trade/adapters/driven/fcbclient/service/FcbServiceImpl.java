@@ -18,6 +18,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.config.FcbXStreamFactory;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.base.FcbBaseResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.FcbErrorCodeMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 
 import feign.Response;
@@ -34,7 +35,7 @@ public class FcbServiceImpl implements FcbService {
     private final FcbConfiguration fcbConfiguration;
 
     @Override
-    public <T> Result<T> executeUsecase(FcbRequest request, Class<T> responseClass) {
+    public <T> Result<T> executeUsecase(FcbRequest request, Class<T> responseClass, Object... contextArgs) {
         Response response = null;
         try {
             log.debug("Executing FCB usecase for response type: {}", responseClass.getSimpleName());
@@ -51,7 +52,7 @@ public class FcbServiceImpl implements FcbService {
             String responseXml = readResponseBody(response);
             log.debug("Generated response XML: {}", responseXml);
 
-            return processResponseXml(responseXml, response, responseClass);
+            return processResponseXml(responseXml, response, responseClass, contextArgs);
 
         } catch (Exception e) {
             log.error("An unexpected integration error occurred executing FCB usecase", e);
@@ -91,7 +92,8 @@ public class FcbServiceImpl implements FcbService {
         return writer.toString();
     }
 
-    private <T> Result<T> processResponseXml(String responseXml, Response response, Class<T> responseClass) {
+    private <T> Result<T> processResponseXml(
+            String responseXml, Response response, Class<T> responseClass, Object... contextArgs) {
         try {
             int status = response.status();
             log.debug("Response status: {}", status);
@@ -130,7 +132,7 @@ public class FcbServiceImpl implements FcbService {
                         "Invalid response format from FCB service"));
             }
 
-            return parseAndValidateResponse(trimmedResponse, responseClass);
+            return parseAndValidateResponse(trimmedResponse, responseClass, contextArgs);
         } catch (Exception e) {
             log.error("Error processing response", e);
             return Result.failure(Notification.ofError(
@@ -188,7 +190,7 @@ public class FcbServiceImpl implements FcbService {
         return parseAndValidateResponse(xmlResponse, responseClass);
     }
 
-    private <T> Result<T> parseAndValidateResponse(String xmlResponse, Class<T> responseClass) {
+    private <T> Result<T> parseAndValidateResponse(String xmlResponse, Class<T> responseClass, Object... contextArgs) {
         try {
             XStream xstream = FcbXStreamFactory.createXStream();
             xstream.processAnnotations(responseClass);
@@ -198,21 +200,11 @@ public class FcbServiceImpl implements FcbService {
 
             if (parsedResponse instanceof FcbBaseResponse baseResponse) {
                 if (!baseResponse.getErrorMessage().isEmpty()) {
-                    String errorDesc = baseResponse.getErrorDescription();
-                    log.error(
-                            "FCB business error: rsCode={}, transactionCode={}, error={}",
-                            baseResponse.getRsCode(),
-                            baseResponse.getTransactionCode(),
-                            errorDesc);
 
-                    FcbBusinessLocalizedMessageCodes errorCode;
-                    if ("EXCEPTION".equalsIgnoreCase(baseResponse.getRsCode())) {
-                        errorCode = FcbBusinessLocalizedMessageCodes.FCB_BUSINESS_EXCEPTION;
-                    } else {
-                        errorCode = FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE;
-                    }
+                    Notification errorNotification =
+                            FcbErrorCodeMapper.mapRsCodeToNotification(baseResponse, contextArgs);
 
-                    return Result.failure(Notification.ofError(errorCode, errorDesc));
+                    return Result.failure(errorNotification);
                 }
 
                 log.debug(
