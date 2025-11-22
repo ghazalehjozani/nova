@@ -7,10 +7,13 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
@@ -335,5 +338,60 @@ public class LoanServiceAdapter implements LoanServicePort {
         CoveredBranchesResponse fcbResponse = fcbResult.orElseThrow();
 
         return LoanMapper.mapToBranchCodeList(fcbResponse);
+    }
+
+    @Override
+    public Result<ApplicationNumber> getApplicationNumber(Branch branch, LoanTypeCode loanTypeCode, Party party) {
+
+        log.info(
+                "Getting loan file number: branch={}, loanType={}, customer={}",
+                branch.code().value(),
+                loanTypeCode.value(),
+                party.customerNumber());
+
+        List<Parameter> parameters = new ArrayList<>();
+
+        parameters.add(Parameter.builder()
+                .key("branchCode")
+                .value(branch.code().value())
+                .build());
+
+        parameters.add(Parameter.builder()
+                .key("loanTypeCode")
+                .value(loanTypeCode.value())
+                .build());
+
+        parameters.add(Parameter.builder()
+                .key("customerNumber")
+                .value(party.customerNumber())
+                .build());
+
+        Usecases usecases = requestBuilder.buildUseCase("get-loan-file-number", parameters);
+        FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
+
+        log.debug("Executing FCB get-loan-file-number usecase");
+
+        Result<LoanFileNumberResponse> fcbResult = fcbService.executeUsecase(fcbRequest, LoanFileNumberResponse.class);
+
+        if (fcbResult.isFailure()) {
+            log.error(
+                    "FCB get loan file number failed: {}",
+                    fcbResult.notification().getErrorMessages());
+            return Result.failure(fcbResult.notification());
+        }
+
+        LoanFileNumberResponse fcbResponse = fcbResult.orElseThrow();
+
+        Result<ApplicationNumber> domainResult =
+                LoanMapper.mapToApplicationNumber(fcbResponse, branch, loanTypeCode, party);
+
+        if (domainResult.isSuccess()) {
+            ApplicationNumber applicationNumber = domainResult.orElseThrow();
+            log.info(
+                    "Loan file number retrieved and mapped to ApplicationNumber: {}",
+                    applicationNumber.formattedApplicationNumber());
+        }
+
+        return domainResult;
     }
 }

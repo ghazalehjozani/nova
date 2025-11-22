@@ -7,10 +7,14 @@ import java.util.Map;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.LoanOperationType;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.*;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
@@ -231,5 +235,46 @@ public class LoanMapper {
         }
 
         return Result.success(new AccountId(responseResult.value().getAccountNumber()));
+    }
+
+    public static Result<ApplicationNumber> mapToApplicationNumber(
+            LoanFileNumberResponse fcbResponse, Branch branch, LoanTypeCode loanTypeCode, Party party) {
+
+        Notification notification = Notification.create();
+
+        if (fcbResponse.getLoanFileNumber() == null
+                || fcbResponse.getLoanFileNumber().isBlank()) {
+            log.error("FCB response missing loan file number");
+            notification.addError(
+                    FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE, "Loan file number is missing in response");
+            return Result.failure(notification);
+        }
+
+        String loanFileNumber = fcbResponse.getLoanFileNumber();
+        log.debug("Mapping loan file number: {} to ApplicationNumber", loanFileNumber);
+
+        Result<ApplicationNumber> applicationNumberResult = ApplicationNumber.of(branch, loanTypeCode, party, null);
+
+        if (applicationNumberResult.isFailure()) {
+            log.error(
+                    "Failed to create ApplicationNumber: {}",
+                    applicationNumberResult.notification().getErrorMessages());
+            notification.merge(applicationNumberResult.notification());
+            return Result.failure(notification);
+        }
+
+        ApplicationNumber applicationNumber = applicationNumberResult.orElseThrow();
+
+        String formattedNumber = applicationNumber.formattedApplicationNumber();
+        if (!formattedNumber.equals(loanFileNumber)) {
+            log.warn(
+                    "Generated ApplicationNumber '{}' doesn't match FCB response '{}'. "
+                            + "This may indicate a format mismatch.",
+                    formattedNumber,
+                    loanFileNumber);
+        }
+
+        log.info("Successfully mapped loan file number to ApplicationNumber: {}", formattedNumber);
+        return Result.success(applicationNumber);
     }
 }
