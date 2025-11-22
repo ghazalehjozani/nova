@@ -15,6 +15,7 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.client.FcbFeignClient;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.config.FcbConfiguration;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.config.FcbXStreamFactory;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.base.FcbBaseResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
@@ -35,10 +36,9 @@ public class FcbServiceImpl implements FcbService {
     private final FcbConfiguration fcbConfiguration;
 
     @Override
-    public <T> Result<T> executeUsecase(FcbRequest request, Class<T> responseClass, Object... contextArgs) {
+    public <T> Result<T> executeUsecase(FcbRequest request, Class<T> responseClass, FcbContext context) {
         Response response = null;
         try {
-            log.debug("Executing FCB usecase for response type: {}", responseClass.getSimpleName());
 
             String usecaseListXML = marshalToXml(request);
             log.debug("Generated request XML: {}", usecaseListXML);
@@ -52,7 +52,7 @@ public class FcbServiceImpl implements FcbService {
             String responseXml = readResponseBody(response);
             log.debug("Generated response XML: {}", responseXml);
 
-            return processResponseXml(responseXml, response, responseClass, contextArgs);
+            return processResponseXml(responseXml, response, responseClass, context);
 
         } catch (Exception e) {
             log.error("An unexpected integration error occurred executing FCB usecase", e);
@@ -93,7 +93,7 @@ public class FcbServiceImpl implements FcbService {
     }
 
     private <T> Result<T> processResponseXml(
-            String responseXml, Response response, Class<T> responseClass, Object... contextArgs) {
+            String responseXml, Response response, Class<T> responseClass, FcbContext context) {
         try {
             int status = response.status();
             log.debug("Response status: {}", status);
@@ -132,7 +132,7 @@ public class FcbServiceImpl implements FcbService {
                         "Invalid response format from FCB service"));
             }
 
-            return parseAndValidateResponse(trimmedResponse, responseClass, contextArgs);
+            return parseAndValidateResponse(trimmedResponse, responseClass, context);
         } catch (Exception e) {
             log.error("Error processing response", e);
             return Result.failure(Notification.ofError(
@@ -187,10 +187,10 @@ public class FcbServiceImpl implements FcbService {
                     FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, "Invalid response format from FCB service"));
         }
 
-        return parseAndValidateResponse(xmlResponse, responseClass);
+        return parseAndValidateResponse(xmlResponse, responseClass, FcbContext.empty());
     }
 
-    private <T> Result<T> parseAndValidateResponse(String xmlResponse, Class<T> responseClass, Object... contextArgs) {
+    private <T> Result<T> parseAndValidateResponse(String xmlResponse, Class<T> responseClass, FcbContext context) {
         try {
             XStream xstream = FcbXStreamFactory.createXStream();
             xstream.processAnnotations(responseClass);
@@ -201,8 +201,7 @@ public class FcbServiceImpl implements FcbService {
             if (parsedResponse instanceof FcbBaseResponse baseResponse) {
                 if (!baseResponse.getErrorMessage().isEmpty()) {
 
-                    Notification errorNotification =
-                            FcbErrorCodeMapper.mapRsCodeToNotification(baseResponse, contextArgs);
+                    Notification errorNotification = FcbErrorCodeMapper.mapRsCodeToNotification(baseResponse, context);
 
                     return Result.failure(errorNotification);
                 }
@@ -221,4 +220,5 @@ public class FcbServiceImpl implements FcbService {
                     FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, "Failed to parse response: " + e.getMessage()));
         }
     }
+
 }

@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
@@ -52,7 +53,7 @@ public class CustomerServiceAdapter implements CustomerServicePort {
 
             log.debug("Executing FCB load-customer-info usecase");
 
-            Result<CustomerInfoResponse> fcbResult = fcbService.executeUsecase(fcbRequest, CustomerInfoResponse.class);
+            Result<CustomerInfoResponse> fcbResult = fcbService.executeUsecase(fcbRequest, CustomerInfoResponse.class, FcbContext.empty());
 
             if (fcbResult.isFailure()) {
                 log.error(
@@ -174,7 +175,7 @@ public class CustomerServiceAdapter implements CustomerServicePort {
         log.debug("Executing FCB find-related-customers usecase");
 
         Result<RelatedCustomersResponse> fcbResult =
-                fcbService.executeUsecase(fcbRequest, RelatedCustomersResponse.class);
+                fcbService.executeUsecase(fcbRequest, RelatedCustomersResponse.class, FcbContext.empty());
 
         if (fcbResult.isFailure()) {
             log.error(
@@ -208,7 +209,7 @@ public class CustomerServiceAdapter implements CustomerServicePort {
         log.debug("Executing FCB load-customer-birth-info usecase");
 
         Result<CustomerBirthInfoResponse> fcbResult =
-                fcbService.executeUsecase(fcbRequest, CustomerBirthInfoResponse.class);
+                fcbService.executeUsecase(fcbRequest, CustomerBirthInfoResponse.class, FcbContext.empty());
 
         if (fcbResult.isFailure()) {
             log.error(

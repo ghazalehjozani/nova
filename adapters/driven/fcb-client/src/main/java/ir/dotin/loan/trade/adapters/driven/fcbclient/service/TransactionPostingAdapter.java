@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
 
+import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
@@ -138,7 +139,7 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
             log.debug("Executing FCB issue-general-document usecase");
 
             Result<IssueGeneralDocumentResponse> fcbResult =
-                    fcbService.executeUsecase(fcbRequest, IssueGeneralDocumentResponse.class);
+                    fcbService.executeUsecase(fcbRequest, IssueGeneralDocumentResponse.class, FcbContext.empty());
 
             if (fcbResult.isFailure()) {
                 log.error(

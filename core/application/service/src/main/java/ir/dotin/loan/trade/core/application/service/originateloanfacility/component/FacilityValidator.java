@@ -180,7 +180,8 @@ public class FacilityValidator {
 
     private Result<Void> validateRequestReason(OriginateLoanFacilityCommand command) {
         String requestReasonCode = Objects.requireNonNull(
-                Objects.requireNonNull(command.loanApplication().requestReason()).code());
+                Objects.requireNonNull(command.loanApplication().requestReason())
+                        .code());
         Result<ReasonType> validationResult = loadRequestReasonByCode(requestReasonCode);
 
         return validationResult.isFailure() ? Result.failure(validationResult.notification()) : Result.success();
