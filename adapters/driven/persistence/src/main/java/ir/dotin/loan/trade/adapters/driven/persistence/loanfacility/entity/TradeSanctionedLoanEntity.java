@@ -94,6 +94,13 @@ public class TradeSanctionedLoanEntity extends PersistentEntity {
     @Column(name = "disbursement_method")
     private DisbursementMethod disbursementMethod;
 
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "amount", column = @Column(name = "used_amount", precision = 19, scale = 4)),
+        @AttributeOverride(name = "currency", column = @Column(name = "used_currency", length = 3))
+    })
+    private MoneyEmb usedAmount;
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;

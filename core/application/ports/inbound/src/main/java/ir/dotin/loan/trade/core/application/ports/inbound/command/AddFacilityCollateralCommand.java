@@ -1,7 +1,6 @@
 package ir.dotin.loan.trade.core.application.ports.inbound.command;
 
 import java.util.UUID;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -13,9 +12,14 @@ import lombok.Builder;
 public record AddFacilityCollateralCommand(
         @NotNull UUID uid,
         @NotNull Long version,
-        @NotNull UUID loanFacilityId,
-        @Valid @NotNull CollateralSerialDto collateralSerialDto)
+        @NotBlank UUID loanFacilityId,
+        @NotNull CollateralSerialDto collateralSerialDto,
+        @NotNull @Valid MoneyDto usedAmount)
         implements Command {
 
     public record CollateralSerialDto(@NotBlank String value) {}
+
+    public record MoneyDto(@NotNull BigDecimal value, @NotBlank String currency) {}
+
+    public record CurrencyTypeDto(@NotBlank String value) {}
 }

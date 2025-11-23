@@ -20,6 +20,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.AssuranceResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.FcbValidationResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ReserveAssuranceForFileResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.UnReserveAssuranceForFileResponse;
@@ -27,6 +28,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMe
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.CollateralMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.CollateralServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralDetails;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralValidation;
 
 import lombok.RequiredArgsConstructor;
@@ -138,6 +140,51 @@ public class CollateralAdapter implements CollateralServicePort {
         log.debug("Built assurance parameters - serials: {}, costs: {}", serialsValue, costsValue);
 
         return parameters;
+    }
+
+    @Override
+    public Result<CollateralDetails> loadCollateral(String assuranceSerial, String uniqueTrackingCode) {
+
+        log.info("Loading assurance: serial={}, trackingCode={}", assuranceSerial, uniqueTrackingCode);
+
+        List<Parameter> parameters = new ArrayList<>();
+
+        parameters.add(Parameter.builder()
+                .key("assuranceSerial")
+                .value(assuranceSerial)
+                .build());
+
+        parameters.add(Parameter.builder()
+                .key("uniqueTrackingCode")
+                .value(uniqueTrackingCode)
+                .build());
+
+        Usecases usecases = requestBuilder.buildUseCase("load-assurance-service", parameters);
+        FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
+
+        log.debug("Executing FCB load-assurance-service usecase");
+
+        Result<AssuranceResponse> fcbResult = fcbService.executeUsecase(fcbRequest, AssuranceResponse.class);
+
+        if (fcbResult.isFailure()) {
+            log.error("FCB load assurance failed: {}", fcbResult.notification().getErrorMessages());
+            return Result.failure(fcbResult.notification());
+        }
+
+        AssuranceResponse fcbResponse = fcbResult.orElseThrow();
+
+        Result<CollateralDetails> domainResult = CollateralMapper.mapToCollateralDetails(fcbResponse);
+
+        if (domainResult.isSuccess()) {
+            CollateralDetails collateralDetails = domainResult.orElseThrow();
+            log.info(
+                    "Assurance loaded: serial={}, type={}, amount={}",
+                    collateralDetails.serial(),
+                    collateralDetails.assuranceTypeName(),
+                    collateralDetails.guaranteeAmount());
+        }
+
+        return domainResult;
     }
 
     @Override

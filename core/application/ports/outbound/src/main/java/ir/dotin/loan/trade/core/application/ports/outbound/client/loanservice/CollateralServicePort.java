@@ -7,6 +7,7 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralDetails;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralValidation;
 
 public interface CollateralServicePort {
@@ -19,6 +20,8 @@ public interface CollateralServicePort {
             UUID requestId,
             Integer reserveDurationMin,
             Money usedAmount);
+
+    Result<CollateralDetails> loadCollateral(String assuranceSerial, String uniqueTrackingCode);
 
     Result<CollateralSerial> unReserveCollateral(
             CollateralSerial collateralSerial,
