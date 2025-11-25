@@ -60,6 +60,7 @@ public class IssueFacilityContractController extends BaseController {
                 .channel(metadata.getOrDefault("channel", "INTERNET_BANK"))
                 .toolSource(metadata.getOrDefault("toolSource", "CORE"))
                 .productCode(metadata.getOrDefault("productCode", "DEFAULT_PRODUCT"))
+                .networkType(metadata.getOrDefault("networkType", "INTERNET"))
                 .build();
 
         return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));

@@ -61,7 +61,7 @@ public class DepositServiceAdapter implements DepositServicePort {
         Result<DepositInfoResponse> depositInfoResponseResult =
                 fcbService.executeUsecase(fcbRequest, DepositInfoResponse.class);
 
-        return DepositMapper.mapToDepositInfo(depositInfoResponseResult.getValue());
+        return DepositMapper.mapToDepositInfo(depositInfoResponseResult.getValue()); // TODO: check Result have error first
     }
 
     @Override

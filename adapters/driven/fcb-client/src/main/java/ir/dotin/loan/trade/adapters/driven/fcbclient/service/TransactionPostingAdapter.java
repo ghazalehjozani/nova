@@ -1,13 +1,5 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 
-import java.time.Clock;
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.stereotype.Service;
-
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
@@ -17,6 +9,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.IssueDocumentRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CancelTransferMoneyResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.IssueGeneralDocumentResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.TransferMoneyResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
@@ -25,9 +18,16 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.IssueDocumentRequestBuilder;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.LoanTransactionMerger;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
-
+import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.commons.core.Result;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.time.Clock;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -122,8 +122,40 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
 
     @Override
     public Result<Void> reverseTransactions(TrackedTransactionNumber transactionNumber) {
-        log.info("reverseTransactions {}", transactionNumber.value());
-        return Result.success(); // TODO: No Op
+        log.debug("Cancelling transfer money loan - {}", transactionNumber.value());
+
+        List<Parameter> parameters = buildReverseTransactionsParameters(transactionNumber);
+
+        Usecases usecases = requestBuilder.buildUseCase("cancel-transfer-money-loan", parameters);
+        FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
+
+        Result<CancelTransferMoneyResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, CancelTransferMoneyResponse.class);
+
+        if (fcbResult.isFailure()) {
+            log.debug(
+                    "FCB cancel-transfer-money-loan failed: {}",
+                    fcbResult.notification().getErrorMessages());
+            return Result.failure(fcbResult.notification());
+        }
+
+        CancelTransferMoneyResponse response = fcbResult.orElseThrow();
+
+        if (response.getTransactionNumber() == null) {
+            log.debug(
+                    "Transfer money cancellation completed but may not be fully successful - "
+                            + "transactionId: {}, transactionNumber: {}",
+                    response.getTransactionId(),
+                    null);
+
+            return Result.failure(Notification.ofError(
+                    FcbBusinessLocalizedMessageCodes.FCB_TRANSACTION_FAILED,
+                    "Cancellation completed but verification failed"));
+        }
+
+        log.debug("Transfer money loan cancelled successfully - transactionNumber: {}", transactionNumber.value());
+
+        return Result.success();
     }
 
     private Result<List<TransferMoneyResponse>> issueGeneralDocument(IssueDocumentRequest request) {
@@ -230,4 +262,16 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
 
         return Result.failure(Notification.ofError(FcbBusinessLocalizedMessageCodes.FCB_MISSING_TRANSACTION_CODE));
     }
+
+    private List<Parameter> buildReverseTransactionsParameters(TrackedTransactionNumber transactionNumber) {
+        List<Parameter> parameters = new ArrayList<>();
+
+        parameters.add(Parameter.builder()
+                .key("transactionNumber")
+                .value(transactionNumber.value())
+                .build());
+
+        return parameters;
+    }
+
 }

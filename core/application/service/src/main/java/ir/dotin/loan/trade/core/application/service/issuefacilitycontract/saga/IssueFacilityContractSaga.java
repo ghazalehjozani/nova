@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.util.List;
 
+import ir.dotin.platform.saga.api.model.StepError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -85,53 +86,41 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
 
     private StepResult<Void> validateFacility(SagaContext<IssueFacilityContractSagaData> ctx) {
         var data = ctx.getSagaData();
-
-        Result<TradeLoanFacility> result = loadFacility(data.facilityId());
-
-        if (result.hasErrors()) {
-            return ResultStepAdapter.fromResultVoid(result);
-        }
-
-        log.debug("Facility validated: {}", data.facilityId());
-        return new StepResult.Success<>(null);
+        return ResultStepAdapter.toStepResultVoid(loadFacility(data.facilityId()));
     }
-
-    // --- Step 2: Prepare ---
 
     private StepResult<LoanTransaction> prepareTransaction(SagaContext<IssueFacilityContractSagaData> ctx) {
         var data = ctx.getSagaData();
 
-        Result<LoanTransaction> result = loadFacility(data.facilityId())
-                .flatMap(facility -> loadLoanType(facility).flatMap(loanType -> createPostTitle(facility)
-                        .flatMap(postTitle ->
-                                createTransaction(facility, loanType, postTitle, data.transactionConfig()))));
+        var result = loadFacility(data.facilityId())
+                .flatMap(facility -> loadLoanType(facility)
+                        .flatMap(loanType -> createPostTitle(facility)
+                                .flatMap(postTitle -> createTransaction(
+                                        facility, loanType, postTitle, data.transactionConfig()))));
 
         if (result.hasErrors()) {
-            return ResultStepAdapter.fromResult(result);
+            return new StepResult.Failure<>(
+                    new StepError.BusinessRuleError(result.notification()));
         }
 
-        var transaction = result.orElseNull();
-        if (transaction == null) {
-            return new StepResult.Failure<>(new Exception("Transaction preparation returned null"), false);
-        }
-
+        var transaction = result.orElseThrow();
         var accountIds = transaction.extractAccountIdsByRelationType();
         ctx.updateSagaData(d -> d.withPreparedTransaction(transaction, accountIds));
 
-        log.debug("Transaction prepared: {}", data.facilityId());
         return new StepResult.Success<>(transaction);
     }
 
     private StepResult<TrackedTransactionNumber> postTransaction(SagaContext<IssueFacilityContractSagaData> ctx) {
         var data = ctx.getSagaData();
 
-        var transactionResult = transactionPostingPort.postTransaction(data.preparedTransaction());
+        var result = transactionPostingPort.postTransaction(data.preparedTransaction());
 
-        if (transactionResult.hasErrors()) {
-            return new StepResult.Failure<>(new Exception("Transaction Posting Failed (Empty Result)"), true);
+        if (result.hasErrors()) {
+            return new StepResult.Failure<>(
+                    new StepError.BusinessRuleError(result.notification()));
         }
 
-        var transactionNumber = transactionResult.getValue();
+        var transactionNumber = result.orElseThrow();
         ctx.updateSagaData(d -> d.withPostedTransaction(transactionNumber));
 
         log.info("Transaction posted: {}", transactionNumber);
@@ -140,31 +129,21 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
 
     private StepResult<Void> reverseTransaction(
             SagaContext<IssueFacilityContractSagaData> ctx, TrackedTransactionNumber transactionNumber) {
-
         log.warn("Reversing transaction: {}", transactionNumber);
-
-        var result = transactionPostingPort.reverseTransactions(transactionNumber);
-
-        if (result.hasErrors()) {
-            return new StepResult.Failure<>(new Exception("Transaction Reversal Failed"), true);
-        }
-
-        log.info("Transaction reversed: {}", transactionNumber);
-        return new StepResult.Success<>(null);
+        return ResultStepAdapter.toStepResultVoid(
+                transactionPostingPort.reverseTransactions(transactionNumber));
     }
-
-    // --- Step 4: Update / Revert ---
 
     private StepResult<Void> updateFacilityState(SagaContext<IssueFacilityContractSagaData> ctx) {
         var data = ctx.getSagaData();
 
         var facilityResult = loadFacility(data.facilityId());
         if (facilityResult.hasErrors()) {
-            return ResultStepAdapter.fromResultVoid(facilityResult);
+            return ResultStepAdapter.toStepResultVoid(facilityResult);
         }
-        var facility = facilityResult.orElseThrow();
 
-        facility.issueContract(data.postedTransactionNumber(), data.accountIds(), clock);
+        var facility = facilityResult.orElseThrow();
+        facility.issueContract(data.postedTransactionNumber(), data.getAccountIdsByRelationType(), clock);
         facilityRepository.save(facility);
 
         log.info("Contract issued: {}", data.facilityId());
@@ -176,13 +155,14 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
 
         var facilityResult = loadFacility(data.facilityId());
         if (facilityResult.hasErrors()) {
-            return ResultStepAdapter.fromResultVoid(facilityResult);
+            return ResultStepAdapter.toStepResultVoid(facilityResult);
         }
-        var facility = facilityResult.orElseThrow();
 
-        Result<Void> revertResult = facility.revertContractIssuance(clock);
+        var facility = facilityResult.orElseThrow();
+        var revertResult = facility.revertContractIssuance(clock);
+
         if (revertResult.hasErrors()) {
-            return ResultStepAdapter.fromResult(revertResult);
+            return ResultStepAdapter.toStepResultVoid(revertResult);
         }
 
         facilityRepository.save(facility);
@@ -190,8 +170,6 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         log.warn("Reverted contract issuance: {}", data.facilityId());
         return new StepResult.Success<>(null);
     }
-
-    // --- Helpers ---
 
     private Result<TradeLoanFacility> loadFacility(LoanFacilityId facilityId) {
         return Result.fromOptional(
@@ -216,7 +194,6 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
     private Result<LoanTransaction> createTransaction(
             TradeLoanFacility facility, TradeLoanType loanType, PostTitle postTitle, TransactionConfig config) {
 
-        // Using your Result class flatMap chaining
         return DocumentMetadataFactory.builder()
                 .terminal(DocumentMetadataFactory.TerminalConfig.of(
                         config.terminalType(), config.terminalId(), config.terminalIp()))
