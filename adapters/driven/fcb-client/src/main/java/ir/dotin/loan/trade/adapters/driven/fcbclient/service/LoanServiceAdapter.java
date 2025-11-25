@@ -3,7 +3,6 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
@@ -12,6 +11,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
@@ -58,7 +58,8 @@ public class LoanServiceAdapter implements LoanServicePort {
 
         log.debug("Executing FCB load economical section usecase");
 
-        FcbContext fcbContext = FcbContext.builder().economicSectorCode(economicSector.code()).build();
+        FcbContext fcbContext =
+                FcbContext.builder().economicSectorCode(economicSector.code()).build();
 
         Result<EconomicalSectionResponse> fcbResult =
                 fcbService.executeUsecase(fcbRequest, EconomicalSectionResponse.class, fcbContext);
@@ -119,9 +120,12 @@ public class LoanServiceAdapter implements LoanServicePort {
 
         log.debug("Executing FCB validate economical section usecase");
 
-        FcbContext fcbContext = FcbContext.builder().loanTypeCode(loanTypeCode.value()).economicSectorCode(economicSector.code()).build();
-        Result<FcbValidationResponse> fcbResult = fcbService.executeUsecase(
-                fcbRequest, FcbValidationResponse.class, fcbContext);
+        FcbContext fcbContext = FcbContext.builder()
+                .loanTypeCode(loanTypeCode.value())
+                .economicSectorCode(economicSector.code())
+                .build();
+        Result<FcbValidationResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, FcbValidationResponse.class, fcbContext);
 
         if (fcbResult.isFailure()) {
             log.error(
@@ -160,7 +164,8 @@ public class LoanServiceAdapter implements LoanServicePort {
 
         log.debug("Executing FCB load-reason-type-for-create use case");
 
-        FcbContext fcbContext = FcbContext.builder().reasonTypeCode(reasonTypeCode).build();
+        FcbContext fcbContext =
+                FcbContext.builder().reasonTypeCode(reasonTypeCode).build();
 
         Result<ReasonTypeResponse> fcbResult =
                 fcbService.executeUsecase(fcbRequest, ReasonTypeResponse.class, fcbContext);
@@ -200,7 +205,8 @@ public class LoanServiceAdapter implements LoanServicePort {
 
         log.debug("Executing FCB load-reason-type-for-revoke use case");
 
-        Result<ReasonTypeResponse> fcbResult = fcbService.executeUsecase(fcbRequest, ReasonTypeResponse.class, FcbContext.empty());
+        Result<ReasonTypeResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, ReasonTypeResponse.class, FcbContext.empty());
 
         if (fcbResult.isFailure()) {
             log.error(
@@ -283,8 +289,7 @@ public class LoanServiceAdapter implements LoanServicePort {
 
         FcbContext fcbContext = FcbContext.builder().resourceCode(resourceCode).build();
 
-        Result<ResourceResponse> fcbResult =
-                fcbService.executeUsecase(fcbRequest, ResourceResponse.class, fcbContext);
+        Result<ResourceResponse> fcbResult = fcbService.executeUsecase(fcbRequest, ResourceResponse.class, fcbContext);
 
         if (fcbResult.isFailure()) {
             log.error("FCB load resource failed: {}", fcbResult.notification().getErrorMessages());

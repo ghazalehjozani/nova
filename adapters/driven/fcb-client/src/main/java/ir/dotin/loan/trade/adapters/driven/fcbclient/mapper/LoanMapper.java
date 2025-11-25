@@ -10,6 +10,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.LoanOperationType;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.*;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
@@ -20,6 +21,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.response.Topic
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+import static java.util.Objects.isNull;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Slf4j
@@ -220,5 +222,14 @@ public class LoanMapper {
 
         log.info("Successfully mapped {} topicInfoList from FCB response", topicInfoList.size());
         return Result.success(topicInfoList);
+    }
+
+    public static Result<AccountId> mapToCreateAccountResult(Result<AccountInfoResponse> responseResult) {
+
+        if (isNull(responseResult) || isNull(responseResult.value())) {
+            return Result.failure(Notification.create());
+        }
+
+        return Result.success(new AccountId(responseResult.value().getAccountNumber()));
     }
 }

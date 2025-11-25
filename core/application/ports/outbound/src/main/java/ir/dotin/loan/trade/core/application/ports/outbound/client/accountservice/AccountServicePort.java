@@ -3,12 +3,10 @@ package ir.dotin.loan.trade.core.application.ports.outbound.client.accountservic
 import java.util.List;
 
 import ir.dotin.platform.commons.core.Result;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountInfo;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Article;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CreateAccountInfo;
 
 public interface AccountServicePort {
 
@@ -20,4 +18,6 @@ public interface AccountServicePort {
             List<Article> articles,
             BranchCode branchCode,
             FailureReason failureReason);
+
+    Result<AccountId> openAccount(CreateAccountInfo createAccountInfo);
 }

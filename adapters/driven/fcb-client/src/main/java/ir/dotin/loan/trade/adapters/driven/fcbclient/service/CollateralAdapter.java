@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
@@ -53,7 +53,8 @@ public class CollateralAdapter implements CollateralServicePort {
 
         log.debug("Executing FCB validate assurance usecase");
 
-        Result<FcbValidationResponse> fcbResult = fcbService.executeUsecase(fcbRequest, FcbValidationResponse.class, FcbContext.empty());
+        Result<FcbValidationResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, FcbValidationResponse.class, FcbContext.empty());
 
         if (fcbResult.isFailure()) {
             log.error(

@@ -1,11 +1,11 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.context;
 
-import lombok.Builder;
-import lombok.Getter;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import lombok.Builder;
+import lombok.Getter;
 
 @Getter
 @Builder
@@ -18,7 +18,6 @@ public class FcbContext {
     private final String resourceCode;
     private final String currencyCode;
     private final Map<String, Object> additionalContext;
-
 
     public static FcbContext empty() {
         return FcbContext.builder().additionalContext(new HashMap<>()).build();
