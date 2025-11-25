@@ -92,7 +92,7 @@
 //
 //            var result = service.calculateDisbursementTransaction(mockContext, mockStrategy, POST_TITLE);
 //
-//            assertThat(result.isSuccess()).isTrue();
+//            assertThat(result.isSuccessWithValue()).isTrue();
 //            assertThat(result.value()).isEqualTo(mockTransaction);
 //            then(mockDocumentFactory).should().createTransaction(mockContext, mockStrategy, POST_TITLE);
 //        }
@@ -158,7 +158,7 @@
 //
 //            var result = service.calculateMultipleDisbursementTransactions(mockContext, strategies, POST_TITLE);
 //
-//            assertThat(result.isSuccess()).isTrue();
+//            assertThat(result.isSuccessWithValue()).isTrue();
 //            assertThat(result.value()).containsExactly(mockTransaction, mockTransaction2);
 //            then(mockDocumentFactory).should().createTransaction(mockContext, mockStrategy, POST_TITLE);
 //            then(mockDocumentFactory).should().createTransaction(mockContext, mockStrategy2, POST_TITLE);
@@ -173,7 +173,7 @@
 //
 //            var result = service.calculateMultipleDisbursementTransactions(mockContext, emptyStrategies, POST_TITLE);
 //
-//            assertThat(result.isSuccess()).isTrue();
+//            assertThat(result.isSuccessWithValue()).isTrue();
 //            assertThat(result.value()).isEmpty();
 //            then(mockDocumentFactory).should(never()).createTransaction(mockContext, mockStrategy, POST_TITLE);
 //        }
@@ -207,7 +207,7 @@
 //
 //            var result = service.calculateMultipleDisbursementTransactions(mockContext, strategies, POST_TITLE);
 //
-//            assertThat(result.isSuccess()).isTrue();
+//            assertThat(result.isSuccessWithValue()).isTrue();
 //            assertThat(result.value()).containsExactly(mockTransaction);
 //            then(mockDocumentFactory).should().createTransaction(mockContext, mockStrategy, POST_TITLE);
 //        }
@@ -270,7 +270,7 @@
 //
 //            var result = service.calculateDisbursementTransaction(mockContext, mockStrategy, POST_TITLE);
 //
-//            assertThat(result.isSuccess()).isTrue();
+//            assertThat(result.isSuccessWithValue()).isTrue();
 //            assertThat(result.value()).isSameAs(mockTransaction);
 //            then(mockDocumentFactory).should().createTransaction(mockContext, mockStrategy, POST_TITLE);
 //        }
@@ -287,7 +287,7 @@
 //
 //            var result = service.calculateMultipleDisbursementTransactions(mockContext, strategies, POST_TITLE);
 //
-//            assertThat(result.isSuccess()).isTrue();
+//            assertThat(result.isSuccessWithValue()).isTrue();
 //            assertThat(result.value()).hasSize(2);
 //            assertThat(result.value()).containsExactly(mockTransaction, mockTransaction2);
 //        }

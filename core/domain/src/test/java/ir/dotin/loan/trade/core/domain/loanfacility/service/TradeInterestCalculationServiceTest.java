@@ -90,7 +90,7 @@ class TradeInterestCalculationServiceTest {
             var result = service.calculate(mockLoanFacility, mockInterestFormula, mockTradeLoanParameterProvider);
 
             // --- Assert ---
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             assertThat(result.value()).isEqualTo(expectedMoney);
             then(mockFormulaEvaluationService).should().evaluate(mockInterestFormula, mockTradeLoanParameterProvider);
         }
@@ -131,7 +131,7 @@ class TradeInterestCalculationServiceTest {
             var result = service.calculate(mockLoanFacility, mockInterestFormula, mockTradeLoanParameterProvider);
 
             // Assert
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
         }
     }
 
@@ -167,7 +167,7 @@ class TradeInterestCalculationServiceTest {
             var result = service.calculate(mockLoanFacility, mockInterestFormula, mockTradeLoanParameterProvider);
 
             // Assert
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             then(mockFormulaEvaluationService).should().evaluate(mockInterestFormula, mockTradeLoanParameterProvider);
         }
     }

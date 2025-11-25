@@ -50,6 +50,12 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
     }
 
     @Override
+    public TradeLoanFacilityContractIssuanceReverted createContractIssuanceRevertedEvent(
+            LoanFacilityId facilityId, Clock clock) {
+        return TradeLoanFacilityContractIssuanceReverted.of(facilityId, clock);
+    }
+
+    @Override
     public TradeLoanFacilityDisbursementFailed createDisbursementFailedEvent(
             LoanFacilityId facilityId, SanctionedLoanId sanctionId, FailureReason reason, Clock clock) {
         return TradeLoanFacilityDisbursementFailed.of(facilityId, sanctionId, reason, clock);

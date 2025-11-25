@@ -90,7 +90,7 @@ class TradeLoanArrangementTest {
             var result = TradeLoanArrangement.create(validBuilder, testClock);
 
             // then
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             var arrangement = result.value();
             assertThat(arrangement).isNotNull();
             assertThat(arrangement.getId()).isNotNull();

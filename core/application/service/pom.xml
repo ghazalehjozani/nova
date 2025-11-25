@@ -27,9 +27,8 @@
     </dependency>
 
     <dependency>
-        <groupId>ir.dotin.platform.saga</groupId>
-        <artifactId>saga-core-api</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>ir.dotin.platform</groupId>
+        <artifactId>platform-saga-api</artifactId>
     </dependency>
 
     <dependency>

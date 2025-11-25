@@ -10,8 +10,8 @@ import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.commons.security.AuthenticationContextHolder;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.IssueFacilityContractRequest;
-import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.IssueFacilityContractRequestToCommandMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.IssueFacilityContractCommand;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -25,7 +25,6 @@ import lombok.RequiredArgsConstructor;
 public class IssueFacilityContractController extends BaseController {
 
     private final CommandDispatcher dispatcher;
-    private final IssueFacilityContractRequestToCommandMapper mapper;
     private final AuthenticationContextHolder authenticationContextHolder;
 
     @PostMapping
@@ -39,10 +38,31 @@ public class IssueFacilityContractController extends BaseController {
                     UUID facilityId,
             @Parameter(description = "جزئیات صدور قرارداد تسهیلات", required = true) @RequestBody
                     DataRequest<IssueFacilityContractRequest> request) {
-        var command = mapper.toCommand(facilityId, request.payload()); // TODO: No need mapper
-        var contractCommand = command.toBuilder()
-                .branchCode(authenticationContextHolder.branchCode().orElseThrow())
+
+        String branchCode = authenticationContextHolder
+                .branchCode()
+                .orElseThrow(() -> new IllegalStateException("Branch code missing in security context"));
+
+        String userId = authenticationContextHolder.userId().orElse("SYSTEM");
+
+        String ip = authenticationContextHolder.ipAddress().orElse("0.0.0.0");
+
+        var metadata = request.metadata();
+        // TODO: change metadata structure and remove default value
+        var command = IssueFacilityContractCommand.builder()
+                .version(request.payload().version())
+                .loanFacilityId(facilityId)
+                .branchCode(branchCode)
+                .userId(userId)
+                .terminalIp(ip)
+                .terminalId(metadata.getOrDefault("terminalId", "UNKNOWN"))
+                .terminalType(metadata.getOrDefault("terminalType", "WEB"))
+                .channel(metadata.getOrDefault("channel", "INTERNET_BANK"))
+                .toolSource(metadata.getOrDefault("toolSource", "CORE"))
+                .productCode(metadata.getOrDefault("productCode", "DEFAULT_PRODUCT"))
+                .networkType(metadata.getOrDefault("networkType", "INTERNET"))
                 .build();
-        return EventStreamResponse.of(unwrap(dispatcher.dispatch(contractCommand)));
+
+        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
     }
 }

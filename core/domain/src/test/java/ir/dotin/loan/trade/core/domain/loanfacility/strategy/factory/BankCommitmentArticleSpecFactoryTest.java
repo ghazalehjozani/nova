@@ -108,7 +108,7 @@ final class BankCommitmentArticleSpecFactoryTest {
 
             Result<ArticleSpec<DisburseBankCommitmentArticleType>> result = factory.createDebitSpec(mockComponent);
 
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             ArticleSpec<DisburseBankCommitmentArticleType> spec = result.orElseThrow();
             assertThat(spec.articleType()).isEqualTo(DisburseBankCommitmentArticleType.BANK_COMMITMENT_DEBIT_LEG);
             assertThat(spec.amount()).isEqualTo(mockAmount);
@@ -128,7 +128,7 @@ final class BankCommitmentArticleSpecFactoryTest {
 
             Result<ArticleSpec<DisburseBankCommitmentArticleType>> result = factory.createCreditSpec(mockComponent);
 
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             ArticleSpec<DisburseBankCommitmentArticleType> spec = result.orElseThrow();
             assertThat(spec.articleType()).isEqualTo(DisburseBankCommitmentArticleType.BANK_COMMITMENT_CREDIT_LEG);
             assertThat(spec.amount()).isEqualTo(mockAmount);
@@ -153,7 +153,7 @@ final class BankCommitmentArticleSpecFactoryTest {
 
             Result<ArticleSpec<DisburseBankCommitmentArticleType>> result = factory.createDebitSpec(mockComponent);
 
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             ArticleSpec<DisburseBankCommitmentArticleType> spec = result.orElseThrow();
             assertThat(spec.transactionInfo().transactionType()).isEqualTo(TransactionType.CODE_11009);
         }
@@ -167,7 +167,7 @@ final class BankCommitmentArticleSpecFactoryTest {
 
             Result<ArticleSpec<DisburseBankCommitmentArticleType>> result = factory.createCreditSpec(mockComponent);
 
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             ArticleSpec<DisburseBankCommitmentArticleType> spec = result.orElseThrow();
             assertThat(spec.transactionInfo().transactionCause()).isEqualTo(TransactionCause.SET_BANK_COMMITMENT);
         }

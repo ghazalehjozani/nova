@@ -109,7 +109,7 @@ final class DisbursedInterestArticleSpecFactoryTest {
 
             Result<ArticleSpec<DisbursedInterestArticleType>> result = factory.createDebitSpec(mockComponent);
 
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             ArticleSpec<DisbursedInterestArticleType> spec = result.orElseThrow();
             assertThat(spec.articleType()).isEqualTo(DisbursedInterestArticleType.INTEREST_DEBIT_LEG);
             assertThat(spec.amount()).isEqualTo(mockAmount);
@@ -127,7 +127,7 @@ final class DisbursedInterestArticleSpecFactoryTest {
 
             Result<ArticleSpec<DisbursedInterestArticleType>> result = factory.createCreditSpec(mockComponent);
 
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             ArticleSpec<DisbursedInterestArticleType> spec = result.orElseThrow();
             assertThat(spec.articleType()).isEqualTo(DisbursedInterestArticleType.INTEREST_CREDIT_LEG);
             assertThat(spec.amount()).isEqualTo(mockAmount);
@@ -150,7 +150,7 @@ final class DisbursedInterestArticleSpecFactoryTest {
 
             Result<ArticleSpec<DisbursedInterestArticleType>> result = factory.createDebitSpec(mockComponent);
 
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             ArticleSpec<DisbursedInterestArticleType> spec = result.orElseThrow();
             assertThat(spec.transactionInfo().transactionType()).isEqualTo(TransactionType.CODE_11009);
         }
@@ -164,7 +164,7 @@ final class DisbursedInterestArticleSpecFactoryTest {
 
             Result<ArticleSpec<DisbursedInterestArticleType>> result = factory.createCreditSpec(mockComponent);
 
-            assertThat(result.isSuccess()).isTrue();
+            assertThat(result.isSuccessWithValue()).isTrue();
             ArticleSpec<DisbursedInterestArticleType> spec = result.orElseThrow();
             assertThat(spec.transactionInfo().transactionCause()).isEqualTo(TransactionCause.IDENTIFY_FUTURE_INTEREST);
         }
