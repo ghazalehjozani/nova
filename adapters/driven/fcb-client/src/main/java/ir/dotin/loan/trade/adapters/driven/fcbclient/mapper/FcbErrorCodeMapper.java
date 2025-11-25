@@ -32,5 +32,4 @@ public class FcbErrorCodeMapper {
 
         return Notification.ofError(errorCode, contextArgs);
     }
-
 }

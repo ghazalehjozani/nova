@@ -17,6 +17,7 @@ public enum FcbErrorCode {
     CMPLEXPEND_729(FcbBusinessLocalizedMessageCodes.UNSUPPORTED_ECONOMICAL_SECTOR_FOR_LOAN_TYPE),
     CMPLEXPEND_758(FcbBusinessLocalizedMessageCodes.INVALID_CUSTOMER_NUMBER),
     CMPLEXPEND_743(FcbBusinessLocalizedMessageCodes.INVALID_REQUEST_REASON),
+    CMPLEXPEND_754(FcbBusinessLocalizedMessageCodes.INVALID_SERVICE_INPUT_FOR_PARAMETER_SERVICE_OPEN_ACCOUNT),
     LO_772(FcbBusinessLocalizedMessageCodes.INVALID_ECONOMICAL_SECTOR_CODE),
     DE_35(FcbBusinessLocalizedMessageCodes.INVALID_DEPOSIT_NUMBER),
     DE_06(FcbBusinessLocalizedMessageCodes.INVALID_DEPOSIT_NUMBER),

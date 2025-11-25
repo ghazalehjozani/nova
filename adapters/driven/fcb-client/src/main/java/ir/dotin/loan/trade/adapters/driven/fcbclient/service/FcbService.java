@@ -8,5 +8,4 @@ public interface FcbService {
 
     /** Execute FCB use case with context */
     <T> Result<T> executeUsecase(FcbRequest request, Class<T> responseClass, FcbContext context);
-
 }

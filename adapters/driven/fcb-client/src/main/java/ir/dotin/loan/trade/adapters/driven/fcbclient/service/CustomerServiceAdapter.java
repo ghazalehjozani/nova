@@ -3,11 +3,11 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
@@ -53,7 +53,8 @@ public class CustomerServiceAdapter implements CustomerServicePort {
 
             log.debug("Executing FCB load-customer-info usecase");
 
-            Result<CustomerInfoResponse> fcbResult = fcbService.executeUsecase(fcbRequest, CustomerInfoResponse.class, FcbContext.empty());
+            Result<CustomerInfoResponse> fcbResult =
+                    fcbService.executeUsecase(fcbRequest, CustomerInfoResponse.class, FcbContext.empty());
 
             if (fcbResult.isFailure()) {
                 log.error(

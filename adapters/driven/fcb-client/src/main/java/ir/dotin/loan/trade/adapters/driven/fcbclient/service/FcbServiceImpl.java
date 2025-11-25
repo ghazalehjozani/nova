@@ -220,5 +220,4 @@ public class FcbServiceImpl implements FcbService {
                     FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, "Failed to parse response: " + e.getMessage()));
         }
     }
-
 }

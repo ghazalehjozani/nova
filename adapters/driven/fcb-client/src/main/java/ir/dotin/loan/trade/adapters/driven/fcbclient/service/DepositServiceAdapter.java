@@ -58,9 +58,10 @@ public class DepositServiceAdapter implements DepositServicePort {
 
         FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
 
-        FcbContext fcbContext = FcbContext.builder().depositNumber(depositNumber.value()).build();
-        Result<DepositInfoResponse> depositInfoResponseResult = fcbService.executeUsecase(
-                fcbRequest, DepositInfoResponse.class, fcbContext);
+        FcbContext fcbContext =
+                FcbContext.builder().depositNumber(depositNumber.value()).build();
+        Result<DepositInfoResponse> depositInfoResponseResult =
+                fcbService.executeUsecase(fcbRequest, DepositInfoResponse.class, fcbContext);
 
         if (depositInfoResponseResult.isFailure()) {
             return Result.failure(depositInfoResponseResult.notification());
@@ -85,10 +86,12 @@ public class DepositServiceAdapter implements DepositServicePort {
         Usecases usecases = requestBuilder.buildUseCase("is-deposit-closed", parameters);
         FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
 
-        FcbContext fcbContext = FcbContext.builder().depositNumber(depositNumber.value()).currencyCode(currencyType.value().getCurrencyCode()).build();
-        Result<DepositClosedResponse> fcbResult = fcbService.executeUsecase(
-                fcbRequest,
-                DepositClosedResponse.class, fcbContext);
+        FcbContext fcbContext = FcbContext.builder()
+                .depositNumber(depositNumber.value())
+                .currencyCode(currencyType.value().getCurrencyCode())
+                .build();
+        Result<DepositClosedResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, DepositClosedResponse.class, fcbContext);
 
         if (fcbResult.isFailure()) {
             return Result.failure(fcbResult.notification());
@@ -114,10 +117,11 @@ public class DepositServiceAdapter implements DepositServicePort {
         Usecases usecases = requestBuilder.buildUseCase("validate-debtor-deposit", parameters);
         FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
 
-        FcbContext fcbContext = FcbContext.builder().depositNumber(depositNumber.value()).build();
+        FcbContext fcbContext =
+                FcbContext.builder().depositNumber(depositNumber.value()).build();
 
-        Result<ValidateDebtorDepositResponse> fcbResult = fcbService.executeUsecase(
-                fcbRequest, ValidateDebtorDepositResponse.class, fcbContext);
+        Result<ValidateDebtorDepositResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, ValidateDebtorDepositResponse.class, fcbContext);
 
         if (fcbResult.isFailure()) {
             return Result.failure(fcbResult.notification());
@@ -173,10 +177,11 @@ public class DepositServiceAdapter implements DepositServicePort {
         Usecases usecases = requestBuilder.buildUseCase("validate-creditor-deposit", parameters);
         FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
 
-        FcbContext fcbContext = FcbContext.builder().depositNumber(depositNumber.value()).build();
+        FcbContext fcbContext =
+                FcbContext.builder().depositNumber(depositNumber.value()).build();
 
-        Result<ValidateCreditorDepositResponse> fcbResult = fcbService.executeUsecase(
-                fcbRequest, ValidateCreditorDepositResponse.class, fcbContext);
+        Result<ValidateCreditorDepositResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, ValidateCreditorDepositResponse.class, fcbContext);
 
         if (fcbResult.isFailure()) {
             return Result.failure(fcbResult.notification());
@@ -227,10 +232,11 @@ public class DepositServiceAdapter implements DepositServicePort {
             Usecases usecases = requestBuilder.buildUseCase("has-deposit-allowed-currencies", parameters);
             FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
 
-            FcbContext fcbContext = FcbContext.builder().depositNumber(depositNumber.value()).build();
+            FcbContext fcbContext =
+                    FcbContext.builder().depositNumber(depositNumber.value()).build();
 
-            Result<HasAllowedCurrencyResponse> fcbResult = fcbService.executeUsecase(
-                    fcbRequest, HasAllowedCurrencyResponse.class, fcbContext);
+            Result<HasAllowedCurrencyResponse> fcbResult =
+                    fcbService.executeUsecase(fcbRequest, HasAllowedCurrencyResponse.class, fcbContext);
 
             if (fcbResult.isFailure()) {
                 return Result.failure(fcbResult.notification());
@@ -268,10 +274,11 @@ public class DepositServiceAdapter implements DepositServicePort {
         Usecases usecases = requestBuilder.buildUseCase("get-all-deposit-signer-owner-customer", parameters);
         FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
 
-        FcbContext fcbContext = FcbContext.builder().depositNumber(depositNumber).build();
+        FcbContext fcbContext =
+                FcbContext.builder().depositNumber(depositNumber).build();
 
-        Result<DepositSignerOwnersResponse> fcbResult = fcbService.executeUsecase(
-                fcbRequest, DepositSignerOwnersResponse.class, fcbContext);
+        Result<DepositSignerOwnersResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, DepositSignerOwnersResponse.class, fcbContext);
 
         if (fcbResult.isFailure()) {
             return Result.failure(fcbResult.notification());
