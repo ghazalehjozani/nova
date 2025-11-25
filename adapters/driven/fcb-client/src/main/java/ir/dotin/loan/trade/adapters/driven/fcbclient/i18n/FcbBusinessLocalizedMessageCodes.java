@@ -20,7 +20,15 @@ public enum FcbBusinessLocalizedMessageCodes implements LocalizedMessage<FcbBusi
     CUSTOMER_NOT_FOUND_IN_FCB("Customer with national code {0} not found in FCB"),
     ACCOUNT_NUMBER_NOT_FOUND("Account number {0} not found"),
     FCB_MULTIPLE_TRANSACTION_CODES("Multiple transaction codes returned from FCB"),
-    FCB_MISSING_TRANSACTION_CODE("Missing transaction code");
+    FCB_MISSING_TRANSACTION_CODE("Missing transaction code"),
+    UNKNOWN_ERROR("unknown error"),
+    INVALID_DEPOSIT_NUMBER("Invalid deposit number: {0}"),
+    INVALID_CUSTOMER_NUMBER("Invalid customer number: {0}"),
+    INVALID_REQUEST_REASON("Invalid request reason: {0}"),
+    INVALID_SUB_SOURCE_CODE("Invalid sub source code: {0}"),
+    INVALID_ECONOMICAL_SECTOR_CODE("Invalid economical sector code: {0}"),
+    UNSUPPORTED_ECONOMICAL_SECTOR_FOR_LOAN_TYPE("Loan type {0} does not support economical sector {1}"),
+    UNSUPPORTED_CURRENCY_FOR_DEPOSIT("Deposit {0} does not support currency {1}");
 
     private final String defaultMessageFormat;
 }

@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
@@ -185,7 +186,7 @@ public class FcbHealthIndicator implements HealthIndicator {
             // Execute with timeout using CompletableFuture
             java.util.concurrent.CompletableFuture<Result<FcbBaseResponse>> future =
                     java.util.concurrent.CompletableFuture.supplyAsync(
-                            () -> fcbService.executeUsecase(request, FcbBaseResponse.class));
+                            () -> fcbService.executeUsecase(request, FcbBaseResponse.class, FcbContext.empty()));
 
             return future.get(fcbConfiguration.health().timeoutSeconds(), TimeUnit.SECONDS);
 

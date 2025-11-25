@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
@@ -57,8 +58,10 @@ public class LoanServiceAdapter implements LoanServicePort {
 
         log.debug("Executing FCB load economical section usecase");
 
+        FcbContext fcbContext = FcbContext.builder().economicSectorCode(economicSector.code()).build();
+
         Result<EconomicalSectionResponse> fcbResult =
-                fcbService.executeUsecase(fcbRequest, EconomicalSectionResponse.class);
+                fcbService.executeUsecase(fcbRequest, EconomicalSectionResponse.class, fcbContext);
 
         if (fcbResult.isFailure()) {
             log.error(
@@ -116,7 +119,9 @@ public class LoanServiceAdapter implements LoanServicePort {
 
         log.debug("Executing FCB validate economical section usecase");
 
-        Result<FcbValidationResponse> fcbResult = fcbService.executeUsecase(fcbRequest, FcbValidationResponse.class);
+        FcbContext fcbContext = FcbContext.builder().loanTypeCode(loanTypeCode.value()).economicSectorCode(economicSector.code()).build();
+        Result<FcbValidationResponse> fcbResult = fcbService.executeUsecase(
+                fcbRequest, FcbValidationResponse.class, fcbContext);
 
         if (fcbResult.isFailure()) {
             log.error(
@@ -155,7 +160,10 @@ public class LoanServiceAdapter implements LoanServicePort {
 
         log.debug("Executing FCB load-reason-type-for-create use case");
 
-        Result<ReasonTypeResponse> fcbResult = fcbService.executeUsecase(fcbRequest, ReasonTypeResponse.class);
+        FcbContext fcbContext = FcbContext.builder().reasonTypeCode(reasonTypeCode).build();
+
+        Result<ReasonTypeResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, ReasonTypeResponse.class, fcbContext);
 
         if (fcbResult.isFailure()) {
             log.error(
@@ -192,7 +200,7 @@ public class LoanServiceAdapter implements LoanServicePort {
 
         log.debug("Executing FCB load-reason-type-for-revoke use case");
 
-        Result<ReasonTypeResponse> fcbResult = fcbService.executeUsecase(fcbRequest, ReasonTypeResponse.class);
+        Result<ReasonTypeResponse> fcbResult = fcbService.executeUsecase(fcbRequest, ReasonTypeResponse.class, FcbContext.empty());
 
         if (fcbResult.isFailure()) {
             log.error(
@@ -225,7 +233,7 @@ public class LoanServiceAdapter implements LoanServicePort {
 
         log.debug("Executing FCB load-topic-by-code use case");
         Result<LoadTopicByCodeResponse> fcbResult =
-                fcbService.executeUsecase(fcbRequest, LoadTopicByCodeResponse.class);
+                fcbService.executeUsecase(fcbRequest, LoadTopicByCodeResponse.class, FcbContext.empty());
         if (fcbResult.isFailure()) {
             log.error(
                     "FCB load-topic-by-code failed: {}",
@@ -273,7 +281,10 @@ public class LoanServiceAdapter implements LoanServicePort {
 
         log.debug("Executing FCB load-resource-by-code use case");
 
-        Result<ResourceResponse> fcbResult = fcbService.executeUsecase(fcbRequest, ResourceResponse.class);
+        FcbContext fcbContext = FcbContext.builder().resourceCode(resourceCode).build();
+
+        Result<ResourceResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, ResourceResponse.class, fcbContext);
 
         if (fcbResult.isFailure()) {
             log.error("FCB load resource failed: {}", fcbResult.notification().getErrorMessages());
@@ -307,7 +318,7 @@ public class LoanServiceAdapter implements LoanServicePort {
         log.debug("Executing FCB load-covered-branches usecase");
 
         Result<CoveredBranchesResponse> fcbResult =
-                fcbService.executeUsecase(fcbRequest, CoveredBranchesResponse.class);
+                fcbService.executeUsecase(fcbRequest, CoveredBranchesResponse.class, FcbContext.empty());
 
         if (fcbResult.isFailure()) {
             log.error(

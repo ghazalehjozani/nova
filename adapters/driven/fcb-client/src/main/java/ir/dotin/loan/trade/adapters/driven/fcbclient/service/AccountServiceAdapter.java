@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
@@ -73,7 +74,7 @@ public class AccountServiceAdapter implements AccountServicePort {
         FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
 
         Result<OpenAccountResponse> openAccountResponseResult =
-                fcbService.executeUsecase(fcbRequest, OpenAccountResponse.class);
+                fcbService.executeUsecase(fcbRequest, OpenAccountResponse.class, FcbContext.empty());
 
         if (Objects.isNull(openAccountResponseResult.value())
                 || Objects.isNull(openAccountResponseResult.value().getAccountNumber())) {
@@ -117,7 +118,7 @@ public class AccountServiceAdapter implements AccountServicePort {
             FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
 
             Result<CancelTransferMoneyResponse> fcbResult =
-                    fcbService.executeUsecase(fcbRequest, CancelTransferMoneyResponse.class);
+                    fcbService.executeUsecase(fcbRequest, CancelTransferMoneyResponse.class, FcbContext.empty());
 
             if (fcbResult.isFailure()) {
                 log.error(
