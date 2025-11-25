@@ -1,28 +1,17 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountInfo;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Article;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.ExtraInfoVO;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.AccountInfoResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CancelTransferMoneyResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.OpenAccountResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.CancelTransferMoneyMapper;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.LoanMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.AccountServicePort;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CreateAccountInfo;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.security.AuthenticationContextHolder;
@@ -30,11 +19,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 @Slf4j
@@ -90,233 +76,4 @@ public class AccountServiceAdapter implements AccountServicePort {
                 loanTopic);
     }
 
-    @Override
-    public Result<TransactionNumber> cancelTransferMoney(
-            String transactionId,
-            TransactionNumber transactionNumber,
-            List<Article> articles,
-            BranchCode branchCode,
-            FailureReason failureReason) {
-        log.info(
-                "Cancelling transfer money loan - {}",
-                CancelTransferMoneyMapper.createCancellationSummary(transactionNumber, articles));
-
-        try {
-
-            Result<ExtraInfoVO> extraInfoResult = CancelTransferMoneyMapper.mapToExtraInfo(
-                    transactionId, transactionNumber, articles, branchCode, failureReason);
-            if (extraInfoResult.isFailure()) {
-                log.error(
-                        "Failed to map articles to ExtraInfo: {}",
-                        extraInfoResult.notification().getErrorMessages());
-                return Result.failure(extraInfoResult.notification());
-            }
-
-            ExtraInfoVO extraInfo = extraInfoResult.orElseThrow();
-            log.debug("Mapped {} articles to ExtraInfo successfully", articles.size());
-
-            List<Parameter> parameters = buildParameters(transactionId, transactionNumber, extraInfo);
-
-            Usecases usecases = requestBuilder.buildUseCase("cancel-transfer-money-loan", parameters);
-            FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
-
-            Result<CancelTransferMoneyResponse> fcbResult =
-                    fcbService.executeUsecase(fcbRequest, CancelTransferMoneyResponse.class, FcbContext.empty());
-
-            if (fcbResult.isFailure()) {
-                log.error(
-                        "FCB cancel-transfer-money-loan failed: {}",
-                        fcbResult.notification().getErrorMessages());
-                return Result.failure(fcbResult.notification());
-            }
-
-            CancelTransferMoneyResponse response = fcbResult.orElseThrow();
-
-            if (response.getTransactionNumber() == null) {
-                log.warn(
-                        "Transfer money cancellation completed but may not be fully successful - "
-                                + "transactionId: {}, transactionNumber: {}",
-                        response.getTransactionId(),
-                        null);
-
-                return Result.failure(Notification.ofError(
-                        FcbBusinessLocalizedMessageCodes.FCB_TRANSACTION_FAILED,
-                        "Cancellation completed but verification failed"));
-            }
-
-            log.info(
-                    "Transfer money loan cancelled successfully - transactionId: {}, transactionNumber: {}",
-                    transactionId,
-                    transactionNumber.value());
-
-            TransactionNumber cancelationTransactionNumber = new TransactionNumber(response.getTransactionNumber());
-
-            return Result.success(cancelationTransactionNumber);
-
-        } catch (IllegalArgumentException e) {
-            log.error("Invalid request parameters: {}", e.getMessage());
-            return Result.failure(
-                    Notification.ofError(FcbBusinessLocalizedMessageCodes.FCB_BAD_REQUEST, e.getMessage()));
-        } catch (Exception e) {
-            log.error("Unexpected error cancelling transfer money loan", e);
-            return Result.failure(Notification.ofError(
-                    FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR,
-                    "Failed to cancel transfer money loan: " + e.getMessage()));
-        }
-    }
-
-    private List<Parameter> buildParameters(
-            String transactionId, TransactionNumber transactionNumber, ExtraInfoVO extraInfo) {
-        List<Parameter> parameters = new ArrayList<>();
-
-        parameters.add(
-                Parameter.builder().key("transactionId").value(transactionId).build());
-
-        parameters.add(Parameter.builder()
-                .key("transactionNumber")
-                .value(transactionNumber.value())
-                .build());
-
-        String extraInfoJson = convertExtraInfoToEscapedJson(extraInfo);
-        parameters.add(Parameter.builder().key("extraInfo").value(extraInfoJson).build());
-
-        log.debug("Built {} parameters for cancel-transfer-money-loan", parameters.size());
-        log.debug(
-                "Parameters - transactionId: {}, transactionNumber: {}, extraInfo length: {} chars",
-                transactionId,
-                transactionNumber.value(),
-                extraInfoJson.length());
-
-        return parameters;
-    }
-
-    private String convertExtraInfoToEscapedJson(ExtraInfoVO extraInfo) {
-        try {
-            String json = objectMapper.writeValueAsString(extraInfo);
-            String escaped = json.replace("\"", "&quot;");
-            log.debug("Converted ExtraInfo to JSON: {} chars", escaped.length());
-            return escaped;
-        } catch (JsonProcessingException e) {
-            log.error("Error converting ExtraInfoVO to JSON", e);
-            return "{}";
-        }
-    }
-
-    @Override
-    public Result<AccountId> openAccount(CreateAccountInfo createAccountInfo) {
-        log.info("opening account by calling nova-open-account: {}", createAccountInfo);
-
-        List<Parameter> parameters = buildOpenAccountParameters(createAccountInfo);
-
-        Usecases usecases = requestBuilder.buildUseCase("nova-open-account", parameters);
-        FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
-
-        Map<String, Object> additionalContext = new HashMap<>();
-        // todo
-        //        additionalContext.put("topic", fcbRequest);
-        //        additionalContext.put("newAccAmount", createAccountInfo.newAccAmount());
-        //        additionalContext.put("newAccMinAmount", createAccountInfo.newAccMinAmount());
-        //        additionalContext.put("newAccMaxAmount", createAccountInfo.newAccMaxAmount());
-        //        additionalContext.put("newAccBaseCurrencyAmount", createAccountInfo.newAccBaseCurrencyAmount());
-        //        additionalContext.put("newAccDebtorAmount", createAccountInfo.newAccDebtorAmount());
-        //        additionalContext.put("newAccCreditorAmount", createAccountInfo.newAccCreditorAmount());
-        //        additionalContext.put("createAccountGroup", createAccountInfo.createAccountGroup());
-
-        log.debug("Executing FCB nova-open-account use case");
-        Result<AccountInfoResponse> fcbResult = fcbService.executeUsecase(
-                fcbRequest,
-                AccountInfoResponse.class,
-                FcbContext.builder().additionalContext(additionalContext).build());
-
-        if (fcbResult.isFailure()) {
-            log.error(
-                    "FCB nova-open-account failed: {}", fcbResult.notification().getErrorMessages());
-            return Result.failure(fcbResult.notification());
-        }
-
-        Result<AccountId> mapDtoResult = LoanMapper.mapToCreateAccountResult(fcbResult);
-        if (mapDtoResult.isFailure()) {
-            log.error(
-                    "map nova-open-account failed: {}",
-                    mapDtoResult.notification().getErrorMessages());
-            return Result.failure(mapDtoResult.notification());
-        }
-        return mapDtoResult;
-    }
-
-    private List<Parameter> buildOpenAccountParameters(CreateAccountInfo createAccountInfo) {
-        List<Parameter> parameters = new ArrayList<>();
-
-        parameters.add(Parameter.builder()
-                .key("transactionId")
-                .value(createAccountInfo.transactionId())
-                .build());
-
-        parameters.add(Parameter.builder()
-                .key("topic")
-                .value(createAccountInfo.topicCode())
-                .build());
-
-        parameters.add(Parameter.builder()
-                .key("swiftCode")
-                .value(createAccountInfo.currencyType().getCode())
-                .build());
-
-        parameters.add(Parameter.builder()
-                .key("branchCode")
-                .value(createAccountInfo.branchCode().value())
-                .build());
-
-        parameters.add(Parameter.builder()
-                .key("createAccountGroup")
-                .value(Boolean.TRUE.equals(createAccountInfo.createAccountGroup()) ? "true" : "false")
-                .build());
-
-        parameters.add(Parameter.builder()
-                .key("newAccBranchCode")
-                .value(createAccountInfo.newAccBranchCode().value())
-                .build());
-
-        parameters.add(Parameter.builder()
-                .key("newAccAccountNumber")
-                .value(createAccountInfo.newAccAccountId().value())
-                .build());
-
-        parameters.add(Parameter.builder()
-                .key("newAccTitle")
-                .value(createAccountInfo.newAccTitle().value())
-                .build());
-
-        parameters.add(Parameter.builder()
-                .key("newAccAmount")
-                .value(createAccountInfo.newAccAmount().value().toString())
-                .build());
-
-        parameters.add(Parameter.builder()
-                .key("newAccMinAmount")
-                .value(createAccountInfo.newAccMinAmount().value().toString())
-                .build());
-
-        parameters.add(Parameter.builder()
-                .key("newAccMaxAmount")
-                .value(createAccountInfo.newAccMaxAmount().value().toString())
-                .build());
-
-        parameters.add(Parameter.builder()
-                .key("newAccBaseCurrencyAmount")
-                .value(createAccountInfo.newAccBaseCurrencyAmount().value().toString())
-                .build());
-
-        parameters.add(Parameter.builder()
-                .key("newAccDebtorAmount")
-                .value(createAccountInfo.newAccDebtorAmount().value().toString())
-                .build());
-
-        parameters.add(Parameter.builder()
-                .key("newAccCreditorAmount")
-                .value(createAccountInfo.newAccCreditorAmount().value().toString())
-                .build());
-
-        return parameters;
-    }
 }
