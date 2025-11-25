@@ -131,7 +131,7 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
         FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
 
         Result<CancelTransferMoneyResponse> fcbResult =
-                fcbService.executeUsecase(fcbRequest, CancelTransferMoneyResponse.class);
+                fcbService.executeUsecase(fcbRequest, CancelTransferMoneyResponse.class, FcbContext.empty());
 
         if (fcbResult.isFailure()) {
             log.debug(
