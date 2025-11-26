@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -11,7 +12,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
-import java.util.Collections;
 
 public record IssueFacilityContractSagaData(
         LoanFacilityId facilityId,
@@ -31,14 +31,10 @@ public record IssueFacilityContractSagaData(
             LoanTransaction transaction, Map<RelationType<?>, AccountId> accountIds) {
 
         var stringKeyMap = accountIds.entrySet().stream()
-                .collect(Collectors.toMap(
-                        e -> ((Enum<?>) e.getKey()).name(),
-                        Map.Entry::getValue
-                ));
+                .collect(Collectors.toMap(e -> ((Enum<?>) e.getKey()).name(), Map.Entry::getValue));
 
         return new IssueFacilityContractSagaData(
-                facilityId, branchCode, transactionConfig,
-                transaction, postedTransactionNumber, stringKeyMap);
+                facilityId, branchCode, transactionConfig, transaction, postedTransactionNumber, stringKeyMap);
     }
 
     public IssueFacilityContractSagaData withPostedTransaction(TrackedTransactionNumber transactionNumber) {
@@ -50,10 +46,7 @@ public record IssueFacilityContractSagaData(
         if (accountIds == null) return Collections.emptyMap();
 
         return accountIds.entrySet().stream()
-                .collect(Collectors.toMap(
-                        e -> resolveRelationType(e.getKey()),
-                        Map.Entry::getValue
-                ));
+                .collect(Collectors.toMap(e -> resolveRelationType(e.getKey()), Map.Entry::getValue));
     }
 
     private RelationType<?> resolveRelationType(String key) {
@@ -63,5 +56,4 @@ public record IssueFacilityContractSagaData(
             throw new RuntimeException("Unknown RelationType in Saga Data: " + key, e);
         }
     }
-
 }

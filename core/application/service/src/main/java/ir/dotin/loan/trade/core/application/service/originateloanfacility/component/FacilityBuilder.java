@@ -1,7 +1,6 @@
 package ir.dotin.loan.trade.core.application.service.originateloanfacility.component;
 
 import java.time.Clock;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,10 +21,13 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.mapper.OriginateLoanFacilityApplicationMapper;
+import ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy.ApplicationNumberStrategy;
+import ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy.ApplicationNumberStrategySelector;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy.FacilityOriginationContext;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
@@ -40,6 +42,8 @@ public class FacilityBuilder {
 
     private final TradeLoanFacilityRepository loanFacilityRepository;
     private final OriginateLoanFacilityApplicationMapper applicationMapper;
+    private final LoanServicePort loanServicePort;
+    private final ApplicationNumberStrategySelector applicationNumberStrategySelector;
     private final Clock clock;
 
     public Result<TradeLoanFacility> buildFacility(
@@ -48,11 +52,16 @@ public class FacilityBuilder {
             @Nullable InstallmentScheduleId scheduleId,
             @NonNull LoanFacilityId facilityId) {
         try {
-            TradeLoanApplication application = buildApplication(command, context);
+
+            Result<TradeLoanApplication> applicationResult = buildApplicationWithStrategy(command, context);
+
+            if (applicationResult.isFailure()) {
+                return Result.failure(applicationResult.notification());
+            }
 
             TradeLoanFacility facility = TradeLoanFacility.create(
                     facilityId,
-                    application,
+                    applicationResult.value(),
                     LoanTypeId.of(command.loanTypeId()),
                     LoanArrangementId.of(command.loanArrangementId()),
                     clock,
@@ -67,40 +76,54 @@ public class FacilityBuilder {
         }
     }
 
-    public TradeLoanApplication buildApplication(
+    public Result<TradeLoanApplication> buildApplicationWithStrategy(
             OriginateLoanFacilityCommand command, FacilityOriginationContext context) {
 
-        Party mainCustomer = createPartyFromPartyInfo(context.mainCustomer());
+        try {
+            Party mainCustomer = createPartyFromPartyInfo(context.mainCustomer());
 
-        Branch branch = Branch.of(
-                        BranchCode.of(command.loanApplication().branch().code()).orElseThrow())
-                .orElseThrow();
+            Branch branch = Branch.of(
+                            BranchCode.of(command.loanApplication().branch().code())
+                                    .orElseThrow())
+                    .orElseThrow();
 
-        String derivedValue = String.valueOf(generateApplicationSequence(
-                branch.code(),
-                context.loanType().getId(),
-                context.mainCustomer().party().customerNumber()));
+            LoanTypeCode loanTypeCode =
+                    LoanTypeCode.of(context.loanType().getCode().value()).orElseThrow();
 
-        ApplicationNumber applicationNumber = new ApplicationNumber(
-                branch,
-                LoanTypeCode.of(context.loanType().getCode().value()).orElseThrow(),
-                mainCustomer,
-                Optional.empty(),
-                derivedValue);
+            String derivedValue = String.valueOf(generateApplicationSequence(
+                    branch.code(),
+                    context.loanType().getId(),
+                    context.mainCustomer().party().customerNumber()));
 
-        Set<Party> enrichedGuarantors = context.guarantors().stream()
-                .map(this::createPartyFromPartyInfo)
-                .collect(Collectors.toSet());
+            ApplicationNumberStrategy strategy = applicationNumberStrategySelector.selectStrategy();
 
-        TradeLoanApplication.Builder builder = applicationMapper
-                .map(command.loanApplication())
-                .customer(mainCustomer)
-                .applicationNumber(applicationNumber)
-                .guarantors(enrichedGuarantors)
-                .disbursementMethod(context.arrangement().getDisbursementMethod())
-                .branch(branch);
+            Result<ApplicationNumber> applicationNumberResult =
+                    strategy.generateOrValidateApplicationNumber(branch, loanTypeCode, mainCustomer, derivedValue);
 
-        return TradeLoanApplication.create(builder).value();
+            if (applicationNumberResult.isFailure()) {
+                return Result.failure(applicationNumberResult.notification());
+            }
+
+            ApplicationNumber applicationNumber = applicationNumberResult.value();
+
+            Set<Party> enrichedGuarantors = context.guarantors().stream()
+                    .map(this::createPartyFromPartyInfo)
+                    .collect(Collectors.toSet());
+
+            TradeLoanApplication.Builder builder = applicationMapper
+                    .map(command.loanApplication())
+                    .customer(mainCustomer)
+                    .applicationNumber(applicationNumber)
+                    .guarantors(enrichedGuarantors)
+                    .disbursementMethod(context.arrangement().getDisbursementMethod())
+                    .branch(branch);
+
+            return TradeLoanApplication.create(builder);
+
+        } catch (Exception e) {
+            return Result.failure(
+                    Notification.ofError(OriginateLoanFacilityErrorCodes.FACILITY_CREATION_FAILED, e.getMessage()));
+        }
     }
 
     private Party createPartyFromPartyInfo(PartyInfo partyInfo) {
@@ -115,5 +138,11 @@ public class FacilityBuilder {
     private Long generateApplicationSequence(BranchCode branchCode, LoanTypeId loanTypeId, String customerNumber) {
         return loanFacilityRepository.countByBranchCodeAndLoanTypeIdAndCustomerNumber(
                 branchCode, loanTypeId, customerNumber);
+    }
+
+    @Deprecated
+    public TradeLoanApplication buildApplication(
+            OriginateLoanFacilityCommand command, FacilityOriginationContext context) {
+        return buildApplicationWithStrategy(command, context).value();
     }
 }

@@ -4,7 +4,6 @@ import java.time.Clock;
 import java.time.Duration;
 import java.util.List;
 
-import ir.dotin.platform.saga.api.model.StepError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -18,6 +17,7 @@ import ir.dotin.platform.saga.api.definition.SagaInput;
 import ir.dotin.platform.saga.api.definition.SagaStep;
 import ir.dotin.platform.saga.api.definition.SagaSteps;
 import ir.dotin.platform.saga.api.model.ResultStepAdapter;
+import ir.dotin.platform.saga.api.model.StepError;
 import ir.dotin.platform.saga.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.factory.DocumentMetadataFactory;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
@@ -93,14 +93,12 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         var data = ctx.getSagaData();
 
         var result = loadFacility(data.facilityId())
-                .flatMap(facility -> loadLoanType(facility)
-                        .flatMap(loanType -> createPostTitle(facility)
-                                .flatMap(postTitle -> createTransaction(
-                                        facility, loanType, postTitle, data.transactionConfig()))));
+                .flatMap(facility -> loadLoanType(facility).flatMap(loanType -> createPostTitle(facility)
+                        .flatMap(postTitle ->
+                                createTransaction(facility, loanType, postTitle, data.transactionConfig()))));
 
         if (result.hasErrors()) {
-            return new StepResult.Failure<>(
-                    new StepError.BusinessRuleError(result.notification()));
+            return new StepResult.Failure<>(new StepError.BusinessRuleError(result.notification()));
         }
 
         var transaction = result.orElseThrow();
@@ -116,8 +114,7 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         var result = transactionPostingPort.postTransaction(data.preparedTransaction());
 
         if (result.hasErrors()) {
-            return new StepResult.Failure<>(
-                    new StepError.BusinessRuleError(result.notification()));
+            return new StepResult.Failure<>(new StepError.BusinessRuleError(result.notification()));
         }
 
         var transactionNumber = result.orElseThrow();
@@ -130,8 +127,7 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
     private StepResult<Void> reverseTransaction(
             SagaContext<IssueFacilityContractSagaData> ctx, TrackedTransactionNumber transactionNumber) {
         log.warn("Reversing transaction: {}", transactionNumber);
-        return ResultStepAdapter.toStepResultVoid(
-                transactionPostingPort.reverseTransactions(transactionNumber));
+        return ResultStepAdapter.toStepResultVoid(transactionPostingPort.reverseTransactions(transactionNumber));
     }
 
     private StepResult<Void> updateFacilityState(SagaContext<IssueFacilityContractSagaData> ctx) {

@@ -7,9 +7,13 @@ import java.util.Map;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.LoanOperationType;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.*;
@@ -231,5 +235,55 @@ public class LoanMapper {
         }
 
         return Result.success(new AccountId(responseResult.value().getAccountNumber()));
+    }
+
+    public static Result<ApplicationNumber> mapToApplicationNumber(
+            LoanFileNumberResponse fcbResponse, Branch branch, LoanTypeCode loanTypeCode, Party party) {
+
+        Notification notification = Notification.create();
+
+        if (fcbResponse.getLoanFileNumber() == null
+                || fcbResponse.getLoanFileNumber().isBlank()) {
+            notification.addError(FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE);
+            return Result.failure(notification);
+        }
+
+        String loanFileNumber = fcbResponse.getLoanFileNumber();
+
+        Result<ApplicationNumberComponents> componentsResult = parseApplicationNumber(loanFileNumber);
+        if (componentsResult.isFailure()) {
+            return Result.failure(componentsResult.notification());
+        }
+
+        ApplicationNumberComponents components = componentsResult.getValue();
+
+        if (notification.hasErrors()) {
+            return Result.failure(notification);
+        }
+
+        return ApplicationNumber.of(branch, loanTypeCode, party, components.sequenceCode);
+    }
+
+    private record ApplicationNumberComponents(
+            String branchCode, String loanTypeCode, String customerNumber, String sequenceCode) {}
+
+    private static Result<ApplicationNumberComponents> parseApplicationNumber(String formattedNumber) {
+        Notification notification = Notification.create();
+
+        String[] parts = formattedNumber.split("-", 4);
+
+        if (parts.length < 3) {
+            notification.addError(
+                    FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE,
+                    "Invalid application number format: " + formattedNumber);
+            return Result.failure(notification);
+        }
+
+        String branchCode = parts[0];
+        String loanTypeCode = parts[1];
+        String customerNumber = parts[2];
+        String sequenceCode = parts.length > 3 ? parts[3] : null;
+
+        return Result.success(new ApplicationNumberComponents(branchCode, loanTypeCode, customerNumber, sequenceCode));
     }
 }

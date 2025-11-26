@@ -54,11 +54,11 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
             return Result.success(List.of());
         }
 
-        return sagaResult.error()
+        return sagaResult
+                .error()
                 .map(this::toResult)
-                .orElseGet(() -> Result.failure(Notification.ofError(
-                        SagaErrorCodes.SAGA_COMPENSATED,
-                        extractReason(sagaResult))));
+                .orElseGet(() -> Result.failure(
+                        Notification.ofError(SagaErrorCodes.SAGA_COMPENSATED, extractReason(sagaResult))));
     }
 
     private String extractReason(SagaResult<IssueFacilityContractSagaData> sagaResult) {
@@ -75,13 +75,13 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
         return switch (stepError) {
             case StepError.BusinessRuleError bre -> Result.failure(bre.notification());
             case StepError.ValidationError ve ->
-                    Result.failure(Notification.ofError(SagaErrorCodes.SAGA_VALIDATION_FAILED, ve.message()));
+                Result.failure(Notification.ofError(SagaErrorCodes.SAGA_VALIDATION_FAILED, ve.message()));
             case StepError.BusinessError be ->
-                    Result.failure(Notification.ofError(SagaErrorCodes.SAGA_STEP_FAILED, be.message()));
+                Result.failure(Notification.ofError(SagaErrorCodes.SAGA_STEP_FAILED, be.message()));
             case StepError.TechnicalError te ->
-                    Result.failure(Notification.ofError(SagaErrorCodes.SAGA_TECHNICAL_ERROR, te.message()));
+                Result.failure(Notification.ofError(SagaErrorCodes.SAGA_TECHNICAL_ERROR, te.message()));
             case StepError.TimeoutError toe ->
-                    Result.failure(Notification.ofError(SagaErrorCodes.SAGA_TIMEOUT, toe.timeoutMillis()));
+                Result.failure(Notification.ofError(SagaErrorCodes.SAGA_TIMEOUT, toe.timeoutMillis()));
         };
     }
 }

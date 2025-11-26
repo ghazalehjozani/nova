@@ -4,6 +4,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.security.NoTypePermission;
 import com.thoughtworks.xstream.security.NullPermission;
 import com.thoughtworks.xstream.security.PrimitiveTypePermission;
+
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.AccountInfoResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.BranchResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CancelTransferMoneyResponse;
@@ -21,6 +22,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.TopicResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.TransferMoneyResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ValidateCreditorDepositResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ValidateDebtorDepositResponse;
+
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -34,8 +36,8 @@ public class FcbXStreamFactory {
         xstream.addPermission(NullPermission.NULL);
         xstream.addPermission(PrimitiveTypePermission.PRIMITIVES);
 
-        xstream.allowTypesByWildcard(new String[]{
-                "ir.dotin.loan.trade.adapters.driven.fcbclient.dto.**", "java.util.**", "java.lang.**", "com.fanap.**"
+        xstream.allowTypesByWildcard(new String[] {
+            "ir.dotin.loan.trade.adapters.driven.fcbclient.dto.**", "java.util.**", "java.lang.**", "com.fanap.**"
         });
 
         xstream.alias("com.fanap.service.customer.serviceobjects.SharedAddress", Object.class);
