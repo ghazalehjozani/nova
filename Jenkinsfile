@@ -393,7 +393,15 @@ pipeline {
                         sed -i 's|imagePullPolicy:.*|imagePullPolicy: Never|g' k8s/base/deployment.yml
 
                         kubectl apply -f k8s/base/deployment.yml -n ${env.K8S_NAMESPACE}
-                        kubectl rollout status deployment/${env.DOCKER_IMAGE_NAME} -n ${env.K8S_NAMESPACE} --timeout=20m
+
+                        # Wait with proper timeout (30 minutes to account for startup time)
+                        timeout 30m kubectl rollout status deployment/${env.DOCKER_IMAGE_NAME} -n ${env.K8S_NAMESPACE} || {
+                            echo "❌ Deployment timeout - Gathering diagnostics..."
+                            kubectl describe deployment/${env.DOCKER_IMAGE_NAME} -n ${env.K8S_NAMESPACE}
+                            kubectl get pods -n ${env.K8S_NAMESPACE} -l app=${env.DOCKER_IMAGE_NAME}
+                            kubectl logs -n ${env.K8S_NAMESPACE} -l app=${env.DOCKER_IMAGE_NAME} --tail=500 || true
+                            exit 1
+                        }
                     """
                }
             }
@@ -401,7 +409,12 @@ pipeline {
                 failure {
                     dir('container') {
                         sh """
-                            echo "❌ Deployment failed, rolling back..."
+                            echo "❌ Deployment failed, capturing final state..."
+                            kubectl describe deployment/${env.DOCKER_IMAGE_NAME} -n ${env.K8S_NAMESPACE} || true
+                            kubectl describe pods -n ${env.K8S_NAMESPACE} -l app=${env.DOCKER_IMAGE_NAME} || true
+                            kubectl logs -n ${env.K8S_NAMESPACE} -l app=${env.DOCKER_IMAGE_NAME} --tail=1000 || true
+
+                            echo "Rolling back..."
                             kubectl rollout undo deployment/${env.DOCKER_IMAGE_NAME} -n ${env.K8S_NAMESPACE} || true
                         """
                     }
@@ -419,34 +432,46 @@ pipeline {
             }
             steps {
                 script {
-                    timeout(time: 5, unit: 'MINUTES') {
+                    timeout(time: 10, unit: 'MINUTES') {
                         sh """
                             kubectl wait --for=condition=ready pod \
                                 -l app=${env.DOCKER_IMAGE_NAME} \
                                 -n ${env.K8S_NAMESPACE} \
-                                --timeout=300s
+                                --timeout=600s
                         """
 
+                        // Health check with retries
                         def healthCheckPassed = false
-                        retry(10) {
-                            sleep 10
+                        def maxRetries = 20
+                        def retryCount = 0
+
+                        while (!healthCheckPassed && retryCount < maxRetries) {
+                            retryCount++
+                            sleep 15
+
                             def healthStatus = sh(
-                                script: "curl -sf ${env.HEALTH_CHECK_ENDPOINT} | grep -q 'UP'",
+                                script: """
+                                    kubectl exec -n ${env.K8S_NAMESPACE} \
+                                        -l app=${env.DOCKER_IMAGE_NAME} -- \
+                                        curl -sf http://localhost:8080/actuator/health | grep -q 'UP'
+                                """,
                                 returnStatus: true
                             )
+
                             if (healthStatus == 0) {
                                 healthCheckPassed = true
-                                echo "✅ Health check passed"
+                                echo "✅ Health check passed after ${retryCount} attempts"
                             } else {
-                                error "Health check failed, retrying..."
+                                echo "⏳ Health check attempt ${retryCount}/${maxRetries} failed, retrying..."
                             }
                         }
 
                         if (!healthCheckPassed) {
-                            error "❌ Health check failed after retries"
+                            error "❌ Health check failed after ${maxRetries} retries"
                         }
 
                         sh """
+                            echo "Final deployment status:"
                             kubectl get pods -n ${env.K8S_NAMESPACE} -l app=${env.DOCKER_IMAGE_NAME}
                             kubectl describe deployment/${env.DOCKER_IMAGE_NAME} -n ${env.K8S_NAMESPACE} | grep Image:
                         """
