@@ -392,7 +392,7 @@ pipeline {
                             ${env.DOCKER_IMAGE_NAME}=${env.DOCKER_IMAGE_NAME}:${env.CALCULATED_VERSION} \
                             -n ${env.K8S_NAMESPACE} || kubectl apply -f k8s/base/deployment.yml -n ${env.K8S_NAMESPACE}
 
-                        kubectl rollout status deployment/${env.DOCKER_IMAGE_NAME} -n ${env.K8S_NAMESPACE} --timeout=5m
+                        kubectl rollout status deployment/${env.DOCKER_IMAGE_NAME} -n ${env.K8S_NAMESPACE} --timeout=12m
                     """
                 }
             }

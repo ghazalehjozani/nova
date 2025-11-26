@@ -4,6 +4,12 @@ metadata:
   name: trade-loan-service
   namespace: default
 spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 0
+  progressDeadlineSeconds: 720
   replicas: 1
   selector:
     matchLabels:
@@ -14,6 +20,7 @@ spec:
         app: trade-loan-service
     spec:
       serviceAccountName: trade-loan-service
+      terminationGracePeriodSeconds: 60
       containers:
         - name: trade-loan-service
           image: trade-loan-service:latest
