@@ -5,7 +5,7 @@ metadata:
   namespace: default
 spec:
   strategy:
-    type: Recreate
+    type: RollingUpdate
     rollingUpdate:
       maxUnavailable: 1
       maxSurge: 0
