@@ -358,6 +358,27 @@ pipeline {
             }
         }
 
+        stage('Load Image to Minikube') {
+            when {
+                allOf {
+                    branch 'develop'
+                    expression { env.CHANGE_ID == null }
+                    expression { currentBuild.result != 'FAILURE' }
+                }
+            }
+            steps {
+                sh """
+                    minikube image load ${env.DOCKER_IMAGE_NAME}:${env.CALCULATED_VERSION}
+                    minikube image load ${env.DOCKER_IMAGE_NAME}:latest
+                """
+            }
+            post {
+                success {
+                    echo "✅ Images loaded to Minikube"
+                }
+            }
+        }
+
         stage('Sync K8s Configs') {
             when {
                 allOf {
