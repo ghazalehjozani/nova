@@ -13,8 +13,8 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.LoanOperationType;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.*;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
@@ -244,37 +244,46 @@ public class LoanMapper {
 
         if (fcbResponse.getLoanFileNumber() == null
                 || fcbResponse.getLoanFileNumber().isBlank()) {
-            log.error("FCB response missing loan file number");
-            notification.addError(
-                    FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE, "Loan file number is missing in response");
+            notification.addError(FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE);
             return Result.failure(notification);
         }
 
         String loanFileNumber = fcbResponse.getLoanFileNumber();
-        log.debug("Mapping loan file number: {} to ApplicationNumber", loanFileNumber);
 
-        Result<ApplicationNumber> applicationNumberResult = ApplicationNumber.of(branch, loanTypeCode, party, null);
+        Result<ApplicationNumberComponents> componentsResult = parseApplicationNumber(loanFileNumber);
+        if (componentsResult.isFailure()) {
+            return Result.failure(componentsResult.notification());
+        }
 
-        if (applicationNumberResult.isFailure()) {
-            log.error(
-                    "Failed to create ApplicationNumber: {}",
-                    applicationNumberResult.notification().getErrorMessages());
-            notification.merge(applicationNumberResult.notification());
+        ApplicationNumberComponents components = componentsResult.getValue();
+
+        if (notification.hasErrors()) {
             return Result.failure(notification);
         }
 
-        ApplicationNumber applicationNumber = applicationNumberResult.orElseThrow();
+        return ApplicationNumber.of(branch, loanTypeCode, party, components.sequenceCode);
+    }
 
-        String formattedNumber = applicationNumber.formattedApplicationNumber();
-        if (!formattedNumber.equals(loanFileNumber)) {
-            log.warn(
-                    "Generated ApplicationNumber '{}' doesn't match FCB response '{}'. "
-                            + "This may indicate a format mismatch.",
-                    formattedNumber,
-                    loanFileNumber);
+    private record ApplicationNumberComponents(
+            String branchCode, String loanTypeCode, String customerNumber, String sequenceCode) {}
+
+    private static Result<ApplicationNumberComponents> parseApplicationNumber(String formattedNumber) {
+        Notification notification = Notification.create();
+
+        String[] parts = formattedNumber.split("-", 4);
+
+        if (parts.length < 3) {
+            notification.addError(
+                    FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE,
+                    "Invalid application number format: " + formattedNumber);
+            return Result.failure(notification);
         }
 
-        log.info("Successfully mapped loan file number to ApplicationNumber: {}", formattedNumber);
-        return Result.success(applicationNumber);
+        String branchCode = parts[0];
+        String loanTypeCode = parts[1];
+        String customerNumber = parts[2];
+        String sequenceCode = parts.length > 3 ? parts[3] : null;
+
+        return Result.success(new ApplicationNumberComponents(branchCode, loanTypeCode, customerNumber, sequenceCode));
     }
 }

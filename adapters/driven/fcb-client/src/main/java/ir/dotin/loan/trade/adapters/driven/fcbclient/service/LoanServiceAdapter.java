@@ -371,7 +371,8 @@ public class LoanServiceAdapter implements LoanServicePort {
 
         log.debug("Executing FCB get-loan-file-number usecase");
 
-        Result<LoanFileNumberResponse> fcbResult = fcbService.executeUsecase(fcbRequest, LoanFileNumberResponse.class);
+        Result<LoanFileNumberResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, LoanFileNumberResponse.class, FcbContext.empty());
 
         if (fcbResult.isFailure()) {
             log.error(
