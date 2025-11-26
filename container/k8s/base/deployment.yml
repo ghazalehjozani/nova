@@ -5,11 +5,11 @@ metadata:
   namespace: default
 spec:
   strategy:
-    type: RollingUpdate
+    type: Recreate
     rollingUpdate:
       maxUnavailable: 1
       maxSurge: 0
-  progressDeadlineSeconds: 720
+  progressDeadlineSeconds: 900
   replicas: 1
   selector:
     matchLabels:
