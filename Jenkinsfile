@@ -13,6 +13,7 @@ pipeline {
         choice(name: 'AI_REVIEW_TYPE', choices: ['full', 'security', 'performance', 'quick'], description: 'Type of AI code review to perform')
         booleanParam(name: 'FORCE_DEPLOY', defaultValue: false, description: 'Force deployment even if quality gates fail')
         booleanParam(name: 'PUBLISH_TO_NEXUS', defaultValue: true, description: 'Publish Docker image to Nexus registry')
+        string(name: 'NEXUS_RETENTION_COUNT', defaultValue: '3', description: 'Number of Docker image versions to retain in Nexus')
     }
 
     options {
@@ -35,11 +36,11 @@ pipeline {
         PROJECT_NAME = 'trade-loan'
         PROJECT_GROUP = 'ir.dotin.loan'
         DOCKER_IMAGE_NAME = 'trade-loan-service'
-        DOCKER_IMAGE_TAG = 'latest'
         NEXUS_REPOSITORY_NAME = 'expenditures'
         K8S_NAMESPACE = 'default'
         CLAUDE_REVIEW_SCRIPT = 'claude-code-review.sh'
         AI_REVIEW_OUTPUT_DIR = 'ai-review-reports'
+        HEALTH_CHECK_ENDPOINT = 'http://localhost:8085/actuator/health'
     }
 
     stages {
@@ -53,7 +54,43 @@ pipeline {
                     setupBuildEnvironment()
 
                     if (params.SHIP_IT_MODE) {
-                        echo "🚀 SHIP IT MODE ACTIVATED! Only Build & Unit Test will run, all other stages are skipped"
+                        echo "🚀 SHIP IT MODE ACTIVATED! Only Build & Unit Test will run"
+                    }
+                }
+            }
+        }
+
+        stage('Validate Version') {
+            when {
+                anyOf {
+                    allOf {
+                        branch 'develop'
+                        expression { env.CHANGE_ID == null }
+                    }
+                    expression { env.CHANGE_ID != null }
+                }
+            }
+            steps {
+                script {
+                    withCredentials([
+                        string(credentialsId: 'NEXUS_REGISTRY_URL', variable: 'NEXUS_REGISTRY_URL'),
+                        string(credentialsId: 'NEXUS_USERNAME', variable: 'NEXUS_USER'),
+                        string(credentialsId: 'NEXUS_PASSWORD', variable: 'NEXUS_PASS')
+                    ]) {
+                        def imageExists = sh(
+                            script: """
+                                curl -s -u "\${NEXUS_USER}:\${NEXUS_PASS}" \
+                                "\${NEXUS_REGISTRY_URL}/v2/${env.NEXUS_REPOSITORY_NAME}/${env.DOCKER_IMAGE_NAME}/tags/list" | \
+                                grep -q '"${env.CALCULATED_VERSION}"'
+                            """,
+                            returnStatus: true
+                        )
+
+                        if (imageExists == 0) {
+                            error "❌ Version ${env.CALCULATED_VERSION} already exists in Nexus. Update version in pom.xml"
+                        } else {
+                            echo "✅ Version ${env.CALCULATED_VERSION} is unique"
+                        }
                     }
                 }
             }
@@ -61,7 +98,7 @@ pipeline {
 
         stage('Build & Unit Test') {
             steps {
-                sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} clean verify -P!dev -DskipITs=true"
+                sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} clean verify -P !dev -DskipITs=true"
             }
             post {
                 always {
@@ -86,14 +123,14 @@ pipeline {
                 stage('Error-Prone') {
                     steps {
                         catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
-                            sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} -P!dev,error-prone compile"
+                            sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} -P !dev,error-prone compile"
                         }
                     }
                 }
                 stage('Checkstyle') {
                     steps {
                         catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
-                            sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} -P!dev,quality-gate checkstyle:check"
+                            sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} -P !dev,quality-gate checkstyle:check"
                         }
                     }
                 }
@@ -101,7 +138,7 @@ pipeline {
                     when { expression { params.RUN_SPOTBUGS } }
                     steps {
                         catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
-                            sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} -P!dev,quality-gate spotbugs:check"
+                            sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} -P !dev,quality-gate spotbugs:check"
                         }
                     }
                 }
@@ -116,7 +153,7 @@ pipeline {
                 stage('Integration Tests') {
                     when { expression { params.RUN_INTEGRATION_TESTS } }
                     steps {
-                        sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} verify -P!dev,integration-test -DskipUTs=true"
+                        sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} verify -P !dev,integration-test -DskipUTs=true"
                     }
                     post {
                         always {
@@ -127,7 +164,7 @@ pipeline {
                 stage('Architecture Tests') {
                     when { expression { params.RUN_ARCHITECTURE_TESTS } }
                     steps {
-                        sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} test -P!dev,architecture-test"
+                        sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} test -P !dev,architecture-test"
                     }
                 }
             }
@@ -141,7 +178,7 @@ pipeline {
                 }
             }
             steps {
-                sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} -Psecurity verify"
+                sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} -P security verify"
             }
         }
 
@@ -167,7 +204,7 @@ pipeline {
                         if (env.CHANGE_ID) {
                             sonarParams += " -Dsonar.pullrequest.key=${env.CHANGE_ID} -Dsonar.pullrequest.branch=${env.CHANGE_BRANCH} -Dsonar.pullrequest.base=${env.CHANGE_TARGET}"
                         }
-                        sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} -P!dev,quality-gate sonar:sonar ${sonarParams}"
+                        sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} -P !dev,quality-gate sonar:sonar ${sonarParams}"
                     }
 
                     timeout(time: 15, unit: 'MINUTES') {
@@ -198,65 +235,42 @@ pipeline {
             }
             steps {
                 script {
-                    def reviewOutputDir = env.AI_REVIEW_OUTPUT_DIR
-                    sh "mkdir -p ${reviewOutputDir}"
+                    sh "mkdir -p ${env.AI_REVIEW_OUTPUT_DIR}"
 
                     if (!fileExists(env.CLAUDE_REVIEW_SCRIPT)) {
                         error "Claude review script not found: ${env.CLAUDE_REVIEW_SCRIPT}"
                     }
 
-                    def reviewEnv = [
-                        "REVIEW_TYPE=${params.AI_REVIEW_TYPE}",
-                        "OUTPUT_DIR=${reviewOutputDir}",
-                        "GIT_REF=${env.GIT_COMMIT_SHORT}",
-                        "PROJECT_NAME=${PROJECT_NAME}"
-                    ]
-
                     def reviewResult = sh(
-                        script: "bash ${env.CLAUDE_REVIEW_SCRIPT}",
-                        returnStatus: true,
-                        env: reviewEnv
+                        script: """
+                            export REVIEW_TYPE="${params.AI_REVIEW_TYPE}"
+                            export OUTPUT_DIR="${env.AI_REVIEW_OUTPUT_DIR}"
+                            export GIT_REF="${env.GIT_COMMIT_SHORT}"
+                            export PROJECT_NAME="${env.PROJECT_NAME}"
+                            bash ${env.CLAUDE_REVIEW_SCRIPT}
+                        """,
+                        returnStatus: true
                     )
 
                     switch(reviewResult) {
                         case 0:
-                            echo "✅ AI Code Review completed successfully - No critical issues found"
-                            currentBuild.result = 'SUCCESS'
+                            echo "✅ AI Code Review completed successfully"
                             break
                         case 1:
-                            echo "⚠️ AI Code Review found warnings - Failing pipeline"
-                            error "AI Code Review failed: Warnings detected that require attention"
+                            error "⚠️ AI Code Review found warnings"
                             break
                         case 2:
-                            echo "🔴 AI Code Review found critical issues - Failing pipeline"
-                            error "AI Code Review failed: Critical issues detected that must be fixed"
+                            error "🔴 AI Code Review found critical issues"
                             break
                         default:
-                            echo "❌ AI Code Review script execution failed"
-                            error "AI Code Review failed: Script execution error (exit code: ${reviewResult})"
+                            error "❌ AI Code Review script failed (exit: ${reviewResult})"
                     }
                 }
             }
             post {
                 always {
-                    script {
-                        if (fileExists('claude-review-report.json')) {
-                            archiveArtifacts artifacts: 'claude-review-report.json', allowEmptyArchive: true
-                        }
-                        if (fileExists('claude-review-report.md')) {
-                            archiveArtifacts artifacts: 'claude-review-report.md', allowEmptyArchive: true
-                        }
-
-                        if (fileExists(env.AI_REVIEW_OUTPUT_DIR)) {
-                            archiveArtifacts artifacts: "${env.AI_REVIEW_OUTPUT_DIR}/**/*", allowEmptyArchive: true
-                        }
-                    }
-                }
-                success {
-                    echo "🎉 AI Code Review stage completed successfully"
-                }
-                failure {
-                    echo "💥 AI Code Review stage failed - Check the reports for details"
+                    archiveArtifacts artifacts: 'claude-review-report.*', allowEmptyArchive: true
+                    archiveArtifacts artifacts: "${env.AI_REVIEW_OUTPUT_DIR}/**/*", allowEmptyArchive: true
                 }
             }
         }
@@ -270,10 +284,8 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    dir('container') {
-                        sh 'cp $HOME/nova/.env .'
-                    }
+                dir('container') {
+                    sh 'cp $HOME/nova/.env .'
                 }
             }
         }
@@ -287,24 +299,20 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    dir('container') {
-                        sh """
-                            mkdir -p ca-certificates
-                            cp -r $HOME/nova/ca-certificates/* ca-certificates/ 2>/dev/null || true
-                            docker build -t ${env.DOCKER_IMAGE_NAME}:${env.DOCKER_IMAGE_TAG} \
-                                         -t ${env.DOCKER_IMAGE_NAME}:${env.GIT_COMMIT_SHORT} \
-                                         -f Dockerfile .
-                        """
-                    }
+                dir('container') {
+                    sh """
+                        mkdir -p ca-certificates
+                        cp -r \$HOME/nova/ca-certificates/* ca-certificates/ 2>/dev/null || true
+                        docker build \
+                            -t ${env.DOCKER_IMAGE_NAME}:${env.CALCULATED_VERSION} \
+                            -t ${env.DOCKER_IMAGE_NAME}:latest \
+                            -f Dockerfile .
+                    """
                 }
             }
             post {
                 success {
-                    echo "✅ Docker image built successfully: ${env.DOCKER_IMAGE_NAME}:${env.DOCKER_IMAGE_TAG}"
-                }
-                failure {
-                    echo "❌ Docker image build failed"
+                    echo "✅ Docker image built: ${env.DOCKER_IMAGE_NAME}:${env.CALCULATED_VERSION}"
                 }
             }
         }
@@ -318,29 +326,34 @@ pipeline {
                     expression { currentBuild.result != 'FAILURE' }
                 }
             }
-            environment {
-                NEXUS_REGISTRY_URL = credentials('NEXUS_REGISTRY_URL')
-                NEXUS_USERNAME = credentials('NEXUS_USERNAME')
-                NEXUS_PASSWORD = credentials('NEXUS_PASSWORD')
-            }
             steps {
                 script {
-                    sh """
-                        docker login ${NEXUS_REGISTRY_URL} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}
-                        docker tag ${env.DOCKER_IMAGE_NAME}:${env.DOCKER_IMAGE_TAG} ${NEXUS_REGISTRY_URL}/${env.NEXUS_REPOSITORY_NAME}/${env.DOCKER_IMAGE_NAME}:${env.DOCKER_IMAGE_TAG}
-                        docker tag ${env.DOCKER_IMAGE_NAME}:${env.GIT_COMMIT_SHORT} ${NEXUS_REGISTRY_URL}/${env.NEXUS_REPOSITORY_NAME}/${env.DOCKER_IMAGE_NAME}:${env.GIT_COMMIT_SHORT}
-                        docker push ${NEXUS_REGISTRY_URL}/${env.NEXUS_REPOSITORY_NAME}/${env.DOCKER_IMAGE_NAME}:${env.DOCKER_IMAGE_TAG}
-                        docker push ${NEXUS_REGISTRY_URL}/${env.NEXUS_REPOSITORY_NAME}/${env.DOCKER_IMAGE_NAME}:${env.GIT_COMMIT_SHORT}
-                        docker logout ${NEXUS_REGISTRY_URL}
-                    """
+                    withCredentials([
+                        string(credentialsId: 'NEXUS_REGISTRY_URL', variable: 'NEXUS_URL'),
+                        string(credentialsId: 'NEXUS_USERNAME', variable: 'NEXUS_USER'),
+                        string(credentialsId: 'NEXUS_PASSWORD', variable: 'NEXUS_PASS')
+                    ]) {
+                        sh """
+                            echo "\${NEXUS_PASS}" | docker login \${NEXUS_URL} -u "\${NEXUS_USER}" --password-stdin
+
+                            docker tag ${env.DOCKER_IMAGE_NAME}:${env.CALCULATED_VERSION} \
+                                \${NEXUS_URL}/${env.NEXUS_REPOSITORY_NAME}/${env.DOCKER_IMAGE_NAME}:${env.CALCULATED_VERSION}
+                            docker tag ${env.DOCKER_IMAGE_NAME}:latest \
+                                \${NEXUS_URL}/${env.NEXUS_REPOSITORY_NAME}/${env.DOCKER_IMAGE_NAME}:latest
+
+                            docker push \${NEXUS_URL}/${env.NEXUS_REPOSITORY_NAME}/${env.DOCKER_IMAGE_NAME}:${env.CALCULATED_VERSION}
+                            docker push \${NEXUS_URL}/${env.NEXUS_REPOSITORY_NAME}/${env.DOCKER_IMAGE_NAME}:latest
+
+                            docker logout \${NEXUS_URL}
+                        """
+
+                        cleanupOldNexusImages(params.NEXUS_RETENTION_COUNT)
+                    }
                 }
             }
             post {
                 success {
-                    echo "✅ Docker image published to Nexus: ${NEXUS_REGISTRY_URL}/${env.NEXUS_REPOSITORY_NAME}/${env.DOCKER_IMAGE_NAME}:${env.DOCKER_IMAGE_TAG}"
-                }
-                failure {
-                    echo "❌ Failed to publish Docker image to Nexus"
+                    echo "✅ Docker image published: ${env.CALCULATED_VERSION}"
                 }
             }
         }
@@ -354,18 +367,8 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    dir('container') {
-                        sh './scripts/sync-configs.sh'
-                    }
-                }
-            }
-            post {
-                success {
-                    echo "✅ Kubernetes configurations synced"
-                }
-                failure {
-                    echo "❌ Failed to sync Kubernetes configurations"
+                dir('container') {
+                    sh './scripts/sync-configs.sh'
                 }
             }
         }
@@ -379,18 +382,8 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    dir('container') {
-                        sh './scripts/create-secrets.sh'
-                    }
-                }
-            }
-            post {
-                success {
-                    echo "✅ Kubernetes secrets created"
-                }
-                failure {
-                    echo "❌ Failed to create Kubernetes secrets"
+                dir('container') {
+                    sh './scripts/create-secrets.sh'
                 }
             }
         }
@@ -404,23 +397,30 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    dir('container') {
+                dir('container') {
+                    withCredentials([string(credentialsId: 'NEXUS_REGISTRY_URL', variable: 'NEXUS_URL')]) {
                         sh """
                             kubectl apply -f k8s/base/rbac.yml -n ${env.K8S_NAMESPACE}
                             kubectl apply -f k8s/base/configmap-trade-loan.yml -n ${env.K8S_NAMESPACE}
                             kubectl apply -f k8s/base/service.yml -n ${env.K8S_NAMESPACE}
-                            kubectl apply -f k8s/base/deployment.yml -n ${env.K8S_NAMESPACE}
+
+                            kubectl set image deployment/${env.DOCKER_IMAGE_NAME} \
+                                ${env.DOCKER_IMAGE_NAME}=\${NEXUS_URL}/${env.NEXUS_REPOSITORY_NAME}/${env.DOCKER_IMAGE_NAME}:${env.CALCULATED_VERSION} \
+                                -n ${env.K8S_NAMESPACE} || kubectl apply -f k8s/base/deployment.yml -n ${env.K8S_NAMESPACE}
+
+                            kubectl rollout status deployment/${env.DOCKER_IMAGE_NAME} -n ${env.K8S_NAMESPACE} --timeout=5m
                         """
                     }
                 }
             }
             post {
-                success {
-                    echo "✅ Application deployed to Minikube - Access: http://localhost:8085/actuator/health"
-                }
                 failure {
-                    echo "❌ Deployment to Minikube failed"
+                    dir('container') {
+                        sh """
+                            echo "❌ Deployment failed, rolling back..."
+                            kubectl rollout undo deployment/${env.DOCKER_IMAGE_NAME} -n ${env.K8S_NAMESPACE} || true
+                        """
+                    }
                 }
             }
         }
@@ -435,27 +435,43 @@ pipeline {
             }
             steps {
                 script {
-                    dir('container') {
-                        timeout(time: 5, unit: 'MINUTES') {
-                            sh """
-                                kubectl wait --for=condition=ready pod \
-                                    -l app=${env.DOCKER_IMAGE_NAME} \
-                                    -n ${env.K8S_NAMESPACE} \
-                                    --timeout=300s
+                    timeout(time: 5, unit: 'MINUTES') {
+                        sh """
+                            kubectl wait --for=condition=ready pod \
+                                -l app=${env.DOCKER_IMAGE_NAME} \
+                                -n ${env.K8S_NAMESPACE} \
+                                --timeout=300s
+                        """
 
-                                kubectl get pods -n ${env.K8S_NAMESPACE} -l app=${env.DOCKER_IMAGE_NAME}
-                                kubectl get services -n ${env.K8S_NAMESPACE} -l app=${env.DOCKER_IMAGE_NAME}
-                            """
+                        def healthCheckPassed = false
+                        retry(10) {
+                            sleep 10
+                            def healthStatus = sh(
+                                script: "curl -sf ${env.HEALTH_CHECK_ENDPOINT} | grep -q 'UP'",
+                                returnStatus: true
+                            )
+                            if (healthStatus == 0) {
+                                healthCheckPassed = true
+                                echo "✅ Health check passed"
+                            } else {
+                                error "Health check failed, retrying..."
+                            }
                         }
+
+                        if (!healthCheckPassed) {
+                            error "❌ Health check failed after retries"
+                        }
+
+                        sh """
+                            kubectl get pods -n ${env.K8S_NAMESPACE} -l app=${env.DOCKER_IMAGE_NAME}
+                            kubectl describe deployment/${env.DOCKER_IMAGE_NAME} -n ${env.K8S_NAMESPACE} | grep Image:
+                        """
                     }
                 }
             }
             post {
                 success {
-                    echo "✅ Deployment verification successful"
-                }
-                failure {
-                    echo "❌ Deployment verification failed"
+                    echo "✅ Deployment verified - Version ${env.CALCULATED_VERSION} is running"
                 }
             }
         }
@@ -463,16 +479,16 @@ pipeline {
         stage('Deploy Artifacts') {
             when {
                 allOf {
-                    anyOf { branch 'develop' }
+                    branch 'develop'
                     expression { env.CHANGE_ID == null }
                     expression { currentBuild.result != 'FAILURE' }
                 }
             }
             steps {
                 script {
-                    sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} deploy -P!dev,release -DskipTests=true"
+                    sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} deploy -P !dev,release -DskipTests=true"
 
-                    if (!env.IS_SNAPSHOT) {
+                    if (env.IS_SNAPSHOT == 'false') {
                         sh """
                             git tag -a v${env.CALCULATED_VERSION} -m "Release version ${env.CALCULATED_VERSION}"
                             git push origin v${env.CALCULATED_VERSION}
@@ -489,22 +505,14 @@ pipeline {
         }
         failure {
             script {
-                def failureText = params.SHIP_IT_MODE ? "❌ Build Failed (🚀 SHIP IT MODE)" : "❌ Build Failed"
-                if (currentBuild.description) {
-                    currentBuild.description += " | ${failureText}"
-                } else {
-                    currentBuild.description = failureText
-                }
+                def failureText = params.SHIP_IT_MODE ? "❌ Failed (🚀 SHIP IT)" : "❌ Failed"
+                currentBuild.description = "${currentBuild.description ?: ''} | ${failureText}"
             }
         }
         success {
             script {
-                def successText = params.SHIP_IT_MODE ? "✅ Build Successful (🚀 SHIP IT MODE)" : "✅ Build Successful"
-                if (currentBuild.description) {
-                    currentBuild.description += " | ${successText}"
-                } else {
-                    currentBuild.description = successText
-                }
+                def successText = params.SHIP_IT_MODE ? "✅ Success (🚀 SHIP IT)" : "✅ Success"
+                currentBuild.description = "${currentBuild.description ?: ''} | ${successText}"
             }
         }
     }
@@ -517,50 +525,33 @@ def setupBuildEnvironment() {
     env.GIT_BRANCH = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
 
     currentBuild.displayName = "#${BUILD_NUMBER} - ${env.CALCULATED_VERSION}"
-    currentBuild.description = "Branch: ${env.BRANCH_NAME}, Commit: ${env.GIT_COMMIT_SHORT}"
+    currentBuild.description = "Branch: ${env.BRANCH_NAME} | Commit: ${env.GIT_COMMIT_SHORT}"
 }
 
 def getProjectVersion() {
-    try {
-        def version = sh(
-            script: """
-                ${env.MVN_CMD} help:evaluate -Dexpression=project.version -q -DforceStdout | \\
-                grep -v '\\[' | \\
-                grep -E '^[0-9]+' | \\
-                head -1
-            """,
-            returnStdout: true
-        ).trim()
+    def version = sh(
+        script: "${env.MVN_CMD} help:evaluate -Dexpression=project.version -q -DforceStdout 2>/dev/null | grep -E '^[0-9]' | head -1",
+        returnStdout: true
+    ).trim()
 
-        if (!version) {
-            version = sh(
-                script: "${env.MVN_CMD} help:evaluate -Dexpression=project.version -q -DforceStdout",
-                returnStdout: true
-            ).split('\n').find { it.matches(/^[0-9].*/) }?.trim()
-        }
-
-        if (!version) {
-            error "Could not extract valid version from pom.xml"
-        }
-
-        return version
-    } catch (Exception e) {
-        error "Failed to retrieve project version: ${e.message}"
+    if (!version) {
+        error "Failed to extract version from pom.xml"
     }
+
+    return version
 }
 
 def validateProject() {
     if (!fileExists('pom.xml')) {
-        error "pom.xml not found - invalid Maven project structure"
+        error "pom.xml not found"
     }
 
     def pomContent = readFile('pom.xml')
     if (!pomContent.contains("<groupId>${PROJECT_GROUP}</groupId>")) {
-        error "Invalid project groupId - expected ${PROJECT_GROUP}"
+        error "Invalid groupId - expected ${PROJECT_GROUP}"
     }
-
     if (!pomContent.contains("<artifactId>${PROJECT_NAME}</artifactId>")) {
-        error "Invalid project artifactId - expected ${PROJECT_NAME}"
+        error "Invalid artifactId - expected ${PROJECT_NAME}"
     }
 }
 
@@ -577,4 +568,29 @@ def printBuildInfo() {
     ║ User        : ${env.BUILD_USER ?: 'System'}
     ╚════════════════════════════════════════╝
     """
+}
+
+def cleanupOldNexusImages(retentionCount) {
+    try {
+        echo "🧹 Cleaning up old Docker images in Nexus (keeping latest ${retentionCount})"
+        withCredentials([
+            string(credentialsId: 'NEXUS_USERNAME', variable: 'NEXUS_USER'),
+            string(credentialsId: 'NEXUS_PASSWORD', variable: 'NEXUS_PASS'),
+            string(credentialsId: 'NEXUS_REGISTRY_URL', variable: 'NEXUS_URL')
+        ]) {
+            sh """
+                curl -s -u "\${NEXUS_USER}:\${NEXUS_PASS}" \
+                    "\${NEXUS_URL}/v2/${env.NEXUS_REPOSITORY_NAME}/${env.DOCKER_IMAGE_NAME}/tags/list" | \
+                    jq -r '.tags[]' | grep -v latest | sort -V | head -n -${retentionCount} | \
+                while read tag; do
+                    echo "Deleting old tag: \$tag"
+                    curl -X DELETE -u "\${NEXUS_USER}:\${NEXUS_PASS}" \
+                        "\${NEXUS_URL}/v2/${env.NEXUS_REPOSITORY_NAME}/${env.DOCKER_IMAGE_NAME}/manifests/\$tag" || true
+                done
+            """
+        }
+        echo "✅ Cleanup completed"
+    } catch (Exception e) {
+        echo "⚠️ Cleanup failed: ${e.message}"
+    }
 }
