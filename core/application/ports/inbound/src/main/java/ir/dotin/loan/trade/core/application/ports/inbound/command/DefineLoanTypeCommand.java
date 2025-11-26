@@ -3,9 +3,9 @@ package ir.dotin.loan.trade.core.application.ports.inbound.command;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import javax.annotation.Nullable;
 
 import ir.dotin.platform.dispatcher.api.command.Command;
 import ir.dotin.loan.baseloan.core.domain.loantype.enums.SegmentType;

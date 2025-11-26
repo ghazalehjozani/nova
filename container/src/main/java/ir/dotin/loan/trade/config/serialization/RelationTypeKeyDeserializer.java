@@ -1,10 +1,11 @@
 package ir.dotin.loan.trade.config.serialization;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.KeyDeserializer;
-import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
-import java.io.IOException;
+import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
 public class RelationTypeKeyDeserializer extends KeyDeserializer {
 

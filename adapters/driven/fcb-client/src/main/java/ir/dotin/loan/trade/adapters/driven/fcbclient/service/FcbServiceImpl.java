@@ -1,18 +1,17 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 
-import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Marshaller;
 
 import com.thoughtworks.xstream.XStream;
+import org.jspecify.annotations.NonNull;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.client.FcbFeignClient;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.client.FcbHttpClient;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.config.FcbConfiguration;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.config.FcbXStreamFactory;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
@@ -22,7 +21,6 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMe
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.FcbErrorCodeMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 
-import feign.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,51 +29,29 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class FcbServiceImpl implements FcbService {
 
-    private final FcbFeignClient fcbFeignClient;
+    private final FcbHttpClient fcbHttpClient;
     private final FcbBaseRequestBuilder requestBuilder;
     private final FcbConfiguration fcbConfiguration;
 
     @Override
     public <T> Result<T> executeUsecase(FcbRequest request, Class<T> responseClass, FcbContext context) {
-        Response response = null;
         try {
-
             String usecaseListXML = marshalToXml(request);
             log.debug("Generated request XML: {}", usecaseListXML);
 
-            response = fcbFeignClient.executeUseCase(
+            ResponseEntity<@NonNull String> response = fcbHttpClient.executeUseCase(
                     usecaseListXML,
                     fcbConfiguration.integration().showExceptions(),
                     fcbConfiguration.integration().sameSession(),
                     true);
 
-            String responseXml = readResponseBody(response);
-            log.debug("Generated response XML: {}", responseXml);
-
-            return processResponseXml(responseXml, response, responseClass, context);
+            return processResponse(response, responseClass, context);
 
         } catch (Exception e) {
             log.error("An unexpected integration error occurred executing FCB usecase", e);
             return Result.failure(
                     Notification.ofError(FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, e.getMessage()));
-        } finally {
-            if (response != null && response.body() != null) {
-                try {
-                    response.body().close();
-                } catch (IOException e) {
-                    log.warn("Error closing response body", e);
-                }
-            }
         }
-    }
-
-    private String readResponseBody(Response response) throws IOException {
-        if (response.body() == null) {
-            return null;
-        }
-
-        byte[] bodyBytes = response.body().asInputStream().readAllBytes();
-        return new String(bodyBytes, StandardCharsets.UTF_8);
     }
 
     private String marshalToXml(FcbRequest request) throws Exception {
@@ -92,12 +68,12 @@ public class FcbServiceImpl implements FcbService {
         return writer.toString();
     }
 
-    private <T> Result<T> processResponseXml(
-            String responseXml, Response response, Class<T> responseClass, FcbContext context) {
+    private <T> Result<T> processResponse(
+            ResponseEntity<@NonNull String> response, Class<T> responseClass, FcbContext context) {
         try {
-            int status = response.status();
+            int status = response.getStatusCode().value();
             log.debug("Response status: {}", status);
-            log.debug("Response headers: {}", response.headers());
+            log.debug("Response headers: {}", response.getHeaders());
 
             if (status != 200) {
                 log.error("Unexpected status code: {}", status);
@@ -105,11 +81,16 @@ public class FcbServiceImpl implements FcbService {
                         FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, "Service returned status: " + status));
             }
 
+            String responseXml = response.getBody();
+
             if (responseXml == null || responseXml.isEmpty()) {
                 log.error("Response body is empty");
 
-                Collection<String> location = response.headers().get("location");
-                if (location != null && !location.isEmpty()) {
+                String location = response.getHeaders().getLocation() != null
+                        ? response.getHeaders().getLocation().toString()
+                        : null;
+
+                if (location != null) {
                     log.error("Service returned redirect to: {}", location);
                     return Result.failure(Notification.ofError(
                             FcbBusinessLocalizedMessageCodes.FCB_AUTHENTICATION_FAILED,
@@ -133,61 +114,13 @@ public class FcbServiceImpl implements FcbService {
             }
 
             return parseAndValidateResponse(trimmedResponse, responseClass, context);
+
         } catch (Exception e) {
             log.error("Error processing response", e);
             return Result.failure(Notification.ofError(
                     FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR,
                     "Failed to process response: " + e.getMessage()));
         }
-    }
-
-    private <T> Result<T> processResponse(Response response, Class<T> responseClass) throws Exception {
-        int status = response.status();
-        log.debug("Response status: {}", status);
-        log.debug("Response headers: {}", response.headers());
-
-        if (status != 200) {
-            log.error("Unexpected status code: {}", status);
-            return Result.failure(Notification.ofError(
-                    FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, "Service returned status: " + status));
-        }
-
-        if (response.body() == null) {
-            log.error("Response body is null");
-            return Result.failure(Notification.ofError(
-                    FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, "Empty response from FCB service"));
-        }
-
-        byte[] bodyBytes = response.body().asInputStream().readAllBytes();
-        log.debug("Response body length: {} bytes", bodyBytes.length);
-
-        if (bodyBytes.length == 0) {
-            log.error("Response body is empty (0 bytes)");
-
-            Collection<String> location = response.headers().get("location");
-            if (location != null && !location.isEmpty()) {
-                log.error("Service returned redirect to: {}", location);
-                return Result.failure(Notification.ofError(
-                        FcbBusinessLocalizedMessageCodes.FCB_AUTHENTICATION_FAILED,
-                        "Service redirected - authentication may be required"));
-            }
-
-            return Result.failure(Notification.ofError(
-                    FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, "Empty response from FCB service"));
-        }
-
-        String xmlResponse = new String(bodyBytes, StandardCharsets.UTF_8);
-        log.debug("FCB response XML: {}", xmlResponse);
-
-        String trimmedResponse = xmlResponse.trim();
-
-        if (!trimmedResponse.startsWith("<")) {
-            log.error("Response is not XML. Content: {}", xmlResponse);
-            return Result.failure(Notification.ofError(
-                    FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, "Invalid response format from FCB service"));
-        }
-
-        return parseAndValidateResponse(xmlResponse, responseClass, FcbContext.empty());
     }
 
     private <T> Result<T> parseAndValidateResponse(String xmlResponse, Class<T> responseClass, FcbContext context) {
@@ -200,9 +133,7 @@ public class FcbServiceImpl implements FcbService {
 
             if (parsedResponse instanceof FcbBaseResponse baseResponse) {
                 if (!baseResponse.getErrorMessage().isEmpty()) {
-
                     Notification errorNotification = FcbErrorCodeMapper.mapRsCodeToNotification(baseResponse, context);
-
                     return Result.failure(errorNotification);
                 }
 

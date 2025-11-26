@@ -3,7 +3,6 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.IssueDocumentRequest;
@@ -11,6 +10,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Component

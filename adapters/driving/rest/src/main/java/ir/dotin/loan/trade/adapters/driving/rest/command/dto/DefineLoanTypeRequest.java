@@ -3,10 +3,10 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.dto;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import javax.annotation.Nullable;
 
 import ir.dotin.loan.baseloan.core.domain.loantype.enums.SegmentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
