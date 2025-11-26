@@ -141,17 +141,9 @@ public class CollateralAdapter implements CollateralServicePort {
     public Result<List<CollateralSerial>> reserveCollateral(
             CollateralSerial collateralSerial,
             ApplicationNumber applicationNumber,
-            UUID transactionId,
+            UUID requestId,
             Integer reserveDurationMin,
             Money usedAmount) {
-        log.debug(
-                "Reserving assurance for file - Assurance Serial: {}, File Number: {}, Transaction ID: {}, "
-                        + "Reserve Duration: {} minutes, Amount: {}",
-                collateralSerial,
-                applicationNumber,
-                transactionId,
-                reserveDurationMin,
-                usedAmount);
 
         List<Parameter> parameters = Arrays.asList(
                 Parameter.builder()
@@ -164,7 +156,7 @@ public class CollateralAdapter implements CollateralServicePort {
                         .build(),
                 Parameter.builder()
                         .key("transactionId")
-                        .value(transactionId.toString())
+                        .value(requestId.toString())
                         .build(),
                 Parameter.builder()
                         .key("reserveDurationMin")
@@ -181,15 +173,8 @@ public class CollateralAdapter implements CollateralServicePort {
         Result<ReserveAssuranceForFileResponse> result =
                 fcbService.executeUsecase(fcbRequest, ReserveAssuranceForFileResponse.class, FcbContext.empty());
 
-        if (result.isSuccess()) {
-            log.debug("Assurance reserved successfully for file: {}", applicationNumber.derivedValue());
-            ReserveAssuranceForFileResponse response = result.getValue();
-            log.debug("Reserved assurance serials: {}", response.getAssuranceSerials());
-        } else {
-            log.error(
-                    "Failed to reserve assurance for file: {}. Errors: {}",
-                    applicationNumber.derivedValue(),
-                    result.notification().errors());
+        if (result.isFailure()) {
+            return Result.failure(result.notification());
         }
 
         return CollateralMapper.mapToCollateralSerials(result.getValue());

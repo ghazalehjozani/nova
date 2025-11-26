@@ -16,7 +16,7 @@ public interface CollateralServicePort {
     Result<List<CollateralSerial>> reserveCollateral(
             CollateralSerial collateralSerial,
             ApplicationNumber applicationNumber,
-            UUID transactionId,
+            UUID requestId,
             Integer reserveDurationMin,
             Money usedAmount);
 }
