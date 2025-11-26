@@ -29,7 +29,9 @@ public enum FcbBusinessLocalizedMessageCodes implements LocalizedMessage<FcbBusi
     INVALID_ECONOMICAL_SECTOR_CODE("Invalid economical sector code: {0}"),
     UNSUPPORTED_ECONOMICAL_SECTOR_FOR_LOAN_TYPE("Loan type {0} does not support economical sector {1}"),
     UNSUPPORTED_CURRENCY_FOR_DEPOSIT("Deposit {0} does not support currency {1}"),
-    INVALID_SERVICE_INPUT_FOR_PARAMETER_SERVICE_OPEN_ACCOUNT("Invalid Service nova-open-account Input for parameter {0}");
+    INVALID_SERVICE_INPUT_FOR_PARAMETER_SERVICE_OPEN_ACCOUNT(
+            "Invalid Service nova-open-account Input for parameter {0}"),
+    FCB_RESPONSE_CAN_NOT_MAP("Could not map fcb response");
 
     private final String defaultMessageFormat;
 }
