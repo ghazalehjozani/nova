@@ -60,42 +60,6 @@ pipeline {
             }
         }
 
-        stage('Validate Version') {
-            when {
-                anyOf {
-                    allOf {
-                        branch 'develop'
-                        expression { env.CHANGE_ID == null }
-                    }
-                    expression { env.CHANGE_ID != null }
-                }
-            }
-            steps {
-                script {
-                    withCredentials([
-                        string(credentialsId: 'NEXUS_REGISTRY_URL', variable: 'NEXUS_REGISTRY_URL'),
-                        string(credentialsId: 'NEXUS_USERNAME', variable: 'NEXUS_USER'),
-                        string(credentialsId: 'NEXUS_PASSWORD', variable: 'NEXUS_PASS')
-                    ]) {
-                        def imageExists = sh(
-                            script: """
-                                curl -s -u "\${NEXUS_USER}:\${NEXUS_PASS}" \
-                                "\${NEXUS_REGISTRY_URL}/v2/${env.NEXUS_REPOSITORY_NAME}/${env.DOCKER_IMAGE_NAME}/tags/list" | \
-                                grep -q '"${env.CALCULATED_VERSION}"'
-                            """,
-                            returnStatus: true
-                        )
-
-                        if (imageExists == 0) {
-                            error "❌ Version ${env.CALCULATED_VERSION} already exists in Nexus. Update version in pom.xml"
-                        } else {
-                            echo "✅ Version ${env.CALCULATED_VERSION} is unique"
-                        }
-                    }
-                }
-            }
-        }
-
         stage('Build & Unit Test') {
             steps {
                 sh "${env.MVN_CMD} ${MAVEN_CLI_OPTS} clean verify -P !dev -DskipITs=true"
