@@ -440,7 +440,6 @@ pipeline {
                                 --timeout=600s
                         """
 
-                        // Health check with retries
                         def healthCheckPassed = false
                         def maxRetries = 20
                         def retryCount = 0
@@ -450,11 +449,7 @@ pipeline {
                             sleep 15
 
                             def healthStatus = sh(
-                                script: """
-                                    kubectl exec -n ${env.K8S_NAMESPACE} \
-                                        -l app=${env.DOCKER_IMAGE_NAME} -- \
-                                        curl -sf http://localhost:8080/actuator/health | grep -q 'UP'
-                                """,
+                                script: "curl -sf http://localhost:8085/actuator/health | grep -q 'UP'",
                                 returnStatus: true
                             )
 
@@ -471,7 +466,7 @@ pipeline {
                         }
 
                         sh """
-                            echo "Final deployment status:"
+                            echo "📊 Final deployment status:"
                             kubectl get pods -n ${env.K8S_NAMESPACE} -l app=${env.DOCKER_IMAGE_NAME}
                             kubectl describe deployment/${env.DOCKER_IMAGE_NAME} -n ${env.K8S_NAMESPACE} | grep Image:
                         """
