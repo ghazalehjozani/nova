@@ -382,19 +382,20 @@ pipeline {
                 }
             }
             steps {
-                dir('container') {
-                    sh """
-                        kubectl apply -f k8s/base/rbac.yml -n ${env.K8S_NAMESPACE}
-                        kubectl apply -f k8s/base/configmap-trade-loan.yml -n ${env.K8S_NAMESPACE}
-                        kubectl apply -f k8s/base/service.yml -n ${env.K8S_NAMESPACE}
+             dir('container') {
+                 sh """
+                     kubectl apply -f k8s/base/rbac.yml -n ${env.K8S_NAMESPACE}
+                     kubectl apply -f k8s/base/configmap-trade-loan.yml -n ${env.K8S_NAMESPACE}
+                     kubectl apply -f k8s/base/service.yml -n ${env.K8S_NAMESPACE}
 
-                        kubectl set image deployment/${env.DOCKER_IMAGE_NAME} \
-                            ${env.DOCKER_IMAGE_NAME}=${env.DOCKER_IMAGE_NAME}:${env.CALCULATED_VERSION} \
-                            -n ${env.K8S_NAMESPACE} || kubectl apply -f k8s/base/deployment.yml -n ${env.K8S_NAMESPACE}
+                     # Update image in deployment.yml before applying
+                     sed -i 's|image: trade-loan-service:.*|image: trade-loan-service:${env.CALCULATED_VERSION}|g' k8s/base/deployment.yml
+                     sed -i 's|imagePullPolicy:.*|imagePullPolicy: Never|g' k8s/base/deployment.yml
 
-                        kubectl rollout status deployment/${env.DOCKER_IMAGE_NAME} -n ${env.K8S_NAMESPACE} --timeout=15m
-                    """
-                }
+                     kubectl apply -f k8s/base/deployment.yml -n ${env.K8S_NAMESPACE}
+                     kubectl rollout status deployment/${env.DOCKER_IMAGE_NAME} -n ${env.K8S_NAMESPACE} --timeout=15m
+                 """
+             }
             }
             post {
                 failure {
