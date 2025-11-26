@@ -1,20 +1,25 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.FcbValidationResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ReserveAssuranceForFileResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.CollateralMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
@@ -130,5 +135,48 @@ public class CollateralAdapter implements CollateralServicePort {
         log.debug("Built assurance parameters - serials: {}, costs: {}", serialsValue, costsValue);
 
         return parameters;
+    }
+
+    @Override
+    public Result<List<CollateralSerial>> reserveCollateral(
+            CollateralSerial collateralSerial,
+            ApplicationNumber applicationNumber,
+            UUID requestId,
+            Integer reserveDurationMin,
+            Money usedAmount) {
+
+        List<Parameter> parameters = Arrays.asList(
+                Parameter.builder()
+                        .key("assuranceSerial")
+                        .value(collateralSerial.value())
+                        .build(),
+                Parameter.builder()
+                        .key("fileNumber")
+                        .value(applicationNumber.derivedValue())
+                        .build(),
+                Parameter.builder()
+                        .key("transactionId")
+                        .value(requestId.toString())
+                        .build(),
+                Parameter.builder()
+                        .key("reserveDurationMin")
+                        .value(String.valueOf(reserveDurationMin))
+                        .build(),
+                Parameter.builder()
+                        .key("amount")
+                        .value(usedAmount.value().toString())
+                        .build());
+
+        Usecases usecases = requestBuilder.buildUseCase("reserve-assurance-for-file", parameters);
+        FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
+
+        Result<ReserveAssuranceForFileResponse> result =
+                fcbService.executeUsecase(fcbRequest, ReserveAssuranceForFileResponse.class, FcbContext.empty());
+
+        if (result.isFailure()) {
+            return Result.failure(result.notification());
+        }
+
+        return CollateralMapper.mapToCollateralSerials(result.getValue());
     }
 }
