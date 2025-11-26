@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
@@ -39,7 +38,6 @@ public class AccountServiceAdapter implements AccountServicePort {
     private final FcbService fcbService;
     private final FcbBaseRequestBuilder requestBuilder;
     private final AuthenticationContextHolder authenticationContextHolder;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public Result<AccountInfo> openAccount(LoanTopic loanTopic) {

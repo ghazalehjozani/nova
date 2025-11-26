@@ -62,7 +62,7 @@ management:
         liveness:
           include: livenessState
         readiness:
-          include: readinessState,db,redis,messaging,tpsSso,dispatcher,diskSpace
+          include: readinessState,db,messaging,tpsSso,dispatcher,diskSpace
       probes:
         enabled: true
   metrics:
