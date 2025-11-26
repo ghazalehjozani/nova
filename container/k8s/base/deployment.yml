@@ -9,7 +9,7 @@ spec:
     rollingUpdate:
       maxUnavailable: 1
       maxSurge: 0
-  progressDeadlineSeconds: 900
+  progressDeadlineSeconds: 1800
   replicas: 1
   selector:
     matchLabels:
@@ -123,10 +123,10 @@ spec:
             httpGet:
               path: /actuator/health/liveness
               port: 8080
-            initialDelaySeconds: 90
+            initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 10
-            failureThreshold: 60
+            failureThreshold: 30
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
