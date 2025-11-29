@@ -1,5 +1,12 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 
+import java.util.*;
+
+import org.springframework.stereotype.Service;
+
+import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.security.AuthenticationContextHolder;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
@@ -16,14 +23,9 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.LoanMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.AccountServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CreateAccountInfo;
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.security.AuthenticationContextHolder;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import java.util.*;
 
 @Slf4j
 @Service
@@ -78,23 +80,29 @@ public class AccountServiceAdapter implements AccountServicePort {
     }
 
     @Override
-    public Result<AccountNumber> deleteAccount(
-            UUID transactionId,
-            UUID rollBackId,
-            AccountNumber accountNumber) {
+    public Result<AccountNumber> deleteAccount(UUID transactionId, UUID rollBackId, AccountNumber accountNumber) {
         try {
             List<Parameter> parameters = new ArrayList<>();
 
-            if (Objects.nonNull(accountNumber)){
-                parameters.add(
-                        Parameter.builder().type("constant").key("accountNumber").value(accountNumber.accountNumber()).build());
+            if (Objects.nonNull(accountNumber)) {
+                parameters.add(Parameter.builder()
+                        .type("constant")
+                        .key("accountNumber")
+                        .value(accountNumber.accountNumber())
+                        .build());
             }
             if (Objects.nonNull(rollBackId)) {
-                parameters.add(
-                        Parameter.builder().type("constant").key("rollBackId").value(String.valueOf(rollBackId)).build());
+                parameters.add(Parameter.builder()
+                        .type("constant")
+                        .key("rollBackId")
+                        .value(String.valueOf(rollBackId))
+                        .build());
             }
-            parameters.add(
-                    Parameter.builder().type("constant").key("transactionId").value(String.valueOf(transactionId)).build());
+            parameters.add(Parameter.builder()
+                    .type("constant")
+                    .key("transactionId")
+                    .value(String.valueOf(transactionId))
+                    .build());
 
             Usecases usecases = requestBuilder.buildUseCase("nova-delete-account", parameters);
             FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
@@ -105,8 +113,10 @@ public class AccountServiceAdapter implements AccountServicePort {
             if (rollBackId != null) {
                 additionalContext.put("rollBackId", rollBackId);
             }
-            FcbContext fcbContext = FcbContext.builder().additionalContext(additionalContext).build();
-            Result<DeleteAccountResponse> fcbResult = fcbService.executeUsecase(fcbRequest, DeleteAccountResponse.class, fcbContext);
+            FcbContext fcbContext =
+                    FcbContext.builder().additionalContext(additionalContext).build();
+            Result<DeleteAccountResponse> fcbResult =
+                    fcbService.executeUsecase(fcbRequest, DeleteAccountResponse.class, fcbContext);
 
             if (fcbResult.isFailure()) {
                 return Result.failure(fcbResult.notification());

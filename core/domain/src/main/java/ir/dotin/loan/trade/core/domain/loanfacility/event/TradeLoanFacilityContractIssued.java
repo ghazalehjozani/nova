@@ -38,4 +38,50 @@ public record TradeLoanFacilityContractIssued(
                 transactionNumber,
                 clock.instant());
     }
+
+    public static Builder builder(Clock clock) {
+        return new Builder(clock);
+    }
+
+    public static final class Builder {
+        private UUID aggregateId;
+        private UUID sanctionedLoanId;
+        private String transactionNumber;
+        private Instant createdAt;
+        private final Clock clock;
+
+        private Builder(Clock clock) {
+            this.clock = clock;
+        }
+
+        public Builder facilityId(UUID aggregateId) {
+            this.aggregateId = aggregateId;
+            return this;
+        }
+
+        public Builder sanctionedLoanId(UUID sanctionedLoanId) {
+            this.sanctionedLoanId = sanctionedLoanId;
+            return this;
+        }
+
+        public Builder transactionNumber(String transactionNumber) {
+            this.transactionNumber = transactionNumber;
+            return this;
+        }
+
+        public Builder occurredAt(Instant createdAt) {
+            this.createdAt = createdAt;
+            return this;
+        }
+
+        public TradeLoanFacilityContractIssued build() {
+            return new TradeLoanFacilityContractIssued(
+                    randomUUID(),
+                    aggregateId,
+                    TradeLoanFacilityEventType.CONTRACT_ISSUED.getFullType(),
+                    sanctionedLoanId,
+                    transactionNumber,
+                    clock.instant());
+        }
+    }
 }

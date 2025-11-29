@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.core.application.service.issuefacilitycontract.commandhandler;
 
+import java.time.Clock;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.IssueFacilityContractCommand;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga.IssueFacilityContractInput;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga.IssueFacilityContractSagaData;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityContractIssued;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +29,7 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
 
     private static final Logger log = LoggerFactory.getLogger(IssueFacilityContractCommandHandler.class);
     private final SagaOrchestrator<IssueFacilityContractSagaData> sagaOrchestrator;
+    private final Clock clock;
 
     @Override
     public Result<List<DomainEvent<?>>> handle(IssueFacilityContractCommand command) {
@@ -46,12 +49,13 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
         var input = IssueFacilityContractInput.of(command.loanFacilityId(), command.branchCode(), transactionConfig);
 
         SagaResult<IssueFacilityContractSagaData> sagaResult = sagaOrchestrator.executeSaga(
-                "issue-facility-contract", input, command.loanFacilityId().toString());
+                "issue-facility-contract", input, command.id().toString());
 
         log.info("Saga completed: sagaId={}, success={}", sagaResult.sagaId(), sagaResult.isSuccess());
 
         if (sagaResult.isSuccess()) {
-            return Result.success(List.of());
+            List<DomainEvent<?>> domainEvents = buildDomainEvents(sagaResult.dataOrNull());
+            return Result.success(domainEvents);
         }
 
         return sagaResult
@@ -59,6 +63,24 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
                 .map(this::toResult)
                 .orElseGet(() -> Result.failure(
                         Notification.ofError(SagaErrorCodes.SAGA_COMPENSATED, extractReason(sagaResult))));
+    }
+
+    private List<DomainEvent<?>> buildDomainEvents(IssueFacilityContractSagaData data) {
+        if (data == null
+                || data.capturedEvents() == null
+                || data.capturedEvents().isEmpty()) {
+            return List.of();
+        }
+
+        //noinspection unchecked
+        return (List<DomainEvent<?>>) (List<?>) data.capturedEvents().stream()
+                .map(eventData -> (DomainEvent<?>) TradeLoanFacilityContractIssued.builder(clock)
+                        .facilityId(eventData.facilityId())
+                        .sanctionedLoanId(eventData.sanctionedLoanId())
+                        .transactionNumber(eventData.transactionNumber())
+                        .occurredAt(eventData.occurredAt())
+                        .build())
+                .toList();
     }
 
     private String extractReason(SagaResult<IssueFacilityContractSagaData> sagaResult) {
