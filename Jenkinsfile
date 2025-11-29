@@ -274,7 +274,13 @@ pipeline {
     }
 
     post {
-        always { cleanWs() }
+        always {
+            script {
+                cleanupDockerCache()
+                cleanupMavenCache()
+            }
+            cleanWs()
+        }
         failure {
             script {
                 def suffix = params.SHIP_IT_MODE ? "❌ Failed (🚀 SHIP IT)" : "❌ Failed"
@@ -557,5 +563,48 @@ def tagReleaseIfApplicable() {
             git tag -a v${CALCULATED_VERSION} -m "Release version ${CALCULATED_VERSION}"
             git push origin v${CALCULATED_VERSION}
         """
+    }
+}
+
+def cleanupDockerCache() {
+    try {
+        echo "🧹 Cleaning Docker cache..."
+        sh """
+            docker image prune -f --filter "until=24h"
+            docker container prune -f --filter "until=24h"
+            docker builder prune -f --keep-storage=5GB
+            docker volume prune -f --filter "label!=keep"
+
+            docker images --filter "dangling=true" -q | xargs -r docker rmi -f || true
+            docker images "${DOCKER_IMAGE_NAME}" --filter "before=${DOCKER_IMAGE_NAME}:${CALCULATED_VERSION}" -q | \
+                tail -n +4 | xargs -r docker rmi -f || true
+        """
+        echo "✅ Docker cache cleanup completed"
+    } catch (Exception e) {
+        echo "⚠️ Docker cleanup warning: ${e.message}"
+    }
+}
+
+def cleanupMavenCache() {
+    try {
+        echo "🧹 Cleaning Maven cache..."
+        def m2Repo = "${env.HOME}/.m2/repository"
+        sh """
+            # Remove SNAPSHOT artifacts older than 7 days
+            find ${m2Repo} -type d -name "*-SNAPSHOT" -mtime +7 -exec rm -rf {} + 2>/dev/null || true
+
+            # Remove resolver-status.properties and _remote.repositories
+            find ${m2Repo} -name "resolver-status.properties" -delete 2>/dev/null || true
+            find ${m2Repo} -name "_remote.repositories" -mtime +30 -delete 2>/dev/null || true
+
+            # Remove lastUpdated files older than 7 days
+            find ${m2Repo} -name "*.lastUpdated" -mtime +7 -delete 2>/dev/null || true
+
+            # Remove empty directories
+            find ${m2Repo} -type d -empty -delete 2>/dev/null || true
+        """
+        echo "✅ Maven cache cleanup completed"
+    } catch (Exception e) {
+        echo "⚠️ Maven cleanup warning: ${e.message}"
     }
 }
