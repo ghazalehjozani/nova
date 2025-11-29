@@ -75,7 +75,7 @@ public class IrregularProgressiveDisbursementCommandHandler
         return loadFacility(loanFacilityId)
                 .flatMap(this::validateDisbursementMethod)
                 .flatMap(facility -> loadDependencies(facility, command)
-                        .flatMap(context -> validateScheduleStatus(context)
+                        .flatMap(context -> validateAll(facility, context)
                                 .flatMap(ignored -> processDisbursement(facility, context))))
                 .flatMap(this::persistAndCollectEvents)
                 .peekValue(result ->
@@ -187,6 +187,11 @@ public class IrregularProgressiveDisbursementCommandHandler
         return PostTitle.of(title);
     }
 
+    private Result<Void> validateAll(TradeLoanFacility facility, ProcessingContext context) {
+        return validateScheduleStatus(context)
+                .flatMap(ignored -> facility.validateIrregularTrancheDisbursement(context.trancheAmount()));
+    }
+
     private Result<Void> validateScheduleStatus(ProcessingContext context) {
         boolean isFirstDisbursement = context.schedule().getScheduleHistory().count() == 0;
         InstallmentScheduleStatus currentStatus = context.schedule().getStatus();
@@ -211,16 +216,40 @@ public class IrregularProgressiveDisbursementCommandHandler
     private Result<DisbursementOperationResult> processDisbursement(
             TradeLoanFacility facility, ProcessingContext context) {
 
-        return recalculateSchedule(context).flatMap(recalculatedInstallments -> createBaseMetadata(facility, context)
-                .flatMap(metadata -> createTransactions(facility, context, metadata, recalculatedInstallments)
-                        .flatMap(transactions -> postTransactionsInBatch(facility.getId(), transactions))
-                        .flatMap(transactionResults -> performDisbursementOperations(
-                                facility, context, transactionResults, recalculatedInstallments))));
+        return recalculateSchedule(context)
+                .flatMap(recalculatedInstallments -> restructureAndActivateSchedule(facility, context, recalculatedInstallments)
+                        .flatMap(newSchedule -> createBaseMetadata(facility, context)
+                                .flatMap(metadata -> createTransactions(facility, context, metadata, recalculatedInstallments))
+                                .flatMap(transactions -> postTransactionsInBatch(facility.getId(), transactions))
+                                .flatMap(transactionResults -> performDisbursementOperations(
+                                        facility, context, transactionResults, newSchedule))));
     }
 
     private Result<List<Installment>> recalculateSchedule(ProcessingContext context) {
         return recalculationService.recalculateForIrregularDisbursement(
                 context.schedule(), context.trancheAmount(), context.customPlan());
+    }
+
+    private Result<InstallmentSchedule> restructureAndActivateSchedule(
+            TradeLoanFacility facility, ProcessingContext context, List<Installment> recalculatedInstallments) {
+
+        int trancheNumber = context.schedule().getScheduleHistory().count() + 1;
+        String reason = String.format(
+                "Tranche %d disbursement: %s",
+                trancheNumber, context.trancheAmount().value());
+        Money totalTranche = facility.getTotalDisbursedAmount()
+                .add(context.trancheAmount())
+                .orElseThrow(() -> new IllegalStateException("Creating zero Money failed unexpectedly."));
+
+        return context.schedule()
+                .restructureSchedule(
+                        recalculatedInstallments,
+                        reason,
+                        totalTranche,
+                        requireNonNull(facility.getSanctionedLoan().orElseThrow().getApprovedAmount()),
+                        clock,
+                        context.config().userId())
+                .flatMap(newSchedule -> newSchedule.activateSchedule(clock).map(ignored -> newSchedule));
     }
 
     private Result<ArticleMetadata> createBaseMetadata(TradeLoanFacility facility, ProcessingContext context) {
@@ -265,7 +294,7 @@ public class IrregularProgressiveDisbursementCommandHandler
             TradeLoanFacility facility,
             ProcessingContext context,
             List<TransactionResult> transactionResults,
-            List<Installment> recalculatedInstallments) {
+            InstallmentSchedule newSchedule) {
 
         List<TrackedTransactionNumber> trackedNumbers = transactionResults.stream()
                 .map(TransactionResult::trackedTransactionNumber)
@@ -275,32 +304,14 @@ public class IrregularProgressiveDisbursementCommandHandler
                 .flatMap(result -> result.accountIds().entrySet().stream())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (existing, replacement) -> existing));
 
-        int trancheNumber = context.schedule().getScheduleHistory().count() + 1;
-        String reason = String.format(
-                "Tranche %d disbursement: %s",
-                trancheNumber, context.trancheAmount().value());
-        Money totalTranche = facility.getTotalDisbursedAmount()
-                .add(context.trancheAmount())
-                .orElseThrow(() -> new IllegalStateException("Creating zero Money failed unexpectedly."));
-        return context.schedule()
-                .restructureSchedule(
-                        recalculatedInstallments,
-                        reason,
-                        totalTranche,
-                        requireNonNull(
-                                facility.getSanctionedLoan().orElseThrow().getApprovedAmount()),
+        return facility.disburseIrregularTranche(
+                        context.trancheAmount(),
+                        trackedNumbers,
+                        accountIds,
+                        newSchedule.getId(),
                         clock,
                         context.config().userId())
-                .flatMap(newSchedule -> newSchedule
-                        .activateSchedule(clock)
-                        .flatMap(ignored -> facility.disburseIrregularTranche(
-                                context.trancheAmount(),
-                                trackedNumbers,
-                                accountIds,
-                                newSchedule.getId(),
-                                clock,
-                                context.config().userId()))
-                        .map(ignored2 -> new DisbursementOperationResult(facility, context.schedule(), newSchedule)));
+                .map(ignored -> new DisbursementOperationResult(facility, context.schedule(), newSchedule));
     }
 
     private Result<DisbursementResult> persistAndCollectEvents(DisbursementOperationResult operationResult) {

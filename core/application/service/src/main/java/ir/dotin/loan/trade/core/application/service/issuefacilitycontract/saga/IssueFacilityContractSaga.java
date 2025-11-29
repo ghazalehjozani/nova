@@ -61,20 +61,20 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
     public List<SagaStep<IssueFacilityContractSagaData, ?>> steps() {
         return List.of(
                 SagaSteps.readOnlyStep(IssueFacilityContractStep.VALIDATE_FACILITY, this::validateFacility)
-                        .noRetry(),
+                        .withNoRetry(),
                 SagaSteps.readOnlyStep(IssueFacilityContractStep.PREPARE_TRANSACTION, this::prepareTransaction)
-                        .noRetry(),
+                        .withNoRetry(),
                 SagaSteps.step(
                                 IssueFacilityContractStep.POST_TRANSACTION,
                                 this::postTransaction,
                                 this::reverseTransaction)
-                        .conservativeRetry()
+                        .withConservativeRetry()
                         .withTimeout(Duration.ofSeconds(60)),
                 SagaSteps.step(
                                 IssueFacilityContractStep.UPDATE_FACILITY_STATE,
                                 this::updateFacilityState,
                                 this::revertFacilityState)
-                        .noRetry());
+                        .withNoRetry());
     }
 
     @Override
@@ -86,7 +86,16 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
 
     private StepResult<Void> validateFacility(SagaContext<IssueFacilityContractSagaData> ctx) {
         var data = ctx.getSagaData();
-        return ResultStepAdapter.toStepResultVoid(loadFacility(data.facilityId()));
+
+        var facilityResult = loadFacility(data.facilityId());
+        if (facilityResult.hasErrors()) {
+            return ResultStepAdapter.toStepResultVoid(facilityResult);
+        }
+
+        var facility = facilityResult.orElseThrow();
+        var validationResult = facility.validateIssueContract();
+
+        return ResultStepAdapter.toStepResultVoid(validationResult);
     }
 
     private StepResult<LoanTransaction> prepareTransaction(SagaContext<IssueFacilityContractSagaData> ctx) {
@@ -139,7 +148,12 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         }
 
         var facility = facilityResult.orElseThrow();
-        facility.issueContract(data.postedTransactionNumber(), data.getAccountIdsByRelationType(), clock);
+        var issueResult = facility.issueContract(data.postedTransactionNumber(), data.getAccountIdsByRelationType(), clock);
+
+        if (issueResult.hasErrors()) {
+            return ResultStepAdapter.toStepResultVoid(issueResult);
+        }
+
         facilityRepository.save(facility);
 
         log.info("Contract issued: {}", data.facilityId());

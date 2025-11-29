@@ -43,7 +43,6 @@ import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 
 import lombok.RequiredArgsConstructor;
 
-// TODO: transaction after disburse method
 @Service
 @RequiredArgsConstructor
 public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSumDisbursementCommand> {
@@ -67,8 +66,9 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
 
         return loadFacility(loanFacilityId)
                 .flatMap(this::validateDisbursementMethod)
-                .flatMap(facility ->
-                        loadDependencies(facility, command).flatMap(context -> processDisbursement(facility, context)))
+                .flatMap(facility -> loadDependencies(facility, command)
+                        .flatMap(context -> validateDisbursement(facility, context)
+                                .flatMap(ignored -> processDisbursement(facility, context))))
                 .flatMap(this::persistAndCollectEvents)
                 .peekValue(result ->
                         log.info("Lump sum disbursement completed for facility: {}", command.loanFacilityId()))
@@ -157,13 +157,27 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
                 configuration.postTitleTemplate().formatted(facility.getId().value()));
     }
 
+    private Result<Void> validateDisbursement(TradeLoanFacility facility, ProcessingContext context) {
+        return facility.getSanctionedLoan()
+                .map(AbstractSanctionedLoan::getApprovedAmount)
+                .map(facility::validateLumpSumDisbursement)
+                .orElseGet(() -> Result.failure(Notification.ofError(
+                        LumpSumDisbursementErrorCodes.SANCTIONED_LOAN_NOT_FOUND,
+                        facility.getId().value())));
+    }
+
     private Result<DisbursementOperationResult> processDisbursement(
             TradeLoanFacility facility, ProcessingContext context) {
 
-        return createBaseMetadata(facility, context)
+        return activateSchedule(context.schedule())
+                .flatMap(ignored -> createBaseMetadata(facility, context))
                 .flatMap(metadata -> createTransactions(facility, context, metadata))
                 .flatMap(loanTransactions -> postTransactionsInBatch(facility.getId(), loanTransactions))
                 .flatMap(transactionResults -> performDisbursementOperations(facility, context, transactionResults));
+    }
+
+    private Result<Void> activateSchedule(InstallmentSchedule schedule) {
+        return schedule.activateSchedule(clock).map(ignored -> null);
     }
 
     private Result<ArticleMetadata> createBaseMetadata(TradeLoanFacility facility, ProcessingContext context) {
@@ -212,26 +226,16 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
 
         return facility.getSanctionedLoan()
                 .map(AbstractSanctionedLoan::getApprovedAmount)
-                .map(approvedAmount -> performScheduleOperationBeforeDisbursement(context.schedule())
-                        .flatMap(ignored -> facility.lumpSumDisbursement(
+                .map(approvedAmount -> facility.lumpSumDisbursement(
                                 approvedAmount,
                                 trackedNumbers,
                                 accountIds,
                                 context.arrangement.getInstallmentPolicy().installmentPaymentType(),
-                                clock))
-                        .flatMap(ignored -> performScheduleOperationAfterDisbursement(context.schedule()))
+                                clock)
                         .map(ignored -> new DisbursementOperationResult(facility, context.schedule())))
                 .orElseGet(() -> Result.failure(Notification.ofError(
                         LumpSumDisbursementErrorCodes.SANCTIONED_LOAN_NOT_FOUND,
                         facility.getId().value())));
-    }
-
-    private Result<Void> performScheduleOperationBeforeDisbursement(InstallmentSchedule schedule) {
-        return Result.success();
-    }
-
-    private Result<Void> performScheduleOperationAfterDisbursement(InstallmentSchedule schedule) {
-        return schedule.activateSchedule(clock).map(ignored -> null);
     }
 
     private Result<DisbursementResult> persistAndCollectEvents(DisbursementOperationResult operationResult) {
