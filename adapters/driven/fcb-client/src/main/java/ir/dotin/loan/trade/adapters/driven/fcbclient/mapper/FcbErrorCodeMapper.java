@@ -1,6 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.mapper;
 
-import java.util.Objects;
+import java.util.*;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
@@ -23,13 +23,41 @@ public class FcbErrorCodeMapper {
             return Notification.ofError(FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, context.toObjectArray());
         }
 
-        FcbBusinessLocalizedMessageCodes errorCode = FcbErrorCode.fromCode(rsCode)
-                .map(FcbErrorCode::getMessageCode)
-                .orElse(FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR);
+        FcbErrorCode fcbErrorCode = FcbErrorCode.fromCode(rsCode)
+                .orElse(null);
+
+        FcbBusinessLocalizedMessageCodes messageCode = fcbErrorCode != null ?
+                fcbErrorCode.getMessageCode() :
+                FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR;
 
         String errorMessage = response.getErrorMessage();
-        Object[] contextArgs = context.hasContent() ? context.toObjectArray() : new Object[] {errorMessage};
+        Object[] contextArgs = context.hasContent() ? context.toObjectArray() : new Object[]{errorMessage};
 
-        return Notification.ofError(errorCode, contextArgs);
+        Object[] mappedArgs = fcbErrorCode != null ?
+                extractContextArgsByKeys(context, fcbErrorCode.getContextKeys()) :
+                contextArgs;
+
+        return Notification.ofError(messageCode, mappedArgs);
+    }
+
+    private Object[] extractContextArgsByKeys(FcbContext context, Set<String> contextKeys) {
+        if (contextKeys == null || contextKeys.isEmpty()) {
+            return context.toObjectArray();
+        }
+
+        Map<String, Object> additionalContext = context.getAdditionalContext();
+        if (additionalContext == null) {
+            return context.toObjectArray();
+        }
+
+        List<Object> validValues = new ArrayList<>();
+        for (String key : contextKeys) {
+            Object value = additionalContext.get(key);
+            if (value != null) {
+                validValues.add(value);
+            }
+        }
+
+        return validValues.isEmpty() ? context.toObjectArray() : validValues.toArray();
     }
 }

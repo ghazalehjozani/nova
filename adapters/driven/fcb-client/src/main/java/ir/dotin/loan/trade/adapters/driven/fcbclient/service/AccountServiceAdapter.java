@@ -1,18 +1,7 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import org.springframework.stereotype.Service;
-
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.security.AuthenticationContextHolder;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountInfo;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
@@ -20,15 +9,21 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.AccountInfoResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.DeleteAccountResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.OpenAccountResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.LoanMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.AccountServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CreateAccountInfo;
-
+import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.security.AuthenticationContextHolder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 @Slf4j
 @Service
@@ -80,6 +75,57 @@ public class AccountServiceAdapter implements AccountServicePort {
                 AccountId.valueOf(openAccountResponseResult.value().getAccountNumber())
                         .getValue(),
                 loanTopic);
+    }
+
+    @Override
+    public Result<AccountNumber> deleteAccount(
+            UUID transactionId,
+            UUID rollBackId,
+            AccountNumber accountNumber) {
+        try {
+            List<Parameter> parameters = new ArrayList<>();
+
+            if (Objects.nonNull(accountNumber)){
+                parameters.add(
+                        Parameter.builder().type("constant").key("accountNumber").value(accountNumber.accountNumber()).build());
+            }
+            if (Objects.nonNull(rollBackId)) {
+                parameters.add(
+                        Parameter.builder().type("constant").key("rollBackId").value(String.valueOf(rollBackId)).build());
+            }
+            parameters.add(
+                    Parameter.builder().type("constant").key("transactionId").value(String.valueOf(transactionId)).build());
+
+            Usecases usecases = requestBuilder.buildUseCase("nova-delete-account", parameters);
+            FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
+            Map<String, Object> additionalContext = new HashMap<>();
+            if (accountNumber != null) {
+                additionalContext.put("accountNumber", accountNumber.accountNumber());
+            }
+            if (rollBackId != null) {
+                additionalContext.put("rollBackId", rollBackId);
+            }
+            FcbContext fcbContext = FcbContext.builder().additionalContext(additionalContext).build();
+            Result<DeleteAccountResponse> fcbResult = fcbService.executeUsecase(fcbRequest, DeleteAccountResponse.class, fcbContext);
+
+            if (fcbResult.isFailure()) {
+                return Result.failure(fcbResult.notification());
+            }
+
+            DeleteAccountResponse response = fcbResult.orElseThrow();
+
+            AccountNumber account = new AccountNumber(response.getAccountNumber());
+
+            return Result.success(account);
+
+        } catch (IllegalArgumentException e) {
+            return Result.failure(
+                    Notification.ofError(FcbBusinessLocalizedMessageCodes.FCB_BAD_REQUEST, e.getMessage()));
+        } catch (Exception e) {
+            return Result.failure(Notification.ofError(
+                    FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR,
+                    "Failed to cancel transfer money loan: " + e.getMessage()));
+        }
     }
 
     @Override

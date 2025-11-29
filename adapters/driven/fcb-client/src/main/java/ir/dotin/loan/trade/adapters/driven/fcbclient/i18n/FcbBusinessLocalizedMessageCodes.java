@@ -1,7 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.i18n;
 
 import ir.dotin.platform.commons.core.i18n.LocalizedMessage;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +30,10 @@ public enum FcbBusinessLocalizedMessageCodes implements LocalizedMessage<FcbBusi
     UNSUPPORTED_CURRENCY_FOR_DEPOSIT("Deposit {0} does not support currency {1}"),
     INVALID_SERVICE_INPUT_FOR_PARAMETER_SERVICE_OPEN_ACCOUNT(
             "Invalid Service nova-open-account Input for parameter {0}"),
-    FCB_RESPONSE_CAN_NOT_MAP("Could not map fcb response");
+    FCB_RESPONSE_CAN_NOT_MAP("Could not map fcb response"),
+    INVALID_ROLLBACK_ID("Invalid rollback id: {0}"),
+    ROLLBACK_ID_AND_ACCOUNT_NUMBER_BOTH_PRESENT("Rollback ID and account number cannot be provided simultaneously"),
+    INVALID_ACCOUNT_NUMBER("Invalid account number: {0}");
 
     private final String defaultMessageFormat;
 }
