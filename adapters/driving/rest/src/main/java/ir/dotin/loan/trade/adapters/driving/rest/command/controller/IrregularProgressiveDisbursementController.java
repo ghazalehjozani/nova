@@ -49,6 +49,7 @@ public class IrregularProgressiveDisbursementController extends BaseController {
                 .branchCode(authenticationContextHolder.branchCode().orElseThrow())
                 .userId(authenticationContextHolder.userIdOrThrow())
                 .terminalIp(authenticationContextHolder.ipAddress().orElseThrow())
+                .terminalId("1")
                 .productCode("LOAN")
                 .channel("Branch")
                 .networkType("BankBook")
