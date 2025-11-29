@@ -19,4 +19,10 @@ public interface CollateralServicePort {
             UUID requestId,
             Integer reserveDurationMin,
             Money usedAmount);
+
+    Result<CollateralSerial> unReserveCollateral(
+            CollateralSerial collateralSerial,
+            ApplicationNumber applicationNumber,
+            UUID transactionId,
+            UUID rollBackId);
 }

@@ -2,7 +2,9 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -20,6 +22,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.FcbValidationResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ReserveAssuranceForFileResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.UnReserveAssuranceForFileResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.CollateralMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
@@ -178,5 +181,49 @@ public class CollateralAdapter implements CollateralServicePort {
         }
 
         return CollateralMapper.mapToCollateralSerials(result.getValue());
+    }
+
+    @Override
+    public Result<CollateralSerial> unReserveCollateral(
+            CollateralSerial collateralSerial,
+            ApplicationNumber applicationNumber,
+            UUID transactionId,
+            UUID rollBackId) {
+
+        List<Parameter> parameters = Arrays.asList(
+                Parameter.builder()
+                        .key("assuranceSerial")
+                        .value(collateralSerial.value())
+                        .build(),
+                Parameter.builder()
+                        .key("fileNumber")
+                        .value(applicationNumber.derivedValue())
+                        .build(),
+                Parameter.builder()
+                        .key("transactionId")
+                        .value(transactionId.toString())
+                        .build(),
+                Parameter.builder()
+                        .key("rollBackId")
+                        .value(rollBackId.toString())
+                        .build());
+
+        Usecases usecases = requestBuilder.buildUseCase("un-reserve-assurance-for-file", parameters);
+        FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
+        Map<String, Object> additionalContext = new HashMap<>();
+        additionalContext.put("assuranceSerial", collateralSerial.value());
+        additionalContext.put("fileNumber", applicationNumber.derivedValue());
+        additionalContext.put("transactionId", transactionId.toString());
+        additionalContext.put("rollBackId", rollBackId.toString());
+        FcbContext fcbContext =
+                FcbContext.builder().additionalContext(additionalContext).build();
+        Result<UnReserveAssuranceForFileResponse> result =
+                fcbService.executeUsecase(fcbRequest, UnReserveAssuranceForFileResponse.class, fcbContext);
+
+        if (result.isFailure()) {
+            return Result.failure(result.notification());
+        }
+
+        return Result.success(collateralSerial);
     }
 }
