@@ -1,5 +1,24 @@
 package ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.saga.api.annotation.SagaHandler;
+import ir.dotin.platform.saga.api.context.SagaContext;
+import ir.dotin.platform.saga.api.definition.SagaDefinition;
+import ir.dotin.platform.saga.api.definition.SagaInput;
+import ir.dotin.platform.saga.api.definition.SagaStep;
+import ir.dotin.platform.saga.api.definition.SagaSteps;
+import ir.dotin.platform.saga.api.model.ResultStepAdapter;
+import ir.dotin.platform.saga.api.model.StepError;
+import ir.dotin.platform.saga.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.factory.DocumentMetadataFactory;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -14,27 +33,11 @@ import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.Tr
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.configuration.IssueFacilityContractConfiguration;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.i18n.IssueFacilityContractErrorCodes;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityContractIssued;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.transaction.TradeIssueContractTransactionService;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.saga.api.annotation.SagaHandler;
-import ir.dotin.platform.saga.api.context.SagaContext;
-import ir.dotin.platform.saga.api.definition.SagaDefinition;
-import ir.dotin.platform.saga.api.definition.SagaInput;
-import ir.dotin.platform.saga.api.definition.SagaStep;
-import ir.dotin.platform.saga.api.definition.SagaSteps;
-import ir.dotin.platform.saga.api.model.ResultStepAdapter;
-import ir.dotin.platform.saga.api.model.StepError;
-import ir.dotin.platform.saga.api.model.StepResult;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
-import java.time.Clock;
-import java.time.Duration;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @SagaHandler
 @Component
@@ -136,16 +139,14 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
 
         var trackedNumber = result.orElseThrow();
         ctx.updateSagaData(d -> d.withPostedTransaction(
-                trackedNumber.value(),
-                trackedNumber.trackingId(),
-                trackedNumber.status(),
-                trackedNumber.createdAt()));
+                trackedNumber.value(), trackedNumber.trackingId(), trackedNumber.status(), trackedNumber.createdAt()));
 
         log.info("Transaction posted: {}", trackedNumber.value());
         return new StepResult.Success<>(trackedNumber.value());
     }
 
-    private StepResult<Void> reverseTransaction(SagaContext<IssueFacilityContractSagaData> ctx, String transactionNumber) {
+    private StepResult<Void> reverseTransaction(
+            SagaContext<IssueFacilityContractSagaData> ctx, String transactionNumber) {
         var data = ctx.getSagaData();
         log.warn("Reversing transaction: {}", transactionNumber);
 
@@ -169,10 +170,7 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         var facility = facilityResult.orElseThrow();
 
         var trackedNumber = TrackedTransactionNumber.create(
-                data.postedTransactionNumber(),
-                data.postedTrackingId(),
-                data.transactionStatus(),
-                clock);
+                data.postedTransactionNumber(), data.postedTrackingId(), data.transactionStatus(), clock);
 
         var issueResult = facility.issueContract(trackedNumber, data.getAccountIdsByRelationType(), clock);
 
@@ -181,11 +179,13 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         }
 
         var capturedEvents = facility.domainEvents().stream()
+                .map(TradeLoanFacilityContractIssued.class::cast)
                 .map(event -> IssueFacilityContractSagaData.CapturedEventData.contractIssued(
-                        data.facilityId(),
-                        facility.getSanctionedLoan().map(s -> s.getId().value()).orElse(null),
-                        data.postedTransactionNumber(),
-                        clock.instant()))
+                        event.eventType(),
+                        event.aggregateId(),
+                        event.sanctionedLoanId(),
+                        event.transactionNumber(),
+                        event.createdAt()))
                 .toList();
 
         ctx.updateSagaData(d -> d.withCapturedEvents(capturedEvents));
@@ -233,7 +233,8 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
     }
 
     private Result<PostTitle> createPostTitle(TradeLoanFacility facility) {
-        return PostTitle.of(configuration.postTitleTemplate().formatted(facility.getId().value()));
+        return PostTitle.of(
+                configuration.postTitleTemplate().formatted(facility.getId().value()));
     }
 
     private Result<LoanTransaction> createTransaction(

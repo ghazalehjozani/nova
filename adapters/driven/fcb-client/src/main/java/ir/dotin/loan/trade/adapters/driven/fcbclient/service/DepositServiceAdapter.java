@@ -1,5 +1,17 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.DepositInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
@@ -13,19 +25,9 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.DepositMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.depositservice.DepositServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.*;
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.domain.vo.CurrencyType;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -49,9 +51,10 @@ public class DepositServiceAdapter implements DepositServicePort {
         FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
 
         Map<String, Object> additionalContext = Map.of("depositNumber", depositNumber.value());
-        FcbContext fcbContext = FcbContext.builder().additionalContext(additionalContext).build();
-        Result<DepositInfoResponse> depositInfoResponseResult = fcbService.executeUsecase(
-                fcbRequest, DepositInfoResponse.class, fcbContext);
+        FcbContext fcbContext =
+                FcbContext.builder().additionalContext(additionalContext).build();
+        Result<DepositInfoResponse> depositInfoResponseResult =
+                fcbService.executeUsecase(fcbRequest, DepositInfoResponse.class, fcbContext);
 
         if (depositInfoResponseResult.isFailure()) {
             return Result.failure(depositInfoResponseResult.notification());
@@ -78,12 +81,11 @@ public class DepositServiceAdapter implements DepositServicePort {
 
         Map<String, Object> additionalContext = Map.of(
                 "depositNumber", depositNumber.value(),
-                "currencyCode", currencyType.value().getCurrencyCode()
-        );
-        FcbContext fcbContext = FcbContext.builder().additionalContext(additionalContext).build();
-        Result<DepositClosedResponse> fcbResult = fcbService.executeUsecase(
-                fcbRequest,
-                DepositClosedResponse.class, fcbContext);
+                "currencyCode", currencyType.value().getCurrencyCode());
+        FcbContext fcbContext =
+                FcbContext.builder().additionalContext(additionalContext).build();
+        Result<DepositClosedResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, DepositClosedResponse.class, fcbContext);
 
         if (fcbResult.isFailure()) {
             return Result.failure(fcbResult.notification());
@@ -110,7 +112,8 @@ public class DepositServiceAdapter implements DepositServicePort {
         FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
 
         Map<String, Object> additionalContext = Map.of("depositNumber", depositNumber.value());
-        FcbContext fcbContext = FcbContext.builder().additionalContext(additionalContext).build();
+        FcbContext fcbContext =
+                FcbContext.builder().additionalContext(additionalContext).build();
 
         Result<ValidateDebtorDepositResponse> fcbResult =
                 fcbService.executeUsecase(fcbRequest, ValidateDebtorDepositResponse.class, fcbContext);
@@ -170,7 +173,8 @@ public class DepositServiceAdapter implements DepositServicePort {
         FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
 
         Map<String, Object> additionalContext = Map.of("depositNumber", depositNumber.value());
-        FcbContext fcbContext = FcbContext.builder().additionalContext(additionalContext).build();
+        FcbContext fcbContext =
+                FcbContext.builder().additionalContext(additionalContext).build();
 
         Result<ValidateCreditorDepositResponse> fcbResult =
                 fcbService.executeUsecase(fcbRequest, ValidateCreditorDepositResponse.class, fcbContext);
@@ -225,7 +229,8 @@ public class DepositServiceAdapter implements DepositServicePort {
             FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
 
             Map<String, Object> additionalContext = Map.of("depositNumber", depositNumber.value());
-            FcbContext fcbContext = FcbContext.builder().additionalContext(additionalContext).build();
+            FcbContext fcbContext =
+                    FcbContext.builder().additionalContext(additionalContext).build();
 
             Result<HasAllowedCurrencyResponse> fcbResult =
                     fcbService.executeUsecase(fcbRequest, HasAllowedCurrencyResponse.class, fcbContext);
@@ -267,7 +272,8 @@ public class DepositServiceAdapter implements DepositServicePort {
         FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
 
         Map<String, Object> additionalContext = Map.of("depositNumber", depositNumber);
-        FcbContext fcbContext = FcbContext.builder().additionalContext(additionalContext).build();
+        FcbContext fcbContext =
+                FcbContext.builder().additionalContext(additionalContext).build();
 
         Result<DepositSignerOwnersResponse> fcbResult =
                 fcbService.executeUsecase(fcbRequest, DepositSignerOwnersResponse.class, fcbContext);

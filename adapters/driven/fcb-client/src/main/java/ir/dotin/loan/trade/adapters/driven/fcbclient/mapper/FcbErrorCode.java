@@ -1,12 +1,13 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.mapper;
 
-import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
+
+import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
+
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Getter
@@ -15,7 +16,9 @@ public enum FcbErrorCode {
     CMPLEXPEND_113(FcbBusinessLocalizedMessageCodes.INVALID_DEPOSIT_NUMBER, Set.of("depositNumber")),
     CMPLEXPEND_114(FcbBusinessLocalizedMessageCodes.INVALID_DEPOSIT_NUMBER, Set.of("depositNumber")),
     CMPLEXPEND_744(FcbBusinessLocalizedMessageCodes.INVALID_SUB_SOURCE_CODE, Set.of("resourceCode")),
-    CMPLEXPEND_729(FcbBusinessLocalizedMessageCodes.UNSUPPORTED_ECONOMICAL_SECTOR_FOR_LOAN_TYPE, Set.of("loanTypeCode", "economicSectorCode")),
+    CMPLEXPEND_729(
+            FcbBusinessLocalizedMessageCodes.UNSUPPORTED_ECONOMICAL_SECTOR_FOR_LOAN_TYPE,
+            Set.of("loanTypeCode", "economicSectorCode")),
     CMPLEXPEND_758(FcbBusinessLocalizedMessageCodes.INVALID_CUSTOMER_NUMBER, Set.of("customerNumber")),
     CMPLEXPEND_743(FcbBusinessLocalizedMessageCodes.INVALID_REQUEST_REASON, Set.of("reasonTypeCode")),
     CMPLEXPEND_754(FcbBusinessLocalizedMessageCodes.INVALID_SERVICE_INPUT_FOR_PARAMETER_SERVICE_OPEN_ACCOUNT),

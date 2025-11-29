@@ -216,13 +216,13 @@ public class IrregularProgressiveDisbursementCommandHandler
     private Result<DisbursementOperationResult> processDisbursement(
             TradeLoanFacility facility, ProcessingContext context) {
 
-        return recalculateSchedule(context)
-                .flatMap(recalculatedInstallments -> restructureAndActivateSchedule(facility, context, recalculatedInstallments)
-                        .flatMap(newSchedule -> createBaseMetadata(facility, context)
-                                .flatMap(metadata -> createTransactions(facility, context, metadata, recalculatedInstallments))
-                                .flatMap(transactions -> postTransactionsInBatch(facility.getId(), transactions))
-                                .flatMap(transactionResults -> performDisbursementOperations(
-                                        facility, context, transactionResults, newSchedule))));
+        return recalculateSchedule(context).flatMap(recalculatedInstallments -> restructureAndActivateSchedule(
+                        facility, context, recalculatedInstallments)
+                .flatMap(newSchedule -> createBaseMetadata(facility, context)
+                        .flatMap(metadata -> createTransactions(facility, context, metadata, recalculatedInstallments))
+                        .flatMap(transactions -> postTransactionsInBatch(facility.getId(), transactions))
+                        .flatMap(transactionResults ->
+                                performDisbursementOperations(facility, context, transactionResults, newSchedule))));
     }
 
     private Result<List<Installment>> recalculateSchedule(ProcessingContext context) {
@@ -246,7 +246,8 @@ public class IrregularProgressiveDisbursementCommandHandler
                         recalculatedInstallments,
                         reason,
                         totalTranche,
-                        requireNonNull(facility.getSanctionedLoan().orElseThrow().getApprovedAmount()),
+                        requireNonNull(
+                                facility.getSanctionedLoan().orElseThrow().getApprovedAmount()),
                         clock,
                         context.config().userId())
                 .flatMap(newSchedule -> newSchedule.activateSchedule(clock).map(ignored -> newSchedule));

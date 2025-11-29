@@ -1,10 +1,12 @@
 package ir.dotin.loan.trade.core.application.service.issuefacilitycontract.commandhandler;
 
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.IssueFacilityContractCommand;
-import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga.IssueFacilityContractInput;
-import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga.IssueFacilityContractSagaData;
-import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityContractIssued;
+import java.time.Clock;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
@@ -13,13 +15,13 @@ import ir.dotin.platform.saga.api.i18n.SagaErrorCodes;
 import ir.dotin.platform.saga.api.model.SagaResult;
 import ir.dotin.platform.saga.api.model.StepError;
 import ir.dotin.platform.saga.api.orchestration.SagaOrchestrator;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.IssueFacilityContractCommand;
+import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga.IssueFacilityContractInput;
+import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga.IssueFacilityContractSagaData;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityContractIssued;
 
-import java.time.Clock;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +49,7 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
         var input = IssueFacilityContractInput.of(command.loanFacilityId(), command.branchCode(), transactionConfig);
 
         SagaResult<IssueFacilityContractSagaData> sagaResult = sagaOrchestrator.executeSaga(
-                "issue-facility-contract", input, command.loanFacilityId().toString());
+                "issue-facility-contract", input, command.id().toString());
 
         log.info("Saga completed: sagaId={}, success={}", sagaResult.sagaId(), sagaResult.isSuccess());
 
@@ -64,7 +66,9 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
     }
 
     private List<DomainEvent<?>> buildDomainEvents(IssueFacilityContractSagaData data) {
-        if (data == null || data.capturedEvents() == null || data.capturedEvents().isEmpty()) {
+        if (data == null
+                || data.capturedEvents() == null
+                || data.capturedEvents().isEmpty()) {
             return List.of();
         }
 
@@ -93,13 +97,13 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
         return switch (stepError) {
             case StepError.BusinessRuleError bre -> Result.failure(bre.notification());
             case StepError.ValidationError ve ->
-                    Result.failure(Notification.ofError(SagaErrorCodes.SAGA_VALIDATION_FAILED, ve.message()));
+                Result.failure(Notification.ofError(SagaErrorCodes.SAGA_VALIDATION_FAILED, ve.message()));
             case StepError.BusinessError be ->
-                    Result.failure(Notification.ofError(SagaErrorCodes.SAGA_STEP_FAILED, be.message()));
+                Result.failure(Notification.ofError(SagaErrorCodes.SAGA_STEP_FAILED, be.message()));
             case StepError.TechnicalError te ->
-                    Result.failure(Notification.ofError(SagaErrorCodes.SAGA_TECHNICAL_ERROR, te.message()));
+                Result.failure(Notification.ofError(SagaErrorCodes.SAGA_TECHNICAL_ERROR, te.message()));
             case StepError.TimeoutError toe ->
-                    Result.failure(Notification.ofError(SagaErrorCodes.SAGA_TIMEOUT, toe.timeoutMillis()));
+                Result.failure(Notification.ofError(SagaErrorCodes.SAGA_TIMEOUT, toe.timeoutMillis()));
         };
     }
 }

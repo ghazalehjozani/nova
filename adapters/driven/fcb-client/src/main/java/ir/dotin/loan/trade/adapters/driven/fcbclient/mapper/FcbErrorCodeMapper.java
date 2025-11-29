@@ -23,19 +23,17 @@ public class FcbErrorCodeMapper {
             return Notification.ofError(FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, context.toObjectArray());
         }
 
-        FcbErrorCode fcbErrorCode = FcbErrorCode.fromCode(rsCode)
-                .orElse(null);
+        FcbErrorCode fcbErrorCode = FcbErrorCode.fromCode(rsCode).orElse(null);
 
-        FcbBusinessLocalizedMessageCodes messageCode = fcbErrorCode != null ?
-                fcbErrorCode.getMessageCode() :
-                FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR;
+        FcbBusinessLocalizedMessageCodes messageCode = fcbErrorCode != null
+                ? fcbErrorCode.getMessageCode()
+                : FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR;
 
         String errorMessage = response.getErrorMessage();
-        Object[] contextArgs = context.hasContent() ? context.toObjectArray() : new Object[]{errorMessage};
+        Object[] contextArgs = context.hasContent() ? context.toObjectArray() : new Object[] {errorMessage};
 
-        Object[] mappedArgs = fcbErrorCode != null ?
-                extractContextArgsByKeys(context, fcbErrorCode.getContextKeys()) :
-                contextArgs;
+        Object[] mappedArgs =
+                fcbErrorCode != null ? extractContextArgsByKeys(context, fcbErrorCode.getContextKeys()) : contextArgs;
 
         return Notification.ofError(messageCode, mappedArgs);
     }

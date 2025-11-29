@@ -9,15 +9,16 @@ import lombok.Builder;
 
 @Builder(toBuilder = true)
 public record IssueFacilityContractCommand(
+        @NotNull UUID id,
         @NotNull Long version,
         @NotNull UUID loanFacilityId,
         @NotNull String branchCode,
-        String userId,
-        String terminalId,
-        String terminalIp,
-        String terminalType,
-        String channel,
-        String toolSource,
-        String productCode,
-        String networkType)
+        @NotNull String userId,
+        @NotNull String terminalId,
+        @NotNull String terminalIp,
+        @NotNull String terminalType,
+        @NotNull String channel,
+        @NotNull String toolSource,
+        @NotNull String productCode,
+        @NotNull String networkType)
         implements Command {}

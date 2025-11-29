@@ -43,7 +43,6 @@ public record TradeLoanFacilityContractIssued(
         return new Builder(clock);
     }
 
-
     public static final class Builder {
         private UUID aggregateId;
         private UUID sanctionedLoanId;

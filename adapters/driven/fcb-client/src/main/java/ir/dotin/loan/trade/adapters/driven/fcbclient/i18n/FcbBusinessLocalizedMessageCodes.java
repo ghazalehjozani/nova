@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.i18n;
 
 import ir.dotin.platform.commons.core.i18n.LocalizedMessage;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

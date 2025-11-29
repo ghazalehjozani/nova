@@ -7,10 +7,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
 import org.jspecify.annotations.Nullable;
 
 import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
@@ -29,43 +29,59 @@ public record IssueFacilityContractSagaData(
     public static IssueFacilityContractSagaData initial(
             UUID facilityId, String branchCode, TransactionConfig transactionConfig) {
         return new IssueFacilityContractSagaData(
-                facilityId, branchCode, transactionConfig, null,null, null, null, null, List.of());
+                facilityId, branchCode, transactionConfig, null, null, null, null, null, List.of());
     }
 
     public IssueFacilityContractSagaData withAccountIds(Map<RelationType<?>, AccountId> accountIds) {
         Map<String, String> stringKeyMap = accountIds.entrySet().stream()
                 .collect(Collectors.toMap(
-                        e -> ((Enum<?>) e.getKey()).name(),
-                        e -> e.getValue().value()));
+                        e -> ((Enum<?>) e.getKey()).name(), e -> e.getValue().value()));
 
         return new IssueFacilityContractSagaData(
-                facilityId, branchCode, transactionConfig,
-                postedTransactionNumber, postedTrackingId, postedAt,
-                transactionStatus,stringKeyMap, capturedEvents);
+                facilityId,
+                branchCode,
+                transactionConfig,
+                postedTransactionNumber,
+                postedTrackingId,
+                postedAt,
+                transactionStatus,
+                stringKeyMap,
+                capturedEvents);
     }
 
     public IssueFacilityContractSagaData withPostedTransaction(
-            String transactionNumber, String trackingId,TransactionStatus transactionStatus, Instant postedAt) {
+            String transactionNumber, String trackingId, TransactionStatus transactionStatus, Instant postedAt) {
         return new IssueFacilityContractSagaData(
-                facilityId, branchCode, transactionConfig,
-                transactionNumber, trackingId, postedAt,
-                transactionStatus,accountIds, capturedEvents);
+                facilityId,
+                branchCode,
+                transactionConfig,
+                transactionNumber,
+                trackingId,
+                postedAt,
+                transactionStatus,
+                accountIds,
+                capturedEvents);
     }
 
     public IssueFacilityContractSagaData withCapturedEvents(List<CapturedEventData> events) {
         return new IssueFacilityContractSagaData(
-                facilityId, branchCode, transactionConfig,
-                postedTransactionNumber, postedTrackingId, postedAt,
-                transactionStatus,accountIds, events);
+                facilityId,
+                branchCode,
+                transactionConfig,
+                postedTransactionNumber,
+                postedTrackingId,
+                postedAt,
+                transactionStatus,
+                accountIds,
+                events);
     }
 
     public Map<RelationType<?>, AccountId> getAccountIdsByRelationType() {
         if (accountIds == null) return Collections.emptyMap();
 
         return accountIds.entrySet().stream()
-                .collect(Collectors.toMap(
-                        e -> resolveRelationType(e.getKey()),
-                        e -> AccountId.valueOf(e.getValue()).getValue()));
+                .collect(Collectors.toMap(e -> resolveRelationType(e.getKey()), e -> AccountId.valueOf(e.getValue())
+                        .getValue()));
     }
 
     private RelationType<?> resolveRelationType(String key) {
@@ -84,9 +100,12 @@ public record IssueFacilityContractSagaData(
             Instant occurredAt) {
 
         public static CapturedEventData contractIssued(
-                UUID facilityId, UUID sanctionedLoanId, String transactionNumber, Instant occurredAt) {
-            return new CapturedEventData(
-                    "CONTRACT_ISSUED", facilityId, sanctionedLoanId, transactionNumber, occurredAt);
+                String eventType,
+                UUID facilityId,
+                UUID sanctionedLoanId,
+                String transactionNumber,
+                Instant occurredAt) {
+            return new CapturedEventData(eventType, facilityId, sanctionedLoanId, transactionNumber, occurredAt);
         }
     }
 }
