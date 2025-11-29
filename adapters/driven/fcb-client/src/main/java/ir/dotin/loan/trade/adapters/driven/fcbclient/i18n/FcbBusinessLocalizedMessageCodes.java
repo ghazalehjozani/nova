@@ -34,7 +34,11 @@ public enum FcbBusinessLocalizedMessageCodes implements LocalizedMessage<FcbBusi
     FCB_RESPONSE_CAN_NOT_MAP("Could not map fcb response"),
     INVALID_ROLLBACK_ID("Invalid rollback id: {0}"),
     ROLLBACK_ID_AND_ACCOUNT_NUMBER_BOTH_PRESENT("Rollback ID and account number cannot be provided simultaneously"),
-    INVALID_ACCOUNT_NUMBER("Invalid account number: {0}");
+    INVALID_ACCOUNT_NUMBER("Invalid account number: {0}"),
+    INVALID_FILE_NUMBER("Invalid file number: {0}"),
+    INVALID_SERVICE_INPUT_FOR_UN_RESERVE(
+            "Either 'rollbackId' OR both 'fileNumber' and 'collateralSerial' must be provided"),
+    ;
 
     private final String defaultMessageFormat;
 }
