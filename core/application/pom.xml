@@ -8,7 +8,7 @@
   <parent>
     <groupId>ir.dotin.loan</groupId>
     <artifactId>trade-loan-core</artifactId>
-    <version>2025.11.4-SNAPSHOT</version>
+    <version>2025.11.5-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
