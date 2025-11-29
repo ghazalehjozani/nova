@@ -1,24 +1,5 @@
 package ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga;
 
-import java.time.Clock;
-import java.time.Duration;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.saga.api.annotation.SagaHandler;
-import ir.dotin.platform.saga.api.context.SagaContext;
-import ir.dotin.platform.saga.api.definition.SagaDefinition;
-import ir.dotin.platform.saga.api.definition.SagaInput;
-import ir.dotin.platform.saga.api.definition.SagaStep;
-import ir.dotin.platform.saga.api.definition.SagaSteps;
-import ir.dotin.platform.saga.api.model.ResultStepAdapter;
-import ir.dotin.platform.saga.api.model.StepError;
-import ir.dotin.platform.saga.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.factory.DocumentMetadataFactory;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -35,8 +16,25 @@ import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.i18n.I
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.transaction.TradeIssueContractTransactionService;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
-
+import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.saga.api.annotation.SagaHandler;
+import ir.dotin.platform.saga.api.context.SagaContext;
+import ir.dotin.platform.saga.api.definition.SagaDefinition;
+import ir.dotin.platform.saga.api.definition.SagaInput;
+import ir.dotin.platform.saga.api.definition.SagaStep;
+import ir.dotin.platform.saga.api.definition.SagaSteps;
+import ir.dotin.platform.saga.api.model.ResultStepAdapter;
+import ir.dotin.platform.saga.api.model.StepError;
+import ir.dotin.platform.saga.api.model.StepResult;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import java.time.Clock;
+import java.time.Duration;
+import java.util.List;
 
 @SagaHandler
 @Component
@@ -87,7 +85,7 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
     private StepResult<Void> validateFacility(SagaContext<IssueFacilityContractSagaData> ctx) {
         var data = ctx.getSagaData();
 
-        var facilityResult = loadFacility(data.facilityId());
+        var facilityResult = loadFacility(LoanFacilityId.of(data.facilityId()));
         if (facilityResult.hasErrors()) {
             return ResultStepAdapter.toStepResultVoid(facilityResult);
         }
@@ -98,10 +96,10 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         return ResultStepAdapter.toStepResultVoid(validationResult);
     }
 
-    private StepResult<LoanTransaction> prepareTransaction(SagaContext<IssueFacilityContractSagaData> ctx) {
+    private StepResult<Void> prepareTransaction(SagaContext<IssueFacilityContractSagaData> ctx) {
         var data = ctx.getSagaData();
 
-        var result = loadFacility(data.facilityId())
+        var result = loadFacility(LoanFacilityId.of(data.facilityId()))
                 .flatMap(facility -> loadLoanType(facility).flatMap(loanType -> createPostTitle(facility)
                         .flatMap(postTitle ->
                                 createTransaction(facility, loanType, postTitle, data.transactionConfig()))));
@@ -112,58 +110,96 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
 
         var transaction = result.orElseThrow();
         var accountIds = transaction.extractAccountIdsByRelationType();
-        ctx.updateSagaData(d -> d.withPreparedTransaction(transaction, accountIds));
+        ctx.updateSagaData(d -> d.withAccountIds(accountIds));
 
-        return new StepResult.Success<>(transaction);
+        return new StepResult.Success<>(null);
     }
 
-    private StepResult<TrackedTransactionNumber> postTransaction(SagaContext<IssueFacilityContractSagaData> ctx) {
+    private StepResult<String> postTransaction(SagaContext<IssueFacilityContractSagaData> ctx) {
         var data = ctx.getSagaData();
 
-        var result = transactionPostingPort.postTransaction(data.preparedTransaction());
+        var transactionResult = loadFacility(LoanFacilityId.of(data.facilityId()))
+                .flatMap(facility -> loadLoanType(facility).flatMap(loanType -> createPostTitle(facility)
+                        .flatMap(postTitle ->
+                                createTransaction(facility, loanType, postTitle, data.transactionConfig()))));
+
+        if (transactionResult.hasErrors()) {
+            return new StepResult.Failure<>(new StepError.BusinessRuleError(transactionResult.notification()));
+        }
+
+        var transaction = transactionResult.orElseThrow();
+        var result = transactionPostingPort.postTransaction(transaction);
 
         if (result.hasErrors()) {
             return new StepResult.Failure<>(new StepError.BusinessRuleError(result.notification()));
         }
 
-        var transactionNumber = result.orElseThrow();
-        ctx.updateSagaData(d -> d.withPostedTransaction(transactionNumber));
+        var trackedNumber = result.orElseThrow();
+        ctx.updateSagaData(d -> d.withPostedTransaction(
+                trackedNumber.value(),
+                trackedNumber.trackingId(),
+                trackedNumber.status(),
+                trackedNumber.createdAt()));
 
-        log.info("Transaction posted: {}", transactionNumber);
-        return new StepResult.Success<>(transactionNumber);
+        log.info("Transaction posted: {}", trackedNumber.value());
+        return new StepResult.Success<>(trackedNumber.value());
     }
 
-    private StepResult<Void> reverseTransaction(
-            SagaContext<IssueFacilityContractSagaData> ctx, TrackedTransactionNumber transactionNumber) {
+    private StepResult<Void> reverseTransaction(SagaContext<IssueFacilityContractSagaData> ctx, String transactionNumber) {
+        var data = ctx.getSagaData();
         log.warn("Reversing transaction: {}", transactionNumber);
-        return ResultStepAdapter.toStepResultVoid(transactionPostingPort.reverseTransactions(transactionNumber));
+
+        var trackedNumber = TrackedTransactionNumber.create(
+                data.postedTransactionNumber(),
+                data.postedTrackingId(),
+                ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus.POSTED,
+                clock);
+
+        return ResultStepAdapter.toStepResultVoid(transactionPostingPort.reverseTransactions(trackedNumber));
     }
 
     private StepResult<Void> updateFacilityState(SagaContext<IssueFacilityContractSagaData> ctx) {
         var data = ctx.getSagaData();
 
-        var facilityResult = loadFacility(data.facilityId());
+        var facilityResult = loadFacility(LoanFacilityId.of(data.facilityId()));
         if (facilityResult.hasErrors()) {
             return ResultStepAdapter.toStepResultVoid(facilityResult);
         }
 
         var facility = facilityResult.orElseThrow();
-        var issueResult = facility.issueContract(data.postedTransactionNumber(), data.getAccountIdsByRelationType(), clock);
+
+        var trackedNumber = TrackedTransactionNumber.create(
+                data.postedTransactionNumber(),
+                data.postedTrackingId(),
+                data.transactionStatus(),
+                clock);
+
+        var issueResult = facility.issueContract(trackedNumber, data.getAccountIdsByRelationType(), clock);
 
         if (issueResult.hasErrors()) {
             return ResultStepAdapter.toStepResultVoid(issueResult);
         }
 
+        var capturedEvents = facility.domainEvents().stream()
+                .map(event -> IssueFacilityContractSagaData.CapturedEventData.contractIssued(
+                        data.facilityId(),
+                        facility.getSanctionedLoan().map(s -> s.getId().value()).orElse(null),
+                        data.postedTransactionNumber(),
+                        clock.instant()))
+                .toList();
+
+        ctx.updateSagaData(d -> d.withCapturedEvents(capturedEvents));
+
         facilityRepository.save(facility);
 
-        log.info("Contract issued: {}", data.facilityId());
+        log.info("Contract issued: facilityId={}", data.facilityId());
         return new StepResult.Success<>(null);
     }
 
     private StepResult<Void> revertFacilityState(SagaContext<IssueFacilityContractSagaData> ctx, Void ignored) {
         var data = ctx.getSagaData();
 
-        var facilityResult = loadFacility(data.facilityId());
+        var facilityResult = loadFacility(LoanFacilityId.of(data.facilityId()));
         if (facilityResult.hasErrors()) {
             return ResultStepAdapter.toStepResultVoid(facilityResult);
         }
@@ -177,7 +213,7 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
 
         facilityRepository.save(facility);
 
-        log.warn("Reverted contract issuance: {}", data.facilityId());
+        log.warn("Reverted contract issuance: facilityId={}", data.facilityId());
         return new StepResult.Success<>(null);
     }
 
@@ -197,8 +233,7 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
     }
 
     private Result<PostTitle> createPostTitle(TradeLoanFacility facility) {
-        return PostTitle.of(
-                configuration.postTitleTemplate().formatted(facility.getId().value()));
+        return PostTitle.of(configuration.postTitleTemplate().formatted(facility.getId().value()));
     }
 
     private Result<LoanTransaction> createTransaction(
