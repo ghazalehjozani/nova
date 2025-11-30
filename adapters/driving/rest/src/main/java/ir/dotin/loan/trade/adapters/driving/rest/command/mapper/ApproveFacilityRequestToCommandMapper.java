@@ -13,6 +13,6 @@ public class ApproveFacilityRequestToCommandMapper {
 
     public ApproveFacilityCommand toCommand(
             UUID facilityId, @Nullable String sanctionSerial, ApproveFacilityRequest request) {
-        return new ApproveFacilityCommand(request.uid(), request.version(), facilityId, sanctionSerial);
+        return new ApproveFacilityCommand(null, request.version(), facilityId, sanctionSerial);
     }
 }

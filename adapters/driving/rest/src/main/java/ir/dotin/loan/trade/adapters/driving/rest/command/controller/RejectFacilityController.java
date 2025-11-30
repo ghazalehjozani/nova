@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = SwaggerConfig.TAG_FACILITY_REJECTION, description = "عملیات مربوط به رد تسهیلات")
 @RequiredArgsConstructor
 @Hidden
-public class RejectFacilityController extends BaseController {
+class RejectFacilityController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final RejectFacilityRequestToCommandMapper mapper;

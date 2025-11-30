@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/facilities/{facilityId}/disburse/progressive-irregular")
 @Tag(name = SwaggerConfig.TAG_IRREGULAR_DISBURSEMENT, description = "عملیات مربوط به پرداخت نامنظم تسهیلات")
 @RequiredArgsConstructor
-public class IrregularProgressiveDisbursementController extends BaseController {
+class IrregularProgressiveDisbursementController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final AuthenticationContextHolder authenticationContextHolder;

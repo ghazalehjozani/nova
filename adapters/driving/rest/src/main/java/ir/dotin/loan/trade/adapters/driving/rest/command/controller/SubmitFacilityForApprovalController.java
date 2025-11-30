@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/facilities/{facilityId}/submit-for-approval")
 @Tag(name = SwaggerConfig.TAG_FACILITY_APPROVAL_SUBMISSION, description = "عملیات مربوط به ثبت درخواست تصویب مصوبه")
 @RequiredArgsConstructor
-public class SubmitFacilityForApprovalController extends BaseController {
+class SubmitFacilityForApprovalController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final SubmitFacilityForApprovalRequestToCommandMapper mapper;

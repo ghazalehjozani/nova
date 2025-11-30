@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/facilities/{facilityId}/approve")
 @Tag(name = SwaggerConfig.TAG_FACILITY_APPROVAL, description = "عملیات مربوط به تصویب مصوبه")
 @RequiredArgsConstructor
-public class ApproveFacilityController extends BaseController {
+class ApproveFacilityController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final ApproveFacilityRequestToCommandMapper mapper;
@@ -43,7 +43,9 @@ public class ApproveFacilityController extends BaseController {
             @Parameter(description = "جزئیات تصویب مصوبه", required = true) @RequestBody
                     DataRequest<ApproveFacilityRequest> request) {
 
-        var command = mapper.toCommand(facilityId, null, request.payload());
+        var command = mapper.toCommand(facilityId, null, request.payload()).toBuilder()
+                .uid(getXRequestId())
+                .build();
         return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
     }
 

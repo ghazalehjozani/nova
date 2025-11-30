@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/facilities/{facilityId}/close-defaulted")
 @Tag(name = SwaggerConfig.TAG_FACILITY_CLOSURE_DEFAULTED, description = "عملیات مربوط به بستن تسهیلات معوق")
 @RequiredArgsConstructor
-public class CloseFacilityDefaultedController extends BaseController {
+class CloseFacilityDefaultedController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final CloseFacilityDefaultedRequestToCommandMapper mapper;

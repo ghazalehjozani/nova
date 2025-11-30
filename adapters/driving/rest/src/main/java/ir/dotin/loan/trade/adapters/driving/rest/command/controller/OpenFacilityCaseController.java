@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/facilities/open-case")
 @Tag(name = SwaggerConfig.TAG_FACILITY_CASE_OPENING, description = "عملیات مربوط به ایجاد پرونده تسهیلات")
 @RequiredArgsConstructor
-public class OpenFacilityCaseController extends BaseController {
+class OpenFacilityCaseController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final OriginateLoanFacilityRequestMapper mapper;

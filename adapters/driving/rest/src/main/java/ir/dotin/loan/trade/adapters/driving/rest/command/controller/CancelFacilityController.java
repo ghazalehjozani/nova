@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = SwaggerConfig.TAG_FACILITY_CANCELLATION, description = "عملیات مربوط به لغو تسهیلات")
 @RequiredArgsConstructor
 @Hidden
-public class CancelFacilityController extends BaseController {
+class CancelFacilityController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final CancelFacilityRequestToCommandMapper mapper;

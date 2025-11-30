@@ -24,6 +24,8 @@ import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilitySer
 
 import lombok.RequiredArgsConstructor;
 
+import static ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel.DIGITAL_BANK;
+
 @Component
 @RequiredArgsConstructor
 public class ManualApprovalStrategy implements ApprovalStrategy {
@@ -39,11 +41,11 @@ public class ManualApprovalStrategy implements ApprovalStrategy {
             return Result.failure(
                     Notification.ofError(ApproveFacilityErrorCodes.SANCTION_SERIAL_REQUIRED_FOR_MANUAL_APPROVAL));
         }
+        boolean isAutoApproval = facility.getLoanApplication().getApplicantChannel() == DIGITAL_BANK;
 
-        if (arrangement.isAutoApproval()) {
-            return Result.failure(Notification.ofError(
-                    ApproveFacilityErrorCodes.MANUAL_APPROVAL_NOT_ALLOWED,
-                    facility.getLoanArrangementId().value()));
+        if (isAutoApproval) {
+            return Result.failure(
+                    Notification.ofError(ApproveFacilityErrorCodes.MANUAL_APPROVAL_NOT_ALLOWED, DIGITAL_BANK));
         }
 
         return Result.success();
@@ -54,7 +56,7 @@ public class ManualApprovalStrategy implements ApprovalStrategy {
         return fetchSanctionDetailsPort
                 .fetchBySanctionSerial(facility.getId().value().toString())
                 .flatMap(this::buildSanctionedLoanBuilder)
-                .flatMap(builder -> domainService.approve(facility, builder, arrangement));
+                .flatMap(builder -> domainService.approve(facility, builder, false));
     }
 
     private Result<TradeSanctionedLoan.Builder> buildSanctionedLoanBuilder(SanctionDetails details) {

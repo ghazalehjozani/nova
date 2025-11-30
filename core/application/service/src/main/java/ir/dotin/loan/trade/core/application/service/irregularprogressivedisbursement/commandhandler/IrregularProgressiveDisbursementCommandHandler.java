@@ -266,7 +266,6 @@ public class IrregularProgressiveDisbursementCommandHandler
 
         return transactionService.createTransactions(
                 facility,
-                context.arrangement(),
                 context.loanType(),
                 context.branchCode(),
                 context.postTitle(),

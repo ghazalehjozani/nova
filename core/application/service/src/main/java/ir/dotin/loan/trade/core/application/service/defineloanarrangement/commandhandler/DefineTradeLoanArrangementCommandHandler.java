@@ -43,13 +43,13 @@ public class DefineTradeLoanArrangementCommandHandler implements CommandHandler<
 
         return Result.requireFalse(
                         repository.existsByCode(command.code().value()),
-                        Notification.ofError(DefineLoanArrangementErrorCodes.DUPLICATE_CODE, command.code()))
+                        Notification.ofError(
+                                DefineLoanArrangementErrorCodes.DUPLICATE_CODE,
+                                command.code().value()))
                 .flatMap(ignored -> {
                     Result<EconomicSector> economicSectorResult = economicSectorFuture.join();
-                    return economicSectorResult.flatMap(validatedSector -> {
-                        return Result.success(mapper.toBuilder(command))
-                                .flatMap(builder -> TradeLoanArrangement.create(builder, clock));
-                    });
+                    return economicSectorResult.flatMap(validatedSector -> Result.success(mapper.toBuilder(command))
+                            .flatMap(builder -> TradeLoanArrangement.create(builder, clock)));
                 })
                 .peekValue(arrangement -> {
                     repository.save(arrangement);

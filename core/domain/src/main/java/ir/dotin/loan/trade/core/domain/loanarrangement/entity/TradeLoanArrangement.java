@@ -48,7 +48,8 @@ public final class TradeLoanArrangement
         TradeLoanArrangement arrangement = builder.build();
         requireNonNull(arrangement, "arrangement cannot be null after successful build");
 
-        TradeLoanArrangementCreated creationEvent = TradeLoanArrangementCreated.of(arrangement.getId(), clock);
+        TradeLoanArrangementCreated creationEvent =
+                TradeLoanArrangementCreated.of(arrangement.getId(), clock, arrangement.getCode());
 
         arrangement.registerEvent(creationEvent);
 

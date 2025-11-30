@@ -213,7 +213,7 @@ public abstract class ValueObjectMapper {
         ScheduleHistoryEmb emb = new ScheduleHistoryEmb();
         emb.setPreviousScheduleIds(scheduleHistory.getScheduleIds().stream()
                 .map(InstallmentScheduleId::value)
-                .collect(Collectors.toList()));
+                .toList());
         return emb;
     }
 
@@ -473,7 +473,6 @@ public abstract class ValueObjectMapper {
         emb.setInstallmentFormula(mapParameterizedFormulaToString(policy.installmentFormula()));
         emb.setInterestComponentFormula(mapParameterizedFormulaToString(policy.interestComponentFormula()));
         emb.setInstallmentPaymentType(policy.installmentPaymentType().name());
-        emb.setDefineAutomaticInstallment(policy.isDefineAutomaticInstallment());
         return emb;
     }
 
@@ -555,8 +554,7 @@ public abstract class ValueObjectMapper {
                         mapStringToParameterizedFormula(emb.getInstallmentFormula()),
                         mapStringToParameterizedFormula(emb.getInterestComponentFormula()),
                         ir.dotin.loan.baseloan.core.domain.shared.enums.InstallmentPaymentType.valueOf(
-                                emb.getInstallmentPaymentType()),
-                        emb.getDefineAutomaticInstallment())
+                                emb.getInstallmentPaymentType()))
                 .orElseThrow();
     }
 

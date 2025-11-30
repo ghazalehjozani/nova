@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/loan-types/define")
 @Tag(name = SwaggerConfig.TAG_LOAN_TYPE_MANAGEMENT, description = "عملیات مربوط به مدیریت نوع تسهیلات")
 @RequiredArgsConstructor
-public class DefineLoanTypeController extends BaseController {
+class DefineLoanTypeController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final DefineLoanTypeRequestToCommandMapper mapper;

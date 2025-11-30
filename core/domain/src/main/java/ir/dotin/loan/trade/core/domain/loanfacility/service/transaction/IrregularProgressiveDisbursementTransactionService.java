@@ -19,9 +19,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.PostTitle;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.metadata.ArticleMetadata;
-import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
-import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan;
 import ir.dotin.loan.trade.core.domain.loanfacility.enums.DisburseBankCommitmentArticleType;
 import ir.dotin.loan.trade.core.domain.loanfacility.enums.DisbursedInterestArticleType;
 import ir.dotin.loan.trade.core.domain.loanfacility.enums.PaymentAmountArticleType;
@@ -46,7 +44,6 @@ public class IrregularProgressiveDisbursementTransactionService {
 
     public Result<List<LoanTransaction>> createTransactions(
             @NonNull TradeLoanFacility facility,
-            @NonNull TradeLoanArrangement loanArrangement,
             @NonNull TradeLoanType loanType,
             @NonNull BranchCode branchCode,
             @NonNull PostTitle postTitle,
@@ -54,37 +51,10 @@ public class IrregularProgressiveDisbursementTransactionService {
             @NonNull InstallmentSchedule currentSchedule,
             @NonNull List<Installment> recalculatedInstallments,
             @NonNull Money trancheAmount) {
-
-        return facility.getSanctionedLoan()
-                .map(sanctionedLoan -> buildTransactions(
-                        facility,
-                        loanArrangement,
-                        sanctionedLoan,
-                        loanType,
-                        branchCode,
-                        postTitle,
-                        baseMetadata,
+        return calculateIncrementalInterest(
+                        facility.getSanctionedLoan().orElseThrow().isFirstDisbursement(),
                         currentSchedule,
-                        recalculatedInstallments,
-                        trancheAmount))
-                .orElseGet(() -> Result.failure(Notification.ofError(
-                        TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND_FOR_FACILITY,
-                        facility.getId().value())));
-    }
-
-    private Result<List<LoanTransaction>> buildTransactions(
-            @NonNull TradeLoanFacility facility,
-            @NonNull TradeLoanArrangement tradeLoanArrangement,
-            @NonNull TradeSanctionedLoan sanctionedLoan,
-            @NonNull TradeLoanType loanType,
-            @NonNull BranchCode branchCode,
-            @NonNull PostTitle postTitle,
-            @NonNull ArticleMetadata baseMetadata,
-            @NonNull InstallmentSchedule currentSchedule,
-            @NonNull List<Installment> recalculatedInstallments,
-            @NonNull Money trancheAmount) {
-
-        return calculateIncrementalInterest(currentSchedule, recalculatedInstallments)
+                        recalculatedInstallments)
                 .flatMap(incrementalInterest -> {
                     List<Result<LoanTransaction>> transactionResults = ImmutableList.of(
                             createBankCommitmentTransaction(
@@ -99,29 +69,32 @@ public class IrregularProgressiveDisbursementTransactionService {
     }
 
     private Result<Money> calculateIncrementalInterest(
-            @NonNull InstallmentSchedule currentSchedule, @NonNull List<Installment> recalculatedInstallments) {
-
-        Money currentTotalInterest = currentSchedule.getInstallments().stream()
-                .map(installment -> installment.getScheduledAmount().interestAmount())
-                .reduce((money, other) -> money.add(other).getValue())
-                .orElseGet(() -> Money.zero(currentSchedule.getCurrency()).getValue());
+            boolean firstDisbursement,
+            @NonNull InstallmentSchedule currentSchedule,
+            @NonNull List<Installment> recalculatedInstallments) {
 
         Money newTotalInterest = recalculatedInstallments.stream()
                 .map(installment -> installment.getScheduledAmount().interestAmount())
                 .reduce((money, other) -> money.add(other).getValue())
                 .orElseGet(() -> Money.zero(currentSchedule.getCurrency()).getValue());
 
-        Money incrementalInterest =
-                newTotalInterest.subtract(currentTotalInterest).orElseThrow();
-
-        if (incrementalInterest.isNegative()) {
-            return Result.failure(Notification.ofError(
-                    TradeLoanFacilityLocalizedMessageCodes.INCREMENTAL_INTEREST_CANNOT_BE_NEGATIVE,
-                    newTotalInterest,
-                    currentTotalInterest));
+        if (firstDisbursement) {
+            Money currentTotalInterest = currentSchedule.getInstallments().stream()
+                    .map(installment -> installment.getScheduledAmount().interestAmount())
+                    .reduce((money, other) -> money.add(other).getValue())
+                    .orElseGet(() -> Money.zero(currentSchedule.getCurrency()).getValue());
+            Money incrementalInterest =
+                    newTotalInterest.subtract(currentTotalInterest).orElseThrow();
+            if (incrementalInterest.isNegative()) {
+                return Result.failure(Notification.ofError(
+                        TradeLoanFacilityLocalizedMessageCodes.INCREMENTAL_INTEREST_CANNOT_BE_NEGATIVE,
+                        newTotalInterest,
+                        currentTotalInterest));
+            }
+            Result.success(incrementalInterest);
         }
 
-        return Result.success(incrementalInterest);
+        return Result.success(newTotalInterest);
     }
 
     private Result<LoanTransaction> createBankCommitmentTransaction(

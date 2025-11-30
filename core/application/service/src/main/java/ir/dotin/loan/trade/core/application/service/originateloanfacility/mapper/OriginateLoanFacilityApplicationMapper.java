@@ -28,7 +28,6 @@ public interface OriginateLoanFacilityApplicationMapper {
     @Mapping(target = "customer", ignore = true)
     @Mapping(target = "guarantors", ignore = true)
     @Mapping(target = "version", ignore = true)
-    @Mapping(target = "disbursementMethod", ignore = true)
     TradeLoanApplication.Builder map(OriginateLoanFacilityCommand.LoanApplicationDto loanApplication);
 
     Certificate map(OriginateLoanFacilityCommand.CertificateDto dto);

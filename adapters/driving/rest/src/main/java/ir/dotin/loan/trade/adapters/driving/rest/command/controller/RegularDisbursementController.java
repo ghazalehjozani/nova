@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = SwaggerConfig.TAG_REGULAR_DISBURSEMENT, description = "عملیات مربوط به پرداخت عادی تسهیلات")
 @RequiredArgsConstructor
 @Hidden
-public class RegularDisbursementController extends BaseController {
+class RegularDisbursementController extends BaseController {
 
     private final CommandDispatcher dispatcher;
 

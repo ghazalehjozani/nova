@@ -8,7 +8,7 @@ import ir.dotin.platform.dispatcher.api.command.Command;
 
 import lombok.Builder;
 
-@Builder
+@Builder(toBuilder = true)
 public record AddFacilityCollateralCommand(
         @NotNull UUID uid,
         @NotNull Long version,

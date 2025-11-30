@@ -12,6 +12,7 @@ import jakarta.validation.constraints.*;
 
 import org.jspecify.annotations.Nullable;
 
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
 
@@ -68,6 +69,11 @@ public record OriginateLoanFacilityRequest(
             @Schema(description = "مبلغ درخواستی", example = "1000000.00", requiredMode = Schema.RequiredMode.REQUIRED)
                     @NotNull
                     BigDecimal requestedAmount,
+            @Schema(
+                            description = "روش پرداخت تسهیلات",
+                            requiredMode = Schema.RequiredMode.REQUIRED,
+                            example = "IRREGULAR_PROGRESSIVE")
+                    DisbursementMethod disbursementMethod,
             @Schema(description = "نوع ارز", example = "IRR", requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank
                     String currency,
             @Schema(description = "مدت زمان تسهیلات", example = "P12M", requiredMode = Schema.RequiredMode.REQUIRED)

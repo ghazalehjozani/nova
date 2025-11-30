@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v1/facilities/{facilityId}/issue-contract")
 @Tag(name = SwaggerConfig.TAG_FACILITY_CONTRACT_ISSUANCE, description = "عملیات مربوط به صدور قرارداد تسهیلات")
 @RequiredArgsConstructor
-public class IssueFacilityContractController extends BaseController {
+class IssueFacilityContractController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final AuthenticationContextHolder authenticationContextHolder;

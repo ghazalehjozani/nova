@@ -16,8 +16,8 @@ public enum ApproveFacilityErrorCodes implements LocalizedMessage<ApproveFacilit
     INVALID_AMOUNT("Invalid approved amount: {0}"),
     SANCTION_SERIAL_REQUIRED_FOR_MANUAL_APPROVAL("Sanction serial is required for manual approval"),
     SANCTION_SERIAL_NOT_ALLOWED_FOR_AUTO_APPROVAL("Sanction serial is not allowed for auto approval"),
-    AUTO_APPROVAL_NOT_ENABLED("Auto approval is not enabled for loan arrangement {0}"),
-    MANUAL_APPROVAL_NOT_ALLOWED("Manual approval is not allowed for loan arrangement {0}"),
+    AUTO_APPROVAL_NOT_ENABLED("Auto approval is not enabled for this application channel {0}"),
+    MANUAL_APPROVAL_NOT_ALLOWED("Manual approval is not allowed for this application channel {0}"),
     SANCTION_DETAILS_SERVICE_NOT_IMPLEMENTED("Sanction details service is not implemented for serial {0}"),
     INVALID_SANCTION_DETAILS("Invalid sanction details: {0}");
 
