@@ -20,7 +20,6 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import lombok.RequiredArgsConstructor;
-import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 @Configuration
@@ -133,16 +132,14 @@ public class SwaggerConfig extends BaseSwaggerConfig {
         });
     }
 
-    private JsonNode loadJson(String path) {
+    private Object loadJson(String path) {
         try {
             Resource resource = resourceLoader.getResource("classpath:" + path);
 
             if (!resource.exists()) {
                 throw new IllegalStateException("Swagger example file not found: " + path);
             }
-
-            return objectMapper.readValue(resource.getInputStream(), JsonNode.class);
-
+            return objectMapper.readValue(resource.getInputStream(), Object.class);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to load Swagger example: " + path, e);
         }
