@@ -369,7 +369,7 @@ platform:
       branch-code: "1"
   rest:
     service-prefix: LOAN
-    api-path-pattern: /v1/**
+    api-path-pattern: /api/**
     headers:
       required: true
       default-ttl-seconds: 60
