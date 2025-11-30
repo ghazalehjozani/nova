@@ -1,5 +1,21 @@
 package ir.dotin.loan.trade.core.application.service.defineloantype.commandhandler;
 
+import java.time.Clock;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.domain.event.DomainEvent;
+import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
@@ -13,22 +29,8 @@ import ir.dotin.loan.trade.core.application.service.defineloantype.i18n.DefineLo
 import ir.dotin.loan.trade.core.application.service.defineloantype.mapper.DefineLoanTypeCommandMapper;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 import ir.dotin.loan.trade.core.domain.loantype.service.TradeLoanTypeValidationService;
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.domain.event.DomainEvent;
-import ir.dotin.platform.dispatcher.api.command.CommandHandler;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
-import java.time.Clock;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -51,22 +53,22 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
                 .flatMap(prereqs -> buildLoanType(command, prereqs))
                 .flatMap(this::validateBusinessRules)
                 .peekValue(loanTypeRepository::save)
-                .peekValue(loanType -> log.debug("Loan type defined successfully: {}", loanType.getId().value()))
+                .peekValue(loanType -> log.debug(
+                        "Loan type defined successfully: {}", loanType.getId().value()))
                 .mapNonNull(TradeLoanType::domainEvents);
     }
 
     private CompletableFuture<Result<Prerequisites>> gatherPrerequisitesAsync(DefineLoanTypeCommand command) {
         var codeValue = command.code().value();
 
-        var uniquenessFuture = CompletableFuture.supplyAsync(
-                () -> checkLoanTypeDoesNotExist(codeValue), VIRTUAL_EXECUTOR);
+        var uniquenessFuture =
+                CompletableFuture.supplyAsync(() -> checkLoanTypeDoesNotExist(codeValue), VIRTUAL_EXECUTOR);
 
         var sectorValidationFuture = validateEconomicSectorsAsync(command, codeValue);
 
         var arrangementIdsFuture = resolveArrangementIdsAsync(command.loanArrangementCodes());
 
-        var topicInfoFuture = CompletableFuture.supplyAsync(
-                () -> loadTopics(command), VIRTUAL_EXECUTOR);
+        var topicInfoFuture = CompletableFuture.supplyAsync(() -> loadTopics(command), VIRTUAL_EXECUTOR);
 
         return CompletableFuture.allOf(uniquenessFuture, sectorValidationFuture, arrangementIdsFuture, topicInfoFuture)
                 .thenApply(ignored -> {
@@ -83,12 +85,14 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
     }
 
     private Result<Void> checkLoanTypeDoesNotExist(String codeValue) {
-        boolean exists = loanTypeRepository.existsByCode(LoanTypeCode.of(codeValue).getValue());
-        return Result.requireFalse(exists,
-                Notification.ofError(DefineLoanTypeErrorCodes.LOAN_TYPE_ALREADY_EXISTS, codeValue));
+        boolean exists =
+                loanTypeRepository.existsByCode(LoanTypeCode.of(codeValue).getValue());
+        return Result.requireFalse(
+                exists, Notification.ofError(DefineLoanTypeErrorCodes.LOAN_TYPE_ALREADY_EXISTS, codeValue));
     }
 
-    private CompletableFuture<Result<Set<LoanArrangementId>>> resolveArrangementIdsAsync(Set<DefineLoanTypeCommand.LoanArrangementCodeDto> dtos) {
+    private CompletableFuture<Result<Set<LoanArrangementId>>> resolveArrangementIdsAsync(
+            Set<DefineLoanTypeCommand.LoanArrangementCodeDto> dtos) {
         List<CompletableFuture<Result<LoanArrangementId>>> futures = dtos.stream()
                 .map(DefineLoanTypeCommand.LoanArrangementCodeDto::value)
                 .map(LoanArrangementCode::valueOf)
@@ -103,18 +107,19 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
     private Result<LoanArrangementId> findArrangementId(LoanArrangementCode code) {
         return Result.fromOptional(
                 loanArrangementRepository.getIdByCode(code).map(LoanArrangementId::of),
-                () -> Notification.ofError(DefineLoanTypeErrorCodes.LOAN_ARRANGEMENT_NOT_FOUND, code.value())
-        );
+                () -> Notification.ofError(DefineLoanTypeErrorCodes.LOAN_ARRANGEMENT_NOT_FOUND, code.value()));
     }
 
-    private CompletableFuture<Result<Void>> validateEconomicSectorsAsync(DefineLoanTypeCommand command, String loanTypeCode) {
-        List<CompletableFuture<Result<EconomicalSectorValidation>>> futures = command.economicSectorCurrencies().stream()
-                .map(sectorCurrency -> CompletableFuture.supplyAsync(() ->
-                        loanServicePort.validateEconomicalSectorForLoanType(
-                                mapper.map(sectorCurrency.economicSector()),
-                                LoanTypeCode.of(loanTypeCode).getValue()
-                        ), VIRTUAL_EXECUTOR))
-                .toList();
+    private CompletableFuture<Result<Void>> validateEconomicSectorsAsync(
+            DefineLoanTypeCommand command, String loanTypeCode) {
+        List<CompletableFuture<Result<EconomicalSectorValidation>>> futures =
+                command.economicSectorCurrencies().stream()
+                        .map(sectorCurrency -> CompletableFuture.supplyAsync(
+                                () -> loanServicePort.validateEconomicalSectorForLoanType(
+                                        mapper.map(sectorCurrency.economicSector()),
+                                        LoanTypeCode.of(loanTypeCode).getValue()),
+                                VIRTUAL_EXECUTOR))
+                        .toList();
 
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new))
                 .thenApply(v -> collectSectorValidations(futures));
@@ -138,19 +143,16 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
         List<String> topicCodes = command.relationTypeLoanTopics().stream()
                 .map(DefineLoanTypeCommand.RelationTypeLoanTopicDto::topicCode)
                 .toList();
-        return loanServicePort.loadTopicByCode(topicCodes)
-                .peekValue(info -> log.debug("Topic info loaded: {}", info));
+        return loanServicePort.loadTopicByCode(topicCodes).peekValue(info -> log.debug("Topic info loaded: {}", info));
     }
 
     private Result<TradeLoanType> buildLoanType(DefineLoanTypeCommand command, Prerequisites prereqs) {
-        return TradeLoanType.create(
-                mapper.toBuilder(command).loanArrangementIds(prereqs.arrangementIds),
-                clock
-        );
+        return TradeLoanType.create(mapper.toBuilder(command).loanArrangementIds(prereqs.arrangementIds), clock);
     }
 
     private Result<TradeLoanType> validateBusinessRules(TradeLoanType loanType) {
-        return loanTypeValidationService.validateMandatoryRelationTypeLoanTopics(loanType)
+        return loanTypeValidationService
+                .validateMandatoryRelationTypeLoanTopics(loanType)
                 .map(ignored -> loanType);
     }
 
@@ -158,9 +160,5 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
         return future.join();
     }
 
-    private record Prerequisites(
-            Set<LoanArrangementId> arrangementIds,
-            List<TopicInfo> topicInfos
-    ) {
-    }
+    private record Prerequisites(Set<LoanArrangementId> arrangementIds, List<TopicInfo> topicInfos) {}
 }

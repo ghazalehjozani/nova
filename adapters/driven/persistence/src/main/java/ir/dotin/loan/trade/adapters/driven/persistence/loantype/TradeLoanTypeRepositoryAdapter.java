@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 import ir.dotin.loan.trade.adapters.driven.persistence.loantype.mapper.TradeLoanTypePersistenceMapper;

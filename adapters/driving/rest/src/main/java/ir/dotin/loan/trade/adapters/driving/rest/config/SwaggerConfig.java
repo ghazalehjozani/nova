@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.rest.config;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Map;
 
 import org.springdoc.core.customizers.OpenApiCustomizer;
@@ -7,13 +9,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 
 import ir.dotin.platform.adapter.rest.swagger.BaseSwaggerConfig;
+import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineLoanTypeRequest;
+import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import lombok.RequiredArgsConstructor;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 @Configuration
 @RequiredArgsConstructor
@@ -30,6 +38,10 @@ public class SwaggerConfig extends BaseSwaggerConfig {
 
     @Value("${spring.profiles.active}")
     private String activeProfile;
+
+    private final ObjectMapper objectMapper;
+
+    private final ResourceLoader resourceLoader;
 
     public static final String TAG_FACILITY_CASE_OPENING = "Facility Case Opening";
     public static final String TAG_FACILITY_APPROVAL_SUBMISSION = "Facility Approval Submission";
@@ -51,20 +63,20 @@ public class SwaggerConfig extends BaseSwaggerConfig {
     public static final String TAG_LOAN_ARRANGEMENT_QUERIES = "Loan Arrangement Queries";
 
     private static final Map<String, Integer> TAG_ORDER = Map.ofEntries(
-            Map.entry(TAG_FACILITY_CASE_OPENING, 1),
-            Map.entry(TAG_FACILITY_APPROVAL_SUBMISSION, 2),
-            Map.entry(TAG_FACILITY_APPROVAL, 3),
-            Map.entry(TAG_FACILITY_REJECTION, 4),
-            Map.entry(TAG_FACILITY_CONTRACT_ISSUANCE, 5),
-            Map.entry(TAG_LUMP_SUM_DISBURSEMENT, 6),
-            Map.entry(TAG_REGULAR_DISBURSEMENT, 7),
-            Map.entry(TAG_IRREGULAR_DISBURSEMENT, 8),
-            Map.entry(TAG_FACILITY_COLLATERAL_MANAGEMENT, 9),
-            Map.entry(TAG_FACILITY_CLOSURE_PAID_OFF, 10),
-            Map.entry(TAG_FACILITY_CLOSURE_DEFAULTED, 11),
-            Map.entry(TAG_FACILITY_CANCELLATION, 12),
-            Map.entry(TAG_LOAN_TYPE_MANAGEMENT, 13),
-            Map.entry(TAG_LOAN_ARRANGEMENT_MANAGEMENT, 14),
+            Map.entry(TAG_LOAN_ARRANGEMENT_MANAGEMENT, 1),
+            Map.entry(TAG_LOAN_TYPE_MANAGEMENT, 2),
+            Map.entry(TAG_FACILITY_CASE_OPENING, 3),
+            Map.entry(TAG_FACILITY_APPROVAL_SUBMISSION, 4),
+            Map.entry(TAG_FACILITY_APPROVAL, 5),
+            Map.entry(TAG_FACILITY_REJECTION, 6),
+            Map.entry(TAG_FACILITY_CONTRACT_ISSUANCE, 7),
+            Map.entry(TAG_LUMP_SUM_DISBURSEMENT, 8),
+            Map.entry(TAG_REGULAR_DISBURSEMENT, 9),
+            Map.entry(TAG_IRREGULAR_DISBURSEMENT, 10),
+            Map.entry(TAG_FACILITY_COLLATERAL_MANAGEMENT, 11),
+            Map.entry(TAG_FACILITY_CLOSURE_PAID_OFF, 12),
+            Map.entry(TAG_FACILITY_CLOSURE_DEFAULTED, 13),
+            Map.entry(TAG_FACILITY_CANCELLATION, 14),
             Map.entry(TAG_FACILITY_QUERIES, 15),
             Map.entry(TAG_INSTALLMENT_SCHEDULE_QUERIES, 16),
             Map.entry(TAG_LOAN_TYPE_QUERIES, 17),
@@ -106,5 +118,33 @@ public class SwaggerConfig extends BaseSwaggerConfig {
     @Override
     protected boolean isDevProfile() {
         return !"prod".equals(activeProfile);
+    }
+
+    @Bean
+    public OpenApiCustomizer schemaExampleCustomizer() {
+        Map<String, String> schemaExamples = Map.of(
+                DefineLoanTypeRequest.class.getSimpleName(), "swagger/define-loan-type.json",
+                DefineTradeLoanArrangementRequest.class.getSimpleName(), "swagger/define-loan-arrangement.json");
+
+        return openApi -> openApi.getComponents().getSchemas().forEach((name, schema) -> {
+            if (schemaExamples.containsKey(name)) {
+                schema.setExample(loadJson(schemaExamples.get(name)));
+            }
+        });
+    }
+
+    private JsonNode loadJson(String path) {
+        try {
+            Resource resource = resourceLoader.getResource("classpath:" + path);
+
+            if (!resource.exists()) {
+                throw new IllegalStateException("Swagger example file not found: " + path);
+            }
+
+            return objectMapper.readValue(resource.getInputStream(), JsonNode.class);
+
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to load Swagger example: " + path, e);
+        }
     }
 }

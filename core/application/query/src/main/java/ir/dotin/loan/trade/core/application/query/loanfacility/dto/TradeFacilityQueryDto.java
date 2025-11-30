@@ -91,10 +91,7 @@ public record TradeFacilityQueryDto(
         public record CredibilityRankEmbDto(String value) implements Serializable {}
 
         public record ApplicationNumberEmbDto(
-                BranchEmbDto branch,
-                LoanTypeCodeEmbDto loanTypeCode,
-                PartyEmbDto party,
-                String derivedValue)
+                BranchEmbDto branch, LoanTypeCodeEmbDto loanTypeCode, PartyEmbDto party, String derivedValue)
                 implements Serializable {
 
             public record BranchEmbDto(String code) implements Serializable {}
@@ -103,7 +100,6 @@ public record TradeFacilityQueryDto(
 
             public record PartyEmbDto(String customerNumber, String partyType, String firstName, String lastName)
                     implements Serializable {}
-
         }
 
         public record CertificateEmbDto(String serial) implements Serializable {}

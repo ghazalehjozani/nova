@@ -8,6 +8,7 @@ import java.util.UUID;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 import ir.dotin.platform.dispatcher.api.command.Command;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.CollateralCalculationType;
@@ -18,7 +19,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PenaltyPaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.SectionType;
 
-import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 
 @Builder(toBuilder = true)

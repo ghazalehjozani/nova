@@ -13,7 +13,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 
-import jakarta.persistence.UniqueConstraint;
 import org.hibernate.proxy.HibernateProxy;
 
 import ir.dotin.platform.adapter.persistence.embeddable.AmountRangeEmb;

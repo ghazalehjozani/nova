@@ -16,7 +16,6 @@ import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.DefineTradeLoanA
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -31,7 +30,8 @@ class DefineLoanArrangementController extends BaseController {
 
     @PostMapping
     @Operation(summary = "ایجاد شرط اعطا")
-    public EventStreamResponse defineLoanArrangement(@RequestBody @Valid DataRequest<DefineTradeLoanArrangementRequest> request) {
+    public EventStreamResponse defineLoanArrangement(
+            @RequestBody @Valid DataRequest<DefineTradeLoanArrangementRequest> request) {
         var command = mapper.toCommand(request.payload()).toBuilder()
                 .uid(getXRequestId())
                 .build();

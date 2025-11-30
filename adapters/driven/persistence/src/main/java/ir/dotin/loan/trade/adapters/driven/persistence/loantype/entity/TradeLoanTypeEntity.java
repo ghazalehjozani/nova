@@ -15,8 +15,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
-
 import jakarta.persistence.UniqueConstraint;
+
 import org.hibernate.proxy.HibernateProxy;
 
 import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
@@ -32,9 +32,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "loan_types", uniqueConstraints = {
-        @UniqueConstraint(name = "uc_tradeloantypeentity", columnNames = {"loan_type_code"})
-})
+@Table(
+        name = "loan_types",
+        uniqueConstraints = {
+            @UniqueConstraint(
+                    name = "uc_tradeloantypeentity",
+                    columnNames = {"loan_type_code"})
+        })
 @Getter
 @Setter
 @NoArgsConstructor

@@ -2,7 +2,6 @@ package ir.dotin.loan.trade.core.application.ports.outbound.command.repository;
 
 import java.util.Optional;
 
-import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;

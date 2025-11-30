@@ -1,18 +1,17 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.repository;
 
-import ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.entity.TradeLoanArrangementEntity;
-import ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.projection.TradeLoanArrangementIdProjection;
-import ir.dotin.platform.adapter.persistence.repository.PersistentRepository;
+import java.util.Optional;
+
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-import java.util.concurrent.Future;
+import ir.dotin.platform.adapter.persistence.repository.PersistentRepository;
+import ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.entity.TradeLoanArrangementEntity;
+import ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.projection.TradeLoanArrangementIdProjection;
 
 @Repository
 public interface TradeLoanArrangementJpaRepository extends PersistentRepository<TradeLoanArrangementEntity> {

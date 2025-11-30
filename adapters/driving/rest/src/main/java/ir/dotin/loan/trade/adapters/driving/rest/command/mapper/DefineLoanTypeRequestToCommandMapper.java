@@ -1,6 +1,5 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.mapper;
 
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.mapstruct.*;
@@ -34,9 +33,10 @@ public interface DefineLoanTypeRequestToCommandMapper {
                         .collect(Collectors.toSet()));
     }
 
-
     default DefineLoanTypeCommand.LoanArrangementCodeDto mapLoanArrangementCode(String loanArrangementCode) {
-        return loanArrangementCode != null ? new DefineLoanTypeCommand.LoanArrangementCodeDto(loanArrangementCode) : null;
+        return loanArrangementCode != null
+                ? new DefineLoanTypeCommand.LoanArrangementCodeDto(loanArrangementCode)
+                : null;
     }
 
     default DefineLoanTypeCommand.RelationTypeLoanTopicDto mapRelationTypeLoanTopic(
