@@ -31,9 +31,7 @@ class DefineLoanArrangementController extends BaseController {
 
     @PostMapping
     @Operation(summary = "ایجاد شرط اعطا")
-    public EventStreamResponse defineLoanArrangement(
-            @Parameter(description = "جزئیات ایجاد شرط اعطا", required = true) @RequestBody @Valid
-                    DataRequest<DefineTradeLoanArrangementRequest> request) {
+    public EventStreamResponse defineLoanArrangement(@RequestBody @Valid DataRequest<DefineTradeLoanArrangementRequest> request) {
         var command = mapper.toCommand(request.payload()).toBuilder()
                 .uid(getXRequestId())
                 .build();

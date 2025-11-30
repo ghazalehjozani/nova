@@ -14,10 +14,10 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.SectionType;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(name = "DefineTradeLoanArrangementRequest", description = "درخواست ایجاد شرط اعطا")
+@Schema(name = "DefineTradeLoanArrangementRequest", description = "ایجاد شرایط تسهیلات")
 public record DefineTradeLoanArrangementRequest(
         @Schema(description = "کد", requiredMode = Schema.RequiredMode.REQUIRED, example = "66") String code,
-        @Schema(description = "عنوان", requiredMode = Schema.RequiredMode.REQUIRED, example = "شرط اعطای جدید")
+        @Schema(description = "عنوان", requiredMode = Schema.RequiredMode.REQUIRED, example = "شرایط تسهیلات جدید")
                 String title,
         @Schema(description = "نوع ارز", requiredMode = Schema.RequiredMode.REQUIRED, example = "IRR")
                 String currencyType,

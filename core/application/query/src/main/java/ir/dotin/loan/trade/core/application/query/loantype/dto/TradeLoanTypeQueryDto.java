@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import ir.dotin.platform.dispatcher.api.query.QueryResult;
-import ir.dotin.loan.baseloan.core.domain.loantype.enums.SegmentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
@@ -22,7 +21,6 @@ public record TradeLoanTypeQueryDto(
         EditReasonEmbDto editReason,
         GatewayType gatewayType,
         Boolean loanApplicationAllowed,
-        SegmentType segmentType,
         Set<EconomicSectorCurrencyEmbDto> economicSectorCurrencies,
         Set<UUID> incomeIds,
         Set<UUID> loanArrangementIds,

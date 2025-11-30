@@ -39,4 +39,23 @@
     <changeSet id="1764510629783-7" author="DOTIN\m.amirabdollahi">
         <dropColumn columnName="auto_approval" tableName="loan_arrangements"/>
     </changeSet>
+    <changeSet id="1764515863478-5" author="DOTIN\m.amirabdollahi">
+        <dropColumn columnName="segment_type" tableName="loan_types"/>
+    </changeSet>
+    <changeSet id="1764516773138-1" author="DOTIN\m.amirabdollahi">
+        <addUniqueConstraint
+                columnNames="application_branch_code, loan_type_code, application_customer_number, derived_value"
+                constraintName="uc_tradeloanapplicationentity" tableName="loan_applications"/>
+    </changeSet>
+    <changeSet id="1764516773138-2" author="DOTIN\m.amirabdollahi">
+        <addUniqueConstraint columnNames="loan_type_code" constraintName="uc_tradeloantypeentity"
+                             tableName="loan_types"/>
+    </changeSet>
+    <changeSet id="1764516773138-3" author="DOTIN\m.amirabdollahi">
+        <addUniqueConstraint columnNames="sanction_serial_value" constraintName="uc_tradesanctionedloanentity"
+                             tableName="sanctioned_loans"/>
+    </changeSet>
+    <changeSet id="1764516773138-8" author="DOTIN\m.amirabdollahi">
+        <dropColumn columnName="respite_serial_value" tableName="loan_applications"/>
+    </changeSet>
 </databaseChangeLog>

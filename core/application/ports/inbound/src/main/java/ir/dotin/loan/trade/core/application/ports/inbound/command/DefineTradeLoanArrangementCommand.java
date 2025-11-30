@@ -18,6 +18,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PenaltyPaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.SectionType;
 
+import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 
 @Builder(toBuilder = true)
@@ -87,7 +88,7 @@ public record DefineTradeLoanArrangementCommand(
 
     public record CollateralTypeDto(@NotBlank String code) {}
 
-    public record LoanArrangementCodeDto(@NotBlank String value) {}
+    public record LoanArrangementCodeDto(@NotBlank @Pattern(regexp = "^\\d+$") String value) {}
 
     public record TitleDto(@NotBlank String value) {}
 

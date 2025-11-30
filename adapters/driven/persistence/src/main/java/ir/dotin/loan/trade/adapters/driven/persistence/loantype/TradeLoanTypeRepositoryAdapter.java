@@ -42,13 +42,13 @@ public class TradeLoanTypeRepositoryAdapter implements TradeLoanTypeRepository {
     }
 
     @Override
-    public Result<Boolean> existsById(LoanTypeId id) {
-        return Result.success(jpaRepository.existsById(id.value()));
+    public Boolean existsById(LoanTypeId id) {
+        return jpaRepository.existsById(id.value());
     }
 
     @Override
-    public Result<Boolean> existsByCode(LoanTypeCode code) {
-        return Result.success(jpaRepository.existsByCode_Value(code.value()));
+    public Boolean existsByCode(LoanTypeCode code) {
+        return jpaRepository.existsByCode_Value(code.value());
     }
 
     @Override

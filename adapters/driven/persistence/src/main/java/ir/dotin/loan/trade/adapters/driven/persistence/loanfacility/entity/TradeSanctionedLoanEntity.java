@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
+import jakarta.persistence.UniqueConstraint;
 import org.hibernate.proxy.HibernateProxy;
 
 import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
@@ -36,7 +37,9 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @Entity
-@Table(name = "sanctioned_loans")
+@Table(name = "sanctioned_loans", uniqueConstraints = {
+        @UniqueConstraint(name = "uc_tradesanctionedloanentity", columnNames = {"sanction_serial_value"})
+})
 public class TradeSanctionedLoanEntity extends PersistentEntity {
 
     @Embedded

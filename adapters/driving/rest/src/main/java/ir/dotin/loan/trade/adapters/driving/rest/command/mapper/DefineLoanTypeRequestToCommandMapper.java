@@ -16,14 +16,10 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.DefineLoanType
 public interface DefineLoanTypeRequestToCommandMapper {
 
     @Mapping(target = "version", ignore = true)
+    @Mapping(target = "uid", ignore = true)
     @Mapping(source = "code", target = "code.value")
     @Mapping(source = "title", target = "title.value")
     @Mapping(source = "loanApplicationAllowed", target = "loanApplicationAllowed.isAllowed")
-    @Mapping(source = "economicSectorCurrencies", target = "economicSectorCurrencies")
-    @Mapping(source = "loanArrangementIds", target = "loanArrangementIds")
-    @Mapping(source = "incomeIds", target = "incomeIds")
-    @Mapping(source = "groupId", target = "groupId.value")
-    @Mapping(source = "relationTypeLoanTopics", target = "relationTypeLoanTopics")
     DefineLoanTypeCommand toCommand(DefineLoanTypeRequest request);
 
     default DefineLoanTypeCommand.EconomicSectorCurrencyDto mapEconomicSectorCurrency(
@@ -38,16 +34,9 @@ public interface DefineLoanTypeRequestToCommandMapper {
                         .collect(Collectors.toSet()));
     }
 
-    default DefineLoanTypeCommand.LoanArrangementIdDto mapLoanArrangementId(UUID loanArrangementId) {
-        return loanArrangementId != null ? new DefineLoanTypeCommand.LoanArrangementIdDto(loanArrangementId) : null;
-    }
 
-    default DefineLoanTypeCommand.IncomeIdDto mapIncomeId(UUID incomeId) {
-        return incomeId != null ? new DefineLoanTypeCommand.IncomeIdDto(incomeId) : null;
-    }
-
-    default DefineLoanTypeCommand.LoanTypeGroupIdDto mapGroupId(UUID groupId) {
-        return groupId != null ? new DefineLoanTypeCommand.LoanTypeGroupIdDto(groupId) : null;
+    default DefineLoanTypeCommand.LoanArrangementCodeDto mapLoanArrangementCode(String loanArrangementCode) {
+        return loanArrangementCode != null ? new DefineLoanTypeCommand.LoanArrangementCodeDto(loanArrangementCode) : null;
     }
 
     default DefineLoanTypeCommand.RelationTypeLoanTopicDto mapRelationTypeLoanTopic(

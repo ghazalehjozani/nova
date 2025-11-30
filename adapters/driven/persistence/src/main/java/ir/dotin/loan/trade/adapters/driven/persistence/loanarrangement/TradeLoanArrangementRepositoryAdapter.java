@@ -1,7 +1,11 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement;
 
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.Future;
 
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode;
+import ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.projection.TradeLoanArrangementIdProjection;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
@@ -11,6 +15,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.Tr
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
 
 import static java.util.Objects.requireNonNull;
 
@@ -33,7 +38,12 @@ public class TradeLoanArrangementRepositoryAdapter implements TradeLoanArrangeme
     }
 
     @Override
-    public boolean existsByCode(String code) {
-        return jpaRepository.existsByCode(code);
+    public Optional<UUID> getIdByCode(LoanArrangementCode code) {
+        return jpaRepository.findByCode(code.value()).map(TradeLoanArrangementIdProjection::getId);
+    }
+
+    @Override
+    public boolean existsByCode(LoanArrangementCode code) {
+        return jpaRepository.existsByCode(code.value());
     }
 }

@@ -35,6 +35,9 @@ public interface DefineLoanTypeCommandMapper {
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "disable", ignore = true)
     @Mapping(target = "previousVersion", ignore = true)
+    @Mapping(target = "incomeIds", ignore = true)
+    @Mapping(target = "groupId", ignore = true)
+    @Mapping(target = "loanArrangementIds", ignore = true)
     @Mapping(target = "economicSectorCurrencies", source = "economicSectorCurrencies")
     TradeLoanType.Builder toBuilder(DefineLoanTypeCommand command);
 
@@ -58,11 +61,7 @@ public interface DefineLoanTypeCommandMapper {
 
     EconomicSector map(DefineLoanTypeCommand.EconomicSectorDto dto);
 
-    LoanArrangementId map(DefineLoanTypeCommand.LoanArrangementIdDto dto);
-
-    IncomeId map(DefineLoanTypeCommand.IncomeIdDto dto);
-
-    LoanTypeGroupId map(DefineLoanTypeCommand.LoanTypeGroupIdDto dto);
+    LoanArrangementId map(DefineLoanTypeCommand.LoanArrangementCodeDto dto);
 
     default Multimap<RelationType<TradeRelationType>, LoanTopic> map(
             List<DefineLoanTypeCommand.RelationTypeLoanTopicDto> dtos) {

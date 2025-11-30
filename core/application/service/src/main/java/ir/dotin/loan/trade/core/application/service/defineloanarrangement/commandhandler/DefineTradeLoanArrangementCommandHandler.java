@@ -6,6 +6,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
@@ -42,7 +44,7 @@ public class DefineTradeLoanArrangementCommandHandler implements CommandHandler<
                 () -> loadEconomicSector(mapper.map(command.economicSector())), VIRTUAL_EXECUTOR);
 
         return Result.requireFalse(
-                        repository.existsByCode(command.code().value()),
+                        repository.existsByCode(LoanArrangementCode.valueOf(command.code().value()).getValue()),
                         Notification.ofError(
                                 DefineLoanArrangementErrorCodes.DUPLICATE_CODE,
                                 command.code().value()))
