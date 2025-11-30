@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/facilities/open-case")
+@RequestMapping("/api/{version}/facilities/open-case")
 @Tag(name = SwaggerConfig.TAG_FACILITY_CASE_OPENING, description = "عملیات مربوط به ایجاد پرونده تسهیلات")
 @RequiredArgsConstructor
 class OpenFacilityCaseController extends BaseController {
@@ -32,7 +32,7 @@ class OpenFacilityCaseController extends BaseController {
     private final OriginateLoanFacilityRequestMapper mapper;
     private final AuthenticationContextHolder authenticationContextHolder;
 
-    @PostMapping
+    @PostMapping(version = "1+")
     @Operation(summary = "ایجاد پرونده تسهیلات")
     public EventStreamResponse openFacilityCase(
             @Parameter(required = true) @Valid @RequestBody DataRequest<OriginateLoanFacilityRequest> request) {

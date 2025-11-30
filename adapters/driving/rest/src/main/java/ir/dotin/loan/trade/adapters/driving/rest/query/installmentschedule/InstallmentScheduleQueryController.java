@@ -18,14 +18,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/installment-schedules")
+@RequestMapping("/api/{version}/installment-schedules")
 @RequiredArgsConstructor
 @Tag(name = SwaggerConfig.TAG_INSTALLMENT_SCHEDULE_QUERIES, description = "استعلام اقساط")
 public class InstallmentScheduleQueryController {
 
     private final QueryDispatcher dispatcher;
 
-    @GetMapping("/{installmentScheduleId}")
+    @GetMapping(value = "/{installmentScheduleId}", version = "1")
     @Operation(summary = "دریافت برنامه اقساط بر اساس شناسه")
     public DataResponse<TradeInstallmentScheduleQueryDto> getById(@PathVariable UUID installmentScheduleId) {
         GetInstallmentScheduleByIdQuery query = GetInstallmentScheduleByIdQuery.builder()

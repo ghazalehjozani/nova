@@ -28,13 +28,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/loan-types")
+@RequestMapping("/api/{version}/loan-types")
 @RequiredArgsConstructor
 @Tag(name = SwaggerConfig.TAG_LOAN_TYPE_QUERIES, description = "استعلام نوع تسهیلات")
 public class LoanTypeQueryController {
     private final QueryDispatcher dispatcher;
 
-    @GetMapping("/{loanTypeId}")
+    @GetMapping(value = "/{loanTypeId}", version = "1")
     @Operation(summary = "دریافت نوع تسهیلات بر اساس شناسه")
     public DataResponse<TradeLoanTypeQueryDto> getById(@PathVariable UUID loanTypeId) {
         GetLoanTypeByIdQuery query =
@@ -42,7 +42,7 @@ public class LoanTypeQueryController {
         return DataResponse.of(dispatcher.dispatch(query));
     }
 
-    @GetMapping
+    @GetMapping(version = "1")
     @Operation(summary = "Get all loan types with cursor-based pagination")
     public ResponseEntity<PagedResponse<LoanTypeQueryResult>> findAll(
             @RequestParam(required = false) String cursor,
@@ -58,7 +58,7 @@ public class LoanTypeQueryController {
                 result, result.nextCursor(), result.previousCursor(), result.hasNext(), result.hasPrevious());
     }
 
-    @GetMapping("/search")
+    @GetMapping(value = "/search", version = "1")
     @Operation(summary = "جستجوی انواع تسهیلات با فیلترهای مختلف")
     public ResponseEntity<PagedResponse<LoanTypeQueryResult>> searchLoanTypes(
             @RequestParam(required = false) String code,

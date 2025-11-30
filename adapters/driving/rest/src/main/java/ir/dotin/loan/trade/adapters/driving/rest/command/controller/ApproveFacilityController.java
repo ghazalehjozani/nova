@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/facilities/{facilityId}/approve")
+@RequestMapping("/api/{version}/facilities/{facilityId}/approve")
 @Tag(name = SwaggerConfig.TAG_FACILITY_APPROVAL, description = "عملیات مربوط به تصویب مصوبه")
 @RequiredArgsConstructor
 class ApproveFacilityController extends BaseController {
@@ -31,7 +31,7 @@ class ApproveFacilityController extends BaseController {
     private final CommandDispatcher dispatcher;
     private final ApproveFacilityRequestToCommandMapper mapper;
 
-    @PostMapping
+    @PostMapping(version = "1+")
     @Operation(summary = "تصویب خودکار مصوبه")
     public EventStreamResponse autoApproveFacility(
             @Parameter(
@@ -49,7 +49,7 @@ class ApproveFacilityController extends BaseController {
         return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
     }
 
-    @PostMapping("/{sanctionSerial}")
+    @PostMapping(value = "/{sanctionSerial}", version = "1+")
     @Operation(summary = "تصویب مصوبه با شماره سریال")
     public EventStreamResponse approveFacilityWithSerial(
             @Parameter(

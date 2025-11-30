@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/facilities/{facilityId}/reject")
+@RequestMapping("/api/{version}/facilities/{facilityId}/reject")
 @Tag(name = SwaggerConfig.TAG_FACILITY_REJECTION, description = "عملیات مربوط به رد تسهیلات")
 @RequiredArgsConstructor
 @Hidden
@@ -28,7 +28,7 @@ class RejectFacilityController extends BaseController {
     private final CommandDispatcher dispatcher;
     private final RejectFacilityRequestToCommandMapper mapper;
 
-    @PostMapping
+    @PostMapping(version = "1+")
     @Operation(summary = "رد تسهیلات")
     public EventStreamResponse rejectFacility(
             @Parameter(

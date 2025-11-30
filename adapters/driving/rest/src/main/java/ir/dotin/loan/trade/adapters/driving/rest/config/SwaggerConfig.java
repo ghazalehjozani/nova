@@ -2,9 +2,11 @@ package ir.dotin.loan.trade.adapters.driving.rest.config;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.List;
 import java.util.Map;
 
 import org.springdoc.core.customizers.OpenApiCustomizer;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,8 +19,10 @@ import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineLoanTypeReque
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import lombok.RequiredArgsConstructor;
 import tools.jackson.databind.ObjectMapper;
 
@@ -143,5 +147,37 @@ public class SwaggerConfig extends BaseSwaggerConfig {
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to load Swagger example: " + path, e);
         }
+    }
+
+    @Bean
+    public GroupedOpenApi publicApiV1() {
+        return GroupedOpenApi.builder()
+                .group("v1")
+                .pathsToMatch("/api/{version}/**")
+                .addOpenApiCustomizer(replaceVersionPlaceholder("v1"))
+                .build();
+    }
+
+    private OpenApiCustomizer replaceVersionPlaceholder(String version) {
+        return openApi -> {
+            var paths = openApi.getPaths();
+            var newPaths = new Paths();
+
+            paths.forEach((path, pathItem) -> {
+                String newPath = path.replace("{version}", version);
+
+                if (pathItem.readOperations() != null) {
+                    pathItem.readOperations().forEach(operation -> {
+                        List<Parameter> parameters = operation.getParameters();
+                        if (parameters != null) {
+                            parameters.removeIf(p -> "version".equals(p.getName()));
+                        }
+                    });
+                }
+                newPaths.addPathItem(newPath, pathItem);
+            });
+
+            openApi.setPaths(newPaths);
+        };
     }
 }

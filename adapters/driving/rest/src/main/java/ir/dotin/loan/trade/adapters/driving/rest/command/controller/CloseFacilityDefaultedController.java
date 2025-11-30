@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/facilities/{facilityId}/close-defaulted")
+@RequestMapping("/api/{version}/facilities/{facilityId}/close-defaulted")
 @Tag(name = SwaggerConfig.TAG_FACILITY_CLOSURE_DEFAULTED, description = "عملیات مربوط به بستن تسهیلات معوق")
 @RequiredArgsConstructor
 class CloseFacilityDefaultedController extends BaseController {
@@ -26,7 +26,7 @@ class CloseFacilityDefaultedController extends BaseController {
     private final CommandDispatcher dispatcher;
     private final CloseFacilityDefaultedRequestToCommandMapper mapper;
 
-    @PostMapping
+    @PostMapping(version = "1+")
     @Operation(summary = "بستن تسهیلات معوق")
     public EventStreamResponse closeFacilityDefaulted(
             @Parameter(

@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/facilities/{facilityId}/collateral")
+@RequestMapping("/api/{version}/facilities/{facilityId}/collateral")
 @Tag(name = SwaggerConfig.TAG_FACILITY_COLLATERAL_MANAGEMENT, description = "عملیات مربوط به مدیریت وثایق تسهیلات")
 @RequiredArgsConstructor
 class AddFacilityCollateralController extends BaseController {
@@ -31,7 +31,7 @@ class AddFacilityCollateralController extends BaseController {
     private final CommandDispatcher dispatcher;
     private final AddFacilityCollateralRequestToCommandMapper mapper;
 
-    @PostMapping("/{collateralSerial}")
+    @PostMapping(value = "/{collateralSerial}", version = "1+")
     @Operation(summary = "افزودن وثیقه")
     public EventStreamResponse addCollateral(
             @Parameter(

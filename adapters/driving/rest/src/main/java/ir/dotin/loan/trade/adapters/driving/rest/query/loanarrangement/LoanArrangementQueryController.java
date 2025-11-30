@@ -30,13 +30,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/loan-arrangements")
+@RequestMapping("/api/{version}/loan-arrangements")
 @RequiredArgsConstructor
 @Tag(name = SwaggerConfig.TAG_LOAN_ARRANGEMENT_QUERIES, description = "استعلام شرایط تسهیلات")
 public class LoanArrangementQueryController {
     private final QueryDispatcher dispatcher;
 
-    @GetMapping("/{loanArrangementId}")
+    @GetMapping(value = "/{loanArrangementId}", version = "1")
     @Operation(summary = "دریافت شرایط تسهیلات بر اساس شناسه")
     public DataResponse<TradeLoanArrangementQueryDto> getById(@PathVariable UUID loanArrangementId) {
         GetLoanArrangementByIdQuery query = GetLoanArrangementByIdQuery.builder()
@@ -45,7 +45,7 @@ public class LoanArrangementQueryController {
         return DataResponse.of(dispatcher.dispatch(query));
     }
 
-    @GetMapping
+    @GetMapping(version = "1")
     @Operation(summary = "Get all loan arrangements with cursor-based pagination")
     public ResponseEntity<PagedResponse<LoanArrangementQueryResult>> findAll(
             @RequestParam(required = false) String cursor,
@@ -61,7 +61,7 @@ public class LoanArrangementQueryController {
                 result, result.nextCursor(), result.previousCursor(), result.hasNext(), result.hasPrevious());
     }
 
-    @GetMapping("/search")
+    @GetMapping(value = "/search", version = "1")
     @Operation(summary = "جستجوی شرایط تسهیلات با فیلترهای مختلف")
     public ResponseEntity<PagedResponse<LoanArrangementQueryResult>> searchArrangements(
             @RequestParam(required = false) String code,

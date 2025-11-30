@@ -330,7 +330,7 @@ platform:
         - /swagger-ui/**
         - /v3/api-docs/**
         - /v3/api-docs
-        - /api/dev/auth/callback
+        - /api/v1/dev/auth/callback
       require-authentication-by-default: true
     audit:
       enabled: true

@@ -24,7 +24,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/facilities/{facilityId}/disburse/progressive-irregular")
+@RequestMapping("/api/{version}/facilities/{facilityId}/disburse/progressive-irregular")
 @Tag(name = SwaggerConfig.TAG_IRREGULAR_DISBURSEMENT, description = "عملیات مربوط به پرداخت نامنظم تسهیلات")
 @RequiredArgsConstructor
 class IrregularProgressiveDisbursementController extends BaseController {
@@ -32,7 +32,7 @@ class IrregularProgressiveDisbursementController extends BaseController {
     private final CommandDispatcher dispatcher;
     private final AuthenticationContextHolder authenticationContextHolder;
 
-    @PostMapping
+    @PostMapping(version = "1+")
     @Operation(summary = "پرداخت نامنظم")
     public EventStreamResponse irregularDisbursement(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,

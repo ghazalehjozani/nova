@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/facilities/{facilityId}/issue-contract")
+@RequestMapping("/api/{version}/facilities/{facilityId}/issue-contract")
 @Tag(name = SwaggerConfig.TAG_FACILITY_CONTRACT_ISSUANCE, description = "عملیات مربوط به صدور قرارداد تسهیلات")
 @RequiredArgsConstructor
 class IssueFacilityContractController extends BaseController {
@@ -29,7 +29,7 @@ class IssueFacilityContractController extends BaseController {
     private final CommandDispatcher dispatcher;
     private final AuthenticationContextHolder authenticationContextHolder;
 
-    @PostMapping
+    @PostMapping(version = "1+")
     @Operation(summary = "صدور قرارداد")
     public EventStreamResponse issueFacilityContract(
             @Parameter(

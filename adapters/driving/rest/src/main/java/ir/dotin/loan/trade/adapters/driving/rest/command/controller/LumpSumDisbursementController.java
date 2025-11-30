@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/facilities/{facilityId}/disburse/lump-sum")
+@RequestMapping("/api/{version}/facilities/{facilityId}/disburse/lump-sum")
 @Tag(name = SwaggerConfig.TAG_LUMP_SUM_DISBURSEMENT, description = "عملیات مربوط به پرداخت یکجای تسهیلات")
 @RequiredArgsConstructor
 class LumpSumDisbursementController extends BaseController {
@@ -31,7 +31,7 @@ class LumpSumDisbursementController extends BaseController {
     private final CommandDispatcher dispatcher;
     private final AuthenticationContextHolder authenticationContextHolder;
 
-    @PostMapping
+    @PostMapping(version = "1+")
     @Operation(summary = "پرداخت یکجا")
     public EventStreamResponse lumpSumDisbursement(
             @Parameter(

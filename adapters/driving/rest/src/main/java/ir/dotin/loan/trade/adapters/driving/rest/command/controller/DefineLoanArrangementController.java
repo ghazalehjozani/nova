@@ -20,7 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/loan-arrangements/define")
+@RequestMapping("/api/{version}/loan-arrangements/define")
 @Tag(name = SwaggerConfig.TAG_LOAN_ARRANGEMENT_MANAGEMENT, description = "عملیات مربوط به مدیریت شرایط اعطا")
 @RequiredArgsConstructor
 class DefineLoanArrangementController extends BaseController {
@@ -28,7 +28,7 @@ class DefineLoanArrangementController extends BaseController {
     private final CommandDispatcher dispatcher;
     private final DefineTradeLoanArrangementRequestToCommandMapper mapper;
 
-    @PostMapping
+    @PostMapping(version = "1+")
     @Operation(summary = "ایجاد شرط اعطا")
     public EventStreamResponse defineLoanArrangement(
             @RequestBody @Valid DataRequest<DefineTradeLoanArrangementRequest> request) {

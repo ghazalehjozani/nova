@@ -32,14 +32,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/loan-facilities")
+@RequestMapping("/api/{version}/loan-facilities")
 @RequiredArgsConstructor
 @Tag(name = SwaggerConfig.TAG_FACILITY_QUERIES, description = "استعلام تسهیلات")
 public class FacilityQueryController {
 
     private final QueryDispatcher queryDispatcher;
 
-    @GetMapping("/{facilityId}")
+    @GetMapping(value = "/{facilityId}", version = "1")
     @Operation(summary = "دریافت تسهیلات بر اساس شناسه")
     public DataResponse<TradeFacilityQueryDto> getById(@PathVariable UUID facilityId) {
         GetFacilityByIdQuery query =
@@ -47,7 +47,7 @@ public class FacilityQueryController {
         return DataResponse.of(queryDispatcher.dispatch(query));
     }
 
-    @GetMapping
+    @GetMapping(version = "1")
     @Operation(summary = "دریافت لیست تمام تسهیلات")
     public ResponseEntity<PagedResponse<LoanFacilityQueryResult>> findAll(
             @RequestParam(required = false) String cursor,
@@ -63,7 +63,7 @@ public class FacilityQueryController {
                 result, result.nextCursor(), result.previousCursor(), result.hasNext(), result.hasPrevious());
     }
 
-    @GetMapping("/search")
+    @GetMapping(value = "/search", version = "1")
     @Operation(summary = "جستجوی تسهیلات با فیلترهای مختلف")
     public ResponseEntity<PagedResponse<LoanFacilityQueryResult>> searchFacilities(
             @RequestParam(required = false) UUID loanTypeId,
