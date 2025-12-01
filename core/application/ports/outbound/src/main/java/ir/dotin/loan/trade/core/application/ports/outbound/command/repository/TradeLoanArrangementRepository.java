@@ -13,6 +13,8 @@ public interface TradeLoanArrangementRepository {
 
     Optional<TradeLoanArrangement> findById(LoanArrangementId id);
 
+    Optional<TradeLoanArrangement> findByCode(LoanArrangementCode code);
+
     Optional<UUID> getIdByCode(LoanArrangementCode code);
 
     boolean existsByCode(LoanArrangementCode code);

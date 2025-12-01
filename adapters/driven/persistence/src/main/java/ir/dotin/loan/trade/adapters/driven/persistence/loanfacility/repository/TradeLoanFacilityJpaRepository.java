@@ -20,10 +20,13 @@ public interface TradeLoanFacilityJpaRepository extends PersistentRepository<Tra
 
     @Query(
             """
-            select count(t) from TradeLoanFacilityEntity t
-            where t.loanApplication.branch.code = :code
-            and t.loanTypeId = :loanTypeId
-            and t.loanApplication.customer.customerNumber = :customerNumber
+            SELECT count(t)
+            FROM TradeLoanFacilityEntity t
+            JOIN t.loanApplication.parties p
+            WHERE t.loanApplication.branch.code = :code
+            AND t.loanTypeId = :loanTypeId
+            AND p.customerNumber = :customerNumber
+            AND p.partyRole = 'PRIMARY_APPLICANT'
             """)
     long countByBranchCodeAndLoanTypeIdAndCustomerNumber(
             @Param("code") String code,

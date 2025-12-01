@@ -3,170 +3,80 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.dto;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
-
-import org.jspecify.annotations.Nullable;
 
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(name = "OriginateLoanFacilityRequest", description = "درخواست ایجاد تسهیلات")
 public record OriginateLoanFacilityRequest(
-        @Schema(
-                        description = "شناسه نوع تسهیلات",
-                        example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
-                        requiredMode = Schema.RequiredMode.REQUIRED)
-                @NotNull
-                UUID loanTypeId,
-        @Schema(
-                        description = "شناسه عملیات",
-                        example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
-                        requiredMode = Schema.RequiredMode.REQUIRED)
-                @NotNull
-                UUID uid,
-        @Schema(
-                        description = "شناسه قرارداد تسهیلات",
-                        example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
-                        requiredMode = Schema.RequiredMode.REQUIRED)
-                @NotNull
-                UUID loanArrangementId,
-        @Schema(description = "درخواست تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull @Valid
+        @Schema(description = "کد نوع تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED) String loanTypeCode,
+        @Schema(description = "کد شرایط تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED)
+                String loanArrangementCode,
+        @Schema(description = "درخواست تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED)
                 LoanApplicationDto loanApplication,
-        @Schema(
-                        description =
-                                """
-        برنامه اقساط - الزامی بودن بستگی به نوع پرداخت اقساط در  وام دارد:
-
-        • GRADUAL: الزامی است - برنامه اقساط باید توسط کاربر ارسال شود
-        • ONE_TIME: اختیاری - اقساط به صورت یک‌جا در سررسید پرداخت می‌شود
-        • SCHEDULED: اختیاری - اقساط به صورت خودکار در مرحله اعطا بر اساس سیاست‌های آرایش وام ایجاد می‌شود
-        ...
-        """,
-                        requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-                @Nullable
-                @Valid
+        @Schema(description = "برنامه اقساط", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
                 InstallmentSchedulePlanDto installmentSchedulePlan) {
-
     @Schema(name = "LoanApplicationDto", description = "اطلاعات درخواست تسهیلات")
     public record LoanApplicationDto(
-            @Schema(
-                            description = "تاریخ درخواست",
-                            example = "2025-01-01T00:00:00Z",
-                            requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull
-                    Instant requestDate,
-            @Schema(description = "شماره مشتری", example = "10088", requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotBlank
-                    String customerNumber,
-            @Schema(description = "مبلغ درخواستی", example = "1000000.00", requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull
+            @Schema(description = "تاریخ درخواست", requiredMode = Schema.RequiredMode.REQUIRED) Instant requestDate,
+            @Schema(description = "ذینفعان شامل مشتری اصلی، فرعی و ضامنین", requiredMode = Schema.RequiredMode.REQUIRED)
+                    Set<PartyDto> parties,
+            @Schema(description = "مبلغ درخواستی", requiredMode = Schema.RequiredMode.REQUIRED)
                     BigDecimal requestedAmount,
-            @Schema(
-                            description = "روش پرداخت تسهیلات",
-                            requiredMode = Schema.RequiredMode.REQUIRED,
-                            example = "IRREGULAR_PROGRESSIVE")
+            @Schema(description = "روش پرداخت تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED)
                     DisbursementMethod disbursementMethod,
-            @Schema(description = "نوع ارز", example = "IRR", requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank
-                    String currency,
-            @Schema(description = "مدت زمان تسهیلات", example = "P12M", requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull
-                    Period requestedLoanDuration,
-            @Schema(
-                            description = "کانال متقاضی",
-                            example = "INTERNET_BANK",
-                            requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull
+            @Schema(description = "نوع ارز", requiredMode = Schema.RequiredMode.REQUIRED) String currency,
+            @Schema(description = "مدت زمان تسهیلات (ماه)", requiredMode = Schema.RequiredMode.REQUIRED)
+                    Integer requestedLoanDurationMonths,
+            @Schema(description = "کانال متقاضی", requiredMode = Schema.RequiredMode.REQUIRED)
                     ApplicantChannel applicantChannel,
-            @Schema(description = "دوره مهلت", example = "P1M", requiredMode = Schema.RequiredMode.REQUIRED) @Nullable
-                    Period gracePeriod,
-            @Schema(description = "تعداد اقساط", example = "12", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
-                    Integer installmentCount,
-            @Schema(description = "مقصد پرداخت", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
+            @Schema(description = "دوره تنفس (روز)", requiredMode = Schema.RequiredMode.REQUIRED)
+                    Integer gracePeriodDays,
+            @Schema(description = "تعداد اقساط", requiredMode = Schema.RequiredMode.REQUIRED) Integer installmentCount,
+            @Schema(description = "مقصد پرداخت", requiredMode = Schema.RequiredMode.REQUIRED)
                     DisburseDestinationDto disburseDestination,
-            @Schema(description = "کد بخش اقتصادی", example = "5-2", requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull
-                    @NotBlank
+            @Schema(description = "کد بخش اقتصادی", requiredMode = Schema.RequiredMode.REQUIRED)
                     String economicSectorCode,
-            @Schema(
-                            description = "کد دلیل درخواست",
-                            example = "REASON-001",
-                            requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull
-                    @NotBlank
+            @Schema(description = "کد دلیل درخواست", requiredMode = Schema.RequiredMode.REQUIRED)
                     String requestReasonCode,
-            @Schema(description = "کد منبع فرعی", example = "SUB-001", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-                    @Nullable
-                    @NotBlank
-                    String subSourceCode,
-            @Schema(
-                            description = "توضیحات",
-                            example = "توضیحات مربوط به درخواست",
-                            requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-                    @Nullable
-                    @NotBlank
-                    String description,
-            @Schema(
-                            description = "شماره مشتریان ضامن",
-                            example = "[\"10088\"]",
-                            requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull
-                    Set<String> guarantorNumbers,
-            @Schema(
-                            description = "سریال‌های گواهی‌ها",
-                            example = "[\"10\"]",
-                            requiredMode = Schema.RequiredMode.REQUIRED)
-                    @Nullable
+            @Schema(description = "کد منبع فرعی", requiredMode = Schema.RequiredMode.NOT_REQUIRED) String subSourceCode,
+            @Schema(description = "توضیحات", requiredMode = Schema.RequiredMode.NOT_REQUIRED) String description,
+            @Schema(description = "سریال‌های گواهی‌ها", requiredMode = Schema.RequiredMode.REQUIRED)
                     Set<String> certificateSerials,
-            @Schema(description = "مقدار رتبه اعتباری", example = "A", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-                    @Nullable
-                    @NotBlank
+            @Schema(description = "مقدار رتبه اعتباری", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
                     String credibilityRank) {}
+
+    @Schema(name = "PartyDto", description = "اطلاعات ذینفع")
+    public record PartyDto(
+            @Schema(description = "شماره مشتری", requiredMode = Schema.RequiredMode.REQUIRED) String customerNumber,
+            @Schema(description = "نقش", requiredMode = Schema.RequiredMode.REQUIRED) PartyRole role) {}
 
     @Schema(name = "DisburseDestinationDto", description = "مقصد پرداخت")
     public record DisburseDestinationDto(
-            @Schema(
-                            description = "شماره حساب",
-                            example = "1.10.10088.2",
-                            requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-                    @Nullable
-                    String depositNumber,
-            @Schema(description = "نوع مقصد پرداخت", example = "DEPOSIT", requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull(message = "نوع مقصد پرداخت الزامی است.")
+            @Schema(description = "شماره حساب", requiredMode = Schema.RequiredMode.NOT_REQUIRED) String depositNumber,
+            @Schema(description = "نوع مقصد پرداخت", requiredMode = Schema.RequiredMode.REQUIRED)
                     DisburseDestinationType type) {}
 
     @Schema(name = "InstallmentSchedulePlanDto", description = "برنامه اقساط")
     public record InstallmentSchedulePlanDto(
-            @Schema(description = "اطلاعات اقساط", requiredMode = Schema.RequiredMode.REQUIRED) @NotEmpty @Valid
+            @Schema(description = "اطلاعات اقساط", requiredMode = Schema.RequiredMode.REQUIRED)
                     List<InstallmentSpecDto> installments) {}
 
     @Schema(name = "InstallmentSpecDto", description = "مشخصات قسط")
     public record InstallmentSpecDto(
-            @Schema(description = "شماره ترتیب قسط", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull
+            @Schema(description = "شماره ترتیب قسط", requiredMode = Schema.RequiredMode.REQUIRED)
                     Integer sequenceNumber,
-            @Schema(
-                            description = "سررسید قسط",
-                            example = "2025-03-04T00:00:00Z",
-                            requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull
-                    LocalDate dueDate,
-            @Schema(description = "مبلغ اصل", example = "10000.00", requiredMode = Schema.RequiredMode.REQUIRED)
-                    @NotNull
-                    BigDecimal principalAmount,
-            @Schema(description = "مبلغ سود", example = "1000.00", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
-                    BigDecimal interestAmount,
-            @Schema(description = "مبلغ جریمه", example = "100.00", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-                    @Nullable
+            @Schema(description = "سررسید قسط", requiredMode = Schema.RequiredMode.REQUIRED) LocalDate dueDate,
+            @Schema(description = "مبلغ اصل", requiredMode = Schema.RequiredMode.REQUIRED) BigDecimal principalAmount,
+            @Schema(description = "مبلغ سود", requiredMode = Schema.RequiredMode.REQUIRED) BigDecimal interestAmount,
+            @Schema(description = "مبلغ جریمه", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
                     BigDecimal penaltyAmount,
-            @Schema(description = "مبلغ کارمزد", example = "50.00", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-                    @Nullable
+            @Schema(description = "مبلغ کارمزد", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
                     BigDecimal feeAmount) {}
 }

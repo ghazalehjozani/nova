@@ -25,6 +25,8 @@ import ir.dotin.loan.trade.core.domain.loanfacility.service.validator.TradeLoanF
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import static java.util.Objects.requireNonNull;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -38,61 +40,67 @@ public class FacilityOriginationOrchestrator {
     private final FacilityValidator facilityValidator;
 
     public Result<List<DomainEvent<?>>> originate(OriginateLoanFacilityCommand command) {
-        log.info("Starting facility origination process");
+        log.info("Starting facility origination process for LoanType: {}", command.loanTypeCode());
 
-        LoanFacilityId facilityId = LoanFacilityId.generate();
-
-        Result<Void> serviceValidationResult = facilityValidator.callAndValidateServices(command);
-        if (serviceValidationResult.isFailure()) {
-            log.error(
-                    "Service validation failed: {}",
-                    serviceValidationResult.notification().getErrorMessages());
-            return Result.failure(serviceValidationResult.notification());
+        Result<Void> validationResult = facilityValidator.callAndValidateServices(command);
+        if (validationResult.isFailure()) {
+            return Result.failure(validationResult.notification());
         }
 
-        return dependencyLoader.loadDependencies(command).flatMap(context -> {
-            InstallmentScheduleStrategy strategy = strategySelector.selectStrategy(
-                    context.arrangement().getInstallmentPolicy().installmentPaymentType());
-
-            return strategy.validateCommand(command)
-                    .flatMap(ignored -> planScheduleIfNeeded(command, strategy, context, facilityId))
-                    .flatMap(scheduleOpt -> createAndValidateFacility(command, context, scheduleOpt, facilityId))
-                    .flatMap((FacilityWithSchedule facility) ->
-                            facilityPersister.persist(facility.facility(), facility.schedule()))
-                    .map(facilityPersister::aggregateEvents);
-        });
+        return dependencyLoader
+                .loadDependencies(command)
+                .flatMap(context -> executeOriginationWorkflow(command, context));
     }
 
-    private Result<Optional<InstallmentSchedule>> planScheduleIfNeeded(
+    private Result<List<DomainEvent<?>>> executeOriginationWorkflow(
+            OriginateLoanFacilityCommand command, FacilityOriginationContext context) {
+
+        LoanFacilityId facilityId = LoanFacilityId.generate();
+        InstallmentScheduleStrategy strategy = strategySelector.selectStrategy(
+                requireNonNull(context.arrangement().getInstallmentPolicy()).installmentPaymentType());
+
+        return strategy.validateCommand(command)
+                .flatMap(valid -> prepareSchedule(command, strategy, context, facilityId))
+                .flatMap(scheduleOpt -> assembleFacility(command, context, scheduleOpt, facilityId))
+                .flatMap(this::persistResult);
+    }
+
+    private Result<Optional<InstallmentSchedule>> prepareSchedule(
             OriginateLoanFacilityCommand command,
             InstallmentScheduleStrategy strategy,
             FacilityOriginationContext context,
             LoanFacilityId facilityId) {
 
-        TradeLoanApplication tempApplication = facilityBuilder.buildApplication(command, context);
+        Result<TradeLoanApplication> draftAppResult = facilityBuilder.buildApplication(command, context);
+        if (draftAppResult.isFailure()) {
+            return Result.failure(draftAppResult.notification());
+        }
 
-        return strategy.planSchedule(command, tempApplication, context, facilityId);
+        return strategy.planSchedule(command, draftAppResult.getValue(), context, facilityId);
     }
 
-    private Result<FacilityWithSchedule> createAndValidateFacility(
+    private Result<FacilityAggregation> assembleFacility(
             OriginateLoanFacilityCommand command,
             FacilityOriginationContext context,
             Optional<InstallmentSchedule> scheduleOpt,
             LoanFacilityId facilityId) {
+
         InstallmentScheduleId scheduleId = scheduleOpt
-                .flatMap(schedule -> Optional.of(schedule.getId()))
-                .orElseThrow(() -> new IllegalStateException("Schedule or ID is missing"));
+                .map(InstallmentSchedule::getId)
+                .orElse(InstallmentScheduleId.generate().getValue());
+
         return facilityBuilder
                 .buildFacility(command, context, scheduleId, facilityId)
-                .flatMap(facility -> validateFacility(facility, context)
-                        .map(validatedFacility -> new FacilityWithSchedule(validatedFacility, scheduleOpt)));
+                .flatMap(facility -> validationService
+                        .validateForCreation(facility, context.arrangement(), context.loanType())
+                        .mapNonNull(valid -> new FacilityAggregation(facility, scheduleOpt)));
     }
 
-    private Result<TradeLoanFacility> validateFacility(TradeLoanFacility facility, FacilityOriginationContext context) {
-        return validationService
-                .validateForCreation(facility, context.arrangement(), context.loanType())
-                .mapNonNull(ignored -> facility);
+    private Result<List<DomainEvent<?>>> persistResult(FacilityAggregation aggregation) {
+        return facilityPersister
+                .persist(aggregation.facility(), aggregation.schedule())
+                .map(facilityPersister::aggregateEvents);
     }
 
-    private record FacilityWithSchedule(TradeLoanFacility facility, Optional<InstallmentSchedule> schedule) {}
+    private record FacilityAggregation(TradeLoanFacility facility, Optional<InstallmentSchedule> schedule) {}
 }

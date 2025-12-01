@@ -53,14 +53,12 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
     @Column(name = "request_date", nullable = false)
     private Instant requestDate;
 
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "customerNumber", column = @Column(name = "customer_number", nullable = false)),
-        @AttributeOverride(name = "partyType", column = @Column(name = "customer_type", nullable = false)),
-        @AttributeOverride(name = "firstName", column = @Column(name = "customer_first_name", nullable = false)),
-        @AttributeOverride(name = "lastName", column = @Column(name = "customer_last_name", nullable = false))
-    })
-    private PartyEmb customer;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "loan_application_parties",
+            joinColumns = @JoinColumn(name = "loan_application_id"),
+            indexes = @Index(name = "idx_trade_loan_application_parties", columnList = "loan_application_id"))
+    private Set<PartyEmb> parties = new HashSet<>();
 
     @Embedded
     @AttributeOverrides({
@@ -131,13 +129,6 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
                 column = @Column(name = "application_customer_last_name", nullable = false))
     })
     private ApplicationNumberEmb applicationNumber;
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "loan_application_guarantors",
-            joinColumns = @JoinColumn(name = "loan_application_id"),
-            indexes = @Index(name = "idx_trade_loan_application_guarantor", columnList = "loan_application_id"))
-    private Set<PartyEmb> guarantors = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(

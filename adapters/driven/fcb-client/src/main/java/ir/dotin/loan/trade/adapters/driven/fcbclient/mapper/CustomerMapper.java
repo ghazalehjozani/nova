@@ -3,10 +3,12 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.mapper;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.validation.constraints.NotNull;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.NationalCode;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.Direction;
@@ -93,14 +95,14 @@ public class CustomerMapper {
         return loanTransaction.document().description();
     }
 
-    public Result<PartyInfo> mapToDomainCustomerInfo(CustomerInfoResponse fcbResponse) {
+    public Result<PartyInfo> mapToDomainCustomerInfo(CustomerInfoResponse fcbResponse, @NotNull PartyRole role) {
 
         String firstName = fcbResponse.getFirstName();
         String lastName = fcbResponse.getLastName();
 
         PersonName personName = new PersonName(firstName, lastName);
         PartyType partyType = fcbResponse.getReal() ? PartyType.REAL : PartyType.LEGAL;
-        Party party = new Party(String.valueOf(fcbResponse.getCustomerNumber()), partyType, personName);
+        Party party = new Party(String.valueOf(fcbResponse.getCustomerNumber()), partyType, role, personName);
         Result<NationalCode> nationalCode = NationalCode.valueOf(fcbResponse.getNationalCode());
 
         if (fcbResponse.getCustomerNumber() == null) {
@@ -138,7 +140,10 @@ public class CustomerMapper {
         for (int i = 0; i < customers.size(); i++) {
             CustomerInfoResponse customerResponse = customers.get(i);
 
-            Result<PartyInfo> customerResult = mapToDomainCustomerInfo(customerResponse);
+            if (true) {
+                throw new UnsupportedOperationException("Not supported yet, Handle PartyRole");
+            }
+            Result<PartyInfo> customerResult = mapToDomainCustomerInfo(customerResponse, PartyRole.PRIMARY_APPLICANT);
 
             if (customerResult.isFailure()) {
                 log.error(

@@ -8,7 +8,7 @@
   <parent>
     <groupId>ir.dotin.loan</groupId>
     <artifactId>trade-loan</artifactId>
-    <version>2025.12.1-SNAPSHOT</version>
+    <version>2025.12.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -89,7 +89,7 @@
               <version>1.0.0-SNAPSHOT</version>
               <configuration>
                   <basePackage>ir.dotin</basePackage>
-                  <outputDirectory>${project.basedir}/src/main/resources</outputDirectory>
+                  <outputDirectory>${project.basedir}/src/main/resources/i18n</outputDirectory>
                   <scanDependencies>true</scanDependencies>
                   <locales>
                       <locale/>

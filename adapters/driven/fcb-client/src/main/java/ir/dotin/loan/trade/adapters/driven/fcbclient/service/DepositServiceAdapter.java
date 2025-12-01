@@ -284,8 +284,6 @@ public class DepositServiceAdapter implements DepositServicePort {
 
         DepositSignerOwnersResponse fcbResponse = fcbResult.orElseThrow();
 
-        Result<List<PartyInfo>> domainResult = CustomerMapper.mapToCustomerInfoList(fcbResponse.getCustomers());
-
-        return domainResult;
+        return CustomerMapper.mapToCustomerInfoList(fcbResponse.getCustomers());
     }
 }

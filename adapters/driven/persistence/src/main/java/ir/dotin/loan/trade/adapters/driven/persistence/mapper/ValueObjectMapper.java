@@ -403,12 +403,14 @@ public abstract class ValueObjectMapper {
 
     public abstract RevocationReason toRevocationReason(RevocationReasonEmb embeddable);
 
-    @Mapping(source = "type", target = "partyType")
+    @Mapping(source = "partyType", target = "partyType")
+    @Mapping(source = "partyRole", target = "partyRole")
     @Mapping(source = "name.firstName", target = "firstName")
     @Mapping(source = "name.lastName", target = "lastName")
     public abstract PartyEmb toPartyEmb(Party party);
 
-    @Mapping(source = "partyType", target = "type")
+    @Mapping(source = "partyType", target = "partyType")
+    @Mapping(source = "partyRole", target = "partyRole")
     @Mapping(source = "firstName", target = "name.firstName")
     @Mapping(source = "lastName", target = "name.lastName")
     public abstract Party toParty(PartyEmb embeddable);

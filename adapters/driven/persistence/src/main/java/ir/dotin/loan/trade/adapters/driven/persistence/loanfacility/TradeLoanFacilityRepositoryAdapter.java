@@ -1,16 +1,19 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.mapper.TradeLoanFacilityPersistenceMapper;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.repository.TradeLoanFacilityJpaRepository;
+import ir.dotin.loan.trade.adapters.driven.persistence.loantype.projection.TradeLoanTypeIdProjection;
+import ir.dotin.loan.trade.adapters.driven.persistence.loantype.repository.TradeLoanTypeJpaRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
@@ -24,6 +27,7 @@ import static java.util.Objects.requireNonNull;
 public class TradeLoanFacilityRepositoryAdapter implements TradeLoanFacilityRepository {
 
     private final TradeLoanFacilityJpaRepository jpaRepository;
+    private final TradeLoanTypeJpaRepository tradeLoanTypeJpaRepository;
     private final TradeLoanFacilityPersistenceMapper mapper;
 
     @Override
@@ -47,9 +51,12 @@ public class TradeLoanFacilityRepositoryAdapter implements TradeLoanFacilityRepo
     }
 
     @Override
-    public long countByBranchCodeAndLoanTypeIdAndCustomerNumber(
-            BranchCode branchCode, LoanTypeId loanTypeId, String customerNumber) {
+    public long countByBranchCodeAndLoanTypeCodeAndCustomerNumber(
+            BranchCode branchCode, LoanTypeCode loanTypeCode, String customerNumber) {
+        Optional<TradeLoanTypeIdProjection> byCodeValue =
+                tradeLoanTypeJpaRepository.findByCode_Value(loanTypeCode.value());
+        UUID loanTypeId = byCodeValue.map(TradeLoanTypeIdProjection::getId).orElse(null);
         return jpaRepository.countByBranchCodeAndLoanTypeIdAndCustomerNumber(
-                branchCode.value(), loanTypeId.value(), customerNumber);
+                branchCode.value(), loanTypeId, customerNumber);
     }
 }

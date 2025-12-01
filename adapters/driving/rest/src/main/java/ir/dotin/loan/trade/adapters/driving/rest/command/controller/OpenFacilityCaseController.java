@@ -42,6 +42,7 @@ class OpenFacilityCaseController extends BaseController {
         OriginateLoanFacilityCommand command = mapper.toCommand(request.payload());
 
         OriginateLoanFacilityCommand enrichedCommand = command.toBuilder()
+                .uid(getXRequestId())
                 .loanApplication(command.loanApplication().toBuilder()
                         .branch(new OriginateLoanFacilityCommand.BranchDto(branchCode))
                         .build())

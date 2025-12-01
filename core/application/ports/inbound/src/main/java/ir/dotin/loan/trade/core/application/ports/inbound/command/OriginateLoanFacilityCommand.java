@@ -19,7 +19,7 @@ import ir.dotin.platform.dispatcher.api.command.Command;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 
 import lombok.Builder;
 
@@ -27,8 +27,8 @@ import lombok.Builder;
 public record OriginateLoanFacilityCommand(
         @NotNull UUID uid,
         @Nullable Long version,
-        @NotNull UUID loanTypeId,
-        @NotNull UUID loanArrangementId,
+        @NotNull String loanTypeCode,
+        @NotNull String loanArrangementCode,
         @NotNull @Valid LoanApplicationDto loanApplication,
         @Nullable @Valid InstallmentSchedulePlanDto installmentSchedulePlan)
         implements Command {
@@ -36,7 +36,7 @@ public record OriginateLoanFacilityCommand(
     @Builder(toBuilder = true)
     public record LoanApplicationDto(
             @NotNull Instant requestDate,
-            @Valid @NotNull PartyDto customer,
+            @Valid @NotNull @NotEmpty Set<PartyDto> parties,
             @Valid @NotNull MoneyDto requestedAmount,
             @Valid @NotNull CurrencyTypeDto currency,
             @Valid @NotNull LoanDurationDto requestedLoanDuration,
@@ -50,7 +50,6 @@ public record OriginateLoanFacilityCommand(
             @Valid @Nullable SubSourceDto subSource,
             @Valid @Nullable DescriptionDto description,
             @Valid @NotNull DisbursementMethod disbursementMethod,
-            @Valid @NotNull Set<PartyDto> guarantors,
             @Valid @NotNull Set<CertificateDto> certificates,
             @Valid @Nullable ApplicationNumberDto applicationNumber,
             @Valid @Nullable CredibilityRankDto credibilityRank) {}
@@ -64,13 +63,10 @@ public record OriginateLoanFacilityCommand(
             @NotNull LocalDate dueDate,
             @Valid @NotNull MoneyDto principalAmount,
             @Valid @NotNull MoneyDto interestAmount,
-            @Valid @Nullable MoneyDto penaltyAmount,
-            @Valid @Nullable MoneyDto feeAmount) {}
+            @Nullable MoneyDto penaltyAmount,
+            @Nullable MoneyDto feeAmount) {}
 
-    public record PartyDto(
-            @Nullable String customerNumber, @Nullable PartyType type, @Valid @Nullable PersonNameDto name) {}
-
-    public record PersonNameDto(@Nullable String firstName, @Nullable String lastName) {}
+    public record PartyDto(@NotBlank String customerNumber, @NotNull PartyRole role) {}
 
     public record BranchDto(@Nullable String code) {}
 

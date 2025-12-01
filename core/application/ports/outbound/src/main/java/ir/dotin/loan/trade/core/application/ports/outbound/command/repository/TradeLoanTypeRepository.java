@@ -12,6 +12,8 @@ public interface TradeLoanTypeRepository {
 
     Optional<TradeLoanType> findById(LoanTypeId id);
 
+    Optional<TradeLoanType> findByCode(LoanTypeCode code);
+
     Boolean existsById(LoanTypeId id);
 
     Boolean existsByCode(LoanTypeCode code);

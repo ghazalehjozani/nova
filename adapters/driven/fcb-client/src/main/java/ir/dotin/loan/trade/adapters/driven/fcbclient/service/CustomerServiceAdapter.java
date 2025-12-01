@@ -2,11 +2,13 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.validation.constraints.NotNull;
 
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
@@ -36,7 +38,8 @@ public class CustomerServiceAdapter implements CustomerServicePort {
     private final FcbBaseRequestBuilder requestBuilder;
 
     @Override
-    public Result<PartyInfo> loadCustomerInfo(String customerNumber, CustomerInfoLoadOptions options) {
+    public Result<PartyInfo> loadCustomerInfo(
+            String customerNumber, @NotNull PartyRole role, CustomerInfoLoadOptions options) {
 
         log.info("Loading customer info: customerNumber={}, options={}", customerNumber, options);
 
@@ -74,7 +77,7 @@ public class CustomerServiceAdapter implements CustomerServicePort {
                         FcbBusinessLocalizedMessageCodes.FCB_BUSINESS_EXCEPTION, fcbResponse.getErrorDescription()));
             }
 
-            Result<PartyInfo> mappingResult = CustomerMapper.mapToDomainCustomerInfo(fcbResponse);
+            Result<PartyInfo> mappingResult = CustomerMapper.mapToDomainCustomerInfo(fcbResponse, role);
 
             if (mappingResult.isFailure()) {
                 log.error(

@@ -24,12 +24,10 @@ public class ValidationApplicationNumberStrategy implements ApplicationNumberStr
 
     @Override
     public @NonNull Result<ApplicationNumber> generateOrValidateApplicationNumber(
-            @NonNull Branch branch,
-            @NonNull LoanTypeCode loanTypeCode,
-            @NonNull Party mainCustomer,
-            @NonNull String derivedSequence) {
+            @NonNull Branch branch, @NonNull LoanTypeCode loanTypeCode, @NonNull Party primaryApplicant) {
 
-        Result<ApplicationNumber> fcbResult = loanServicePort.getApplicationNumber(branch, loanTypeCode, mainCustomer);
+        Result<ApplicationNumber> fcbResult =
+                loanServicePort.getApplicationNumber(branch, loanTypeCode, primaryApplicant);
 
         if (fcbResult.isFailure()) {
             return Result.failure(fcbResult.notification());
