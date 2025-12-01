@@ -18,15 +18,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/facilities/{facilityId}/disburse/regular")
+@RequestMapping("/api/{version}/facilities/{facilityId}/disburse/regular")
 @Tag(name = SwaggerConfig.TAG_REGULAR_DISBURSEMENT, description = "عملیات مربوط به پرداخت عادی تسهیلات")
 @RequiredArgsConstructor
 @Hidden
-public class RegularDisbursementController extends BaseController {
+class RegularDisbursementController extends BaseController {
 
     private final CommandDispatcher dispatcher;
 
-    @PostMapping
+    @PostMapping(version = "1+")
     @Operation(summary = "پرداخت عادی")
     public EventStreamResponse regularDisbursement(
             @Parameter(

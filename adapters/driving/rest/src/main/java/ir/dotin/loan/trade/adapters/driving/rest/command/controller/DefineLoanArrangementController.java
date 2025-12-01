@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,25 +16,25 @@ import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.DefineTradeLoanA
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/loan-arrangements/define")
+@RequestMapping("/api/{version}/loan-arrangements/define")
 @Tag(name = SwaggerConfig.TAG_LOAN_ARRANGEMENT_MANAGEMENT, description = "عملیات مربوط به مدیریت شرایط اعطا")
 @RequiredArgsConstructor
-public class DefineLoanArrangementController extends BaseController {
+class DefineLoanArrangementController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final DefineTradeLoanArrangementRequestToCommandMapper mapper;
 
-    @PostMapping
+    @PostMapping(version = "1+")
     @Operation(summary = "ایجاد شرط اعطا")
     public EventStreamResponse defineLoanArrangement(
-            @Parameter(description = "جزئیات ایجاد شرط اعطا", required = true) @RequestBody
-                    DataRequest<DefineTradeLoanArrangementRequest> request) {
-        var command = mapper.toCommand(request.payload());
+            @RequestBody @Valid DataRequest<DefineTradeLoanArrangementRequest> request) {
+        var command = mapper.toCommand(request.payload()).toBuilder()
+                .uid(getXRequestId())
+                .build();
         return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
     }
 }

@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,25 +16,24 @@ import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.DefineLoanTypeRe
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/loan-types/define")
+@RequestMapping("/api/{version}/loan-types/define")
 @Tag(name = SwaggerConfig.TAG_LOAN_TYPE_MANAGEMENT, description = "عملیات مربوط به مدیریت نوع تسهیلات")
 @RequiredArgsConstructor
-public class DefineLoanTypeController extends BaseController {
+class DefineLoanTypeController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final DefineLoanTypeRequestToCommandMapper mapper;
 
-    @PostMapping
+    @PostMapping(version = "1+")
     @Operation(summary = "ایجاد نوع تسهیلات")
-    public EventStreamResponse defineLoanType(
-            @Parameter(description = "جزئیات ایجاد نوع تسهیلات", required = true) @RequestBody
-                    DataRequest<DefineLoanTypeRequest> request) {
-        var command = mapper.toCommand(request.payload());
+    public EventStreamResponse defineLoanType(@RequestBody @Valid DataRequest<DefineLoanTypeRequest> request) {
+        var command = mapper.toCommand(request.payload()).toBuilder()
+                .uid(getXRequestId())
+                .build();
         return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
     }
 }

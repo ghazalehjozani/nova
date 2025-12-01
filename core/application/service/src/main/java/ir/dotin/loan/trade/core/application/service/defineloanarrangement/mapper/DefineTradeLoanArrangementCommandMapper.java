@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.google.common.collect.Range;
+import org.jspecify.annotations.NonNull;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -58,13 +59,15 @@ public abstract class DefineTradeLoanArrangementCommandMapper {
             @MappingTarget TradeLoanArrangement.Builder builder, DefineTradeLoanArrangementCommand command) {
         CurrencyType currency = map(command.currencyType());
         if (Objects.nonNull(command.amountRange())) {
-            Money min = new Money(command.amountRange().min().value(), currency);
-            Money max = new Money(command.amountRange().max().value(), currency);
+            Money min =
+                    Money.valueOf(command.amountRange().min().value(), currency).getValue();
+            Money max =
+                    Money.valueOf(command.amountRange().max().value(), currency).getValue();
             builder.amountRange(Range.closed(min, max));
         }
     }
 
-    Range<LoanDuration> mapDurationRange(DefineTradeLoanArrangementCommand.LoanDurationRangeDto dto) {
+    Range<@NonNull LoanDuration> mapDurationRange(DefineTradeLoanArrangementCommand.LoanDurationRangeDto dto) {
         return Range.closed(map(dto.min()), map(dto.max()));
     }
 
@@ -85,7 +88,7 @@ public abstract class DefineTradeLoanArrangementCommandMapper {
         LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> refundParam =
                 createParameterizedFormula(refundFormula);
 
-        Range<Rate> preferentialRange = Range.closed(minRate, maxRate);
+        Range<@NonNull Rate> preferentialRange = Range.closed(minRate, maxRate);
         return InterestPolicy.of(minRate, preferentialRange, interestParam, refundParam, dto.dailyInterest())
                 .orElseThrow();
     }
@@ -115,8 +118,7 @@ public abstract class DefineTradeLoanArrangementCommandMapper {
         LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> interestParam =
                 createParameterizedFormula(interestComponentFormula);
 
-        return InstallmentPolicy.of(
-                        period, installmentParam, interestParam, dto.paymentType(), dto.isDefineAutomaticInstallment())
+        return InstallmentPolicy.of(period, installmentParam, interestParam, dto.paymentType())
                 .orElseThrow();
     }
 

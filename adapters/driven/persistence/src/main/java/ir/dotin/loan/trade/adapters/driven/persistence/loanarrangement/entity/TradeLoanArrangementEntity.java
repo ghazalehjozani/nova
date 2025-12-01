@@ -1,19 +1,22 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.entity;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 
 import org.hibernate.proxy.HibernateProxy;
 
 import ir.dotin.platform.adapter.persistence.embeddable.AmountRangeEmb;
 import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
-import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LifeInsurancePaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LoanSecondaryType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
@@ -76,8 +79,9 @@ public class TradeLoanArrangementEntity extends PersistentEntity {
     @Column(name = "has_installment_card", nullable = false)
     private boolean hasInstallmentCard = false;
 
-    @Embedded
-    private ConfirmTypeEmb confirmType;
+    @ElementCollection
+    @CollectionTable(name = "loan_arrangement_confirm_types", joinColumns = @JoinColumn(name = "loan_arrangement_id"))
+    private List<ConfirmTypeEmb> confirmTypes;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "life_insurance_payment_type", nullable = false)
@@ -111,13 +115,6 @@ public class TradeLoanArrangementEntity extends PersistentEntity {
 
     @Embedded
     private CollateralPolicyEmb collateralPolicy;
-
-    @Column(name = "auto_approval", nullable = false)
-    private boolean autoApproval = false;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "disbursement_method")
-    private DisbursementMethod disbursementMethod;
 
     @Column(name = "previous_version_id")
     private UUID previousVersion;

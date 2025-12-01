@@ -18,15 +18,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/facilities/{facilityId}/close-paid-off")
+@RequestMapping("/api/{version}/facilities/{facilityId}/close-paid-off")
 @Tag(name = SwaggerConfig.TAG_FACILITY_CLOSURE_PAID_OFF, description = "عملیات مربوط به بستن تسهیلات پرداخت شده")
 @RequiredArgsConstructor
-public class CloseFacilityPaidOffController extends BaseController {
+class CloseFacilityPaidOffController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final CloseFacilityPaidOffRequestToCommandMapper mapper;
 
-    @PostMapping
+    @PostMapping(version = "1+")
     @Operation(summary = "بستن تسهیلات پرداخت شده")
     public EventStreamResponse closeFacilityPaidOff(
             @Parameter(

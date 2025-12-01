@@ -20,9 +20,6 @@ public class ApplicationNumberEmb implements Serializable {
     @Embedded
     private PartyEmb party;
 
-    @Embedded
-    private RespiteSerialEmb respiteSerial;
-
     @Column(name = "derived_value", nullable = false)
     private String derivedValue;
 }

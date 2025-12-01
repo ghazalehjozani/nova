@@ -23,15 +23,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/facilities/{facilityId}/submit-for-approval")
+@RequestMapping("/api/{version}/facilities/{facilityId}/submit-for-approval")
 @Tag(name = SwaggerConfig.TAG_FACILITY_APPROVAL_SUBMISSION, description = "عملیات مربوط به ثبت درخواست تصویب مصوبه")
 @RequiredArgsConstructor
-public class SubmitFacilityForApprovalController extends BaseController {
+class SubmitFacilityForApprovalController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final SubmitFacilityForApprovalRequestToCommandMapper mapper;
 
-    @PostMapping
+    @PostMapping(version = "1+")
     @Operation(summary = "ثبت درخواست تصویب تسهیلات")
     public EventStreamResponse submitFacilityForApproval(
             @PathVariable UUID facilityId,

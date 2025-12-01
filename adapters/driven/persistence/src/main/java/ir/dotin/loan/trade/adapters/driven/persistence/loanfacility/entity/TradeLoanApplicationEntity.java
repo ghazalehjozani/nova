@@ -17,6 +17,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import org.hibernate.proxy.HibernateProxy;
 
@@ -35,7 +36,18 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @Entity
-@Table(name = "loan_applications")
+@Table(
+        name = "loan_applications",
+        uniqueConstraints = {
+            @UniqueConstraint(
+                    name = "uc_tradeloanapplicationentity",
+                    columnNames = {
+                        "application_branch_code",
+                        "loan_type_code",
+                        "application_customer_number",
+                        "derived_value"
+                    })
+        })
 public class TradeLoanApplicationEntity extends PersistentEntity {
 
     @Column(name = "request_date", nullable = false)

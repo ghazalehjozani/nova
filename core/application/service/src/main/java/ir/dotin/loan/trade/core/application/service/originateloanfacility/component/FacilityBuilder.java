@@ -104,7 +104,7 @@ public class FacilityBuilder {
                 return Result.failure(applicationNumberResult.notification());
             }
 
-            ApplicationNumber applicationNumber = applicationNumberResult.value();
+            ApplicationNumber applicationNumber = applicationNumberResult.getValue();
 
             Set<Party> enrichedGuarantors = context.guarantors().stream()
                     .map(this::createPartyFromPartyInfo)
@@ -115,7 +115,6 @@ public class FacilityBuilder {
                     .customer(mainCustomer)
                     .applicationNumber(applicationNumber)
                     .guarantors(enrichedGuarantors)
-                    .disbursementMethod(context.arrangement().getDisbursementMethod())
                     .branch(branch);
 
             return TradeLoanApplication.create(builder);

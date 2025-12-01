@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
@@ -18,6 +19,7 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.AddFacilityCol
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface AddFacilityCollateralRequestToCommandMapper {
 
+    @Mapping(target = "uid", ignore = true)
     AddFacilityCollateralCommand toCommand(
             UUID loanFacilityId, String collateralSerialDto, AddFacilityCollateralRequest request);
 

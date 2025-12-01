@@ -15,11 +15,11 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import org.hibernate.proxy.HibernateProxy;
 
 import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
-import ir.dotin.loan.baseloan.core.domain.loantype.enums.SegmentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.EconomicSectorCurrencyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.EditReasonEmb;
@@ -32,7 +32,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "loan_types")
+@Table(
+        name = "loan_types",
+        uniqueConstraints = {
+            @UniqueConstraint(
+                    name = "uc_tradeloantypeentity",
+                    columnNames = {"loan_type_code"})
+        })
 @Getter
 @Setter
 @NoArgsConstructor
@@ -53,10 +59,6 @@ public class TradeLoanTypeEntity extends PersistentEntity {
 
     @Column(name = "loan_application_allowed", nullable = false)
     private Boolean loanApplicationAllowed;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "segment_type", nullable = false)
-    private SegmentType segmentType;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(

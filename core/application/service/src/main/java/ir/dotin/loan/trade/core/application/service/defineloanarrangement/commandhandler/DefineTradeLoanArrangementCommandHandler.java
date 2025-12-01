@@ -12,6 +12,7 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.DefineTradeLoanArrangementCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
@@ -42,14 +43,16 @@ public class DefineTradeLoanArrangementCommandHandler implements CommandHandler<
                 () -> loadEconomicSector(mapper.map(command.economicSector())), VIRTUAL_EXECUTOR);
 
         return Result.requireFalse(
-                        repository.existsByCode(command.code().value()),
-                        Notification.ofError(DefineLoanArrangementErrorCodes.DUPLICATE_CODE, command.code()))
+                        repository.existsByCode(
+                                LoanArrangementCode.valueOf(command.code().value())
+                                        .getValue()),
+                        Notification.ofError(
+                                DefineLoanArrangementErrorCodes.DUPLICATE_CODE,
+                                command.code().value()))
                 .flatMap(ignored -> {
                     Result<EconomicSector> economicSectorResult = economicSectorFuture.join();
-                    return economicSectorResult.flatMap(validatedSector -> {
-                        return Result.success(mapper.toBuilder(command))
-                                .flatMap(builder -> TradeLoanArrangement.create(builder, clock));
-                    });
+                    return economicSectorResult.flatMap(validatedSector -> Result.success(mapper.toBuilder(command))
+                            .flatMap(builder -> TradeLoanArrangement.create(builder, clock)));
                 })
                 .peekValue(arrangement -> {
                     repository.save(arrangement);

@@ -19,16 +19,16 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/facilities/{facilityId}/cancel")
+@RequestMapping("/api/{version}/facilities/{facilityId}/cancel")
 @Tag(name = SwaggerConfig.TAG_FACILITY_CANCELLATION, description = "عملیات مربوط به لغو تسهیلات")
 @RequiredArgsConstructor
 @Hidden
-public class CancelFacilityController extends BaseController {
+class CancelFacilityController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final CancelFacilityRequestToCommandMapper mapper;
 
-    @PostMapping
+    @PostMapping(version = "1+")
     @Operation(summary = "لغو تسهیلات")
     public EventStreamResponse cancelFacility(
             @Parameter(

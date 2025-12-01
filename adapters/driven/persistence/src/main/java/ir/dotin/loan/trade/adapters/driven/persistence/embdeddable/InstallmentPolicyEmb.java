@@ -20,7 +20,4 @@ public class InstallmentPolicyEmb implements Serializable {
 
     @Column(name = "installment_payment_type")
     private String installmentPaymentType;
-
-    @Column(name = "define_automatic_installment")
-    private Boolean defineAutomaticInstallment;
 }

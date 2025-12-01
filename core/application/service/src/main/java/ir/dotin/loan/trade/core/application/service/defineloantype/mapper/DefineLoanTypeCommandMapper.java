@@ -17,10 +17,8 @@ import ir.dotin.loan.baseloan.core.domain.loantype.vo.EconomicSectorCurrency;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanApplicationStatus;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.IncomeId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeGroupId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.DefineLoanTypeCommand;
 import ir.dotin.loan.trade.core.application.service.BaseMapperConfig;
@@ -35,6 +33,9 @@ public interface DefineLoanTypeCommandMapper {
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "disable", ignore = true)
     @Mapping(target = "previousVersion", ignore = true)
+    @Mapping(target = "incomeIds", ignore = true)
+    @Mapping(target = "groupId", ignore = true)
+    @Mapping(target = "loanArrangementIds", ignore = true)
     @Mapping(target = "economicSectorCurrencies", source = "economicSectorCurrencies")
     TradeLoanType.Builder toBuilder(DefineLoanTypeCommand command);
 
@@ -58,11 +59,7 @@ public interface DefineLoanTypeCommandMapper {
 
     EconomicSector map(DefineLoanTypeCommand.EconomicSectorDto dto);
 
-    LoanArrangementId map(DefineLoanTypeCommand.LoanArrangementIdDto dto);
-
-    IncomeId map(DefineLoanTypeCommand.IncomeIdDto dto);
-
-    LoanTypeGroupId map(DefineLoanTypeCommand.LoanTypeGroupIdDto dto);
+    LoanArrangementId map(DefineLoanTypeCommand.LoanArrangementCodeDto dto);
 
     default Multimap<RelationType<TradeRelationType>, LoanTopic> map(
             List<DefineLoanTypeCommand.RelationTypeLoanTopicDto> dtos) {

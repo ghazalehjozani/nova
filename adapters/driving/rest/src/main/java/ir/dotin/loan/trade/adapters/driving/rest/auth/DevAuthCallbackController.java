@@ -26,14 +26,14 @@ import lombok.extern.slf4j.Slf4j;
 @Profile({"dev", "stage"})
 @Hidden
 @RestController
-@RequestMapping("/api/dev/auth")
+@RequestMapping("/api/{version}/dev/auth")
 @RequiredArgsConstructor
 public class DevAuthCallbackController {
 
     private final ObjectMapper objectMapper;
     private final PlatformSecurityProperties securityProperties;
 
-    @PostMapping("/callback")
+    @PostMapping(value = "/callback", version = "1+")
     public ResponseEntity<?> tokenProxy(
             @RequestParam String code,
             @RequestParam(name = "redirect_uri") String redirectUri,

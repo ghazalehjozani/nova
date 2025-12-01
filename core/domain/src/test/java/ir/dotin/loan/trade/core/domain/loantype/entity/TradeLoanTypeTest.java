@@ -16,7 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import ir.dotin.platform.commons.core.feature.FeatureConfig;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
-import ir.dotin.loan.baseloan.core.domain.loantype.enums.SegmentType;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.EconomicSectorCurrency;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanApplicationStatus;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
@@ -262,7 +261,6 @@ final class TradeLoanTypeTest {
                 .title(mockTitle)
                 .gatewayType(GatewayType.LOAN)
                 .loanApplicationAllowed(mockLoanApplicationStatus)
-                .segmentType(SegmentType.LOAN)
                 .economicSectorCurrencies(ImmutableSet.of(mockEconomicSector))
                 .groupId(mockGroupId)
                 .loanArrangementIds(validArrangementIds);

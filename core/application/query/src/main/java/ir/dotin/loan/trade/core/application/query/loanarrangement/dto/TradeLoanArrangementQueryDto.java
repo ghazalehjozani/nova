@@ -7,8 +7,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import ir.dotin.platform.dispatcher.api.query.QueryResult;
-import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LifeInsurancePaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LoanSecondaryType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
@@ -19,10 +20,7 @@ import lombok.Builder;
 public record TradeLoanArrangementQueryDto(
         UUID id,
         Long version,
-        LocalDateTime createdAt,
-        LocalDateTime modifiedAt,
-        String createdBy,
-        String modifiedBy,
+        @JsonIgnore LocalDateTime createdAt,
         String code,
         TitleEmbDto title,
         boolean active,
@@ -34,7 +32,6 @@ public record TradeLoanArrangementQueryDto(
         Integer guarantorCount,
         PartyType partyType,
         boolean hasInstallmentCard,
-        ConfirmTypeEmbDto confirmType,
         LifeInsurancePaymentType lifeInsurancePaymentType,
         LoanSecondaryType loanSecondaryType,
         SectionType sectionType,
@@ -45,8 +42,6 @@ public record TradeLoanArrangementQueryDto(
         RepaymentPriorityPolicyEmbDto repaymentPriorityPolicy,
         RegulatoryCompliancePolicyEmbDto regulatoryCompliancePolicy,
         CollateralPolicyEmbDto collateralPolicy,
-        boolean autoApproval,
-        DisbursementMethod disbursementMethod,
         UUID previousVersion)
         implements QueryResult {
 
@@ -63,8 +58,6 @@ public record TradeLoanArrangementQueryDto(
 
         public record PeriodEmbDto(Integer years, Integer months, Integer days) implements Serializable {}
     }
-
-    public record ConfirmTypeEmbDto(String personCode) implements Serializable {}
 
     public record InterestPolicyEmbDto(
             BigDecimal baseInterestRate,
@@ -86,8 +79,7 @@ public record TradeLoanArrangementQueryDto(
             Integer installmentPeriodDays,
             FormulaDto installmentFormula,
             FormulaDto interestComponentFormula,
-            String installmentPaymentType,
-            Boolean defineAutomaticInstallment)
+            String installmentPaymentType)
             implements Serializable {}
 
     public record GracePeriodPolicyEmbDto(

@@ -1,0 +1,71 @@
+{
+  "code": "10",
+  "title": "شرط اعطای جدید",
+  "currencyType": "IRR",
+  "amountRange": {
+    "min": 1000,
+    "max": 10000000
+  },
+  "durationRange": {
+    "minMonths": 1,
+    "maxMonths": 24
+  },
+  "partyType": "REAL",
+  "confirmTypes": [
+    "1",
+    "2",
+    "3"
+  ],
+  "guarantorCount": 0,
+  "hasInstallmentCard": false,
+  "lifeInsurancePaymentType": "NONE",
+  "loanSecondaryType": "NONE",
+  "sectionType": "NONE",
+  "economicSector": "2-1",
+  "interestPolicy": {
+    "minRate": 1,
+    "maxRate": 18,
+    "interestFormula": "10000",
+    "refundFormula": "2000",
+    "dailyInterest": true
+  },
+  "penaltyPolicy": {
+    "penaltyRate": 2,
+    "deferralInterestRate": 6,
+    "formula": "50000",
+    "paymentType": "INSTALLMENT_PENALTY_PAYMENT"
+  },
+  "installmentPolicy": {
+    "installmentPeriodMonths": 1,
+    "installmentFormula": "2000",
+    "interestComponentFormula": "1000",
+    "paymentType": "GRADUAL"
+  },
+  "gracePeriodPolicy": {
+    "minGracePeriodDays": 10,
+    "maxGracePeriodDays": 30,
+    "formula": "10000"
+  },
+  "repaymentPriorityPolicy": {
+    "principalPriority": 1,
+    "interestPriority": 2,
+    "penaltyPriority": 3,
+    "commissionPriority": 4,
+    "insurancePriority": 5,
+    "insurancePenaltyPriority": 6,
+    "hasEqualPriority": false
+  },
+  "regulatoryCompliancePolicy": {
+    "overDuePeriodMonths": 365,
+    "deferralPeriodMonths": 30,
+    "suspiciousPeriodMonths": 90
+  },
+  "collateralPolicy": {
+    "totalPercent": 120,
+    "collateralTypes": [
+      "ESTATE_1",
+      "CHEQUE_1"
+    ],
+    "collateralCalculationType": "BASED_ON_PRINCIPAL"
+  }
+}

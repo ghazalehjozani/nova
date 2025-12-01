@@ -1,0 +1,52 @@
+{
+  "code": "9910",
+  "title": "تسهیلات کوتاه‌مدت",
+  "gatewayType": "DIGITAL_BANK",
+  "loanApplicationAllowed": true,
+  "economicSectorCurrencies": [
+    {
+      "economicSectorCode": "2-1",
+      "currencyTypes": [
+        "IRR",
+        "EUR"
+      ]
+    }
+  ],
+  "loanArrangementCodes": [
+    "{{loanArrangementCode}}"
+  ],
+  "relationTypeLoanTopics": [
+    {
+      "relationType": "BANK_COMMITMENTS",
+      "topicName": "تعهدات بانک",
+      "topicCode": "20162",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "BANK_COMMITMENTS_CONTRA",
+      "topicName": "طرف تعهدات بانک",
+      "topicCode": "1837",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "PRINCIPAL",
+      "topicName": "اصلی",
+      "topicCode": "1053",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "FUTURE_INTEREST",
+      "topicName": "سود سال‌های آینده",
+      "topicCode": "23050",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    }
+  ]
+}

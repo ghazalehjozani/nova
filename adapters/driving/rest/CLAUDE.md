@@ -213,7 +213,7 @@ Example: `LOAN-0001`
 package ir.dotin.loan.trade.adapters.driving.rest.command.createfacility;
 
 @RestController
-@RequestMapping("/v1/facilities")
+@RequestMapping("/api/{version}/facilities")
 @RequiredArgsConstructor
 @Tag(name = "Create Facility", description = "Create new loan facility")
 @Validated
@@ -363,7 +363,7 @@ public class CreateFacilityResponse {
 package ir.dotin.loan.trade.adapters.driving.rest.command.approvefacility;
 
 @RestController
-@RequestMapping("/v1/facilities")
+@RequestMapping("/api/{version}/facilities")
 @RequiredArgsConstructor
 @Tag(name = "Approve Facility")
 public class ApproveFacilityController {
@@ -403,7 +403,7 @@ public class ApproveFacilityController {
 package ir.dotin.loan.trade.adapters.driving.rest.command.deletefacility;
 
 @RestController
-@RequestMapping("/v1/facilities")
+@RequestMapping("/api/{version}/facilities")
 @RequiredArgsConstructor
 @Tag(name = "Delete Facility")
 public class DeleteFacilityController {
@@ -468,7 +468,7 @@ This approach is pragmatic for reads - strict port isolation is more valuable fo
 package ir.dotin.loan.trade.adapters.driving.rest.query.loanfacility;
 
 @RestController
-@RequestMapping("/v1/facilities")
+@RequestMapping("/api/{version}/facilities")
 @RequiredArgsConstructor
 @Tag(name = "Facility Queries", description = "Query loan facilities")
 public class FacilityQueryController {

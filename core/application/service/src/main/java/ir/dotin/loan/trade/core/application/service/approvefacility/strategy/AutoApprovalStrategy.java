@@ -12,6 +12,8 @@ import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilitySer
 
 import lombok.RequiredArgsConstructor;
 
+import static ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel.DIGITAL_BANK;
+
 @Component
 @RequiredArgsConstructor
 public class AutoApprovalStrategy implements ApprovalStrategy {
@@ -26,11 +28,11 @@ public class AutoApprovalStrategy implements ApprovalStrategy {
             return Result.failure(
                     Notification.ofError(ApproveFacilityErrorCodes.SANCTION_SERIAL_NOT_ALLOWED_FOR_AUTO_APPROVAL));
         }
+        boolean isAutoApproval = facility.getLoanApplication().getApplicantChannel() == DIGITAL_BANK;
 
-        if (!arrangement.isAutoApproval()) {
-            return Result.failure(Notification.ofError(
-                    ApproveFacilityErrorCodes.AUTO_APPROVAL_NOT_ENABLED,
-                    facility.getLoanArrangementId().value()));
+        if (!isAutoApproval) {
+            return Result.failure(
+                    Notification.ofError(ApproveFacilityErrorCodes.AUTO_APPROVAL_NOT_ENABLED, DIGITAL_BANK));
         }
 
         return Result.success();
@@ -38,6 +40,6 @@ public class AutoApprovalStrategy implements ApprovalStrategy {
 
     @Override
     public Result<Void> approve(TradeLoanFacility facility, TradeLoanArrangement arrangement) {
-        return domainService.approve(facility, null, arrangement);
+        return domainService.approve(facility, null, true);
     }
 }
