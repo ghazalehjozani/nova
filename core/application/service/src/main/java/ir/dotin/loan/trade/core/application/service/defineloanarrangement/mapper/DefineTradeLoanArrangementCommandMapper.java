@@ -78,8 +78,8 @@ public abstract class DefineTradeLoanArrangementCommandMapper {
     InterestPolicy<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> mapInterestPolicy(
             DefineTradeLoanArrangementCommand.InterestPolicyDto dto) {
 
-        Rate minRate = Rate.valueOf(dto.minRate()).orElseThrow();
-        Rate maxRate = Rate.valueOf(dto.maxRate()).orElseThrow();
+        Rate minRate = Rate.valueOf(dto.minPreferentialRate()).orElseThrow();
+        Rate maxRate = Rate.valueOf(dto.maxPreferentialRate()).orElseThrow();
         Formula interestFormula = Formula.valueOf(dto.interestFormula()).orElseThrow();
         Formula refundFormula = Formula.valueOf(dto.refundFormula()).orElseThrow();
 
@@ -89,7 +89,12 @@ public abstract class DefineTradeLoanArrangementCommandMapper {
                 createParameterizedFormula(refundFormula);
 
         Range<@NonNull Rate> preferentialRange = Range.closed(minRate, maxRate);
-        return InterestPolicy.of(minRate, preferentialRange, interestParam, refundParam, dto.dailyInterest())
+        return InterestPolicy.of(
+                        Rate.valueOf(dto.rate()).orElseThrow(),
+                        preferentialRange,
+                        interestParam,
+                        refundParam,
+                        dto.dailyInterest())
                 .orElseThrow();
     }
 
