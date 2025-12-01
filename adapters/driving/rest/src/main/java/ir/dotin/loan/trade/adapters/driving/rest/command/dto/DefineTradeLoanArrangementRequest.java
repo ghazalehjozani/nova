@@ -49,8 +49,9 @@ public record DefineTradeLoanArrangementRequest(
 
     @Schema(name = "InterestPolicyDto", description = "سیاست نرخ سود")
     public record InterestPolicyDto(
-            @Schema(description = "حداقل نرخ") BigDecimal minRate,
-            @Schema(description = "حداکثر نرخ") BigDecimal maxRate,
+            @Schema(description = "نرخ تسهیلات") BigDecimal rate,
+            @Schema(description = "حداقل نرخ ترجیهی") BigDecimal minPreferentialRate,
+            @Schema(description = "حداکثر نرخ ترجیهی") BigDecimal maxPreferentialRate,
             @Schema(description = "فرمول محاسبه سود") String interestFormula,
             @Schema(description = "فرمول بازگشت سود") String refundFormula,
             @Schema(description = "سود روزشمار") Boolean dailyInterest) {}

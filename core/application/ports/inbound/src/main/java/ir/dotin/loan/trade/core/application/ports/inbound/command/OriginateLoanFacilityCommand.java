@@ -9,9 +9,11 @@ import java.util.Set;
 import java.util.UUID;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 import ir.dotin.platform.dispatcher.api.command.Command;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
@@ -34,24 +36,24 @@ public record OriginateLoanFacilityCommand(
     @Builder(toBuilder = true)
     public record LoanApplicationDto(
             @NotNull Instant requestDate,
-            @NotNull PartyDto customer,
-            @NotNull MoneyDto requestedAmount,
-            @NotNull CurrencyTypeDto currency,
-            @NotNull LoanDurationDto requestedLoanDuration,
-            @NotNull ApplicantChannel applicantChannel,
-            @NotNull GracePeriodDto gracePeriod,
-            @NotNull InstallmentCountDto installmentCount,
-            @NotNull DisburseDestinationDto disburseDestination,
-            @NotNull EconomicSectorDto economicSector,
-            @NotNull BranchDto branch,
-            @NotNull RequestReasonDto requestReason,
-            @Nullable SubSourceDto subSource,
-            @Nullable DescriptionDto description,
-            @NotNull DisbursementMethod disbursementMethod,
-            @NotNull Set<PartyDto> guarantors,
-            @NotNull Set<CertificateDto> certificates,
-            @Nullable ApplicationNumberDto applicationNumber,
-            @Nullable CredibilityRankDto credibilityRank) {}
+            @Valid @NotNull PartyDto customer,
+            @Valid @NotNull MoneyDto requestedAmount,
+            @Valid @NotNull CurrencyTypeDto currency,
+            @Valid @NotNull LoanDurationDto requestedLoanDuration,
+            @Valid @NotNull ApplicantChannel applicantChannel,
+            @Valid @NotNull GracePeriodDto gracePeriod,
+            @Valid @NotNull InstallmentCountDto installmentCount,
+            @Valid @NotNull DisburseDestinationDto disburseDestination,
+            @Valid @NotNull EconomicSectorDto economicSector,
+            @Valid @NotNull BranchDto branch,
+            @Valid @NotNull RequestReasonDto requestReason,
+            @Valid @Nullable SubSourceDto subSource,
+            @Valid @Nullable DescriptionDto description,
+            @Valid @NotNull DisbursementMethod disbursementMethod,
+            @Valid @NotNull Set<PartyDto> guarantors,
+            @Valid @NotNull Set<CertificateDto> certificates,
+            @Valid @Nullable ApplicationNumberDto applicationNumber,
+            @Valid @Nullable CredibilityRankDto credibilityRank) {}
 
     @Builder(toBuilder = true)
     public record InstallmentSchedulePlanDto(@NotEmpty @Valid List<InstallmentSpecDto> installments) {}
@@ -60,12 +62,13 @@ public record OriginateLoanFacilityCommand(
     public record InstallmentSpecDto(
             @NotNull Integer sequenceNumber,
             @NotNull LocalDate dueDate,
-            @NotNull MoneyDto principalAmount,
-            @NotNull MoneyDto interestAmount,
-            @Nullable MoneyDto penaltyAmount,
-            @Nullable MoneyDto feeAmount) {}
+            @Valid @NotNull MoneyDto principalAmount,
+            @Valid @NotNull MoneyDto interestAmount,
+            @Valid @Nullable MoneyDto penaltyAmount,
+            @Valid @Nullable MoneyDto feeAmount) {}
 
-    public record PartyDto(@Nullable String customerNumber, @Nullable PartyType type, @Nullable PersonNameDto name) {}
+    public record PartyDto(
+            @Nullable String customerNumber, @Nullable PartyType type, @Valid @Nullable PersonNameDto name) {}
 
     public record PersonNameDto(@Nullable String firstName, @Nullable String lastName) {}
 
@@ -82,9 +85,9 @@ public record OriginateLoanFacilityCommand(
     public record RequestReasonDto(@NotBlank String code) {}
 
     public record ApplicationNumberDto(
-            @Nullable BranchDto branch,
-            @Nullable LoanTypeCodeDto loanTypeCode,
-            @Nullable PartyDto party,
+            @Valid @Nullable BranchDto branch,
+            @Valid @Nullable LoanTypeCodeDto loanTypeCode,
+            @Valid @Nullable PartyDto party,
             @Nullable String respiteSerial,
             @Nullable String derivedValue) {}
 
@@ -92,7 +95,7 @@ public record OriginateLoanFacilityCommand(
 
     public record SubSourceDto(@NotBlank String code) {}
 
-    public record MoneyDto(@NotNull BigDecimal value) {}
+    public record MoneyDto(@NotNull @DecimalMin(value = "0") BigDecimal value) {}
 
     public record LoanDurationDto(@NotNull Period value) {}
 
@@ -102,5 +105,5 @@ public record OriginateLoanFacilityCommand(
 
     public record EconomicSectorDto(@NotBlank String code) {}
 
-    public record CurrencyTypeDto(@NotBlank String value) {}
+    public record CurrencyTypeDto(@NotBlank @Pattern(regexp = "^[A-Z]{3}$") String value) {}
 }

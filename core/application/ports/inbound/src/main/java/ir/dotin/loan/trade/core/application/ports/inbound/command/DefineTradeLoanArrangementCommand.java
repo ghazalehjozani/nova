@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -25,38 +29,39 @@ import lombok.Builder;
 public record DefineTradeLoanArrangementCommand(
         @NotNull UUID uid,
         @Nullable Long version,
-        @NotNull LoanArrangementCodeDto code,
-        @NotNull TitleDto title,
-        @NotNull CurrencyTypeDto currencyType,
-        @NotNull AmountRangeDto amountRange,
-        @NotNull LoanDurationRangeDto durationRange,
-        @NotNull PartyType partyType,
-        @NotNull List<@NotNull ConfirmTypeDto> confirmTypes,
+        @NotNull @Valid LoanArrangementCodeDto code,
+        @NotNull @Valid TitleDto title,
+        @NotNull @Valid CurrencyTypeDto currencyType,
+        @NotNull @Valid AmountRangeDto amountRange,
+        @NotNull @Valid LoanDurationRangeDto durationRange,
+        @NotNull @Valid PartyType partyType,
+        @NotNull @Valid List<@NotNull ConfirmTypeDto> confirmTypes,
         @NotNull Integer guarantorCount,
         @NotNull Boolean hasInstallmentCard,
-        @NotNull LifeInsurancePaymentType lifeInsurancePaymentType,
-        @NotNull LoanSecondaryType loanSecondaryType,
-        @NotNull SectionType sectionType,
-        @NotNull EconomicSectorDto economicSector,
-        @NotNull InterestPolicyDto interestPolicy,
-        @NotNull PenaltyPolicyDto penaltyPolicy,
-        @NotNull InstallmentPolicyDto installmentPolicy,
-        @NotNull GracePeriodPolicyDto gracePeriodPolicy,
-        @NotNull RepaymentPriorityPolicyDto repaymentPriorityPolicy,
-        @NotNull RegulatoryCompliancePolicyDto regulatoryCompliancePolicy,
-        @NotNull CollateralPolicyDto collateralPolicy)
+        @NotNull @Valid LifeInsurancePaymentType lifeInsurancePaymentType,
+        @NotNull @Valid LoanSecondaryType loanSecondaryType,
+        @NotNull @Valid SectionType sectionType,
+        @NotNull @Valid EconomicSectorDto economicSector,
+        @NotNull @Valid InterestPolicyDto interestPolicy,
+        @NotNull @Valid PenaltyPolicyDto penaltyPolicy,
+        @NotNull @Valid InstallmentPolicyDto installmentPolicy,
+        @NotNull @Valid GracePeriodPolicyDto gracePeriodPolicy,
+        @NotNull @Valid RepaymentPriorityPolicyDto repaymentPriorityPolicy,
+        @NotNull @Valid RegulatoryCompliancePolicyDto regulatoryCompliancePolicy,
+        @NotNull @Valid CollateralPolicyDto collateralPolicy)
         implements Command {
 
     public record InterestPolicyDto(
-            @NotBlank BigDecimal minRate,
-            @NotBlank BigDecimal maxRate,
+            @NotNull @DecimalMin(value = "0") BigDecimal rate,
+            @NotNull @DecimalMax(value = "0") BigDecimal minPreferentialRate,
+            @NotNull @DecimalMin(value = "0") BigDecimal maxPreferentialRate,
             @NotBlank String interestFormula,
             @NotBlank String refundFormula,
             @NotNull Boolean dailyInterest) {}
 
     public record PenaltyPolicyDto(
-            @NotBlank BigDecimal penaltyRate,
-            @NotBlank BigDecimal deferralInterestRate,
+            @NotNull @DecimalMin(value = "0") BigDecimal penaltyRate,
+            @NotNull @DecimalMin(value = "0") BigDecimal deferralInterestRate,
             @NotBlank String formula,
             @NotNull PenaltyPaymentType paymentType) {}
 
@@ -67,7 +72,9 @@ public record DefineTradeLoanArrangementCommand(
             @NotNull InstallmentPaymentType paymentType) {}
 
     public record GracePeriodPolicyDto(
-            @NotNull Integer minGracePeriodDays, @NotNull Integer maxGracePeriodDays, @NotBlank String formula) {}
+            @NotNull @Min(0) Integer minGracePeriodDays,
+            @NotNull @Min(0) Integer maxGracePeriodDays,
+            @NotBlank String formula) {}
 
     public record RepaymentPriorityPolicyDto(
             @NotNull Integer principalPriority,
@@ -79,11 +86,13 @@ public record DefineTradeLoanArrangementCommand(
             @NotNull Boolean hasEqualPriority) {}
 
     public record RegulatoryCompliancePolicyDto(
-            @NotNull Integer overDuePeriod, @NotNull Integer deferralPeriod, @NotNull Integer suspiciousPeriod) {}
+            @NotNull @Min(0) Integer overDuePeriod,
+            @NotNull @Min(0) Integer deferralPeriod,
+            @NotNull @Min(0) Integer suspiciousPeriod) {}
 
     public record CollateralPolicyDto(
-            @NotNull Integer totalPercent,
-            @NotNull Set<CollateralTypeDto> collateralTypes,
+            @NotNull @Min(0) Integer totalPercent,
+            @NotNull @Valid Set<CollateralTypeDto> collateralTypes,
             @NotNull CollateralCalculationType collateralCalculationType) {}
 
     public record CollateralTypeDto(@NotBlank String code) {}
@@ -92,13 +101,13 @@ public record DefineTradeLoanArrangementCommand(
 
     public record TitleDto(@NotBlank String value) {}
 
-    public record CurrencyTypeDto(@NotBlank String value) {}
+    public record CurrencyTypeDto(@NotBlank @Pattern(regexp = "^[A-Z]{3}$") String value) {}
 
-    public record AmountRangeDto(@NotNull MoneyDto min, @NotNull MoneyDto max) {}
+    public record AmountRangeDto(@NotNull @Valid MoneyDto min, @NotNull @Valid MoneyDto max) {}
 
     public record LoanDurationRangeDto(@NotNull Period min, @NotNull Period max) {}
 
-    public record MoneyDto(@NotNull BigDecimal value) {}
+    public record MoneyDto(@NotNull @DecimalMin(value = "0") BigDecimal value) {}
 
     public record EconomicSectorDto(@NotBlank String code) {}
 

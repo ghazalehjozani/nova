@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -18,13 +19,13 @@ import lombok.Builder;
 public record DefineLoanTypeCommand(
         @NotNull UUID uid,
         @Nullable Long version,
-        @NotNull LoanTypeCodeDto code,
-        @NotNull TitleDto title,
-        @NotNull GatewayType gatewayType,
-        @NotNull LoanApplicationStatusDto loanApplicationAllowed,
-        @NotNull Set<EconomicSectorCurrencyDto> economicSectorCurrencies,
-        @NotNull Set<LoanArrangementCodeDto> loanArrangementCodes,
-        @NotNull List<RelationTypeLoanTopicDto> relationTypeLoanTopics)
+        @NotNull @Valid LoanTypeCodeDto code,
+        @NotNull @Valid TitleDto title,
+        @NotNull @Valid GatewayType gatewayType,
+        @NotNull @Valid LoanApplicationStatusDto loanApplicationAllowed,
+        @NotNull @Valid Set<EconomicSectorCurrencyDto> economicSectorCurrencies,
+        @NotNull @Valid Set<LoanArrangementCodeDto> loanArrangementCodes,
+        @NotNull @Valid List<RelationTypeLoanTopicDto> relationTypeLoanTopics)
         implements Command {
 
     public record LoanTypeCodeDto(@NotBlank @Pattern(regexp = "^\\d+$") String value) {}
@@ -34,7 +35,8 @@ public record DefineLoanTypeCommand(
     public record LoanApplicationStatusDto(boolean isAllowed) {}
 
     public record EconomicSectorCurrencyDto(
-            @NotNull EconomicSectorDto economicSector, @NotNull Set<@NotNull CurrencyTypeDto> currencyTypes) {}
+            @NotNull @Valid EconomicSectorDto economicSector,
+            @Valid @NotNull Set<@NotNull CurrencyTypeDto> currencyTypes) {}
 
     public record EconomicSectorDto(@NotBlank String code) {}
 
@@ -46,5 +48,5 @@ public record DefineLoanTypeCommand(
             @NotNull TradeRelationType relationType,
             @NotBlank String topicName,
             @NotBlank String topicCode,
-            @NotNull Set<@NotNull EconomicSectorDto> economicSectors) {}
+            @NotNull @Valid Set<@NotNull EconomicSectorDto> economicSectors) {}
 }
