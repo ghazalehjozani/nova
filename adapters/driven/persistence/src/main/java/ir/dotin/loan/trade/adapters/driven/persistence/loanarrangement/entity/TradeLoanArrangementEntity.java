@@ -10,6 +10,7 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 
@@ -79,7 +80,7 @@ public class TradeLoanArrangementEntity extends PersistentEntity {
     @Column(name = "has_installment_card", nullable = false)
     private boolean hasInstallmentCard = false;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "loan_arrangement_confirm_types", joinColumns = @JoinColumn(name = "loan_arrangement_id"))
     private List<ConfirmTypeEmb> confirmTypes;
 
