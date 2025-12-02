@@ -16,36 +16,65 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(name = "DefineTradeLoanArrangementRequest", description = "ایجاد شرایط تسهیلات")
 public record DefineTradeLoanArrangementRequest(
-        @Schema(description = "کد", requiredMode = Schema.RequiredMode.REQUIRED) String code,
-        @Schema(description = "عنوان", requiredMode = Schema.RequiredMode.REQUIRED) String title,
-        @Schema(description = "نوع ارز", requiredMode = Schema.RequiredMode.REQUIRED) String currencyType,
-        @Schema(description = "بازه مبلغی", requiredMode = Schema.RequiredMode.REQUIRED) AmountRangeDto amountRange,
+        @Schema(description = "کد", requiredMode = Schema.RequiredMode.REQUIRED)
+        String code,
+
+        @Schema(description = "عنوان", requiredMode = Schema.RequiredMode.REQUIRED)
+        String title,
+
+        @Schema(description = "نوع ارز", requiredMode = Schema.RequiredMode.REQUIRED)
+        String currencyType,
+
+        @Schema(description = "بازه مبلغی", requiredMode = Schema.RequiredMode.REQUIRED)
+        AmountRangeDto amountRange,
+
         @Schema(description = "بازه مدت زمان تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED)
-                LoanDurationRangeDto durationRange,
-        @Schema(description = "نوع شخص", requiredMode = Schema.RequiredMode.REQUIRED) PartyType partyType,
-        @Schema(description = "لیست مرجع تصویب", requiredMode = Schema.RequiredMode.REQUIRED) List<String> confirmTypes,
-        @Schema(description = "تعداد ضامنین", requiredMode = Schema.RequiredMode.REQUIRED) Integer guarantorCount,
-        @Schema(description = "اقساط کارت", requiredMode = Schema.RequiredMode.REQUIRED) Boolean hasInstallmentCard,
+        LoanDurationRangeDto durationRange,
+
+        @Schema(description = "نوع شخص", requiredMode = Schema.RequiredMode.REQUIRED)
+        PartyType partyType,
+
+        @Schema(description = "لیست مرجع تصویب", requiredMode = Schema.RequiredMode.REQUIRED)
+        List<String> confirmTypes,
+
+        @Schema(description = "تعداد ضامنین", requiredMode = Schema.RequiredMode.REQUIRED)
+        Integer guarantorCount,
+
+        @Schema(description = "اقساط کارت", requiredMode = Schema.RequiredMode.REQUIRED)
+        Boolean hasInstallmentCard,
+
         @Schema(description = "روش پرداخت بیمه عمر", requiredMode = Schema.RequiredMode.REQUIRED)
-                LifeInsurancePaymentType lifeInsurancePaymentType,
+        LifeInsurancePaymentType lifeInsurancePaymentType,
+
         @Schema(description = "نوع ثانویه تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED)
-                LoanSecondaryType loanSecondaryType,
-        @Schema(description = "بخش", requiredMode = Schema.RequiredMode.REQUIRED) SectionType sectionType,
-        @Schema(description = "بخش اقتصادی", requiredMode = Schema.RequiredMode.REQUIRED) String economicSector,
+        LoanSecondaryType loanSecondaryType,
+
+        @Schema(description = "بخش", requiredMode = Schema.RequiredMode.REQUIRED)
+        SectionType sectionType,
+
+        @Schema(description = "بخش اقتصادی", requiredMode = Schema.RequiredMode.REQUIRED)
+        String economicSector,
+
         @Schema(description = "سیاست نرخ سود", requiredMode = Schema.RequiredMode.REQUIRED)
-                InterestPolicyDto interestPolicy,
+        InterestPolicyDto interestPolicy,
+
         @Schema(description = "سیاست جریمه", requiredMode = Schema.RequiredMode.REQUIRED)
-                PenaltyPolicyDto penaltyPolicy,
+        PenaltyPolicyDto penaltyPolicy,
+
         @Schema(description = "سیاست اقساط", requiredMode = Schema.RequiredMode.REQUIRED)
-                InstallmentPolicyDto installmentPolicy,
+        InstallmentPolicyDto installmentPolicy,
+
         @Schema(description = "سیاست دوره مهلت", requiredMode = Schema.RequiredMode.REQUIRED)
-                GracePeriodPolicyDto gracePeriodPolicy,
+        GracePeriodPolicyDto gracePeriodPolicy,
+
         @Schema(description = "اولویت کسر مبالغ", requiredMode = Schema.RequiredMode.REQUIRED)
-                RepaymentPriorityPolicyDto repaymentPriorityPolicy,
+        RepaymentPriorityPolicyDto repaymentPriorityPolicy,
+
         @Schema(description = "انتقال به مطالبات", requiredMode = Schema.RequiredMode.REQUIRED)
-                RegulatoryCompliancePolicyDto regulatoryCompliancePolicy,
+        RegulatoryCompliancePolicyDto regulatoryCompliancePolicy,
+
         @Schema(description = "سیاست وثایق", requiredMode = Schema.RequiredMode.REQUIRED)
-                CollateralPolicyDto collateralPolicy) {
+        CollateralPolicyDto collateralPolicy) {
 
     @Schema(name = "InterestPolicyDto", description = "سیاست نرخ سود")
     public record InterestPolicyDto(
@@ -100,7 +129,8 @@ public record DefineTradeLoanArrangementRequest(
 
     @Schema(name = "AmountRangeDto", description = "بازه مبلغی")
     public record AmountRangeDto(
-            @Schema(description = "حداقل مبلغ") BigDecimal min, @Schema(description = "حداکثر مبلغ") BigDecimal max) {}
+            @Schema(description = "حداقل مبلغ") BigDecimal min,
+            @Schema(description = "حداکثر مبلغ") BigDecimal max) {}
 
     @Schema(name = "LoanDurationRangeDto", description = "بازه مدت زمان تسهیلات")
     public record LoanDurationRangeDto(

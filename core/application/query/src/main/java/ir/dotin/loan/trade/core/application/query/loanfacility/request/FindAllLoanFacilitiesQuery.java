@@ -12,10 +12,11 @@ import lombok.Builder;
 @Builder
 public record FindAllLoanFacilitiesQuery(
         String cursor,
+
         @NotNull(message = "Page size is required")
-                @Min(value = 1, message = "Page size must be at least 1")
-                @Max(value = 100, message = "Page size cannot exceed 100")
-                Integer pageSize)
+        @Min(value = 1, message = "Page size must be at least 1")
+        @Max(value = 100, message = "Page size cannot exceed 100")
+        Integer pageSize)
         implements Query<LoanFacilityQueryResult> {
 
     public FindAllLoanFacilitiesQuery {

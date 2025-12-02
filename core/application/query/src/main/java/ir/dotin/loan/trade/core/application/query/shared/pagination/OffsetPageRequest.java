@@ -7,11 +7,13 @@ import jakarta.validation.constraints.NotNull;
 
 public record OffsetPageRequest(
         @NotNull(message = "Page number is required") @Min(value = 0, message = "Page number cannot be negative")
-                Integer page,
+        Integer page,
+
         @NotNull(message = "Page size is required")
-                @Min(value = 1, message = "Page size must be at least 1")
-                @Max(value = 100, message = "Page size cannot exceed 100")
-                Integer pageSize,
+        @Min(value = 1, message = "Page size must be at least 1")
+        @Max(value = 100, message = "Page size cannot exceed 100")
+        Integer pageSize,
+
         @Nullable String sortBy,
         @Nullable SortDirection direction) {
     public OffsetPageRequest {

@@ -97,15 +97,19 @@ public record DefineTradeLoanArrangementCommand(
 
     public record CollateralTypeDto(@NotBlank String code) {}
 
-    public record LoanArrangementCodeDto(@NotBlank @Pattern(regexp = "^\\d+$") String value) {}
+    public record LoanArrangementCodeDto(
+            @NotBlank @Pattern(regexp = "^\\d+$") String value) {}
 
     public record TitleDto(@NotBlank String value) {}
 
-    public record CurrencyTypeDto(@NotBlank @Pattern(regexp = "^[A-Z]{3}$") String value) {}
+    public record CurrencyTypeDto(
+            @NotBlank @Pattern(regexp = "^[A-Z]{3}$") String value) {}
 
-    public record AmountRangeDto(@NotNull @Valid MoneyDto min, @NotNull @Valid MoneyDto max) {}
+    public record AmountRangeDto(
+            @NotNull @Valid MoneyDto min, @NotNull @Valid MoneyDto max) {}
 
-    public record LoanDurationRangeDto(@NotNull Period min, @NotNull Period max) {}
+    public record LoanDurationRangeDto(
+            @NotNull Period min, @NotNull Period max) {}
 
     public record MoneyDto(@NotNull @DecimalMin(value = "0") BigDecimal value) {}
 

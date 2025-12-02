@@ -8,5 +8,5 @@ import ir.dotin.platform.dispatcher.api.command.Command;
 import lombok.Builder;
 
 @Builder
-public record RejectFacilityCommand(@NotNull UUID uid, @NotNull Long version, @NotNull UUID loanFacilityId)
-        implements Command {}
+public record RejectFacilityCommand(
+        @NotNull UUID uid, @NotNull Long version, @NotNull UUID loanFacilityId) implements Command {}

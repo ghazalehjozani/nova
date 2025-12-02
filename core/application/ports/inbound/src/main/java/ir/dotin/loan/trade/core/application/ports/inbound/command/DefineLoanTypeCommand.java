@@ -28,7 +28,8 @@ public record DefineLoanTypeCommand(
         @NotNull @Valid List<RelationTypeLoanTopicDto> relationTypeLoanTopics)
         implements Command {
 
-    public record LoanTypeCodeDto(@NotBlank @Pattern(regexp = "^\\d+$") String value) {}
+    public record LoanTypeCodeDto(
+            @NotBlank @Pattern(regexp = "^\\d+$") String value) {}
 
     public record TitleDto(@NotBlank String value) {}
 
@@ -40,7 +41,8 @@ public record DefineLoanTypeCommand(
 
     public record EconomicSectorDto(@NotBlank String code) {}
 
-    public record LoanArrangementCodeDto(@NotNull @Pattern(regexp = "^\\d+$") String value) {}
+    public record LoanArrangementCodeDto(
+            @NotNull @Pattern(regexp = "^\\d+$") String value) {}
 
     public record CurrencyTypeDto(@NotBlank String value) {}
 

@@ -5,9 +5,10 @@ import jakarta.validation.constraints.Min;
 
 public record CursorPageRequest(
         String cursor,
+
         @Min(value = 1, message = "Page size must be at least 1")
-                @Max(value = 100, message = "Page size cannot exceed 100")
-                int pageSize) {
+        @Max(value = 100, message = "Page size cannot exceed 100")
+        int pageSize) {
     @SuppressWarnings("ConstantValue")
     public CursorPageRequest {
         if (pageSize < 1) {

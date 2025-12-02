@@ -55,7 +55,8 @@ public record OriginateLoanFacilityCommand(
             @Valid @Nullable CredibilityRankDto credibilityRank) {}
 
     @Builder(toBuilder = true)
-    public record InstallmentSchedulePlanDto(@NotEmpty @Valid List<InstallmentSpecDto> installments) {}
+    public record InstallmentSchedulePlanDto(
+            @NotEmpty @Valid List<InstallmentSpecDto> installments) {}
 
     @Builder(toBuilder = true)
     public record InstallmentSpecDto(
@@ -66,7 +67,8 @@ public record OriginateLoanFacilityCommand(
             @Nullable MoneyDto penaltyAmount,
             @Nullable MoneyDto feeAmount) {}
 
-    public record PartyDto(@NotBlank String customerNumber, @NotNull PartyRole role) {}
+    public record PartyDto(
+            @NotBlank String customerNumber, @NotNull PartyRole role) {}
 
     public record BranchDto(@Nullable String code) {}
 
@@ -76,7 +78,8 @@ public record OriginateLoanFacilityCommand(
 
     public record DescriptionDto(@NotBlank String value) {}
 
-    public record DisburseDestinationDto(@Nullable String depositNumber, @NotNull DisburseDestinationType type) {}
+    public record DisburseDestinationDto(
+            @Nullable String depositNumber, @NotNull DisburseDestinationType type) {}
 
     public record RequestReasonDto(@NotBlank String code) {}
 
@@ -101,5 +104,6 @@ public record OriginateLoanFacilityCommand(
 
     public record EconomicSectorDto(@NotBlank String code) {}
 
-    public record CurrencyTypeDto(@NotBlank @Pattern(regexp = "^[A-Z]{3}$") String value) {}
+    public record CurrencyTypeDto(
+            @NotBlank @Pattern(regexp = "^[A-Z]{3}$") String value) {}
 }

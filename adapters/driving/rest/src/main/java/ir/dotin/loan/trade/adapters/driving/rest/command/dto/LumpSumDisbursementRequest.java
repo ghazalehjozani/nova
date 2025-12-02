@@ -7,4 +7,4 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(name = "LumpSumDisbursementRequest", description = "درخواست پرداخت یکجای تسهیلات")
 public record LumpSumDisbursementRequest(
         @Schema(description = "نسخه عملیات", example = "1", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
-                Long version) {}
+        Long version) {}

@@ -15,16 +15,25 @@ import lombok.Builder;
 
 @Builder
 public record LoanTypeArrangementFilterQuery(
-        @Pattern(regexp = "^[0-9]+$", message = "کد نوع تسهیلات فقط می‌تواند شامل اعداد انگلیسی باشد") String code,
+        @Pattern(regexp = "^[0-9]+$", message = "کد نوع تسهیلات فقط می‌تواند شامل اعداد انگلیسی باشد")
+        String code,
+
         String title,
         String currencyType,
         String economicSector,
-        @DecimalMin(value = "0.0", inclusive = false, message = "Minimum amount must be positive") BigDecimal minAmount,
-        @DecimalMin(value = "0.0", inclusive = false, message = "Maximum amount must be positive") BigDecimal maxAmount,
+
+        @DecimalMin(value = "0.0", inclusive = false, message = "Minimum amount must be positive")
+        BigDecimal minAmount,
+
+        @DecimalMin(value = "0.0", inclusive = false, message = "Maximum amount must be positive")
+        BigDecimal maxAmount,
+
         Boolean active,
         Boolean disable,
         DisbursementMethod disbursementMethod,
-        @NotNull(message = "Offset page request is required") @Valid OffsetPageRequest offsetPageRequest)
+
+        @NotNull(message = "Offset page request is required") @Valid
+        OffsetPageRequest offsetPageRequest)
         implements Query<LoanArrangementQueryResult> {
 
     public LoanTypeArrangementFilterQuery {

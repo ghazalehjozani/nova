@@ -9,7 +9,8 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @ConfigurationProperties(prefix = FcbConfiguration.BASE)
-public record FcbConfiguration(@NotNull Integration integration, @NotNull Health health) {
+public record FcbConfiguration(
+        @NotNull Integration integration, @NotNull Health health) {
 
     public static final String BASE = "fcb";
 
@@ -38,5 +39,6 @@ public record FcbConfiguration(@NotNull Integration integration, @NotNull Health
             @DefaultValue("true") boolean showDetails,
             @DefaultValue("true") boolean metricsEnabled) {}
 
-    public record Credentials(@NotBlank String username, @NotBlank String password) {}
+    public record Credentials(
+            @NotBlank String username, @NotBlank String password) {}
 }

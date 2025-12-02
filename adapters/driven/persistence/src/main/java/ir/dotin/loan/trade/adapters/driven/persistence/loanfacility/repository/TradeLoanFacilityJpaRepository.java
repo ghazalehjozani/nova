@@ -18,8 +18,7 @@ public interface TradeLoanFacilityJpaRepository extends PersistentRepository<Tra
 
     Window<TradeLoanFacilityEntity> findAllBy(ScrollPosition position, Limit limit, Sort sort);
 
-    @Query(
-            """
+    @Query("""
             SELECT count(t)
             FROM TradeLoanFacilityEntity t
             JOIN t.loanApplication.parties p

@@ -7,7 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record CursorPosition(@NotNull LocalDateTime timestamp, @NotNull UUID id) {
+public record CursorPosition(
+        @NotNull LocalDateTime timestamp, @NotNull UUID id) {
     @JsonCreator
     public CursorPosition(@JsonProperty("timestamp") LocalDateTime timestamp, @JsonProperty("id") UUID id) {
         this.timestamp = timestamp;

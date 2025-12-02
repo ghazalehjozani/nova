@@ -47,6 +47,9 @@ spring:
         cluster:
           refresh:
             adaptive: true
+  threads:
+    virtual:
+      enabled: true
 server:
   port: 8080
 
@@ -163,6 +166,14 @@ platform:
       add-mdc-entries: true
       trace-id-header: X-Trace-Id
       span-id-header: X-Span-Id
+  audit:
+    enabled: true
+    payload:
+      strategy: FULL
+      max-size-bytes: 1048576
+    metrics:
+      enabled: true
+      include-command-type: true
   saga:
     persistence:
       table-name: saga_instance

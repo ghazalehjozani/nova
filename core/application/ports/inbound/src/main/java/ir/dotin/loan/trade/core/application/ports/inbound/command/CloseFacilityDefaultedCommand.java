@@ -8,5 +8,5 @@ import ir.dotin.platform.dispatcher.api.command.Command;
 import lombok.Builder;
 
 @Builder
-public record CloseFacilityDefaultedCommand(@NotNull UUID uid, @NotNull Long version, @NotNull UUID loanFacilityId)
-        implements Command {}
+public record CloseFacilityDefaultedCommand(
+        @NotNull UUID uid, @NotNull Long version, @NotNull UUID loanFacilityId) implements Command {}

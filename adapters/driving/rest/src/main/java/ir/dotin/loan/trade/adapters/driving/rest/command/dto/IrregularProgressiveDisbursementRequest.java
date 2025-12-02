@@ -18,12 +18,17 @@ public record IrregularProgressiveDisbursementRequest(
 
     @Schema(description = "برنامه زمانبندی اقساط")
     public record InstallmentSchedulePlanDto(
-            @Schema(description = "لیست اقساط") @NotNull @Valid List<InstallmentSpecDto> installments) {}
+            @Schema(description = "لیست اقساط") @NotNull @Valid
+            List<InstallmentSpecDto> installments) {}
 
     @Schema(description = "مشخصات قسط")
     public record InstallmentSpecDto(
-            @Schema(description = "شماره ترتیب قسط") @NotNull Integer sequenceNumber,
-            @Schema(description = "تاریخ سررسید قسط") @NotNull LocalDate dueDate,
+            @Schema(description = "شماره ترتیب قسط") @NotNull
+            Integer sequenceNumber,
+
+            @Schema(description = "تاریخ سررسید قسط") @NotNull
+            LocalDate dueDate,
+
             @Schema(description = "مبلغ اصل قسط") @NotNull BigDecimal principalAmount,
             @Schema(description = "مبلغ سود قسط") @NotNull BigDecimal interestAmount) {}
 }

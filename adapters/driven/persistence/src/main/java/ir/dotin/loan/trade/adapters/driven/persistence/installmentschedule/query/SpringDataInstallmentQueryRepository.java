@@ -16,8 +16,7 @@ import ir.dotin.loan.trade.adapters.driven.persistence.installmentschedule.entit
 public interface SpringDataInstallmentQueryRepository extends JpaRepository<InstallmentEntity, UUID> {
 
     /** Find installments by facility ID and due date before specified date */
-    @Query(
-            """
+    @Query("""
         SELECT i FROM InstallmentEntity i
         WHERE i.installmentSchedule.loanFacilityId = :facilityId
         AND i.dueDate < :dueDate
@@ -27,8 +26,7 @@ public interface SpringDataInstallmentQueryRepository extends JpaRepository<Inst
             @Param("facilityId") UUID facilityId, @Param("dueDate") LocalDate dueDate);
 
     /** Find installments by facility ID */
-    @Query(
-            """
+    @Query("""
         SELECT i FROM InstallmentEntity i
         WHERE i.installmentSchedule.loanFacilityId = :facilityId
         ORDER BY i.dueDate ASC
@@ -36,8 +34,7 @@ public interface SpringDataInstallmentQueryRepository extends JpaRepository<Inst
     List<InstallmentEntity> findByFacilityIdOrderByDueDateAsc(@Param("facilityId") UUID facilityId);
 
     /** Find unpaid installments by facility ID */
-    @Query(
-            """
+    @Query("""
         SELECT i FROM InstallmentEntity i
         WHERE i.installmentSchedule.loanFacilityId = :facilityId
         AND i.status != :status
@@ -47,8 +44,7 @@ public interface SpringDataInstallmentQueryRepository extends JpaRepository<Inst
             @Param("facilityId") UUID facilityId, @Param("status") String status);
 
     /** Find overdue installments */
-    @Query(
-            """
+    @Query("""
         SELECT i FROM InstallmentEntity i
         WHERE i.dueDate < :asOfDate
         AND i.status != 'PAID'
@@ -59,8 +55,7 @@ public interface SpringDataInstallmentQueryRepository extends JpaRepository<Inst
             @Param("facilityId") UUID facilityId, @Param("asOfDate") LocalDate asOfDate);
 
     /** Find next payment installment */
-    @Query(
-            """
+    @Query("""
         SELECT i FROM InstallmentEntity i
         WHERE i.installmentSchedule.loanFacilityId = :facilityId
         AND i.status != 'PAID'
@@ -72,8 +67,7 @@ public interface SpringDataInstallmentQueryRepository extends JpaRepository<Inst
             @Param("facilityId") UUID facilityId, @Param("currentDate") LocalDate currentDate);
 
     /** Count installments by status and facility */
-    @Query(
-            """
+    @Query("""
         SELECT COUNT(i) FROM InstallmentEntity i
         WHERE i.installmentSchedule.loanFacilityId = :facilityId
         AND i.status = :status
@@ -81,16 +75,14 @@ public interface SpringDataInstallmentQueryRepository extends JpaRepository<Inst
     long countByFacilityIdAndStatus(@Param("facilityId") UUID facilityId, @Param("status") String status);
 
     /** Count all installments by facility */
-    @Query(
-            """
+    @Query("""
         SELECT COUNT(i) FROM InstallmentEntity i
         WHERE i.installmentSchedule.loanFacilityId = :facilityId
         """)
     long countByFacilityId(@Param("facilityId") UUID facilityId);
 
     /** Calculate total outstanding amounts by facility */
-    @Query(
-            """
+    @Query("""
         SELECT
             COALESCE(SUM(i.scheduledAmount.principalAmount.amount), 0) as totalPrincipal,
             COALESCE(SUM(i.scheduledAmount.interestAmount.amount), 0) as totalInterest,
@@ -103,8 +95,7 @@ public interface SpringDataInstallmentQueryRepository extends JpaRepository<Inst
     Object[] calculateOutstandingAmounts(@Param("facilityId") UUID facilityId, @Param("asOfDate") LocalDate asOfDate);
 
     /** Find installments due in date range for multiple facilities */
-    @Query(
-            """
+    @Query("""
         SELECT i FROM InstallmentEntity i
         WHERE i.installmentSchedule.loanFacilityId IN :facilityIds
         AND i.dueDate BETWEEN :fromDate AND :toDate

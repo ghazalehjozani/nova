@@ -6,8 +6,8 @@ import org.springframework.http.ResponseEntity;
 
 import ir.dotin.platform.adapter.rest.response.CursorPaginationInfo;
 import ir.dotin.platform.adapter.rest.response.PagedResponse;
+import ir.dotin.platform.dispatcher.api.context.StandardHeaders;
 import ir.dotin.platform.dispatcher.api.query.QueryResult;
-import ir.dotin.platform.dispatcher.core.context.StandardHeaders;
 
 public class CursorPaginationHelper {
 

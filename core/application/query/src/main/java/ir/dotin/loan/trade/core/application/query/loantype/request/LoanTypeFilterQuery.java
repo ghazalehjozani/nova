@@ -13,9 +13,13 @@ import lombok.Builder;
 
 @Builder
 public record LoanTypeFilterQuery(
-        @Pattern(regexp = "^[0-9]+$", message = "کد نوع تسهیلات فقط می‌تواند شامل اعداد انگلیسی باشد") String code,
+        @Pattern(regexp = "^[0-9]+$", message = "کد نوع تسهیلات فقط می‌تواند شامل اعداد انگلیسی باشد")
+        String code,
+
         String title,
-        @NotNull(message = "Offset page request is required") @Valid OffsetPageRequest offsetPageRequest)
+
+        @NotNull(message = "Offset page request is required") @Valid
+        OffsetPageRequest offsetPageRequest)
         implements Query<LoanTypeQueryResult> {
 
     public LoanTypeFilterQuery {

@@ -19,14 +19,23 @@ import lombok.Builder;
 public record LoanFacilityFilterQuery(
         UUID loanTypeId,
         String customerNumber,
-        @PastOrPresent(message = "Create date from cannot be in the future") LocalDateTime createDateFrom,
-        @PastOrPresent(message = "Create date to cannot be in the future") LocalDateTime createDateTo,
+
+        @PastOrPresent(message = "Create date from cannot be in the future")
+        LocalDateTime createDateFrom,
+
+        @PastOrPresent(message = "Create date to cannot be in the future")
+        LocalDateTime createDateTo,
+
         @DecimalMin(value = "0.0", inclusive = false, message = "Request amount min must be positive")
-                BigDecimal requestAmountMin,
+        BigDecimal requestAmountMin,
+
         @DecimalMin(value = "0.0", inclusive = false, message = "Request amount max must be positive")
-                BigDecimal requestAmountMax,
+        BigDecimal requestAmountMax,
+
         FacilityStatus status,
-        @NotNull(message = "Offset page request is required") @Valid OffsetPageRequest offsetPageRequest)
+
+        @NotNull(message = "Offset page request is required") @Valid
+        OffsetPageRequest offsetPageRequest)
         implements Query<LoanFacilityQueryResult> {
 
     public LoanFacilityFilterQuery {
