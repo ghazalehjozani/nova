@@ -17,6 +17,7 @@ import org.springframework.core.io.ResourceLoader;
 import ir.dotin.platform.adapter.rest.swagger.BaseSwaggerConfig;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineLoanTypeRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest;
+import ir.dotin.loan.trade.adapters.driving.rest.command.dto.OriginateLoanFacilityRequest;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Paths;
@@ -127,7 +128,8 @@ public class SwaggerConfig extends BaseSwaggerConfig {
     public OpenApiCustomizer schemaExampleCustomizer() {
         Map<String, String> schemaExamples = Map.of(
                 DefineLoanTypeRequest.class.getSimpleName(), "swagger/define-loan-type.json",
-                DefineTradeLoanArrangementRequest.class.getSimpleName(), "swagger/define-loan-arrangement.json");
+                DefineTradeLoanArrangementRequest.class.getSimpleName(), "swagger/define-loan-arrangement.json",
+                OriginateLoanFacilityRequest.class.getSimpleName(), "swagger/originate-loan-facility.json");
 
         return openApi -> openApi.getComponents().getSchemas().forEach((name, schema) -> {
             if (schemaExamples.containsKey(name)) {

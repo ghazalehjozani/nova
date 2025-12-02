@@ -12,10 +12,7 @@ public interface ApplicationNumberStrategy {
 
     @NonNull
     Result<ApplicationNumber> generateOrValidateApplicationNumber(
-            @NonNull Branch branch,
-            @NonNull LoanTypeCode loanTypeCode,
-            @NonNull Party mainCustomer,
-            @NonNull String derivedSequence);
+            @NonNull Branch branch, @NonNull LoanTypeCode loanTypeCode, @NonNull Party primaryApplicant);
 
     @NonNull
     ApplicationNumberGenerationType getType();

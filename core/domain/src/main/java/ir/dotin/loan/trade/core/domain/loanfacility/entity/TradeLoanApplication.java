@@ -30,8 +30,8 @@ public final class TradeLoanApplication extends AbstractLoanApplication<TradeLoa
     }
 
     @Override
-    protected Result<Void> validateInternalState() {
-        return super.validateInternalState();
+    protected void validateInternalState() {
+        super.validateInternalState();
     }
 
     public static final class Builder extends AbstractLoanApplicationBuilder<TradeLoanApplication, Builder> {

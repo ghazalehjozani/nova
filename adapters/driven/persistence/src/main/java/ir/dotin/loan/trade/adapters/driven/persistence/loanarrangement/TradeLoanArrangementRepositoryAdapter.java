@@ -36,6 +36,11 @@ public class TradeLoanArrangementRepositoryAdapter implements TradeLoanArrangeme
     }
 
     @Override
+    public Optional<TradeLoanArrangement> findByCode(LoanArrangementCode code) {
+        return jpaRepository.getByCode(code.value()).map(mapper::map);
+    }
+
+    @Override
     public Optional<UUID> getIdByCode(LoanArrangementCode code) {
         return jpaRepository.findByCode(code.value()).map(TradeLoanArrangementIdProjection::getId);
     }

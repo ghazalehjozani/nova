@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.Period;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
@@ -23,6 +26,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.DisburseDestination;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.RequestReason;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
@@ -31,8 +35,10 @@ import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.BDDMockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("TradeLoanApplication")
 @SuppressWarnings("NullAway")
 final class TradeLoanApplicationTest {
@@ -42,6 +48,23 @@ final class TradeLoanApplicationTest {
 
     @Mock
     private Party mockApplicant;
+
+    @Mock
+    private Party mockGuarantor;
+
+    @BeforeEach
+    void setUp() {
+        // Configure mock applicant to return correct role
+        when(mockApplicant.partyRole()).thenReturn(PartyRole.PRIMARY_APPLICANT);
+        when(mockApplicant.customerNumber()).thenReturn("12345");
+        when(mockGuarantor.partyRole()).thenReturn(PartyRole.GUARANTOR);
+        when(mockGuarantor.customerNumber()).thenReturn("67890");
+
+        validAmount =
+                Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR).value();
+        validCurrency = CurrencyType.IRR;
+        validDuration = LoanDuration.of(Period.ofDays(12)).value();
+    }
 
     @Mock
     private Branch mockBranch;
@@ -67,14 +90,6 @@ final class TradeLoanApplicationTest {
     private LoanDuration validDuration;
     private CurrencyType validCurrency;
 
-    @BeforeEach
-    void setUp() {
-        validAmount =
-                Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR).value();
-        validCurrency = CurrencyType.IRR;
-        validDuration = LoanDuration.of(Period.ofDays(12)).value();
-    }
-
     @Nested
     @DisplayName("Factory Method Tests")
     final class FactoryMethodTests {
@@ -95,7 +110,7 @@ final class TradeLoanApplicationTest {
             assertThat(application.getId()).isNotNull();
             assertThat(application.getId()).isInstanceOf(LoanApplicationId.class);
             assertThat(application.getApplicationNumber()).hasValue(mockApplicationNumber);
-            assertThat(application.getCustomer()).isEqualTo(mockApplicant);
+            assertThat(application.getApplicant()).isEqualTo(mockApplicant);
             assertThat(application.getRequestedAmount()).isEqualTo(validAmount);
             assertThat(application.getRequestedLoanDuration()).isEqualTo(validDuration);
         }
@@ -115,7 +130,7 @@ final class TradeLoanApplicationTest {
             // given - provide all constructor required fields but trigger business validation failure
             var builder = TradeLoanApplication.builder()
                     .requestDate(FIXED_INSTANT)
-                    .customer(mockApplicant)
+                    .parties(Set.of(mockApplicant))
                     .requestedAmount(validAmount)
                     .currency(validCurrency)
                     .requestedLoanDuration(validDuration)
@@ -204,7 +219,7 @@ final class TradeLoanApplicationTest {
                     .id(LoanApplicationId.of(randomUUID()))
                     .applicationNumber(mockApplicationNumber)
                     .requestDate(FIXED_INSTANT)
-                    .customer(mockApplicant)
+                    .parties(Set.of(mockApplicant))
                     .requestedAmount(validAmount)
                     .currency(validCurrency)
                     .requestedLoanDuration(validDuration)
@@ -280,7 +295,7 @@ final class TradeLoanApplicationTest {
 
             // Verify inheritance behavior
             assertThat(application.getApplicationNumber()).hasValue(mockApplicationNumber);
-            assertThat(application.getCustomer()).isEqualTo(mockApplicant);
+            assertThat(application.getApplicant()).isEqualTo(mockApplicant);
             assertThat(application.getRequestedAmount()).isEqualTo(validAmount);
             assertThat(application.getRequestedLoanDuration()).isEqualTo(validDuration);
             assertThat(application.getBranch()).isEqualTo(mockBranch);
@@ -308,7 +323,7 @@ final class TradeLoanApplicationTest {
         return TradeLoanApplication.builder()
                 .applicationNumber(mockApplicationNumber)
                 .requestDate(FIXED_INSTANT)
-                .customer(mockApplicant)
+                .parties(Set.of(mockApplicant, mockGuarantor))
                 .requestedAmount(validAmount)
                 .currency(validCurrency)
                 .requestedLoanDuration(validDuration)

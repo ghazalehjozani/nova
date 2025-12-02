@@ -21,4 +21,6 @@ public interface TradeLoanArrangementJpaRepository extends PersistentRepository<
     Window<@NonNull TradeLoanArrangementEntity> findAllBy(ScrollPosition position, Limit limit, Sort sort);
 
     Optional<TradeLoanArrangementIdProjection> findByCode(@NonNull String code);
+
+    Optional<TradeLoanArrangementEntity> getByCode(@NonNull String code);
 }

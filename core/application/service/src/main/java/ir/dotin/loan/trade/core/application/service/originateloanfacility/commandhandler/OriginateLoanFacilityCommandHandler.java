@@ -23,11 +23,6 @@ public class OriginateLoanFacilityCommandHandler implements CommandHandler<Origi
 
     @Override
     public Result<List<DomainEvent<?>>> handle(@NonNull OriginateLoanFacilityCommand command) {
-        log.info(
-                "Handling OriginateLoanFacilityCommand: loanTypeId={}, arrangementId={}",
-                command.loanTypeId(),
-                command.loanArrangementId());
-
         return orchestrator.originate(command);
     }
 }

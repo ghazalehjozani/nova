@@ -15,13 +15,9 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
@@ -35,6 +31,8 @@ import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import static java.util.Objects.requireNonNull;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -42,7 +40,6 @@ public class FacilityBuilder {
 
     private final TradeLoanFacilityRepository loanFacilityRepository;
     private final OriginateLoanFacilityApplicationMapper applicationMapper;
-    private final LoanServicePort loanServicePort;
     private final ApplicationNumberStrategySelector applicationNumberStrategySelector;
     private final Clock clock;
 
@@ -51,97 +48,66 @@ public class FacilityBuilder {
             FacilityOriginationContext context,
             @Nullable InstallmentScheduleId scheduleId,
             @NonNull LoanFacilityId facilityId) {
-        try {
 
-            Result<TradeLoanApplication> applicationResult = buildApplicationWithStrategy(command, context);
-
-            if (applicationResult.isFailure()) {
-                return Result.failure(applicationResult.notification());
-            }
-
+        return buildApplication(command, context).map(application -> {
             TradeLoanFacility facility = TradeLoanFacility.create(
                     facilityId,
-                    applicationResult.value(),
-                    LoanTypeId.of(command.loanTypeId()),
-                    LoanArrangementId.of(command.loanArrangementId()),
+                    application,
+                    context.loanType().getId(),
+                    context.arrangement().getId(),
                     clock,
                     scheduleId);
 
             log.debug("Facility created with ID: {}", facility.getId().value());
-            return Result.success(facility);
-        } catch (Exception e) {
-            log.error("Error creating facility", e);
-            return Result.failure(
-                    Notification.ofError(OriginateLoanFacilityErrorCodes.FACILITY_CREATION_FAILED, e.getMessage()));
-        }
+            return facility;
+        });
     }
 
-    public Result<TradeLoanApplication> buildApplicationWithStrategy(
+    public Result<TradeLoanApplication> buildApplication(
             OriginateLoanFacilityCommand command, FacilityOriginationContext context) {
 
-        try {
-            Party mainCustomer = createPartyFromPartyInfo(context.mainCustomer());
-
-            Branch branch = Branch.of(
-                            BranchCode.of(command.loanApplication().branch().code())
-                                    .orElseThrow())
-                    .orElseThrow();
-
-            LoanTypeCode loanTypeCode =
-                    LoanTypeCode.of(context.loanType().getCode().value()).orElseThrow();
-
-            String derivedValue = String.valueOf(generateApplicationSequence(
-                    branch.code(),
-                    context.loanType().getId(),
-                    context.mainCustomer().party().customerNumber()));
-
-            ApplicationNumberStrategy strategy = applicationNumberStrategySelector.selectStrategy();
-
-            Result<ApplicationNumber> applicationNumberResult =
-                    strategy.generateOrValidateApplicationNumber(branch, loanTypeCode, mainCustomer, derivedValue);
-
-            if (applicationNumberResult.isFailure()) {
-                return Result.failure(applicationNumberResult.notification());
-            }
-
-            ApplicationNumber applicationNumber = applicationNumberResult.getValue();
-
-            Set<Party> enrichedGuarantors = context.guarantors().stream()
-                    .map(this::createPartyFromPartyInfo)
-                    .collect(Collectors.toSet());
-
-            TradeLoanApplication.Builder builder = applicationMapper
-                    .map(command.loanApplication())
-                    .customer(mainCustomer)
-                    .applicationNumber(applicationNumber)
-                    .guarantors(enrichedGuarantors)
-                    .branch(branch);
-
-            return TradeLoanApplication.create(builder);
-
-        } catch (Exception e) {
-            return Result.failure(
-                    Notification.ofError(OriginateLoanFacilityErrorCodes.FACILITY_CREATION_FAILED, e.getMessage()));
+        // 1. Validate Branch Code
+        String rawBranchCode = command.loanApplication().branch().code();
+        if (rawBranchCode == null) {
+            return Result.failure(Notification.ofError(OriginateLoanFacilityErrorCodes.BRANCH_CODE_REQUIRED));
         }
-    }
 
-    private Party createPartyFromPartyInfo(PartyInfo partyInfo) {
-        return new Party(
-                partyInfo.party().customerNumber(),
-                partyInfo.party().type(),
-                new PersonName(
-                        partyInfo.party().name().firstName(),
-                        partyInfo.party().name().lastName()));
-    }
+        Result<Branch> branchResult = BranchCode.of(rawBranchCode).flatMap(Branch::of);
+        if (branchResult.isFailure()) {
+            return Result.failure(branchResult.notification());
+        }
+        Branch branch = branchResult.getValue();
 
-    private Long generateApplicationSequence(BranchCode branchCode, LoanTypeId loanTypeId, String customerNumber) {
-        return loanFacilityRepository.countByBranchCodeAndLoanTypeIdAndCustomerNumber(
-                branchCode, loanTypeId, customerNumber);
-    }
+        // 2. Validate Loan Type Code
+        Result<LoanTypeCode> loanTypeCodeResult =
+                LoanTypeCode.of(requireNonNull(context.loanType().getCode()).value());
+        if (loanTypeCodeResult.isFailure()) {
+            return Result.failure(loanTypeCodeResult.notification());
+        }
+        LoanTypeCode loanTypeCode = loanTypeCodeResult.getValue();
 
-    @Deprecated
-    public TradeLoanApplication buildApplication(
-            OriginateLoanFacilityCommand command, FacilityOriginationContext context) {
-        return buildApplicationWithStrategy(command, context).value();
+        // 3. Prepare Parties
+        Party primaryApplicant = context.primaryApplicant().party();
+
+        Set<Party> enrichedParties =
+                context.partyInfos().stream().map(PartyInfo::party).collect(Collectors.toSet());
+
+        ApplicationNumberStrategy strategy = applicationNumberStrategySelector.selectStrategy();
+
+        Result<ApplicationNumber> appNumberResult =
+                strategy.generateOrValidateApplicationNumber(branch, loanTypeCode, primaryApplicant);
+
+        if (appNumberResult.isFailure()) {
+            return Result.failure(appNumberResult.notification());
+        }
+
+        // 4. Build Application
+        TradeLoanApplication.Builder builder = applicationMapper
+                .map(command.loanApplication())
+                .parties(enrichedParties)
+                .applicationNumber(appNumberResult.getValue())
+                .branch(branch);
+
+        return TradeLoanApplication.create(builder);
     }
 }

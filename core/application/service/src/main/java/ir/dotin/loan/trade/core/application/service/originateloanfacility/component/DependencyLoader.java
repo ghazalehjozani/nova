@@ -2,18 +2,19 @@ package ir.dotin.loan.trade.core.application.service.originateloanfacility.compo
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
+import jakarta.validation.constraints.NotNull;
 
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.customerservice.CustomerServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CustomerInfoLoadOptions;
@@ -42,66 +43,76 @@ public class DependencyLoader {
     public Result<FacilityOriginationContext> loadDependencies(OriginateLoanFacilityCommand command) {
         log.debug("Loading dependencies for facility origination");
 
-        CompletableFuture<Result<TradeLoanArrangement>> arrangementFuture =
-                CompletableFuture.supplyAsync(() -> loadArrangement(command.loanArrangementId()), VIRTUAL_EXECUTOR);
+        var arrangementFuture = CompletableFuture.supplyAsync(
+                () -> safeLoadArrangement(command.loanArrangementCode()), VIRTUAL_EXECUTOR);
 
-        CompletableFuture<Result<TradeLoanType>> loanTypeFuture =
-                CompletableFuture.supplyAsync(() -> loadLoanType(command.loanTypeId()), VIRTUAL_EXECUTOR);
+        var loanTypeFuture =
+                CompletableFuture.supplyAsync(() -> safeLoadLoanType(command.loanTypeCode()), VIRTUAL_EXECUTOR);
 
-        CompletableFuture<Result<PartyInfo>> mainCustomerFuture = CompletableFuture.supplyAsync(
-                () -> loadCustomerInfo(command.loanApplication().customer().customerNumber()), VIRTUAL_EXECUTOR);
-
-        List<CompletableFuture<Result<PartyInfo>>> guarantorFutures = command.loanApplication().guarantors().stream()
-                .map(guarantor -> CompletableFuture.supplyAsync(
-                        () -> loadCustomerInfo(guarantor.customerNumber()), VIRTUAL_EXECUTOR))
+        var partyFutures = command.loanApplication().parties().stream()
+                .map(party -> CompletableFuture.supplyAsync(
+                        () -> loadCustomerInfo(party.customerNumber(), party.role()), VIRTUAL_EXECUTOR))
                 .toList();
 
-        CompletableFuture.allOf(Stream.concat(
-                                Stream.of(arrangementFuture, loanTypeFuture, mainCustomerFuture),
-                                guarantorFutures.stream())
+        CompletableFuture.allOf(Stream.concat(Stream.of(arrangementFuture, loanTypeFuture), partyFutures.stream())
                         .toArray(CompletableFuture[]::new))
                 .join();
 
-        return arrangementFuture.join().flatMap(arrangement -> loanTypeFuture
-                .join()
-                .flatMap(loanType -> mainCustomerFuture.join().flatMap(mainCustomer -> collectGuarantors(
-                                guarantorFutures)
-                        .map(guarantors -> {
-                            log.debug("Successfully loaded all dependencies");
-                            return new FacilityOriginationContext(arrangement, loanType, mainCustomer, guarantors);
-                        }))));
+        var arrangementResult = arrangementFuture.join();
+        var loanTypeResult = loanTypeFuture.join();
+        var partiesResult = aggregatePartyResults(partyFutures);
+
+        var notification = Notification.create()
+                .merge(arrangementResult.notification())
+                .merge(loanTypeResult.notification())
+                .merge(partiesResult.notification());
+
+        if (notification.hasErrors()) {
+            return Result.failure(notification);
+        }
+
+        log.debug("Successfully loaded all dependencies");
+        return Result.success(new FacilityOriginationContext(
+                arrangementResult.value(), loanTypeResult.value(), partiesResult.value()));
     }
 
-    private Result<TradeLoanArrangement> loadArrangement(UUID arrangementId) {
-        return Result.fromOptional(
-                loanArrangementRepository.findById(LoanArrangementId.of(arrangementId)),
-                Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_LOAN_ARRANGEMENT, arrangementId));
+    private Result<TradeLoanArrangement> safeLoadArrangement(String code) {
+        try {
+            return Result.fromOptional(
+                    loanArrangementRepository.findByCode(
+                            LoanArrangementCode.valueOf(code).getValue()),
+                    Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_LOAN_ARRANGEMENT, code));
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return Result.failure(Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_LOAN_ARRANGEMENT, code));
+        }
     }
 
-    private Result<TradeLoanType> loadLoanType(UUID loanTypeId) {
-        return Result.fromOptional(
-                tradeLoanTypeRepository.findById(LoanTypeId.of(loanTypeId)),
-                Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_LOAN_TYPE, loanTypeId));
+    private Result<TradeLoanType> safeLoadLoanType(String code) {
+        try {
+            return Result.fromOptional(
+                    tradeLoanTypeRepository.findByCode(LoanTypeCode.of(code).getValue()),
+                    Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_LOAN_TYPE, code));
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return Result.failure(Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_LOAN_TYPE, code));
+        }
     }
 
-    private Result<PartyInfo> loadCustomerInfo(String customerNumber) {
-        return customerServicePort.loadCustomerInfo(customerNumber, CustomerInfoLoadOptions.baseInfoOnly());
+    private Result<PartyInfo> loadCustomerInfo(String customerNumber, @NotNull PartyRole role) {
+        return customerServicePort.loadCustomerInfo(customerNumber, role, CustomerInfoLoadOptions.baseInfoOnly());
     }
 
-    private Result<List<PartyInfo>> collectGuarantors(List<CompletableFuture<Result<PartyInfo>>> guarantorFutures) {
-        List<PartyInfo> guarantors = new ArrayList<>();
-        Notification aggregatedNotification = Notification.create();
+    private Result<List<PartyInfo>> aggregatePartyResults(List<CompletableFuture<Result<PartyInfo>>> futures) {
+        var parties = new ArrayList<PartyInfo>(futures.size());
+        var notification = Notification.create();
 
-        for (CompletableFuture<Result<PartyInfo>> future : guarantorFutures) {
-            Result<PartyInfo> result = future.join();
-            aggregatedNotification.merge(result.notification());
+        for (var future : futures) {
+            var result = future.join();
+            notification.merge(result.notification());
             if (result.hasValue()) {
-                guarantors.add(result.value());
+                parties.add(result.value());
             }
         }
 
-        return aggregatedNotification.hasErrors()
-                ? Result.failure(aggregatedNotification)
-                : Result.of(guarantors, aggregatedNotification);
+        return notification.hasErrors() ? Result.failure(notification) : Result.success(parties);
     }
 }

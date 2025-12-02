@@ -30,8 +30,8 @@ public class DocumentMetadataUtils {
                                 .get()
                                 .formattedApplicationNumber()))
                 .party(DocumentMetadataFactory.PartyConfig.of(
-                        facility.getLoanApplication().getCustomer().customerNumber(),
-                        facility.getLoanApplication().getCustomer().name().fullName(),
+                        facility.getLoanApplication().getApplicant().customerNumber(),
+                        facility.getLoanApplication().getApplicant().name().fullName(),
                         List.of()))
                 .tool(DocumentMetadataFactory.ToolConfig.of(config.userId(), config.toolSource()))
                 .network(DocumentMetadataFactory.NetworkConfig.of(config.networkType(), config.channel()))

@@ -1,0 +1,112 @@
+{
+  "loanTypeCode": "9910",
+  "loanArrangementCode": "231",
+  "loanApplication": {
+    "requestDate": "{{requestDate}}",
+    "parties": [
+      {
+        "customerNumber": "10088",
+        "role": "PRIMARY_APPLICANT"
+      },
+      {
+        "customerNumber": "259121",
+        "role": "GUARANTOR"
+      }
+    ],
+    "requestedAmount": 120000.00,
+    "currency": "IRR",
+    "requestedLoanDurationMonths": 12,
+    "applicantChannel": "INTERNET_BANK",
+    "gracePeriodDays": 10,
+    "installmentCount": 12,
+    "disbursementMethod": "IRREGULAR_PROGRESSIVE",
+    "disburseDestination": {
+      "depositNumber": "1.10.1357.60",
+      "type": "DEPOSIT"
+    },
+    "economicSectorCode": "2-1",
+    "requestReasonCode": "0",
+    "subSourceCode": "03",
+    "description": "توضیحات مربوط به درخواست",
+    "certificateSerials": [
+      "10"
+    ],
+    "credibilityRank": "A"
+  },
+  "installmentSchedulePlan": {
+    "installments": [
+      {
+        "sequenceNumber": 1,
+        "dueDate": "2026-01-10T20:30:00.000Z",
+        "principalAmount": 10000,
+        "interestAmount": 1000
+      },
+      {
+        "sequenceNumber": 2,
+        "dueDate": "2026-02-10T20:30:00.000Z",
+        "principalAmount": 10000,
+        "interestAmount": 1000
+      },
+      {
+        "sequenceNumber": 3,
+        "dueDate": "2026-03-10T20:30:00.000Z",
+        "principalAmount": 10000,
+        "interestAmount": 1000
+      },
+      {
+        "sequenceNumber": 4,
+        "dueDate": "2026-04-10T20:30:00.000Z",
+        "principalAmount": 10000,
+        "interestAmount": 1000
+      },
+      {
+        "sequenceNumber": 5,
+        "dueDate": "2026-05-10T20:30:00.000Z",
+        "principalAmount": 10000,
+        "interestAmount": 1000
+      },
+      {
+        "sequenceNumber": 6,
+        "dueDate": "2026-06-10T20:30:00.000Z",
+        "principalAmount": 10000,
+        "interestAmount": 1000
+      },
+      {
+        "sequenceNumber": 7,
+        "dueDate": "2026-07-10T20:30:00.000Z",
+        "principalAmount": 10000,
+        "interestAmount": 1000
+      },
+      {
+        "sequenceNumber": 8,
+        "dueDate": "2026-08-10T20:30:00.000Z",
+        "principalAmount": 10000,
+        "interestAmount": 1000
+      },
+      {
+        "sequenceNumber": 9,
+        "dueDate": "2026-09-10T20:30:00.000Z",
+        "principalAmount": 10000,
+        "interestAmount": 1000
+      },
+      {
+        "sequenceNumber": 10,
+        "dueDate": "2026-10-10T20:30:00.000Z",
+        "principalAmount": 10000,
+        "interestAmount": 1000
+      },
+      {
+        "sequenceNumber": 11,
+        "dueDate": "2026-11-10T20:30:00.000Z",
+        "principalAmount": 10000,
+        "interestAmount": 1000
+      },
+      {
+        "sequenceNumber": 12,
+        "dueDate": "2026-12-10T20:30:00.000Z",
+        "principalAmount": 10000,
+        "interestAmount": 1000
+      }
+    ]
+  }
+}

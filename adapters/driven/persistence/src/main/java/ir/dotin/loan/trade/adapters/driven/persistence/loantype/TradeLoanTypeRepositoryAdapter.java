@@ -41,6 +41,11 @@ public class TradeLoanTypeRepositoryAdapter implements TradeLoanTypeRepository {
     }
 
     @Override
+    public Optional<TradeLoanType> findByCode(LoanTypeCode code) {
+        return jpaRepository.getByCode_Value(code.value()).map(mapper::map);
+    }
+
+    @Override
     public Boolean existsById(LoanTypeId id) {
         return jpaRepository.existsById(id.value());
     }

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +20,7 @@ import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMeth
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.*;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCreated;
@@ -29,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TradeLoanFacility")
@@ -361,13 +364,22 @@ class TradeLoanFacilityTest {
             @Mock Branch branch,
             @Mock RequestReason requestReason,
             @Mock DisburseDestination disburseDestination) {
+        // Create a mock guarantor
+        Party mockGuarantor = org.mockito.Mockito.mock(Party.class);
+        when(mockGuarantor.partyRole()).thenReturn(PartyRole.GUARANTOR);
+        when(mockGuarantor.customerNumber()).thenReturn("67890");
+
         // Create a minimal builder that will pass validation
         given(applicationNumber.formattedApplicationNumber()).willReturn("appNumber");
+        // Configure customer mock to have correct role
+        when(customer.partyRole()).thenReturn(PartyRole.PRIMARY_APPLICANT);
+        when(customer.customerNumber()).thenReturn("12345");
+
         return TradeLoanApplication.builder()
                 .id(LoanApplicationId.of(randomUUID())) // Add the required ID
                 .applicationNumber(applicationNumber)
                 .requestDate(testClock.instant())
-                .customer(customer)
+                .parties(Set.of(customer, mockGuarantor))
                 .requestedAmount(Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR)
                         .orElseThrow())
                 .currency(CurrencyType.IRR)

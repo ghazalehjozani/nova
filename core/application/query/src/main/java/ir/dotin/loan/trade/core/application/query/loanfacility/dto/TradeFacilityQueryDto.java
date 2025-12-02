@@ -14,6 +14,8 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
 
 public record TradeFacilityQueryDto(
@@ -34,6 +36,20 @@ public record TradeFacilityQueryDto(
         String facilityType)
         implements QueryResult {
 
+    public record MoneyEmbDto(BigDecimal amount, String currency) implements Serializable {}
+
+    public record CurrencyTypeDto(String value) implements Serializable {}
+
+    public record PeriodEmbDto(Integer years, Integer months, Integer days) implements Serializable {}
+
+    public record GracePeriodEmbDto(Integer days, Integer months, Integer years) implements Serializable {}
+
+    public record InstallmentCountEmbDto(Integer value) implements Serializable {}
+
+    public record PartyEmbDto(
+            String customerNumber, PartyType partyType, PartyRole partyRole, String firstName, String lastName)
+            implements Serializable {}
+
     public record TradeLoanApplicationEntityDto(
             UUID id,
             Long version,
@@ -42,7 +58,7 @@ public record TradeFacilityQueryDto(
             String createdBy,
             String modifiedBy,
             Instant requestDate,
-            PartyEmbDto customer,
+            Set<PartyEmbDto> parties,
             MoneyEmbDto requestedAmount,
             CurrencyTypeDto currency,
             PeriodEmbDto requestedLoanDuration,
@@ -57,23 +73,9 @@ public record TradeFacilityQueryDto(
             DescriptionEmbDto description,
             CredibilityRankEmbDto credibilityRank,
             ApplicationNumberEmbDto applicationNumber,
-            Set<PartyEmbDto> guarantors,
             Set<CertificateEmbDto> certificates,
             DisbursementMethod disbursementMethod)
             implements Serializable {
-
-        public record PartyEmbDto(String customerNumber, String partyType, String firstName, String lastName)
-                implements Serializable {}
-
-        public record MoneyEmbDto(BigDecimal amount, String currency) implements Serializable {}
-
-        public record CurrencyTypeDto(String value) implements Serializable {}
-
-        public record PeriodEmbDto(Integer years, Integer months, Integer days) implements Serializable {}
-
-        public record GracePeriodEmbDto(Integer days, Integer months, Integer years) implements Serializable {}
-
-        public record InstallmentCountEmbDto(Integer value) implements Serializable {}
 
         public record DisburseDestinationEmbDto(String depositNumber, DisburseDestinationType type)
                 implements Serializable {}
@@ -94,12 +96,7 @@ public record TradeFacilityQueryDto(
                 BranchEmbDto branch, LoanTypeCodeEmbDto loanTypeCode, PartyEmbDto party, String derivedValue)
                 implements Serializable {
 
-            public record BranchEmbDto(String code) implements Serializable {}
-
             public record LoanTypeCodeEmbDto(String value) implements Serializable {}
-
-            public record PartyEmbDto(String customerNumber, String partyType, String firstName, String lastName)
-                    implements Serializable {}
         }
 
         public record CertificateEmbDto(String serial) implements Serializable {}
@@ -114,7 +111,7 @@ public record TradeFacilityQueryDto(
             String modifiedBy,
             SanctionSerialEmbDto sanctionSerial,
             MoneyEmbDto approvedAmount,
-            CurrencyTypeEmbDto currency,
+            CurrencyTypeDto currency,
             GracePeriodEmbDto gracePeriod,
             InstallmentCountEmbDto installmentCount,
             PeriodEmbDto loanDuration,
@@ -126,16 +123,6 @@ public record TradeFacilityQueryDto(
             implements Serializable {
 
         public record SanctionSerialEmbDto(String value, SanctionType type) implements Serializable {}
-
-        public record MoneyEmbDto(BigDecimal amount, String currency) implements Serializable {}
-
-        public record CurrencyTypeEmbDto(String value) implements Serializable {}
-
-        public record GracePeriodEmbDto(Integer days, Integer months, Integer years) implements Serializable {}
-
-        public record InstallmentCountEmbDto(Integer value) implements Serializable {}
-
-        public record PeriodEmbDto(Integer years, Integer months, Integer days) implements Serializable {}
 
         public record CollateralSerialEmbDto(String value) implements Serializable {}
 
@@ -149,16 +136,11 @@ public record TradeFacilityQueryDto(
                 List<ScheduledTrancheEmbDto> tranches)
                 implements Serializable {
 
-            public record ScheduledTrancheEmbDto(Instant scheduledDate, MoneyEmbDto amount) implements Serializable {
-
-                public record MoneyEmbDto(BigDecimal amount, String currency) implements Serializable {}
-            }
+            public record ScheduledTrancheEmbDto(Instant scheduledDate, MoneyEmbDto amount) implements Serializable {}
         }
 
         public record RevocationReasonEmbDto(String text) implements Serializable {}
     }
-
-    public record MoneyEmbDto(BigDecimal amount, String currency) implements Serializable {}
 
     public record TransactionNumberEmbDto(String value, Instant createdAt, String trackingId, TransactionStatus status)
             implements Serializable {}

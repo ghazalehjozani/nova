@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driven.persistence.loantype.repository;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import ir.dotin.platform.adapter.persistence.repository.PersistentRepository;
 import ir.dotin.loan.trade.adapters.driven.persistence.loantype.entity.TradeLoanTypeEntity;
+import ir.dotin.loan.trade.adapters.driven.persistence.loantype.projection.TradeLoanTypeIdProjection;
 
 @Repository
 public interface TradeLoanTypeJpaRepository extends PersistentRepository<TradeLoanTypeEntity> {
@@ -22,4 +24,8 @@ public interface TradeLoanTypeJpaRepository extends PersistentRepository<TradeLo
 
     @Query("select t.code.value from TradeLoanTypeEntity t where t.id = :id")
     Optional<String> findCode(@Param("id") UUID id);
+
+    Optional<TradeLoanTypeEntity> getByCode_Value(@NonNull String value);
+
+    Optional<TradeLoanTypeIdProjection> findByCode_Value(String value);
 }
