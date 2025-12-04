@@ -156,7 +156,7 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
                 ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus.POSTED,
                 clock);
 
-        return ResultStepAdapter.toStepResultVoid(transactionPostingPort.reverseTransactions(trackedNumber));
+        return ResultStepAdapter.toStepResultVoid(transactionPostingPort.reverseTransaction(trackedNumber));
     }
 
     private StepResult<Void> updateFacilityState(SagaContext<IssueFacilityContractSagaData> ctx) {

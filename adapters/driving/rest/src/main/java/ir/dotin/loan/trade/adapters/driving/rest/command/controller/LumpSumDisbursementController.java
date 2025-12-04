@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
 import java.util.UUID;
+import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,8 +14,10 @@ import ir.dotin.platform.adapter.rest.request.DataRequest;
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.commons.security.AuthenticationContextHolder;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
+import ir.dotin.loan.trade.adapters.driving.rest.command.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.LumpSumDisbursementRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateLumpSumDisbursementCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.LumpSumDisbursementCommand;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,5 +58,20 @@ class LumpSumDisbursementController extends BaseController {
                 .userId(authenticationContextHolder.userIdOrThrow())
                 .build();
         return EventStreamResponse.of(unwrap(dispatcher.dispatch(lumpSumDisbursementCommand)));
+    }
+
+    @PostMapping(value = "/compensate", version = "1+")
+    @Operation(summary = "جبران‌سازی مرحله پرداخت یکجا")
+    public EventStreamResponse compensateLumpSumDisbursement(
+            @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
+            @RequestBody @Valid DataRequest<CompensationRequest> request) {
+
+        var command = CompensateLumpSumDisbursementCommand.builder()
+                .uid(getXRequestId())
+                .version(request.payload().version())
+                .loanFacilityId(facilityId)
+                .build();
+
+        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
     }
 }

@@ -21,6 +21,10 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.DefineLoanTypeCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.EconomicSectorDto;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.LoanArrangementCodeDto;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.LoanTypeCodeDto;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.TitleDto;
 import ir.dotin.loan.trade.core.application.service.BaseMapperConfig;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
@@ -39,9 +43,9 @@ public interface DefineLoanTypeCommandMapper {
     @Mapping(target = "economicSectorCurrencies", source = "economicSectorCurrencies")
     TradeLoanType.Builder toBuilder(DefineLoanTypeCommand command);
 
-    LoanTypeCode map(DefineLoanTypeCommand.LoanTypeCodeDto dto);
+    LoanTypeCode map(LoanTypeCodeDto dto);
 
-    Title map(DefineLoanTypeCommand.TitleDto dto);
+    Title map(TitleDto dto);
 
     LoanApplicationStatus map(DefineLoanTypeCommand.LoanApplicationStatusDto dto);
 
@@ -55,11 +59,11 @@ public interface DefineLoanTypeCommandMapper {
         return new EconomicSectorCurrency(map(dto.economicSector()), currencyTypes);
     }
 
-    Set<EconomicSector> map(Set<DefineLoanTypeCommand.EconomicSectorDto> dto);
+    Set<EconomicSector> map(Set<EconomicSectorDto> dto);
 
-    EconomicSector map(DefineLoanTypeCommand.EconomicSectorDto dto);
+    EconomicSector map(EconomicSectorDto dto);
 
-    LoanArrangementId map(DefineLoanTypeCommand.LoanArrangementCodeDto dto);
+    LoanArrangementId map(LoanArrangementCodeDto dto);
 
     default Multimap<RelationType<TradeRelationType>, LoanTopic> map(
             List<DefineLoanTypeCommand.RelationTypeLoanTopicDto> dtos) {

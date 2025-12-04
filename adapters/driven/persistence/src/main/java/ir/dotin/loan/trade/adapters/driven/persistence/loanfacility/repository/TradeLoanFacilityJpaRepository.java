@@ -31,4 +31,18 @@ public interface TradeLoanFacilityJpaRepository extends PersistentRepository<Tra
             @Param("code") String code,
             @Param("loanTypeId") UUID loanTypeId,
             @Param("customerNumber") String customerNumber);
+
+    @Query("""
+        SELECT CASE WHEN COUNT(t) > 0 THEN true ELSE false END
+        FROM TradeLoanFacilityEntity t
+        WHERE t.loanApplication.applicationNumber.branch.code = :branchCode
+        AND t.loanApplication.applicationNumber.loanTypeCode.value = :loanTypeCode
+        AND t.loanApplication.applicationNumber.party.customerNumber = :customerNumber
+        AND t.loanApplication.applicationNumber.derivedValue = :derivedValue
+        """)
+    boolean existsByApplicationNumber(
+            @Param("branchCode") String branchCode,
+            @Param("loanTypeCode") String loanTypeCode,
+            @Param("customerNumber") String customerNumber,
+            @Param("derivedValue") String derivedValue);
 }

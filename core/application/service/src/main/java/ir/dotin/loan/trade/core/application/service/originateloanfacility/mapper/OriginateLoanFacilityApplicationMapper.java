@@ -15,6 +15,8 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.RespiteSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.CurrencyTypeDto;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.EconomicSectorDto;
 import ir.dotin.loan.trade.core.application.service.BaseMapperConfig;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
 
@@ -41,7 +43,7 @@ public interface OriginateLoanFacilityApplicationMapper {
 
     SubSource map(OriginateLoanFacilityCommand.SubSourceDto dto);
 
-    EconomicSector map(OriginateLoanFacilityCommand.EconomicSectorDto dto);
+    EconomicSector map(EconomicSectorDto dto);
 
     LoanDuration map(OriginateLoanFacilityCommand.LoanDurationDto dto);
 
@@ -67,5 +69,5 @@ public interface OriginateLoanFacilityApplicationMapper {
         builder.requestedAmount(new Money(loanApplication.requestedAmount().value(), currency));
     }
 
-    CurrencyType map(OriginateLoanFacilityCommand.CurrencyTypeDto dto);
+    CurrencyType map(CurrencyTypeDto dto);
 }

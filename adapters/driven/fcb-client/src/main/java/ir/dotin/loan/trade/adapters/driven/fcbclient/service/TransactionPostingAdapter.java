@@ -124,7 +124,7 @@ public class TransactionPostingAdapter implements TransactionPostingPort {
     }
 
     @Override
-    public Result<Void> reverseTransactions(TrackedTransactionNumber transactionNumber) {
+    public Result<Void> reverseTransaction(TrackedTransactionNumber transactionNumber) {
         log.debug("Cancelling transfer money loan - {}", transactionNumber.value());
 
         List<Parameter> parameters = buildReverseTransactionsParameters(transactionNumber);

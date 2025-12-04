@@ -13,6 +13,7 @@ import org.mapstruct.ReportingPolicy;
 
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.DefineTradeLoanArrangementCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.*;
 
 @Mapper(
         componentModel = MappingConstants.ComponentModel.SPRING,
@@ -40,8 +41,7 @@ public interface DefineTradeLoanArrangementRequestToCommandMapper {
             DefineTradeLoanArrangementRequest.AmountRangeDto amountRange) {
         if (amountRange == null) return null;
         return new DefineTradeLoanArrangementCommand.AmountRangeDto(
-                new DefineTradeLoanArrangementCommand.MoneyDto(amountRange.min()),
-                new DefineTradeLoanArrangementCommand.MoneyDto(amountRange.max()));
+                new AmountDto(amountRange.min()), new AmountDto(amountRange.max()));
     }
 
     default DefineTradeLoanArrangementCommand.LoanDurationRangeDto mapDurationRange(

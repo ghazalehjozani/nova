@@ -143,4 +143,33 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
                 scheduleId,
                 clock);
     }
+
+    @Override
+    public TradeLoanFacilityApprovalSubmissionReverted createApprovalSubmissionRevertedEvent(
+            LoanFacilityId facilityId, Clock clock) {
+        return TradeLoanFacilityApprovalSubmissionReverted.of(facilityId, clock);
+    }
+
+    @Override
+    public TradeLoanFacilityApprovalReverted createApprovalRevertedEvent(LoanFacilityId facilityId, Clock clock) {
+        return TradeLoanFacilityApprovalReverted.of(facilityId, clock);
+    }
+
+    @Override
+    public TradeLoanFacilityDisbursementReverted createDisbursementRevertedEvent(
+            LoanFacilityId facilityId, Clock clock) {
+        return TradeLoanFacilityDisbursementReverted.of(facilityId, clock);
+    }
+
+    @Override
+    public TradeLoanFacilityIrregularTrancheDisbursementReverted createIrregularTrancheDisbursementRevertedEvent(
+            LoanFacilityId facilityId, Clock clock) {
+        return TradeLoanFacilityIrregularTrancheDisbursementReverted.of(facilityId, clock);
+    }
+
+    @Override
+    public TradeLoanFacilityOriginationReverted createOriginationRevertedEvent(
+            LoanFacilityId facilityId, String reason, Clock clock) {
+        return TradeLoanFacilityOriginationReverted.of(facilityId, reason, clock);
+    }
 }

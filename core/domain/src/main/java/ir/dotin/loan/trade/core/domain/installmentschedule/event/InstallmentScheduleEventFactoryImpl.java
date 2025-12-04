@@ -99,4 +99,37 @@ public class InstallmentScheduleEventFactoryImpl implements InstallmentScheduleE
         return ScheduleStateTransitioned.of(
                 scheduleId, fromStatus, toStatus, reason, Clock.fixed(occurredAt, ZoneId.systemDefault()));
     }
+
+    @Override
+    public DomainEvent<?> createScheduleCreationRevertedEvent(
+            @NonNull InstallmentScheduleId scheduleId, @Nullable String reason, @NonNull Instant occurredAt) {
+        return ScheduleCreationReverted.of(scheduleId, reason, Clock.fixed(occurredAt, ZoneId.systemDefault()));
+    }
+
+    @Override
+    public DomainEvent<?> createActivationRevertedEvent(
+            @NonNull InstallmentScheduleId scheduleId, @NonNull Instant occurredAt) {
+        return ActivationReverted.of(scheduleId, Clock.fixed(occurredAt, ZoneId.systemDefault()));
+    }
+
+    @Override
+    public DomainEvent<?> createRestructuringRevertedEvent(
+            @NonNull InstallmentScheduleId scheduleId, @NonNull Instant occurredAt) {
+        return RestructuringReverted.of(scheduleId, Clock.fixed(occurredAt, ZoneId.systemDefault()));
+    }
+
+    @Override
+    public DomainEvent<?> createInstallmentCreationRevertedEvent(
+            @NonNull InstallmentScheduleId scheduleId,
+            @NonNull List<InstallmentId> removedInstallmentIds,
+            @NonNull Instant occurredAt) {
+        return InstallmentCreationReverted.of(
+                scheduleId, removedInstallmentIds, Clock.fixed(occurredAt, ZoneId.systemDefault()));
+    }
+
+    @Override
+    public DomainEvent<?> createCompletionRevertedEvent(
+            @NonNull InstallmentScheduleId scheduleId, @NonNull Instant occurredAt) {
+        return CompletionReverted.of(scheduleId, Clock.fixed(occurredAt, ZoneId.systemDefault()));
+    }
 }

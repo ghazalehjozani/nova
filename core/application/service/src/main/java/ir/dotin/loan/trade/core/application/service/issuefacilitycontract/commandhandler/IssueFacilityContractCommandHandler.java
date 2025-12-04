@@ -49,7 +49,7 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
         var input = IssueFacilityContractInput.of(command.loanFacilityId(), command.branchCode(), transactionConfig);
 
         SagaResult<IssueFacilityContractSagaData> sagaResult = sagaOrchestrator.executeSaga(
-                "issue-facility-contract", input, command.id().toString());
+                "issue-facility-contract", input, command.uid().toString());
 
         log.info("Saga completed: sagaId={}, success={}", sagaResult.sagaId(), sagaResult.isSuccess());
 

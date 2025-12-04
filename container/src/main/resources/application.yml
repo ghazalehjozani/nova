@@ -226,6 +226,11 @@ platform:
           - corridor.core.loan.installment.trade-loan-installment-schedule-on-held.topic.v1
           - corridor.core.loan.installment.trade-loan-installment-schedule-restructured.topic.v1
           - corridor.core.loan.installment.trade-loan-installment-schedule-state-transitioned.topic.v1
+          - corridor.core.loan.installment.trade-loan-installment-schedule-creation-reverted.topic.v1
+          - corridor.core.loan.installment.trade-loan-installment-schedule-activation-reverted.topic.v1
+          - corridor.core.loan.installment.trade-loan-installment-schedule-restructuring-reverted.topic.v1
+          - corridor.core.loan.installment.trade-loan-installment-schedule-installment-creation-reverted.topic.v1
+          - corridor.core.loan.installment.trade-loan-installment-schedule-completion-reverted.topic.v1
         TradeLoanArrangement:
           - corridor.core.loan.arrangement.trade-loan-arrangement-created.topic.v1
         TradeLoanFacility:
@@ -242,6 +247,12 @@ platform:
           - corridor.core.loan.facility.trade-loan-facility-paid-off-closed.topic.v1
           - corridor.core.loan.facility.trade-loan-facility-cancelled.topic.v1
           - corridor.core.loan.facility.trade-loan-facility-rejected.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-contract-issuance-reverted.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-origination-reverted.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-approval-submission-reverted.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-approval-reverted.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-disbursement-reverted.topic.v1
+          - corridor.core.loan.facility.trade-loan-facility-irregular-tranche-disbursement-reverted.topic.v1
         TradeLoanType:
           - corridor.core.loan.type.trade-loan-type-created.topic.v1
     inbox:

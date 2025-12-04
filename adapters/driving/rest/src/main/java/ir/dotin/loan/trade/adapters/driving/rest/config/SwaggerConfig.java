@@ -65,6 +65,8 @@ public class SwaggerConfig extends BaseSwaggerConfig {
     public static final String TAG_INSTALLMENT_SCHEDULE_QUERIES = "Installment Schedule Queries";
     public static final String TAG_LOAN_TYPE_QUERIES = "Loan Type Queries";
     public static final String TAG_LOAN_ARRANGEMENT_QUERIES = "Loan Arrangement Queries";
+    public static final String TAG_FULL_LIFECYCLE = "Full Loan Facility Lifecycle";
+    public static final String TAG_FACILITY_COMPENSATION = "Facility Compensation";
 
     private static final Map<String, Integer> TAG_ORDER = Map.ofEntries(
             Map.entry(TAG_LOAN_ARRANGEMENT_MANAGEMENT, 1),

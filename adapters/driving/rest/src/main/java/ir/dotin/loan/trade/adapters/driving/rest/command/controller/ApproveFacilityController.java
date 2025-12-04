@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
 import java.util.UUID;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,8 +15,10 @@ import ir.dotin.platform.adapter.rest.request.DataRequest;
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.ApproveFacilityRequest;
+import ir.dotin.loan.trade.adapters.driving.rest.command.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.ApproveFacilityRequestToCommandMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateApprovalCommand;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -66,6 +69,21 @@ class ApproveFacilityController extends BaseController {
                     DataRequest<ApproveFacilityRequest> request) {
 
         var command = mapper.toCommand(facilityId, sanctionSerial, request.payload());
+        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
+    }
+
+    @PostMapping(value = "/compensate", version = "1+")
+    @Operation(summary = "جبران‌سازی مرحله تصویب")
+    public EventStreamResponse compensateApproval(
+            @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
+            @RequestBody @Valid DataRequest<CompensationRequest> request) {
+
+        var command = CompensateApprovalCommand.builder()
+                .uid(getXRequestId())
+                .version(request.payload().version())
+                .loanFacilityId(facilityId)
+                .build();
+
         return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
     }
 }

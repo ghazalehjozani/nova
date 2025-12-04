@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.core.application.ports.outbound.client.accountservic
 
 import java.util.List;
 
+import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
@@ -20,5 +21,16 @@ public interface TransactionPostingPort {
     Result<List<TrackedTransactionNumber>> postTransactions(
             LoanFacilityId facilityId, String documentComment, List<LoanTransaction> transactionsToPost);
 
-    Result<Void> reverseTransactions(TrackedTransactionNumber transactionNumber);
+    Result<Void> reverseTransaction(TrackedTransactionNumber transactionNumber);
+
+    default Result<Void> reverseTransactions(List<TrackedTransactionNumber> transactionNumbers) {
+        Notification notification = Notification.create();
+        transactionNumbers.parallelStream().forEach(transactionNumber -> {
+            Result<Void> result = reverseTransaction(transactionNumber);
+            if (result.hasErrors()) {
+                notification.merge(result.notification());
+            }
+        });
+        return notification.hasErrors() ? Result.failure(notification) : Result.success();
+    }
 }

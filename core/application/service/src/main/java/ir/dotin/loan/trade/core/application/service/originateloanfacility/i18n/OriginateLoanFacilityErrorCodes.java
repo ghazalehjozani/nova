@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 public enum OriginateLoanFacilityErrorCodes implements LocalizedMessage<OriginateLoanFacilityErrorCodes> {
     FACILITY_ALREADY_EXISTS("Facility with ID {0} already exists"),
     INVALID_LOAN_TYPE("Invalid loan type ID: {0}"),
+    FACILITY_NOT_FOUND("Facility with ID {0} not found"),
     INVALID_AMOUNT("Invalid requested amount: {0}"),
     INVALID_DURATION("Invalid duration: {0} days"),
     BRANCH_CODE_REQUIRED("Branch code required"),
@@ -22,6 +23,7 @@ public enum OriginateLoanFacilityErrorCodes implements LocalizedMessage<Originat
     INVALID_DEPOSIT_CURRENCY("Invalid deposit currency: {0}"),
     INVALID_CREDITOR_DEPOSIT("Invalid creditor deposit: {0}"),
     INVALID_DEBTOR_DEPOSIT("Invalid debtor deposit: {0}"),
+    DUPLICATE_APPLICATION_NUMBER("Application number {0} already exists"),
     DISBURSE_DESTINATION_DEPOSIT_IS_CLOSED("Disburse destination deposit is closed. deposit: {0}. "),
     INVALID_ECONOMIC_SECTOR_FOR_LOAN_TYPE("Economic sector {0} is not allowed for loan type {1}"),
     APPLICATION_NUMBER_CREATION_FAILED("Failed to create application number: {0}");
