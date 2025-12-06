@@ -72,7 +72,7 @@ spec:
                 fieldRef:
                   fieldPath: status.podIP
             - name: JAVA_TOOL_OPTIONS
-              value: "-XX:+ExitOnOutOfMemoryError"
+              value: "-XX:MaxRAMPercentage=50.0 -XX:+ExitOnOutOfMemoryError"
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "http://host.minikube.internal:4318"
             - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
@@ -118,7 +118,7 @@ spec:
               memory: "1Gi"
               cpu: "500m"
             limits:
-              memory: "3Gi"
+              memory: "2Gi"
               cpu: "2000m"
           lifecycle:
             preStop:
