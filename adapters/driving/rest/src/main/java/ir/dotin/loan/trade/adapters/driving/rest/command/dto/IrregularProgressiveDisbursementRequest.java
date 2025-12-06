@@ -14,7 +14,8 @@ public record IrregularProgressiveDisbursementRequest(
         @Schema(description = "مبلغ پرداخت") @NotNull BigDecimal trancheAmount,
         @Schema(description = "برنامه اقساط") @NotNull InstallmentSchedulePlanDto installmentSchedulePlan,
         @Schema(description = "شناسه عملیات") @NotNull UUID uid,
-        @Schema(description = "نسخه عملیات") @NotNull Long version) {
+        @Schema(description = "نسخه عملیات") @NotNull Long version,
+        @Schema(description = "تاریخ پرداخت") LocalDate disbursementDate) {
 
     @Schema(description = "برنامه زمانبندی اقساط")
     public record InstallmentSchedulePlanDto(

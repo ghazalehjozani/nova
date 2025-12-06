@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.commandhandler;
 
 import java.time.Clock;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,7 @@ import ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.i18n.Lum
 import ir.dotin.loan.trade.core.application.service.shared.util.DocumentMetadataUtils;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
+import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.transaction.TradeLampSunDisbursementTransactionService;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 
@@ -99,7 +101,13 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
                         .flatMap(branchCode -> createTransactionConfig(command)
                                 .flatMap(config -> createPostTitle(facility)
                                         .map(postTitle -> new ProcessingContext(
-                                                loanType, arrangement, schedule, branchCode, config, postTitle)))))));
+                                                loanType,
+                                                arrangement,
+                                                schedule,
+                                                branchCode,
+                                                config,
+                                                command.disbursementDate(),
+                                                postTitle)))))));
     }
 
     private Result<TradeLoanType> loadLoanType(TradeLoanFacility facility) {
@@ -158,12 +166,17 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
     }
 
     private Result<Void> validateDisbursement(TradeLoanFacility facility, ProcessingContext context) {
-        return facility.getSanctionedLoan()
-                .map(AbstractSanctionedLoan::getApprovedAmount)
-                .map(facility::validateLumpSumDisbursement)
-                .orElseGet(() -> Result.failure(Notification.ofError(
-                        LumpSumDisbursementErrorCodes.SANCTIONED_LOAN_NOT_FOUND,
-                        facility.getId().value())));
+        if (facility.getSanctionedLoan().isEmpty()) {
+            return Result.failure(Notification.ofError(
+                    LumpSumDisbursementErrorCodes.SANCTIONED_LOAN_NOT_FOUND,
+                    facility.getId().value()));
+        }
+        AbstractSanctionedLoan<TradeSanctionedLoan.Builder> sanctionedLoan =
+                facility.getSanctionedLoan().get();
+        return facility.validateLumpSumDisbursement(sanctionedLoan.getApprovedAmount())
+                .flatMap(ignored -> facility.validateDisbursementDate(
+                        context.disbursementDate(),
+                        context.schedule().getInstallments().getFirst().getDueDate()));
     }
 
     private Result<DisbursementOperationResult> processDisbursement(
@@ -231,7 +244,8 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
                                 trackedNumbers,
                                 accountIds,
                                 context.arrangement.getInstallmentPolicy().installmentPaymentType(),
-                                clock)
+                                clock,
+                                context.disbursementDate())
                         .map(ignored -> new DisbursementOperationResult(facility, context.schedule())))
                 .orElseGet(() -> Result.failure(Notification.ofError(
                         LumpSumDisbursementErrorCodes.SANCTIONED_LOAN_NOT_FOUND,
@@ -266,6 +280,7 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
             InstallmentSchedule schedule,
             BranchCode branchCode,
             TransactionConfig config,
+            LocalDate disbursementDate,
             PostTitle postTitle) {}
 
     private record TransactionResult(

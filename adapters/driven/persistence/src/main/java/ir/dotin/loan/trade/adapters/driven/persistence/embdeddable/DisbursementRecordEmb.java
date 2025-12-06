@@ -1,17 +1,16 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.embdeddable;
 
-import java.time.Instant;
+import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
-
-import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDate;
 
 @Embeddable
 @Getter
@@ -27,7 +26,7 @@ public class DisbursementRecordEmb {
     private MoneyEmb amount;
 
     @Column(name = "disbursed_at", nullable = false)
-    private Instant disbursedAt;
+    private LocalDate disbursedAt;
 
     @Column(name = "disbursed_by", length = 50)
     private String disbursedBy;

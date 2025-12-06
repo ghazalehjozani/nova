@@ -27,7 +27,8 @@ public record IrregularProgressiveDisbursementCommand(
         @NotBlank String toolSource,
         @NotBlank String networkType,
         @NotBlank String channel,
-        @Nullable @Valid InstallmentSchedulePlanDto installmentSchedulePlan)
+        @Nullable @Valid InstallmentSchedulePlanDto installmentSchedulePlan,
+        @NotNull LocalDate disbursementDate)
         implements Command {
 
     @Builder(toBuilder = true)

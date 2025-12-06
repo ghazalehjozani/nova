@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.commandhandler;
 
 import java.time.Clock;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -126,6 +127,7 @@ public class IrregularProgressiveDisbursementCommandHandler
                                                 config,
                                                 postTitle,
                                                 trancheAmount,
+                                                command.disbursementDate(),
                                                 finalCustomPlan)))))));
     }
 
@@ -189,6 +191,9 @@ public class IrregularProgressiveDisbursementCommandHandler
 
     private Result<Void> validateAll(TradeLoanFacility facility, ProcessingContext context) {
         return validateScheduleStatus(context)
+                .flatMap(ignored -> facility.validateDisbursementDate(
+                        context.disbursementDate(),
+                        context.schedule().getInstallments().getFirst().getDueDate()))
                 .flatMap(ignored -> facility.validateIrregularTrancheDisbursement(context.trancheAmount()));
     }
 
@@ -310,7 +315,8 @@ public class IrregularProgressiveDisbursementCommandHandler
                         accountIds,
                         newSchedule.getId(),
                         clock,
-                        context.config().userId())
+                        context.config().userId(),
+                        context.disbursementDate())
                 .map(ignored -> new DisbursementOperationResult(facility, context.schedule(), newSchedule));
     }
 
@@ -335,6 +341,7 @@ public class IrregularProgressiveDisbursementCommandHandler
             TransactionConfig config,
             PostTitle postTitle,
             Money trancheAmount,
+            LocalDate disbursementDate,
             List<InstallmentSpec> customPlan) {}
 
     private record TransactionResult(

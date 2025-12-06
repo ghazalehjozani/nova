@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
+import java.time.LocalDate;
+import java.util.Objects;
 import java.util.UUID;
 import jakarta.validation.Valid;
 
@@ -57,6 +59,8 @@ class IrregularProgressiveDisbursementController extends BaseController {
                 .networkType("BankBook")
                 .terminalType("Branch")
                 .toolSource("BANK")
+                .disbursementDate(
+                        Objects.requireNonNullElse(requestBody.payload().disbursementDate(), LocalDate.now()))
                 .build();
 
         return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
