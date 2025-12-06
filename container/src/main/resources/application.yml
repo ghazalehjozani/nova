@@ -71,7 +71,7 @@ management:
         liveness:
           include: livenessState
         readiness:
-          include: readinessState,db,messaging,tpsSso,dispatcher,saga,fcb,diskSpace,redis
+          include: readinessState,db,messaging,tpsSso,dispatcher,saga,fcb,diskSpace
       probes:
         enabled: true
   prometheus:
