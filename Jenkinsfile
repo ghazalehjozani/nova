@@ -496,8 +496,8 @@ def deployToKubernetes() {
         kubectl apply -f k8s/base/service.yml -n ${K8S_NAMESPACE}
 
         # Configure for Minikube local image
-        sed -i 's|image:.*trade-loan-service:.*|image: trade-loan-service:${CALCULATED_VERSION}|g' k8s/base/deployment.yml
-        sed -i 's|imagePullPolicy:.*|imagePullPolicy: Never|g' k8s/base/deployment.yml
+        sed -i "0,/image: trade-loan-service:.*/{s|image: trade-loan-service:.*|image: trade-loan-service:${CALCULATED_VERSION}|}" k8s/base/deployment.yml
+        sed -i "0,/imagePullPolicy:.*/{s|imagePullPolicy:.*|imagePullPolicy: Never|}" k8s/base/deployment.yml
 
         kubectl apply -f k8s/base/deployment.yml -n ${K8S_NAMESPACE}
 
