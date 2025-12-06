@@ -90,33 +90,33 @@ spec:
             httpGet:
               path: /actuator/health/liveness
               port: http
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 30
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 15
+            failureThreshold: 40
             successThreshold: 1
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
               port: http
             initialDelaySeconds: 0
-            periodSeconds: 10
-            timeoutSeconds: 5
+            periodSeconds: 15
+            timeoutSeconds: 15
             failureThreshold: 3
             successThreshold: 1
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: http
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            timeoutSeconds: 10
-            failureThreshold: 6
+            initialDelaySeconds: 20
+            periodSeconds: 15
+            timeoutSeconds: 15
+            failureThreshold: 10
             successThreshold: 1
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "250m"
+              memory: "768Mi"
+              cpu: "500m"
             limits:
               memory: "2Gi"
               cpu: "2000m"
