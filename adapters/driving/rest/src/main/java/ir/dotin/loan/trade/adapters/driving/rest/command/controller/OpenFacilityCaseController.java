@@ -1,7 +1,9 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
+import java.util.UUID;
 import jakarta.validation.Valid;
 
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,9 +14,11 @@ import ir.dotin.platform.adapter.rest.request.DataRequest;
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.commons.security.AuthenticationContextHolder;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
+import ir.dotin.loan.trade.adapters.driving.rest.command.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.OriginateLoanFacilityRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.OriginateLoanFacilityRequestMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateOriginationCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -49,5 +53,21 @@ class OpenFacilityCaseController extends BaseController {
                 .build();
 
         return EventStreamResponse.of(unwrap(dispatcher.dispatch(enrichedCommand)));
+    }
+
+    @PostMapping(value = "/{facilityId}/compensate", version = "1+")
+    @Operation(summary = "جبران‌سازی مرحله تشکیل پرونده")
+    public EventStreamResponse compensateOrigination(
+            @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
+            @RequestBody @Valid DataRequest<CompensationRequest> request) {
+
+        var command = CompensateOriginationCommand.builder()
+                .uid(getXRequestId())
+                .version(request.payload().version())
+                .loanFacilityId(facilityId)
+                .reason(request.payload().reason())
+                .build();
+
+        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
     }
 }

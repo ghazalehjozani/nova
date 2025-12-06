@@ -6,6 +6,7 @@ import org.mapstruct.*;
 
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineLoanTypeRequest;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.DefineLoanTypeCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.*;
 
 @Mapper(
         componentModel = MappingConstants.ComponentModel.SPRING,
@@ -27,16 +28,14 @@ public interface DefineLoanTypeRequestToCommandMapper {
             return null;
         }
         return new DefineLoanTypeCommand.EconomicSectorCurrencyDto(
-                new DefineLoanTypeCommand.EconomicSectorDto(economicSectorCurrency.economicSectorCode()),
+                new EconomicSectorDto(economicSectorCurrency.economicSectorCode()),
                 economicSectorCurrency.currencyTypes().stream()
-                        .map(DefineLoanTypeCommand.CurrencyTypeDto::new)
+                        .map(CurrencyTypeDto::new)
                         .collect(Collectors.toSet()));
     }
 
-    default DefineLoanTypeCommand.LoanArrangementCodeDto mapLoanArrangementCode(String loanArrangementCode) {
-        return loanArrangementCode != null
-                ? new DefineLoanTypeCommand.LoanArrangementCodeDto(loanArrangementCode)
-                : null;
+    default LoanArrangementCodeDto mapLoanArrangementCode(String loanArrangementCode) {
+        return loanArrangementCode != null ? new LoanArrangementCodeDto(loanArrangementCode) : null;
     }
 
     default DefineLoanTypeCommand.RelationTypeLoanTopicDto mapRelationTypeLoanTopic(
@@ -49,7 +48,7 @@ public interface DefineLoanTypeRequestToCommandMapper {
                 relationTypeLoanTopic.topicName(),
                 relationTypeLoanTopic.topicCode(),
                 relationTypeLoanTopic.economicSectorCodes().stream()
-                        .map(DefineLoanTypeCommand.EconomicSectorDto::new)
+                        .map(EconomicSectorDto::new)
                         .collect(Collectors.toSet()));
     }
 }

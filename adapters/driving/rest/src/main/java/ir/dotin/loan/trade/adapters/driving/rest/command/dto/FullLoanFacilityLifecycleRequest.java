@@ -1,0 +1,51 @@
+package ir.dotin.loan.trade.adapters.driving.rest.command.dto;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+import java.util.Set;
+
+import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
+
+public record FullLoanFacilityLifecycleRequest(
+        Long version,
+        String loanTypeCode,
+        String loanArrangementCode,
+        LoanApplicationDto loanApplication,
+        InstallmentSchedulePlanDto installmentSchedulePlan) {
+
+    public record LoanApplicationDto(
+            Instant requestDate,
+            Set<PartyDto> parties,
+            BigDecimal requestedAmount,
+            String currency,
+            Integer requestedLoanDurationMonths,
+            ApplicantChannel applicantChannel,
+            Integer gracePeriodDays,
+            Integer installmentCount,
+            DisburseDestinationDto disburseDestination,
+            String economicSectorCode,
+            String branchCode,
+            RequestReasonDto requestReason,
+            String subSourceCode,
+            String description,
+            Set<CertificateDto> certificates,
+            String applicationNumber,
+            DisbursementMethod disbursementMethod,
+            String credibilityRank) {}
+
+    public record PartyDto(String customerNumber, PartyRole role) {}
+
+    public record DisburseDestinationDto(DisburseDestinationType type, String depositNumber) {}
+
+    public record RequestReasonDto(String code) {}
+
+    public record CertificateDto(String type, String value) {}
+
+    public record InstallmentSchedulePlanDto(List<InstallmentSpecDto> installments) {}
+
+    public record InstallmentSpecDto(Integer sequenceNumber, Instant dueDate, BigDecimal principalAmount) {}
+}

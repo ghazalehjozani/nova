@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -58,5 +59,14 @@ public class TradeLoanFacilityRepositoryAdapter implements TradeLoanFacilityRepo
         UUID loanTypeId = byCodeValue.map(TradeLoanTypeIdProjection::getId).orElse(null);
         return jpaRepository.countByBranchCodeAndLoanTypeIdAndCustomerNumber(
                 branchCode.value(), loanTypeId, customerNumber);
+    }
+
+    @Override
+    public boolean existsByApplicationNumber(ApplicationNumber applicationNumber) {
+        return jpaRepository.existsByApplicationNumber(
+                applicationNumber.branch().code().value(),
+                applicationNumber.loanTypeCode().value(),
+                applicationNumber.party().customerNumber(),
+                applicationNumber.derivedValue());
     }
 }

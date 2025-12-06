@@ -12,7 +12,6 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 
 import ir.dotin.platform.dispatcher.api.command.Command;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.CollateralCalculationType;
@@ -22,6 +21,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.LoanSecondaryType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PenaltyPaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.SectionType;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.*;
 
 import lombok.Builder;
 
@@ -97,23 +97,11 @@ public record DefineTradeLoanArrangementCommand(
 
     public record CollateralTypeDto(@NotBlank String code) {}
 
-    public record LoanArrangementCodeDto(
-            @NotBlank @Pattern(regexp = "^\\d+$") String value) {}
-
-    public record TitleDto(@NotBlank String value) {}
-
-    public record CurrencyTypeDto(
-            @NotBlank @Pattern(regexp = "^[A-Z]{3}$") String value) {}
-
     public record AmountRangeDto(
-            @NotNull @Valid MoneyDto min, @NotNull @Valid MoneyDto max) {}
+            @NotNull @Valid AmountDto min, @NotNull @Valid AmountDto max) {}
 
     public record LoanDurationRangeDto(
             @NotNull Period min, @NotNull Period max) {}
-
-    public record MoneyDto(@NotNull @DecimalMin(value = "0") BigDecimal value) {}
-
-    public record EconomicSectorDto(@NotBlank String code) {}
 
     public record ConfirmTypeDto(@NotBlank String personCode) {}
 }

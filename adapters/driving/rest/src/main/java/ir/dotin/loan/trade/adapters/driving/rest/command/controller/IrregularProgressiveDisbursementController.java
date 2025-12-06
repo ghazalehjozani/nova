@@ -14,8 +14,10 @@ import ir.dotin.platform.adapter.rest.request.DataRequest;
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.commons.security.AuthenticationContextHolder;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
+import ir.dotin.loan.trade.adapters.driving.rest.command.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.IrregularProgressiveDisbursementRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateIrregularDisbursementCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.IrregularProgressiveDisbursementCommand;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -74,5 +76,20 @@ class IrregularProgressiveDisbursementController extends BaseController {
                                 .build())
                         .toList())
                 .build();
+    }
+
+    @PostMapping(value = "/compensate", version = "1+")
+    @Operation(summary = "جبران‌سازی مرحله پرداخت نامنظم")
+    public EventStreamResponse compensateIrregularDisbursement(
+            @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
+            @RequestBody @Valid DataRequest<CompensationRequest> request) {
+
+        var command = CompensateIrregularDisbursementCommand.builder()
+                .uid(getXRequestId())
+                .version(request.payload().version())
+                .loanFacilityId(facilityId)
+                .build();
+
+        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
     }
 }

@@ -19,7 +19,7 @@ import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.Installment
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleStatus;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.service.InstallmentRecalculationService;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentSpec;
-import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;

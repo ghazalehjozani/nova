@@ -22,6 +22,45 @@ public record TradeLoanFacilityApprovalSubmitted(
         requireNonNull(createdAt);
     }
 
+    public static Builder builder(Clock clock) {
+        return new Builder(clock);
+    }
+
+    public static class Builder {
+        private final Clock clock;
+        private UUID facilityId;
+        private UUID applicationId;
+        private Instant occurredAt;
+
+        public Builder(Clock clock) {
+            this.clock = clock;
+        }
+
+        public Builder facilityId(UUID facilityId) {
+            this.facilityId = facilityId;
+            return this;
+        }
+
+        public Builder applicationId(UUID applicationId) {
+            this.applicationId = applicationId;
+            return this;
+        }
+
+        public Builder occurredAt(Instant occurredAt) {
+            this.occurredAt = occurredAt;
+            return this;
+        }
+
+        public TradeLoanFacilityApprovalSubmitted build() {
+            return new TradeLoanFacilityApprovalSubmitted(
+                    UUID.randomUUID(),
+                    facilityId,
+                    TradeLoanFacilityEventType.APPROVAL_SUBMITTED.getFullType(),
+                    applicationId,
+                    occurredAt != null ? occurredAt : clock.instant());
+        }
+    }
+
     public static TradeLoanFacilityApprovalSubmitted of(LoanFacilityId id, LoanApplicationId appId, Clock clock) {
         return new TradeLoanFacilityApprovalSubmitted(
                 randomUUID(),

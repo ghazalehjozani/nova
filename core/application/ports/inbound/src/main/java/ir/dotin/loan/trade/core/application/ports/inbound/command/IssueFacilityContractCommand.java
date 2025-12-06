@@ -9,7 +9,7 @@ import lombok.Builder;
 
 @Builder(toBuilder = true)
 public record IssueFacilityContractCommand(
-        @NotNull UUID id,
+        @NotNull UUID uid,
         @NotNull Long version,
         @NotNull UUID loanFacilityId,
         @NotNull String branchCode,

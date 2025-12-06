@@ -12,7 +12,12 @@ public sealed interface InstallmentScheduleEvents<T extends Record & Installment
                 ScheduleActivated,
                 ScheduleOnHold,
                 ScheduleCompleted,
-                ScheduleStateTransitioned {
+                ScheduleStateTransitioned,
+                ScheduleCreationReverted,
+                ActivationReverted,
+                RestructuringReverted,
+                InstallmentCreationReverted,
+                CompletionReverted {
 
     @Override
     default Class<InstallmentSchedule> aggregateType() {

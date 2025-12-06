@@ -29,6 +29,10 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityParameterizedFormula;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.DefineTradeLoanArrangementCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.CurrencyTypeDto;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.EconomicSectorDto;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.LoanArrangementCodeDto;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.TitleDto;
 import ir.dotin.loan.trade.core.application.service.BaseMapperConfig;
 import ir.dotin.loan.trade.core.application.service.configuration.TradeLoanFormulaFieldMappingProperties;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
@@ -48,9 +52,9 @@ public abstract class DefineTradeLoanArrangementCommandMapper {
     @Mapping(target = "amountRange", ignore = true)
     public abstract TradeLoanArrangement.Builder toBuilder(DefineTradeLoanArrangementCommand command);
 
-    abstract LoanArrangementCode map(DefineTradeLoanArrangementCommand.LoanArrangementCodeDto dto);
+    abstract LoanArrangementCode map(LoanArrangementCodeDto dto);
 
-    abstract Title map(DefineTradeLoanArrangementCommand.TitleDto dto);
+    abstract Title map(TitleDto dto);
 
     abstract ConfirmType map(DefineTradeLoanArrangementCommand.ConfirmTypeDto dto);
 
@@ -172,7 +176,7 @@ public abstract class DefineTradeLoanArrangementCommandMapper {
                 .orElseThrow();
     }
 
-    public abstract EconomicSector map(DefineTradeLoanArrangementCommand.EconomicSectorDto dto);
+    public abstract EconomicSector map(EconomicSectorDto dto);
 
-    abstract CurrencyType map(DefineTradeLoanArrangementCommand.CurrencyTypeDto dto);
+    abstract CurrencyType map(CurrencyTypeDto dto);
 }

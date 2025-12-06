@@ -10,6 +10,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
 
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ValidationApplicationNumberStrategy implements ApplicationNumberStrategy {
 
     private final LoanServicePort loanServicePort;
+    private final TradeLoanFacilityRepository facilityRepository;
 
     @Override
     public @NonNull Result<ApplicationNumber> generateOrValidateApplicationNumber(
@@ -38,6 +40,14 @@ public class ValidationApplicationNumberStrategy implements ApplicationNumberStr
         if (fcbApplicationNumber == null) {
             return Result.failure(
                     Notification.ofError(OriginateLoanFacilityErrorCodes.APPLICATION_NUMBER_CREATION_FAILED));
+        }
+
+        boolean exists = facilityRepository.existsByApplicationNumber(fcbApplicationNumber);
+
+        if (exists) {
+            return Result.failure(Notification.ofError(
+                    OriginateLoanFacilityErrorCodes.DUPLICATE_APPLICATION_NUMBER,
+                    fcbApplicationNumber.formattedApplicationNumber()));
         }
 
         return Result.success(fcbApplicationNumber);

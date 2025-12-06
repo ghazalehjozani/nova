@@ -20,6 +20,7 @@ import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.DefineLoanTypeCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.LoanArrangementCodeDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.TopicInfo;
@@ -92,9 +93,9 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
     }
 
     private CompletableFuture<Result<Set<LoanArrangementId>>> resolveArrangementIdsAsync(
-            Set<DefineLoanTypeCommand.LoanArrangementCodeDto> dtos) {
+            Set<LoanArrangementCodeDto> dtos) {
         List<CompletableFuture<Result<LoanArrangementId>>> futures = dtos.stream()
-                .map(DefineLoanTypeCommand.LoanArrangementCodeDto::value)
+                .map(LoanArrangementCodeDto::value)
                 .map(LoanArrangementCode::valueOf)
                 .map(code -> CompletableFuture.supplyAsync(() -> findArrangementId(code.getValue()), VIRTUAL_EXECUTOR))
                 .toList();

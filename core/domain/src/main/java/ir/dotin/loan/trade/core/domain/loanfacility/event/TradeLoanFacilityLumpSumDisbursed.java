@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.core.domain.loanfacility.event;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,6 +40,78 @@ public record TradeLoanFacilityLumpSumDisbursed(
         requireNonNull(installmentPaymentType);
         requireNonNull(applicationNumber);
         requireNonNull(createdAt);
+    }
+
+    public static Builder builder(Clock clock) {
+        return new Builder(clock);
+    }
+
+    public static class Builder {
+        private final Clock clock;
+        private UUID facilityId;
+        private UUID sanctionedLoanId;
+        private List<String> transactionNumbers = new ArrayList<>();
+        private String installmentPaymentType;
+        private String applicationNumber;
+        private UUID installmentScheduleId;
+        private Instant occurredAt;
+
+        public Builder(Clock clock) {
+            this.clock = clock;
+        }
+
+        public Builder facilityId(UUID facilityId) {
+            this.facilityId = facilityId;
+            return this;
+        }
+
+        public Builder sanctionedLoanId(UUID sanctionedLoanId) {
+            this.sanctionedLoanId = sanctionedLoanId;
+            return this;
+        }
+
+        public Builder transactionNumber(String transactionNumber) {
+            this.transactionNumbers.add(transactionNumber);
+            return this;
+        }
+
+        public Builder transactionNumbers(List<String> transactionNumbers) {
+            this.transactionNumbers = transactionNumbers;
+            return this;
+        }
+
+        public Builder installmentPaymentType(String installmentPaymentType) {
+            this.installmentPaymentType = installmentPaymentType;
+            return this;
+        }
+
+        public Builder applicationNumber(String applicationNumber) {
+            this.applicationNumber = applicationNumber;
+            return this;
+        }
+
+        public Builder installmentScheduleId(UUID installmentScheduleId) {
+            this.installmentScheduleId = installmentScheduleId;
+            return this;
+        }
+
+        public Builder occurredAt(Instant occurredAt) {
+            this.occurredAt = occurredAt;
+            return this;
+        }
+
+        public TradeLoanFacilityLumpSumDisbursed build() {
+            return new TradeLoanFacilityLumpSumDisbursed(
+                    UUID.randomUUID(),
+                    facilityId,
+                    TradeLoanFacilityEventType.LUMP_SUM_DISBURSED.getFullType(),
+                    sanctionedLoanId,
+                    transactionNumbers,
+                    installmentPaymentType,
+                    applicationNumber,
+                    installmentScheduleId,
+                    occurredAt != null ? occurredAt : clock.instant());
+        }
     }
 
     public static TradeLoanFacilityLumpSumDisbursed of(

@@ -16,7 +16,7 @@ import ir.dotin.platform.adapter.rest.response.DataResponse;
 import ir.dotin.platform.adapter.rest.response.OffsetPaginationInfo;
 import ir.dotin.platform.adapter.rest.response.PagedResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.QueryDispatcher;
-import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.adapters.driving.rest.shared.pagination.CursorPaginationHelper;
 import ir.dotin.loan.trade.core.application.query.loanarrangement.dto.LoanArrangementQueryResult;

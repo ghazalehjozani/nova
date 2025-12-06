@@ -20,7 +20,7 @@ import org.hibernate.proxy.HibernateProxy;
 import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
 import ir.dotin.platform.adapter.persistence.embeddable.PeriodEmb;
 import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
-import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementMethod;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralSerialEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CurrencyTypeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.DisbursementHistoryEmb;

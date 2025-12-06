@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.core.application.service.originateloanfacility.strat
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 
+import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
@@ -10,6 +11,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
+import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 public class InternalGenerationApplicationNumberStrategy implements ApplicationNumberStrategy {
 
     private final TradeLoanFacilityRepository loanFacilityRepository;
+    private final TradeLoanFacilityRepository facilityRepository;
 
     @Override
     public @NonNull Result<ApplicationNumber> generateOrValidateApplicationNumber(
@@ -29,6 +32,13 @@ public class InternalGenerationApplicationNumberStrategy implements ApplicationN
         ApplicationNumber applicationNumber =
                 new ApplicationNumber(branch, loanTypeCode, primaryApplicant, derivedValue);
 
+        boolean exists = facilityRepository.existsByApplicationNumber(applicationNumber);
+
+        if (exists) {
+            return Result.failure(Notification.ofError(
+                    OriginateLoanFacilityErrorCodes.DUPLICATE_APPLICATION_NUMBER,
+                    applicationNumber.formattedApplicationNumber()));
+        }
         return Result.success(applicationNumber);
     }
 

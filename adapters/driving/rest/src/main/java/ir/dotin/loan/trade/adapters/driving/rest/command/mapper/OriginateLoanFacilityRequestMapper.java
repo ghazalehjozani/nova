@@ -5,10 +5,17 @@ import java.time.Period;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.ReportingPolicy;
 
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.OriginateLoanFacilityRequest;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.AmountDto;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.CurrencyTypeDto;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.EconomicSectorDto;
 
 @Mapper(
         componentModel = MappingConstants.ComponentModel.SPRING,
@@ -30,12 +37,12 @@ public interface OriginateLoanFacilityRequestMapper {
     @Mapping(target = "loanApplication.certificates", source = "loanApplication.certificateSerials")
     OriginateLoanFacilityCommand toCommand(OriginateLoanFacilityRequest request);
 
-    default OriginateLoanFacilityCommand.MoneyDto mapMoney(BigDecimal value) {
-        return new OriginateLoanFacilityCommand.MoneyDto(value);
+    default AmountDto mapAmount(BigDecimal value) {
+        return new AmountDto(value);
     }
 
-    default OriginateLoanFacilityCommand.CurrencyTypeDto mapCurrency(String value) {
-        return new OriginateLoanFacilityCommand.CurrencyTypeDto(value);
+    default CurrencyTypeDto mapCurrency(String value) {
+        return new CurrencyTypeDto(value);
     }
 
     default OriginateLoanFacilityCommand.LoanDurationDto mapDuration(Integer months) {
@@ -50,8 +57,8 @@ public interface OriginateLoanFacilityRequestMapper {
         return new OriginateLoanFacilityCommand.InstallmentCountDto(value);
     }
 
-    default OriginateLoanFacilityCommand.EconomicSectorDto mapEconomicSector(String code) {
-        return new OriginateLoanFacilityCommand.EconomicSectorDto(code);
+    default EconomicSectorDto mapEconomicSector(String code) {
+        return new EconomicSectorDto(code);
     }
 
     default OriginateLoanFacilityCommand.RequestReasonDto mapRequestReason(String code) {

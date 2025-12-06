@@ -21,6 +21,45 @@ public record TradeLoanFacilityCreated(
         requireNonNull(createdAt);
     }
 
+    public static Builder builder(Clock clock) {
+        return new Builder(clock);
+    }
+
+    public static class Builder {
+        private final Clock clock;
+        private UUID facilityId;
+        private String applicationNumber;
+        private Instant occurredAt;
+
+        public Builder(Clock clock) {
+            this.clock = clock;
+        }
+
+        public Builder facilityId(UUID facilityId) {
+            this.facilityId = facilityId;
+            return this;
+        }
+
+        public Builder applicationNumber(String applicationNumber) {
+            this.applicationNumber = applicationNumber;
+            return this;
+        }
+
+        public Builder occurredAt(Instant occurredAt) {
+            this.occurredAt = occurredAt;
+            return this;
+        }
+
+        public TradeLoanFacilityCreated build() {
+            return new TradeLoanFacilityCreated(
+                    UUID.randomUUID(),
+                    facilityId,
+                    TradeLoanFacilityEventType.CREATED.getFullType(),
+                    applicationNumber,
+                    occurredAt != null ? occurredAt : clock.instant());
+        }
+    }
+
     public static TradeLoanFacilityCreated of(LoanFacilityId id, String applicationNumber, Clock clock) {
         return new TradeLoanFacilityCreated(
                 randomUUID(),
