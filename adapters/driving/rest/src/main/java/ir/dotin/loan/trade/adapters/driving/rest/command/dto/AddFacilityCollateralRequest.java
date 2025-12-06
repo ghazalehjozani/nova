@@ -1,21 +1,46 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.dto;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(name = "AddFacilityCollateralRequest", description = "عملیات مدیریت وثایق تسهیلات")
 public record AddFacilityCollateralRequest(
-        @Schema(description = "نسخه عملیات", example = "1", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
-                Integer version,
-        @Schema(description = "مبلغ مورد استفاده از وثیقه", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull @Valid
-                MoneyDto usedAmount) {
+        @Schema(
+                description = "شناسه عملیات",
+                example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
+                requiredMode = Schema.RequiredMode.REQUIRED)
+        UUID uid,
+
+        @Schema(description = "نسخه عملیات", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+        Integer version,
+
+        @Schema(description = "اطلاعات وثایق", requiredMode = Schema.RequiredMode.REQUIRED)
+        List<CollateralDto> collaterals) {
+
+    @Schema(description = "Collateral details")
+    public record CollateralDto(
+            @Schema(description = "Collateral type code", example = "ESTATE_1", required = true)
+            String collateralTypeCode,
+
+            @Schema(description = "Collateral percentage", example = "100", required = true)
+            Integer percent,
+
+            @Schema(description = "Collateral description", example = "Property deed", required = true)
+            String description,
+
+            @Schema(description = "Collateral serial number", example = "COLL-2025-001", required = true)
+            String collateralSerial,
+
+            @Schema(description = "Used amount from collateral", required = true)
+            MoneyDto usedAmount) {}
 
     public record MoneyDto(
-            @Schema(description = "مبلغ", example = "1000000") @NotNull BigDecimal value,
-            @Schema(description = "کد ارز", example = "IRR") @NotBlank String currency) {}
+            @Schema(description = "Amount", example = "1000000", required = true)
+            BigDecimal value,
+
+            @Schema(description = "Currency code", example = "IRR", required = true)
+            String currency) {}
 }

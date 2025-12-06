@@ -130,7 +130,8 @@ public class CollateralAdapter implements CollateralServicePort {
         List<Parameter> parameters = new ArrayList<>();
 
         String serialsValue =
-                assuranceSerials.stream().map(String::valueOf).collect(Collectors.joining(PARAMETER_SEPARATOR));
+                assuranceSerials.stream().map(CollateralSerial::value).collect(Collectors.joining(PARAMETER_SEPARATOR));
+
         parameters.add(
                 Parameter.builder().key("assuranceSerial").value(serialsValue).build());
 
@@ -164,7 +165,8 @@ public class CollateralAdapter implements CollateralServicePort {
 
         log.debug("Executing FCB load-assurance-service usecase");
 
-        Result<AssuranceResponse> fcbResult = fcbService.executeUsecase(fcbRequest, AssuranceResponse.class);
+        Result<AssuranceResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, AssuranceResponse.class, FcbContext.empty());
 
         if (fcbResult.isFailure()) {
             log.error("FCB load assurance failed: {}", fcbResult.notification().getErrorMessages());

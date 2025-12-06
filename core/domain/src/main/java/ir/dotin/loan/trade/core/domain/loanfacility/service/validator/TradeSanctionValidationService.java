@@ -23,14 +23,4 @@ public final class TradeSanctionValidationService
                 .and(new SanctionPreferentialRateSpecification(loanArrangement))
                 .isSatisfiedBy(sanction);
     }
-
-    @Override
-    public Result<Boolean> validateSanctionCollateral(
-            TradeLoanArrangement loanArrangement, Collateral collateral, Sanction sanction) {
-
-        return new SanctionCollateralTypeSpecification(loanArrangement)
-                .and(new SanctionCollateralPercentSpecification(loanArrangement))
-                .and(new SanctionCollateralExistSpecification(collateral.collateralSerial()))
-                .isSatisfiedBy(sanction);
-    }
 }

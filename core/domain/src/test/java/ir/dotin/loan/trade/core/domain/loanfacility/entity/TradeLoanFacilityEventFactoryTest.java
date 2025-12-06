@@ -71,6 +71,9 @@ final class TradeLoanFacilityEventFactoryTest {
     @Mock
     private TrackedTransactionNumber mockTrackedTransactionNumber;
 
+    @Mock
+    private List<CollateralSerial> mockCollateralSerials;
+
     private TradeLoanFacilityEventFactory factory;
     private Clock fixedClock;
 
@@ -196,7 +199,7 @@ final class TradeLoanFacilityEventFactoryTest {
         void shouldCreateCollateralAddedEvent() {
             given(mockCollateralSerial.value()).willReturn("serial");
             var event = factory.createCollateralAddedEvent(
-                    mockFacilityId, mockSanctionId, mockCollateralSerial, fixedClock);
+                    mockFacilityId, mockSanctionId, mockCollateralSerials, fixedClock);
 
             assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityCollateralAdded.class);
         }

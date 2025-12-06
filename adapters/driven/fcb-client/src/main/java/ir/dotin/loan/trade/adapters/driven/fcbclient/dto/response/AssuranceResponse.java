@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@XStreamAlias("com.fanap.business.loan.valueobjects.assurance.AssuranceDTO")
+@XStreamAlias("com.fanap.business.cmplexpenditure.dto.AssuranceDTO")
 public class AssuranceResponse extends FcbBaseResponse {
 
     @XStreamAlias("active")

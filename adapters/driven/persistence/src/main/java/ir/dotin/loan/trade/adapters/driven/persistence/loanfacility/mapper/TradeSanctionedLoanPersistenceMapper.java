@@ -22,7 +22,6 @@ public interface TradeSanctionedLoanPersistenceMapper {
             target = "disbursementHistory",
             source = "disbursementHistory",
             qualifiedByName = "toDisbursementHistoryEmb")
-    @Mapping(target = "usedAmount", source = "usedAmount")
     TradeSanctionedLoanEntity map(TradeSanctionedLoan domain);
 
     default TradeSanctionedLoanEntity map(Optional<TradeSanctionedLoan> domainOpt) {
@@ -30,6 +29,5 @@ public interface TradeSanctionedLoanPersistenceMapper {
     }
 
     @Mapping(target = "disbursementHistory", source = "disbursementHistory", qualifiedByName = "toDisbursementHistory")
-    @Mapping(target = "usedAmount", source = "usedAmount")
     TradeSanctionedLoan map(TradeSanctionedLoanEntity entity);
 }

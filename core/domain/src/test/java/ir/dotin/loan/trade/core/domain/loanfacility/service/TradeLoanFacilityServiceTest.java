@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -19,6 +20,7 @@ import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
@@ -47,6 +49,9 @@ class TradeLoanFacilityServiceTest {
 
     @Mock
     private CollateralSerial mockCollateralSerial;
+
+    @Mock
+    private List<Collateral> mockCollateralSerials;
 
     private TradeLoanFacilityService service;
     private TrackedTransactionNumber validTradeTransactionNumbers;
@@ -98,7 +103,7 @@ class TradeLoanFacilityServiceTest {
             when(mockFacility.getCurrentState()).thenReturn(FacilityStatus.APPROVED);
 
             // when
-            var canAdd = service.canAddCollateral(mockFacility, mockCollateralSerial);
+            var canAdd = service.canAddCollateral(mockFacility, mockCollateralSerials);
 
             // then
             assertThat(canAdd).isTrue();
@@ -111,7 +116,7 @@ class TradeLoanFacilityServiceTest {
             when(mockFacility.getCurrentState()).thenReturn(FacilityStatus.ISSUE_CONTRACT);
 
             // when
-            var canAdd = service.canAddCollateral(mockFacility, mockCollateralSerial);
+            var canAdd = service.canAddCollateral(mockFacility, mockCollateralSerials);
 
             // then
             assertThat(canAdd).isTrue();
@@ -124,7 +129,7 @@ class TradeLoanFacilityServiceTest {
             when(mockFacility.getCurrentState()).thenReturn(FacilityStatus.APPROVAL_SUBMITTED);
 
             // when
-            var canAdd = service.canAddCollateral(mockFacility, mockCollateralSerial);
+            var canAdd = service.canAddCollateral(mockFacility, mockCollateralSerials);
 
             // then
             assertThat(canAdd).isFalse();

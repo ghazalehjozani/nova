@@ -52,6 +52,7 @@ import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.RegulatoryComplianc
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Certificate;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CredibilityRank;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Description;
@@ -97,6 +98,7 @@ import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ApplicationNu
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.AttributeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.BranchEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CertificateEmb;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralPolicyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralSerialEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralTypeEmb;
@@ -1007,5 +1009,32 @@ public abstract class ValueObjectMapper {
     @Named("stringToLoanArrangementCode")
     public LoanArrangementCode stringToLoanArrangementCode(String loanArrangementCode) {
         return new LoanArrangementCode(loanArrangementCode);
+    }
+
+    @Mapping(source = "collateralType.code", target = "collateralTypeCode")
+    public abstract CollateralEmb toTradeCollateralEmb(Collateral collateral);
+
+    @Mapping(source = "collateralTypeCode", target = "collateralType", qualifiedByName = "codeToCollateralType")
+    public abstract Collateral toCollateral(CollateralEmb embeddable);
+
+    public List<CollateralEmb> toTradeCollateralEmbList(List<Collateral> collaterals) {
+        if (collaterals == null) {
+            return new ArrayList<>();
+        }
+        return collaterals.stream().map(this::toTradeCollateralEmb).collect(Collectors.toList());
+    }
+
+    public List<Collateral> toCollateralList(List<CollateralEmb> embeddables) {
+        if (embeddables == null) {
+            return new ArrayList<>();
+        }
+        return embeddables.stream().map(this::toCollateral).collect(Collectors.toList());
+    }
+
+    @Named("codeToCollateralType")
+    public CollateralType codeToCollateralType(String code) {
+        if (code == null) return null;
+        return CollateralType.of(code)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid CollateralType code: " + code));
     }
 }

@@ -5,13 +5,11 @@ import java.util.Collections;
 import java.util.List;
 
 import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.AssuranceResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.FcbValidationResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ReserveAssuranceForFileResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralDetails;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralValidation;

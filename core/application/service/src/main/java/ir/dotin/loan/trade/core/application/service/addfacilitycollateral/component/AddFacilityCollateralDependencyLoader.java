@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.core.application.service.addfacilitycollateral.component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -13,6 +14,8 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.service.CollateralCalculationService;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.service.validator.AbstractCollateralValidationService;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.CollateralServicePort;
@@ -37,12 +40,13 @@ public class AddFacilityCollateralDependencyLoader {
     private final TradeLoanArrangementRepository arrangementRepository;
     private final InstallmentScheduleRepository installmentScheduleRepository;
     private final CollateralCalculationService collateralCalculationService;
+    private final AbstractCollateralValidationService collateralValidationService;
     private final CollateralServicePort collateralServicePort;
 
     private static final ExecutorService VIRTUAL_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
     public Result<CollateralValidationContext> loadAndCalculate(
-            LoanFacilityId loanFacilityId, CollateralSerial collateralSerial) {
+            LoanFacilityId loanFacilityId, List<Collateral> collaterals) {
 
         Result<TradeLoanFacility> facilityResult = Result.fromOptional(
                 facilityRepository.findById(loanFacilityId),
@@ -58,20 +62,30 @@ public class AddFacilityCollateralDependencyLoader {
         CompletableFuture<Result<Optional<InstallmentSchedule>>> scheduleFuture =
                 CompletableFuture.supplyAsync(() -> loadSchedule(facility), VIRTUAL_EXECUTOR);
 
-        CompletableFuture<Result<CollateralDetails>> collateralFuture = CompletableFuture.supplyAsync(
-                () -> loadCollateralDetails(collateralSerial, facility), VIRTUAL_EXECUTOR);
+        List<CompletableFuture<Result<CollateralDetails>>> collateralFutures = collaterals.stream()
+                .map(c -> CompletableFuture.supplyAsync(
+                        () -> loadCollateralDetails(c.collateralSerial(), facility), VIRTUAL_EXECUTOR))
+                .toList();
 
-        CompletableFuture.allOf(arrangementFuture, scheduleFuture, collateralFuture)
+        CompletableFuture.allOf(arrangementFuture, scheduleFuture).join();
+        CompletableFuture.allOf(collateralFutures.toArray(new CompletableFuture[0]))
                 .join();
 
         Result<TradeLoanArrangement> arrangementResult = arrangementFuture.join();
         Result<Optional<InstallmentSchedule>> scheduleResult = scheduleFuture.join();
-        Result<CollateralDetails> collateralRes = collateralFuture.join();
 
         Notification aggregatedNotification = Notification.create();
         aggregatedNotification.merge(arrangementResult.notification());
         aggregatedNotification.merge(scheduleResult.notification());
-        aggregatedNotification.merge(collateralRes.notification());
+
+        Map<CollateralSerial, CollateralDetails> detailsMap = new java.util.HashMap<>();
+        for (int i = 0; i < collaterals.size(); i++) {
+            Result<CollateralDetails> res = collateralFutures.get(i).join();
+            aggregatedNotification.merge(res.notification());
+            if (res.hasValue()) {
+                detailsMap.put(collaterals.get(i).collateralSerial(), res.value());
+            }
+        }
 
         if (aggregatedNotification.hasErrors()) {
             return Result.failure(aggregatedNotification);
@@ -81,11 +95,24 @@ public class AddFacilityCollateralDependencyLoader {
                 facility, arrangementResult.value(), scheduleResult.value().orElse(null));
         if (requiredAmountResult.isFailure()) return Result.failure(requiredAmountResult.notification());
 
+        Result<Void> domainCollateralValidationResult = collateralValidationService.validateIndividualCollaterals(
+                facility, arrangementResult.value(), collaterals);
+        if (domainCollateralValidationResult.isFailure())
+            return Result.failure(domainCollateralValidationResult.notification());
+
         Money calculatedRequiredAmount = requiredAmountResult.value();
 
-        Long usedCost = calculatedRequiredAmount.value().longValue();
+        List<CollateralSerial> serials =
+                collaterals.stream().map(Collateral::collateralSerial).toList();
+        List<Long> usedCosts = collaterals.stream()
+                .map(c -> c.usedAmount().value().longValue())
+                .toList();
 
-        Result<CollateralValidation> validationRes = validateAssurance(collateralSerial, usedCost);
+        Result facilityValidationResult =
+                collateralValidationService.validateFacilityCollaterals(facility, arrangementResult.value());
+        if (facilityValidationResult.isFailure()) return Result.failure(facilityValidationResult.notification());
+
+        Result<CollateralValidation> validationRes = validateAssurance(serials, usedCosts);
 
         if (validationRes.isFailure()) {
             return Result.failure(validationRes.notification());
@@ -102,8 +129,8 @@ public class AddFacilityCollateralDependencyLoader {
                 arrangementResult.value(),
                 scheduleResult.value(),
                 calculatedRequiredAmount,
-                collateralRes.value(),
-                validation));
+                detailsMap,
+                new CollateralValidation(true, "")));
     }
 
     private Result<TradeLoanArrangement> loadArrangement(TradeLoanFacility facility) {
@@ -118,11 +145,10 @@ public class AddFacilityCollateralDependencyLoader {
     }
 
     private Result<CollateralDetails> loadCollateralDetails(CollateralSerial serial, TradeLoanFacility facility) {
-        return collateralServicePort.loadCollateral(
-                serial.value(), facility.getId().value().toString());
+        return collateralServicePort.loadCollateral(serial.value(), "");
     }
 
-    private Result<CollateralValidation> validateAssurance(CollateralSerial serial, Long usedCost) {
-        return collateralServicePort.validateAddAssuranceToFile(List.of(serial), List.of(usedCost));
+    private Result<CollateralValidation> validateAssurance(List<CollateralSerial> serials, List<Long> usedCosts) {
+        return collateralServicePort.validateAddAssuranceToFile(serials, usedCosts);
     }
 }

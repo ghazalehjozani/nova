@@ -30,11 +30,11 @@ public class AutoApprovalStrategy implements ApprovalStrategy {
         }
         boolean isAutoApproval = facility.getLoanApplication().getApplicantChannel() == DIGITAL_BANK;
 
-        if (!isAutoApproval) {
-            return Result.failure(Notification.ofError(
-                    ApproveFacilityErrorCodes.AUTO_APPROVAL_NOT_ENABLED,
-                    facility.getLoanApplication().getApplicantChannel().name()));
-        }
+        //        if (!isAutoApproval) {
+        //            return Result.failure(Notification.ofError(
+        //                    ApproveFacilityErrorCodes.AUTO_APPROVAL_NOT_ENABLED,
+        //                    facility.getLoanApplication().getApplicantChannel().name()));
+        //        }
 
         return Result.success();
     }

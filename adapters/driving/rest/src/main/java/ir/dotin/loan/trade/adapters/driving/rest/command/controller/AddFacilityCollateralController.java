@@ -1,7 +1,6 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
 import java.util.UUID;
-import jakarta.validation.constraints.NotBlank;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +22,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/{version}/facilities/{facilityId}/collateral")
+@RequestMapping("/api/{version}/facilities/{facilityId}/collaterals")
 @Tag(name = SwaggerConfig.TAG_FACILITY_COLLATERAL_MANAGEMENT, description = "عملیات مربوط به مدیریت وثایق تسهیلات")
 @RequiredArgsConstructor
 class AddFacilityCollateralController extends BaseController {
@@ -31,22 +30,18 @@ class AddFacilityCollateralController extends BaseController {
     private final CommandDispatcher dispatcher;
     private final AddFacilityCollateralRequestToCommandMapper mapper;
 
-    @PostMapping(value = "/{collateralSerial}", version = "1+")
+    @PostMapping(version = "1+")
     @Operation(summary = "افزودن وثیقه")
-    public EventStreamResponse addCollateral(
+    public EventStreamResponse addCollaterals(
             @Parameter(
                             description = "شناسه یکتای تسهیلات",
                             example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
                             required = true)
                     @PathVariable
                     UUID facilityId,
-            @Parameter(description = "شماره سریال یکتای وثیقه جهت افزودن", example = "COLL-2025-001", required = true)
-                    @NotBlank
-                    @PathVariable
-                    String collateralSerial,
             @Parameter(description = "جزئیات افزودن وثیقه به تسهیلات", required = true) @RequestBody
                     DataRequest<AddFacilityCollateralRequest> request) {
-        var command = mapper.toCommand(facilityId, collateralSerial, request.payload()).toBuilder()
+        var command = mapper.toCommand(facilityId, request.payload()).toBuilder()
                 .uid(getXRequestId())
                 .build();
         return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));

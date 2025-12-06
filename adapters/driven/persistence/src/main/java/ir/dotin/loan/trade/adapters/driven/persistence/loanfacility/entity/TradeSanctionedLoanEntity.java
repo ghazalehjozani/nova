@@ -21,7 +21,6 @@ import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
 import ir.dotin.platform.adapter.persistence.embeddable.PeriodEmb;
 import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralSerialEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CurrencyTypeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.DisbursementHistoryEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.GracePeriodEmb;
@@ -77,9 +76,6 @@ public class TradeSanctionedLoanEntity extends PersistentEntity {
     @Column(name = "life_insurance_id")
     private String lifeInsuranceId;
 
-    @Embedded
-    private CollateralSerialEmb collateralSerial;
-
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "disbursement_schedule_id")
     private DisbursementScheduleEntity disbursementSchedule;
@@ -93,13 +89,6 @@ public class TradeSanctionedLoanEntity extends PersistentEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "disbursement_method")
     private DisbursementMethod disbursementMethod;
-
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "amount", column = @Column(name = "used_amount", precision = 19, scale = 4)),
-        @AttributeOverride(name = "currency", column = @Column(name = "used_currency", length = 3))
-    })
-    private MoneyEmb usedAmount;
 
     @Override
     public final boolean equals(Object o) {

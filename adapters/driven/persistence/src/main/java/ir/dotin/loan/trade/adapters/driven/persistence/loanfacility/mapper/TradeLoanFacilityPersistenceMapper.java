@@ -36,11 +36,13 @@ public interface TradeLoanFacilityPersistenceMapper {
                 source = "disbursementTransactionNumbers",
                 qualifiedByName = "toTransactionNumberEmbList"),
         @Mapping(target = "accountInfoMap", source = "accountInfoMap", qualifiedByName = "toAccountInfoMapEmb"),
-        @Mapping(target = "disbursementDate", source = "disbursementDate")
+        @Mapping(target = "disbursementDate", source = "disbursementDate"),
+        @Mapping(target = "collaterals", source = "collaterals")
     })
     TradeLoanFacilityEntity map(TradeLoanFacility domain);
 
     @Mapping(target = "accountInfoMap", source = "accountInfoMap", qualifiedByName = "fromAccountInfoMapEmb")
+    @Mapping(target = "collaterals", source = "collaterals")
     TradeLoanFacility map(TradeLoanFacilityEntity entity);
 
     default LocalDate map(Optional<LocalDate> optional) {
