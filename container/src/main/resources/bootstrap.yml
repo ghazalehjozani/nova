@@ -6,15 +6,21 @@ spring:
   cloud:
     kubernetes:
       enabled: true
+      discovery:
+        enabled: false
       config:
         enabled: true
         name: trade-loan-service-config
-        namespace: default
+        namespace: ${KUBERNETES_NAMESPACE:default}
+        paths: /app/config
+        enable-api: false
       secrets:
         enabled: true
         name: trade-loan-service-secrets
-        namespace: default
+        namespace: ${KUBERNETES_NAMESPACE:default}
+        enable-api: true
       reload:
         enabled: true
         mode: event
         strategy: refresh
+        period: 15000
