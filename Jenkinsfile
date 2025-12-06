@@ -493,6 +493,7 @@ def deployToKubernetes() {
     sh """
         kubectl apply -f k8s/base/rbac.yml -n ${K8S_NAMESPACE}
         kubectl apply -f k8s/base/configmap-trade-loan.yml -n ${K8S_NAMESPACE}
+        kubectl apply -f k8s/base/poddisruptionbudget.yml -n ${K8S_NAMESPACE} || true
         kubectl apply -f k8s/base/service.yml -n ${K8S_NAMESPACE}
 
         # Configure for Minikube local image

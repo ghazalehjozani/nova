@@ -3,14 +3,18 @@ kind: Deployment
 metadata:
   name: trade-loan-service
   namespace: default
+  labels:
+    app: trade-loan-service
+    app.kubernetes.io/name: trade-loan-service
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: trade-loan
+    app.kubernetes.io/managed-by: kubectl
 spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxUnavailable: 0
       maxSurge: 1
-  progressDeadlineSeconds: 1800
-  replicas: 1
   selector:
     matchLabels:
       app: trade-loan-service
@@ -18,128 +22,139 @@ spec:
     metadata:
       labels:
         app: trade-loan-service
+        app.kubernetes.io/name: trade-loan-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
     spec:
       serviceAccountName: trade-loan-service
+      automountServiceAccountToken: true
       terminationGracePeriodSeconds: 60
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: trade-loan-service
           image: trade-loan-service:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Never
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
+              protocol: TCP
           env:
             - name: SPRING_PROFILES_ACTIVE
-              value: "k8s,dev"
-            - name: SPRING_CLOUD_KUBERNETES_CONFIG_NAME
-              value: "trade-loan-service-config"
-            - name: JAVA_OPTS
-              value: "-Xms512m -Xmx896m -XX:MaxMetaspaceSize=256m"
-            - name: SPRING_DATASOURCE_URL
+              value: "k8s"
+            - name: KUBERNETES_NAMESPACE
               valueFrom:
-                secretKeyRef:
-                  name: trade-loan-service-secrets
-                  key: spring.datasource.url
-            - name: SPRING_DATASOURCE_USERNAME
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
               valueFrom:
-                secretKeyRef:
-                  name: trade-loan-service-secrets
-                  key: spring.datasource.username
-            - name: SPRING_DATASOURCE_PASSWORD
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NODE_NAME
               valueFrom:
-                secretKeyRef:
-                  name: trade-loan-service-secrets
-                  key: spring.datasource.password
-            - name: ENCRYPTION_PASSWORD
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: POD_IP
               valueFrom:
-                secretKeyRef:
-                  name: trade-loan-service-secrets
-                  key: platform.messaging.encryption.password
-            - name: KAFKA_BOOTSTRAP_SERVERS
-              valueFrom:
-                secretKeyRef:
-                  name: trade-loan-service-secrets
-                  key: kafka.bootstrap.servers
-            - name: KAFKA_CONSUMER_GROUP
-              valueFrom:
-                secretKeyRef:
-                  name: trade-loan-service-secrets
-                  key: kafka.consumer.group
-            - name: REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: trade-loan-service-secrets
-                  key: redis.password
-            - name: REDIS_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: trade-loan-service-secrets
-                  key: spring.data.redis.host
-            - name: REDIS_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: trade-loan-service-secrets
-                  key: spring.data.redis.port
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0 -XX:+ExitOnOutOfMemoryError -Djava.security.egd=file:/dev/./urandom"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://host.minikube.internal:4318"
             - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
-              valueFrom:
-                secretKeyRef:
-                  name: trade-loan-service-secrets
-                  key: otel.traces.endpoint
+              value: "http://host.minikube.internal:4318/v1/traces"
             - name: OTEL_EXPORTER_OTLP_METRICS_ENDPOINT
-              valueFrom:
-                secretKeyRef:
-                  name: trade-loan-service-secrets
-                  key: otel.metrics.endpoint
-            - name: OAUTH2_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: trade-loan-service-secrets
-                  key: oauth2.client.id
-            - name: OAUTH2_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: trade-loan-service-secrets
-                  key: oauth2.client.secret
-            - name: FCB_BASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: trade-loan-service-secrets
-                  key: fcb.base.url
-            - name: FCB_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: trade-loan-service-secrets
-                  key: fcb.username
-            - name: FCB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: trade-loan-service-secrets
-                  key: fcb.password
-          resources:
-            requests:
-              memory: "768Mi"
-              cpu: "250m"
-            limits:
-              memory: "1280Mi"
-              cpu: "1000m"
+              value: "http://host.minikube.internal:4318/v1/metrics"
+            - name: OTEL_EXPORTER_OTLP_LOGS_ENDPOINT
+              value: "http://host.minikube.internal:4318/v1/logs"
+            - name: OTEL_TRACES_SAMPLER_ARG
+              value: "0.1"
+          envFrom:
+            - secretRef:
+                name: trade-loan-service-secrets
           startupProbe:
             httpGet:
               path: /actuator/health/liveness
-              port: 8080
-            initialDelaySeconds: 120  # Increased from 60
-            periodSeconds: 15         # Increased from 10
-            timeoutSeconds: 10
-            failureThreshold: 40      # Increased from 30 (120s + 40*15s = 10min max)
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
+            successThreshold: 1
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
-              port: 8080
-            periodSeconds: 15         # Increased from 10
+              port: http
+            initialDelaySeconds: 0
+            periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
+            successThreshold: 1
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
-              port: 8080
-            periodSeconds: 10         # Increased from 5
-            timeoutSeconds: 5         # Increased from 3
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
             failureThreshold: 3
+            successThreshold: 1
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "2000m"
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - sh
+                  - -c
+                  - "sleep 10"
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: logs
+              mountPath: /app/logs
+            - name: config-volume
+              mountPath: /app/config
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: logs
+          emptyDir: {}
+        - name: config-volume
+          configMap:
+            name: trade-loan-service-config
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: trade-loan-service
+                topologyKey: kubernetes.io/hostname
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: trade-loan-service

@@ -3,10 +3,19 @@ kind: Service
 metadata:
   name: trade-loan-service
   namespace: default
+  labels:
+    app: trade-loan-service
+    app.kubernetes.io/name: trade-loan-service
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/actuator/prometheus"
 spec:
+  type: ClusterIP
   selector:
     app: trade-loan-service
   ports:
-    - port: 8080
-      targetPort: 8080
-  type: ClusterIP
+    - name: http
+      port: 8080
+      targetPort: http
+      protocol: TCP
