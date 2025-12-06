@@ -4,7 +4,6 @@ namespace: default
 resources:
   - rbac.yml
   - configmap-trade-loan.yml
-  - poddisruptionbudget.yml
   - service.yml
   - deployment.yml
 commonLabels:
