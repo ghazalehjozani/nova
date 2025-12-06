@@ -10,6 +10,7 @@ metadata:
     app.kubernetes.io/part-of: trade-loan
     app.kubernetes.io/managed-by: kubectl
 spec:
+  progressDeadlineSeconds: 1200
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -93,7 +94,7 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 15
             timeoutSeconds: 15
-            failureThreshold: 40
+            failureThreshold: 60
             successThreshold: 1
           livenessProbe:
             httpGet:
