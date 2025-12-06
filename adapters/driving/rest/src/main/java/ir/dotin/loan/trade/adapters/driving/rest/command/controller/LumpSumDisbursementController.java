@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
+import java.time.LocalDate;
+import java.util.Objects;
 import java.util.UUID;
 import jakarta.validation.Valid;
 
@@ -55,6 +57,8 @@ class LumpSumDisbursementController extends BaseController {
                 .terminalIp(authenticationContextHolder.ipAddress().orElseThrow())
                 .terminalType("Branch")
                 .toolSource("BANK")
+                .disbursementDate(
+                        Objects.requireNonNullElse(requestBody.payload().disbursementDate(), LocalDate.now()))
                 .userId(authenticationContextHolder.userIdOrThrow())
                 .build();
         return EventStreamResponse.of(unwrap(dispatcher.dispatch(lumpSumDisbursementCommand)));

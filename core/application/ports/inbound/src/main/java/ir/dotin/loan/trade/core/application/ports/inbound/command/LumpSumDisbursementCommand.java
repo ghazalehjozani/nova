@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.core.application.ports.inbound.command;
 
+import java.time.LocalDate;
 import java.util.UUID;
 import jakarta.validation.constraints.NotNull;
 
@@ -19,5 +20,6 @@ public record LumpSumDisbursementCommand(
         @NotNull String userId,
         @NotNull String toolSource,
         @NotNull String networkType,
-        @NotNull String channel)
+        @NotNull String channel,
+        @NotNull LocalDate disbursementDate)
         implements Command {}

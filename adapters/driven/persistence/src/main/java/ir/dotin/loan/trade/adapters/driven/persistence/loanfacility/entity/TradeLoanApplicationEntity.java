@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -59,6 +60,9 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
             joinColumns = @JoinColumn(name = "loan_application_id"),
             indexes = @Index(name = "idx_trade_loan_application_parties", columnList = "loan_application_id"))
     private Set<PartyEmb> parties = new HashSet<>();
+
+    @Column(name = "disbursement_date", nullable = false)
+    private LocalDate disbursementDate;
 
     @Embedded
     @AttributeOverrides({
