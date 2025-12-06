@@ -175,7 +175,8 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
                 facility.getSanctionedLoan().get();
         return facility.validateLumpSumDisbursement(sanctionedLoan.getApprovedAmount())
                 .flatMap(ignored -> facility.validateDisbursementDate(
-                        context.disbursementDate(), context.schedule().getInstallments()));
+                        context.disbursementDate(),
+                        context.schedule().getInstallments().getFirst().getDueDate()));
     }
 
     private Result<DisbursementOperationResult> processDisbursement(
@@ -243,8 +244,8 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
                                 trackedNumbers,
                                 accountIds,
                                 context.arrangement.getInstallmentPolicy().installmentPaymentType(),
-                                clock)
-                        .flatMap(ignored -> facility.disbursementDate(context.disbursementDate()))
+                                clock,
+                                context.disbursementDate())
                         .map(ignored -> new DisbursementOperationResult(facility, context.schedule())))
                 .orElseGet(() -> Result.failure(Notification.ofError(
                         LumpSumDisbursementErrorCodes.SANCTIONED_LOAN_NOT_FOUND,

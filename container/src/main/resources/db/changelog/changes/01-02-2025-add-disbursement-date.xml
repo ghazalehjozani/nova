@@ -7,10 +7,17 @@
         objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
 
     <changeSet id="20250201120000-1" author="DOTIN\pouya.shamsi">
-        <addColumn tableName="loan_applications">
+        <addColumn tableName="loan_facilities">
             <column name="disbursement_date" type="DATE">
             </column>
         </addColumn>
+    </changeSet>
+
+    <changeSet id="20250201120001-1" author="DOTIN\pouya.shamsi">
+        <modifyDataType
+            tableName="loan_disbursement_records"
+            columnName="disbursed_at"
+            newDataType="DATE"/>
     </changeSet>
 
 </databaseChangeLog>

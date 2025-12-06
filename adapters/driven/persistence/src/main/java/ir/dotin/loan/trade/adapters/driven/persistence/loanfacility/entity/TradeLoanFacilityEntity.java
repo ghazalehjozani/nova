@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -87,6 +88,9 @@ public class TradeLoanFacilityEntity extends PersistentEntity {
     @MapKeyColumn(name = "relation_type")
     @Column(name = "account_id")
     private Map<String, String> accountInfoMap = new HashMap<>();
+
+    @Column(name = "disbursement_date", nullable = false)
+    private LocalDate disbursementDate;
 
     @Column(name = "facility_type")
     private String facilityType = "TRADE";

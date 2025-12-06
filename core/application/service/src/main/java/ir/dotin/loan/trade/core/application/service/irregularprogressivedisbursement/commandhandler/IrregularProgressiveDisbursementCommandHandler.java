@@ -192,7 +192,8 @@ public class IrregularProgressiveDisbursementCommandHandler
     private Result<Void> validateAll(TradeLoanFacility facility, ProcessingContext context) {
         return validateScheduleStatus(context)
                 .flatMap(ignored -> facility.validateDisbursementDate(
-                        context.disbursementDate(), context.schedule().getInstallments()))
+                        context.disbursementDate(),
+                        context.schedule().getInstallments().getFirst().getDueDate()))
                 .flatMap(ignored -> facility.validateIrregularTrancheDisbursement(context.trancheAmount()));
     }
 
@@ -314,8 +315,8 @@ public class IrregularProgressiveDisbursementCommandHandler
                         accountIds,
                         newSchedule.getId(),
                         clock,
-                        context.config().userId())
-                .flatMap(ignored -> facility.disbursementDate(context.disbursementDate()))
+                        context.config().userId(),
+                        context.disbursementDate())
                 .map(ignored -> new DisbursementOperationResult(facility, context.schedule(), newSchedule));
     }
 
