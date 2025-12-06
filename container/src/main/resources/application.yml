@@ -50,14 +50,20 @@ spring:
   threads:
     virtual:
       enabled: true
+  cloud:
+    kubernetes:
+      discovery:
+        enabled: false
+
 server:
   port: 8080
+  shutdown: graceful
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus,traces,refresh
+        include: health,info,metrics,prometheus,refresh
   endpoint:
     health:
       show-details: always
@@ -65,44 +71,68 @@ management:
         liveness:
           include: livenessState
         readiness:
-          include: readinessState,db,messaging,tpsSso,dispatcher,diskSpace
+          include: readinessState,db,messaging,tpsSso,dispatcher,saga,fcb,diskSpace,redis
       probes:
         enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+        step: 30s
   metrics:
     distribution:
       percentiles-histogram:
         http.server.requests: true
+        http.client.requests: true
+        command.dispatcher.duration: true
+        query.dispatcher.duration: true
+        saga.duration: true
+        saga.step.duration: true
+        platform.audit.save.duration: true
+        platform.audit.execution.duration: true
+        message.processing.duration: true
       percentiles:
-        http.server.requests: 0.5,0.95,0.99
+        http.server.requests: 0.5,0.75,0.9,0.95,0.99
+        http.client.requests: 0.5,0.75,0.9,0.95,0.99
+        command.dispatcher.duration: 0.5,0.75,0.9,0.95,0.99
+        query.dispatcher.duration: 0.5,0.75,0.9,0.95,0.99
+        saga.duration: 0.5,0.75,0.9,0.95,0.99
+      slo:
+        http.server.requests: 100ms,250ms,500ms,1s,2s,5s
+    tags:
+      application: ${spring.application.name}
+      environment: ${SPRING_PROFILES_ACTIVE:unknown}
   tracing:
     enabled: true
     sampling:
-      probability: 1.0
+      probability: ${OTEL_TRACES_SAMPLER_ARG:0.1}
     baggage:
       enabled: true
-      remote-fields: user-id,correlation-id,tenant-id
+      remote-fields: user-id,correlation-id,tenant-id,request-id
       correlation:
         enabled: true
-        fields: user-id,correlation-id
+        fields: user-id,correlation-id,tenant-id,request-id
   otlp:
     tracing:
-      endpoint: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT}
-      protocol: http/protobuf
+      endpoint: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:http://localhost:4318/v1/traces}
+      transport: http
       compression: gzip
       timeout: 10s
     metrics:
-      endpoint: ${OTEL_EXPORTER_OTLP_METRICS_ENDPOINT}
-      protocol: http/protobuf
+      endpoint: ${OTEL_EXPORTER_OTLP_METRICS_ENDPOINT:http://localhost:4318/v1/metrics}
+      transport: http
       step: 30s
 
 otel:
   resource:
     attributes:
       service.name: ${spring.application.name}
-      service.version: ${spring.application.version:unknown}
-      service.namespace: ${OTEL_SERVICE_NAMESPACE:development}
-      service.instance.id: ${HOSTNAME:${random.uuid}}
-      deployment.environment: ${SPRING_PROFILES_ACTIVE:development}
+      service.namespace: ${OTEL_SERVICE_NAMESPACE:trade-loan}
+      service.instance.id: ${HOSTNAME:${POD_NAME:unknown}}
+      deployment.environment: ${SPRING_PROFILES_ACTIVE:production}
+      k8s.namespace.name: ${KUBERNETES_NAMESPACE:default}
+      k8s.pod.name: ${POD_NAME:unknown}
+      k8s.node.name: ${NODE_NAME:unknown}
   instrumentation:
     annotations:
       enabled: true
@@ -112,6 +142,17 @@ otel:
       enabled: true
     kafka:
       enabled: true
+    redis:
+      enabled: true
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+  level:
+    ir.dotin: INFO
+    io.micrometer: INFO
+    io.opentelemetry: WARN
+    org.springframework.cloud.kubernetes: WARN
 
 platform:
   persistence:
@@ -188,10 +229,6 @@ platform:
       bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
       consumer-group-id: ${KAFKA_CONSUMER_GROUP:trade-loan-events}
       client-id: trade-loan-client
-#      security:
-#        protocol: SASL_PLAINTEXT
-#        sasl-mechanism: SCRAM-SHA-256
-#        sasl-jaas-config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${KAFKA_USER}" password="${KAFKA_PASSWORD}";
       producer:
         acks: all
         retries: 3
@@ -325,7 +362,7 @@ platform:
       validate-azp-claim: true
       validate-branch-code: true
       allowed-clients:
-        - 1ebad0ab-39d1-4718-9690-ec1873c6914f # nova-service-client-dev
+        - 1ebad0ab-39d1-4718-9690-ec1873c6914f
     oauth2-client:
       enabled: true
       client-id: ${OAUTH2_CLIENT_ID}
@@ -390,11 +427,8 @@ platform:
       enabled: true
       branch-code: "1"
   rest:
-    service-prefix: LOAN
     api-path-pattern: /api/*
     headers:
-      required: true
-      default-ttl-seconds: 60
       default-language: fa
 fcb:
   integration:
@@ -417,6 +451,38 @@ fcb:
     failure-threshold: 3
     show-details: true
     metrics-enabled: true
+  observability:
+    enabled: true
+    metrics:
+      enabled: true
+      jvm:
+        gc: true
+        memory: true
+        threads: true
+        classes: true
+        compilation: true
+      system:
+        processor: true
+        uptime: true
+        file-descriptors: true
+        disk-space: true
+      custom-dimensions:
+        team: platform
+        domain: trade-loan
+    tracing:
+      enabled: true
+      sampling-probability: 0.1
+      baggage-fields:
+        - user-id
+        - correlation-id
+        - tenant-id
+        - request-id
+    health:
+      metrics-enabled: true
+      check-interval: 30000
+    logging:
+      enabled: true
+      structured-json: true
 
 springdoc:
   api-docs:
