@@ -10,6 +10,6 @@ import lombok.Data;
 @Embeddable
 public class SubSourceEmb implements Serializable {
 
-    @Column(name = "request_reason_code", length = 500)
-    private String core;
+    @Column(name = "sub_source_code", length = 500)
+    private String code;
 }

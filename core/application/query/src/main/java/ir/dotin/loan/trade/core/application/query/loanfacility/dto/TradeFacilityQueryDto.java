@@ -3,8 +3,9 @@ package ir.dotin.loan.trade.core.application.query.loanfacility.dto;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -21,126 +22,84 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionSt
 public record TradeFacilityQueryDto(
         UUID id,
         Long version,
-        LocalDateTime createdAt,
-        LocalDateTime modifiedAt,
-        String createdBy,
-        String modifiedBy,
-        TradeLoanApplicationEntityDto loanApplication,
+        TradeLoanApplicationDto loanApplication,
         TradeSanctionedLoanEntityDto sanctionedLoan,
         UUID loanTypeId,
         UUID loanArrangementId,
+        UUID installmentScheduleId,
         FacilityStatus currentState,
-        MoneyEmbDto totalDisbursedAmount,
+        BigDecimal totalDisbursedAmount,
+        String totalDisbursedAmountCurrency,
         List<TransactionNumberEmbDto> issueContractTransactionNumbers,
         List<TransactionNumberEmbDto> disbursementTransactionNumbers,
-        String facilityType)
-        implements QueryResult {
-
-    public record MoneyEmbDto(BigDecimal amount, String currency) implements Serializable {}
-
-    public record CurrencyTypeDto(String value) implements Serializable {}
-
-    public record PeriodEmbDto(Integer years, Integer months, Integer days) implements Serializable {}
-
-    public record GracePeriodEmbDto(Integer days, Integer months, Integer years) implements Serializable {}
-
-    public record InstallmentCountEmbDto(Integer value) implements Serializable {}
-
-    public record PartyEmbDto(
-            String customerNumber, PartyType partyType, PartyRole partyRole, String firstName, String lastName)
-            implements Serializable {}
-
-    public record TradeLoanApplicationEntityDto(
+        Map<String, String> accountInfoMap,
+        LocalDate disbursementDate,
+        String facilityType,
+        List<CollateralEmbDto> collaterals)
+        implements Serializable, QueryResult {
+    /** */
+    public record TradeLoanApplicationDto(
             UUID id,
             Long version,
-            LocalDateTime createdAt,
-            LocalDateTime modifiedAt,
-            String createdBy,
-            String modifiedBy,
             Instant requestDate,
             Set<PartyEmbDto> parties,
-            MoneyEmbDto requestedAmount,
-            CurrencyTypeDto currency,
-            PeriodEmbDto requestedLoanDuration,
+            BigDecimal requestedAmount,
+            String requestedAmountCurrency,
+            String currency,
+            Integer requestedLoanDurationMonths,
             ApplicantChannel applicantChannel,
-            GracePeriodEmbDto gracePeriod,
-            InstallmentCountEmbDto installmentCount,
-            DisburseDestinationEmbDto disburseDestination,
-            EconomicSectorEmbDto economicSector,
-            BranchEmbDto branch,
-            RequestReasonEmbDto requestReason,
-            SubSourceEmbDto subSource,
-            DescriptionEmbDto description,
-            CredibilityRankEmbDto credibilityRank,
-            ApplicationNumberEmbDto applicationNumber,
-            Set<CertificateEmbDto> certificates,
+            Integer gracePeriodDays,
+            Integer installmentCount,
+            String disburseDestinationDepositNumber,
+            DisburseDestinationType disburseDestinationType,
+            String economicSectorCode,
+            String branchCode,
+            String requestReasonCode,
+            String subSourceCode,
+            String description,
+            String credibilityRank,
+            String applicationNumber,
             DisbursementMethod disbursementMethod)
             implements Serializable {
-
-        public record DisburseDestinationEmbDto(String depositNumber, DisburseDestinationType type)
+        public record PartyEmbDto(
+                String customerNumber, PartyType partyType, PartyRole partyRole, String firstName, String lastName)
                 implements Serializable {}
-
-        public record EconomicSectorEmbDto(String code) implements Serializable {}
-
-        public record BranchEmbDto(String code) implements Serializable {}
-
-        public record RequestReasonEmbDto(String core) implements Serializable {}
-
-        public record SubSourceEmbDto(String core) implements Serializable {}
-
-        public record DescriptionEmbDto(String value) implements Serializable {}
-
-        public record CredibilityRankEmbDto(String value) implements Serializable {}
-
-        public record ApplicationNumberEmbDto(
-                BranchEmbDto branch, LoanTypeCodeEmbDto loanTypeCode, PartyEmbDto party, String derivedValue)
-                implements Serializable {
-
-            public record LoanTypeCodeEmbDto(String value) implements Serializable {}
-        }
-
-        public record CertificateEmbDto(String serial) implements Serializable {}
     }
 
     public record TradeSanctionedLoanEntityDto(
             UUID id,
             Long version,
-            LocalDateTime createdAt,
-            LocalDateTime modifiedAt,
-            String createdBy,
-            String modifiedBy,
-            SanctionSerialEmbDto sanctionSerial,
-            MoneyEmbDto approvedAmount,
-            CurrencyTypeDto currency,
-            GracePeriodEmbDto gracePeriod,
-            InstallmentCountEmbDto installmentCount,
-            PeriodEmbDto loanDuration,
+            String sanctionSerial,
+            SanctionType sanctionSerialType,
+            BigDecimal approvedAmountAmount,
+            String approvedAmountCurrency,
+            String currency,
+            Integer gracePeriodDays,
+            Integer installmentCount,
+            Integer loanDurationMonths,
             String lifeInsuranceId,
-            DisbursementScheduleEntityDto disbursementSchedule,
-            RevocationReasonEmbDto revocationReason,
+            List<ScheduledTrancheEmbDto> disbursementScheduleTranches,
+            List<DisbursementRecordEmbDto> disbursementHistoryRecords,
+            String revocationReason,
             DisbursementMethod disbursementMethod)
             implements Serializable {
+        public record ScheduledTrancheEmbDto(Instant scheduledDate, BigDecimal amount, String currency)
+                implements Serializable {}
 
-        public record SanctionSerialEmbDto(String value, SanctionType type) implements Serializable {}
-
-        public record CollateralSerialEmbDto(String value) implements Serializable {}
-
-        public record DisbursementScheduleEntityDto(
-                UUID id,
-                Long version,
-                LocalDateTime createdAt,
-                LocalDateTime modifiedAt,
-                String createdBy,
-                String modifiedBy,
-                List<ScheduledTrancheEmbDto> tranches)
-                implements Serializable {
-
-            public record ScheduledTrancheEmbDto(Instant scheduledDate, MoneyEmbDto amount) implements Serializable {}
-        }
-
-        public record RevocationReasonEmbDto(String text) implements Serializable {}
+        public record DisbursementRecordEmbDto(
+                BigDecimal amount, String currency, LocalDate disbursedAt, String disbursedBy)
+                implements Serializable {}
     }
 
     public record TransactionNumberEmbDto(String value, Instant createdAt, String trackingId, TransactionStatus status)
+            implements Serializable {}
+
+    public record CollateralEmbDto(
+            String collateralTypeCode,
+            Integer percent,
+            String description,
+            String collateralSerial,
+            BigDecimal usedAmount,
+            String usedAmountCurrency)
             implements Serializable {}
 }

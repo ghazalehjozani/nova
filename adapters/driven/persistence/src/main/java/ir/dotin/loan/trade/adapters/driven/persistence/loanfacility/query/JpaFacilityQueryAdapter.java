@@ -17,7 +17,7 @@ import org.springframework.stereotype.Repository;
 import ir.dotin.platform.adapter.persistence.query.QueryCriteria;
 import ir.dotin.platform.adapter.persistence.repository.PersistentRepository;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity.TradeLoanFacilityEntity;
-import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query.mapper.FacilityQueryModelMapper;
+import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query.mapper.TradeLoanFacilityQueryMapper;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.repository.TradeLoanFacilityJpaRepository;
 import ir.dotin.loan.trade.adapters.driven.persistence.shared.query.AbstractCursorPagingAdapter;
 import ir.dotin.loan.trade.adapters.driven.persistence.shared.query.SortBuilder;
@@ -35,10 +35,12 @@ public class JpaFacilityQueryAdapter extends AbstractCursorPagingAdapter<TradeLo
         implements TradeLoanFacilityQueryRepository {
 
     private final TradeLoanFacilityJpaRepository repository;
-    private final FacilityQueryModelMapper mapper;
+    private final TradeLoanFacilityQueryMapper mapper;
 
     public JpaFacilityQueryAdapter(
-            TradeLoanFacilityJpaRepository repository, FacilityQueryModelMapper mapper, CursorEncoder cursorEncoder) {
+            TradeLoanFacilityJpaRepository repository,
+            TradeLoanFacilityQueryMapper mapper,
+            CursorEncoder cursorEncoder) {
         super(cursorEncoder);
         this.repository = repository;
         this.mapper = mapper;
@@ -64,7 +66,7 @@ public class JpaFacilityQueryAdapter extends AbstractCursorPagingAdapter<TradeLo
 
     @Override
     protected CursorPosition createCursorPosition(TradeFacilityQueryDto queryDto) {
-        return CursorPosition.of(queryDto.createdAt(), queryDto.id());
+        return CursorPosition.of(queryDto.id());
     }
 
     @Override
