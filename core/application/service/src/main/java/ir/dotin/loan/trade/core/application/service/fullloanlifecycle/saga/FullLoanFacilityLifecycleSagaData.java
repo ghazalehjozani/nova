@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.core.application.service.fullloanlifecycle.saga;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +15,7 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanF
 
 public record FullLoanFacilityLifecycleSagaData(
         OriginateLoanFacilityCommand originationCommand,
+        BigDecimal trancheAmount,
         String branchCode,
         TransactionConfig transactionConfig,
         DisbursementMethod disbursementMethod,
@@ -30,12 +32,14 @@ public record FullLoanFacilityLifecycleSagaData(
 
     public static FullLoanFacilityLifecycleSagaData initial(
             OriginateLoanFacilityCommand originationCommand,
+            BigDecimal trancheAmount,
             String branchCode,
             TransactionConfig transactionConfig,
             DisbursementMethod disbursementMethod,
             UUID correlationId) {
         return new FullLoanFacilityLifecycleSagaData(
                 originationCommand,
+                trancheAmount,
                 branchCode,
                 transactionConfig,
                 disbursementMethod,
@@ -50,6 +54,7 @@ public record FullLoanFacilityLifecycleSagaData(
     public FullLoanFacilityLifecycleSagaData withFacilityId(UUID facilityId) {
         return new FullLoanFacilityLifecycleSagaData(
                 originationCommand,
+                trancheAmount,
                 branchCode,
                 transactionConfig,
                 disbursementMethod,
@@ -64,6 +69,7 @@ public record FullLoanFacilityLifecycleSagaData(
     public FullLoanFacilityLifecycleSagaData withSanctionedLoanId(UUID sanctionedLoanId) {
         return new FullLoanFacilityLifecycleSagaData(
                 originationCommand,
+                trancheAmount,
                 branchCode,
                 transactionConfig,
                 disbursementMethod,
@@ -78,6 +84,7 @@ public record FullLoanFacilityLifecycleSagaData(
     public FullLoanFacilityLifecycleSagaData withInstallmentScheduleId(UUID installmentScheduleId) {
         return new FullLoanFacilityLifecycleSagaData(
                 originationCommand,
+                trancheAmount,
                 branchCode,
                 transactionConfig,
                 disbursementMethod,
@@ -92,6 +99,7 @@ public record FullLoanFacilityLifecycleSagaData(
     public FullLoanFacilityLifecycleSagaData withPreviousInstallmentScheduleId(UUID previousId) {
         return new FullLoanFacilityLifecycleSagaData(
                 originationCommand,
+                trancheAmount,
                 branchCode,
                 transactionConfig,
                 disbursementMethod,
@@ -109,6 +117,7 @@ public record FullLoanFacilityLifecycleSagaData(
         combined.addAll(events);
         return new FullLoanFacilityLifecycleSagaData(
                 originationCommand,
+                trancheAmount,
                 branchCode,
                 transactionConfig,
                 disbursementMethod,

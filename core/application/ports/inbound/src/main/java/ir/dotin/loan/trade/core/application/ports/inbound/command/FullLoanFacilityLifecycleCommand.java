@@ -1,6 +1,5 @@
 package ir.dotin.loan.trade.core.application.ports.inbound.command;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Period;
@@ -9,7 +8,6 @@ import java.util.Set;
 import java.util.UUID;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -36,8 +34,7 @@ public record FullLoanFacilityLifecycleCommand(
         implements Command {
 
     @Builder(toBuilder = true)
-    public record DisbursementDto(
-            @Nullable @DecimalMin("0.01") BigDecimal trancheAmount) {}
+    public record DisbursementDto(@NotNull @Valid AmountDto trancheAmount) {}
 
     @Builder(toBuilder = true)
     public record TransactionMetadataDto(

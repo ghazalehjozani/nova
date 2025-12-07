@@ -30,7 +30,6 @@ import ir.dotin.loan.trade.core.application.ports.inbound.dto.CurrencyTypeDto;
 public interface FullLoanFacilityLifecycleRequestMapper {
 
     @Mapping(target = "uid", ignore = true)
-    @Mapping(target = "disbursement.trancheAmount", ignore = true)
     @Mapping(target = "transactionMetadata", ignore = true)
     FullLoanFacilityLifecycleCommand toCommand(FullLoanFacilityLifecycleRequest request);
 

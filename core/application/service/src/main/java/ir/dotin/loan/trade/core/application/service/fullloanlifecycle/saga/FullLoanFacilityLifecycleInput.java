@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.core.application.service.fullloanlifecycle.saga;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import ir.dotin.platform.saga.api.definition.SagaInput;
@@ -9,6 +10,7 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanF
 
 public record FullLoanFacilityLifecycleInput(
         OriginateLoanFacilityCommand originationCommand,
+        BigDecimal trancheAmount,
         String branchCode,
         TransactionConfig transactionConfig,
         DisbursementMethod disbursementMethod,
@@ -17,11 +19,12 @@ public record FullLoanFacilityLifecycleInput(
 
     public static FullLoanFacilityLifecycleInput of(
             OriginateLoanFacilityCommand originationCommand,
+            BigDecimal trancheAmount,
             String branchCode,
             TransactionConfig transactionConfig,
             DisbursementMethod disbursementMethod,
             UUID correlationId) {
         return new FullLoanFacilityLifecycleInput(
-                originationCommand, branchCode, transactionConfig, disbursementMethod, correlationId);
+                originationCommand, trancheAmount, branchCode, transactionConfig, disbursementMethod, correlationId);
     }
 }

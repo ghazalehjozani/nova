@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.core.application.service.fullloanlifecycle.saga;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
@@ -104,6 +105,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 instanceof
                 FullLoanFacilityLifecycleInput(
                         OriginateLoanFacilityCommand originationCommand,
+                        BigDecimal trancheAmount,
                         String branchCode,
                         TransactionConfig transactionConfig,
                         DisbursementMethod disbursementMethod,
@@ -111,7 +113,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
             throw new IllegalArgumentException("Expected FullLoanFacilityLifecycleInput but got: " + input.getClass());
         }
         return FullLoanFacilityLifecycleSagaData.initial(
-                originationCommand, branchCode, transactionConfig, disbursementMethod, correlationId);
+                originationCommand, trancheAmount, branchCode, transactionConfig, disbursementMethod, correlationId);
     }
 
     private StepResult<Void> validateInput(SagaContext<FullLoanFacilityLifecycleSagaData> ctx) {
@@ -362,8 +364,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
 
         var command = IrregularProgressiveDisbursementCommand.builder()
                 .loanFacilityId(data.facilityId())
-                // TODO: should we handle tranche?
-                .trancheAmount(origCmd.loanApplication().requestedAmount().value())
+                .trancheAmount(data.trancheAmount())
                 .version(7L)
                 .branchCode(data.branchCode())
                 .terminalType(txConfig.terminalType())

@@ -15,6 +15,7 @@ public record FullLoanFacilityLifecycleRequest(
         String loanTypeCode,
         String loanArrangementCode,
         LoanApplicationDto loanApplication,
+        DisbursementDto disbursement,
         InstallmentSchedulePlanDto installmentSchedulePlan) {
 
     public record LoanApplicationDto(
@@ -48,4 +49,6 @@ public record FullLoanFacilityLifecycleRequest(
     public record InstallmentSchedulePlanDto(List<InstallmentSpecDto> installments) {}
 
     public record InstallmentSpecDto(Integer sequenceNumber, Instant dueDate, BigDecimal principalAmount) {}
+
+    public record DisbursementDto(BigDecimal trancheAmount) {}
 }
