@@ -42,7 +42,7 @@ spec:
       containers:
         - name: trade-loan-service
           image: trade-loan-service:latest
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: false
@@ -55,7 +55,83 @@ spec:
               protocol: TCP
           env:
             - name: SPRING_PROFILES_ACTIVE
-              value: "k8s"
+              value: "k8s,dev"
+            - name: SPRING_CLOUD_KUBERNETES_CONFIG_NAME
+              value: "trade-loan-service-config"
+            - name: JAVA_OPTS
+              value: "-Xms512m -Xmx896m -XX:MaxMetaspaceSize=256m"
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=50.0 -XX:+ExitOnOutOfMemoryError"
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: spring.datasource.url
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: spring.datasource.username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: spring.datasource.password
+            - name: ENCRYPTION_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: platform.messaging.encryption.password
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: kafka.bootstrap.servers
+            - name: KAFKA_CONSUMER_GROUP
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: kafka.consumer.group
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: redis.password
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: spring.data.redis.host
+            - name: REDIS_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: spring.data.redis.port
+            - name: OAUTH2_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: oauth2.client.id
+            - name: OAUTH2_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: oauth2.client.secret
+            - name: FCB_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: fcb.base.url
+            - name: FCB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: fcb.username
+            - name: FCB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: fcb.password
             - name: KUBERNETES_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -72,29 +148,30 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
-            - name: JAVA_TOOL_OPTIONS
-              value: "-XX:MaxRAMPercentage=50.0 -XX:+ExitOnOutOfMemoryError"
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "http://host.minikube.internal:4318"
             - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
-              value: "http://host.minikube.internal:4318/v1/traces"
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: otel.traces.endpoint
             - name: OTEL_EXPORTER_OTLP_METRICS_ENDPOINT
-              value: "http://host.minikube.internal:4318/v1/metrics"
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: otel.metrics.endpoint
             - name: OTEL_EXPORTER_OTLP_LOGS_ENDPOINT
               value: "http://host.minikube.internal:4318/v1/logs"
             - name: OTEL_TRACES_SAMPLER_ARG
               value: "0.1"
-          envFrom:
-            - secretRef:
-                name: trade-loan-service-secrets
           startupProbe:
             httpGet:
               path: /actuator/health/liveness
               port: http
-            initialDelaySeconds: 10
+            initialDelaySeconds: 60
             periodSeconds: 15
             timeoutSeconds: 15
-            failureThreshold: 60
+            failureThreshold: 40
             successThreshold: 1
           livenessProbe:
             httpGet:
@@ -118,9 +195,11 @@ spec:
             requests:
               memory: "1Gi"
               cpu: "500m"
+              ephemeral-storage: "1Gi"
             limits:
               memory: "2Gi"
               cpu: "2000m"
+              ephemeral-storage: "2Gi"
           lifecycle:
             preStop:
               exec:
