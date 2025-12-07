@@ -194,11 +194,11 @@ spec:
           resources:
             requests:
               memory: "1Gi"
-              cpu: "500m"
+              cpu: "2000m"
               ephemeral-storage: "1Gi"
             limits:
               memory: "2Gi"
-              cpu: "2000m"
+              cpu: "3500m"
               ephemeral-storage: "2Gi"
           lifecycle:
             preStop:
