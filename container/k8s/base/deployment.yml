@@ -149,7 +149,7 @@ spec:
                 fieldRef:
                   fieldPath: status.podIP
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: "http://host.minikube.internal:4318"
+              value: "http://otel-collector.observability.svc.cluster.local:4318"
             - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
               valueFrom:
                 secretKeyRef:
