@@ -24,6 +24,7 @@ public interface TradeLoanArrangementPersistenceMapper {
     @Mapping(source = "interestPolicy", target = "interestPolicy", qualifiedByName = "mapInterestPolicyToEmb")
     @Mapping(source = "installmentPolicy", target = "installmentPolicy", qualifiedByName = "mapInstallmentPolicyToEmb")
     @Mapping(source = "gracePeriodPolicy", target = "gracePeriodPolicy", qualifiedByName = "mapGracePeriodPolicyToEmb")
+    @Mapping(source = "disbursementType", target = "disbursementType")
     TradeLoanArrangementEntity map(TradeLoanArrangement domain);
 
     @Mapping(source = "code", target = "code", qualifiedByName = "stringToLoanArrangementCode")
@@ -39,6 +40,7 @@ public interface TradeLoanArrangementPersistenceMapper {
             target = "gracePeriodPolicy",
             qualifiedByName = "mapGracePeriodPolicyEmbToPolicy")
     @Mapping(source = "penaltyPolicy", target = "penaltyPolicy", qualifiedByName = "mapPenaltyPolicyEmbToPolicy")
+    @Mapping(source = "disbursementType", target = "disbursementType")
     TradeLoanArrangement map(TradeLoanArrangementEntity entity);
 
     default Set<TradeLoanArrangementEntity> mapToEntities(Set<TradeLoanArrangement> domains) {

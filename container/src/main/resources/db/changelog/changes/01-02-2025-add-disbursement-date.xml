@@ -20,4 +20,11 @@
             newDataType="DATE"/>
     </changeSet>
 
+    <changeSet id="20250201120002-1" author="DOTIN\pouya.shamsi">
+        <addColumn tableName="loan_arrangements">
+            <column name="disbursement_type" type="VARCHAR(255)">
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
