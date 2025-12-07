@@ -57,9 +57,6 @@ final class TradeLoanFacilityEventFactoryTest {
     private SanctionedLoanId mockSanctionId;
 
     @Mock
-    private CollateralSerial mockCollateralSerial;
-
-    @Mock
     private FailureReason mockFailureReason;
 
     @Mock
@@ -197,7 +194,6 @@ final class TradeLoanFacilityEventFactoryTest {
         @Test
         @DisplayName("should create collateral added event")
         void shouldCreateCollateralAddedEvent() {
-            given(mockCollateralSerial.value()).willReturn("serial");
             var event = factory.createCollateralAddedEvent(
                     mockFacilityId, mockSanctionId, mockCollateralSerials, fixedClock);
 
