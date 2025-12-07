@@ -6,6 +6,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.service.validator.LoanFac
 import ir.dotin.loan.baseloan.core.domain.loanfacility.specification.*;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
+import ir.dotin.loan.trade.core.domain.loanfacility.specification.DisbursementMethodCompatibilitySpecification;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 
 @DomainService
@@ -31,6 +32,7 @@ public final class TradeLoanFacilityValidationService
         return specificationWithGuarantor
                 .and(new LoanApplicationInstallmentCountSpecification(
                         tradeRules.getInstallmentPolicy().installmentPaymentType()))
+                .and(new DisbursementMethodCompatibilitySpecification(tradeRules))
                 //                .and(new
                 // LoanApplicationEconomicSectorSpecification(tradeLoanType.getEconomicSectorCurrencies())) TODO:
                 //                .and(new LoanApplicationCurrencySpecification(tradeRules.getCurrencyType()))

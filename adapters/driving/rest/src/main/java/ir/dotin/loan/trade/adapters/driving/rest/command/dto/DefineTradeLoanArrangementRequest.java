@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.CollateralCalculationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.InstallmentPaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LifeInsurancePaymentType;
@@ -74,7 +75,10 @@ public record DefineTradeLoanArrangementRequest(
         RegulatoryCompliancePolicyDto regulatoryCompliancePolicy,
 
         @Schema(description = "سیاست وثایق", requiredMode = Schema.RequiredMode.REQUIRED)
-        CollateralPolicyDto collateralPolicy) {
+        CollateralPolicyDto collateralPolicy,
+
+        @Schema(description = "نوع پرداخت", requiredMode = Schema.RequiredMode.REQUIRED)
+        DisbursementType disbursementType) {
 
     @Schema(name = "InterestPolicyDto", description = "سیاست نرخ سود")
     public record InterestPolicyDto(

@@ -18,6 +18,7 @@ import org.hibernate.proxy.HibernateProxy;
 
 import ir.dotin.platform.adapter.persistence.embeddable.AmountRangeEmb;
 import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LifeInsurancePaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LoanSecondaryType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
@@ -119,6 +120,10 @@ public class TradeLoanArrangementEntity extends PersistentEntity {
 
     @Column(name = "previous_version_id")
     private UUID previousVersion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "disbursement_type")
+    private DisbursementType disbursementType;
 
     @Override
     public final boolean equals(Object o) {

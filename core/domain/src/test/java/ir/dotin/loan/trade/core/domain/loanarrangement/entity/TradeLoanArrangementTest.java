@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ir.dotin.platform.commons.core.feature.FeatureConfig;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementType;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.CollateralPolicy;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.GracePeriodPolicy;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.InstallmentPolicy;
@@ -207,6 +208,7 @@ class TradeLoanArrangementTest {
                 .repaymentPriorityPolicy(repaymentPriorityPolicy)
                 .regulatoryCompliancePolicy(regulatoryCompliancePolicy)
                 .collateralPolicy(collateralPolicy)
-                .economicSector(new EconomicSector("EXCHANGE"));
+                .economicSector(new EconomicSector("EXCHANGE"))
+                .disbursementType(DisbursementType.LUMP_SUM);
     }
 }

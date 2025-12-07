@@ -14,6 +14,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import ir.dotin.platform.dispatcher.api.command.Command;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.CollateralCalculationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.InstallmentPaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LifeInsurancePaymentType;
@@ -48,7 +49,8 @@ public record DefineTradeLoanArrangementCommand(
         @NotNull @Valid GracePeriodPolicyDto gracePeriodPolicy,
         @NotNull @Valid RepaymentPriorityPolicyDto repaymentPriorityPolicy,
         @NotNull @Valid RegulatoryCompliancePolicyDto regulatoryCompliancePolicy,
-        @NotNull @Valid CollateralPolicyDto collateralPolicy)
+        @NotNull @Valid CollateralPolicyDto collateralPolicy,
+        @NotNull @Valid DisbursementType disbursementType)
         implements Command {
 
     public record InterestPolicyDto(
