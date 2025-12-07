@@ -11,5 +11,5 @@ import lombok.Data;
 public class RequestReasonEmb implements Serializable {
 
     @Column(name = "request_reason_code", length = 500)
-    private String core;
+    private String code;
 }

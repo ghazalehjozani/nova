@@ -67,7 +67,7 @@ public class JpaTradeLoanArrangementQueryAdapter
 
     @Override
     protected CursorPosition createCursorPosition(TradeLoanArrangementQueryDto queryDto) {
-        return CursorPosition.of(queryDto.createdAt(), queryDto.id());
+        return CursorPosition.of(queryDto.id());
     }
 
     @Override

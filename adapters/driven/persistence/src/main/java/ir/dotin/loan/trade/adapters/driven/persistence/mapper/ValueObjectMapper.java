@@ -365,24 +365,24 @@ public abstract class ValueObjectMapper {
 
     public abstract LoanTypeCode toLoanTypeCode(LoanTypeCodeEmb embeddable);
 
-    @Mapping(source = "code", target = "core")
+    @Mapping(source = "code", target = "code")
     public abstract RequestReasonEmb toRequestReasonEmb(RequestReason requestReason);
 
-    @Mapping(source = "core", target = "code")
+    @Mapping(source = "code", target = "code")
     public abstract RequestReason toRequestReason(RequestReasonEmb embeddable);
 
     public abstract SanctionSerialEmb toSanctionSerialEmb(SanctionSerial sanctionSerial);
 
     public abstract SanctionSerial toSanctionSerial(SanctionSerialEmb embeddable);
 
-    @Mapping(source = "code", target = "core")
+    @Mapping(source = "code", target = "code")
     public abstract SubSourceEmb toSubSourceEmb(SubSource subSource);
 
     public SubSourceEmb toSubSourceEmb(Optional<SubSource> subSourceOpt) {
         return subSourceOpt.map(this::toSubSourceEmb).orElse(null);
     }
 
-    @Mapping(source = "core", target = "code")
+    @Mapping(source = "code", target = "code")
     public abstract SubSource toSubSource(SubSourceEmb embeddable);
 
     public abstract TitleEmb toTitleEmb(Title title);
