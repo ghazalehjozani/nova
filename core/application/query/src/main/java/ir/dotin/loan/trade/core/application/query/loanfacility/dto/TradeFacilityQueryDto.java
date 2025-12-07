@@ -116,7 +116,6 @@ public record TradeFacilityQueryDto(
             InstallmentCountEmbDto installmentCount,
             PeriodEmbDto loanDuration,
             String lifeInsuranceId,
-            CollateralSerialEmbDto collateralSerial,
             DisbursementScheduleEntityDto disbursementSchedule,
             RevocationReasonEmbDto revocationReason,
             DisbursementMethod disbursementMethod)

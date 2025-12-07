@@ -1,6 +1,5 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.mapper;
 
-import java.util.Objects;
 import java.util.UUID;
 
 import org.mapstruct.Mapper;
@@ -19,13 +18,11 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.AddFacilityCol
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface AddFacilityCollateralRequestToCommandMapper {
 
+    @Mapping(target = "version", source = "request.version")
     @Mapping(target = "uid", ignore = true)
-    AddFacilityCollateralCommand toCommand(
-            UUID loanFacilityId, String collateralSerialDto, AddFacilityCollateralRequest request);
+    AddFacilityCollateralCommand toCommand(UUID loanFacilityId, AddFacilityCollateralRequest request);
 
-    default AddFacilityCollateralCommand.CollateralSerialDto mapCollateralSerialDto(String collateralSerialDto) {
-        return Objects.isNull(collateralSerialDto)
-                ? null
-                : new AddFacilityCollateralCommand.CollateralSerialDto(collateralSerialDto);
-    }
+    AddFacilityCollateralCommand.CollateralDto mapCollateralDto(AddFacilityCollateralRequest.CollateralDto dto);
+
+    AddFacilityCollateralCommand.MoneyDto mapMoneyDto(AddFacilityCollateralRequest.MoneyDto dto);
 }

@@ -18,6 +18,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.OneToOne;
@@ -28,6 +29,7 @@ import org.hibernate.proxy.HibernateProxy;
 import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
 import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.TransactionNumberEmb;
 
 import lombok.Getter;
@@ -94,6 +96,13 @@ public class TradeLoanFacilityEntity extends PersistentEntity {
 
     @Column(name = "facility_type")
     private String facilityType = "TRADE";
+
+    @ElementCollection(fetch = FetchType.EAGER) // Or LAZY, depending on your needs
+    @CollectionTable(
+            name = "loan_facility_collaterals",
+            joinColumns = @JoinColumn(name = "loan_facility_id"),
+            indexes = @Index(name = "idx_trade_loan_facility_collaterals", columnList = "loan_facility_id"))
+    private List<CollateralEmb> collaterals = new ArrayList<>();
 
     @Override
     public final boolean equals(Object o) {

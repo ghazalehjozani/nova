@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.core.domain.loanfacility.service;
 
 import java.time.Clock;
+import java.util.List;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
@@ -9,7 +10,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractSanctioned
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.service.AbstractLoanFacilityService;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
@@ -39,7 +40,7 @@ public class TradeLoanFacilityService
     }
 
     @Override
-    protected boolean canAddCollateral(TradeLoanFacility facility, CollateralSerial collateralSerial) {
+    protected boolean canAddCollateral(TradeLoanFacility facility, List<Collateral> collaterals) {
         // Trade loans allow collateral in approved or contract issued states
         var status = facility.getCurrentState();
         return status == FacilityStatus.APPROVED || status == FacilityStatus.ISSUE_CONTRACT;

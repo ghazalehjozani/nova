@@ -75,33 +75,10 @@ final class TradeSanctionValidationServiceTest {
     }
 
     @Test
-    @DisplayName("should have validateSanctionCollateral method")
-    void shouldHaveValidateSanctionCollateralMethod() throws NoSuchMethodException {
-        var method = TradeSanctionValidationService.class.getMethod(
-                "validateSanctionCollateral", TradeLoanArrangement.class, Collateral.class, Sanction.class);
-
-        assertThat(method).isNotNull();
-        assertThat(method.getReturnType().getSimpleName()).contains("Result");
-    }
-
-    @Test
     @DisplayName("should validate sanction")
     void shouldValidateSanction() {
         try {
             var result = validationService.validateSanction(mockLoanFacility, mockLoanArrangement, mockSanction);
-            assertThat(result).isNotNull();
-        } catch (Exception e) {
-            // Expected due to mock objects not having proper setup
-            assertThat(e).isNotNull();
-        }
-    }
-
-    @Test
-    @DisplayName("should validate sanction collateral")
-    void shouldValidateSanctionCollateral() {
-        try {
-            var result =
-                    validationService.validateSanctionCollateral(mockLoanArrangement, mockCollateral, mockSanction);
             assertThat(result).isNotNull();
         } catch (Exception e) {
             // Expected due to mock objects not having proper setup

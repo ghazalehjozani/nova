@@ -6,6 +6,7 @@ import com.thoughtworks.xstream.security.NullPermission;
 import com.thoughtworks.xstream.security.PrimitiveTypePermission;
 
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.AccountInfoResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.AssuranceResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.BranchResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CancelTransferMoneyResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CustomerBirthInfoResponse;
@@ -76,6 +77,19 @@ public class FcbXStreamFactory {
         xstream.alias("com.fanap.business.cmplexpenditure.dto.BranchDTO", BranchResponse.class);
 
         xstream.alias("com.fanap.business.cmplexpenditure.dto.SharedAccountResult", AccountInfoResponse.class);
+        xstream.alias("com.fanap.business.cmplexpenditure.dto.AssuranceDTO", AssuranceResponse.class);
+        xstream.alias(
+                "com.fanap.business.loan.valueobjects.assurance.ChequeInformationVO",
+                AssuranceResponse.ChequeInformationVO.class);
+        xstream.alias(
+                "com.fanap.business.loan.valueobjects.assurance.PromissoryNoteInfoVO",
+                AssuranceResponse.PromissoryNoteInfoVO.class);
+        xstream.alias(
+                "com.fanap.business.loan.valueobjects.assurance.AttachedDepositDTO",
+                AssuranceResponse.AttachedDepositDTO.class);
+        xstream.alias(
+                "com.fanap.service.complementary.assurance.output.AssuranceTypeDTO",
+                AssuranceResponse.AssuranceTypeDTO.class);
 
         xstream.autodetectAnnotations(true);
         xstream.ignoreUnknownElements();

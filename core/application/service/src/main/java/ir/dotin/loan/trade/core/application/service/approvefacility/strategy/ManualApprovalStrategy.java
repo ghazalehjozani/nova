@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.Money;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
@@ -75,11 +74,6 @@ public class ManualApprovalStrategy implements ApprovalStrategy {
             if (details.lifeInsuranceId() != null) {
                 builder.lifeInsuranceId(
                         LifeInsuranceId.of(details.lifeInsuranceId()).getValue());
-            }
-
-            if (details.collateralSerial() != null) {
-                builder.collateralSerial(
-                        CollateralSerial.of(details.collateralSerial()).getValue());
             }
 
             if (details.revocationReason() != null) {

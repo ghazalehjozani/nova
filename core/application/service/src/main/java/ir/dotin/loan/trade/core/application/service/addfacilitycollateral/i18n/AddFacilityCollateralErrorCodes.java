@@ -12,7 +12,13 @@ public enum AddFacilityCollateralErrorCodes implements LocalizedMessage<AddFacil
     FACILITY_NOT_FOUND("Facility with ID {0} not found"),
     INVALID_COLLATERAL_TYPE("Invalid collateral type: {0}"),
     INVALID_COLLATERAL_VALUE("Invalid collateral number: {0}"),
-    DUPLICATE_COLLATERAL("Collateral {0} already exists for facility");
+    DUPLICATE_COLLATERAL("Collateral {0} already exists for facility"),
+    LOAN_ARRANGEMENT_NOT_FOUND("Loan arrangement with ID {0} not found"),
+    INSUFFICIENT_COLLATERAL_VALUE("Collateral value {0} is less than the required amount {1}"),
+    COLLATERAL_VALIDATION_FAILED("Collateral is not valid"),
+    COLLATERAL_DETAILS_NOT_FOUND("Collateral details with serial {0} not found"),
+    APPLICATION_NUMBER_MISSING("Application number is missing"),
+    ADD_COLLATERAL_PROCESS_COULD_NOT_COMPLETE("Add collateral process could not complete for facility");
 
     private final String defaultMessageFormat;
 }
