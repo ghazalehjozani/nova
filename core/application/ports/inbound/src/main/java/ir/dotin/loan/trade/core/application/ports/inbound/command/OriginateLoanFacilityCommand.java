@@ -48,7 +48,6 @@ public record OriginateLoanFacilityCommand(
             @Valid @Nullable SubSourceDto subSource,
             @Valid @Nullable DescriptionDto description,
             @Valid @NotNull DisbursementMethod disbursementMethod,
-            @Valid @NotNull Set<CertificateDto> certificates,
             @Valid @Nullable ApplicationNumberDto applicationNumber,
             @Valid @Nullable CredibilityRankDto credibilityRank) {}
 
@@ -71,9 +70,6 @@ public record OriginateLoanFacilityCommand(
 
     @Builder(toBuilder = true)
     public record BranchDto(@Nullable String code) {}
-
-    @Builder(toBuilder = true)
-    public record CertificateDto(@NotBlank String serial) {}
 
     @Builder(toBuilder = true)
     public record CredibilityRankDto(@NotBlank String value) {}

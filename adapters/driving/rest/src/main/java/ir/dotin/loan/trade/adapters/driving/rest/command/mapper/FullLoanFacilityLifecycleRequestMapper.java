@@ -55,17 +55,6 @@ public interface FullLoanFacilityLifecycleRequestMapper {
     FullLoanFacilityLifecycleCommand.DisburseDestinationDto toDisburseDestinationDto(
             FullLoanFacilityLifecycleRequest.DisburseDestinationDto dto);
 
-    @Mapping(target = "serial", ignore = true)
-    FullLoanFacilityLifecycleCommand.CertificateDto toCertificateDto(
-            FullLoanFacilityLifecycleRequest.CertificateDto dto);
-
-    @AfterMapping
-    default void mapCertificateSerial(
-            FullLoanFacilityLifecycleRequest.CertificateDto dto,
-            @MappingTarget FullLoanFacilityLifecycleCommand.CertificateDto.CertificateDtoBuilder builder) {
-        builder.serial(dto.type() + "-" + dto.value());
-    }
-
     FullLoanFacilityLifecycleCommand.InstallmentSchedulePlanDto toInstallmentSchedulePlanDto(
             FullLoanFacilityLifecycleRequest.InstallmentSchedulePlanDto dto);
 

@@ -70,9 +70,6 @@ public record OriginateLoanFacilityRequest(
             @Schema(description = "توضیحات", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
             String description,
 
-            @Schema(description = "سریال‌های گواهی‌ها", requiredMode = Schema.RequiredMode.REQUIRED)
-            Set<String> certificateSerials,
-
             @Schema(description = "مقدار رتبه اعتباری", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
             String credibilityRank) {}
 

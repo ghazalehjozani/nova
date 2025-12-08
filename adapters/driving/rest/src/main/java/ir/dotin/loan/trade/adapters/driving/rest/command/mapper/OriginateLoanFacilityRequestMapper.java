@@ -2,8 +2,6 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.mapper;
 
 import java.math.BigDecimal;
 import java.time.Period;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -34,7 +32,6 @@ public interface OriginateLoanFacilityRequestMapper {
     @Mapping(target = "loanApplication.economicSector", source = "loanApplication.economicSectorCode")
     @Mapping(target = "loanApplication.requestReason", source = "loanApplication.requestReasonCode")
     @Mapping(target = "loanApplication.subSource", source = "loanApplication.subSourceCode")
-    @Mapping(target = "loanApplication.certificates", source = "loanApplication.certificateSerials")
     OriginateLoanFacilityCommand toCommand(OriginateLoanFacilityRequest request);
 
     default AmountDto mapAmount(BigDecimal value) {
@@ -75,12 +72,5 @@ public interface OriginateLoanFacilityRequestMapper {
 
     default OriginateLoanFacilityCommand.CredibilityRankDto mapCredibilityRank(String value) {
         return value != null ? new OriginateLoanFacilityCommand.CredibilityRankDto(value) : null;
-    }
-
-    default Set<OriginateLoanFacilityCommand.CertificateDto> mapCertificates(Set<String> serials) {
-        if (serials == null) return Set.of();
-        return serials.stream()
-                .map(OriginateLoanFacilityCommand.CertificateDto::new)
-                .collect(Collectors.toSet());
     }
 }

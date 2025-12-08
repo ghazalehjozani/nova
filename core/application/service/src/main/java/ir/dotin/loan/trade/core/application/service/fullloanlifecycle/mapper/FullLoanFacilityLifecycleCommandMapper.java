@@ -44,9 +44,6 @@ public interface FullLoanFacilityLifecycleCommandMapper {
                 .requestReason(toOriginationRequestReason(app.requestReason()))
                 .subSource(toOriginationSubSource(app.subSource()))
                 .description(toOriginationDescription(app.description()))
-                .certificates(app.certificates().stream()
-                        .map(this::toOriginationCertificate)
-                        .collect(Collectors.toSet()))
                 .applicationNumber(toOriginationApplicationNumber(app.applicationNumber()))
                 .disbursementMethod(app.disbursementMethod())
                 .credibilityRank(toOriginationCredibilityRank(app.credibilityRank()))
@@ -74,14 +71,6 @@ public interface FullLoanFacilityLifecycleCommandMapper {
         if (reason == null) return null;
         return OriginateLoanFacilityCommand.RequestReasonDto.builder()
                 .code(reason.code())
-                .build();
-    }
-
-    default OriginateLoanFacilityCommand.CertificateDto toOriginationCertificate(
-            FullLoanFacilityLifecycleCommand.CertificateDto cert) {
-        if (cert == null) return null;
-        return OriginateLoanFacilityCommand.CertificateDto.builder()
-                .serial(cert.serial())
                 .build();
     }
 
