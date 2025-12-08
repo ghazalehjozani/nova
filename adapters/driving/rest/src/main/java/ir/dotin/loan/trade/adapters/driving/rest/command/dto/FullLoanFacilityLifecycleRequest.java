@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.dto;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -47,5 +48,5 @@ public record FullLoanFacilityLifecycleRequest(
 
     public record InstallmentSpecDto(Integer sequenceNumber, Instant dueDate, BigDecimal principalAmount) {}
 
-    public record DisbursementDto(BigDecimal trancheAmount) {}
+    public record DisbursementDto(BigDecimal trancheAmount, LocalDate disbursementDate) {}
 }
