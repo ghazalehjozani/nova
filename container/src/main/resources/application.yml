@@ -254,10 +254,10 @@ platform:
       enable-metrics: true
       lock-timeout: 5m
       topic-mappings:
-        InstallmentSchedule: "corridor.core.loan.nova.trade-loan-installment-schedule.events.topic.v1"
-        TradeLoanArrangement: "corridor.core.loan.nova.trade-loan-arrangement.events.topic.v1"
-        TradeLoanFacility: "corridor.core.loan.nova.trade-loan-facility.events.topic.v1"
-        TradeLoanType: "corridor.core.loan.nova.trade-loan-type.events.topic.v1"
+        InstallmentSchedule: "corridor.core.loan.nova.trade-loan-installment-schedule.event.topic.v1"
+        TradeLoanArrangement: "corridor.core.loan.nova.trade-loan-arrangement.event.topic.v1"
+        TradeLoanFacility: "corridor.core.loan.nova.trade-loan-facility.event.topic.v1"
+        TradeLoanType: "corridor.core.loan.nova.trade-loan-type.event.topic.v1"
     inbox:
       enabled: true
       processor-threads: 3
