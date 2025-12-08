@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 import ir.dotin.platform.dispatcher.api.command.Command;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
@@ -48,7 +49,10 @@ public record OriginateLoanFacilityCommand(
             @Valid @Nullable SubSourceDto subSource,
             @Valid @Nullable DescriptionDto description,
             @Valid @NotNull DisbursementMethod disbursementMethod,
-            @Valid @Nullable ApplicationNumberDto applicationNumber,
+
+            @Nullable @Pattern(regexp = "^\\d+-\\d+-\\d+-\\d+$")
+            String applicationNumber,
+
             @Valid @Nullable CredibilityRankDto credibilityRank) {}
 
     @Builder(toBuilder = true)
@@ -83,13 +87,6 @@ public record OriginateLoanFacilityCommand(
 
     @Builder(toBuilder = true)
     public record RequestReasonDto(@NotBlank String code) {}
-
-    @Builder(toBuilder = true)
-    public record ApplicationNumberDto(
-            @Valid @Nullable BranchDto branch,
-            @Valid @Nullable LoanTypeCodeDto loanTypeCode,
-            @Valid @Nullable PartyDto party,
-            @Nullable String derivedValue) {}
 
     @Builder(toBuilder = true)
     public record SubSourceDto(@NotBlank String code) {}

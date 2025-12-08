@@ -44,7 +44,7 @@ public interface FullLoanFacilityLifecycleCommandMapper {
                 .requestReason(toOriginationRequestReason(app.requestReason()))
                 .subSource(toOriginationSubSource(app.subSource()))
                 .description(toOriginationDescription(app.description()))
-                .applicationNumber(toOriginationApplicationNumber(app.applicationNumber()))
+                .applicationNumber(app.applicationNumber())
                 .disbursementMethod(app.disbursementMethod())
                 .credibilityRank(toOriginationCredibilityRank(app.credibilityRank()))
                 .build();
@@ -143,15 +143,6 @@ public interface FullLoanFacilityLifecycleCommandMapper {
         if (dto == null) return null;
         return OriginateLoanFacilityCommand.DescriptionDto.builder()
                 .value(dto.value())
-                .build();
-    }
-
-    default OriginateLoanFacilityCommand.ApplicationNumberDto toOriginationApplicationNumber(
-            FullLoanFacilityLifecycleCommand.ApplicationNumberDto dto) {
-        if (dto == null) return null;
-        return OriginateLoanFacilityCommand.ApplicationNumberDto.builder()
-                .branch(toOriginationBranch(dto.branch()))
-                .derivedValue(dto.derivedValue())
                 .build();
     }
 

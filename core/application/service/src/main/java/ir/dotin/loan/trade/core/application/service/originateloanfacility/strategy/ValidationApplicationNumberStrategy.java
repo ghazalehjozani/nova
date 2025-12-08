@@ -25,7 +25,7 @@ public class ValidationApplicationNumberStrategy implements ApplicationNumberStr
     private final TradeLoanFacilityRepository facilityRepository;
 
     @Override
-    public @NonNull Result<ApplicationNumber> generateOrValidateApplicationNumber(
+    public @NonNull Result<ApplicationNumber> generateApplicationNumber(
             @NonNull Branch branch, @NonNull LoanTypeCode loanTypeCode, @NonNull Party primaryApplicant) {
 
         Result<ApplicationNumber> fcbResult =

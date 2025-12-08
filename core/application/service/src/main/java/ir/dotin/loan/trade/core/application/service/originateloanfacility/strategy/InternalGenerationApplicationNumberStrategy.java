@@ -25,7 +25,7 @@ public class InternalGenerationApplicationNumberStrategy implements ApplicationN
     private final TradeLoanFacilityRepository facilityRepository;
 
     @Override
-    public @NonNull Result<ApplicationNumber> generateOrValidateApplicationNumber(
+    public @NonNull Result<ApplicationNumber> generateApplicationNumber(
             @NonNull Branch branch, @NonNull LoanTypeCode loanTypeCode, @NonNull Party primaryApplicant) {
         String derivedValue = String.valueOf(
                 generateApplicationSequence(branch.code(), loanTypeCode, primaryApplicant.customerNumber()));

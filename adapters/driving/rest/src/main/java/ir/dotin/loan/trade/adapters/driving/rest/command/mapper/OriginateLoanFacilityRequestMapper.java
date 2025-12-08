@@ -24,7 +24,6 @@ public interface OriginateLoanFacilityRequestMapper {
 
     @Mapping(target = "uid", ignore = true)
     @Mapping(target = "version", ignore = true)
-    @Mapping(target = "loanApplication.applicationNumber", ignore = true)
     @Mapping(target = "loanApplication.branch", ignore = true)
     @Mapping(target = "loanApplication.currency", source = "loanApplication.currency")
     @Mapping(target = "loanApplication.requestedLoanDuration", source = "loanApplication.requestedLoanDurationMonths")

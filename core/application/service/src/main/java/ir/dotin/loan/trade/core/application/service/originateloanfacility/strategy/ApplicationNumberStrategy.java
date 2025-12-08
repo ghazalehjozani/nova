@@ -11,7 +11,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 public interface ApplicationNumberStrategy {
 
     @NonNull
-    Result<ApplicationNumber> generateOrValidateApplicationNumber(
+    Result<ApplicationNumber> generateApplicationNumber(
             @NonNull Branch branch, @NonNull LoanTypeCode loanTypeCode, @NonNull Party primaryApplicant);
 
     @NonNull
