@@ -1,0 +1,15 @@
+package ir.dotin.loan.trade.core.application.query.installmentschedule.i18n;
+
+import ir.dotin.platform.commons.core.i18n.LocalizedMessage;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+public enum InstallmentScheduleQueryErrorCodes implements LocalizedMessage<InstallmentScheduleQueryErrorCodes> {
+    INSTALLMENT_SCHEDULE_NOT_FOUND("Installment schedule with ID {0} not found");
+
+    private final String defaultMessageFormat;
+}

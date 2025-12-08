@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.embdeddable;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +20,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ScheduleHistoryEmb {
+public class ScheduleHistoryEmb implements Serializable {
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
