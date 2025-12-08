@@ -43,7 +43,6 @@ public interface FullLoanFacilityLifecycleRequestMapper {
             qualifiedByName = "mapMonthsToPeriod")
     @Mapping(target = "gracePeriod.value", source = "gracePeriodDays", qualifiedByName = "mapDaysToPeriod")
     @Mapping(target = "installmentCount.value", source = "installmentCount")
-    @Mapping(target = "applicationNumber", source = "applicationNumber", qualifiedByName = "mapApplicationNumber")
     FullLoanFacilityLifecycleCommand.LoanApplicationDto toLoanApplicationDto(
             FullLoanFacilityLifecycleRequest.LoanApplicationDto dto);
 
@@ -87,14 +86,6 @@ public interface FullLoanFacilityLifecycleRequestMapper {
     default Period mapDaysToPeriod(Integer days) {
         if (days == null) return null;
         return Period.ofDays(days);
-    }
-
-    @Named("mapApplicationNumber")
-    default FullLoanFacilityLifecycleCommand.ApplicationNumberDto mapApplicationNumber(String appNum) {
-        if (appNum == null) return null;
-        return FullLoanFacilityLifecycleCommand.ApplicationNumberDto.builder()
-                .derivedValue(appNum)
-                .build();
     }
 
     default AmountDto mapAmount(BigDecimal value) {

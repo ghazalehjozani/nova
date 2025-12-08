@@ -19,7 +19,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
-import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.mapper.OriginateLoanFacilityApplicationMapper;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy.ApplicationNumberStrategy;
@@ -38,7 +37,6 @@ import static java.util.Objects.requireNonNull;
 @RequiredArgsConstructor
 public class FacilityBuilder {
 
-    private final TradeLoanFacilityRepository loanFacilityRepository;
     private final OriginateLoanFacilityApplicationMapper applicationMapper;
     private final ApplicationNumberStrategySelector applicationNumberStrategySelector;
     private final Clock clock;
@@ -95,10 +93,15 @@ public class FacilityBuilder {
         ApplicationNumberStrategy strategy = applicationNumberStrategySelector.selectStrategy();
 
         Result<ApplicationNumber> appNumberResult =
-                strategy.generateOrValidateApplicationNumber(branch, loanTypeCode, primaryApplicant);
+                strategy.generateApplicationNumber(branch, loanTypeCode, primaryApplicant);
 
         if (appNumberResult.isFailure()) {
             return Result.failure(appNumberResult.notification());
+        }
+
+        Result<Void> matchResult = validateApplicationNumberMatch(command, appNumberResult);
+        if (matchResult.isFailure()) {
+            return Result.failure(matchResult.notification());
         }
 
         // 4. Build Application
@@ -109,5 +112,22 @@ public class FacilityBuilder {
                 .branch(branch);
 
         return TradeLoanApplication.create(builder);
+    }
+
+    private Result<Void> validateApplicationNumberMatch(
+            OriginateLoanFacilityCommand command, Result<ApplicationNumber> appNumberResult) {
+        String commandAppNumber = command.loanApplication().applicationNumber();
+
+        if (commandAppNumber != null) {
+            String generatedAppNumber = appNumberResult.getValue().formattedApplicationNumber();
+
+            if (!generatedAppNumber.equals(commandAppNumber)) {
+                return Result.failure(Notification.ofError(
+                        OriginateLoanFacilityErrorCodes.APPLICATION_NUMBER_MISMATCH,
+                        commandAppNumber,
+                        generatedAppNumber));
+            }
+        }
+        return Result.success();
     }
 }
