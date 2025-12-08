@@ -168,25 +168,25 @@ spec:
             httpGet:
               path: /actuator/health/liveness
               port: http
-            initialDelaySeconds: 60
-            periodSeconds: 15
             timeoutSeconds: 15
-            failureThreshold: 40
             successThreshold: 1
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 120
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
               port: http
-            initialDelaySeconds: 0
+            initialDelaySeconds: 10
             periodSeconds: 15
-            timeoutSeconds: 15
+            timeoutSeconds: 20
             failureThreshold: 3
             successThreshold: 1
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: http
-            initialDelaySeconds: 20
+            initialDelaySeconds: 10
             periodSeconds: 15
             timeoutSeconds: 15
             failureThreshold: 10
