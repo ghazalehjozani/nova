@@ -3,36 +3,59 @@ package ir.dotin.loan.trade.core.application.query.installmentschedule.dto;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 import ir.dotin.platform.dispatcher.api.query.QueryResult;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleStatus;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleType;
+import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentStatus;
 
 public record TradeInstallmentScheduleQueryDto(
         UUID id,
         Long version,
-        LocalDateTime createdAt,
-        LocalDateTime modifiedAt,
-        String createdBy,
-        String modifiedBy,
-        List<TradeInstallmentQueryDto> installments,
+        List<InstallmentEntityDto> installments,
+        ScheduleHistoryEmbDto scheduleHistory,
         UUID loanFacilityId,
-        MoneyEmbDto totalLoanAmount,
-        CurrencyTypeEmbDto currency,
+        BigDecimal totalLoanAmountAmount,
+        String currency,
         InstallmentScheduleType scheduleType,
         InstallmentScheduleStatus status,
         Instant initiatedAt,
         Instant lastModifiedAt,
-        GracePeriodEmbDto gracePeriod,
-        BigDecimal interestRate)
-        implements QueryResult {
+        Integer gracePeriodDays,
+        BigDecimal interestRate,
+        RestructuringRecordDto restructuringRecord)
+        implements Serializable, QueryResult {
 
-    public record MoneyEmbDto(BigDecimal amount, String currency) implements Serializable {}
+    public record InstallmentEntityDto(
+            UUID id,
+            Long version,
+            Integer sequenceNumber,
+            BigDecimal totalAmount,
+            String currency,
+            BigDecimal principalAmount,
+            BigDecimal interestAmount,
+            LocalDate dueDate,
+            InstallmentStatus status,
+            BigDecimal paidAmount,
+            BigDecimal outstandingAmount,
+            LocalDate lastPaymentDate,
+            LocalDate paidDate)
+            implements Serializable {}
 
-    public record CurrencyTypeEmbDto(String value) implements Serializable {}
+    public record ScheduleHistoryEmbDto(List<UUID> previousScheduleIds) implements Serializable {}
 
-    public record GracePeriodEmbDto(Integer days, Integer months, Integer years) implements Serializable {}
+    public record RestructuringRecordDto(
+            String reason,
+            BigDecimal restructuringAmount,
+            String restructuringAmountCurrency,
+            Integer previousInstallmentCount,
+            Integer newInstallmentCount,
+            Integer unpaidInstallmentsCount,
+            Integer preservedInstallmentsCount,
+            Instant restructuredAt,
+            String restructuredBy)
+            implements Serializable {}
 }
