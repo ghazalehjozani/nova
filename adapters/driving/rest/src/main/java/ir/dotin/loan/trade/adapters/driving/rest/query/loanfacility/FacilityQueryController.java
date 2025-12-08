@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import ir.dotin.platform.adapter.rest.controller.BaseController;
 import ir.dotin.platform.adapter.rest.response.DataResponse;
 import ir.dotin.platform.adapter.rest.response.OffsetPaginationInfo;
 import ir.dotin.platform.adapter.rest.response.PagedResponse;
@@ -34,7 +35,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/{version}/loan-facilities")
 @RequiredArgsConstructor
 @Tag(name = SwaggerConfig.TAG_FACILITY_QUERIES, description = "استعلام تسهیلات")
-public class FacilityQueryController {
+public class FacilityQueryController extends BaseController {
 
     private final QueryDispatcher queryDispatcher;
 
@@ -42,8 +43,10 @@ public class FacilityQueryController {
     @Operation(summary = "دریافت تسهیلات بر اساس شناسه")
     public DataResponse<ir.dotin.loan.trade.core.application.query.loanfacility.dto.TradeFacilityQueryDto> getById(
             @PathVariable UUID facilityId) {
-        GetFacilityByIdQuery query =
-                GetFacilityByIdQuery.builder().loanFacilityId(facilityId).build();
+        GetFacilityByIdQuery query = GetFacilityByIdQuery.builder()
+                .uid(getXRequestId())
+                .loanFacilityId(facilityId)
+                .build();
         return DataResponse.of(queryDispatcher.dispatch(query));
     }
 
