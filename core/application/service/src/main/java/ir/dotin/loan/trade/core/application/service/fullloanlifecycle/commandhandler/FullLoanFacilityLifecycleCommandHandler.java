@@ -36,6 +36,7 @@ public class FullLoanFacilityLifecycleCommandHandler implements CommandHandler<F
         OriginateLoanFacilityCommand originationCommand = mapper.toOriginationCommand(command);
         var transactionConfig = mapper.toTransactionConfig(command.transactionMetadata());
         var disbursementMethod = command.loanApplication().disbursementMethod();
+        var disbursementDate = command.disbursement().disbursementDate();
 
         var input = FullLoanFacilityLifecycleInput.of(
                 originationCommand,
@@ -43,7 +44,7 @@ public class FullLoanFacilityLifecycleCommandHandler implements CommandHandler<F
                 command.transactionMetadata().branchCode(),
                 transactionConfig,
                 disbursementMethod,
-                null,
+                disbursementDate,
                 command.uid());
 
         SagaResult<FullLoanFacilityLifecycleSagaData> sagaResult = sagaOrchestrator.executeSaga(

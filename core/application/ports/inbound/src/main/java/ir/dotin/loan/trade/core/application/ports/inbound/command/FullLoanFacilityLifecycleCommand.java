@@ -35,7 +35,9 @@ public record FullLoanFacilityLifecycleCommand(
         implements Command {
 
     @Builder(toBuilder = true)
-    public record DisbursementDto(@NotNull @Valid AmountDto trancheAmount) {}
+    public record DisbursementDto(
+            @NotNull @Valid AmountDto trancheAmount,
+            @Nullable LocalDate disbursementDate) {}
 
     @Builder(toBuilder = true)
     public record TransactionMetadataDto(
