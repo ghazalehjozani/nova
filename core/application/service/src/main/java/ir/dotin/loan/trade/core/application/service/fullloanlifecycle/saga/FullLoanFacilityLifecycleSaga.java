@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.core.application.service.fullloanlifecycle.saga;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -109,11 +110,18 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                         String branchCode,
                         TransactionConfig transactionConfig,
                         DisbursementMethod disbursementMethod,
+                        LocalDate disbursementDate,
                         UUID correlationId))) {
             throw new IllegalArgumentException("Expected FullLoanFacilityLifecycleInput but got: " + input.getClass());
         }
         return FullLoanFacilityLifecycleSagaData.initial(
-                originationCommand, trancheAmount, branchCode, transactionConfig, disbursementMethod, correlationId);
+                originationCommand,
+                trancheAmount,
+                branchCode,
+                transactionConfig,
+                disbursementMethod,
+                disbursementDate,
+                correlationId);
     }
 
     private StepResult<Void> validateInput(SagaContext<FullLoanFacilityLifecycleSagaData> ctx) {
@@ -336,6 +344,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 .toolSource(txConfig.toolSource())
                 .networkType(txConfig.networkType())
                 .channel(txConfig.channel())
+                .disbursementDate(data.disbursementDate())
                 .build();
 
         ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
@@ -376,6 +385,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 .networkType(txConfig.networkType())
                 .channel(txConfig.channel())
                 .installmentSchedulePlan(mapInstallmentPlan(origCmd))
+                .disbursementDate(data.disbursementDate())
                 .build();
 
         ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
