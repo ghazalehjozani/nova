@@ -193,12 +193,12 @@ spec:
             successThreshold: 1
           resources:
             requests:
-              memory: "1Gi"
-              cpu: "2000m"
+              memory: "512Mi"
+              cpu: "500m"
               ephemeral-storage: "1Gi"
             limits:
               memory: "2Gi"
-              cpu: "3500m"
+              cpu: "3000m"
               ephemeral-storage: "2Gi"
           lifecycle:
             preStop:
