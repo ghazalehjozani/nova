@@ -65,7 +65,6 @@ public record FullLoanFacilityLifecycleCommand(
             @Valid @Nullable SubSourceDto subSource,
             @Valid @Nullable DescriptionDto description,
             @Valid @NotNull DisbursementMethod disbursementMethod,
-            Set<CertificateDto> certificates,
             @Valid @Nullable ApplicationNumberDto applicationNumber,
             @Valid @Nullable CredibilityRankDto credibilityRank) {}
 
@@ -88,9 +87,6 @@ public record FullLoanFacilityLifecycleCommand(
 
     @Builder(toBuilder = true)
     public record BranchDto(@Nullable String code) {}
-
-    @Builder(toBuilder = true)
-    public record CertificateDto(@NotBlank String serial) {}
 
     @Builder(toBuilder = true)
     public record CredibilityRankDto(@NotBlank String value) {}

@@ -31,8 +31,6 @@ public interface OriginateLoanFacilityApplicationMapper {
     @Mapping(target = "version", ignore = true)
     TradeLoanApplication.Builder map(OriginateLoanFacilityCommand.LoanApplicationDto loanApplication);
 
-    Certificate map(OriginateLoanFacilityCommand.CertificateDto dto);
-
     CredibilityRank map(OriginateLoanFacilityCommand.CredibilityRankDto dto);
 
     Description map(OriginateLoanFacilityCommand.DescriptionDto dto);

@@ -51,7 +51,6 @@ import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.PenaltyPolicy;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.RegulatoryCompliancePolicy;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Certificate;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CredibilityRank;
@@ -97,7 +96,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ApplicationNumberEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.AttributeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.BranchEmb;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CertificateEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralPolicyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralSerialEmb;
@@ -196,10 +194,6 @@ public abstract class ValueObjectMapper {
 
     @Mapping(source = "code", target = "code.value")
     public abstract Branch toBranch(BranchEmb embeddable);
-
-    public abstract CertificateEmb toCertificateEmb(Certificate certificate);
-
-    public abstract Certificate toCertificate(CertificateEmb embeddable);
 
     public abstract CollateralSerialEmb toCollateralSerialEmb(CollateralSerial collateralSerial);
 

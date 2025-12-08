@@ -130,13 +130,6 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
     })
     private ApplicationNumberEmb applicationNumber;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "loan_application_certificates",
-            joinColumns = @JoinColumn(name = "loan_application_id"),
-            indexes = @Index(name = "idx_trade_loan_application_certificate", columnList = "loan_application_id"))
-    private Set<CertificateEmb> certificates = new HashSet<>();
-
     @Enumerated(EnumType.STRING)
     @Column(name = "disbursement_method")
     private DisbursementMethod disbursementMethod;

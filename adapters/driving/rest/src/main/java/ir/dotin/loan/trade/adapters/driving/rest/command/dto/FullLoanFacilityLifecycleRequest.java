@@ -33,7 +33,6 @@ public record FullLoanFacilityLifecycleRequest(
             RequestReasonDto requestReason,
             String subSourceCode,
             String description,
-            Set<CertificateDto> certificates,
             String applicationNumber,
             DisbursementMethod disbursementMethod,
             String credibilityRank) {}
@@ -43,8 +42,6 @@ public record FullLoanFacilityLifecycleRequest(
     public record DisburseDestinationDto(DisburseDestinationType type, String depositNumber) {}
 
     public record RequestReasonDto(String code) {}
-
-    public record CertificateDto(String type, String value) {}
 
     public record InstallmentSchedulePlanDto(List<InstallmentSpecDto> installments) {}
 
