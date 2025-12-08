@@ -38,7 +38,7 @@ public class FcbErrorCodeMapper {
         return Notification.ofError(messageCode, mappedArgs);
     }
 
-    private Object[] extractContextArgsByKeys(FcbContext context, Set<String> contextKeys) {
+    private Object[] extractContextArgsByKeys(FcbContext context, List<String> contextKeys) {
         if (contextKeys == null || contextKeys.isEmpty()) {
             return context.toObjectArray();
         }

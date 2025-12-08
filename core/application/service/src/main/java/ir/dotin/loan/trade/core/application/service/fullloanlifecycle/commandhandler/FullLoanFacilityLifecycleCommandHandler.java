@@ -43,6 +43,7 @@ public class FullLoanFacilityLifecycleCommandHandler implements CommandHandler<F
                 command.transactionMetadata().branchCode(),
                 transactionConfig,
                 disbursementMethod,
+                null,
                 command.uid());
 
         SagaResult<FullLoanFacilityLifecycleSagaData> sagaResult = sagaOrchestrator.executeSaga(

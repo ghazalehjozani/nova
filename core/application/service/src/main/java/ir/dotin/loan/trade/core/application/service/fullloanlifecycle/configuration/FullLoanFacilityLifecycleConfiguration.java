@@ -7,5 +7,5 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 public record FullLoanFacilityLifecycleConfiguration(
         @DefaultValue("Contract Issue - Facility: %s") String contractPostTitleTemplate,
         @DefaultValue("Disbursement %s - Facility: %s") String disbursementPostTitleTemplate,
-        @DefaultValue("300000") long defaultTimeoutMs,
+        @DefaultValue("3000000") long defaultTimeoutMs,
         @DefaultValue("3") int maxRetries) {}

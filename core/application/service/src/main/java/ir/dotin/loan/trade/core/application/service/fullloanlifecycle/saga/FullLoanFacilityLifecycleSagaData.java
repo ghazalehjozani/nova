@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.core.application.service.fullloanlifecycle.saga;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +20,7 @@ public record FullLoanFacilityLifecycleSagaData(
         String branchCode,
         TransactionConfig transactionConfig,
         DisbursementMethod disbursementMethod,
+        LocalDate disbursementDate,
         UUID correlationId,
         @Nullable UUID facilityId,
         @Nullable UUID sanctionedLoanId,
@@ -36,6 +38,7 @@ public record FullLoanFacilityLifecycleSagaData(
             String branchCode,
             TransactionConfig transactionConfig,
             DisbursementMethod disbursementMethod,
+            LocalDate disbursementDate,
             UUID correlationId) {
         return new FullLoanFacilityLifecycleSagaData(
                 originationCommand,
@@ -43,6 +46,7 @@ public record FullLoanFacilityLifecycleSagaData(
                 branchCode,
                 transactionConfig,
                 disbursementMethod,
+                disbursementDate,
                 correlationId,
                 null,
                 null,
@@ -58,6 +62,7 @@ public record FullLoanFacilityLifecycleSagaData(
                 branchCode,
                 transactionConfig,
                 disbursementMethod,
+                disbursementDate,
                 correlationId,
                 facilityId,
                 sanctionedLoanId,
@@ -73,6 +78,7 @@ public record FullLoanFacilityLifecycleSagaData(
                 branchCode,
                 transactionConfig,
                 disbursementMethod,
+                disbursementDate,
                 correlationId,
                 facilityId,
                 sanctionedLoanId,
@@ -88,6 +94,7 @@ public record FullLoanFacilityLifecycleSagaData(
                 branchCode,
                 transactionConfig,
                 disbursementMethod,
+                disbursementDate,
                 correlationId,
                 facilityId,
                 sanctionedLoanId,
@@ -103,6 +110,7 @@ public record FullLoanFacilityLifecycleSagaData(
                 branchCode,
                 transactionConfig,
                 disbursementMethod,
+                disbursementDate,
                 correlationId,
                 facilityId,
                 sanctionedLoanId,
@@ -121,6 +129,7 @@ public record FullLoanFacilityLifecycleSagaData(
                 branchCode,
                 transactionConfig,
                 disbursementMethod,
+                disbursementDate,
                 correlationId,
                 facilityId,
                 sanctionedLoanId,
