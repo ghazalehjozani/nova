@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
 
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 
 import static java.util.Objects.requireNonNull;
@@ -28,7 +29,7 @@ public record TradeLoanFacilityCreated(
     public static class Builder {
         private final Clock clock;
         private UUID facilityId;
-        private String applicationNumber;
+        private ApplicationNumber applicationNumber;
         private Instant occurredAt;
 
         public Builder(Clock clock) {
@@ -40,7 +41,7 @@ public record TradeLoanFacilityCreated(
             return this;
         }
 
-        public Builder applicationNumber(String applicationNumber) {
+        public Builder applicationNumber(ApplicationNumber applicationNumber) {
             this.applicationNumber = applicationNumber;
             return this;
         }
@@ -55,17 +56,17 @@ public record TradeLoanFacilityCreated(
                     UUID.randomUUID(),
                     facilityId,
                     TradeLoanFacilityEventType.CREATED.getFullType(),
-                    applicationNumber,
+                    applicationNumber.formattedApplicationNumber(),
                     occurredAt != null ? occurredAt : clock.instant());
         }
     }
 
-    public static TradeLoanFacilityCreated of(LoanFacilityId id, String applicationNumber, Clock clock) {
+    public static TradeLoanFacilityCreated of(LoanFacilityId id, ApplicationNumber applicationNumber, Clock clock) {
         return new TradeLoanFacilityCreated(
                 randomUUID(),
                 id.value(),
                 TradeLoanFacilityEventType.CREATED.getFullType(),
-                applicationNumber,
+                applicationNumber.formattedApplicationNumber(),
                 clock.instant());
     }
 }

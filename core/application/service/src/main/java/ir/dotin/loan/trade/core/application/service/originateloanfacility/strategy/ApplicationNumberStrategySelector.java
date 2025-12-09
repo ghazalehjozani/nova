@@ -15,22 +15,22 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class ApplicationNumberStrategySelector {
 
-    private final Map<ApplicationNumberGenerationType, ApplicationNumberStrategy> strategies;
+    private final Map<ApplicationNumberGenerationType, ApplicationNumberGenerationStrategy> strategies;
     private final TradeApplicationNumberConfiguration configuration;
 
     public ApplicationNumberStrategySelector(
-            List<ApplicationNumberStrategy> strategyList, TradeApplicationNumberConfiguration configuration) {
+            List<ApplicationNumberGenerationStrategy> strategyList, TradeApplicationNumberConfiguration configuration) {
 
         this.strategies = strategyList.stream()
-                .collect(Collectors.toMap(ApplicationNumberStrategy::getType, Function.identity()));
+                .collect(Collectors.toMap(ApplicationNumberGenerationStrategy::getType, Function.identity()));
 
         this.configuration = configuration;
     }
 
-    public ApplicationNumberStrategy selectStrategy() {
+    public ApplicationNumberGenerationStrategy selectStrategy() {
         ApplicationNumberGenerationType type = configuration.generationType();
 
-        ApplicationNumberStrategy strategy = strategies.get(type);
+        ApplicationNumberGenerationStrategy strategy = strategies.get(type);
 
         if (strategy == null) {
             strategy = strategies.get(ApplicationNumberGenerationType.FCB_VALIDATION);
@@ -39,8 +39,8 @@ public class ApplicationNumberStrategySelector {
         return strategy;
     }
 
-    public ApplicationNumberStrategy selectStrategy(ApplicationNumberGenerationType type) {
-        ApplicationNumberStrategy strategy = strategies.get(type);
+    public ApplicationNumberGenerationStrategy selectStrategy(ApplicationNumberGenerationType type) {
+        ApplicationNumberGenerationStrategy strategy = strategies.get(type);
 
         if (strategy == null) {
             throw new IllegalArgumentException("No strategy found for type: " + type);

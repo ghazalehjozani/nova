@@ -72,6 +72,7 @@ public record FullLoanFacilityLifecycleCommand(
             @Nullable @Pattern(regexp = "^\\d+-\\d+-\\d+-\\d+$")
             String applicationNumber,
 
+            @Nullable SamatDto samatDto,
             @Valid @Nullable CredibilityRankDto credibilityRank) {}
 
     @Builder(toBuilder = true)

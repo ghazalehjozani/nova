@@ -8,8 +8,8 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
 
@@ -19,42 +19,36 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ValidationApplicationNumberStrategy implements ApplicationNumberStrategy {
+public class InternalApplicationNumberGenerationStrategy implements ApplicationNumberGenerationStrategy {
 
-    private final LoanServicePort loanServicePort;
+    private final TradeLoanFacilityRepository loanFacilityRepository;
     private final TradeLoanFacilityRepository facilityRepository;
 
     @Override
     public @NonNull Result<ApplicationNumber> generateApplicationNumber(
             @NonNull Branch branch, @NonNull LoanTypeCode loanTypeCode, @NonNull Party primaryApplicant) {
+        String derivedValue = String.valueOf(
+                generateApplicationSequence(branch.code(), loanTypeCode, primaryApplicant.customerNumber()));
+        ApplicationNumber applicationNumber =
+                new ApplicationNumber(branch, loanTypeCode, primaryApplicant, derivedValue);
 
-        Result<ApplicationNumber> fcbResult =
-                loanServicePort.getApplicationNumber(branch, loanTypeCode, primaryApplicant);
-
-        if (fcbResult.isFailure()) {
-            return Result.failure(fcbResult.notification());
-        }
-
-        ApplicationNumber fcbApplicationNumber = fcbResult.value();
-
-        if (fcbApplicationNumber == null) {
-            return Result.failure(
-                    Notification.ofError(OriginateLoanFacilityErrorCodes.APPLICATION_NUMBER_CREATION_FAILED));
-        }
-
-        boolean exists = facilityRepository.existsByApplicationNumber(fcbApplicationNumber);
+        boolean exists = facilityRepository.existsByApplicationNumber(applicationNumber);
 
         if (exists) {
             return Result.failure(Notification.ofError(
                     OriginateLoanFacilityErrorCodes.DUPLICATE_APPLICATION_NUMBER,
-                    fcbApplicationNumber.formattedApplicationNumber()));
+                    applicationNumber.formattedApplicationNumber()));
         }
-
-        return Result.success(fcbApplicationNumber);
+        return Result.success(applicationNumber);
     }
 
     @Override
     public @NonNull ApplicationNumberGenerationType getType() {
-        return ApplicationNumberGenerationType.FCB_VALIDATION;
+        return ApplicationNumberGenerationType.INTERNAL_GENERATION;
+    }
+
+    private Long generateApplicationSequence(BranchCode branchCode, LoanTypeCode loanTypeCode, String customerNumber) {
+        return loanFacilityRepository.countByBranchCodeAndLoanTypeCodeAndCustomerNumber(
+                branchCode, loanTypeCode, customerNumber);
     }
 }

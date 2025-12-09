@@ -113,6 +113,9 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
     private CredibilityRankEmb credibilityRank;
 
     @Embedded
+    private SamatEmb samat;
+
+    @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "branch.code", column = @Column(name = "application_branch_code", nullable = false)),
         @AttributeOverride(

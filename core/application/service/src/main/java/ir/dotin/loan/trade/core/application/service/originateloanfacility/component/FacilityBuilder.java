@@ -13,15 +13,17 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Samat;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.SamatDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.mapper.OriginateLoanFacilityApplicationMapper;
-import ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy.ApplicationNumberStrategy;
+import ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy.ApplicationNumberGenerationStrategy;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy.ApplicationNumberStrategySelector;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy.FacilityOriginationContext;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
@@ -90,7 +92,7 @@ public class FacilityBuilder {
         Set<Party> enrichedParties =
                 context.partyInfos().stream().map(PartyInfo::party).collect(Collectors.toSet());
 
-        ApplicationNumberStrategy strategy = applicationNumberStrategySelector.selectStrategy();
+        ApplicationNumberGenerationStrategy strategy = applicationNumberStrategySelector.selectStrategy();
 
         Result<ApplicationNumber> appNumberResult =
                 strategy.generateApplicationNumber(branch, loanTypeCode, primaryApplicant);
@@ -110,6 +112,15 @@ public class FacilityBuilder {
                 .parties(enrichedParties)
                 .applicationNumber(appNumberResult.getValue())
                 .branch(branch);
+
+        SamatDto samatDto = command.loanApplication().samat();
+        if (samatDto != null) {
+            Result<Samat> samatResult = Samat.of(samatDto.trackingNumber());
+            if (samatResult.isFailure()) {
+                return Result.failure(samatResult.notification());
+            }
+            builder.samat(samatResult.getValue());
+        }
 
         return TradeLoanApplication.create(builder);
     }

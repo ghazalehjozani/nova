@@ -8,7 +8,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 
-public interface ApplicationNumberStrategy {
+public interface ApplicationNumberGenerationStrategy {
 
     @NonNull
     Result<ApplicationNumber> generateApplicationNumber(

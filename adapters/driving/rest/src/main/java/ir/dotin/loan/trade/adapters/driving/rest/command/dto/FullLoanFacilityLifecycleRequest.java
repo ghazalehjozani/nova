@@ -36,7 +36,10 @@ public record FullLoanFacilityLifecycleRequest(
             String description,
             String applicationNumber,
             DisbursementMethod disbursementMethod,
+            SamatDto samat,
             String credibilityRank) {}
+
+    public record SamatDto(Integer trackingNumber) {}
 
     public record PartyDto(String customerNumber, PartyRole role) {}
 

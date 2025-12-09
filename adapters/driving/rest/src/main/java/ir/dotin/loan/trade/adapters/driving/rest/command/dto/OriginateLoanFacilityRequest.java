@@ -74,7 +74,15 @@ public record OriginateLoanFacilityRequest(
             String applicationNumber,
 
             @Schema(description = "مقدار رتبه اعتباری", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-            String credibilityRank) {}
+            String credibilityRank,
+
+            @Schema(description = "اطلاعات مربوط به سمات", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+            SamatDto samat) {}
+
+    @Schema(name = "SamatDto", description = "اطلاعات مربوط به سمات")
+    public record SamatDto(
+            @Schema(description = "شماره پیگیری سمات", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+            String trackingNumber) {}
 
     @Schema(name = "PartyDto", description = "اطلاعات ذینفع")
     public record PartyDto(

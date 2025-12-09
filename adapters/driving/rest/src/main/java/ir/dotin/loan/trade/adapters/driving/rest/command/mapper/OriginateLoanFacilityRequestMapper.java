@@ -31,6 +31,7 @@ public interface OriginateLoanFacilityRequestMapper {
     @Mapping(target = "loanApplication.economicSector", source = "loanApplication.economicSectorCode")
     @Mapping(target = "loanApplication.requestReason", source = "loanApplication.requestReasonCode")
     @Mapping(target = "loanApplication.subSource", source = "loanApplication.subSourceCode")
+    @Mapping(target = "loanApplication.samat", source = "loanApplication.samat")
     OriginateLoanFacilityCommand toCommand(OriginateLoanFacilityRequest request);
 
     default AmountDto mapAmount(BigDecimal value) {

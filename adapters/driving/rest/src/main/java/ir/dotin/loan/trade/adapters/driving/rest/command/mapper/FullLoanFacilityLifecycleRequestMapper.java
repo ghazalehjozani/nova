@@ -43,6 +43,7 @@ public interface FullLoanFacilityLifecycleRequestMapper {
             qualifiedByName = "mapMonthsToPeriod")
     @Mapping(target = "gracePeriod.value", source = "gracePeriodDays", qualifiedByName = "mapDaysToPeriod")
     @Mapping(target = "installmentCount.value", source = "installmentCount")
+    @Mapping(target = "samatDto", source = "samat")
     FullLoanFacilityLifecycleCommand.LoanApplicationDto toLoanApplicationDto(
             FullLoanFacilityLifecycleRequest.LoanApplicationDto dto);
 
