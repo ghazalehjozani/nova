@@ -169,7 +169,7 @@ platform:
     query-cache: false
   dispatcher:
     command:
-      sync-timeout: 60s
+      sync-timeout: 120s
       shutdown-timeout: 60s
       middleware-enabled: true
       idempotency:
