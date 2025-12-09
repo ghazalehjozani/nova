@@ -7,6 +7,7 @@ public enum FullLoanFacilityLifecycleStep implements SagaStepId {
     ORIGINATE_FACILITY("originate-facility"),
     SUBMIT_FOR_APPROVAL("submit-for-approval"),
     APPROVE_FACILITY("approve-facility"),
+    ADD_COLLATERALS("add-collaterals"),
     ISSUE_CONTRACT("issue-contract"),
     EXECUTE_DISBURSEMENT("execute-disbursement");
 

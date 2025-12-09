@@ -26,13 +26,16 @@ import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.AddFacilityCollateralCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.ApproveFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateApprovalCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateApprovalSubmissionCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateCollateralCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateContractIssuanceCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateIrregularDisbursementCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateLumpSumDisbursementCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateOriginationCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLoanFacilityLifecycleCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.IrregularProgressiveDisbursementCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.IssueFacilityContractCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.LumpSumDisbursementCommand;
@@ -42,6 +45,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.Tr
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanTypeRepository;
 import ir.dotin.loan.trade.core.application.service.fullloanlifecycle.i18n.FullLoanFacilityLifecycleErrorCodes;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityApproved;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCollateralAdded;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCreated;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityIrregularTrancheDisbursed;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityLumpSumDisbursed;
@@ -87,6 +91,11 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                                 this::compensateApproval)
                         .withNoRetry(),
                 SagaSteps.step(
+                                FullLoanFacilityLifecycleStep.ADD_COLLATERALS,
+                                this::addCollaterals,
+                                this::compensateCollaterals)
+                        .withNoRetry(),
+                SagaSteps.step(
                                 FullLoanFacilityLifecycleStep.ISSUE_CONTRACT,
                                 this::issueContract,
                                 this::compensateContractIssuance)
@@ -106,6 +115,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 instanceof
                 FullLoanFacilityLifecycleInput(
                         OriginateLoanFacilityCommand originationCommand,
+                        List<FullLoanFacilityLifecycleCommand.CollateralDto> collaterals,
                         BigDecimal trancheAmount,
                         String branchCode,
                         TransactionConfig transactionConfig,
@@ -116,6 +126,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
         }
         return FullLoanFacilityLifecycleSagaData.initial(
                 originationCommand,
+                collaterals,
                 trancheAmount,
                 branchCode,
                 transactionConfig,
@@ -502,5 +513,78 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 .findFirst()
                 .ifPresent(e -> ctx.updateSagaData(d -> d.withPreviousInstallmentScheduleId(d.installmentScheduleId())
                         .withInstallmentScheduleId(e.installmentScheduleId())));
+    }
+
+    private StepResult<Void> addCollaterals(SagaContext<FullLoanFacilityLifecycleSagaData> ctx) {
+        var data = ctx.getSagaData();
+
+        if (data.collaterals() == null || data.collaterals().isEmpty()) {
+            return new StepResult.Success<>(null);
+        }
+
+        List<AddFacilityCollateralCommand.CollateralDto> collateralDtos = data.collaterals().stream()
+                .map(c -> AddFacilityCollateralCommand.CollateralDto.builder()
+                        .collateralTypeCode(c.collateralTypeCode())
+                        .percent(c.percent())
+                        .description(c.description())
+                        .collateralSerial(c.collateralSerial())
+                        .usedAmount(new AddFacilityCollateralCommand.MoneyDto(
+                                c.usedAmount().value(), c.usedAmount().currency()))
+                        .build())
+                .toList();
+
+        var command = AddFacilityCollateralCommand.builder()
+                .uid(data.correlationId())
+                .version(4L)
+                .loanFacilityId(data.facilityId())
+                .collaterals(collateralDtos)
+                .build();
+
+        ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
+
+        return switch (result) {
+            case ExecutionResult.Fresh<List<DomainEvent<?>>> fresh -> {
+                var events = fresh.payload();
+
+                extractAddedCollateralSerials(events)
+                        .ifPresent(serials -> ctx.updateSagaData(
+                                d -> d.withAddedCollateralSerials(serials).addDomainEvents(events)));
+                yield new StepResult.Success<>(null);
+            }
+            case ExecutionResult.Replayed<List<DomainEvent<?>>> replayed -> {
+                ctx.updateSagaData(d -> d.addDomainEvents(replayed.payload()));
+                yield new StepResult.Success<>(null);
+            }
+            case ExecutionResult.BusinessFailure<List<DomainEvent<?>>> failure ->
+                new StepResult.Failure<>(new StepError.BusinessRuleError(failure.notification()));
+        };
+    }
+
+    private StepResult<Void> compensateCollaterals(SagaContext<FullLoanFacilityLifecycleSagaData> ctx, Void ignored) {
+
+        var data = ctx.getSagaData();
+
+        if (data.addedCollateralSerials() == null
+                || data.addedCollateralSerials().isEmpty()) {
+            return new StepResult.Success<>(null);
+        }
+
+        log.warn("Compensating collateral addition for facility: {}", data.facilityId());
+
+        var command = CompensateCollateralCommand.builder()
+                .uid(data.correlationId())
+                .version(5L)
+                .loanFacilityId(data.facilityId())
+                .collateralSerials(data.addedCollateralSerials())
+                .build();
+
+        return dispatchCompensation(command);
+    }
+
+    private Optional<List<String>> extractAddedCollateralSerials(List<DomainEvent<?>> events) {
+        return events.stream()
+                .filter(TradeLoanFacilityCollateralAdded.class::isInstance)
+                .map(e -> ((TradeLoanFacilityCollateralAdded) e).collateralSerials())
+                .findFirst();
     }
 }

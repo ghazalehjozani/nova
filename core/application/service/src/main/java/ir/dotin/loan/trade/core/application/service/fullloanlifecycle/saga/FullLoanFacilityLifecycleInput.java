@@ -2,15 +2,18 @@ package ir.dotin.loan.trade.core.application.service.fullloanlifecycle.saga;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import ir.dotin.platform.saga.api.definition.SagaInput;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLoanFacilityLifecycleCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 
 public record FullLoanFacilityLifecycleInput(
         OriginateLoanFacilityCommand originationCommand,
+        List<FullLoanFacilityLifecycleCommand.CollateralDto> collaterals,
         BigDecimal trancheAmount,
         String branchCode,
         TransactionConfig transactionConfig,
@@ -21,6 +24,7 @@ public record FullLoanFacilityLifecycleInput(
 
     public static FullLoanFacilityLifecycleInput of(
             OriginateLoanFacilityCommand originationCommand,
+            List<FullLoanFacilityLifecycleCommand.CollateralDto> collaterals,
             BigDecimal trancheAmount,
             String branchCode,
             TransactionConfig transactionConfig,
@@ -29,6 +33,7 @@ public record FullLoanFacilityLifecycleInput(
             UUID correlationId) {
         return new FullLoanFacilityLifecycleInput(
                 originationCommand,
+                collaterals,
                 trancheAmount,
                 branchCode,
                 transactionConfig,

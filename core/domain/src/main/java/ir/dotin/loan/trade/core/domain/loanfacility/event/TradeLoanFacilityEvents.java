@@ -22,7 +22,8 @@ public sealed interface TradeLoanFacilityEvents<T extends Record & TradeLoanFaci
                 TradeLoanFacilityApprovalSubmissionReverted,
                 TradeLoanFacilityApprovalReverted,
                 TradeLoanFacilityDisbursementReverted,
-                TradeLoanFacilityIrregularTrancheDisbursementReverted {
+                TradeLoanFacilityIrregularTrancheDisbursementReverted,
+                TradeLoanFacilityAddCollateralReverted {
 
     @Override
     default Class<TradeLoanFacility> aggregateType() {

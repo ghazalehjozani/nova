@@ -78,21 +78,21 @@ public class IrregularProgressiveDisbursementTransactionService {
                 .reduce((money, other) -> money.add(other).getValue())
                 .orElseGet(() -> Money.zero(currentSchedule.getCurrency()).getValue());
 
-        if (firstDisbursement) {
-            Money currentTotalInterest = currentSchedule.getInstallments().stream()
-                    .map(installment -> installment.getScheduledAmount().interestAmount())
-                    .reduce((money, other) -> money.add(other).getValue())
-                    .orElseGet(() -> Money.zero(currentSchedule.getCurrency()).getValue());
-            Money incrementalInterest =
-                    newTotalInterest.subtract(currentTotalInterest).orElseThrow();
-            if (incrementalInterest.isNegative()) {
-                return Result.failure(Notification.ofError(
-                        TradeLoanFacilityLocalizedMessageCodes.INCREMENTAL_INTEREST_CANNOT_BE_NEGATIVE,
-                        newTotalInterest,
-                        currentTotalInterest));
-            }
-            Result.success(incrementalInterest);
-        }
+        //        if (firstDisbursement) {
+        //            Money currentTotalInterest = currentSchedule.getInstallments().stream()
+        //                    .map(installment -> installment.getScheduledAmount().interestAmount())
+        //                    .reduce((money, other) -> money.add(other).getValue())
+        //                    .orElseGet(() -> Money.zero(currentSchedule.getCurrency()).getValue());
+        //            Money incrementalInterest =
+        //                    newTotalInterest.subtract(currentTotalInterest).orElseThrow();
+        //            if (incrementalInterest.isNegative()) {
+        //                return Result.failure(Notification.ofError(
+        //                        TradeLoanFacilityLocalizedMessageCodes.INCREMENTAL_INTEREST_CANNOT_BE_NEGATIVE,
+        //                        newTotalInterest,
+        //                        currentTotalInterest));
+        //            }
+        //            Result.success(incrementalInterest);
+        //        }
 
         return Result.success(newTotalInterest);
     }

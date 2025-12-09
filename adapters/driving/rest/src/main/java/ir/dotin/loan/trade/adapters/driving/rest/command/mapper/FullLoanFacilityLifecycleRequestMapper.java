@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.UUID;
 
 import org.mapstruct.AfterMapping;
@@ -33,6 +34,7 @@ public interface FullLoanFacilityLifecycleRequestMapper {
 
     @Mapping(target = "uid", ignore = true)
     @Mapping(target = "transactionMetadata", ignore = true)
+    @Mapping(target = "collaterals", source = "collaterals", qualifiedByName = "mapCollateralsList")
     FullLoanFacilityLifecycleCommand toCommand(FullLoanFacilityLifecycleRequest request);
 
     @Mapping(target = "economicSector.code", source = "economicSectorCode")
@@ -109,4 +111,18 @@ public interface FullLoanFacilityLifecycleRequestMapper {
     default FullLoanFacilityLifecycleCommand.CredibilityRankDto mapCredibilityRank(String value) {
         return value != null ? new FullLoanFacilityLifecycleCommand.CredibilityRankDto(value) : null;
     }
+
+    @Named("mapCollateralsList")
+    default List<FullLoanFacilityLifecycleCommand.CollateralDto> mapCollateralsList(
+            List<FullLoanFacilityLifecycleRequest.CollateralDto> collaterals) {
+        if (collaterals == null || collaterals.isEmpty()) {
+            return List.of();
+        }
+        return collaterals.stream().map(this::mapCollateral).toList();
+    }
+
+    @Mapping(target = "usedAmount", source = "usedAmount")
+    FullLoanFacilityLifecycleCommand.CollateralDto mapCollateral(FullLoanFacilityLifecycleRequest.CollateralDto dto);
+
+    FullLoanFacilityLifecycleCommand.MoneyDto mapMoneyDto(FullLoanFacilityLifecycleRequest.MoneyDto dto);
 }

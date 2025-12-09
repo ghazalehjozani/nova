@@ -40,6 +40,7 @@ public class FullLoanFacilityLifecycleCommandHandler implements CommandHandler<F
 
         var input = FullLoanFacilityLifecycleInput.of(
                 originationCommand,
+                command.collaterals(),
                 command.disbursement().trancheAmount().value(),
                 command.transactionMetadata().branchCode(),
                 transactionConfig,
