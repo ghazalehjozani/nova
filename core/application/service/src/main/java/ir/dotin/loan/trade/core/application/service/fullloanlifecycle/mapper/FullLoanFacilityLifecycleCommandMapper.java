@@ -47,6 +47,7 @@ public interface FullLoanFacilityLifecycleCommandMapper {
                 .applicationNumber(app.applicationNumber())
                 .disbursementMethod(app.disbursementMethod())
                 .credibilityRank(toOriginationCredibilityRank(app.credibilityRank()))
+                .samat(app.samatDto())
                 .build();
     }
 

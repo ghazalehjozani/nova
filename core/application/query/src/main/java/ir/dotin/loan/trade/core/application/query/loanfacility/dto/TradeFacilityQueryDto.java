@@ -59,7 +59,8 @@ public record TradeFacilityQueryDto(
             String description,
             String credibilityRank,
             String applicationNumber,
-            DisbursementMethod disbursementMethod)
+            DisbursementMethod disbursementMethod,
+            SamatDto samat)
             implements Serializable {
         public record PartyEmbDto(
                 String customerNumber, PartyType partyType, PartyRole partyRole, String firstName, String lastName)
@@ -102,4 +103,6 @@ public record TradeFacilityQueryDto(
             BigDecimal usedAmount,
             String usedAmountCurrency)
             implements Serializable {}
+
+    public record SamatDto(String trackingNumber) implements Serializable {}
 }

@@ -65,6 +65,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.RequestReason;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.RevocationReason;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Samat;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.EconomicSectorCurrency;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanApplicationStatus;
@@ -126,6 +127,7 @@ import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RequestReason
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RespiteSerialEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RestructuringRecordEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RevocationReasonEmb;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.SamatEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.SanctionSerialEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ScheduleHistoryEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.SubSourceEmb;
@@ -845,6 +847,13 @@ public abstract class ValueObjectMapper {
     public Set<LoanArrangementId> mapUUIDsToLoanArrangementIds(Set<UUID> value) {
         return value != null ? value.stream().map(this::mapToLoanArrangementId).collect(Collectors.toSet()) : null;
     }
+
+    public SamatEmb mapSamat(Optional<Samat> value) {
+        return value.map(this::toSamatEmb).orElse(null);
+    }
+
+    @Mapping(target = "trackingNumber", source = "trackingNumber")
+    public abstract SamatEmb toSamatEmb(Samat samat);
 
     // EconomicSectorCurrency set mappings
     public Set<EconomicSectorCurrencyEmb> mapEconomicSectorCurrenciesToEmbs(Set<EconomicSectorCurrency> value) {
