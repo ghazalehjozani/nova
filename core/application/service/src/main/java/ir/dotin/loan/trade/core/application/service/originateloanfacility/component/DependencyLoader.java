@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.core.application.service.originateloanfacility.component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -8,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 import jakarta.validation.constraints.NotNull;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.commons.core.Notification;
@@ -16,6 +18,7 @@ import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.PartyDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.customerservice.CustomerServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CustomerInfoLoadOptions;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
@@ -50,8 +53,14 @@ public class DependencyLoader {
                 CompletableFuture.supplyAsync(() -> safeLoadLoanType(command.loanTypeCode()), VIRTUAL_EXECUTOR);
 
         var partyFutures = command.loanApplication().parties().stream()
-                .map(party -> CompletableFuture.supplyAsync(
-                        () -> loadCustomerInfo(party.customerNumber(), party.role()), VIRTUAL_EXECUTOR))
+                .map(partyDto -> CompletableFuture.supplyAsync(
+                        () -> {
+                            BigDecimal percentage = partyDto instanceof PartyDto.GuarantorDto guarantor
+                                    ? guarantor.guaranteePercentage()
+                                    : null;
+                            return loadCustomerInfo(partyDto.customerNumber(), partyDto.role(), percentage);
+                        },
+                        VIRTUAL_EXECUTOR))
                 .toList();
 
         CompletableFuture.allOf(Stream.concat(Stream.of(arrangementFuture, loanTypeFuture), partyFutures.stream())
@@ -97,8 +106,10 @@ public class DependencyLoader {
         }
     }
 
-    private Result<PartyInfo> loadCustomerInfo(String customerNumber, @NotNull PartyRole role) {
-        return customerServicePort.loadCustomerInfo(customerNumber, role, CustomerInfoLoadOptions.baseInfoOnly());
+    private Result<PartyInfo> loadCustomerInfo(
+            String customerNumber, @NotNull PartyRole role, @Nullable BigDecimal guaranteePercentage) {
+        return customerServicePort.loadCustomerInfo(
+                customerNumber, role, guaranteePercentage, CustomerInfoLoadOptions.baseInfoOnly());
     }
 
     private Result<List<PartyInfo>> aggregatePartyResults(List<CompletableFuture<Result<PartyInfo>>> futures) {

@@ -91,10 +91,16 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.ApplicantParty;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CoApplicantParty;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuaranteePercentage;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuarantorParty;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ApplicationNumberEmb;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ApplicationPartyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.AttributeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.BranchEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralEmb;
@@ -401,17 +407,58 @@ public abstract class ValueObjectMapper {
 
     public abstract RevocationReason toRevocationReason(RevocationReasonEmb embeddable);
 
-    @Mapping(source = "partyType", target = "partyType")
-    @Mapping(source = "partyRole", target = "partyRole")
-    @Mapping(source = "name.firstName", target = "firstName")
-    @Mapping(source = "name.lastName", target = "lastName")
-    public abstract PartyEmb toPartyEmb(Party party);
+    public PartyEmb toPartyEmb(Party party) {
+        PartyEmb emb = new PartyEmb();
+        emb.setCustomerNumber(party.customerNumber());
+        emb.setPartyType(party.partyType());
+        emb.setPartyRole(party.partyRole());
+        emb.setFirstName(party.name().firstName());
+        emb.setLastName(party.name().lastName());
 
-    @Mapping(source = "partyType", target = "partyType")
-    @Mapping(source = "partyRole", target = "partyRole")
-    @Mapping(source = "firstName", target = "name.firstName")
-    @Mapping(source = "lastName", target = "name.lastName")
-    public abstract Party toParty(PartyEmb embeddable);
+        if (party instanceof GuarantorParty guarantor) {
+            emb.setGuaranteePercentage(guarantor.guaranteePercentage().value());
+        }
+
+        return emb;
+    }
+
+    public Party toParty(PartyEmb emb) {
+        PersonName name = new PersonName(emb.getFirstName(), emb.getLastName());
+
+        return switch (emb.getPartyRole()) {
+            case PRIMARY_APPLICANT -> new ApplicantParty(emb.getCustomerNumber(), emb.getPartyType(), name);
+            case CO_APPLICANT -> new CoApplicantParty(emb.getCustomerNumber(), emb.getPartyType(), name);
+            case GUARANTOR ->
+                GuarantorParty.of(
+                                emb.getCustomerNumber(),
+                                emb.getPartyType(),
+                                name,
+                                emb.getGuaranteePercentage() != null
+                                        ? GuaranteePercentage.of(emb.getGuaranteePercentage())
+                                        : null)
+                        .orElseThrow();
+        };
+    }
+
+    public ApplicationPartyEmb toApplicationPartyEmb(Party party) {
+        ApplicationPartyEmb emb = new ApplicationPartyEmb();
+        emb.setCustomerNumber(party.customerNumber());
+        emb.setPartyType(party.partyType());
+        emb.setPartyRole(party.partyRole());
+        emb.setFirstName(party.name().firstName());
+        emb.setLastName(party.name().lastName());
+        return emb;
+    }
+
+    public Party toParty(ApplicationPartyEmb emb) {
+        PersonName name = new PersonName(emb.getFirstName(), emb.getLastName());
+
+        return switch (emb.getPartyRole()) {
+            case PRIMARY_APPLICANT -> new ApplicantParty(emb.getCustomerNumber(), emb.getPartyType(), name);
+            case CO_APPLICANT, GUARANTOR ->
+                throw new UnsupportedOperationException("Application number should use primary applicant!");
+        };
+    }
 
     public abstract CollateralTypeEmb toCollateralTypeEmb(CollateralType collateralType);
 

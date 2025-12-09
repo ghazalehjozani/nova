@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import jakarta.validation.constraints.NotNull;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.NationalCode;
@@ -13,6 +15,10 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.Direction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.ApplicantParty;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CoApplicantParty;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuaranteePercentage;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuarantorParty;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
@@ -95,14 +101,28 @@ public class CustomerMapper {
         return loanTransaction.document().description();
     }
 
-    public Result<PartyInfo> mapToDomainCustomerInfo(CustomerInfoResponse fcbResponse, @NotNull PartyRole role) {
-
+    public Result<PartyInfo> mapToDomainCustomerInfo(
+            CustomerInfoResponse fcbResponse, @NotNull PartyRole role, @Nullable BigDecimal guaranteePercentage) {
         String firstName = fcbResponse.getFirstName();
         String lastName = fcbResponse.getLastName();
-
         PersonName personName = new PersonName(firstName, lastName);
         PartyType partyType = fcbResponse.getReal() ? PartyType.REAL : PartyType.LEGAL;
-        Party party = new Party(String.valueOf(fcbResponse.getCustomerNumber()), partyType, role, personName);
+        String customerNumber = String.valueOf(fcbResponse.getCustomerNumber());
+
+        Party party =
+                switch (role) {
+                    case PRIMARY_APPLICANT -> new ApplicantParty(customerNumber, partyType, personName);
+                    case CO_APPLICANT -> new CoApplicantParty(customerNumber, partyType, personName);
+                    case GUARANTOR ->
+                        GuarantorParty.of(
+                                        customerNumber,
+                                        partyType,
+                                        personName,
+                                        guaranteePercentage != null
+                                                ? GuaranteePercentage.of(guaranteePercentage)
+                                                : null)
+                                .orElseThrow();
+                };
         Result<NationalCode> nationalCode = NationalCode.valueOf(fcbResponse.getNationalCode());
 
         if (fcbResponse.getCustomerNumber() == null) {
@@ -143,7 +163,8 @@ public class CustomerMapper {
             if (true) {
                 throw new UnsupportedOperationException("Not supported yet, Handle PartyRole");
             }
-            Result<PartyInfo> customerResult = mapToDomainCustomerInfo(customerResponse, PartyRole.PRIMARY_APPLICANT);
+            Result<PartyInfo> customerResult =
+                    mapToDomainCustomerInfo(customerResponse, PartyRole.PRIMARY_APPLICANT, null);
 
             if (customerResult.isFailure()) {
                 log.error(

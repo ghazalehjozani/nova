@@ -18,7 +18,7 @@ public record TradeInstallmentScheduleQueryDto(
         List<InstallmentEntityDto> installments,
         ScheduleHistoryEmbDto scheduleHistory,
         UUID loanFacilityId,
-        BigDecimal totalLoanAmountAmount,
+        BigDecimal totalLoanAmount,
         String currency,
         InstallmentScheduleType scheduleType,
         InstallmentScheduleStatus status,

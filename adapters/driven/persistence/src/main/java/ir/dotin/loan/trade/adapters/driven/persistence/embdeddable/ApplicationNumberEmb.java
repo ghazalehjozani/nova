@@ -18,7 +18,7 @@ public class ApplicationNumberEmb implements Serializable {
     private LoanTypeCodeEmb loanTypeCode;
 
     @Embedded
-    private PartyEmb party;
+    private ApplicationPartyEmb party;
 
     @Column(name = "derived_value", nullable = false)
     private String derivedValue;

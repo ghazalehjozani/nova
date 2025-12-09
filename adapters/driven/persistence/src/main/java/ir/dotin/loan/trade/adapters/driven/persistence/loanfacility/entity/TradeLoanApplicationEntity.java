@@ -125,6 +125,9 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
                 name = "party.partyType",
                 column = @Column(name = "application_customer_type", nullable = false)),
         @AttributeOverride(
+                name = "party.partyRole",
+                column = @Column(name = "application_customer_role", nullable = false)),
+        @AttributeOverride(
                 name = "party.firstName",
                 column = @Column(name = "application_customer_first_name", nullable = false)),
         @AttributeOverride(

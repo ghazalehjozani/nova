@@ -26,16 +26,18 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.DisburseDestination;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.RequestReason;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.ApplicantParty;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuaranteePercentage;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuarantorParty;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
 
 import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.BDDMockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -46,19 +48,17 @@ final class TradeLoanApplicationTest {
     @Mock
     private ApplicationNumber mockApplicationNumber;
 
-    @Mock
-    private Party mockApplicant;
-
-    @Mock
-    private Party mockGuarantor;
+    private ApplicantParty mockApplicant;
+    private GuarantorParty mockGuarantor;
 
     @BeforeEach
     void setUp() {
-        // Configure mock applicant to return correct role
-        when(mockApplicant.partyRole()).thenReturn(PartyRole.PRIMARY_APPLICANT);
-        when(mockApplicant.customerNumber()).thenReturn("12345");
-        when(mockGuarantor.partyRole()).thenReturn(PartyRole.GUARANTOR);
-        when(mockGuarantor.customerNumber()).thenReturn("67890");
+        // Create real party instances
+        PersonName applicantName = new PersonName("John", "Doe");
+        mockApplicant = new ApplicantParty("12345", PartyType.REAL, applicantName);
+
+        PersonName guarantorName = new PersonName("Jane", "Smith");
+        mockGuarantor = new GuarantorParty("67890", PartyType.REAL, guarantorName, GuaranteePercentage.of(25.0));
 
         validAmount =
                 Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR).value();

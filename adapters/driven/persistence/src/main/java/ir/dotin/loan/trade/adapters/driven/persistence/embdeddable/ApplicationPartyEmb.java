@@ -1,13 +1,10 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.embdeddable;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-
-import org.jspecify.annotations.Nullable;
 
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
@@ -16,8 +13,7 @@ import lombok.Data;
 
 @Data
 @Embeddable
-public class PartyEmb implements Serializable {
-
+public class ApplicationPartyEmb implements Serializable {
     @Column(name = "customer_number", nullable = false)
     private String customerNumber;
 
@@ -34,8 +30,4 @@ public class PartyEmb implements Serializable {
 
     @Column(name = "last_name", nullable = false)
     private String lastName;
-
-    @Nullable
-    @Column(name = "guarantee_percentage", precision = 5, scale = 2)
-    private BigDecimal guaranteePercentage;
 }
