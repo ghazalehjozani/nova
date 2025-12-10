@@ -24,6 +24,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMe
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.LoanMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.BranchDetails;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorResponse;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.ReasonType;
@@ -447,6 +448,40 @@ public class LoanServiceAdapter implements LoanServicePort {
             log.info(
                     "Loan file number retrieved and mapped to ApplicationNumber: {}",
                     applicationNumber.formattedApplicationNumber());
+        }
+
+        return domainResult;
+    }
+
+    @Override
+    public Result<BranchDetails> loadBranch(BranchCode branchCode) {
+        log.info("loading branch : branchCode={}", branchCode.value());
+
+        List<Parameter> parameters = new ArrayList<>();
+
+        parameters.add(
+                Parameter.builder().key("branchCode").value(branchCode.value()).build());
+
+        Usecases usecases = requestBuilder.buildUseCase("load-branch-nova", parameters);
+        FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
+
+        log.debug("Executing FCB load-branch-nova usecase");
+
+        Result<BranchResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, BranchResponse.class, FcbContext.empty());
+
+        if (fcbResult.isFailure()) {
+            log.error("FCB load branch failed: {}", fcbResult.notification().getErrorMessages());
+            return Result.failure(fcbResult.notification());
+        }
+
+        BranchResponse fcbResponse = fcbResult.orElseThrow();
+
+        Result<BranchDetails> domainResult = LoanMapper.mapToBranchDetails(fcbResponse);
+
+        if (!domainResult.isFailure()) {
+            BranchDetails branchDetails = domainResult.orElseThrow();
+            log.info("Branch loaded successfully: code={}", branchDetails.code());
         }
 
         return domainResult;

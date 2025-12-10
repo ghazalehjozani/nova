@@ -10,6 +10,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.BranchDetails;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorResponse;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.ReasonType;
@@ -35,4 +36,6 @@ public interface LoanServicePort {
     Result<List<BranchCode>> loadCoveredBranches(BranchCode branchCode);
 
     Result<ApplicationNumber> getApplicationNumber(Branch branch, LoanTypeCode loanTypeCode, Party party);
+
+    Result<BranchDetails> loadBranch(BranchCode branchCode);
 }
