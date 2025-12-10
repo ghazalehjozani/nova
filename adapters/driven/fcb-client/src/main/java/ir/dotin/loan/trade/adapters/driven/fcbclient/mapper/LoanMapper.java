@@ -18,6 +18,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.LoanOperationType;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.*;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorResponse;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.ReasonType;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.TopicInfo;
@@ -50,6 +51,46 @@ public class LoanMapper {
             }
 
             Result<EconomicSector> economicSector = EconomicSector.of(fcbResponse.getCode());
+
+            if (economicSector.isFailure()) {
+                log.error(
+                        "Failed to create EconomicalSection: {}",
+                        economicSector.notification().getErrorMessages());
+            }
+
+            return economicSector;
+
+        } catch (Exception e) {
+            log.error("Failed to map FCB response to domain Economic Sector", e);
+            return Result.failure(Notification.ofError(
+                    FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE,
+                    "Failed to parse economical section: " + e.getMessage()));
+        }
+    }
+
+    public static Result<EconomicalSectorResponse> mapToDomainEconomicalSectionResponse(
+            EconomicalSectionResponse fcbResponse) {
+
+        try {
+            if (fcbResponse.getCode() == null || fcbResponse.getCode().isBlank()) {
+                log.error("FCB response missing economical section code");
+                return Result.failure(Notification.ofError(
+                        FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE,
+                        "Economical section code is missing in response"));
+            }
+
+            if (fcbResponse.getName() == null || fcbResponse.getName().isBlank()) {
+                log.error("FCB response missing economical section name");
+                return Result.failure(Notification.ofError(
+                        FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE,
+                        "Economical section name is missing in response"));
+            }
+
+            Result<EconomicalSectorResponse> economicSector = EconomicalSectorResponse.of(
+                    fcbResponse.getCode(),
+                    fcbResponse.getName(),
+                    fcbResponse.getHasChild(),
+                    fcbResponse.getParentCode());
 
             if (economicSector.isFailure()) {
                 log.error(

@@ -17,4 +17,10 @@ public class EconomicalSectionResponse extends FcbBaseResponse {
 
     @XStreamAlias("name")
     private String name;
+
+    @XStreamAlias("hasChild")
+    private Boolean hasChild;
+
+    @XStreamAlias("parentCode")
+    private String parentCode;
 }

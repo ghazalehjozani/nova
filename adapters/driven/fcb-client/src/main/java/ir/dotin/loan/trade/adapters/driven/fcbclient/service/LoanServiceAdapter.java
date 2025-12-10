@@ -24,6 +24,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMe
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.LoanMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorResponse;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.ReasonType;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.TopicInfo;
@@ -79,6 +80,55 @@ public class LoanServiceAdapter implements LoanServicePort {
         EconomicalSectionResponse fcbResponse = fcbResult.orElseThrow();
 
         Result<EconomicSector> domainResult = LoanMapper.mapToDomainEconomicalSection(fcbResponse);
+
+        if (!domainResult.isFailure()) {
+            log.info(
+                    "Economical section loaded successfully: code={}, name={}",
+                    fcbResponse.getCode(),
+                    fcbResponse.getName());
+        }
+
+        return domainResult;
+    }
+
+    @Override
+    public Result<EconomicalSectorResponse> loadEconomicalSector(EconomicSector economicSector) {
+        log.info("Loading economical section by code: {}", economicSector.code());
+
+        if (economicSector.code().isBlank()) {
+            log.error("Economical section code cannot be null or blank");
+            return Result.failure(Notification.ofError(
+                    FcbBusinessLocalizedMessageCodes.FCB_BAD_REQUEST, "Economical section code is required"));
+        }
+
+        List<Parameter> parameters = new ArrayList<>();
+        parameters.add(Parameter.builder()
+                .key("economicalSectionCode")
+                .value(economicSector.code())
+                .build());
+
+        Usecases usecases = requestBuilder.buildUseCase("load-economicalSection-by-code", parameters);
+        FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
+
+        log.debug("Executing FCB load economical section usecase");
+
+        Map<String, Object> additionalContext = Map.of("economicSectorCode", economicSector.code());
+        FcbContext fcbContext =
+                FcbContext.builder().additionalContext(additionalContext).build();
+
+        Result<EconomicalSectionResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, EconomicalSectionResponse.class, fcbContext);
+
+        if (fcbResult.isFailure()) {
+            log.error(
+                    "FCB load economical section failed: {}",
+                    fcbResult.notification().getErrorMessages());
+            return Result.failure(fcbResult.notification());
+        }
+
+        EconomicalSectionResponse fcbResponse = fcbResult.orElseThrow();
+
+        Result<EconomicalSectorResponse> domainResult = LoanMapper.mapToDomainEconomicalSectionResponse(fcbResponse);
 
         if (!domainResult.isFailure()) {
             log.info(
