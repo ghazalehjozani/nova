@@ -43,24 +43,40 @@ public class CompensateCollateralCommandHandler implements CommandHandler<Compen
     private Result<List<DomainEvent<?>>> revertCollaterals(
             TradeLoanFacility facility, CompensateCollateralCommand command) {
 
+        List<String> serialsToRevert = command.collateralSerials();
+
+        if (serialsToRevert == null || serialsToRevert.isEmpty()) {
+            log.warn(
+                    "No collateral serials provided for compensation, facility: {}",
+                    facility.getId().value());
+            return Result.success(List.of());
+        }
+
         if (facility.getLoanApplication().getApplicationNumber().isPresent()) {
             ApplicationNumber appNumber =
                     facility.getLoanApplication().getApplicationNumber().get();
 
-            for (String serialValue : command.collateralSerials()) {
+            for (String serialValue : serialsToRevert) {
                 CollateralSerial serial = CollateralSerial.of(serialValue).orElseThrow();
 
                 collateralServicePort.unReserveCollateral(serial, appNumber, command.uid(), UUID.randomUUID());
             }
         }
 
-        return facility.revertAddCollateral(clock)
+        return facility.revertAddCollateral(serialsToRevert, clock)
                 .map(v -> facility)
                 .peekValue(f -> {
                     repository.save(f);
                     log.info(
-                            "Collateral addition reverted locally for facility: {}",
+                            "Successfully reverted {} collaterals locally for facility: {}",
+                            serialsToRevert.size(),
                             f.getId().value());
+                })
+                .peekError(notification -> {
+                    log.error(
+                            "Failed to revert collaterals in domain for facility {}: {}",
+                            facility.getId().value(),
+                            notification);
                 })
                 .mapNonNull(TradeLoanFacility::domainEvents);
     }

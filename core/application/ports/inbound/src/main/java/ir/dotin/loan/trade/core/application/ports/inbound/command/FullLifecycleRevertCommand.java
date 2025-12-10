@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.core.application.ports.inbound.command;
 
+import java.util.List;
 import java.util.UUID;
 import jakarta.validation.constraints.NotNull;
 
@@ -14,5 +15,6 @@ public record FullLifecycleRevertCommand(
         @NotNull UUID loanFacilityId,
         String reason,
         String contractTransactionNumberToReverse,
-        String disbursementTransactionNumberToReverse)
+        String disbursementTransactionNumberToReverse,
+        List<String> collateralSerialsToRevert)
         implements Command {}

@@ -29,6 +29,7 @@ public record FullLoanFacilityLifecycleSagaData(
         @Nullable UUID installmentScheduleId,
         @Nullable UUID previousInstallmentScheduleId,
         @Nullable List<String> addedCollateralSerials,
+        @Nullable List<String> failedCollateralSerials,
         List<DomainEvent<?>> collectedDomainEvents) {
 
     public FullLoanFacilityLifecycleSagaData {
@@ -58,6 +59,7 @@ public record FullLoanFacilityLifecycleSagaData(
                 null,
                 null,
                 null,
+                null,
                 List.of());
     }
 
@@ -76,6 +78,7 @@ public record FullLoanFacilityLifecycleSagaData(
                 installmentScheduleId,
                 previousInstallmentScheduleId,
                 addedCollateralSerials,
+                failedCollateralSerials,
                 collectedDomainEvents);
     }
 
@@ -94,6 +97,7 @@ public record FullLoanFacilityLifecycleSagaData(
                 installmentScheduleId,
                 previousInstallmentScheduleId,
                 addedCollateralSerials,
+                failedCollateralSerials,
                 collectedDomainEvents);
     }
 
@@ -112,6 +116,7 @@ public record FullLoanFacilityLifecycleSagaData(
                 installmentScheduleId,
                 previousInstallmentScheduleId,
                 addedCollateralSerials,
+                failedCollateralSerials,
                 collectedDomainEvents);
     }
 
@@ -130,10 +135,12 @@ public record FullLoanFacilityLifecycleSagaData(
                 installmentScheduleId,
                 previousInstallmentScheduleId,
                 addedCollateralSerials,
+                failedCollateralSerials,
                 collectedDomainEvents);
     }
 
-    public FullLoanFacilityLifecycleSagaData withAddedCollateralSerials(List<String> serials) {
+    public FullLoanFacilityLifecycleSagaData withCollateralStatus(
+            List<String> addedSerials, List<String> failedSerials) {
         return new FullLoanFacilityLifecycleSagaData(
                 originationCommand,
                 collaterals,
@@ -147,7 +154,8 @@ public record FullLoanFacilityLifecycleSagaData(
                 sanctionedLoanId,
                 installmentScheduleId,
                 previousInstallmentScheduleId,
-                serials,
+                addedSerials,
+                failedSerials,
                 collectedDomainEvents);
     }
 
@@ -169,6 +177,15 @@ public record FullLoanFacilityLifecycleSagaData(
                 installmentScheduleId,
                 previousInstallmentScheduleId,
                 addedCollateralSerials,
+                failedCollateralSerials,
                 Collections.unmodifiableList(combined));
+    }
+
+    public boolean hasCollaterals() {
+        return collaterals != null && !collaterals.isEmpty();
+    }
+
+    public boolean hasAddedCollaterals() {
+        return addedCollateralSerials != null && !addedCollateralSerials.isEmpty();
     }
 }

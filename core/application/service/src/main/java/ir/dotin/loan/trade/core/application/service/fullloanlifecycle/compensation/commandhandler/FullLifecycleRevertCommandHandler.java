@@ -148,7 +148,7 @@ public class FullLifecycleRevertCommandHandler implements CommandHandler<FullLif
         log.info("Reverting from APPROVED for facility: {}", facility.getId().value());
 
         if (!facility.getCollaterals().isEmpty()) {
-            revertCollaterals(facility, command.uid(), events);
+            revertCollaterals(facility, command.uid(), command.collateralSerialsToRevert(), events);
         }
 
         return facility.revertApproval(clock)
@@ -191,27 +191,72 @@ public class FullLifecycleRevertCommandHandler implements CommandHandler<FullLif
                 .map(v -> events);
     }
 
-    private void revertCollaterals(TradeLoanFacility facility, UUID requestId, List<DomainEvent<?>> events) {
+    private void revertCollaterals(
+            TradeLoanFacility facility, UUID requestId, List<String> serialsToRevert, List<DomainEvent<?>> events) {
 
-        log.info(
-                "Reverting {} collaterals for facility: {}",
-                facility.getCollaterals().size(),
-                facility.getId().value());
+        List<Collateral> collateralsToRevert = determineCollateralsToRevert(facility, serialsToRevert);
+
+        if (collateralsToRevert.isEmpty()) {
+            log.info(
+                    "No collaterals to revert for facility: {}",
+                    facility.getId().value());
+            return;
+        }
 
         if (facility.getLoanApplication().getApplicationNumber().isPresent()) {
             ApplicationNumber appNumber =
                     facility.getLoanApplication().getApplicationNumber().get();
-            for (Collateral collateral : facility.getCollaterals()) {
-                collateralServicePort.unReserveCollateral(
-                        collateral.collateralSerial(), appNumber, requestId, UUID.randomUUID());
+
+            for (Collateral collateral : collateralsToRevert) {
+                try {
+                    collateralServicePort.unReserveCollateral(
+                            collateral.collateralSerial(), appNumber, requestId, UUID.randomUUID());
+
+                    log.debug(
+                            "Successfully un-reserved collateral: {}",
+                            collateral.collateralSerial().value());
+                } catch (Exception e) {
+                    log.error(
+                            "Failed to un-reserve collateral {} during full lifecycle revert",
+                            collateral.collateralSerial().value(),
+                            e);
+                }
             }
         }
 
-        facility.revertAddCollateral(clock).peekValue(v -> {
-            repository.save(facility);
-            events.addAll(facility.domainEvents());
-            facility.clearDomainEvents();
-        });
+        List<String> serialsToRevertInDomain = collateralsToRevert.stream()
+                .map(c -> c.collateralSerial().value())
+                .toList();
+
+        facility.revertAddCollateral(serialsToRevertInDomain, clock)
+                .peekValue(v -> {
+                    repository.save(facility);
+                    events.addAll(facility.domainEvents());
+                    facility.clearDomainEvents();
+                    log.info("Successfully reverted {} collaterals in domain", serialsToRevertInDomain.size());
+                })
+                .peekError(notification -> {
+                    log.error("Failed to revert collaterals in domain: {}", notification);
+                });
+    }
+
+    private List<Collateral> determineCollateralsToRevert(TradeLoanFacility facility, List<String> serialsToRevert) {
+
+        if (serialsToRevert == null || serialsToRevert.isEmpty()) {
+            log.debug(
+                    "No specific serials provided, reverting all {} collaterals",
+                    facility.getCollaterals().size());
+            return new ArrayList<>(facility.getCollaterals());
+        }
+
+        List<Collateral> result = facility.getCollaterals().stream()
+                .filter(collateral ->
+                        serialsToRevert.contains(collateral.collateralSerial().value()))
+                .toList();
+
+        log.debug("Filtered {} collaterals to revert from {} requested serials", result.size(), serialsToRevert.size());
+
+        return result;
     }
 
     private void reverseTransaction(String transactionNumber) {
