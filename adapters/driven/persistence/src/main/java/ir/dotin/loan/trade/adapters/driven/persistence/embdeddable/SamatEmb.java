@@ -12,4 +12,16 @@ public class SamatEmb implements Serializable {
 
     @Column(name = "tracking_number", length = 16)
     private String trackingNumber;
+
+    @Column(name = "isic_economic_sector")
+    private String isicEconomicSector;
+
+    @Column(name = "sub_isic_economic_sector")
+    private String subIsicEconomicSector;
+
+    @Column(name = "use_type")
+    private String useType;
+
+    @Column(name = "consumption_place_code")
+    private String consumptionPlaceCode;
 }
