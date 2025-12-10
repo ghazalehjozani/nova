@@ -1,7 +1,5 @@
 package ir.dotin.loan.trade.core.application.service.fullloanlifecycle.mapper;
 
-import java.util.stream.Collectors;
-
 import org.mapstruct.Mapper;
 
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
@@ -31,7 +29,7 @@ public interface FullLoanFacilityLifecycleCommandMapper {
             FullLoanFacilityLifecycleCommand.LoanApplicationDto app) {
         return OriginateLoanFacilityCommand.LoanApplicationDto.builder()
                 .requestDate(app.requestDate())
-                .parties(app.parties().stream().map(this::toOriginationPartyDto).collect(Collectors.toSet()))
+                .parties(app.parties())
                 .requestedAmount(app.requestedAmount())
                 .currency(app.currency())
                 .requestedLoanDuration(toOriginationLoanDuration(app.requestedLoanDuration()))
@@ -48,14 +46,6 @@ public interface FullLoanFacilityLifecycleCommandMapper {
                 .disbursementMethod(app.disbursementMethod())
                 .credibilityRank(toOriginationCredibilityRank(app.credibilityRank()))
                 .samat(app.samatDto())
-                .build();
-    }
-
-    default OriginateLoanFacilityCommand.PartyDto toOriginationPartyDto(
-            FullLoanFacilityLifecycleCommand.PartyDto party) {
-        return OriginateLoanFacilityCommand.PartyDto.builder()
-                .customerNumber(party.customerNumber())
-                .role(party.role())
                 .build();
     }
 

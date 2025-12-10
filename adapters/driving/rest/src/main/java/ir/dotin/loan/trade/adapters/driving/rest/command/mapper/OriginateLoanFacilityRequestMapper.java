@@ -10,10 +10,12 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.OriginateLoanFacilityRequest;
+import ir.dotin.loan.trade.adapters.driving.rest.command.dto.PartyRequestDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.AmountDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.CurrencyTypeDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.EconomicSectorDto;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.PartyDto;
 
 @Mapper(
         componentModel = MappingConstants.ComponentModel.SPRING,
@@ -33,6 +35,15 @@ public interface OriginateLoanFacilityRequestMapper {
     @Mapping(target = "loanApplication.subSource", source = "loanApplication.subSourceCode")
     @Mapping(target = "loanApplication.samat", source = "loanApplication.samat")
     OriginateLoanFacilityCommand toCommand(OriginateLoanFacilityRequest request);
+
+    default PartyDto toPartyDto(PartyRequestDto dto) {
+        return switch (dto) {
+            case PartyRequestDto.ApplicantDto d -> new PartyDto.ApplicantDto(d.customerNumber());
+            case PartyRequestDto.CoApplicantDto d -> new PartyDto.CoApplicantDto(d.customerNumber());
+            case PartyRequestDto.GuarantorDto d ->
+                new PartyDto.GuarantorDto(d.customerNumber(), d.guaranteePercentage());
+        };
+    }
 
     default AmountDto mapAmount(BigDecimal value) {
         return new AmountDto(value);

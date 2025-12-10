@@ -9,7 +9,6 @@ import java.util.Set;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 
 public record FullLoanFacilityLifecycleRequest(
         Long version,
@@ -21,7 +20,7 @@ public record FullLoanFacilityLifecycleRequest(
 
     public record LoanApplicationDto(
             Instant requestDate,
-            Set<PartyDto> parties,
+            Set<PartyRequestDto> parties,
             BigDecimal requestedAmount,
             String currency,
             Integer requestedLoanDurationMonths,
@@ -40,8 +39,6 @@ public record FullLoanFacilityLifecycleRequest(
             String credibilityRank) {}
 
     public record SamatDto(Integer trackingNumber) {}
-
-    public record PartyDto(String customerNumber, PartyRole role) {}
 
     public record DisburseDestinationDto(DisburseDestinationType type, String depositNumber) {}
 

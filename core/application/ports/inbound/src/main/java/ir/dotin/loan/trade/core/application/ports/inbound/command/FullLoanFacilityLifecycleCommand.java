@@ -17,7 +17,6 @@ import ir.dotin.platform.dispatcher.api.command.Command;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.*;
 
 import lombok.Builder;
@@ -87,10 +86,6 @@ public record FullLoanFacilityLifecycleCommand(
             @Valid @NotNull AmountDto interestAmount,
             @Nullable AmountDto penaltyAmount,
             @Nullable AmountDto feeAmount) {}
-
-    @Builder(toBuilder = true)
-    public record PartyDto(
-            @NotBlank String customerNumber, @NotNull PartyRole role) {}
 
     @Builder(toBuilder = true)
     public record BranchDto(@Nullable String code) {}

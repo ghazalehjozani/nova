@@ -9,7 +9,6 @@ import java.util.Set;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -32,7 +31,7 @@ public record OriginateLoanFacilityRequest(
             Instant requestDate,
 
             @Schema(description = "ذینفعان شامل مشتری اصلی، فرعی و ضامنین", requiredMode = Schema.RequiredMode.REQUIRED)
-            Set<PartyDto> parties,
+            Set<PartyRequestDto> parties,
 
             @Schema(description = "مبلغ درخواستی", requiredMode = Schema.RequiredMode.REQUIRED)
             BigDecimal requestedAmount,
@@ -83,14 +82,6 @@ public record OriginateLoanFacilityRequest(
     public record SamatDto(
             @Schema(description = "شماره پیگیری سمات", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
             String trackingNumber) {}
-
-    @Schema(name = "PartyDto", description = "اطلاعات ذینفع")
-    public record PartyDto(
-            @Schema(description = "شماره مشتری", requiredMode = Schema.RequiredMode.REQUIRED)
-            String customerNumber,
-
-            @Schema(description = "نقش", requiredMode = Schema.RequiredMode.REQUIRED)
-            PartyRole role) {}
 
     @Schema(name = "DisburseDestinationDto", description = "مقصد پرداخت")
     public record DisburseDestinationDto(

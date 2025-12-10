@@ -1,9 +1,11 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import jakarta.validation.constraints.NotNull;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
@@ -39,7 +41,10 @@ public class CustomerServiceAdapter implements CustomerServicePort {
 
     @Override
     public Result<PartyInfo> loadCustomerInfo(
-            String customerNumber, @NotNull PartyRole role, CustomerInfoLoadOptions options) {
+            String customerNumber,
+            @NotNull PartyRole role,
+            @Nullable BigDecimal guaranteePercentage,
+            CustomerInfoLoadOptions options) {
 
         log.info("Loading customer info: customerNumber={}, options={}", customerNumber, options);
 
@@ -49,51 +54,45 @@ public class CustomerServiceAdapter implements CustomerServicePort {
             return Result.failure(inputValidation);
         }
 
-        try {
-            List<Parameter> parameters = buildCustomerInfoParameters(customerNumber, options);
-            Usecases usecases = requestBuilder.buildUseCase("load-customer-info", parameters);
-            FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
+        List<Parameter> parameters = buildCustomerInfoParameters(customerNumber, options);
+        Usecases usecases = requestBuilder.buildUseCase("load-customer-info", parameters);
+        FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
 
-            log.debug("Executing FCB load-customer-info usecase");
+        log.debug("Executing FCB load-customer-info usecase");
 
-            Result<CustomerInfoResponse> fcbResult =
-                    fcbService.executeUsecase(fcbRequest, CustomerInfoResponse.class, FcbContext.empty());
+        Result<CustomerInfoResponse> fcbResult =
+                fcbService.executeUsecase(fcbRequest, CustomerInfoResponse.class, FcbContext.empty());
 
-            if (fcbResult.isFailure()) {
-                log.error(
-                        "FCB load-customer-info failed: {}",
-                        fcbResult.notification().getErrorMessages());
-                return Result.failure(fcbResult.notification());
-            }
-
-            CustomerInfoResponse fcbResponse = fcbResult.orElseThrow(); // TODO: add exception
-
-            if (!fcbResponse.getRsCode().contains("01")) {
-                log.error(
-                        "FCB business error: rsCode={}, error={}",
-                        fcbResponse.getRsCode(),
-                        fcbResponse.getErrorDescription());
-                return Result.failure(Notification.ofError(
-                        FcbBusinessLocalizedMessageCodes.FCB_BUSINESS_EXCEPTION, fcbResponse.getErrorDescription()));
-            }
-
-            Result<PartyInfo> mappingResult = CustomerMapper.mapToDomainCustomerInfo(fcbResponse, role);
-
-            if (mappingResult.isFailure()) {
-                log.error(
-                        "Failed to map FCB response: {}",
-                        mappingResult.notification().getErrorMessages());
-                return mappingResult;
-            }
-
-            log.info("Successfully loaded customer info for: {}", customerNumber);
-            return mappingResult;
-
-        } catch (Exception e) {
-            log.error("Unexpected error loading customer info", e);
-            return Result.failure(Notification.ofError(
-                    FcbBusinessLocalizedMessageCodes.FCB_UNKNOWN_ERROR, "Unexpected error: " + e.getMessage()));
+        if (fcbResult.isFailure()) {
+            log.error(
+                    "FCB load-customer-info failed: {}",
+                    fcbResult.notification().getErrorMessages());
+            return Result.failure(fcbResult.notification());
         }
+
+        CustomerInfoResponse fcbResponse = fcbResult.orElseThrow(); // TODO: add exception
+
+        if (!fcbResponse.getRsCode().contains("01")) {
+            log.error(
+                    "FCB business error: rsCode={}, error={}",
+                    fcbResponse.getRsCode(),
+                    fcbResponse.getErrorDescription());
+            return Result.failure(Notification.ofError(
+                    FcbBusinessLocalizedMessageCodes.FCB_BUSINESS_EXCEPTION, fcbResponse.getErrorDescription()));
+        }
+
+        Result<PartyInfo> mappingResult =
+                CustomerMapper.mapToDomainCustomerInfo(fcbResponse, role, guaranteePercentage);
+
+        if (mappingResult.isFailure()) {
+            log.error(
+                    "Failed to map FCB response: {}",
+                    mappingResult.notification().getErrorMessages());
+            return mappingResult;
+        }
+
+        log.info("Successfully loaded customer info for: {}", customerNumber);
+        return mappingResult;
     }
 
     private Notification validateInputs(String customerNumber, CustomerInfoLoadOptions options) {

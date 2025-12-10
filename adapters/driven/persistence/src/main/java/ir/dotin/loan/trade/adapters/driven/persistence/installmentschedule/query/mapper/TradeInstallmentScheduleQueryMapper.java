@@ -14,7 +14,7 @@ public interface TradeInstallmentScheduleQueryMapper {
 
     @Mapping(target = "gracePeriodDays", source = "gracePeriod.days")
     @Mapping(target = "currency", source = "currency.value")
-    @Mapping(target = "totalLoanAmountAmount", source = "totalLoanAmount.amount")
+    @Mapping(target = "totalLoanAmount", source = "totalLoanAmount.amount")
     TradeInstallmentScheduleQueryDto toDto(InstallmentScheduleEntity installmentScheduleEntity);
 
     TradeInstallmentScheduleQueryDto.RestructuringRecordDto toRestructuringRecordDto(RestructuringRecordEmb emb);

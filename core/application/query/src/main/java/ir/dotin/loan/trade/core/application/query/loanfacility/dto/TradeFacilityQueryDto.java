@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.platform.dispatcher.api.query.QueryResult;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
@@ -63,7 +65,12 @@ public record TradeFacilityQueryDto(
             SamatDto samat)
             implements Serializable {
         public record PartyEmbDto(
-                String customerNumber, PartyType partyType, PartyRole partyRole, String firstName, String lastName)
+                String customerNumber,
+                PartyType partyType,
+                PartyRole partyRole,
+                String firstName,
+                String lastName,
+                @Nullable BigDecimal guaranteePercentage)
                 implements Serializable {}
     }
 
@@ -72,8 +79,7 @@ public record TradeFacilityQueryDto(
             Long version,
             String sanctionSerial,
             SanctionType sanctionSerialType,
-            BigDecimal approvedAmountAmount,
-            String approvedAmountCurrency,
+            BigDecimal approvedAmount,
             String currency,
             Integer gracePeriodDays,
             Integer installmentCount,

@@ -10,5 +10,15 @@
             <column name="tracking_number" type="VARCHAR(16)"/>
         </addColumn>
     </changeSet>
-
+    <changeSet id="1765274612938-1" author="DOTIN\m.amirabdollahi">
+        <addColumn tableName="loan_application_parties">
+            <column name="guarantee_percentage" type="DECIMAL(5, 2)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="1765291245826-1" author="DOTIN\m.amirabdollahi">
+        <renameColumn tableName="loan_applications"
+                      oldColumnName="party_role"
+                      newColumnName="application_customer_role"
+                      columnDataType="VARCHAR(255)"/>
+    </changeSet>
 </databaseChangeLog>

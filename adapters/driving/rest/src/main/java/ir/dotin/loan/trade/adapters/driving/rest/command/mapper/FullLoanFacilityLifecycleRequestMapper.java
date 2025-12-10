@@ -17,9 +17,11 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.FullLoanFacilityLifecycleRequest;
+import ir.dotin.loan.trade.adapters.driving.rest.command.dto.PartyRequestDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLoanFacilityLifecycleCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.AmountDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.CurrencyTypeDto;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.PartyDto;
 
 @Mapper(
         componentModel = MappingConstants.ComponentModel.SPRING,
@@ -47,7 +49,14 @@ public interface FullLoanFacilityLifecycleRequestMapper {
     FullLoanFacilityLifecycleCommand.LoanApplicationDto toLoanApplicationDto(
             FullLoanFacilityLifecycleRequest.LoanApplicationDto dto);
 
-    FullLoanFacilityLifecycleCommand.PartyDto toPartyDto(FullLoanFacilityLifecycleRequest.PartyDto dto);
+    default PartyDto toPartyDto(PartyRequestDto dto) {
+        return switch (dto) {
+            case PartyRequestDto.ApplicantDto d -> new PartyDto.ApplicantDto(d.customerNumber());
+            case PartyRequestDto.CoApplicantDto d -> new PartyDto.CoApplicantDto(d.customerNumber());
+            case PartyRequestDto.GuarantorDto d ->
+                new PartyDto.GuarantorDto(d.customerNumber(), d.guaranteePercentage());
+        };
+    }
 
     FullLoanFacilityLifecycleCommand.RequestReasonDto toRequestReasonDto(
             FullLoanFacilityLifecycleRequest.RequestReasonDto dto);

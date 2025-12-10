@@ -1,7 +1,10 @@
 package ir.dotin.loan.trade.core.application.ports.outbound.client.customerservice;
 
+import java.math.BigDecimal;
 import java.util.List;
 import jakarta.validation.constraints.NotNull;
+
+import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
@@ -11,7 +14,11 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.response.Party
 
 public interface CustomerServicePort {
 
-    Result<PartyInfo> loadCustomerInfo(String customerNumber, @NotNull PartyRole role, CustomerInfoLoadOptions options);
+    Result<PartyInfo> loadCustomerInfo(
+            String customerNumber,
+            @NotNull PartyRole role,
+            @Nullable BigDecimal guaranteePercentage,
+            CustomerInfoLoadOptions options);
 
     Result<List<PartyInfo>> findRelatedCustomers(List<String> customerNumbers);
 

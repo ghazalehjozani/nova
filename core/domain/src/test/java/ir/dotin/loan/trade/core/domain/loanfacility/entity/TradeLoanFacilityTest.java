@@ -20,9 +20,12 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.*;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.ApplicantParty;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuaranteePercentage;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuarantorParty;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCreated;
 
 import static java.time.ZoneOffset.UTC;
@@ -31,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TradeLoanFacility")
@@ -57,7 +59,6 @@ class TradeLoanFacilityTest {
         @Test
         void shouldCreateFacilitySuccessfullyWithValidParameters(
                 @Mock ApplicationNumber applicationNumber,
-                @Mock Party customer,
                 @Mock InstallmentCount installmentCount,
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
@@ -65,6 +66,9 @@ class TradeLoanFacilityTest {
                 @Mock DisburseDestination disburseDestination,
                 @Mock Money totalDisbursementAmount) {
             // given
+            PersonName customerName = new PersonName("John", "Doe");
+            ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
+
             var applicationBuilder = createValidLoanApplicationBuilder(
                     applicationNumber,
                     customer,
@@ -145,7 +149,6 @@ class TradeLoanFacilityTest {
         @Test
         void shouldPublishFacilityCreatedEventUponCreation(
                 @Mock ApplicationNumber applicationNumber,
-                @Mock Party customer,
                 @Mock InstallmentCount installmentCount,
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
@@ -153,6 +156,9 @@ class TradeLoanFacilityTest {
                 @Mock DisburseDestination disburseDestination,
                 @Mock Money totalDisbursementAmount) {
             // given
+            PersonName customerName = new PersonName("John", "Doe");
+            ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
+
             var applicationBuilder = createValidLoanApplicationBuilder(
                     applicationNumber,
                     customer,
@@ -188,7 +194,6 @@ class TradeLoanFacilityTest {
         @Test
         void shouldReturnCorrectLoanTypeId(
                 @Mock ApplicationNumber applicationNumber,
-                @Mock Party customer,
                 @Mock InstallmentCount installmentCount,
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
@@ -196,6 +201,9 @@ class TradeLoanFacilityTest {
                 @Mock DisburseDestination disburseDestination,
                 @Mock Money totalDisbursementAmount) {
             // given
+            PersonName customerName = new PersonName("John", "Doe");
+            ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
+
             var builder = createValidLoanApplicationBuilder(
                     applicationNumber,
                     customer,
@@ -221,7 +229,6 @@ class TradeLoanFacilityTest {
         @Test
         void shouldReturnCorrectLoanArrangementId(
                 @Mock ApplicationNumber applicationNumber,
-                @Mock Party customer,
                 @Mock InstallmentCount installmentCount,
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
@@ -229,6 +236,9 @@ class TradeLoanFacilityTest {
                 @Mock DisburseDestination disburseDestination,
                 @Mock Money totalDisbursementAmount) {
             // given
+            PersonName customerName = new PersonName("John", "Doe");
+            ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
+
             var builder = createValidLoanApplicationBuilder(
                     applicationNumber,
                     customer,
@@ -254,7 +264,6 @@ class TradeLoanFacilityTest {
         @Test
         void shouldReturnTradeAsFacilityType(
                 @Mock ApplicationNumber applicationNumber,
-                @Mock Party customer,
                 @Mock InstallmentCount installmentCount,
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
@@ -262,6 +271,9 @@ class TradeLoanFacilityTest {
                 @Mock DisburseDestination disburseDestination,
                 @Mock Money totalDisbursementAmount) {
             // given
+            PersonName customerName = new PersonName("John", "Doe");
+            ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
+
             var builder = createValidLoanApplicationBuilder(
                     applicationNumber,
                     customer,
@@ -292,7 +304,6 @@ class TradeLoanFacilityTest {
         @Test
         void shouldMaintainCompatibilityWithExistingFacilityWorkflows(
                 @Mock ApplicationNumber applicationNumber,
-                @Mock Party customer,
                 @Mock InstallmentCount installmentCount,
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
@@ -300,6 +311,9 @@ class TradeLoanFacilityTest {
                 @Mock DisburseDestination disburseDestination,
                 @Mock Money totalDisbursementAmount) {
             // given
+            PersonName customerName = new PersonName("John", "Doe");
+            ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
+
             var builder = createValidLoanApplicationBuilder(
                     applicationNumber,
                     customer,
@@ -325,7 +339,6 @@ class TradeLoanFacilityTest {
         @Test
         void shouldWorkWithWorkflowOperations(
                 @Mock ApplicationNumber applicationNumber,
-                @Mock Party customer,
                 @Mock InstallmentCount installmentCount,
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
@@ -333,6 +346,9 @@ class TradeLoanFacilityTest {
                 @Mock DisburseDestination disburseDestination,
                 @Mock Money totalDisbursementAmount) {
             // given
+            PersonName customerName = new PersonName("John", "Doe");
+            ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
+
             var builder = createValidLoanApplicationBuilder(
                     applicationNumber,
                     customer,
@@ -358,28 +374,25 @@ class TradeLoanFacilityTest {
 
     private TradeLoanApplication.Builder createValidLoanApplicationBuilder(
             @Mock ApplicationNumber applicationNumber,
-            @Mock Party customer,
+            ApplicantParty customer,
             @Mock InstallmentCount installmentCount,
             @Mock EconomicSector economicSector,
             @Mock Branch branch,
             @Mock RequestReason requestReason,
             @Mock DisburseDestination disburseDestination) {
-        // Create a mock guarantor
-        Party mockGuarantor = org.mockito.Mockito.mock(Party.class);
-        when(mockGuarantor.partyRole()).thenReturn(PartyRole.GUARANTOR);
-        when(mockGuarantor.customerNumber()).thenReturn("67890");
+        // Create a real guarantor
+        PersonName guarantorName = new PersonName("Jane", "Smith");
+        GuarantorParty guarantor =
+                new GuarantorParty("67890", PartyType.REAL, guarantorName, GuaranteePercentage.of(25.0));
 
         // Create a minimal builder that will pass validation
         given(applicationNumber.formattedApplicationNumber()).willReturn("appNumber");
-        // Configure customer mock to have correct role
-        when(customer.partyRole()).thenReturn(PartyRole.PRIMARY_APPLICANT);
-        when(customer.customerNumber()).thenReturn("12345");
 
         return TradeLoanApplication.builder()
                 .id(LoanApplicationId.of(randomUUID())) // Add the required ID
                 .applicationNumber(applicationNumber)
                 .requestDate(testClock.instant())
-                .parties(Set.of(customer, mockGuarantor))
+                .parties(Set.of(customer, guarantor))
                 .requestedAmount(Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR)
                         .orElseThrow())
                 .currency(CurrencyType.IRR)
