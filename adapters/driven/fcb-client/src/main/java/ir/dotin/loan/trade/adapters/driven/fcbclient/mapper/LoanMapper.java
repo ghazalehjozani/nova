@@ -18,6 +18,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.LoanOperationType;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.*;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.BranchDetails;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorResponse;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.ReasonType;
@@ -326,5 +327,32 @@ public class LoanMapper {
         String sequenceCode = parts.length > 3 ? parts[3] : null;
 
         return Result.success(new ApplicationNumberComponents(branchCode, loanTypeCode, customerNumber, sequenceCode));
+    }
+
+    public static Result<BranchDetails> mapToBranchDetails(BranchResponse fcbResponse) {
+        Notification notification = Notification.create();
+
+        if (fcbResponse.getCode() == null || fcbResponse.getCode().isBlank()) {
+            log.error("FCB response missing branch code");
+            notification.addError(
+                    FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE, "Branch code is missing in response");
+        }
+
+        if (notification.hasErrors()) {
+            return Result.failure(notification);
+        }
+        BranchDetails branchDetails = new BranchDetails(
+                fcbResponse.getCode(),
+                fcbResponse.getName(),
+                fcbResponse.getForeignName(),
+                fcbResponse.getGlobalCode(),
+                fcbResponse.getManagerName(),
+                fcbResponse.getSamCode(),
+                fcbResponse.getSwiftCode(),
+                fcbResponse.getClearBranch(),
+                fcbResponse.getCity(),
+                fcbResponse.getBankCode());
+
+        return Result.success(branchDetails);
     }
 }
