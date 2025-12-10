@@ -13,8 +13,10 @@ import ir.dotin.platform.adapter.rest.request.DataRequest;
 import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.AddFacilityCollateralRequest;
+import ir.dotin.loan.trade.adapters.driving.rest.command.dto.CompensateCollateralRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.AddFacilityCollateralRequestToCommandMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateCollateralCommand;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -44,6 +46,22 @@ class AddFacilityCollateralController extends BaseController {
         var command = mapper.toCommand(facilityId, request.payload()).toBuilder()
                 .uid(getXRequestId())
                 .build();
+        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
+    }
+
+    @PostMapping(value = "/compensate", version = "1+")
+    @Operation(summary = "جبران‌سازی افزودن وثایق")
+    public EventStreamResponse compensateAddCollaterals(
+            @Parameter(description = "شناسه تسهیلات", required = true) @PathVariable UUID facilityId,
+            @Parameter(description = "جزئیات وثایق برای جبران‌سازی", required = true) @RequestBody
+                    DataRequest<CompensateCollateralRequest> request) {
+
+        var command = CompensateCollateralCommand.builder()
+                .uid(getXRequestId())
+                .loanFacilityId(facilityId)
+                .collateralSerials(request.payload().collateralSerials())
+                .build();
+
         return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
     }
 }

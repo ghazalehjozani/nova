@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.core.application.ports.inbound.command;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Period;
@@ -30,7 +31,8 @@ public record FullLoanFacilityLifecycleCommand(
         @NotNull @Valid LoanApplicationDto loanApplication,
         @Nullable @Valid InstallmentSchedulePlanDto installmentSchedulePlan,
         @NotNull @Valid DisbursementDto disbursement,
-        @NotNull @Valid TransactionMetadataDto transactionMetadata)
+        @NotNull @Valid TransactionMetadataDto transactionMetadata,
+        @NotNull @Valid List<CollateralDto> collaterals)
         implements Command {
 
     @Builder(toBuilder = true)
@@ -117,4 +119,15 @@ public record FullLoanFacilityLifecycleCommand(
 
     @Builder(toBuilder = true)
     public record InstallmentCountDto(@NotNull Integer value) {}
+
+    @Builder(toBuilder = true)
+    public record CollateralDto(
+            @NotNull String collateralTypeCode,
+            @NotNull Integer percent,
+            @NotNull String description,
+            @NotNull String collateralSerial,
+            @NotNull MoneyDto usedAmount) {}
+
+    public record MoneyDto(
+            @NotNull BigDecimal value, @NotBlank String currency) {}
 }

@@ -16,7 +16,8 @@ public record FullLoanFacilityLifecycleRequest(
         String loanArrangementCode,
         LoanApplicationDto loanApplication,
         DisbursementDto disbursement,
-        InstallmentSchedulePlanDto installmentSchedulePlan) {
+        InstallmentSchedulePlanDto installmentSchedulePlan,
+        List<CollateralDto> collaterals) {
 
     public record LoanApplicationDto(
             Instant requestDate,
@@ -49,4 +50,13 @@ public record FullLoanFacilityLifecycleRequest(
     public record InstallmentSpecDto(Integer sequenceNumber, Instant dueDate, BigDecimal principalAmount) {}
 
     public record DisbursementDto(BigDecimal trancheAmount, LocalDate disbursementDate) {}
+
+    public record CollateralDto(
+            String collateralTypeCode,
+            Integer percent,
+            String description,
+            String collateralSerial,
+            MoneyDto usedAmount) {}
+
+    public record MoneyDto(BigDecimal value, String currency) {}
 }

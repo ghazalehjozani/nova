@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.core.application.service.fullloanlifecycle.compensat
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -11,11 +12,14 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLifecycleRevertCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.CollateralServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.service.fullloanlifecycle.i18n.FullLoanFacilityLifecycleErrorCodes;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
@@ -30,6 +34,7 @@ public class FullLifecycleRevertCommandHandler implements CommandHandler<FullLif
 
     private final TradeLoanFacilityRepository repository;
     private final TransactionPostingPort transactionPostingPort;
+    private final CollateralServicePort collateralServicePort;
     private final Clock clock;
 
     @Override
@@ -142,6 +147,10 @@ public class FullLifecycleRevertCommandHandler implements CommandHandler<FullLif
 
         log.info("Reverting from APPROVED for facility: {}", facility.getId().value());
 
+        if (!facility.getCollaterals().isEmpty()) {
+            revertCollaterals(facility, command.uid(), command.collateralSerialsToRevert(), events);
+        }
+
         return facility.revertApproval(clock)
                 .peekValue(v -> {
                     repository.save(facility);
@@ -180,6 +189,74 @@ public class FullLifecycleRevertCommandHandler implements CommandHandler<FullLif
                     events.addAll(facility.domainEvents());
                 })
                 .map(v -> events);
+    }
+
+    private void revertCollaterals(
+            TradeLoanFacility facility, UUID requestId, List<String> serialsToRevert, List<DomainEvent<?>> events) {
+
+        List<Collateral> collateralsToRevert = determineCollateralsToRevert(facility, serialsToRevert);
+
+        if (collateralsToRevert.isEmpty()) {
+            log.info(
+                    "No collaterals to revert for facility: {}",
+                    facility.getId().value());
+            return;
+        }
+
+        if (facility.getLoanApplication().getApplicationNumber().isPresent()) {
+            ApplicationNumber appNumber =
+                    facility.getLoanApplication().getApplicationNumber().get();
+
+            for (Collateral collateral : collateralsToRevert) {
+                try {
+                    collateralServicePort.unReserveCollateral(
+                            collateral.collateralSerial(), appNumber, requestId, UUID.randomUUID());
+
+                    log.debug(
+                            "Successfully un-reserved collateral: {}",
+                            collateral.collateralSerial().value());
+                } catch (Exception e) {
+                    log.error(
+                            "Failed to un-reserve collateral {} during full lifecycle revert",
+                            collateral.collateralSerial().value(),
+                            e);
+                }
+            }
+        }
+
+        List<String> serialsToRevertInDomain = collateralsToRevert.stream()
+                .map(c -> c.collateralSerial().value())
+                .toList();
+
+        facility.revertAddCollateral(serialsToRevertInDomain, clock)
+                .peekValue(v -> {
+                    repository.save(facility);
+                    events.addAll(facility.domainEvents());
+                    facility.clearDomainEvents();
+                    log.info("Successfully reverted {} collaterals in domain", serialsToRevertInDomain.size());
+                })
+                .peekError(notification -> {
+                    log.error("Failed to revert collaterals in domain: {}", notification);
+                });
+    }
+
+    private List<Collateral> determineCollateralsToRevert(TradeLoanFacility facility, List<String> serialsToRevert) {
+
+        if (serialsToRevert == null || serialsToRevert.isEmpty()) {
+            log.debug(
+                    "No specific serials provided, reverting all {} collaterals",
+                    facility.getCollaterals().size());
+            return new ArrayList<>(facility.getCollaterals());
+        }
+
+        List<Collateral> result = facility.getCollaterals().stream()
+                .filter(collateral ->
+                        serialsToRevert.contains(collateral.collateralSerial().value()))
+                .toList();
+
+        log.debug("Filtered {} collaterals to revert from {} requested serials", result.size(), serialsToRevert.size());
+
+        return result;
     }
 
     private void reverseTransaction(String transactionNumber) {

@@ -77,6 +77,7 @@ class FullLoanFacilityLifecycleController extends BaseController {
                 .reason(request.payload().reason())
                 .contractTransactionNumberToReverse(request.payload().contractTransactionNumberToReverse())
                 .disbursementTransactionNumberToReverse(request.payload().disbursementTransactionNumberToReverse())
+                .collateralSerialsToRevert(request.payload().collateralSerialsToRevert())
                 .build();
 
         return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));

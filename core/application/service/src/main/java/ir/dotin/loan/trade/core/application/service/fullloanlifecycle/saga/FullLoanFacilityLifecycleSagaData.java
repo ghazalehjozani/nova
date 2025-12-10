@@ -12,10 +12,12 @@ import org.jspecify.annotations.Nullable;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLoanFacilityLifecycleCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 
 public record FullLoanFacilityLifecycleSagaData(
         OriginateLoanFacilityCommand originationCommand,
+        List<FullLoanFacilityLifecycleCommand.CollateralDto> collaterals,
         BigDecimal trancheAmount,
         String branchCode,
         TransactionConfig transactionConfig,
@@ -26,6 +28,7 @@ public record FullLoanFacilityLifecycleSagaData(
         @Nullable UUID sanctionedLoanId,
         @Nullable UUID installmentScheduleId,
         @Nullable UUID previousInstallmentScheduleId,
+        @Nullable List<String> addedCollateralSerials,
         List<DomainEvent<?>> collectedDomainEvents) {
 
     public FullLoanFacilityLifecycleSagaData {
@@ -34,6 +37,7 @@ public record FullLoanFacilityLifecycleSagaData(
 
     public static FullLoanFacilityLifecycleSagaData initial(
             OriginateLoanFacilityCommand originationCommand,
+            List<FullLoanFacilityLifecycleCommand.CollateralDto> collaterals,
             BigDecimal trancheAmount,
             String branchCode,
             TransactionConfig transactionConfig,
@@ -42,12 +46,14 @@ public record FullLoanFacilityLifecycleSagaData(
             UUID correlationId) {
         return new FullLoanFacilityLifecycleSagaData(
                 originationCommand,
+                collaterals,
                 trancheAmount,
                 branchCode,
                 transactionConfig,
                 disbursementMethod,
                 disbursementDate,
                 correlationId,
+                null,
                 null,
                 null,
                 null,
@@ -58,6 +64,7 @@ public record FullLoanFacilityLifecycleSagaData(
     public FullLoanFacilityLifecycleSagaData withFacilityId(UUID facilityId) {
         return new FullLoanFacilityLifecycleSagaData(
                 originationCommand,
+                collaterals,
                 trancheAmount,
                 branchCode,
                 transactionConfig,
@@ -68,12 +75,14 @@ public record FullLoanFacilityLifecycleSagaData(
                 sanctionedLoanId,
                 installmentScheduleId,
                 previousInstallmentScheduleId,
+                addedCollateralSerials,
                 collectedDomainEvents);
     }
 
     public FullLoanFacilityLifecycleSagaData withSanctionedLoanId(UUID sanctionedLoanId) {
         return new FullLoanFacilityLifecycleSagaData(
                 originationCommand,
+                collaterals,
                 trancheAmount,
                 branchCode,
                 transactionConfig,
@@ -84,12 +93,14 @@ public record FullLoanFacilityLifecycleSagaData(
                 sanctionedLoanId,
                 installmentScheduleId,
                 previousInstallmentScheduleId,
+                addedCollateralSerials,
                 collectedDomainEvents);
     }
 
     public FullLoanFacilityLifecycleSagaData withInstallmentScheduleId(UUID installmentScheduleId) {
         return new FullLoanFacilityLifecycleSagaData(
                 originationCommand,
+                collaterals,
                 trancheAmount,
                 branchCode,
                 transactionConfig,
@@ -100,12 +111,14 @@ public record FullLoanFacilityLifecycleSagaData(
                 sanctionedLoanId,
                 installmentScheduleId,
                 previousInstallmentScheduleId,
+                addedCollateralSerials,
                 collectedDomainEvents);
     }
 
     public FullLoanFacilityLifecycleSagaData withPreviousInstallmentScheduleId(UUID previousId) {
         return new FullLoanFacilityLifecycleSagaData(
                 originationCommand,
+                collaterals,
                 trancheAmount,
                 branchCode,
                 transactionConfig,
@@ -115,7 +128,26 @@ public record FullLoanFacilityLifecycleSagaData(
                 facilityId,
                 sanctionedLoanId,
                 installmentScheduleId,
-                previousId,
+                previousInstallmentScheduleId,
+                addedCollateralSerials,
+                collectedDomainEvents);
+    }
+
+    public FullLoanFacilityLifecycleSagaData withAddedCollateralSerials(List<String> serials) {
+        return new FullLoanFacilityLifecycleSagaData(
+                originationCommand,
+                collaterals,
+                trancheAmount,
+                branchCode,
+                transactionConfig,
+                disbursementMethod,
+                disbursementDate,
+                correlationId,
+                facilityId,
+                sanctionedLoanId,
+                installmentScheduleId,
+                previousInstallmentScheduleId,
+                serials,
                 collectedDomainEvents);
     }
 
@@ -125,6 +157,7 @@ public record FullLoanFacilityLifecycleSagaData(
         combined.addAll(events);
         return new FullLoanFacilityLifecycleSagaData(
                 originationCommand,
+                collaterals,
                 trancheAmount,
                 branchCode,
                 transactionConfig,
@@ -135,6 +168,19 @@ public record FullLoanFacilityLifecycleSagaData(
                 sanctionedLoanId,
                 installmentScheduleId,
                 previousInstallmentScheduleId,
+                addedCollateralSerials,
                 Collections.unmodifiableList(combined));
+    }
+
+    public boolean hasCollaterals() {
+        return collaterals != null && !collaterals.isEmpty();
+    }
+
+    public boolean hasAddedCollaterals() {
+        return addedCollateralSerials != null && !addedCollateralSerials.isEmpty();
+    }
+
+    public int getAddedCollateralCount() {
+        return addedCollateralSerials != null ? addedCollateralSerials.size() : 0;
     }
 }
