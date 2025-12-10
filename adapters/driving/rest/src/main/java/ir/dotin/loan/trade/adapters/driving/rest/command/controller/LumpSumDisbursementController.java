@@ -48,6 +48,7 @@ class LumpSumDisbursementController extends BaseController {
             @Parameter(description = "جزئیات درخواست پرداخت یکجا", required = true) @RequestBody
                     DataRequest<LumpSumDisbursementRequest> requestBody) {
         var lumpSumDisbursementCommand = LumpSumDisbursementCommand.builder()
+                .uid(getXRequestId())
                 .version(requestBody.payload().version())
                 .loanFacilityId(facilityId)
                 .branchCode(authenticationContextHolder.branchCode().orElseThrow())

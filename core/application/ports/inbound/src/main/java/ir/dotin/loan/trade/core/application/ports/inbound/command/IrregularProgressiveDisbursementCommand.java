@@ -15,6 +15,7 @@ import lombok.Builder;
 
 @Builder(toBuilder = true)
 public record IrregularProgressiveDisbursementCommand(
+        @NotNull UUID uid,
         @NotNull UUID loanFacilityId,
         @NotNull BigDecimal trancheAmount,
         @NotNull Long version,

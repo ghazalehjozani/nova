@@ -173,9 +173,9 @@ platform:
       shutdown-timeout: 60s
       middleware-enabled: true
       idempotency:
-        enabled: false
+        enabled: true
         ttl: 24h
-        lock-ttl: 60s
+        lock-ttl: 120s
         cleanup-interval: 5m
         cleanup-threshold: 100
         cache-strategy: REDIS

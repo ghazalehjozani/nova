@@ -10,6 +10,7 @@ import lombok.Builder;
 
 @Builder(toBuilder = true)
 public record LumpSumDisbursementCommand(
+        @NotNull UUID uid,
         @NotNull Long version,
         @NotNull UUID loanFacilityId,
         @NotNull String branchCode,

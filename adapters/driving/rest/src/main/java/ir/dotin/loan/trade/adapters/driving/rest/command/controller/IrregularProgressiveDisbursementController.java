@@ -44,6 +44,7 @@ class IrregularProgressiveDisbursementController extends BaseController {
         var payload = requestBody.payload();
 
         var command = IrregularProgressiveDisbursementCommand.builder()
+                .uid(getXRequestId())
                 .loanFacilityId(facilityId)
                 .trancheAmount(payload.trancheAmount())
                 .version(payload.version())
