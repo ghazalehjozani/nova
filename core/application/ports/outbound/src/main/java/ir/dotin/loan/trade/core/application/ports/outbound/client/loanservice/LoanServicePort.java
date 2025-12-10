@@ -10,6 +10,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorResponse;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.ReasonType;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.TopicInfo;
@@ -17,6 +18,8 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.response.Topic
 public interface LoanServicePort {
 
     Result<EconomicSector> loadEconomicalSectorByCode(EconomicSector economicSector);
+
+    Result<EconomicalSectorResponse> loadEconomicalSector(EconomicSector economicSector);
 
     Result<EconomicalSectorValidation> validateEconomicalSectorForLoanType(
             EconomicSector economicSector, LoanTypeCode loanTypeCode);
