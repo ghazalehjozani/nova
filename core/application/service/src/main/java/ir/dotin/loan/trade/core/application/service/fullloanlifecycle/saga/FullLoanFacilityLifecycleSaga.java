@@ -344,6 +344,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
         var txConfig = data.transactionConfig();
 
         var command = LumpSumDisbursementCommand.builder()
+                .uid(data.correlationId())
                 .version(7L)
                 .loanFacilityId(data.facilityId())
                 .branchCode(data.branchCode())
@@ -383,6 +384,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
         var origCmd = data.originationCommand();
 
         var command = IrregularProgressiveDisbursementCommand.builder()
+                .uid(data.correlationId())
                 .loanFacilityId(data.facilityId())
                 .trancheAmount(data.trancheAmount())
                 .version(7L)
