@@ -81,7 +81,19 @@ public record OriginateLoanFacilityRequest(
     @Schema(name = "SamatDto", description = "اطلاعات مربوط به سمات")
     public record SamatDto(
             @Schema(description = "شماره پیگیری سمات", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-            String trackingNumber) {}
+            String trackingNumber,
+
+            @Schema(description = "بخش اقتصادی isic", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+            String isicEconomicSector,
+
+            @Schema(description = "زیر بخش اقتصادی isic", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+            String subIsicEconomicSector,
+
+            @Schema(description = "نوع استفاده", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+            String useType,
+
+            @Schema(description = "شهر محل مصرف", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+            String consumptionPlaceCode) {}
 
     @Schema(name = "DisburseDestinationDto", description = "مقصد پرداخت")
     public record DisburseDestinationDto(

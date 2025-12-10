@@ -110,5 +110,11 @@ public record TradeFacilityQueryDto(
             String usedAmountCurrency)
             implements Serializable {}
 
-    public record SamatDto(String trackingNumber) implements Serializable {}
+    public record SamatDto(
+            String trackingNumber,
+            String isicEconomicSector,
+            String subIsicEconomicSector,
+            String useType,
+            String consumptionPlaceCode)
+            implements Serializable {}
 }

@@ -57,7 +57,6 @@ public class FacilityBuilder {
                     context.arrangement().getId(),
                     clock,
                     scheduleId);
-
             log.debug("Facility created with ID: {}", facility.getId().value());
             return facility;
         });
@@ -115,7 +114,18 @@ public class FacilityBuilder {
 
         SamatDto samatDto = command.loanApplication().samat();
         if (samatDto != null) {
-            Result<Samat> samatResult = Samat.of(samatDto.trackingNumber());
+            String isicEconomicSector = samatDto.isicEconomicSector() != null ? samatDto.isicEconomicSector() : "0";
+            String subIsicEconomicSector =
+                    samatDto.subIsicEconomicSector() != null ? samatDto.subIsicEconomicSector() : "0";
+            String useType = samatDto.useType() != null ? samatDto.useType() : "30";
+            String consumptionPlaceCode =
+                    samatDto.consumptionPlaceCode() != null ? samatDto.consumptionPlaceCode() : "0";
+            Result<Samat> samatResult = Samat.of(
+                    samatDto.trackingNumber(),
+                    isicEconomicSector,
+                    subIsicEconomicSector,
+                    useType,
+                    consumptionPlaceCode);
             if (samatResult.isFailure()) {
                 return Result.failure(samatResult.notification());
             }

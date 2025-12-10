@@ -39,7 +39,12 @@ public record FullLoanFacilityLifecycleRequest(
             SamatDto samat,
             String credibilityRank) {}
 
-    public record SamatDto(Integer trackingNumber) {}
+    public record SamatDto(
+            String trackingNumber,
+            String isicEconomicSector,
+            String subIsicEconomicSector,
+            String useType,
+            String consumptionPlaceCode) {}
 
     public record DisburseDestinationDto(DisburseDestinationType type, String depositNumber) {}
 
