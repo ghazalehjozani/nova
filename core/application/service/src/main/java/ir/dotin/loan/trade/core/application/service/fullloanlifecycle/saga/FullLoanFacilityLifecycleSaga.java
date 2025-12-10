@@ -3,7 +3,6 @@ package ir.dotin.loan.trade.core.application.service.fullloanlifecycle.saga;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -46,6 +45,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.Tr
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanTypeRepository;
 import ir.dotin.loan.trade.core.application.service.fullloanlifecycle.i18n.FullLoanFacilityLifecycleErrorCodes;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityApproved;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCollateralAdded;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCreated;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityIrregularTrancheDisbursed;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityLumpSumDisbursed;
@@ -99,8 +99,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                                 FullLoanFacilityLifecycleStep.ISSUE_CONTRACT,
                                 this::issueContract,
                                 this::compensateContractIssuance)
-                        .withConservativeRetry()
-                        .withTimeout(Duration.ofSeconds(60)),
+                        .withNoRetry(),
                 SagaSteps.step(
                                 FullLoanFacilityLifecycleStep.EXECUTE_DISBURSEMENT,
                                 this::executeDisbursement,
@@ -524,64 +523,59 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
 
         log.info("Adding {} collaterals to facility: {}", data.collaterals().size(), data.facilityId());
 
-        List<String> successfulSerials = new ArrayList<>();
-        List<String> failedSerials = new ArrayList<>();
-        List<DomainEvent<?>> allEvents = new ArrayList<>();
-
-        for (var collateralDto : data.collaterals()) {
-            try {
-                var singleCollateralDto = AddFacilityCollateralCommand.CollateralDto.builder()
-                        .collateralTypeCode(collateralDto.collateralTypeCode())
-                        .percent(collateralDto.percent())
-                        .description(collateralDto.description())
-                        .collateralSerial(collateralDto.collateralSerial())
+        List<AddFacilityCollateralCommand.CollateralDto> collateralDtos = data.collaterals().stream()
+                .map(c -> AddFacilityCollateralCommand.CollateralDto.builder()
+                        .collateralTypeCode(c.collateralTypeCode())
+                        .percent(c.percent())
+                        .description(c.description())
+                        .collateralSerial(c.collateralSerial())
                         .usedAmount(new AddFacilityCollateralCommand.MoneyDto(
-                                collateralDto.usedAmount().value(),
-                                collateralDto.usedAmount().currency()))
-                        .build();
+                                c.usedAmount().value(), c.usedAmount().currency()))
+                        .build())
+                .toList();
 
-                var command = AddFacilityCollateralCommand.builder()
-                        .uid(data.correlationId())
-                        .version(4L)
-                        .loanFacilityId(data.facilityId())
-                        .collaterals(List.of(singleCollateralDto))
-                        .build();
+        var command = AddFacilityCollateralCommand.builder()
+                .uid(data.correlationId())
+                .version(4L)
+                .loanFacilityId(data.facilityId())
+                .collaterals(collateralDtos)
+                .build();
 
-                ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
+        ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
 
-                switch (result) {
-                    case ExecutionResult.Fresh<List<DomainEvent<?>>> fresh -> {
-                        successfulSerials.add(collateralDto.collateralSerial());
-                        allEvents.addAll(fresh.payload());
-                        log.debug("Successfully added collateral: {}", collateralDto.collateralSerial());
-                    }
-                    case ExecutionResult.Replayed<List<DomainEvent<?>>> replayed -> {
-                        successfulSerials.add(collateralDto.collateralSerial());
-                        allEvents.addAll(replayed.payload());
-                        log.debug("Replayed collateral addition: {}", collateralDto.collateralSerial());
-                    }
-                    case ExecutionResult.BusinessFailure<List<DomainEvent<?>>> failure -> {
-                        failedSerials.add(collateralDto.collateralSerial());
-                        log.warn(
-                                "Failed to add collateral {}: {}",
-                                collateralDto.collateralSerial(),
-                                failure.notification());
-                    }
-                }
-            } catch (Exception e) {
-                failedSerials.add(collateralDto.collateralSerial());
-                log.error("Exception while adding collateral: {}", collateralDto.collateralSerial(), e);
+        return switch (result) {
+            case ExecutionResult.Fresh<List<DomainEvent<?>>> fresh -> {
+                var events = fresh.payload();
+                extractAddedCollateralSerials(events).ifPresent(serials -> {
+                    ctx.updateSagaData(
+                            d -> d.withAddedCollateralSerials(serials).addDomainEvents(events));
+                    log.info("Successfully added {} collaterals to facility: {}", serials.size(), data.facilityId());
+                });
+
+                yield new StepResult.Success<>(null);
             }
-        }
+            case ExecutionResult.Replayed<List<DomainEvent<?>>> replayed -> {
+                var events = replayed.payload();
 
-        ctx.updateSagaData(
-                d -> d.withCollateralStatus(successfulSerials, failedSerials).addDomainEvents(allEvents));
+                extractAddedCollateralSerials(events).ifPresent(serials -> {
+                    ctx.updateSagaData(
+                            d -> d.withAddedCollateralSerials(serials).addDomainEvents(events));
+                });
 
-        log.info(
-                "Collateral addition complete. Success: {}, Failed: {}",
-                successfulSerials.size(),
-                failedSerials.size());
-        return new StepResult.Success<>(null);
+                yield new StepResult.Success<>(null);
+            }
+            case ExecutionResult.BusinessFailure<List<DomainEvent<?>>> failure -> {
+                log.warn("Failed to add collaterals: {}", failure.notification());
+                yield new StepResult.Failure<>(new StepError.BusinessRuleError(failure.notification()));
+            }
+        };
+    }
+
+    private Optional<List<String>> extractAddedCollateralSerials(List<DomainEvent<?>> events) {
+        return events.stream()
+                .filter(TradeLoanFacilityCollateralAdded.class::isInstance)
+                .map(e -> ((TradeLoanFacilityCollateralAdded) e).collateralSerials())
+                .findFirst();
     }
 
     private StepResult<Void> compensateCollaterals(SagaContext<FullLoanFacilityLifecycleSagaData> ctx, Void ignored) {
@@ -593,7 +587,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
 
         log.warn(
                 "Compensating {} collateral additions for facility: {}",
-                data.addedCollateralSerials().size(),
+                data.getAddedCollateralCount(),
                 data.facilityId());
 
         var command = CompensateCollateralCommand.builder()
