@@ -99,7 +99,8 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                                 FullLoanFacilityLifecycleStep.ISSUE_CONTRACT,
                                 this::issueContract,
                                 this::compensateContractIssuance)
-                        .withNoRetry(),
+                        .withConservativeRetry()
+                        .withTimeout(Duration.ofSeconds(60)),
                 SagaSteps.step(
                                 FullLoanFacilityLifecycleStep.EXECUTE_DISBURSEMENT,
                                 this::executeDisbursement,
