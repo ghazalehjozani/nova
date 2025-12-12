@@ -1,0 +1,6039 @@
+openapi: 3.1.0
+info:
+  title: trade-loan-service
+  description: Trade Loan API
+  contact:
+    name: Loan Team
+  version: 1.0.0
+servers:
+  - url: /
+    description: Current Environment
+security:
+  - bearer-jwt: []
+tags:
+  - name: Facility Collateral Management
+    description: عملیات مربوط به مدیریت وثایق تسهیلات
+  - name: Loan Arrangement Management
+    description: عملیات مربوط به مدیریت شرایط اعطا
+  - name: Facility Closure - Paid Off
+    description: عملیات مربوط به بستن تسهیلات پرداخت شده
+  - name: Irregular Disbursement
+    description: عملیات مربوط به پرداخت نامنظم تسهیلات
+  - name: Facility Approval Submission
+    description: عملیات مربوط به ثبت درخواست تصویب مصوبه
+  - name: Loan Type Queries
+    description: استعلام نوع تسهیلات
+  - name: Full Loan Facility Lifecycle
+    description: عملیات چرخه کامل تسهیلات
+  - name: Facility Approval
+    description: عملیات مربوط به تصویب مصوبه
+  - name: Audit Queries
+    description: Command audit trail query endpoints
+  - name: Facility Queries
+    description: استعلام تسهیلات
+  - name: Loan Type Management
+    description: عملیات مربوط به مدیریت نوع تسهیلات
+  - name: Facility Case Opening
+    description: عملیات مربوط به ایجاد پرونده تسهیلات
+  - name: Lump Sum Disbursement
+    description: عملیات مربوط به پرداخت یکجای تسهیلات
+  - name: Facility Contract Issuance
+    description: عملیات مربوط به صدور قرارداد تسهیلات
+  - name: Facility Closure - Defaulted
+    description: عملیات مربوط به بستن تسهیلات معوق
+  - name: Installment Schedule Queries
+    description: استعلام اقساط
+  - name: Loan Arrangement Queries
+    description: استعلام شرایط تسهیلات
+paths:
+  /api/v1/loan-types/define:
+    post:
+      tags:
+        - Loan Type Management
+      summary: ایجاد نوع تسهیلات
+      operationId: defineLoanType
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: &ref_32
+                payload:
+                  type: object
+                  description: تعریف نوع تسهیلات
+                  properties: &ref_34
+                    code:
+                      type: string
+                      description: کد
+                    title:
+                      type: string
+                      description: عنوان
+                    gatewayType:
+                      type: string
+                      description: محل استفاده
+                      enum:
+                        - CARD
+                        - DIGITAL_BANK
+                        - LOAN
+                        - GUARANTEE
+                        - CHEQUE
+                        - LETTER_OF_CREDIT
+                        - COLLATERAL
+                        - STAFF
+                    loanApplicationAllowed:
+                      type: boolean
+                      description: امکان درخواست تسهیلات
+                    economicSectorCurrencies:
+                      type: array
+                      description: بخش‌های اقتصادی و ارز های مرتبط
+                      items:
+                        type: object
+                        description: بخش اقتصادی و نوع ارز مرتبط
+                        properties: &ref_36
+                          economicSectorCode:
+                            type: string
+                            description: کد بخش اقتصادی
+                          currencyTypes:
+                            type: array
+                            description: نوع ارز
+                            items:
+                              type: string
+                            uniqueItems: true
+                        required: &ref_37
+                          - currencyTypes
+                          - economicSectorCode
+                    loanArrangementCodes:
+                      type: array
+                      description: کدهای شرایط تسهیلات
+                      items:
+                        type: string
+                      uniqueItems: true
+                    relationTypeLoanTopics:
+                      type: array
+                      description: سرفصل ها
+                      items:
+                        type: object
+                        description: رابطه نوع تسهیلات با موضوع
+                        properties: &ref_38
+                          relationType:
+                            type: string
+                            description: نوع رابطه
+                            enum:
+                              - PRINCIPAL
+                              - FUTURE_INTEREST
+                              - PENALTY
+                              - RECEIVED_INTEREST
+                              - RECEIVABLES_PAST_DUE
+                              - RECEIVABLES_OVERDUE
+                              - RECEIVABLES_DOUBTFUL
+                              - RECEIVABLES_SUBSTANDARD
+                              - RECEIVABLES_WRITTEN_OFF
+                              - INTEREST_SHORTFALL_PROVISION
+                              - ACCRUED_INTEREST
+                              - DEFERRED_INTEREST
+                              - ACCRUED_DEFERRED_INTEREST
+                              - BANK_COMMITMENTS
+                              - BANK_COMMITMENTS_CONTRA
+                              - RECEIVABLES_ACCRUED_DEFERRED_INTEREST
+                              - RECEIVABLES_DEFERRED_INTEREST
+                              - RECEIVABLES_FUTURE_INTEREST
+                              - ACCRUED_PENALTY
+                              - RECEIVABLES_ACCRUED_PENALTY
+                              - RECEIVABLES_PENALTY
+                              - CURRENT_DEBT_RECEIVABLES
+                              - DISBURSEMENT_TRANSACTION_CONTEXT
+                          topicName:
+                            type: string
+                            description: نام موضوع مرتبط
+                          topicCode:
+                            type: string
+                            description: کد موضوع مرتبط
+                          economicSectorCodes:
+                            type: array
+                            description: کدهای بخش‌های اقتصادی مرتبط
+                            items:
+                              type: string
+                            uniqueItems: true
+                        required: &ref_39
+                          - economicSectorCodes
+                          - relationType
+                          - topicCode
+                          - topicName
+                  required: &ref_35
+                    - code
+                    - economicSectorCurrencies
+                    - gatewayType
+                    - loanApplicationAllowed
+                    - loanArrangementCodes
+                    - relationTypeLoanTopics
+                    - title
+                metadata:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required: &ref_33
+                - metadata
+                - payload
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: &ref_1
+                  RsCode:
+                    type: string
+                    deprecated: true
+                  IsSuccess:
+                    type: boolean
+                    deprecated: true
+                  metadata:
+                    type: object
+                    additionalProperties: {}
+                  payload:
+                    type: object
+                    properties: &ref_40
+                      events:
+                        type: array
+                        items: {}
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: &ref_0
+                  RsCode:
+                    type: string
+                    deprecated: true
+                  IsSuccess:
+                    type: boolean
+                    deprecated: true
+                  metadata:
+                    type: object
+                    additionalProperties: {}
+                  payload:
+                    description: Always null for error responses
+                    example: null
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties: &ref_31
+                        code:
+                          type: string
+                        message:
+                          type: string
+                        details:
+                          type: array
+                          items:
+                            type: object
+                            properties: &ref_30
+                              field:
+                                type: string
+                              message:
+                                type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/loan-arrangements/define:
+    post:
+      tags:
+        - Loan Arrangement Management
+      summary: ایجاد شرط اعطا
+      operationId: defineLoanArrangement
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: &ref_43
+                payload:
+                  type: object
+                  description: ایجاد شرایط تسهیلات
+                  properties: &ref_45
+                    code:
+                      type: string
+                      description: کد
+                    title:
+                      type: string
+                      description: عنوان
+                    currencyType:
+                      type: string
+                      description: نوع ارز
+                    amountRange:
+                      description: بازه مبلغی
+                      type: object
+                      properties: &ref_41
+                        min:
+                          type: number
+                          description: حداقل مبلغ
+                        max:
+                          type: number
+                          description: حداکثر مبلغ
+                    durationRange:
+                      description: بازه مدت زمان تسهیلات
+                      type: object
+                      properties: &ref_50
+                        minMonths:
+                          type: integer
+                          format: int32
+                          description: حداقل مدت
+                        maxMonths:
+                          type: integer
+                          format: int32
+                          description: حداکثر مدت
+                    partyType:
+                      type: string
+                      description: نوع شخص
+                      enum:
+                        - REAL
+                        - LEGAL
+                        - REAL_AND_LEGAL
+                    confirmTypes:
+                      type: array
+                      description: لیست مرجع تصویب
+                      items:
+                        type: string
+                    guarantorCount:
+                      type: integer
+                      format: int32
+                      description: تعداد ضامنین
+                    hasInstallmentCard:
+                      type: boolean
+                      description: اقساط کارت
+                    lifeInsurancePaymentType:
+                      type: string
+                      description: روش پرداخت بیمه عمر
+                      enum:
+                        - INSTALLMENT_LIFE_INSURANCE_PAYMENT
+                        - DISBURSE_LIFE_INSURANCE_PAYMENT
+                        - NONE
+                    loanSecondaryType:
+                      type: string
+                      description: نوع ثانویه تسهیلات
+                      enum:
+                        - GENERAL
+                        - SPECIFIC
+                        - GENERAL_AND_SPECIFIC
+                        - NONE
+                    sectionType:
+                      type: string
+                      description: بخش
+                      enum:
+                        - FIXED
+                        - CURRENT
+                        - FIXED_AND_CURRENT
+                        - NONE
+                    economicSector:
+                      type: string
+                      description: بخش اقتصادی
+                    interestPolicy:
+                      description: سیاست نرخ سود
+                      type: object
+                      properties: &ref_49
+                        rate:
+                          type: number
+                          description: نرخ تسهیلات
+                        minPreferentialRate:
+                          type: number
+                          description: حداقل نرخ ترجیهی
+                        maxPreferentialRate:
+                          type: number
+                          description: حداکثر نرخ ترجیهی
+                        interestFormula:
+                          type: string
+                          description: فرمول محاسبه سود
+                        refundFormula:
+                          type: string
+                          description: فرمول بازگشت سود
+                        dailyInterest:
+                          type: boolean
+                          description: سود روزشمار
+                    penaltyPolicy:
+                      description: سیاست جریمه
+                      type: object
+                      properties: &ref_51
+                        penaltyRate:
+                          type: number
+                          description: نرخ جریمه
+                        deferralInterestRate:
+                          type: number
+                          description: نرخ سود معوق
+                        formula:
+                          type: string
+                          description: فرمول جریمه
+                        paymentType:
+                          type: string
+                          description: نوع پرداخت جریمه
+                          enum:
+                            - INSTALLMENT_PENALTY_PAYMENT
+                            - SETTLEMENT_PENALTY_PAYMENT
+                    installmentPolicy:
+                      description: سیاست اقساط
+                      type: object
+                      properties: &ref_48
+                        installmentPeriodMonths:
+                          type: integer
+                          format: int32
+                          description: فاصله میان اقساط
+                        installmentFormula:
+                          type: string
+                          description: فرمول محاسبه قسط
+                        interestComponentFormula:
+                          type: string
+                          description: فرمول جزء سود قسط
+                        paymentType:
+                          type: string
+                          description: نوع پرداخت اقساط
+                          enum:
+                            - ONE_TIME
+                            - GRADUAL
+                            - SCHEDULED
+                    gracePeriodPolicy:
+                      description: سیاست دوره مهلت
+                      type: object
+                      properties: &ref_47
+                        minGracePeriodDays:
+                          type: integer
+                          format: int32
+                          description: حداقل روز مهلت
+                        maxGracePeriodDays:
+                          type: integer
+                          format: int32
+                          description: حداکثر روز مهلت
+                        formula:
+                          type: string
+                          description: فرمول محاسبه مهلت
+                    repaymentPriorityPolicy:
+                      description: اولویت کسر مبالغ
+                      type: object
+                      properties: &ref_53
+                        principalPriority:
+                          type: integer
+                          format: int32
+                          description: اولویت اصل وام
+                        interestPriority:
+                          type: integer
+                          format: int32
+                          description: اولویت سود
+                        penaltyPriority:
+                          type: integer
+                          format: int32
+                          description: اولویت جریمه
+                        commissionPriority:
+                          type: integer
+                          format: int32
+                          description: اولویت کارمزد
+                        insurancePriority:
+                          type: integer
+                          format: int32
+                          description: اولویت بیمه
+                        insurancePenaltyPriority:
+                          type: integer
+                          format: int32
+                          description: اولویت جریمه بیمه
+                        hasEqualPriority:
+                          type: boolean
+                          description: آیا اولویت برابر دارد؟
+                    regulatoryCompliancePolicy:
+                      description: انتقال به مطالبات
+                      type: object
+                      properties: &ref_52
+                        overDuePeriodMonths:
+                          type: integer
+                          format: int32
+                          description: دوره سررسید
+                        deferralPeriodMonths:
+                          type: integer
+                          format: int32
+                          description: دوره تعویق
+                        suspiciousPeriodMonths:
+                          type: integer
+                          format: int32
+                          description: دوره مشکوک
+                    collateralPolicy:
+                      description: سیاست وثایق
+                      type: object
+                      properties: &ref_42
+                        totalPercent:
+                          type: integer
+                          format: int32
+                          description: درصد وثیقه مورد نیاز
+                        collateralTypes:
+                          type: array
+                          description: انواع وثیقه
+                          items:
+                            type: string
+                          uniqueItems: true
+                        collateralCalculationType:
+                          type: string
+                          description: نحوه محاسبه درصد وثیقه
+                          enum:
+                            - BASED_ON_PRINCIPAL
+                            - BASED_ON_PRINCIPAL_AND_TOTAL_INTEREST
+                    disbursementType:
+                      type: string
+                      description: نوع پرداخت
+                      enum:
+                        - LUMP_SUM
+                        - PROGRESSIVE
+                  required: &ref_46
+                    - amountRange
+                    - code
+                    - collateralPolicy
+                    - confirmTypes
+                    - currencyType
+                    - disbursementType
+                    - durationRange
+                    - economicSector
+                    - gracePeriodPolicy
+                    - guarantorCount
+                    - hasInstallmentCard
+                    - installmentPolicy
+                    - interestPolicy
+                    - lifeInsurancePaymentType
+                    - loanSecondaryType
+                    - partyType
+                    - penaltyPolicy
+                    - regulatoryCompliancePolicy
+                    - repaymentPriorityPolicy
+                    - sectionType
+                    - title
+                metadata:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required: &ref_44
+                - metadata
+                - payload
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/facilities/{facilityId}/submit-for-approval:
+    post:
+      tags:
+        - Facility Approval Submission
+      summary: ثبت درخواست تصویب تسهیلات
+      operationId: submitFacilityForApproval
+      parameters:
+        - name: facilityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: جزئیات ثبت درخواست تصویب مصوبه
+              properties: &ref_54
+                payload:
+                  type: object
+                  description: ثبت درخواست تصویب مصوبه
+                  properties: &ref_56
+                    uid:
+                      type: string
+                      format: uuid
+                      description: شناسه عملیات
+                      example: b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58
+                    version:
+                      type: integer
+                      format: int32
+                      description: نسخه عملیات
+                      example: 1
+                  required: &ref_57
+                    - uid
+                    - version
+                metadata:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required: &ref_55
+                - metadata
+                - payload
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/facilities/{facilityId}/submit-for-approval/compensate:
+    post:
+      tags:
+        - Facility Approval Submission
+      summary: جبران‌سازی مرحله ثبت درخواست تصویب
+      operationId: compensateApprovalSubmission
+      parameters:
+        - name: facilityId
+          in: path
+          description: شناسه یکتای تسهیلات
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: &ref_2
+                payload:
+                  type: object
+                  properties: &ref_58
+                    version:
+                      type: integer
+                      format: int64
+                    reason:
+                      type: string
+                    installmentScheduleId:
+                      type: string
+                      format: uuid
+                  required: &ref_59
+                    - version
+                metadata:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required: &ref_3
+                - metadata
+                - payload
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/facilities/{facilityId}/issue-contract:
+    post:
+      tags:
+        - Facility Contract Issuance
+      summary: صدور قرارداد
+      operationId: issueFacilityContract
+      parameters:
+        - name: facilityId
+          in: path
+          description: شناسه یکتای تسهیلات جهت صدور قرارداد
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: جزئیات صدور قرارداد تسهیلات
+              properties: &ref_60
+                payload:
+                  type: object
+                  description: عملیات صدور قرارداد
+                  properties: &ref_62
+                    uid:
+                      type: string
+                      format: uuid
+                      description: شناسه عملیات
+                      example: b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58
+                    version:
+                      type: integer
+                      format: int64
+                      description: نسخه عملیات
+                      example: 1
+                  required: &ref_63
+                    - uid
+                    - version
+                metadata:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required: &ref_61
+                - metadata
+                - payload
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/facilities/{facilityId}/issue-contract/compensate:
+    post:
+      tags:
+        - Facility Contract Issuance
+      summary: جبران‌سازی مرحله صدور قرارداد
+      operationId: compensateContractIssuance
+      parameters:
+        - name: facilityId
+          in: path
+          description: شناسه یکتای تسهیلات
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: *ref_2
+              required: *ref_3
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/facilities/{facilityId}/disburse/progressive-irregular:
+    post:
+      tags:
+        - Irregular Disbursement
+      summary: پرداخت نامنظم
+      operationId: irregularDisbursement
+      parameters:
+        - name: facilityId
+          in: path
+          description: شناسه یکتای تسهیلات
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: جزئیات درخواست پرداخت نامنظم
+              properties: &ref_64
+                payload:
+                  type: object
+                  description: درخواست پرداخت نامنظم تسهیلات
+                  properties: &ref_68
+                    trancheAmount:
+                      type: number
+                      description: مبلغ پرداخت
+                    installmentSchedulePlan:
+                      description: برنامه اقساط
+                      type: object
+                      properties: &ref_9
+                        installments:
+                          type: array
+                          description: لیست اقساط
+                          items:
+                            type: object
+                            description: مشخصات قسط
+                            properties: &ref_66
+                              sequenceNumber:
+                                type: integer
+                                format: int32
+                                description: شماره ترتیب قسط
+                              dueDate:
+                                type: string
+                                format: date
+                                description: تاریخ سررسید قسط
+                              principalAmount:
+                                type: number
+                                description: مبلغ اصل قسط
+                              interestAmount:
+                                type: number
+                                description: مبلغ سود قسط
+                            required: &ref_67
+                              - dueDate
+                              - interestAmount
+                              - principalAmount
+                              - sequenceNumber
+                      required: &ref_10
+                        - installments
+                    uid:
+                      type: string
+                      format: uuid
+                      description: شناسه عملیات
+                    version:
+                      type: integer
+                      format: int64
+                      description: نسخه عملیات
+                    disbursementDate:
+                      type: string
+                      format: date
+                      description: تاریخ پرداخت
+                  required: &ref_69
+                    - installmentSchedulePlan
+                    - trancheAmount
+                    - uid
+                    - version
+                metadata:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required: &ref_65
+                - metadata
+                - payload
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/facilities/{facilityId}/disburse/progressive-irregular/compensate:
+    post:
+      tags:
+        - Irregular Disbursement
+      summary: جبران‌سازی مرحله پرداخت نامنظم
+      operationId: compensateIrregularDisbursement
+      parameters:
+        - name: facilityId
+          in: path
+          description: شناسه یکتای تسهیلات
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: *ref_2
+              required: *ref_3
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/facilities/{facilityId}/disburse/lump-sum:
+    post:
+      tags:
+        - Lump Sum Disbursement
+      summary: پرداخت یکجا
+      operationId: lumpSumDisbursement
+      parameters:
+        - name: facilityId
+          in: path
+          description: شناسه یکتای تسهیلات
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: جزئیات درخواست پرداخت یکجا
+              properties: &ref_70
+                payload:
+                  type: object
+                  description: درخواست پرداخت یکجای تسهیلات
+                  properties: &ref_72
+                    version:
+                      type: integer
+                      format: int64
+                      description: نسخه عملیات
+                      example: 1
+                    disbursementDate:
+                      type: string
+                      format: date
+                      description: تاریخ پرداخت
+                  required: &ref_73
+                    - version
+                metadata:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required: &ref_71
+                - metadata
+                - payload
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/facilities/{facilityId}/disburse/lump-sum/compensate:
+    post:
+      tags:
+        - Lump Sum Disbursement
+      summary: جبران‌سازی مرحله پرداخت یکجا
+      operationId: compensateLumpSumDisbursement
+      parameters:
+        - name: facilityId
+          in: path
+          description: شناسه یکتای تسهیلات
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: *ref_2
+              required: *ref_3
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/facilities/{facilityId}/collaterals:
+    post:
+      tags:
+        - Facility Collateral Management
+      summary: افزودن وثیقه
+      operationId: addCollaterals
+      parameters:
+        - name: facilityId
+          in: path
+          description: شناسه یکتای تسهیلات
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: جزئیات افزودن وثیقه به تسهیلات
+              properties: &ref_76
+                payload:
+                  type: object
+                  description: عملیات مدیریت وثایق تسهیلات
+                  properties: &ref_74
+                    uid:
+                      type: string
+                      format: uuid
+                      description: شناسه عملیات
+                      example: b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58
+                    version:
+                      type: integer
+                      format: int32
+                      description: نسخه عملیات
+                      example: 1
+                    collaterals:
+                      type: array
+                      description: اطلاعات وثایق
+                      items:
+                        type: object
+                        description: Collateral details
+                        properties: &ref_13
+                          collateralTypeCode:
+                            type: string
+                            description: Collateral type code
+                            example: ESTATE_1
+                          percent:
+                            type: integer
+                            format: int32
+                            description: Collateral percentage
+                            example: 100
+                          description:
+                            type: string
+                            description: Collateral description
+                            example: Property deed
+                          collateralSerial:
+                            type: string
+                            description: Collateral serial number
+                            example: COLL-2025-001
+                          usedAmount:
+                            description: Used amount from collateral
+                            type: object
+                            properties: &ref_78
+                              value:
+                                type: number
+                                description: Amount
+                                example: 1000000
+                              currency:
+                                type: string
+                                description: Currency code
+                                example: IRR
+                            required: &ref_79
+                              - currency
+                              - value
+                        required: &ref_14
+                          - collateralSerial
+                          - collateralTypeCode
+                          - description
+                          - percent
+                          - usedAmount
+                  required: &ref_75
+                    - collaterals
+                    - uid
+                    - version
+                metadata:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required: &ref_77
+                - metadata
+                - payload
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/facilities/{facilityId}/collaterals/compensate:
+    post:
+      tags:
+        - Facility Collateral Management
+      summary: جبران‌سازی افزودن وثایق
+      operationId: compensateAddCollaterals
+      parameters:
+        - name: facilityId
+          in: path
+          description: شناسه تسهیلات
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: جزئیات وثایق برای جبران‌سازی
+              properties: &ref_82
+                payload:
+                  type: object
+                  properties: &ref_80
+                    version:
+                      type: integer
+                      format: int32
+                    collateralSerials:
+                      type: array
+                      items:
+                        type: string
+                  required: &ref_81
+                    - version
+                metadata:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required: &ref_83
+                - metadata
+                - payload
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/facilities/{facilityId}/close-paid-off:
+    post:
+      tags:
+        - Facility Closure - Paid Off
+      summary: بستن تسهیلات پرداخت شده
+      operationId: closeFacilityPaidOff
+      parameters:
+        - name: facilityId
+          in: path
+          description: شناسه یکتای تسهیلات پرداخت شده جهت بستن
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: جزئیات بستن تسهیلات پرداخت شده
+              properties: &ref_86
+                payload:
+                  type: object
+                  description: عملیات بستن تسهیلات پرداخت شده
+                  properties: &ref_84
+                    uid:
+                      type: string
+                      format: uuid
+                      description: شناسه عملیات
+                      example: b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58
+                    version:
+                      type: integer
+                      format: int32
+                      description: نسخه عملیات
+                      example: 1
+                  required: &ref_85
+                    - uid
+                    - version
+                metadata:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required: &ref_87
+                - metadata
+                - payload
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/facilities/{facilityId}/close-defaulted:
+    post:
+      tags:
+        - Facility Closure - Defaulted
+      summary: بستن تسهیلات معوق
+      operationId: closeFacilityDefaulted
+      parameters:
+        - name: facilityId
+          in: path
+          description: شناسه یکتای تسهیلات معوق جهت بستن
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: جزئیات عملیات بستن تسهیلات
+              properties: &ref_90
+                payload:
+                  type: object
+                  description: عملیات بستن تسهیلات
+                  properties: &ref_88
+                    uid:
+                      type: string
+                      format: uuid
+                      description: شناسه عملیات
+                      example: b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58
+                    version:
+                      type: integer
+                      format: int32
+                      description: نسخه عملیات
+                      example: 1
+                  required: &ref_89
+                    - uid
+                    - version
+                metadata:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required: &ref_91
+                - metadata
+                - payload
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/facilities/{facilityId}/approve:
+    post:
+      tags:
+        - Facility Approval
+      summary: تصویب خودکار مصوبه
+      operationId: autoApproveFacility
+      parameters:
+        - name: facilityId
+          in: path
+          description: شناسه یکتای تسهیلات
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: جزئیات تصویب مصوبه
+              properties: &ref_4
+                payload:
+                  type: object
+                  description: عملیات تصویب مصوبه
+                  properties: &ref_92
+                    version:
+                      type: integer
+                      format: int64
+                      description: نسخه عملیات
+                      example: 1
+                  required: &ref_93
+                    - version
+                metadata:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required: &ref_5
+                - metadata
+                - payload
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/facilities/{facilityId}/approve/{sanctionSerial}:
+    post:
+      tags:
+        - Facility Approval
+      summary: تصویب مصوبه با شماره سریال
+      operationId: approveFacilityWithSerial
+      parameters:
+        - name: facilityId
+          in: path
+          description: شناسه یکتای تسهیلات
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58
+        - name: sanctionSerial
+          in: path
+          description: شماره سریال یکتای مصوبه جهت تصویب
+          required: true
+          schema:
+            type: string
+            minLength: 1
+          example: SAN-2025-001
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: جزئیات تصویب مصوبه
+              properties: *ref_4
+              required: *ref_5
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/facilities/{facilityId}/approve/compensate:
+    post:
+      tags:
+        - Facility Approval
+      summary: جبران‌سازی مرحله تصویب
+      operationId: compensateApproval
+      parameters:
+        - name: facilityId
+          in: path
+          description: شناسه یکتای تسهیلات
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: *ref_2
+              required: *ref_3
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/facilities/open-case:
+    post:
+      tags:
+        - Facility Case Opening
+      summary: ایجاد پرونده تسهیلات
+      operationId: openFacilityCase
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: &ref_98
+                payload:
+                  type: object
+                  description: درخواست ایجاد تسهیلات
+                  properties: &ref_104
+                    loanTypeCode:
+                      type: string
+                      description: کد نوع تسهیلات
+                    loanArrangementCode:
+                      type: string
+                      description: کد شرایط تسهیلات
+                    loanApplication:
+                      description: درخواست تسهیلات
+                      type: object
+                      properties: &ref_11
+                        requestDate:
+                          type: string
+                          format: date-time
+                          description: تاریخ درخواست
+                        parties:
+                          type: array
+                          description: ذینفعان شامل مشتری اصلی، فرعی و ضامنین
+                          items:
+                            oneOf:
+                              - allOf: &ref_94
+                                  - description: اطلاعات ذینفع
+                                    discriminator: &ref_6
+                                      propertyName: role
+                                    properties: &ref_7
+                                      role:
+                                        type: string
+                                    required: &ref_8
+                                      - role
+                                  - type: object
+                                    properties:
+                                      customerNumber:
+                                        type: string
+                                        description: شماره مشتری
+                                description: متقاضی اصلی
+                                required: &ref_95
+                                  - customerNumber
+                              - allOf: &ref_96
+                                  - description: اطلاعات ذینفع
+                                    discriminator: *ref_6
+                                    properties: *ref_7
+                                    required: *ref_8
+                                  - type: object
+                                    properties:
+                                      customerNumber:
+                                        type: string
+                                        description: شماره مشتری
+                                description: متقاضی همراه
+                                required: &ref_97
+                                  - customerNumber
+                              - allOf: &ref_102
+                                  - description: اطلاعات ذینفع
+                                    discriminator: *ref_6
+                                    properties: *ref_7
+                                    required: *ref_8
+                                  - type: object
+                                    properties:
+                                      customerNumber:
+                                        type: string
+                                        description: شماره مشتری
+                                      guaranteePercentage:
+                                        type: number
+                                        description: درصد ضمانت
+                                        maximum: 100
+                                        minimum: 0
+                                description: ضامن
+                                required: &ref_103
+                                  - customerNumber
+                                  - guaranteePercentage
+                          uniqueItems: true
+                        requestedAmount:
+                          type: number
+                          description: مبلغ درخواستی
+                        disbursementMethod:
+                          type: string
+                          description: روش پرداخت تسهیلات
+                          enum:
+                            - LUMP_SUM
+                            - REGULAR_PROGRESSIVE
+                            - IRREGULAR_PROGRESSIVE
+                        currency:
+                          type: string
+                          description: نوع ارز
+                        requestedLoanDurationMonths:
+                          type: integer
+                          format: int32
+                          description: مدت زمان تسهیلات (ماه)
+                        applicantChannel:
+                          type: string
+                          description: کانال متقاضی
+                          enum:
+                            - INTERNET_BANK
+                            - DIGITAL_BANK
+                        gracePeriodDays:
+                          type: integer
+                          format: int32
+                          description: دوره تنفس (روز)
+                        installmentCount:
+                          type: integer
+                          format: int32
+                          description: تعداد اقساط
+                        disburseDestination:
+                          description: مقصد پرداخت
+                          type: object
+                          properties: &ref_100
+                            depositNumber:
+                              type: string
+                              description: شماره حساب
+                            type:
+                              type: string
+                              description: نوع مقصد پرداخت
+                              enum:
+                                - DEPOSIT
+                                - BOX
+                          required: &ref_101
+                            - type
+                        economicSectorCode:
+                          type: string
+                          description: کد بخش اقتصادی
+                        requestReasonCode:
+                          type: string
+                          description: کد دلیل درخواست
+                        subSourceCode:
+                          type: string
+                          description: کد منبع فرعی
+                        description:
+                          type: string
+                          description: توضیحات
+                        applicationNumber:
+                          type: string
+                          description: شماره پرونده
+                        credibilityRank:
+                          type: string
+                          description: مقدار رتبه اعتباری
+                        samat:
+                          description: اطلاعات مربوط به سمات
+                          type: object
+                          properties: &ref_17
+                            trackingNumber:
+                              type: string
+                              description: شماره پیگیری سمات
+                            isicEconomicSector:
+                              type: string
+                              description: بخش اقتصادی isic
+                            subIsicEconomicSector:
+                              type: string
+                              description: زیر بخش اقتصادی isic
+                            useType:
+                              type: string
+                              description: نوع استفاده
+                            consumptionPlaceCode:
+                              type: string
+                              description: شهر محل مصرف
+                      required: &ref_12
+                        - applicantChannel
+                        - currency
+                        - disburseDestination
+                        - disbursementMethod
+                        - economicSectorCode
+                        - gracePeriodDays
+                        - installmentCount
+                        - parties
+                        - requestDate
+                        - requestReasonCode
+                        - requestedAmount
+                        - requestedLoanDurationMonths
+                    installmentSchedulePlan:
+                      description: برنامه اقساط
+                      type: object
+                      properties: *ref_9
+                      required: *ref_10
+                  required: &ref_105
+                    - loanApplication
+                    - loanArrangementCode
+                    - loanTypeCode
+                metadata:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required: &ref_99
+                - metadata
+                - payload
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/facilities/open-case/{facilityId}/compensate:
+    post:
+      tags:
+        - Facility Case Opening
+      summary: جبران‌سازی مرحله تشکیل پرونده
+      operationId: compensateOrigination
+      parameters:
+        - name: facilityId
+          in: path
+          description: شناسه یکتای تسهیلات
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: *ref_2
+              required: *ref_3
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/facilities/full-lifecycle:
+    post:
+      tags:
+        - Full Loan Facility Lifecycle
+      summary: اجرای چرخه کامل تسهیلات از تشکیل تا پرداخت
+      operationId: executeFullLifecycle
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: &ref_106
+                payload:
+                  type: object
+                  properties: &ref_109
+                    version:
+                      type: integer
+                      format: int64
+                    loanTypeCode:
+                      type: string
+                    loanArrangementCode:
+                      type: string
+                    loanApplication:
+                      type: object
+                      description: اطلاعات درخواست تسهیلات
+                      properties: *ref_11
+                      required: *ref_12
+                    disbursement:
+                      type: object
+                      properties: &ref_108
+                        trancheAmount:
+                          type: number
+                        disbursementDate:
+                          type: string
+                          format: date
+                    installmentSchedulePlan:
+                      type: object
+                      description: برنامه زمانبندی اقساط
+                      properties: *ref_9
+                      required: *ref_10
+                    collaterals:
+                      type: array
+                      items:
+                        type: object
+                        description: Collateral details
+                        properties: *ref_13
+                        required: *ref_14
+                metadata:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required: &ref_107
+                - metadata
+                - payload
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/facilities/full-lifecycle/{facilityId}/compensate:
+    post:
+      tags:
+        - Full Loan Facility Lifecycle
+      summary: بازگشت کامل چرخه تسهیلات
+      operationId: revertFullLifecycle
+      parameters:
+        - name: facilityId
+          in: path
+          description: شناسه یکتای تسهیلات
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: جزئیات درخواست بازگشت
+              properties: &ref_110
+                payload:
+                  type: object
+                  properties: &ref_112
+                    version:
+                      type: integer
+                      format: int64
+                    reason:
+                      type: string
+                    contractTransactionNumberToReverse:
+                      type: string
+                    disbursementTransactionNumberToReverse:
+                      type: string
+                    collateralSerialsToRevert:
+                      type: array
+                      items:
+                        type: string
+                  required: &ref_113
+                    - version
+                metadata:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required: &ref_111
+                - metadata
+                - payload
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/loan-types:
+    get:
+      tags:
+        - Loan Type Queries
+      summary: Get all loan types with cursor-based pagination
+      operationId: findAll
+      parameters:
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            maximum: 100
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: &ref_16
+                  RsCode:
+                    type: string
+                    deprecated: true
+                  IsSuccess:
+                    type: boolean
+                    deprecated: true
+                  metadata:
+                    type: object
+                    additionalProperties: {}
+                  payload:
+                    type: object
+                    properties: &ref_117
+                      loanTypes:
+                        type: array
+                        items:
+                          type: object
+                          properties: &ref_15
+                            id:
+                              type: string
+                              format: uuid
+                            version:
+                              type: integer
+                              format: int64
+                            createdAt:
+                              type: string
+                              format: date-time
+                            modifiedAt:
+                              type: string
+                              format: date-time
+                            createdBy:
+                              type: string
+                            modifiedBy:
+                              type: string
+                            code:
+                              type: object
+                              properties: &ref_116
+                                value:
+                                  type: string
+                            title:
+                              type: object
+                              properties: &ref_21
+                                value:
+                                  type: string
+                            editReason:
+                              type: object
+                              properties: &ref_115
+                                editReason:
+                                  type: string
+                            gatewayType:
+                              type: string
+                              enum:
+                                - CARD
+                                - DIGITAL_BANK
+                                - LOAN
+                                - GUARANTEE
+                                - CHEQUE
+                                - LETTER_OF_CREDIT
+                                - COLLATERAL
+                                - STAFF
+                            loanApplicationAllowed:
+                              type: boolean
+                            economicSectorCurrencies:
+                              type: array
+                              items:
+                                type: object
+                                properties: &ref_114
+                                  economicSectorCode:
+                                    type: string
+                                  currencyTypes:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties: &ref_22
+                                        value:
+                                          type: string
+                                    uniqueItems: true
+                              uniqueItems: true
+                            incomeIds:
+                              type: array
+                              items:
+                                type: string
+                                format: uuid
+                              uniqueItems: true
+                            loanArrangementIds:
+                              type: array
+                              items:
+                                type: string
+                                format: uuid
+                              uniqueItems: true
+                            relationTypeLoanTopics:
+                              type: array
+                              items:
+                                type: object
+                                properties: &ref_118
+                                  tradeRelationType:
+                                    type: string
+                                    enum:
+                                      - PRINCIPAL
+                                      - FUTURE_INTEREST
+                                      - PENALTY
+                                      - RECEIVED_INTEREST
+                                      - RECEIVABLES_PAST_DUE
+                                      - RECEIVABLES_OVERDUE
+                                      - RECEIVABLES_DOUBTFUL
+                                      - RECEIVABLES_SUBSTANDARD
+                                      - RECEIVABLES_WRITTEN_OFF
+                                      - INTEREST_SHORTFALL_PROVISION
+                                      - ACCRUED_INTEREST
+                                      - DEFERRED_INTEREST
+                                      - ACCRUED_DEFERRED_INTEREST
+                                      - BANK_COMMITMENTS
+                                      - BANK_COMMITMENTS_CONTRA
+                                      - RECEIVABLES_ACCRUED_DEFERRED_INTEREST
+                                      - RECEIVABLES_DEFERRED_INTEREST
+                                      - RECEIVABLES_FUTURE_INTEREST
+                                      - ACCRUED_PENALTY
+                                      - RECEIVABLES_ACCRUED_PENALTY
+                                      - RECEIVABLES_PENALTY
+                                      - CURRENT_DEBT_RECEIVABLES
+                                      - DISBURSEMENT_TRANSACTION_CONTEXT
+                                  topicName:
+                                    type: string
+                                  topicCode:
+                                    type: string
+                                  economicSectors:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties: &ref_23
+                                        code:
+                                          type: string
+                                    uniqueItems: true
+                              uniqueItems: true
+                            groupId:
+                              type: string
+                              format: uuid
+                            active:
+                              type: boolean
+                            disable:
+                              type: boolean
+                            previousVersion:
+                              type: string
+                              format: uuid
+                      nextCursor:
+                        type: string
+                      previousCursor:
+                        type: string
+                      hasNext:
+                        type: boolean
+                      hasPrevious:
+                        type: boolean
+                      currentPage:
+                        type: integer
+                        format: int32
+                      pageSize:
+                        type: integer
+                        format: int32
+                      totalElements:
+                        type: integer
+                        format: int64
+                      totalPages:
+                        type: integer
+                        format: int32
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/loan-types/{loanTypeId}:
+    get:
+      tags:
+        - Loan Type Queries
+      summary: دریافت نوع تسهیلات بر اساس شناسه
+      operationId: getById
+      parameters:
+        - name: loanTypeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: &ref_119
+                  RsCode:
+                    type: string
+                    deprecated: true
+                  IsSuccess:
+                    type: boolean
+                    deprecated: true
+                  metadata:
+                    type: object
+                    additionalProperties: {}
+                  payload:
+                    type: object
+                    properties: *ref_15
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/loan-types/search:
+    get:
+      tags:
+        - Loan Type Queries
+      summary: جستجوی انواع تسهیلات با فیلترهای مختلف
+      operationId: searchLoanTypes
+      parameters:
+        - name: code
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: title
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            minimum: 0
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            maximum: 100
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_16
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/loan-facilities:
+    get:
+      tags:
+        - Facility Queries
+      summary: دریافت لیست تمام تسهیلات
+      operationId: findAll_1
+      parameters:
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            maximum: 100
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: &ref_20
+                  RsCode:
+                    type: string
+                    deprecated: true
+                  IsSuccess:
+                    type: boolean
+                    deprecated: true
+                  metadata:
+                    type: object
+                    additionalProperties: {}
+                  payload:
+                    type: object
+                    properties: &ref_122
+                      facilities:
+                        type: array
+                        items:
+                          type: object
+                          properties: &ref_19
+                            id:
+                              type: string
+                              format: uuid
+                            version:
+                              type: integer
+                              format: int64
+                            loanApplication:
+                              type: object
+                              properties: &ref_125
+                                id:
+                                  type: string
+                                  format: uuid
+                                version:
+                                  type: integer
+                                  format: int64
+                                requestDate:
+                                  type: string
+                                  format: date-time
+                                parties:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties: &ref_123
+                                      customerNumber:
+                                        type: string
+                                      partyType:
+                                        type: string
+                                        enum:
+                                          - REAL
+                                          - LEGAL
+                                          - REAL_AND_LEGAL
+                                      partyRole:
+                                        type: string
+                                        enum:
+                                          - PRIMARY_APPLICANT
+                                          - CO_APPLICANT
+                                          - GUARANTOR
+                                      firstName:
+                                        type: string
+                                      lastName:
+                                        type: string
+                                      guaranteePercentage:
+                                        type: number
+                                  uniqueItems: true
+                                requestedAmount:
+                                  type: number
+                                requestedAmountCurrency:
+                                  type: string
+                                currency:
+                                  type: string
+                                requestedLoanDurationMonths:
+                                  type: integer
+                                  format: int32
+                                applicantChannel:
+                                  type: string
+                                  enum:
+                                    - INTERNET_BANK
+                                    - DIGITAL_BANK
+                                gracePeriodDays:
+                                  type: integer
+                                  format: int32
+                                installmentCount:
+                                  type: integer
+                                  format: int32
+                                disburseDestinationDepositNumber:
+                                  type: string
+                                disburseDestinationType:
+                                  type: string
+                                  enum:
+                                    - DEPOSIT
+                                    - BOX
+                                economicSectorCode:
+                                  type: string
+                                branchCode:
+                                  type: string
+                                requestReasonCode:
+                                  type: string
+                                subSourceCode:
+                                  type: string
+                                description:
+                                  type: string
+                                credibilityRank:
+                                  type: string
+                                applicationNumber:
+                                  type: string
+                                disbursementMethod:
+                                  type: string
+                                  enum:
+                                    - LUMP_SUM
+                                    - REGULAR_PROGRESSIVE
+                                    - IRREGULAR_PROGRESSIVE
+                                samat:
+                                  type: object
+                                  description: اطلاعات مربوط به سمات
+                                  properties: *ref_17
+                            sanctionedLoan:
+                              type: object
+                              properties: &ref_126
+                                id:
+                                  type: string
+                                  format: uuid
+                                version:
+                                  type: integer
+                                  format: int64
+                                sanctionSerial:
+                                  type: string
+                                sanctionSerialType:
+                                  type: string
+                                  enum:
+                                    - GENERAL
+                                    - SPECIAL
+                                approvedAmount:
+                                  type: number
+                                currency:
+                                  type: string
+                                gracePeriodDays:
+                                  type: integer
+                                  format: int32
+                                installmentCount:
+                                  type: integer
+                                  format: int32
+                                loanDurationMonths:
+                                  type: integer
+                                  format: int32
+                                lifeInsuranceId:
+                                  type: string
+                                disbursementScheduleTranches:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties: &ref_124
+                                      scheduledDate:
+                                        type: string
+                                        format: date-time
+                                      amount:
+                                        type: number
+                                      currency:
+                                        type: string
+                                disbursementHistoryRecords:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties: &ref_121
+                                      amount:
+                                        type: number
+                                      currency:
+                                        type: string
+                                      disbursedAt:
+                                        type: string
+                                        format: date
+                                      disbursedBy:
+                                        type: string
+                                revocationReason:
+                                  type: string
+                                disbursementMethod:
+                                  type: string
+                                  enum:
+                                    - LUMP_SUM
+                                    - REGULAR_PROGRESSIVE
+                                    - IRREGULAR_PROGRESSIVE
+                            loanTypeId:
+                              type: string
+                              format: uuid
+                            loanArrangementId:
+                              type: string
+                              format: uuid
+                            installmentScheduleId:
+                              type: string
+                              format: uuid
+                            currentState:
+                              type: string
+                              enum:
+                                - APPLICATION_SUBMITTED
+                                - APPROVAL_SUBMITTED
+                                - APPROVED
+                                - REJECTED
+                                - ISSUE_CONTRACT
+                                - PARTIALLY_DISBURSED
+                                - FULLY_DISBURSED
+                                - CLOSED_PAID_OFF
+                                - CLOSED_DEFAULTED
+                                - CANCELLED
+                            totalDisbursedAmount:
+                              type: number
+                            totalDisbursedAmountCurrency:
+                              type: string
+                            issueContractTransactionNumbers:
+                              type: array
+                              items:
+                                type: object
+                                properties: &ref_18
+                                  value:
+                                    type: string
+                                  createdAt:
+                                    type: string
+                                    format: date-time
+                                  trackingId:
+                                    type: string
+                                  status:
+                                    type: string
+                                    enum:
+                                      - PENDING
+                                      - POSTED
+                                      - FAILED
+                                      - REVERSED
+                            disbursementTransactionNumbers:
+                              type: array
+                              items:
+                                type: object
+                                properties: *ref_18
+                            accountInfoMap:
+                              type: object
+                              additionalProperties:
+                                type: string
+                            disbursementDate:
+                              type: string
+                              format: date
+                            facilityType:
+                              type: string
+                            collaterals:
+                              type: array
+                              items:
+                                type: object
+                                properties: &ref_120
+                                  collateralTypeCode:
+                                    type: string
+                                  percent:
+                                    type: integer
+                                    format: int32
+                                  description:
+                                    type: string
+                                  collateralSerial:
+                                    type: string
+                                  usedAmount:
+                                    type: number
+                                  usedAmountCurrency:
+                                    type: string
+                      nextCursor:
+                        type: string
+                      previousCursor:
+                        type: string
+                      hasNext:
+                        type: boolean
+                      hasPrevious:
+                        type: boolean
+                      currentPage:
+                        type: integer
+                        format: int32
+                      pageSize:
+                        type: integer
+                        format: int32
+                      totalElements:
+                        type: integer
+                        format: int64
+                      totalPages:
+                        type: integer
+                        format: int32
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/loan-facilities/{facilityId}:
+    get:
+      tags:
+        - Facility Queries
+      summary: دریافت تسهیلات بر اساس شناسه
+      operationId: getById_1
+      parameters:
+        - name: facilityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: &ref_127
+                  RsCode:
+                    type: string
+                    deprecated: true
+                  IsSuccess:
+                    type: boolean
+                    deprecated: true
+                  metadata:
+                    type: object
+                    additionalProperties: {}
+                  payload:
+                    type: object
+                    properties: *ref_19
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/loan-facilities/search:
+    get:
+      tags:
+        - Facility Queries
+      summary: جستجوی تسهیلات با فیلترهای مختلف
+      operationId: searchFacilities
+      parameters:
+        - name: loanTypeId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: customerNumber
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: createDateFrom
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: createDateTo
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: requestAmountMin
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: requestAmountMax
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - APPLICATION_SUBMITTED
+              - APPROVAL_SUBMITTED
+              - APPROVED
+              - REJECTED
+              - ISSUE_CONTRACT
+              - PARTIALLY_DISBURSED
+              - FULLY_DISBURSED
+              - CLOSED_PAID_OFF
+              - CLOSED_DEFAULTED
+              - CANCELLED
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            minimum: 0
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            maximum: 100
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_20
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/loan-arrangements:
+    get:
+      tags:
+        - Loan Arrangement Queries
+      summary: Get all loan arrangements with cursor-based pagination
+      operationId: findAll_2
+      parameters:
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            maximum: 100
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: &ref_27
+                  RsCode:
+                    type: string
+                    deprecated: true
+                  IsSuccess:
+                    type: boolean
+                    deprecated: true
+                  metadata:
+                    type: object
+                    additionalProperties: {}
+                  payload:
+                    type: object
+                    properties: &ref_134
+                      loanArrangements:
+                        type: array
+                        items:
+                          type: object
+                          properties: &ref_26
+                            id:
+                              type: string
+                              format: uuid
+                            version:
+                              type: integer
+                              format: int64
+                            code:
+                              type: string
+                            title:
+                              type: object
+                              properties: *ref_21
+                            active:
+                              type: boolean
+                            disable:
+                              type: boolean
+                            currencyType:
+                              type: object
+                              properties: *ref_22
+                            economicSector:
+                              type: object
+                              properties: *ref_23
+                            amountRange:
+                              type: object
+                              properties: &ref_128
+                                minAmount:
+                                  type: number
+                                maxAmount:
+                                  type: number
+                                currency:
+                                  type: string
+                            durationRange:
+                              type: object
+                              properties: &ref_136
+                                minPeriod:
+                                  type: object
+                                  properties: &ref_24
+                                    years:
+                                      type: integer
+                                      format: int32
+                                    months:
+                                      type: integer
+                                      format: int32
+                                    days:
+                                      type: integer
+                                      format: int32
+                                maxPeriod:
+                                  type: object
+                                  properties: *ref_24
+                            guarantorCount:
+                              type: integer
+                              format: int32
+                            partyType:
+                              type: string
+                              enum:
+                                - REAL
+                                - LEGAL
+                                - REAL_AND_LEGAL
+                            hasInstallmentCard:
+                              type: boolean
+                            lifeInsurancePaymentType:
+                              type: string
+                              enum:
+                                - INSTALLMENT_LIFE_INSURANCE_PAYMENT
+                                - DISBURSE_LIFE_INSURANCE_PAYMENT
+                                - NONE
+                            loanSecondaryType:
+                              type: string
+                              enum:
+                                - GENERAL
+                                - SPECIFIC
+                                - GENERAL_AND_SPECIFIC
+                                - NONE
+                            sectionType:
+                              type: string
+                              enum:
+                                - FIXED
+                                - CURRENT
+                                - FIXED_AND_CURRENT
+                                - NONE
+                            interestPolicy:
+                              type: object
+                              properties: &ref_133
+                                baseInterestRate:
+                                  type: number
+                                preferentialMinRate:
+                                  type: number
+                                preferentialMaxRate:
+                                  type: number
+                                interestFormula:
+                                  type: object
+                                  properties: &ref_25
+                                    expression:
+                                      type: string
+                                    fieldMappings:
+                                      type: object
+                                      additionalProperties:
+                                        type: string
+                                refundInterestFormula:
+                                  type: object
+                                  properties: *ref_25
+                                dailyInterest:
+                                  type: boolean
+                            penaltyPolicy:
+                              type: object
+                              properties: &ref_135
+                                penaltyRate:
+                                  type: number
+                                deferralInterestRate:
+                                  type: number
+                                penaltyFormula:
+                                  type: object
+                                  properties: *ref_25
+                                penaltyPaymentType:
+                                  type: string
+                            installmentPolicy:
+                              type: object
+                              properties: &ref_132
+                                installmentPeriodDays:
+                                  type: integer
+                                  format: int32
+                                installmentFormula:
+                                  type: object
+                                  properties: *ref_25
+                                interestComponentFormula:
+                                  type: object
+                                  properties: *ref_25
+                                installmentPaymentType:
+                                  type: string
+                            gracePeriodPolicy:
+                              type: object
+                              properties: &ref_131
+                                minGracePeriodDays:
+                                  type: integer
+                                  format: int32
+                                maxGracePeriodDays:
+                                  type: integer
+                                  format: int32
+                                gracePeriodFormula:
+                                  type: object
+                                  properties: *ref_25
+                            repaymentPriorityPolicy:
+                              type: object
+                              properties: &ref_138
+                                installmentMainAmountPriority:
+                                  type: integer
+                                  format: int32
+                                installmentInterestAmountPriority:
+                                  type: integer
+                                  format: int32
+                                installmentPenaltyAmountPriority:
+                                  type: integer
+                                  format: int32
+                                installmentIncomeAmountPriority:
+                                  type: integer
+                                  format: int32
+                                insuranceAmountPriority:
+                                  type: integer
+                                  format: int32
+                                insurancePenaltyAmountPriority:
+                                  type: integer
+                                  format: int32
+                                hasEqualPriority:
+                                  type: boolean
+                            regulatoryCompliancePolicy:
+                              type: object
+                              properties: &ref_137
+                                overDuePeriod:
+                                  type: integer
+                                  format: int32
+                                deferralPeriod:
+                                  type: integer
+                                  format: int32
+                                suspiciousPeriod:
+                                  type: integer
+                                  format: int32
+                            collateralPolicy:
+                              type: object
+                              properties: &ref_129
+                                totalPercent:
+                                  type: integer
+                                  format: int32
+                                collateralTypes:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties: &ref_130
+                                      code:
+                                        type: string
+                                  uniqueItems: true
+                                collateralCalculationType:
+                                  type: string
+                            previousVersion:
+                              type: string
+                              format: uuid
+                      nextCursor:
+                        type: string
+                      previousCursor:
+                        type: string
+                      hasNext:
+                        type: boolean
+                      hasPrevious:
+                        type: boolean
+                      currentPage:
+                        type: integer
+                        format: int32
+                      pageSize:
+                        type: integer
+                        format: int32
+                      totalElements:
+                        type: integer
+                        format: int64
+                      totalPages:
+                        type: integer
+                        format: int32
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/loan-arrangements/{loanArrangementId}:
+    get:
+      tags:
+        - Loan Arrangement Queries
+      summary: دریافت شرایط تسهیلات بر اساس شناسه
+      operationId: getById_2
+      parameters:
+        - name: loanArrangementId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: &ref_139
+                  RsCode:
+                    type: string
+                    deprecated: true
+                  IsSuccess:
+                    type: boolean
+                    deprecated: true
+                  metadata:
+                    type: object
+                    additionalProperties: {}
+                  payload:
+                    type: object
+                    properties: *ref_26
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/loan-arrangements/search:
+    get:
+      tags:
+        - Loan Arrangement Queries
+      summary: جستجوی شرایط تسهیلات با فیلترهای مختلف
+      operationId: searchArrangements
+      parameters:
+        - name: code
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: title
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: currencyType
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: economicSector
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: minAmount
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: maxAmount
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: active
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: disable
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: disbursementMethod
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - LUMP_SUM
+              - REGULAR_PROGRESSIVE
+              - IRREGULAR_PROGRESSIVE
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            minimum: 0
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            maximum: 100
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_27
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/installment-schedules/{installmentScheduleId}:
+    get:
+      tags:
+        - Installment Schedule Queries
+      summary: دریافت برنامه اقساط بر اساس شناسه
+      operationId: getById_3
+      parameters:
+        - name: installmentScheduleId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: &ref_140
+                  RsCode:
+                    type: string
+                    deprecated: true
+                  IsSuccess:
+                    type: boolean
+                    deprecated: true
+                  metadata:
+                    type: object
+                    additionalProperties: {}
+                  payload:
+                    type: object
+                    properties: &ref_144
+                      id:
+                        type: string
+                        format: uuid
+                      version:
+                        type: integer
+                        format: int64
+                      installments:
+                        type: array
+                        items:
+                          type: object
+                          properties: &ref_141
+                            id:
+                              type: string
+                              format: uuid
+                            version:
+                              type: integer
+                              format: int64
+                            sequenceNumber:
+                              type: integer
+                              format: int32
+                            totalAmount:
+                              type: number
+                            currency:
+                              type: string
+                            principalAmount:
+                              type: number
+                            interestAmount:
+                              type: number
+                            dueDate:
+                              type: string
+                              format: date
+                            status:
+                              type: string
+                              enum:
+                                - SCHEDULED
+                                - PAID
+                                - PARTIALLY_PAID
+                                - OVERDUE
+                                - CANCELLED
+                            paidAmount:
+                              type: number
+                            outstandingAmount:
+                              type: number
+                            lastPaymentDate:
+                              type: string
+                              format: date
+                            paidDate:
+                              type: string
+                              format: date
+                      scheduleHistory:
+                        type: object
+                        properties: &ref_143
+                          previousScheduleIds:
+                            type: array
+                            items:
+                              type: string
+                              format: uuid
+                      loanFacilityId:
+                        type: string
+                        format: uuid
+                      totalLoanAmount:
+                        type: number
+                      currency:
+                        type: string
+                      scheduleType:
+                        type: string
+                        enum:
+                          - EQUAL_INSTALLMENTS
+                          - GRADUAL_INSTALLMENTS
+                      status:
+                        type: string
+                        enum:
+                          - DRAFT
+                          - ACTIVE
+                          - RESTRUCTURED
+                          - COMPLETED
+                          - SUPERSEDED
+                          - CANCELLED
+                      initiatedAt:
+                        type: string
+                        format: date-time
+                      lastModifiedAt:
+                        type: string
+                        format: date-time
+                      gracePeriodDays:
+                        type: integer
+                        format: int32
+                      interestRate:
+                        type: number
+                      restructuringRecord:
+                        type: object
+                        properties: &ref_142
+                          reason:
+                            type: string
+                          restructuringAmount:
+                            type: number
+                          restructuringAmountCurrency:
+                            type: string
+                          previousInstallmentCount:
+                            type: integer
+                            format: int32
+                          newInstallmentCount:
+                            type: integer
+                            format: int32
+                          unpaidInstallmentsCount:
+                            type: integer
+                            format: int32
+                          preservedInstallmentsCount:
+                            type: integer
+                            format: int32
+                          restructuredAt:
+                            type: string
+                            format: date-time
+                          restructuredBy:
+                            type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/audit/users/{userId}:
+    get:
+      tags:
+        - Audit Queries
+      summary: Get audit by user
+      description: Retrieve audit entries for a specific user with cursor pagination
+      operationId: findByUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            maximum: 100
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: &ref_28
+                  content:
+                    type: array
+                    items:
+                      type: object
+                      properties: &ref_29
+                        id:
+                          type: string
+                          format: uuid
+                        commandId:
+                          type: string
+                          format: uuid
+                        aggregateType:
+                          type: string
+                        aggregateId:
+                          type: string
+                          format: uuid
+                        userContext:
+                          type: object
+                          properties: &ref_146
+                            userId:
+                              type: string
+                            username:
+                              type: string
+                            fullName:
+                              type: string
+                            clientId:
+                              type: string
+                            branchCode:
+                              type: string
+                            ipAddress:
+                              type: string
+                            userType:
+                              type: string
+                            loginMethod:
+                              type: string
+                        correlationId:
+                          type: string
+                          format: uuid
+                        causationId:
+                          type: string
+                          format: uuid
+                        executionStarted:
+                          type: string
+                          format: date-time
+                        executionFinished:
+                          type: string
+                          format: date-time
+                        executionTimeMs:
+                          type: integer
+                          format: int64
+                        resultStatus:
+                          type: object
+                          properties: &ref_145
+                            status:
+                              type: string
+                            reason:
+                              type: string
+                        errorMessage:
+                          type: string
+                        producedEventIds:
+                          type: array
+                          items:
+                            type: string
+                            format: uuid
+                        metadata:
+                          type: object
+                          additionalProperties:
+                            type: string
+                        createdAt:
+                          type: string
+                          format: date-time
+                  nextCursor:
+                    type: string
+                    format: uuid
+                  page:
+                    type: integer
+                    format: int32
+                  totalPages:
+                    type: integer
+                    format: int32
+                  totalElements:
+                    type: integer
+                    format: int64
+                  hasNext:
+                    type: boolean
+                  hasPrevious:
+                    type: boolean
+                  size:
+                    type: integer
+                    format: int32
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/audit/users/{userId}/count:
+    get:
+      tags:
+        - Audit Queries
+      summary: Count by user
+      description: Count audit entries for a specific user
+      operationId: countByUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/audit/correlations/{correlationId}:
+    get:
+      tags:
+        - Audit Queries
+      summary: Get audit by correlation
+      description: Retrieve audit entries by correlation ID with cursor pagination
+      operationId: findByCorrelation
+      parameters:
+        - name: correlationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            maximum: 100
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_28
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/audit/commands:
+    get:
+      tags:
+        - Audit Queries
+      summary: Search audit entries
+      description: Search command audit entries with cursor or offset pagination
+      operationId: search
+      parameters:
+        - name: aggregateType
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: aggregateId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: commandType
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: correlationId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: resultStatus
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: cursor
+          in: query
+          description: Cursor for pagination (mutually exclusive with page)
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          description: Page number for offset pagination (starts at 0)
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            maximum: 100
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_28
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/audit/commands/{commandId}:
+    get:
+      tags:
+        - Audit Queries
+      summary: Get audit by command ID
+      description: Retrieve a single audit entry by command ID
+      operationId: findByCommandId
+      parameters:
+        - name: commandId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_29
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/audit/aggregates/{aggregateType}/{aggregateId}:
+    get:
+      tags:
+        - Audit Queries
+      summary: Get audit by aggregate
+      description: Retrieve audit entries for a specific aggregate with cursor pagination
+      operationId: findByAggregate
+      parameters:
+        - name: aggregateType
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: aggregateId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            maximum: 100
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_28
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+  /api/v1/audit/aggregates/{aggregateType}/{aggregateId}/count:
+    get:
+      tags:
+        - Audit Queries
+      summary: Count by aggregate
+      description: Count audit entries for a specific aggregate
+      operationId: countByAggregate
+      parameters:
+        - name: aggregateType
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: aggregateId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '425':
+          description: Too Early
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '502':
+          description: Bad Gateway
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+        '503':
+          description: Service Unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: *ref_0
+components:
+  schemas:
+    ErrorDetail:
+      type: object
+      properties: *ref_30
+    ErrorResponse:
+      type: object
+      properties: *ref_0
+    ServiceError:
+      type: object
+      properties: *ref_31
+    DataRequestDefineLoanTypeRequest:
+      type: object
+      properties: *ref_32
+      required: *ref_33
+    DefineLoanTypeRequest:
+      type: object
+      description: تعریف نوع تسهیلات
+      properties: *ref_34
+      required: *ref_35
+    EconomicSectorCurrencyDto:
+      type: object
+      description: بخش اقتصادی و نوع ارز مرتبط
+      properties: *ref_36
+      required: *ref_37
+    RelationTypeLoanTopicDto:
+      type: object
+      description: رابطه نوع تسهیلات با موضوع
+      properties: *ref_38
+      required: *ref_39
+    DomainEventObject: {}
+    EventStream:
+      type: object
+      properties: *ref_40
+    EventStreamResponse:
+      type: object
+      properties: *ref_1
+    AmountRangeDto:
+      type: object
+      description: بازه مبلغی
+      properties: *ref_41
+    CollateralPolicyDto:
+      type: object
+      description: سیاست وثایق
+      properties: *ref_42
+    DataRequestDefineTradeLoanArrangementRequest:
+      type: object
+      properties: *ref_43
+      required: *ref_44
+    DefineTradeLoanArrangementRequest:
+      type: object
+      description: ایجاد شرایط تسهیلات
+      properties: *ref_45
+      required: *ref_46
+    GracePeriodPolicyDto:
+      type: object
+      description: سیاست دوره مهلت
+      properties: *ref_47
+    InstallmentPolicyDto:
+      type: object
+      description: سیاست اقساط
+      properties: *ref_48
+    InterestPolicyDto:
+      type: object
+      description: سیاست نرخ سود
+      properties: *ref_49
+    LoanDurationRangeDto:
+      type: object
+      description: بازه مدت زمان تسهیلات
+      properties: *ref_50
+    PenaltyPolicyDto:
+      type: object
+      description: سیاست جریمه
+      properties: *ref_51
+    RegulatoryCompliancePolicyDto:
+      type: object
+      description: انتقال به مطالبات
+      properties: *ref_52
+    RepaymentPriorityPolicyDto:
+      type: object
+      description: سیاست اولویت بازپرداخت
+      properties: *ref_53
+    DataRequestSubmitFacilityForApprovalRequest:
+      type: object
+      description: جزئیات ثبت درخواست تصویب مصوبه
+      properties: *ref_54
+      required: *ref_55
+    SubmitFacilityForApprovalRequest:
+      type: object
+      description: ثبت درخواست تصویب مصوبه
+      properties: *ref_56
+      required: *ref_57
+    CompensationRequest:
+      type: object
+      properties: *ref_58
+      required: *ref_59
+    DataRequestCompensationRequest:
+      type: object
+      properties: *ref_2
+      required: *ref_3
+    DataRequestIssueFacilityContractRequest:
+      type: object
+      description: جزئیات صدور قرارداد تسهیلات
+      properties: *ref_60
+      required: *ref_61
+    IssueFacilityContractRequest:
+      type: object
+      description: عملیات صدور قرارداد
+      properties: *ref_62
+      required: *ref_63
+    DataRequestIrregularProgressiveDisbursementRequest:
+      type: object
+      description: جزئیات درخواست پرداخت نامنظم
+      properties: *ref_64
+      required: *ref_65
+    InstallmentSchedulePlanDto:
+      type: object
+      description: برنامه زمانبندی اقساط
+      properties: *ref_9
+      required: *ref_10
+    InstallmentSpecDto:
+      type: object
+      description: مشخصات قسط
+      properties: *ref_66
+      required: *ref_67
+    IrregularProgressiveDisbursementRequest:
+      type: object
+      description: درخواست پرداخت نامنظم تسهیلات
+      properties: *ref_68
+      required: *ref_69
+    DataRequestLumpSumDisbursementRequest:
+      type: object
+      description: جزئیات درخواست پرداخت یکجا
+      properties: *ref_70
+      required: *ref_71
+    LumpSumDisbursementRequest:
+      type: object
+      description: درخواست پرداخت یکجای تسهیلات
+      properties: *ref_72
+      required: *ref_73
+    AddFacilityCollateralRequest:
+      type: object
+      description: عملیات مدیریت وثایق تسهیلات
+      properties: *ref_74
+      required: *ref_75
+    CollateralDto:
+      type: object
+      description: Collateral details
+      properties: *ref_13
+      required: *ref_14
+    DataRequestAddFacilityCollateralRequest:
+      type: object
+      description: جزئیات افزودن وثیقه به تسهیلات
+      properties: *ref_76
+      required: *ref_77
+    MoneyDto:
+      type: object
+      properties: *ref_78
+      required: *ref_79
+    CompensateCollateralRequest:
+      type: object
+      properties: *ref_80
+      required: *ref_81
+    DataRequestCompensateCollateralRequest:
+      type: object
+      description: جزئیات وثایق برای جبران‌سازی
+      properties: *ref_82
+      required: *ref_83
+    CloseFacilityPaidOffRequest:
+      type: object
+      description: عملیات بستن تسهیلات پرداخت شده
+      properties: *ref_84
+      required: *ref_85
+    DataRequestCloseFacilityPaidOffRequest:
+      type: object
+      description: جزئیات بستن تسهیلات پرداخت شده
+      properties: *ref_86
+      required: *ref_87
+    CloseFacilityDefaultedRequest:
+      type: object
+      description: عملیات بستن تسهیلات
+      properties: *ref_88
+      required: *ref_89
+    DataRequestCloseFacilityDefaultedRequest:
+      type: object
+      description: جزئیات عملیات بستن تسهیلات
+      properties: *ref_90
+      required: *ref_91
+    ApproveFacilityRequest:
+      type: object
+      description: عملیات تصویب مصوبه
+      properties: *ref_92
+      required: *ref_93
+    DataRequestApproveFacilityRequest:
+      type: object
+      description: جزئیات تصویب مصوبه
+      properties: *ref_4
+      required: *ref_5
+    ApplicantDto:
+      allOf: *ref_94
+      description: متقاضی اصلی
+      required: *ref_95
+    CoApplicantDto:
+      allOf: *ref_96
+      description: متقاضی همراه
+      required: *ref_97
+    DataRequestOriginateLoanFacilityRequest:
+      type: object
+      properties: *ref_98
+      required: *ref_99
+    DisburseDestinationDto:
+      type: object
+      description: مقصد پرداخت
+      properties: *ref_100
+      required: *ref_101
+    GuarantorDto:
+      allOf: *ref_102
+      description: ضامن
+      required: *ref_103
+    LoanApplicationDto:
+      type: object
+      description: اطلاعات درخواست تسهیلات
+      properties: *ref_11
+      required: *ref_12
+    OriginateLoanFacilityRequest:
+      type: object
+      description: درخواست ایجاد تسهیلات
+      properties: *ref_104
+      required: *ref_105
+    PartyDto:
+      description: اطلاعات ذینفع
+      discriminator: *ref_6
+      properties: *ref_7
+      required: *ref_8
+    SamatDto:
+      type: object
+      description: اطلاعات مربوط به سمات
+      properties: *ref_17
+    DataRequestFullLoanFacilityLifecycleRequest:
+      type: object
+      properties: *ref_106
+      required: *ref_107
+    DisbursementDto:
+      type: object
+      properties: *ref_108
+    FullLoanFacilityLifecycleRequest:
+      type: object
+      properties: *ref_109
+    DataRequestFullLifecycleRevertRequest:
+      type: object
+      description: جزئیات درخواست بازگشت
+      properties: *ref_110
+      required: *ref_111
+    FullLifecycleRevertRequest:
+      type: object
+      properties: *ref_112
+      required: *ref_113
+    CurrencyTypeEmbDto:
+      type: object
+      properties: *ref_22
+    EconomicSectorCurrencyEmbDto:
+      type: object
+      properties: *ref_114
+    EconomicSectorEmbDto:
+      type: object
+      properties: *ref_23
+    EditReasonEmbDto:
+      type: object
+      properties: *ref_115
+    LoanTypeCodeEmbDto:
+      type: object
+      properties: *ref_116
+    LoanTypeQueryResult:
+      type: object
+      properties: *ref_117
+    PagedResponseLoanTypeQueryResult:
+      type: object
+      properties: *ref_16
+    RelationTypeLoanTopicEmbDto:
+      type: object
+      properties: *ref_118
+    TitleEmbDto:
+      type: object
+      properties: *ref_21
+    TradeLoanTypeQueryDto:
+      type: object
+      properties: *ref_15
+    DataResponseTradeLoanTypeQueryDto:
+      type: object
+      properties: *ref_119
+    CollateralEmbDto:
+      type: object
+      properties: *ref_120
+    DisbursementRecordEmbDto:
+      type: object
+      properties: *ref_121
+    LoanFacilityQueryResult:
+      type: object
+      properties: *ref_122
+    PagedResponseLoanFacilityQueryResult:
+      type: object
+      properties: *ref_20
+    PartyEmbDto:
+      type: object
+      properties: *ref_123
+    ScheduledTrancheEmbDto:
+      type: object
+      properties: *ref_124
+    TradeFacilityQueryDto:
+      type: object
+      properties: *ref_19
+    TradeLoanApplicationDto:
+      type: object
+      properties: *ref_125
+    TradeSanctionedLoanEntityDto:
+      type: object
+      properties: *ref_126
+    TransactionNumberEmbDto:
+      type: object
+      properties: *ref_18
+    DataResponseTradeFacilityQueryDto:
+      type: object
+      properties: *ref_127
+    AmountRangeEmbDto:
+      type: object
+      properties: *ref_128
+    CollateralPolicyEmbDto:
+      type: object
+      properties: *ref_129
+    CollateralTypeEmbDto:
+      type: object
+      properties: *ref_130
+    FormulaDto:
+      type: object
+      properties: *ref_25
+    GracePeriodPolicyEmbDto:
+      type: object
+      properties: *ref_131
+    InstallmentPolicyEmbDto:
+      type: object
+      properties: *ref_132
+    InterestPolicyEmbDto:
+      type: object
+      properties: *ref_133
+    LoanArrangementQueryResult:
+      type: object
+      properties: *ref_134
+    PagedResponseLoanArrangementQueryResult:
+      type: object
+      properties: *ref_27
+    PenaltyPolicyEmbDto:
+      type: object
+      properties: *ref_135
+    PeriodEmbDto:
+      type: object
+      properties: *ref_24
+    PeriodRangeEmbDto:
+      type: object
+      properties: *ref_136
+    RegulatoryCompliancePolicyEmbDto:
+      type: object
+      properties: *ref_137
+    RepaymentPriorityPolicyEmbDto:
+      type: object
+      properties: *ref_138
+    TradeLoanArrangementQueryDto:
+      type: object
+      properties: *ref_26
+    DataResponseTradeLoanArrangementQueryDto:
+      type: object
+      properties: *ref_139
+    DataResponseTradeInstallmentScheduleQueryDto:
+      type: object
+      properties: *ref_140
+    InstallmentEntityDto:
+      type: object
+      properties: *ref_141
+    RestructuringRecordDto:
+      type: object
+      properties: *ref_142
+    ScheduleHistoryEmbDto:
+      type: object
+      properties: *ref_143
+    TradeInstallmentScheduleQueryDto:
+      type: object
+      properties: *ref_144
+    AuditEntryResponse:
+      type: object
+      properties: *ref_29
+    AuditPageResponse:
+      type: object
+      properties: *ref_28
+    ResultStatusResponse:
+      type: object
+      properties: *ref_145
+    UserContextResponse:
+      type: object
+      properties: *ref_146
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      description: Unique identifier for idempotent command execution (UUID)
+      required: true
+      schema:
+        type: string
+        format: uuid
+      example: 123e4567-e89b-42d3-a456-556642440000
+    XRequestDateTime:
+      name: X-Request-DateTime
+      in: header
+      description: Request timestamp in UTC ISO 8601 format
+      required: true
+      schema:
+        type: string
+        format: date-time
+      example: '2025-08-22T14:30:00.123Z'
+    AcceptLanguage:
+      name: Accept-Language
+      in: header
+      description: Language preference for response messages
+      required: false
+      schema:
+        type: string
+        default: fa
+        enum:
+          - fa
+          - en
+          - ar
+          - ru
+      example: fa
+    XRequestId:
+      name: X-Request-ID
+      in: header
+      description: Unique request identifier (UUID)
+      required: true
+      schema:
+        type: string
+        format: uuid
+      example: 123e4567-e89b-42d3-a456-556642440000
+  securitySchemes:
+    bearer-jwt:
+      type: oauth2
+      name: Authorization
+      in: header
+      scheme: bearer
+      bearerFormat: JWT
+      flows:
+        authorizationCode:
+          authorizationUrl: https://sso.tps.ir/oauth/authorize
+          tokenUrl: /api/v1/dev/auth/callback
+          scopes:
+            openid: OpenID
+            core: Core access
+            offline_access: Refresh token
