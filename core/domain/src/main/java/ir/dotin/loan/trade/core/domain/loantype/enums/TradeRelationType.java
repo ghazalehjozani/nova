@@ -21,7 +21,8 @@ public enum TradeRelationType implements RelationType<TradeRelationType>, Locali
     RECEIVABLES_WRITTEN_OFF(Direction.DEBIT), // مطالبات سوخت شده
 
     // --- Accruals & Provisions ---
-    INTEREST_SHORTFALL_PROVISION(Direction.CREDIT), // تامین کسری سود
+    DISCOUNT(Direction.DEBIT), // تخفیف
+    INTEREST_SHORTFALL_PROVISION(Direction.DEBIT), // تامین کسری سود
     ACCRUED_INTEREST(Direction.DEBIT), // سود تعهدي
     DEFERRED_INTEREST(Direction.DEBIT), // سود معوق (Interest recognized but payment delayed)
     ACCRUED_DEFERRED_INTEREST(Direction.DEBIT), // سود معوق تعهدی
