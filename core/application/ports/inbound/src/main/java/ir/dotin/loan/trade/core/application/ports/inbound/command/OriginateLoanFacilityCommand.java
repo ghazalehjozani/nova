@@ -40,7 +40,7 @@ public record OriginateLoanFacilityCommand(
             @Valid @NotNull LoanDurationDto requestedLoanDuration,
             @Valid @NotNull ApplicantChannel applicantChannel,
             @Valid @NotNull GracePeriodDto gracePeriod,
-            @Valid @NotNull InstallmentCountDto installmentCount,
+            @Nullable InstallmentCountDto installmentCount,
             @Valid @NotNull DisburseDestinationDto disburseDestination,
             @Valid @NotNull EconomicSectorDto economicSector,
             @Valid @NotNull BranchDto branch,
@@ -94,5 +94,5 @@ public record OriginateLoanFacilityCommand(
     public record GracePeriodDto(@NotNull Period value) {}
 
     @Builder(toBuilder = true)
-    public record InstallmentCountDto(@NotNull Integer value) {}
+    public record InstallmentCountDto(@Nullable Integer value) {}
 }
