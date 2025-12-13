@@ -32,7 +32,8 @@ public record FullLoanFacilityLifecycleCommand(
         @Nullable @Valid InstallmentSchedulePlanDto installmentSchedulePlan,
         @NotNull @Valid DisbursementDto disbursement,
         @NotNull @Valid TransactionMetadataDto transactionMetadata,
-        @NotNull @Valid List<CollateralDto> collaterals)
+        @NotNull @Valid List<CollateralDto> collaterals,
+        @NotNull String confirmType)
         implements Command {
 
     @Builder(toBuilder = true)

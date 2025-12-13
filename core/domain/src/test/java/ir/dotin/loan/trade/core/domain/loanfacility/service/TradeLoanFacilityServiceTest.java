@@ -26,6 +26,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
@@ -52,6 +53,9 @@ class TradeLoanFacilityServiceTest {
 
     @Mock
     private List<Collateral> mockCollateralSerials;
+
+    @Mock
+    private ConfirmType mockConfirmType;
 
     private TradeLoanFacilityService service;
     private TrackedTransactionNumber validTradeTransactionNumbers;
@@ -261,7 +265,7 @@ class TradeLoanFacilityServiceTest {
 
             // when
             Result<TradeSanctionedLoan.Builder> result =
-                    service.createSanctionedLoanFromApplication(mockLoanApplication);
+                    service.createSanctionedLoanFromApplication(mockLoanApplication, mockConfirmType);
 
             // then
             assertThat(result.isSuccessWithValue()).isTrue();

@@ -19,7 +19,8 @@ public enum ApproveFacilityErrorCodes implements LocalizedMessage<ApproveFacilit
     AUTO_APPROVAL_NOT_ENABLED("Auto approval is not enabled for this application channel {0}"),
     MANUAL_APPROVAL_NOT_ALLOWED("Manual approval is not allowed for this application channel {0}"),
     SANCTION_DETAILS_SERVICE_NOT_IMPLEMENTED("Sanction details service is not implemented for serial {0}"),
-    INVALID_SANCTION_DETAILS("Invalid sanction details: {0}");
+    INVALID_SANCTION_DETAILS("Invalid sanction details: {0}"),
+    CONFIRM_TYPE_NOT_ALLOWED("Confirm type {0} is not allowed based on loan arrangement {1}");
 
     private final String defaultMessageFormat;
 }

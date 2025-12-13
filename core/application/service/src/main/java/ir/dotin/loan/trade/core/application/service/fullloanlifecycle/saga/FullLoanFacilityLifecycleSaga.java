@@ -121,7 +121,8 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                         TransactionConfig transactionConfig,
                         DisbursementMethod disbursementMethod,
                         LocalDate disbursementDate,
-                        UUID correlationId))) {
+                        UUID correlationId,
+                        String confirmType))) {
             throw new IllegalArgumentException("Expected FullLoanFacilityLifecycleInput but got: " + input.getClass());
         }
         return FullLoanFacilityLifecycleSagaData.initial(
@@ -132,7 +133,8 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 transactionConfig,
                 disbursementMethod,
                 disbursementDate,
-                correlationId);
+                correlationId,
+                confirmType);
     }
 
     private StepResult<Void> validateInput(SagaContext<FullLoanFacilityLifecycleSagaData> ctx) {
@@ -242,6 +244,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 .uid(data.correlationId())
                 .version(3L)
                 .loanFacilityId(data.facilityId())
+                .confirmType(data.confirmType())
                 .build();
 
         ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);

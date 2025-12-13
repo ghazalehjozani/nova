@@ -46,7 +46,8 @@ public class FullLoanFacilityLifecycleCommandHandler implements CommandHandler<F
                 transactionConfig,
                 disbursementMethod,
                 disbursementDate,
-                command.uid());
+                command.uid(),
+                command.confirmType());
 
         SagaResult<FullLoanFacilityLifecycleSagaData> sagaResult = sagaOrchestrator.executeSaga(
                 "full-loan-facility-lifecycle", input, command.uid().toString());

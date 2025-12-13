@@ -17,7 +17,8 @@ public record FullLoanFacilityLifecycleRequest(
         LoanApplicationDto loanApplication,
         DisbursementDto disbursement,
         InstallmentSchedulePlanDto installmentSchedulePlan,
-        List<CollateralDto> collaterals) {
+        List<CollateralDto> collaterals,
+        String confirmType) {
 
     public record LoanApplicationDto(
             Instant requestDate,

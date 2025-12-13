@@ -10,6 +10,7 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.ApproveFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
@@ -33,6 +34,7 @@ public class ApproveFacilityCommandHandler implements CommandHandler<ApproveFaci
     @Override
     public Result<List<DomainEvent<?>>> handle(ApproveFacilityCommand command) {
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
+        ConfirmType confirmType = ConfirmType.of(command.confirmType()).value();
 
         return Result.fromOptional(
                         loanFacilityRepository.findById(loanFacilityId),
@@ -46,7 +48,7 @@ public class ApproveFacilityCommandHandler implements CommandHandler<ApproveFaci
                         .flatMap(arrangement -> {
                             ApprovalStrategy strategy = strategyFactory.getStrategy(command);
                             return strategy.validate(command, facility, arrangement)
-                                    .flatMap(ignored -> strategy.approve(facility, arrangement))
+                                    .flatMap(ignored -> strategy.approve(facility, arrangement, confirmType))
                                     .map(ignored -> {
                                         loanFacilityRepository.save(facility);
                                         log.debug("Facility approved: {}", command.loanFacilityId());

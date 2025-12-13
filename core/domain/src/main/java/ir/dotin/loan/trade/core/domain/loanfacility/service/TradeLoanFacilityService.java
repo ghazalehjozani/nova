@@ -11,6 +11,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.service.AbstractLoanFacilityService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
@@ -78,7 +79,7 @@ public class TradeLoanFacilityService
     @Override
     @SuppressWarnings("unchecked")
     protected Result<TradeSanctionedLoan.Builder> createSanctionedLoanFromApplication(
-            TradeLoanApplication loanApplication) {
+            TradeLoanApplication loanApplication, ConfirmType confirmType) {
 
         // Create a TradeSanctionedLoan.Builder from the loan application data
         var builder = TradeSanctionedLoan.builder()
@@ -88,7 +89,8 @@ public class TradeLoanFacilityService
                 .gracePeriod(loanApplication.getGracePeriod())
                 .installmentCount(loanApplication.getInstallmentCount())
                 .loanDuration(loanApplication.getRequestedLoanDuration())
-                .disbursementMethod(loanApplication.getDisbursementMethod());
+                .disbursementMethod(loanApplication.getDisbursementMethod())
+                .confirmType(confirmType);
 
         return Result.success(builder);
     }
