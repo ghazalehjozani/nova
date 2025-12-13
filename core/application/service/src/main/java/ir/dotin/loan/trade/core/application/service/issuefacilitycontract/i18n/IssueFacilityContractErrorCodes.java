@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 public enum IssueFacilityContractErrorCodes implements LocalizedMessage<IssueFacilityContractErrorCodes> {
     FACILITY_NOT_FOUND("Facility with ID {0} not found"),
     LOAN_TYPE_NOT_FOUND("Loan type {0} not found for facility: {1}"),
+    LOAN_ARRANGEMENT_NOT_FOUND("Loan arrangement with ID {0} not found"),
     BRANCH_CODE_NOT_FOUND("Branch code not found in token"),
     FACILITY_NOT_APPROVED("Facility {0} has not been approved"),
     INVALID_STATE("Facility {0} is in invalid state for contract issuance"),
