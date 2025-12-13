@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 import java.math.BigDecimal;
 import java.time.Period;
 
+import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -33,6 +34,9 @@ final class TradeSanctionedLoanTest {
 
     @Mock
     private SanctionSerial mockSanctionSerial;
+
+    @Mock
+    private ConfirmType confirmType;
 
     private Money validAmount;
     private LoanDuration validDuration;
@@ -272,6 +276,7 @@ final class TradeSanctionedLoanTest {
                 .loanDuration(validDuration)
                 .gracePeriod(validGracePeriod)
                 .installmentCount(validInstallmentCount)
-                .disbursementMethod(DisbursementMethod.LUMP_SUM);
+                .disbursementMethod(DisbursementMethod.LUMP_SUM)
+                .confirmType(confirmType);
     }
 }

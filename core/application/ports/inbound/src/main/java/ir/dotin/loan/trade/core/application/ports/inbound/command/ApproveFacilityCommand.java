@@ -13,4 +13,6 @@ public record ApproveFacilityCommand(
         @NotNull UUID uid,
         @NotNull Long version,
         @NotNull UUID loanFacilityId,
-        @Nullable String sanctionSerial) implements Command {}
+        @Nullable String sanctionSerial,
+        @NotNull String confirmType)
+        implements Command {}

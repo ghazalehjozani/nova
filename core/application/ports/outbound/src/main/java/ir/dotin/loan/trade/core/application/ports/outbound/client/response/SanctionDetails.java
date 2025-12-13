@@ -6,6 +6,7 @@ import java.time.Period;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 
 public record SanctionDetails(
         String sanctionSerialValue,
@@ -18,4 +19,5 @@ public record SanctionDetails(
         DisbursementMethod disbursementMethod,
         String lifeInsuranceId,
         String collateralSerial,
-        String revocationReason) {}
+        String revocationReason,
+        ConfirmType confirmType) {}

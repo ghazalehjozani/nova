@@ -35,6 +35,7 @@ public interface FullLoanFacilityLifecycleRequestMapper {
     @Mapping(target = "uid", ignore = true)
     @Mapping(target = "transactionMetadata", ignore = true)
     @Mapping(target = "collaterals", source = "collaterals", qualifiedByName = "mapCollateralsList")
+    @Mapping(target = "confirmType", source = "confirmType")
     FullLoanFacilityLifecycleCommand toCommand(FullLoanFacilityLifecycleRequest request);
 
     @Mapping(target = "economicSector.code", source = "economicSectorCode")

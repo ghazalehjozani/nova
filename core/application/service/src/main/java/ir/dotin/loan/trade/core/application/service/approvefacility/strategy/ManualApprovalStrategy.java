@@ -9,6 +9,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.RevocationReason;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LifeInsuranceId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
@@ -51,11 +52,11 @@ public class ManualApprovalStrategy implements ApprovalStrategy {
     }
 
     @Override
-    public Result<Void> approve(TradeLoanFacility facility, TradeLoanArrangement arrangement) {
+    public Result<Void> approve(TradeLoanFacility facility, TradeLoanArrangement arrangement, ConfirmType confirmType) {
         return fetchSanctionDetailsPort
                 .fetchBySanctionSerial(facility.getId().value().toString())
                 .flatMap(this::buildSanctionedLoanBuilder)
-                .flatMap(builder -> domainService.approve(facility, builder, false));
+                .flatMap(builder -> domainService.approve(facility, builder, false, null));
     }
 
     private Result<TradeSanctionedLoan.Builder> buildSanctionedLoanBuilder(SanctionDetails details) {
@@ -69,7 +70,8 @@ public class ManualApprovalStrategy implements ApprovalStrategy {
                     .installmentCount(
                             InstallmentCount.of(details.installmentCount()).getValue())
                     .loanDuration(LoanDuration.of(details.loanDuration()).getValue())
-                    .disbursementMethod(details.disbursementMethod());
+                    .disbursementMethod(details.disbursementMethod())
+                    .confirmType(details.confirmType());
 
             if (details.lifeInsuranceId() != null) {
                 builder.lifeInsuranceId(

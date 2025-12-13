@@ -23,6 +23,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.adapters.driving.rest.shared.pagination.CursorPaginationHelper;
 import ir.dotin.loan.trade.core.application.query.loanfacility.dto.LoanFacilityQueryResult;
+import ir.dotin.loan.trade.core.application.query.loanfacility.dto.TradeFacilityQueryDto;
 import ir.dotin.loan.trade.core.application.query.loanfacility.request.FindAllLoanFacilitiesQuery;
 import ir.dotin.loan.trade.core.application.query.loanfacility.request.GetFacilityByIdQuery;
 import ir.dotin.loan.trade.core.application.query.loanfacility.request.LoanFacilityFilterQuery;
@@ -41,8 +42,7 @@ public class FacilityQueryController extends BaseController {
 
     @GetMapping(value = "/{facilityId}", version = "1")
     @Operation(summary = "دریافت تسهیلات بر اساس شناسه")
-    public DataResponse<ir.dotin.loan.trade.core.application.query.loanfacility.dto.TradeFacilityQueryDto> getById(
-            @PathVariable UUID facilityId) {
+    public DataResponse<TradeFacilityQueryDto> getById(@PathVariable UUID facilityId) {
         GetFacilityByIdQuery query = GetFacilityByIdQuery.builder()
                 .uid(getXRequestId())
                 .loanFacilityId(facilityId)

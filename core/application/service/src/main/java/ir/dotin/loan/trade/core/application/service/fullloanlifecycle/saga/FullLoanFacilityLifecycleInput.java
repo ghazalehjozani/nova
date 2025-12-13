@@ -19,7 +19,8 @@ public record FullLoanFacilityLifecycleInput(
         TransactionConfig transactionConfig,
         DisbursementMethod disbursementMethod,
         LocalDate disbursementDate,
-        UUID correlationId)
+        UUID correlationId,
+        String confirmType)
         implements SagaInput {
 
     public static FullLoanFacilityLifecycleInput of(
@@ -30,7 +31,8 @@ public record FullLoanFacilityLifecycleInput(
             TransactionConfig transactionConfig,
             DisbursementMethod disbursementMethod,
             LocalDate disbursementDate,
-            UUID correlationId) {
+            UUID correlationId,
+            String confirmType) {
         return new FullLoanFacilityLifecycleInput(
                 originationCommand,
                 collaterals,
@@ -39,6 +41,7 @@ public record FullLoanFacilityLifecycleInput(
                 transactionConfig,
                 disbursementMethod,
                 disbursementDate,
-                correlationId);
+                correlationId,
+                confirmType);
     }
 }
