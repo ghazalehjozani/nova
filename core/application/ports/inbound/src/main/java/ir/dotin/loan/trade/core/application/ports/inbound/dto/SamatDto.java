@@ -8,4 +8,5 @@ public record SamatDto(
         String isicEconomicSector,
         String subIsicEconomicSector,
         String useType,
+        String exceptionCode,
         String consumptionPlaceCode) {}

@@ -45,6 +45,7 @@ public record FullLoanFacilityLifecycleRequest(
             String isicEconomicSector,
             String subIsicEconomicSector,
             String useType,
+            String exceptionCode,
             String consumptionPlaceCode) {}
 
     public record DisburseDestinationDto(DisburseDestinationType type, String depositNumber) {}

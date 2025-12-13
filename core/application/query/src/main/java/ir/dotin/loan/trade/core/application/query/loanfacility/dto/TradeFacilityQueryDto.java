@@ -117,6 +117,7 @@ public record TradeFacilityQueryDto(
             String isicEconomicSector,
             String subIsicEconomicSector,
             String useType,
+            String exceptionCode,
             String consumptionPlaceCode)
             implements Serializable {}
 }

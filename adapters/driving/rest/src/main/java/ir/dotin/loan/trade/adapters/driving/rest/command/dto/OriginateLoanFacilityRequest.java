@@ -92,6 +92,9 @@ public record OriginateLoanFacilityRequest(
             @Schema(description = "نوع استفاده", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
             String useType,
 
+            @Schema(description = "کد استثنا", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+            String exceptionCode,
+
             @Schema(description = "شهر محل مصرف", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
             String consumptionPlaceCode) {}
 
