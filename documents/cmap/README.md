@@ -30,7 +30,7 @@ cmap/
 ### Core Contexts
 
 1. **Trade Loan Context (بخش وام تجاری)**
-   - Manages Morabehe (trade) loans
+   - Manages (trade) loans
    - Extends base loan functionality
    - Contains trade-specific business rules
 
