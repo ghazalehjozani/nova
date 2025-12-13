@@ -11,6 +11,7 @@ import org.jspecify.annotations.Nullable;
 
 import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.ResolvedAccounts;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
@@ -23,7 +24,7 @@ public record IssueFacilityContractSagaData(
         @Nullable String postedTrackingId,
         @Nullable Instant postedAt,
         @Nullable TransactionStatus transactionStatus,
-        @Nullable Map<String, String> accountIds,
+        @Nullable Map<String, String> resolvedAccounts,
         @Nullable List<CapturedEventData> capturedEvents) {
 
     public static IssueFacilityContractSagaData initial(
@@ -32,11 +33,7 @@ public record IssueFacilityContractSagaData(
                 facilityId, branchCode, transactionConfig, null, null, null, null, null, List.of());
     }
 
-    public IssueFacilityContractSagaData withAccountIds(Map<RelationType<?>, AccountId> accountIds) {
-        Map<String, String> stringKeyMap = accountIds.entrySet().stream()
-                .collect(Collectors.toMap(
-                        e -> ((Enum<?>) e.getKey()).name(), e -> e.getValue().value()));
-
+    public IssueFacilityContractSagaData withResolvedAccounts(Map<String, String> accounts) {
         return new IssueFacilityContractSagaData(
                 facilityId,
                 branchCode,
@@ -45,21 +42,21 @@ public record IssueFacilityContractSagaData(
                 postedTrackingId,
                 postedAt,
                 transactionStatus,
-                stringKeyMap,
+                accounts,
                 capturedEvents);
     }
 
     public IssueFacilityContractSagaData withPostedTransaction(
-            String transactionNumber, String trackingId, TransactionStatus transactionStatus, Instant postedAt) {
+            String transactionNumber, String trackingId, TransactionStatus status, Instant posted) {
         return new IssueFacilityContractSagaData(
                 facilityId,
                 branchCode,
                 transactionConfig,
                 transactionNumber,
                 trackingId,
-                postedAt,
-                transactionStatus,
-                accountIds,
+                posted,
+                status,
+                resolvedAccounts,
                 capturedEvents);
     }
 
@@ -72,24 +69,22 @@ public record IssueFacilityContractSagaData(
                 postedTrackingId,
                 postedAt,
                 transactionStatus,
-                accountIds,
+                resolvedAccounts,
                 events);
     }
 
-    public Map<RelationType<?>, AccountId> getAccountIdsByRelationType() {
-        if (accountIds == null) return Collections.emptyMap();
-
-        return accountIds.entrySet().stream()
-                .collect(Collectors.toMap(e -> resolveRelationType(e.getKey()), e -> AccountId.valueOf(e.getValue())
-                        .getValue()));
+    public ResolvedAccounts getResolvedAccounts() {
+        if (resolvedAccounts == null || resolvedAccounts.isEmpty()) {
+            return new ResolvedAccounts(Collections.emptyMap());
+        }
+        Map<RelationType<?>, AccountId> accounts = resolvedAccounts.entrySet().stream()
+                .collect(
+                        Collectors.toMap(e -> TradeRelationType.valueOf(e.getKey()), e -> new AccountId(e.getValue())));
+        return new ResolvedAccounts(accounts);
     }
 
-    private RelationType<?> resolveRelationType(String key) {
-        try {
-            return TradeRelationType.valueOf(key);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalStateException("Unknown RelationType in Saga Data: " + key, e);
-        }
+    public Map<RelationType<?>, AccountId> getAccountIdsByRelationType() {
+        return getResolvedAccounts().accountsByRelationType();
     }
 
     public record CapturedEventData(

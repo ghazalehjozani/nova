@@ -16,6 +16,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.service.DocumentBuilderService;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.DocumentCalculationStrategy;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.ResolvedAccounts;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.PostTitle;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.metadata.ArticleMetadata;
@@ -57,7 +58,8 @@ public class TradeLampSunDisbursementTransactionService {
             @NonNull BranchCode branchCode,
             @NonNull PostTitle postTitle,
             @NonNull ArticleMetadata baseMetadata,
-            @NonNull InstallmentSchedule installmentSchedule) {
+            @NonNull InstallmentSchedule installmentSchedule,
+            ResolvedAccounts resolvedAccounts) {
 
         return facility.getSanctionedLoan()
                 .map(sanctionedLoan -> buildTransactions(
@@ -68,7 +70,8 @@ public class TradeLampSunDisbursementTransactionService {
                         branchCode,
                         postTitle,
                         baseMetadata,
-                        installmentSchedule))
+                        installmentSchedule,
+                        resolvedAccounts))
                 .orElseGet(() -> Result.failure(Notification.ofError(
                         TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND_FOR_FACILITY,
                         facility.getId().value())));
@@ -80,7 +83,8 @@ public class TradeLampSunDisbursementTransactionService {
             @NonNull BranchCode branchCode,
             @NonNull Money amount,
             @NonNull PostTitle postTitle,
-            @NonNull ArticleMetadata baseMetadata) {
+            @NonNull ArticleMetadata baseMetadata,
+            ResolvedAccounts resolvedAccounts) {
 
         ArticleComponentMapBuilder<TradeRelationType> builder = new ArticleComponentMapBuilder<>(
                 loanType.getRelationTypeLoanTopics(),
@@ -89,7 +93,8 @@ public class TradeLampSunDisbursementTransactionService {
         return builder.buildSinglePair(
                         DisburseBankCommitmentArticleType.BANK_COMMITMENT_DEBIT_LEG,
                         DisburseBankCommitmentArticleType.BANK_COMMITMENT_CREDIT_LEG,
-                        amount)
+                        amount,
+                        resolvedAccounts)
                 .flatMap(components -> facility.getSanctionedLoan()
                         .map(sanctionedLoan -> documentBuilderService.buildTransaction(
                                 facility,
@@ -98,7 +103,8 @@ public class TradeLampSunDisbursementTransactionService {
                                 components,
                                 postTitle,
                                 findStrategy(DisburseBankCommitmentArticleType.class, facility),
-                                baseMetadata))
+                                baseMetadata,
+                                resolvedAccounts))
                         .orElseGet(() -> Result.failure(Notification.ofError(
                                 TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND_FOR_FACILITY))));
     }
@@ -109,7 +115,8 @@ public class TradeLampSunDisbursementTransactionService {
             @NonNull BranchCode branchCode,
             @NonNull Money amount,
             @NonNull PostTitle postTitle,
-            @NonNull ArticleMetadata baseMetadata) {
+            @NonNull ArticleMetadata baseMetadata,
+            ResolvedAccounts resolvedAccounts) {
 
         ArticleComponentMapBuilder<TradeRelationType> builder = new ArticleComponentMapBuilder<>(
                 loanType.getRelationTypeLoanTopics(),
@@ -119,7 +126,8 @@ public class TradeLampSunDisbursementTransactionService {
                         PaymentAmountArticleType.PRINCIPAL_DEBIT_LEG,
                         PaymentAmountArticleType.DISBURSEMENT_CREDIT,
                         amount,
-                        facility.getLoanApplication().getDisburseDestination())
+                        facility.getLoanApplication().getDisburseDestination(),
+                        resolvedAccounts)
                 .flatMap(components -> facility.getSanctionedLoan()
                         .map(sanctionedLoan -> documentBuilderService.buildTransaction(
                                 facility,
@@ -128,7 +136,8 @@ public class TradeLampSunDisbursementTransactionService {
                                 components,
                                 postTitle,
                                 findStrategy(PaymentAmountArticleType.class, facility),
-                                baseMetadata))
+                                baseMetadata,
+                                resolvedAccounts))
                         .orElseGet(() -> Result.failure(Notification.ofError(
                                 TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND))));
     }
@@ -139,7 +148,8 @@ public class TradeLampSunDisbursementTransactionService {
             @NonNull BranchCode branchCode,
             @NonNull Money interestAmount,
             @NonNull PostTitle postTitle,
-            @NonNull ArticleMetadata baseMetadata) {
+            @NonNull ArticleMetadata baseMetadata,
+            ResolvedAccounts resolvedAccounts) {
 
         ArticleComponentMapBuilder<TradeRelationType> builder = new ArticleComponentMapBuilder<>(
                 loanType.getRelationTypeLoanTopics(),
@@ -148,7 +158,8 @@ public class TradeLampSunDisbursementTransactionService {
         return builder.buildSinglePair(
                         DisbursedInterestArticleType.INTEREST_DEBIT_LEG,
                         DisbursedInterestArticleType.INTEREST_CREDIT_LEG,
-                        interestAmount)
+                        interestAmount,
+                        resolvedAccounts)
                 .flatMap(components -> facility.getSanctionedLoan()
                         .map(sanctionedLoan -> documentBuilderService.buildTransaction(
                                 facility,
@@ -157,7 +168,8 @@ public class TradeLampSunDisbursementTransactionService {
                                 components,
                                 postTitle,
                                 findStrategy(DisbursedInterestArticleType.class, facility),
-                                baseMetadata))
+                                baseMetadata,
+                                resolvedAccounts))
                         .orElseGet(() -> Result.failure(Notification.ofError(
                                 TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND))));
     }
@@ -170,17 +182,25 @@ public class TradeLampSunDisbursementTransactionService {
             @NonNull BranchCode branchCode,
             @NonNull PostTitle postTitle,
             @NonNull ArticleMetadata baseMetadata,
-            @NonNull InstallmentSchedule installmentSchedule) {
+            @NonNull InstallmentSchedule installmentSchedule,
+            ResolvedAccounts resolvedAccounts) {
 
         Money interestAmount = calculateInterestAmount(facility, tradeLoanArrangement, installmentSchedule);
         Money approvedAmount = sanctionedLoan.getApprovedAmount();
 
         List<Result<LoanTransaction>> transactionResults = ImmutableList.of(
                 createBankCommitmentTransaction(
-                        facility, loanType, branchCode, requireNonNull(approvedAmount), postTitle, baseMetadata),
-                createPaymentAmountTransaction(facility, loanType, branchCode, approvedAmount, postTitle, baseMetadata),
+                        facility,
+                        loanType,
+                        branchCode,
+                        requireNonNull(approvedAmount),
+                        postTitle,
+                        baseMetadata,
+                        resolvedAccounts),
+                createPaymentAmountTransaction(
+                        facility, loanType, branchCode, approvedAmount, postTitle, baseMetadata, resolvedAccounts),
                 createDisbursedInterestTransaction(
-                        facility, loanType, branchCode, interestAmount, postTitle, baseMetadata));
+                        facility, loanType, branchCode, interestAmount, postTitle, baseMetadata, resolvedAccounts));
 
         return Result.traverse(transactionResults, result -> result);
     }

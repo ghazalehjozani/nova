@@ -11,6 +11,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.builder.ArticleComponentMapBuil
 import ir.dotin.loan.baseloan.core.domain.shared.service.DocumentBuilderService;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.ResolvedAccounts;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleComponent;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.PostTitle;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.metadata.ArticleMetadata;
@@ -37,15 +38,16 @@ public class TradeIssueContractTransactionService {
     }
 
     public Result<LoanTransaction> createIssueContractTransaction(
-            @NonNull TradeLoanFacility facility,
-            @NonNull TradeLoanType loanType,
-            @NonNull BranchCode branchCode,
-            @NonNull PostTitle postTitle,
-            @NonNull ArticleMetadata baseMetadata) {
+            TradeLoanFacility facility,
+            TradeLoanType loanType,
+            BranchCode branchCode,
+            PostTitle postTitle,
+            ArticleMetadata baseMetadata,
+            ResolvedAccounts resolvedAccounts) {
 
         return facility.getSanctionedLoan()
-                .map(sanctionedLoan ->
-                        buildTransaction(facility, sanctionedLoan, loanType, branchCode, postTitle, baseMetadata))
+                .map(sanctionedLoan -> buildTransaction(
+                        facility, sanctionedLoan, loanType, branchCode, postTitle, baseMetadata, resolvedAccounts))
                 .orElseGet(() -> Result.failure(Notification.ofError(
                         TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND_FOR_FACILITY,
                         facility.getId().value())));
@@ -57,9 +59,10 @@ public class TradeIssueContractTransactionService {
             @NonNull TradeLoanType loanType,
             @NonNull BranchCode branchCode,
             @NonNull PostTitle postTitle,
-            @NonNull ArticleMetadata baseMetadata) {
+            @NonNull ArticleMetadata baseMetadata,
+            ResolvedAccounts resolvedAccounts) {
 
-        return buildArticleComponents(facility, sanctionedLoan, loanType)
+        return buildArticleComponents(facility, sanctionedLoan, loanType, resolvedAccounts)
                 .flatMap(components -> documentBuilderService.buildTransaction(
                         facility,
                         sanctionedLoan.getCurrency(),
@@ -67,13 +70,15 @@ public class TradeIssueContractTransactionService {
                         components,
                         postTitle,
                         strategy,
-                        baseMetadata));
+                        baseMetadata,
+                        resolvedAccounts));
     }
 
     private Result<Map<IssueContractBankCommitmentArticleType, ArticleComponent>> buildArticleComponents(
             @NonNull TradeLoanFacility facility,
             @NonNull TradeSanctionedLoan sanctionedLoan,
-            @NonNull TradeLoanType loanType) {
+            @NonNull TradeLoanType loanType,
+            ResolvedAccounts resolvedAccounts) {
 
         ArticleComponentMapBuilder<TradeRelationType> builder = new ArticleComponentMapBuilder<>(
                 loanType.getRelationTypeLoanTopics(),
@@ -82,6 +87,7 @@ public class TradeIssueContractTransactionService {
         return builder.buildSinglePair(
                 IssueContractBankCommitmentArticleType.BANK_COMMITMENT_DEBIT_LEG,
                 IssueContractBankCommitmentArticleType.BANK_COMMITMENT_CREDIT_LEG,
-                sanctionedLoan.getApprovedAmount());
+                sanctionedLoan.getApprovedAmount(),
+                resolvedAccounts);
     }
 }

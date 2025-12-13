@@ -3,6 +3,9 @@ package ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +25,9 @@ import ir.dotin.platform.saga.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.factory.DocumentMetadataFactory;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.ResolvedAccounts;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.PostTitle;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
@@ -32,10 +37,14 @@ import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.Tr
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanTypeRepository;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.configuration.IssueFacilityContractConfiguration;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.i18n.IssueFacilityContractErrorCodes;
+import ir.dotin.loan.trade.core.application.service.shared.account.AccountResolutionService;
+import ir.dotin.loan.trade.core.application.service.shared.account.LoanTopicResolver;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityContractIssued;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.transaction.TradeIssueContractTransactionService;
+import ir.dotin.loan.trade.core.domain.loanfacility.strategy.IssueContractCommitmentHandlingStrategy;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
+import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
 import lombok.RequiredArgsConstructor;
 
@@ -50,7 +59,10 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
     private final TradeLoanTypeRepository loanTypeRepository;
     private final TradeIssueContractTransactionService transactionService;
     private final TransactionPostingPort transactionPostingPort;
+    private final AccountResolutionService accountResolutionService;
     private final IssueFacilityContractConfiguration configuration;
+    private final IssueContractCommitmentHandlingStrategy issueContractStrategy;
+    private final LoanTopicResolver loanTopicResolver;
     private final Clock clock;
 
     @Override
@@ -63,8 +75,9 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         return List.of(
                 SagaSteps.readOnlyStep(IssueFacilityContractStep.VALIDATE_FACILITY, this::validateFacility)
                         .withNoRetry(),
-                SagaSteps.readOnlyStep(IssueFacilityContractStep.PREPARE_TRANSACTION, this::prepareTransaction)
-                        .withNoRetry(),
+                SagaSteps.step(IssueFacilityContractStep.OPEN_ACCOUNTS, this::openAccounts, this::closeAccounts)
+                        .withConservativeRetry()
+                        .withTimeout(Duration.ofSeconds(30)),
                 SagaSteps.step(
                                 IssueFacilityContractStep.POST_TRANSACTION,
                                 this::postTransaction,
@@ -99,32 +112,50 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         return ResultStepAdapter.toStepResultVoid(validationResult);
     }
 
-    private StepResult<Void> prepareTransaction(SagaContext<IssueFacilityContractSagaData> ctx) {
+    private StepResult<Map<String, String>> openAccounts(SagaContext<IssueFacilityContractSagaData> ctx) {
         var data = ctx.getSagaData();
 
         var result = loadFacility(LoanFacilityId.of(data.facilityId()))
-                .flatMap(facility -> loadLoanType(facility).flatMap(loanType -> createPostTitle(facility)
-                        .flatMap(postTitle ->
-                                createTransaction(facility, loanType, postTitle, data.transactionConfig()))));
+                .flatMap(facility -> loadLoanType(facility).flatMap(loanType -> {
+                    Set<TradeRelationType> requiredRelationTypes =
+                            issueContractStrategy.getRequiredRelationTypes().stream()
+                                    .collect(Collectors.toSet());
+
+                    Set<LoanTopic> requiredTopics = loanTopicResolver.resolveTopics(
+                            loanType, facility.getLoanApplication().getEconomicSector(), requiredRelationTypes);
+
+                    return accountResolutionService.resolveAccounts(requiredTopics, facility.getAccountInfoMap());
+                }));
 
         if (result.hasErrors()) {
             return new StepResult.Failure<>(new StepError.BusinessRuleError(result.notification()));
         }
 
-        var transaction = result.orElseThrow();
-        var accountIds = transaction.extractAccountIdsByRelationType();
-        ctx.updateSagaData(d -> d.withAccountIds(accountIds));
+        ResolvedAccounts resolved = result.orElseThrow();
+        Map<String, String> serializedAccounts = resolved.accountsByRelationType().entrySet().stream()
+                .collect(Collectors.toMap(
+                        e -> e.getKey().name(), e -> e.getValue().value()));
 
+        ctx.updateSagaData(d -> d.withResolvedAccounts(serializedAccounts));
+
+        return new StepResult.Success<>(serializedAccounts);
+    }
+
+    private StepResult<Void> closeAccounts(
+            SagaContext<IssueFacilityContractSagaData> ctx, Map<String, String> openedAccounts) {
+        // TODO:
+        log.warn("Compensating opened accounts: {}", openedAccounts);
         return new StepResult.Success<>(null);
     }
 
     private StepResult<String> postTransaction(SagaContext<IssueFacilityContractSagaData> ctx) {
         var data = ctx.getSagaData();
+        ResolvedAccounts resolvedAccounts = data.getResolvedAccounts();
 
         var transactionResult = loadFacility(LoanFacilityId.of(data.facilityId()))
                 .flatMap(facility -> loadLoanType(facility).flatMap(loanType -> createPostTitle(facility)
-                        .flatMap(postTitle ->
-                                createTransaction(facility, loanType, postTitle, data.transactionConfig()))));
+                        .flatMap(postTitle -> createTransaction(
+                                facility, loanType, postTitle, data.transactionConfig(), resolvedAccounts))));
 
         if (transactionResult.hasErrors()) {
             return new StepResult.Failure<>(new StepError.BusinessRuleError(transactionResult.notification()));
@@ -179,6 +210,7 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         }
 
         var capturedEvents = facility.domainEvents().stream()
+                .filter(TradeLoanFacilityContractIssued.class::isInstance)
                 .map(TradeLoanFacilityContractIssued.class::cast)
                 .map(event -> IssueFacilityContractSagaData.CapturedEventData.contractIssued(
                         event.eventType(),
@@ -238,7 +270,11 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
     }
 
     private Result<LoanTransaction> createTransaction(
-            TradeLoanFacility facility, TradeLoanType loanType, PostTitle postTitle, TransactionConfig config) {
+            TradeLoanFacility facility,
+            TradeLoanType loanType,
+            PostTitle postTitle,
+            TransactionConfig config,
+            ResolvedAccounts resolvedAccounts) {
 
         return DocumentMetadataFactory.builder()
                 .terminal(DocumentMetadataFactory.TerminalConfig.of(
@@ -259,6 +295,11 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
                 .operational(OperationalInfo.builder().build())
                 .build()
                 .flatMap(metadata -> transactionService.createIssueContractTransaction(
-                        facility, loanType, BranchCode.of(config.branchCode()).getValue(), postTitle, metadata));
+                        facility,
+                        loanType,
+                        BranchCode.of(config.branchCode()).getValue(),
+                        postTitle,
+                        metadata,
+                        resolvedAccounts));
     }
 }

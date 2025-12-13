@@ -4,6 +4,7 @@ import ir.dotin.platform.saga.api.model.SagaStepId;
 
 public enum IssueFacilityContractStep implements SagaStepId {
     VALIDATE_FACILITY("validate-facility"),
+    OPEN_ACCOUNTS("open-accounts"),
     PREPARE_TRANSACTION("prepare-transaction"),
     POST_TRANSACTION("post-transaction"),
     UPDATE_FACILITY_STATE("update-facility-state");
