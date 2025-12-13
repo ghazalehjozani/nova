@@ -1,10 +1,10 @@
-<mxfile host="drawio-plugin" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36" modified="2025-12-12T11:50:48.726Z" version="22.1.22" etag="XQn8QuGqcExmCu_ppOGt" type="embed">
+<mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.0.3 Chrome/140.0.7339.249 Electron/38.7.0 Safari/537.36" version="29.0.3">
   <diagram id="system-context" name="L1 - System Context">
-    <mxGraphModel dx="946" dy="637" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1451" dy="859" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <object placeholders="1" c4Name="Trade Loan Service" c4Type="Software System" c4Description="Microservice implementing Morabehe (Trade) loans with comprehensive loan management capabilities including facility creation, approval workflows, disbursement, installment schedules, and collateral management." label="&lt;b&gt;Trade Loan Service&lt;/b&gt;&lt;div&gt;[Software System]&lt;/div&gt;&lt;br&gt;&lt;div&gt;Microservice implementing Morabehe (Trade) loans with comprehensive&lt;br&gt;loan management capabilities including facility creation,&lt;br&gt;approval workflows, disbursement, installment schedules,&lt;br&gt;and collateral management.&lt;/div&gt;" id="system-trade-loan">
+        <object placeholders="1" c4Name="Trade Loan Service" c4Type="Software System" c4Description="Microservice implementing (Trade) loans with comprehensive loan management capabilities including facility creation, approval workflows, disbursement, installment schedules, and collateral management." label="&lt;b&gt;Trade Loan Service&lt;/b&gt;&lt;div&gt;[Software System]&lt;/div&gt;&lt;br&gt;&lt;div&gt;Microservice implementing Morabehe (Trade) loans with comprehensive&lt;br&gt;loan management capabilities including facility creation,&lt;br&gt;approval workflows, disbursement, installment schedules,&lt;br&gt;and collateral management.&lt;/div&gt;" id="system-trade-loan">
           <mxCell style="rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;fillColor=#1168BD;fontColor=#ffffff;align=center;arcSize=10;strokeColor=#1168BD;metaEdit=1;metaData={&quot;c4Type&quot;:{&quot;editable&quot;:false}};points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];" parent="1" vertex="1">
             <mxGeometry x="680" y="350" width="260" height="180" as="geometry" />
           </mxCell>
@@ -24,39 +24,24 @@
             <mxGeometry x="30" y="540" width="190" height="200" as="geometry" />
           </mxCell>
         </object>
-        <object placeholders="1" c4Name="Customer" c4Type="Person" c4Description="End users applying for trade loans (via external systems)" label="&lt;b&gt;Customer&lt;/b&gt;&lt;div&gt;[Person]&lt;/div&gt;&lt;br&gt;&lt;div&gt;End users applying for trade&lt;br&gt;loans (via external systems)&lt;/div&gt;" id="person-customer">
+        <object placeholders="1" c4Name="Customer" c4Type="Person" c4Description="End users applying for trade loans (via external systems like Wepod)" label="&lt;b&gt;Customer&lt;/b&gt;&lt;div&gt;[Person]&lt;/div&gt;&lt;br&gt;&lt;div&gt;End users applying for trade&lt;br&gt;loans (via external systems)&lt;/div&gt;" id="person-customer">
           <mxCell style="html=1;dashed=0;whitespace=wrap;fillColor=#08427b;strokeColor=none;fontColor=#ffffff;shape=mxgraph.c4.person;align=center;metaEdit=1;points=[[0.5,0,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0]];metaData={&quot;c4Type&quot;:{&quot;editable&quot;:false}};" parent="1" vertex="1">
             <mxGeometry x="30" y="760" width="180" height="200" as="geometry" />
           </mxCell>
         </object>
         <object placeholders="1" c4Name="TPS SSO" c4Type="Software System" c4Description="OAuth2/OIDC authentication provider for user authentication and authorization" label="&lt;b&gt;TPS SSO&lt;/b&gt;&lt;div&gt;[Software System]&lt;/div&gt;&lt;br&gt;&lt;div&gt;OAuth2/OIDC authentication provider&lt;br&gt;for user authentication and authorization&lt;/div&gt;" id="external-sso">
           <mxCell style="rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;fillColor=#999999;fontColor=#ffffff;align=center;arcSize=10;strokeColor=#8A8A8A;metaEdit=1;metaData={&quot;c4Type&quot;:{&quot;editable&quot;:false}};points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];" parent="1" vertex="1">
-            <mxGeometry x="1280" y="100" width="180" height="130" as="geometry" />
-          </mxCell>
-        </object>
-        <object placeholders="1" c4Name="PostgreSQL" c4Type="Software System" c4Description="Primary relational database for persistent loan data storage" label="&lt;b&gt;PostgreSQL&lt;/b&gt;&lt;div&gt;[Software System]&lt;/div&gt;&lt;br&gt;&lt;div&gt;Primary relational database for&lt;br&gt;persistent loan data storage&lt;/div&gt;" id="external-postgresql">
-          <mxCell style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#999999;strokeColor=#8A8A8A;size=15;fontColor=#ffffff;metaEdit=1;" parent="1" vertex="1">
-            <mxGeometry x="1300" y="260" width="150" height="140" as="geometry" />
-          </mxCell>
-        </object>
-        <object placeholders="1" c4Name="Apache Kafka" c4Type="Software System" c4Description="Distributed streaming platform for event-driven architecture and message queuing" label="&lt;b&gt;Apache Kafka&lt;/b&gt;&lt;div&gt;[Software System]&lt;/div&gt;&lt;br&gt;&lt;div&gt;Distributed streaming platform for&lt;br&gt;event-driven architecture and&lt;br&gt;message queuing&lt;/div&gt;" id="external-kafka">
-          <mxCell style="rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;fillColor=#999999;fontColor=#ffffff;align=center;arcSize=10;strokeColor=#8A8A8A;metaEdit=1;metaData={&quot;c4Type&quot;:{&quot;editable&quot;:false}};points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];" parent="1" vertex="1">
-            <mxGeometry x="1300" y="560" width="160" height="110" as="geometry" />
-          </mxCell>
-        </object>
-        <object placeholders="1" c4Name="Redis Cache" c4Type="Software System" c4Description="In-memory data store for caching, session management, and idempotency" label="&lt;b&gt;Redis Cache&lt;/b&gt;&lt;div&gt;[Software System]&lt;/div&gt;&lt;br&gt;&lt;div&gt;In-memory data store for caching,&lt;br&gt;session management, and idempotency&lt;/div&gt;" id="external-redis">
-          <mxCell style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#999999;strokeColor=#8A8A8A;size=15;fontColor=#ffffff;metaEdit=1;" parent="1" vertex="1">
-            <mxGeometry x="1290" y="720" width="150" height="150" as="geometry" />
+            <mxGeometry x="1240" y="170" width="180" height="130" as="geometry" />
           </mxCell>
         </object>
         <object placeholders="1" c4Name="FCB Core Banking" c4Type="Software System" c4Description="Foreign Core Banking system for core banking operations and transaction processing" label="&lt;b&gt;FCB Core Banking&lt;/b&gt;&lt;div&gt;[Software System]&lt;/div&gt;&lt;br&gt;&lt;div&gt;Foreign Core Banking system for core&lt;br&gt;banking operations and transaction processing&lt;/div&gt;" id="external-fcb">
           <mxCell style="rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;fillColor=#999999;fontColor=#ffffff;align=center;arcSize=10;strokeColor=#8A8A8A;metaEdit=1;metaData={&quot;c4Type&quot;:{&quot;editable&quot;:false}};points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];" parent="1" vertex="1">
-            <mxGeometry x="450" y="30" width="160" height="110" as="geometry" />
+            <mxGeometry x="960" y="30" width="200" height="140" as="geometry" />
           </mxCell>
         </object>
         <object placeholders="1" c4Name="OpenTelemetry Collector" c4Type="Software System" c4Description="Observability backend for collecting metrics, traces, and logs" label="&lt;b&gt;OpenTelemetry Collector&lt;/b&gt;&lt;div&gt;[Software System]&lt;/div&gt;&lt;br&gt;&lt;div&gt;Observability backend for collecting&lt;br&gt;metrics, traces, and logs&lt;/div&gt;" id="external-otel">
           <mxCell style="rounded=1;whiteSpace=wrap;html=1;labelBackgroundColor=none;fillColor=#999999;fontColor=#ffffff;align=center;arcSize=10;strokeColor=#8A8A8A;metaEdit=1;metaData={&quot;c4Type&quot;:{&quot;editable&quot;:false}};points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];" parent="1" vertex="1">
-            <mxGeometry x="990" y="780" width="160" height="110" as="geometry" />
+            <mxGeometry x="1250" y="580" width="160" height="110" as="geometry" />
           </mxCell>
         </object>
         <mxCell id="rel1" value="Creates and manages loans&#xa;[HTTPS/JWT]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=0;strokeWidth=2;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" source="person-loan-officer" target="system-trade-loan" edge="1">
@@ -71,34 +56,10 @@
         <mxCell id="rel4" value="Submits loan applications&#xa;[via external systems]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;strokeWidth=2;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" source="person-customer" target="system-trade-loan" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rel5" value="Authenticates users&#xa;[OAuth2/OIDC]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=0;strokeWidth=2;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" source="system-trade-loan" target="external-sso" edge="1">
+        <mxCell id="rel5" value="Authenticates users&#xa;[OAuth2/OIDC]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=0;strokeWidth=2;fillColor=#f5f5f5;strokeColor=#666666;entryX=0.5;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="system-trade-loan" target="external-sso" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1490" y="440" />
-              <mxPoint x="1490" y="175" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="rel6" value="Reads/writes loan data&#xa;[JDBC/SQL]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=0;strokeWidth=2;fillColor=#f5f5f5;strokeColor=#666666;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="system-trade-loan" target="external-postgresql" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1040" y="440" />
-              <mxPoint x="1040" y="320" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="rel7" value="Publishes events&#xa;[Apache Kafka]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=0;strokeWidth=2;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" source="system-trade-loan" target="external-kafka" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="810" y="640" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="rel8" value="Caches data, sessions&#xa;[Redis Protocol]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=0;strokeWidth=2;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" source="system-trade-loan" target="external-redis" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1490" y="490" />
-              <mxPoint x="1490" y="780" />
+              <mxPoint x="1330" y="400" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -106,7 +67,11 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="rel12" value="Emits telemetry&#xa;[OTLP/gRPC]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=0;strokeWidth=2;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" source="system-trade-loan" target="external-otel" edge="1">
-          <mxGeometry relative="1" as="geometry" />
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1330" y="480" />
+            </Array>
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>
