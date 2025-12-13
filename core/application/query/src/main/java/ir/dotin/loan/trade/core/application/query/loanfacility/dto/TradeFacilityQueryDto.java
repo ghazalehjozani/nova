@@ -20,6 +20,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 
 public record TradeFacilityQueryDto(
         UUID id,
@@ -88,7 +89,8 @@ public record TradeFacilityQueryDto(
             List<ScheduledTrancheEmbDto> disbursementScheduleTranches,
             List<DisbursementRecordEmbDto> disbursementHistoryRecords,
             String revocationReason,
-            DisbursementMethod disbursementMethod)
+            DisbursementMethod disbursementMethod,
+            ConfirmType confirmType)
             implements Serializable {
         public record ScheduledTrancheEmbDto(Instant scheduledDate, BigDecimal amount, String currency)
                 implements Serializable {}

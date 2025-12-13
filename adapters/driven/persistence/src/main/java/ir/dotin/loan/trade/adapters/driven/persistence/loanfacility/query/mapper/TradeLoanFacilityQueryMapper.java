@@ -6,6 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
+import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ApplicationNumberEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.DisbursementRecordEmb;
@@ -33,6 +34,7 @@ public interface TradeLoanFacilityQueryMapper {
     @Mapping(target = "sanctionedLoan.approvedAmount", source = "sanctionedLoan.approvedAmount.amount")
     @Mapping(target = "sanctionedLoan.sanctionSerialType", source = "sanctionedLoan.sanctionSerial.type")
     @Mapping(target = "sanctionedLoan.sanctionSerial", source = "sanctionedLoan.sanctionSerial.value")
+    @Mapping(target = "sanctionedLoan.confirmType", source = "sanctionedLoan.confirmType.personCode")
     @Mapping(target = "loanApplication.applicationNumber", qualifiedByName = "formatAppNum")
     @Mapping(target = "loanApplication.credibilityRank", source = "loanApplication.credibilityRank.value")
     @Mapping(target = "loanApplication.description", source = "loanApplication.description.value")
@@ -77,4 +79,11 @@ public interface TradeLoanFacilityQueryMapper {
     @Mapping(target = "usedAmount", source = "usedAmount.amount")
     @Mapping(target = "usedAmountCurrency", source = "usedAmount.currency")
     TradeFacilityQueryDto.CollateralEmbDto toCollateralDto(CollateralEmb emb);
+
+    default ConfirmType mapConfirmType(String personCode) {
+        if (personCode == null) {
+            return null;
+        }
+        return new ConfirmType(personCode);
+    }
 }
