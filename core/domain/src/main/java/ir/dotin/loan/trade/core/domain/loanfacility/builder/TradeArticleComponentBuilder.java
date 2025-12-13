@@ -12,6 +12,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.factory.ArticleComponentFactory;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.ResolvedAccounts;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleComponent;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleType;
 import ir.dotin.loan.trade.core.domain.loanfacility.i18n.TradeLoanFacilityLocalizedMessageCodes;
@@ -33,9 +34,9 @@ public class TradeArticleComponentBuilder {
     }
 
     public <K extends Enum<K> & ArticleType<K, TradeRelationType>> TradeArticleComponentBuilder addComponent(
-            K articleType, Money amount) {
-        Result<ArticleComponent> result =
-                ArticleComponentFactory.createWithLoanTopicLookup(relationTopics, articleType, economicSector, amount);
+            K articleType, Money amount, ResolvedAccounts resolvedAccounts) {
+        Result<ArticleComponent> result = ArticleComponentFactory.createWithLoanTopicLookup(
+                relationTopics, articleType, economicSector, amount, resolvedAccounts);
 
         if (result.isSuccessWithValue()) {
             components.put(articleType, result.getValue());
@@ -44,8 +45,8 @@ public class TradeArticleComponentBuilder {
     }
 
     public <K extends Enum<K> & ArticleType<K, TradeRelationType>> TradeArticleComponentBuilder addDebitCreditPair(
-            K debitType, K creditType, Money amount) {
-        return addComponent(debitType, amount).addComponent(creditType, amount);
+            K debitType, K creditType, Money amount, ResolvedAccounts resolvedAccounts) {
+        return addComponent(debitType, amount, resolvedAccounts).addComponent(creditType, amount, resolvedAccounts);
     }
 
     @SuppressWarnings("unchecked")

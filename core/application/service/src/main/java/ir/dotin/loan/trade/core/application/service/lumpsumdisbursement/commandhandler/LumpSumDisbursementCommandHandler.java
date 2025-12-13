@@ -4,9 +4,8 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +18,12 @@ import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractSanctionedLoan;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.ResolvedAccounts;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.PostTitle;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.metadata.ArticleMetadata;
@@ -36,12 +35,16 @@ import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.Tr
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanTypeRepository;
 import ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.configuration.LumpSumDisbursementConfiguration;
 import ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.i18n.LumpSumDisbursementErrorCodes;
+import ir.dotin.loan.trade.core.application.service.shared.account.AccountResolutionService;
+import ir.dotin.loan.trade.core.application.service.shared.account.LoanTopicResolver;
 import ir.dotin.loan.trade.core.application.service.shared.util.DocumentMetadataUtils;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.transaction.TradeLampSunDisbursementTransactionService;
+import ir.dotin.loan.trade.core.domain.loanfacility.strategy.DisbursementStrategyProvider;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
+import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
 import lombok.RequiredArgsConstructor;
 
@@ -58,6 +61,9 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
     private final TradeLampSunDisbursementTransactionService transactionService;
     private final TransactionPostingPort transactionPostingPort;
     private final LumpSumDisbursementConfiguration configuration;
+    private final DisbursementStrategyProvider strategyProvider;
+    private final LoanTopicResolver loanTopicResolver;
+    private final AccountResolutionService accountResolutionService;
     private final Clock clock;
 
     @Override
@@ -70,7 +76,8 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
                 .flatMap(this::validateDisbursementMethod)
                 .flatMap(facility -> loadDependencies(facility, command)
                         .flatMap(context -> validateDisbursement(facility, context)
-                                .flatMap(ignored -> processDisbursement(facility, context))))
+                                .flatMap(ignored -> resolveAccounts(facility, context))
+                                .flatMap(resolvedAccounts -> processDisbursement(facility, context, resolvedAccounts))))
                 .flatMap(this::persistAndCollectEvents)
                 .peekValue(result ->
                         log.info("Lump sum disbursement completed for facility: {}", command.loanFacilityId()))
@@ -95,7 +102,6 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
     }
 
     private Result<ProcessingContext> loadDependencies(TradeLoanFacility facility, LumpSumDisbursementCommand command) {
-
         return loadLoanType(facility).flatMap(loanType -> loadLoanArrangement(facility)
                 .flatMap(arrangement -> loadInstallmentSchedule(facility).flatMap(schedule -> createBranchCode(command)
                         .flatMap(branchCode -> createTransactionConfig(command)
@@ -179,14 +185,24 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
                         context.schedule().getInstallments().getFirst().getDueDate()));
     }
 
+    private Result<ResolvedAccounts> resolveAccounts(TradeLoanFacility facility, ProcessingContext context) {
+        Set<TradeRelationType> requiredRelationTypes = strategyProvider.getAllRequiredRelationTypes(facility);
+
+        Set<LoanTopic> requiredTopics = loanTopicResolver.resolveTopics(
+                context.loanType(), facility.getLoanApplication().getEconomicSector(), requiredRelationTypes);
+
+        return accountResolutionService.resolveAccounts(requiredTopics, facility.getAccountInfoMap());
+    }
+
     private Result<DisbursementOperationResult> processDisbursement(
-            TradeLoanFacility facility, ProcessingContext context) {
+            TradeLoanFacility facility, ProcessingContext context, ResolvedAccounts resolvedAccounts) {
 
         return activateSchedule(context.schedule())
                 .flatMap(ignored -> createBaseMetadata(facility, context))
-                .flatMap(metadata -> createTransactions(facility, context, metadata))
+                .flatMap(metadata -> createTransactions(facility, context, metadata, resolvedAccounts))
                 .flatMap(loanTransactions -> postTransactionsInBatch(facility.getId(), loanTransactions))
-                .flatMap(transactionResults -> performDisbursementOperations(facility, context, transactionResults));
+                .flatMap(trackedNumbers ->
+                        performDisbursementOperations(facility, context, trackedNumbers, resolvedAccounts));
     }
 
     private Result<Void> activateSchedule(InstallmentSchedule schedule) {
@@ -199,7 +215,10 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
     }
 
     private Result<List<LoanTransaction>> createTransactions(
-            TradeLoanFacility facility, ProcessingContext context, ArticleMetadata metadata) {
+            TradeLoanFacility facility,
+            ProcessingContext context,
+            ArticleMetadata metadata,
+            ResolvedAccounts resolvedAccounts) {
 
         return transactionService.createTransactions(
                 facility,
@@ -208,41 +227,28 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
                 context.branchCode(),
                 context.postTitle(),
                 metadata,
-                context.schedule());
+                context.schedule(),
+                resolvedAccounts);
     }
 
-    private Result<List<TransactionResult>> postTransactionsInBatch(
+    private Result<List<TrackedTransactionNumber>> postTransactionsInBatch(
             LoanFacilityId facilityId, List<LoanTransaction> transactions) {
-        return transactionPostingPort
-                .postTransactions(facilityId, configuration.fcbMergedDocumentTitle(), transactions)
-                .map(trackedNumbers -> {
-                    int count = Math.min(trackedNumbers.size(), transactions.size());
-                    List<TransactionResult> results = new ArrayList<>();
-                    for (int i = 0; i < count; i++) {
-                        results.add(new TransactionResult(
-                                trackedNumbers.get(i), transactions.get(i).extractAccountIdsByRelationType()));
-                    }
-                    return results;
-                });
+        return transactionPostingPort.postTransactions(
+                facilityId, configuration.fcbMergedDocumentTitle(), transactions);
     }
 
     private Result<DisbursementOperationResult> performDisbursementOperations(
-            TradeLoanFacility facility, ProcessingContext context, List<TransactionResult> transactionResults) {
-
-        List<TrackedTransactionNumber> trackedNumbers = transactionResults.stream()
-                .map(TransactionResult::trackedTransactionNumber)
-                .toList();
-
-        Map<RelationType<?>, AccountId> accountIds = transactionResults.stream()
-                .flatMap(result -> result.accountIds().entrySet().stream())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (existing, replacement) -> existing));
+            TradeLoanFacility facility,
+            ProcessingContext context,
+            List<TrackedTransactionNumber> trackedNumbers,
+            ResolvedAccounts resolvedAccounts) {
 
         return facility.getSanctionedLoan()
                 .map(AbstractSanctionedLoan::getApprovedAmount)
                 .map(approvedAmount -> facility.lumpSumDisbursement(
                                 approvedAmount,
                                 trackedNumbers,
-                                accountIds,
+                                resolvedAccounts.accountsByRelationType(),
                                 context.arrangement.getInstallmentPolicy().installmentPaymentType(),
                                 clock,
                                 context.disbursementDate())
@@ -282,9 +288,6 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
             TransactionConfig config,
             LocalDate disbursementDate,
             PostTitle postTitle) {}
-
-    private record TransactionResult(
-            TrackedTransactionNumber trackedTransactionNumber, Map<RelationType<?>, AccountId> accountIds) {}
 
     private record DisbursementOperationResult(TradeLoanFacility facility, InstallmentSchedule schedule) {}
 

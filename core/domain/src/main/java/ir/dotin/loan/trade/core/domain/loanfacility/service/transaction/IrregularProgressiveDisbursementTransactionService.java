@@ -16,6 +16,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.service.DocumentBuilderService;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.DocumentCalculationStrategy;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.ResolvedAccounts;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.PostTitle;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.metadata.ArticleMetadata;
@@ -50,7 +51,8 @@ public class IrregularProgressiveDisbursementTransactionService {
             @NonNull ArticleMetadata baseMetadata,
             @NonNull InstallmentSchedule currentSchedule,
             @NonNull List<Installment> recalculatedInstallments,
-            @NonNull Money trancheAmount) {
+            @NonNull Money trancheAmount,
+            ResolvedAccounts resolvedAccounts) {
         return calculateIncrementalInterest(
                         facility.getSanctionedLoan().orElseThrow().isFirstDisbursement(),
                         currentSchedule,
@@ -58,11 +60,29 @@ public class IrregularProgressiveDisbursementTransactionService {
                 .flatMap(incrementalInterest -> {
                     List<Result<LoanTransaction>> transactionResults = ImmutableList.of(
                             createBankCommitmentTransaction(
-                                    facility, loanType, branchCode, trancheAmount, postTitle, baseMetadata),
+                                    facility,
+                                    loanType,
+                                    branchCode,
+                                    trancheAmount,
+                                    postTitle,
+                                    baseMetadata,
+                                    resolvedAccounts),
                             createPaymentAmountTransaction(
-                                    facility, loanType, branchCode, trancheAmount, postTitle, baseMetadata),
+                                    facility,
+                                    loanType,
+                                    branchCode,
+                                    trancheAmount,
+                                    postTitle,
+                                    baseMetadata,
+                                    resolvedAccounts),
                             createDisbursedInterestTransaction(
-                                    facility, loanType, branchCode, incrementalInterest, postTitle, baseMetadata));
+                                    facility,
+                                    loanType,
+                                    branchCode,
+                                    incrementalInterest,
+                                    postTitle,
+                                    baseMetadata,
+                                    resolvedAccounts));
 
                     return Result.traverse(transactionResults, result -> result);
                 });
@@ -103,7 +123,8 @@ public class IrregularProgressiveDisbursementTransactionService {
             @NonNull BranchCode branchCode,
             @NonNull Money amount,
             @NonNull PostTitle postTitle,
-            @NonNull ArticleMetadata baseMetadata) {
+            @NonNull ArticleMetadata baseMetadata,
+            ResolvedAccounts resolvedAccounts) {
 
         ArticleComponentMapBuilder<TradeRelationType> builder = new ArticleComponentMapBuilder<>(
                 loanType.getRelationTypeLoanTopics(),
@@ -112,7 +133,8 @@ public class IrregularProgressiveDisbursementTransactionService {
         return builder.buildSinglePair(
                         DisburseBankCommitmentArticleType.BANK_COMMITMENT_DEBIT_LEG,
                         DisburseBankCommitmentArticleType.BANK_COMMITMENT_CREDIT_LEG,
-                        amount)
+                        amount,
+                        resolvedAccounts)
                 .flatMap(components -> facility.getSanctionedLoan()
                         .map(sanctionedLoan -> documentBuilderService.buildTransaction(
                                 facility,
@@ -121,7 +143,8 @@ public class IrregularProgressiveDisbursementTransactionService {
                                 components,
                                 postTitle,
                                 findStrategy(DisburseBankCommitmentArticleType.class, facility),
-                                baseMetadata))
+                                baseMetadata,
+                                resolvedAccounts))
                         .orElseGet(() -> Result.failure(Notification.ofError(
                                 TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND_FOR_FACILITY))));
     }
@@ -132,7 +155,8 @@ public class IrregularProgressiveDisbursementTransactionService {
             @NonNull BranchCode branchCode,
             @NonNull Money amount,
             @NonNull PostTitle postTitle,
-            @NonNull ArticleMetadata baseMetadata) {
+            @NonNull ArticleMetadata baseMetadata,
+            ResolvedAccounts resolvedAccounts) {
 
         ArticleComponentMapBuilder<TradeRelationType> builder = new ArticleComponentMapBuilder<>(
                 loanType.getRelationTypeLoanTopics(),
@@ -142,7 +166,8 @@ public class IrregularProgressiveDisbursementTransactionService {
                         PaymentAmountArticleType.PRINCIPAL_DEBIT_LEG,
                         PaymentAmountArticleType.DISBURSEMENT_CREDIT,
                         amount,
-                        facility.getLoanApplication().getDisburseDestination())
+                        facility.getLoanApplication().getDisburseDestination(),
+                        resolvedAccounts)
                 .flatMap(components -> facility.getSanctionedLoan()
                         .map(sanctionedLoan -> documentBuilderService.buildTransaction(
                                 facility,
@@ -151,7 +176,8 @@ public class IrregularProgressiveDisbursementTransactionService {
                                 components,
                                 postTitle,
                                 findStrategy(PaymentAmountArticleType.class, facility),
-                                baseMetadata))
+                                baseMetadata,
+                                resolvedAccounts))
                         .orElseGet(() -> Result.failure(Notification.ofError(
                                 TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND))));
     }
@@ -162,7 +188,8 @@ public class IrregularProgressiveDisbursementTransactionService {
             @NonNull BranchCode branchCode,
             @NonNull Money interestAmount,
             @NonNull PostTitle postTitle,
-            @NonNull ArticleMetadata baseMetadata) {
+            @NonNull ArticleMetadata baseMetadata,
+            ResolvedAccounts resolvedAccounts) {
 
         ArticleComponentMapBuilder<TradeRelationType> builder = new ArticleComponentMapBuilder<>(
                 loanType.getRelationTypeLoanTopics(),
@@ -171,7 +198,8 @@ public class IrregularProgressiveDisbursementTransactionService {
         return builder.buildSinglePair(
                         DisbursedInterestArticleType.INTEREST_DEBIT_LEG,
                         DisbursedInterestArticleType.INTEREST_CREDIT_LEG,
-                        interestAmount)
+                        interestAmount,
+                        resolvedAccounts)
                 .flatMap(components -> facility.getSanctionedLoan()
                         .map(sanctionedLoan -> documentBuilderService.buildTransaction(
                                 facility,
@@ -180,7 +208,8 @@ public class IrregularProgressiveDisbursementTransactionService {
                                 components,
                                 postTitle,
                                 findStrategy(DisbursedInterestArticleType.class, facility),
-                                baseMetadata))
+                                baseMetadata,
+                                resolvedAccounts))
                         .orElseGet(() -> Result.failure(Notification.ofError(
                                 TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND))));
     }

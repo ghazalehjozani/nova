@@ -3,8 +3,10 @@ package ir.dotin.loan.trade.core.application.service.irregularprogressivedisburs
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -24,7 +26,9 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.ResolvedAccounts;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.PostTitle;
@@ -39,11 +43,15 @@ import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.Tr
 import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.configuration.IrregularProgressiveDisbursementConfiguration;
 import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.i18n.IrregularProgressiveDisbursementErrorCodes;
 import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.mapper.IrregularProgressiveDisbursementInstallmentSchedulePlanMapper;
+import ir.dotin.loan.trade.core.application.service.shared.account.AccountResolutionService;
+import ir.dotin.loan.trade.core.application.service.shared.account.LoanTopicResolver;
 import ir.dotin.loan.trade.core.application.service.shared.util.DocumentMetadataUtils;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.transaction.IrregularProgressiveDisbursementTransactionService;
+import ir.dotin.loan.trade.core.domain.loanfacility.strategy.DisbursementStrategyProvider;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
+import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,6 +73,9 @@ public class IrregularProgressiveDisbursementCommandHandler
     private final TransactionPostingPort transactionPostingPort;
     private final IrregularProgressiveDisbursementConfiguration configuration;
     private final IrregularProgressiveDisbursementInstallmentSchedulePlanMapper planMapper;
+    private final DisbursementStrategyProvider strategyProvider;
+    private final LoanTopicResolver loanTopicResolver;
+    private final AccountResolutionService accountResolutionService;
     private final Clock clock;
 
     @Override
@@ -77,11 +88,34 @@ public class IrregularProgressiveDisbursementCommandHandler
                 .flatMap(this::validateDisbursementMethod)
                 .flatMap(facility -> loadDependencies(facility, command)
                         .flatMap(context -> validateAll(facility, context)
-                                .flatMap(ignored -> processDisbursement(facility, context))))
+                                .flatMap(ignored -> resolveAccounts(facility, context))
+                                .flatMap(resolvedAccounts -> processDisbursement(facility, context, resolvedAccounts))))
                 .flatMap(this::persistAndCollectEvents)
                 .peekValue(result ->
                         log.info("Irregular disbursement completed for facility: {}", command.loanFacilityId()))
                 .map(DisbursementResult::events);
+    }
+
+    private Result<ResolvedAccounts> resolveAccounts(TradeLoanFacility facility, ProcessingContext context) {
+        Set<TradeRelationType> requiredRelationTypes = strategyProvider.getAllRequiredRelationTypes(facility);
+
+        Set<LoanTopic> requiredTopics = loanTopicResolver.resolveTopics(
+                context.loanType(), facility.getLoanApplication().getEconomicSector(), requiredRelationTypes);
+
+        return accountResolutionService.resolveAccounts(requiredTopics, facility.getAccountInfoMap());
+    }
+
+    private Result<DisbursementOperationResult> processDisbursement(
+            TradeLoanFacility facility, ProcessingContext context, ResolvedAccounts resolvedAccounts) {
+
+        return recalculateSchedule(context).flatMap(recalculatedInstallments -> restructureAndActivateSchedule(
+                        facility, context, recalculatedInstallments)
+                .flatMap(newSchedule -> createBaseMetadata(facility, context)
+                        .flatMap(metadata -> createTransactions(
+                                facility, context, metadata, recalculatedInstallments, resolvedAccounts))
+                        .flatMap(transactions -> postTransactionsInBatch(facility.getId(), transactions))
+                        .flatMap(transactionResults ->
+                                performDisbursementOperations(facility, context, transactionResults, newSchedule))));
     }
 
     private Result<TradeLoanFacility> loadFacility(LoanFacilityId loanFacilityId) {
@@ -218,18 +252,6 @@ public class IrregularProgressiveDisbursementCommandHandler
         return Result.success();
     }
 
-    private Result<DisbursementOperationResult> processDisbursement(
-            TradeLoanFacility facility, ProcessingContext context) {
-
-        return recalculateSchedule(context).flatMap(recalculatedInstallments -> restructureAndActivateSchedule(
-                        facility, context, recalculatedInstallments)
-                .flatMap(newSchedule -> createBaseMetadata(facility, context)
-                        .flatMap(metadata -> createTransactions(facility, context, metadata, recalculatedInstallments))
-                        .flatMap(transactions -> postTransactionsInBatch(facility.getId(), transactions))
-                        .flatMap(transactionResults ->
-                                performDisbursementOperations(facility, context, transactionResults, newSchedule))));
-    }
-
     private Result<List<Installment>> recalculateSchedule(ProcessingContext context) {
         return recalculationService.recalculateForIrregularDisbursement(
                 context.schedule(), context.trancheAmount(), context.customPlan());
@@ -267,7 +289,8 @@ public class IrregularProgressiveDisbursementCommandHandler
             TradeLoanFacility facility,
             ProcessingContext context,
             ArticleMetadata metadata,
-            List<Installment> recalculatedInstallments) {
+            List<Installment> recalculatedInstallments,
+            ResolvedAccounts resolvedAccounts) {
 
         return transactionService.createTransactions(
                 facility,
@@ -277,7 +300,8 @@ public class IrregularProgressiveDisbursementCommandHandler
                 metadata,
                 context.schedule(),
                 recalculatedInstallments,
-                context.trancheAmount());
+                context.trancheAmount(),
+                resolvedAccounts);
     }
 
     private Result<List<TransactionResult>> postTransactionsInBatch(
@@ -285,13 +309,25 @@ public class IrregularProgressiveDisbursementCommandHandler
         return transactionPostingPort
                 .postTransactions(facilityId, configuration.fcbMergedDocumentTitle(), transactions)
                 .map(trackedNumbers -> {
-                    int count = Math.min(trackedNumbers.size(), transactions.size());
-                    List<TransactionResult> results = new ArrayList<>();
-                    for (int i = 0; i < count; i++) {
-                        results.add(new TransactionResult(
-                                trackedNumbers.get(i), transactions.get(i).extractAccountIdsByRelationType()));
-                    }
-                    return results;
+                    Map<RelationType<?>, AccountId> allAccountIds = new LinkedHashMap<>();
+                    transactions.stream()
+                            .flatMap(tx -> tx.extractAccountIdsByRelationType().entrySet().stream())
+                            .forEach(entry ->
+                                    allAccountIds.merge(entry.getKey(), entry.getValue(), (existing, newValue) -> {
+                                        if (!existing.equals(newValue)) {
+                                            throw new IllegalStateException(
+                                                    "Conflicting account ID for relation type: %s, existing: %s, new: %s"
+                                                            .formatted(
+                                                                    entry.getKey(),
+                                                                    existing.value(),
+                                                                    newValue.value()));
+                                        }
+                                        return existing;
+                                    }));
+
+                    return trackedNumbers.stream()
+                            .map(tracked -> new TransactionResult(tracked, allAccountIds))
+                            .toList();
                 });
     }
 

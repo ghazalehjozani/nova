@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.annotation.DomainComponent;
-import ir.dotin.loan.baseloan.core.domain.shared.interaction.OpenAccountClient;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.AbstractMultiArticleCalculationStrategy;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.CalculationContext;
 import ir.dotin.loan.baseloan.core.domain.shared.strategy.factory.DebitCreditArticleSpecFactory;
@@ -28,11 +27,10 @@ public final class DisbursedInterestTransactionStrategy
     private final DebitCreditArticleSpecFactory<DisbursedInterestArticleType, TradeRelationType> specFactory;
 
     public DisbursedInterestTransactionStrategy(
-            OpenAccountClient findAccountClient,
             DebitCreditArticleSpecFactory<DisbursedInterestArticleType, TradeRelationType>
                     disbursedInterestArticleSpecFactory,
             ArticleBalanceValidator articleBalanceValidator) {
-        super(findAccountClient, requireNonNull(articleBalanceValidator, "Balance validator cannot be null"));
+        super(requireNonNull(articleBalanceValidator, "Balance validator cannot be null"));
         this.specFactory = requireNonNull(disbursedInterestArticleSpecFactory, "Spec factory cannot be null");
     }
 
