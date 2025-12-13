@@ -23,6 +23,7 @@ public enum OriginateLoanFacilityErrorCodes implements LocalizedMessage<Originat
     INVALID_DEPOSIT_CURRENCY("Invalid deposit currency: {0}"),
     INVALID_CREDITOR_DEPOSIT("Invalid creditor deposit: {0}"),
     INVALID_DEBTOR_DEPOSIT("Invalid debtor deposit: {0}"),
+    INSTALLMENT_COUNT_CANNOT_BE_EMPTY("Installment count cannot be empty"),
     DUPLICATE_APPLICATION_NUMBER("Application number {0} already exists"),
     DISBURSE_DESTINATION_DEPOSIT_IS_CLOSED("Disburse destination deposit is closed. deposit: {0}. "),
     INVALID_ECONOMIC_SECTOR_FOR_LOAN_TYPE("Economic sector {0} is not allowed for loan type {1}"),

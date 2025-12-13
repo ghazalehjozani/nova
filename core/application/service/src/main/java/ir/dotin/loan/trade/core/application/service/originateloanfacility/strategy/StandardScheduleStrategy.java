@@ -5,10 +5,12 @@ import java.util.Optional;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 
+import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
 
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +37,11 @@ public class StandardScheduleStrategy implements InstallmentScheduleStrategy {
     @Override
     @NonNull
     public Result<Void> validateCommand(@NonNull OriginateLoanFacilityCommand command) {
-        return Result.success();
+        Notification notification = Notification.create();
+        if (command.loanApplication().installmentCount() == null
+                || command.loanApplication().installmentCount().value() == null) {
+            notification.addError(OriginateLoanFacilityErrorCodes.INSTALLMENT_COUNT_CANNOT_BE_EMPTY);
+        }
+        return notification.isEmpty() ? Result.success() : Result.failure(notification);
     }
 }

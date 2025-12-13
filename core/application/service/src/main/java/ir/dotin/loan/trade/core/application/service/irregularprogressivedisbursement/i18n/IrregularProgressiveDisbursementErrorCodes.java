@@ -25,8 +25,7 @@ public enum IrregularProgressiveDisbursementErrorCodes
     INVALID_SCHEDULE_STATUS_FOR_FIRST_DISBURSEMENT(
             "First disbursement requires schedule in DRAFT status, but found: {0}"),
     INVALID_SCHEDULE_STATUS_FOR_SUBSEQUENT_DISBURSEMENT(
-            "Subsequent disbursement requires schedule in ACTIVE status, but found: {0}"),
-    RECALC_INVALID_PLAN_COUNT("Custom plan installment count ({0}) must match unpaid installments ({1})");
+            "Subsequent disbursement requires schedule in ACTIVE status, but found: {0}");
 
     private final String defaultMessageFormat;
 }

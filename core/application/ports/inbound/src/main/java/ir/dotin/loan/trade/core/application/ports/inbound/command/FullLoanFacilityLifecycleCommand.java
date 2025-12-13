@@ -62,7 +62,7 @@ public record FullLoanFacilityLifecycleCommand(
             @Valid @NotNull LoanDurationDto requestedLoanDuration,
             @Valid @NotNull ApplicantChannel applicantChannel,
             @Valid @NotNull GracePeriodDto gracePeriod,
-            @Valid @NotNull InstallmentCountDto installmentCount,
+            @Nullable InstallmentCountDto installmentCount,
             @Valid @NotNull DisburseDestinationDto disburseDestination,
             @Valid @NotNull EconomicSectorDto economicSector,
             @Valid @NotNull BranchDto branch,
@@ -86,9 +86,7 @@ public record FullLoanFacilityLifecycleCommand(
             @NotNull Integer sequenceNumber,
             @NotNull LocalDate dueDate,
             @Valid @NotNull AmountDto principalAmount,
-            @Valid @NotNull AmountDto interestAmount,
-            @Nullable AmountDto penaltyAmount,
-            @Nullable AmountDto feeAmount) {}
+            @Valid @NotNull AmountDto interestAmount) {}
 
     @Builder(toBuilder = true)
     public record BranchDto(@Nullable String code) {}
@@ -119,7 +117,7 @@ public record FullLoanFacilityLifecycleCommand(
     public record EconomicSectorDto(@NotBlank String code) {}
 
     @Builder(toBuilder = true)
-    public record InstallmentCountDto(@NotNull Integer value) {}
+    public record InstallmentCountDto(@Nullable Integer value) {}
 
     @Builder(toBuilder = true)
     public record CollateralDto(

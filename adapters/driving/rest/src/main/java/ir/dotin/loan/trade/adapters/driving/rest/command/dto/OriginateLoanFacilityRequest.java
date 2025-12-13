@@ -51,7 +51,7 @@ public record OriginateLoanFacilityRequest(
             @Schema(description = "دوره تنفس (روز)", requiredMode = Schema.RequiredMode.REQUIRED)
             Integer gracePeriodDays,
 
-            @Schema(description = "تعداد اقساط", requiredMode = Schema.RequiredMode.REQUIRED)
+            @Schema(description = "تعداد اقساط", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
             Integer installmentCount,
 
             @Schema(description = "مقصد پرداخت", requiredMode = Schema.RequiredMode.REQUIRED)

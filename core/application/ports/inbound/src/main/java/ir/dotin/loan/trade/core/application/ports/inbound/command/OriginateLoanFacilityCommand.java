@@ -40,7 +40,7 @@ public record OriginateLoanFacilityCommand(
             @Valid @NotNull LoanDurationDto requestedLoanDuration,
             @Valid @NotNull ApplicantChannel applicantChannel,
             @Valid @NotNull GracePeriodDto gracePeriod,
-            @Valid @NotNull InstallmentCountDto installmentCount,
+            @Nullable InstallmentCountDto installmentCount,
             @Valid @NotNull DisburseDestinationDto disburseDestination,
             @Valid @NotNull EconomicSectorDto economicSector,
             @Valid @NotNull BranchDto branch,
@@ -57,16 +57,14 @@ public record OriginateLoanFacilityCommand(
 
     @Builder(toBuilder = true)
     public record InstallmentSchedulePlanDto(
-            @NotEmpty @Valid List<InstallmentSpecDto> installments) {}
+            @NotEmpty @Valid List<@Valid InstallmentSpecDto> installments) {}
 
     @Builder(toBuilder = true)
     public record InstallmentSpecDto(
             @NotNull Integer sequenceNumber,
             @NotNull LocalDate dueDate,
             @Valid @NotNull AmountDto principalAmount,
-            @Valid @NotNull AmountDto interestAmount,
-            @Nullable AmountDto penaltyAmount,
-            @Nullable AmountDto feeAmount) {}
+            @Valid @NotNull AmountDto interestAmount) {}
 
     @Builder(toBuilder = true)
     public record BranchDto(@Nullable String code) {}
@@ -94,5 +92,5 @@ public record OriginateLoanFacilityCommand(
     public record GracePeriodDto(@NotNull Period value) {}
 
     @Builder(toBuilder = true)
-    public record InstallmentCountDto(@NotNull Integer value) {}
+    public record InstallmentCountDto(@Nullable Integer value) {}
 }

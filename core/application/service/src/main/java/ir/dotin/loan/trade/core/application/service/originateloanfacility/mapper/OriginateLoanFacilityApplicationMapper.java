@@ -10,7 +10,13 @@ import org.mapstruct.MappingTarget;
 
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.*;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CredibilityRank;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Description;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.DisburseDestination;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.RequestReason;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.RespiteSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
@@ -29,6 +35,7 @@ public interface OriginateLoanFacilityApplicationMapper {
     @Mapping(target = "branch", ignore = true)
     @Mapping(target = "parties", ignore = true)
     @Mapping(target = "version", ignore = true)
+    @Mapping(target = "installmentCount", ignore = true)
     TradeLoanApplication.Builder map(OriginateLoanFacilityCommand.LoanApplicationDto loanApplication);
 
     CredibilityRank map(OriginateLoanFacilityCommand.CredibilityRankDto dto);
@@ -46,8 +53,6 @@ public interface OriginateLoanFacilityApplicationMapper {
     LoanDuration map(OriginateLoanFacilityCommand.LoanDurationDto dto);
 
     GracePeriod map(OriginateLoanFacilityCommand.GracePeriodDto dto);
-
-    InstallmentCount map(OriginateLoanFacilityCommand.InstallmentCountDto dto);
 
     default Optional<DepositNumber> mapDepositNumber(@Nullable String depositNumber) {
         return depositNumber != null ? Optional.of(new DepositNumber(depositNumber)) : Optional.empty();

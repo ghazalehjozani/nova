@@ -82,8 +82,6 @@ public interface FullLoanFacilityLifecycleCommandMapper {
                 .dueDate(spec.dueDate())
                 .principalAmount(spec.principalAmount())
                 .interestAmount(spec.interestAmount())
-                .penaltyAmount(spec.penaltyAmount())
-                .feeAmount(spec.feeAmount())
                 .build();
     }
 

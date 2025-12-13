@@ -31,7 +31,7 @@
     </modules>
 
     <properties>
-        <loan.base-loan.version>2025.12.18-SNAPSHOT</loan.base-loan.version>
+        <loan.base-loan.version>2025.12.19-SNAPSHOT</loan.base-loan.version>
         <loan.trade-loan.version>${project.version}</loan.trade-loan.version>
         <sonar.projectVersion>${project.version}</sonar.projectVersion>
     </properties>
