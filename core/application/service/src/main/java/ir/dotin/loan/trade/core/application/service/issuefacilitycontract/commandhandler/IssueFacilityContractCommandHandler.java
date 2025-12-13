@@ -17,9 +17,13 @@ import ir.dotin.platform.saga.api.model.StepError;
 import ir.dotin.platform.saga.api.orchestration.SagaOrchestrator;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.IssueFacilityContractCommand;
+import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.component.FacilityContractDependencyLoader;
+import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.component.FacilityContractValidator;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga.IssueFacilityContractInput;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga.IssueFacilityContractSagaData;
+import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.strategy.FacilityContractContext;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityContractIssued;
+import ir.dotin.loan.trade.core.domain.loanfacility.service.validator.FacilityContractValidation;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,11 +32,32 @@ import lombok.RequiredArgsConstructor;
 public class IssueFacilityContractCommandHandler implements CommandHandler<IssueFacilityContractCommand> {
 
     private static final Logger log = LoggerFactory.getLogger(IssueFacilityContractCommandHandler.class);
+    private final FacilityContractDependencyLoader dependencyLoader;
+    private final FacilityContractValidator facilityValidator;
+    private final FacilityContractValidation facilityContractValidation;
     private final SagaOrchestrator<IssueFacilityContractSagaData> sagaOrchestrator;
     private final Clock clock;
 
     @Override
     public Result<List<DomainEvent<?>>> handle(IssueFacilityContractCommand command) {
+        return dependencyLoader
+                .loadDependencies(command)
+                .flatMap(context -> executeContractIssuanceWorkflow(command, context));
+    }
+
+    private Result<List<DomainEvent<?>>> executeContractIssuanceWorkflow(
+            IssueFacilityContractCommand command, FacilityContractContext context) {
+
+        Result<Void> validationResult = facilityValidator.callAndValidateServices(command, context);
+        if (validationResult.isFailure()) {
+            return Result.failure(validationResult.notification());
+        }
+
+        Result<Boolean> eligibilityValidation =
+                facilityContractValidation.validateForContractIssuance(context.facility(), context.arrangement());
+        if (eligibilityValidation.isFailure()) {
+            return Result.failure(eligibilityValidation.notification());
+        }
 
         TransactionConfig transactionConfig = TransactionConfig.builder()
                 .userId(command.userId())
