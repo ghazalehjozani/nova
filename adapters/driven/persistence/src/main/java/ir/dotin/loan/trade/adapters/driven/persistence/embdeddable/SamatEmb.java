@@ -22,6 +22,9 @@ public class SamatEmb implements Serializable {
     @Column(name = "use_type")
     private String useType;
 
+    @Column(name = "exception_code")
+    private String exceptionCode;
+
     @Column(name = "consumption_place_code")
     private String consumptionPlaceCode;
 }

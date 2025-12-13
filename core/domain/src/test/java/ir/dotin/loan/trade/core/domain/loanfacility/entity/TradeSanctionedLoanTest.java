@@ -3,7 +3,6 @@ package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 import java.math.BigDecimal;
 import java.time.Period;
 
-import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -18,6 +17,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 

@@ -118,6 +118,7 @@ public class FacilityBuilder {
             String subIsicEconomicSector =
                     samatDto.subIsicEconomicSector() != null ? samatDto.subIsicEconomicSector() : "0";
             String useType = samatDto.useType() != null ? samatDto.useType() : "30";
+            String exceptionCode = samatDto.exceptionCode() != null ? samatDto.exceptionCode() : "0";
             String consumptionPlaceCode =
                     samatDto.consumptionPlaceCode() != null ? samatDto.consumptionPlaceCode() : "0";
             Result<Samat> samatResult = Samat.of(
@@ -125,6 +126,7 @@ public class FacilityBuilder {
                     isicEconomicSector,
                     subIsicEconomicSector,
                     useType,
+                    exceptionCode,
                     consumptionPlaceCode);
             if (samatResult.isFailure()) {
                 return Result.failure(samatResult.notification());
