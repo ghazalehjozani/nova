@@ -2,7 +2,7 @@ FROM eclipse-temurin:25-jre-alpine
 
 WORKDIR /app
 
-RUN apk add --no-cache ca-certificates openssl
+RUN apk add --no-cache ca-certificates openssl gcompat libstdc++
 
 COPY ca-certificates/*.crt /usr/local/share/ca-certificates/
 
