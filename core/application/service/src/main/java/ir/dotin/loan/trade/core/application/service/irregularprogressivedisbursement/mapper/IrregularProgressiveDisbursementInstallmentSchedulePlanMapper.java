@@ -20,8 +20,10 @@ public class IrregularProgressiveDisbursementInstallmentSchedulePlanMapper {
         return InstallmentSpec.builder()
                 .sequenceNumber(dto.sequenceNumber())
                 .dueDate(dto.dueDate())
-                .principalAmount(Money.valueOf(dto.principalAmount(), currency).value())
-                .interestAmount(Money.valueOf(dto.interestAmount(), currency).value())
+                .principalAmount(
+                        Money.valueOf(dto.principalAmount().value(), currency).value())
+                .interestAmount(
+                        Money.valueOf(dto.interestAmount().value(), currency).value())
                 .build();
     }
 }

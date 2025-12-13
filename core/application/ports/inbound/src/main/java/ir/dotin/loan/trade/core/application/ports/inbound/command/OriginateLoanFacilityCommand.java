@@ -57,16 +57,14 @@ public record OriginateLoanFacilityCommand(
 
     @Builder(toBuilder = true)
     public record InstallmentSchedulePlanDto(
-            @NotEmpty @Valid List<InstallmentSpecDto> installments) {}
+            @NotEmpty @Valid List<@Valid InstallmentSpecDto> installments) {}
 
     @Builder(toBuilder = true)
     public record InstallmentSpecDto(
             @NotNull Integer sequenceNumber,
             @NotNull LocalDate dueDate,
             @Valid @NotNull AmountDto principalAmount,
-            @Valid @NotNull AmountDto interestAmount,
-            @Nullable AmountDto penaltyAmount,
-            @Nullable AmountDto feeAmount) {}
+            @Valid @NotNull AmountDto interestAmount) {}
 
     @Builder(toBuilder = true)
     public record BranchDto(@Nullable String code) {}

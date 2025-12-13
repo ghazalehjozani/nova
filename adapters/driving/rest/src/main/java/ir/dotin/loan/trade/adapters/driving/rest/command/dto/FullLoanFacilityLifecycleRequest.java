@@ -54,7 +54,8 @@ public record FullLoanFacilityLifecycleRequest(
 
     public record InstallmentSchedulePlanDto(List<InstallmentSpecDto> installments) {}
 
-    public record InstallmentSpecDto(Integer sequenceNumber, Instant dueDate, BigDecimal principalAmount) {}
+    public record InstallmentSpecDto(
+            Integer sequenceNumber, Instant dueDate, BigDecimal principalAmount, BigDecimal interestAmount) {}
 
     public record DisbursementDto(BigDecimal trancheAmount, LocalDate disbursementDate) {}
 

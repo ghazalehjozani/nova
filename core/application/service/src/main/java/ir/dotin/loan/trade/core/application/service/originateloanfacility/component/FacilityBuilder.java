@@ -12,6 +12,7 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Samat;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
@@ -111,6 +112,7 @@ public class FacilityBuilder {
                 .parties(enrichedParties)
                 .applicationNumber(appNumberResult.getValue())
                 .branch(branch);
+        fillInstallmentCount(builder, command);
 
         SamatDto samatDto = command.loanApplication().samat();
         if (samatDto != null) {
@@ -152,5 +154,19 @@ public class FacilityBuilder {
             }
         }
         return Result.success();
+    }
+
+    private void fillInstallmentCount(TradeLoanApplication.Builder builder, OriginateLoanFacilityCommand command) {
+        if (command.installmentSchedulePlan() != null) {
+            builder.installmentCount(InstallmentCount.of(
+                            command.installmentSchedulePlan().installments().size())
+                    .orElseThrow());
+        } else {
+            Integer value = null;
+            if (command.loanApplication().installmentCount() != null) {
+                value = command.loanApplication().installmentCount().value();
+            }
+            builder.installmentCount(new InstallmentCount(requireNonNull(value)));
+        }
     }
 }

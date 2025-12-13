@@ -19,6 +19,7 @@ import ir.dotin.loan.trade.adapters.driving.rest.command.dto.IrregularProgressiv
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateIrregularDisbursementCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.IrregularProgressiveDisbursementCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.AmountDto;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -73,8 +74,10 @@ class IrregularProgressiveDisbursementController extends BaseController {
                         .map(spec -> IrregularProgressiveDisbursementCommand.InstallmentSpecDto.builder()
                                 .sequenceNumber(spec.sequenceNumber())
                                 .dueDate(spec.dueDate())
-                                .principalAmount(spec.principalAmount())
-                                .interestAmount(spec.interestAmount())
+                                .principalAmount(
+                                        spec.interestAmount() != null ? new AmountDto(spec.principalAmount()) : null)
+                                .interestAmount(
+                                        spec.interestAmount() != null ? new AmountDto(spec.interestAmount()) : null)
                                 .build())
                         .toList())
                 .build();

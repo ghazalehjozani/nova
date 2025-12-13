@@ -79,6 +79,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                                 FullLoanFacilityLifecycleStep.ORIGINATE_FACILITY,
                                 this::originateFacility,
                                 this::compensateOrigination)
+                        .withTimeout(Duration.ofSeconds(60))
                         .withNoRetry(),
                 SagaSteps.step(
                                 FullLoanFacilityLifecycleStep.SUBMIT_FOR_APPROVAL,
@@ -430,8 +431,8 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 .map(spec -> IrregularProgressiveDisbursementCommand.InstallmentSpecDto.builder()
                         .sequenceNumber(spec.sequenceNumber())
                         .dueDate(spec.dueDate())
-                        .principalAmount(spec.principalAmount().value())
-                        .interestAmount(spec.interestAmount().value())
+                        .principalAmount(spec.principalAmount())
+                        .interestAmount(spec.interestAmount())
                         .build())
                 .toList();
 

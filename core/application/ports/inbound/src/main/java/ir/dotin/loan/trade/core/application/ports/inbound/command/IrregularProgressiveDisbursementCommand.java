@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import ir.dotin.platform.dispatcher.api.command.Command;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.AmountDto;
 
 import lombok.Builder;
 
@@ -33,12 +34,12 @@ public record IrregularProgressiveDisbursementCommand(
         implements Command {
 
     @Builder(toBuilder = true)
-    public record InstallmentSchedulePlanDto(@NotNull @Valid List<InstallmentSpecDto> installments) {}
+    public record InstallmentSchedulePlanDto(@NotNull @Valid List<@Valid InstallmentSpecDto> installments) {}
 
     @Builder(toBuilder = true)
     public record InstallmentSpecDto(
             @NotNull Integer sequenceNumber,
             @NotNull LocalDate dueDate,
-            @NotNull BigDecimal principalAmount,
-            @NotNull BigDecimal interestAmount) {}
+            @NotNull AmountDto principalAmount,
+            @NotNull AmountDto interestAmount) {}
 }

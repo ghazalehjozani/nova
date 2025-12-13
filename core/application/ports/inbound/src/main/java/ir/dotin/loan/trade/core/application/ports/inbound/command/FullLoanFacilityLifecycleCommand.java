@@ -86,9 +86,7 @@ public record FullLoanFacilityLifecycleCommand(
             @NotNull Integer sequenceNumber,
             @NotNull LocalDate dueDate,
             @Valid @NotNull AmountDto principalAmount,
-            @Valid @NotNull AmountDto interestAmount,
-            @Nullable AmountDto penaltyAmount,
-            @Nullable AmountDto feeAmount) {}
+            @Valid @NotNull AmountDto interestAmount) {}
 
     @Builder(toBuilder = true)
     public record BranchDto(@Nullable String code) {}

@@ -8,11 +8,9 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
-import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
-import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
@@ -71,17 +69,8 @@ public interface FullLoanFacilityLifecycleRequestMapper {
             FullLoanFacilityLifecycleRequest.InstallmentSchedulePlanDto dto);
 
     @Mapping(target = "dueDate", source = "dueDate", qualifiedByName = "mapInstantToLocalDate")
-    @Mapping(target = "interestAmount", ignore = true)
-    @Mapping(target = "penaltyAmount", ignore = true)
-    @Mapping(target = "feeAmount", ignore = true)
     FullLoanFacilityLifecycleCommand.InstallmentSpecDto toInstallmentSpecDto(
             FullLoanFacilityLifecycleRequest.InstallmentSpecDto dto);
-
-    @AfterMapping
-    default void setInterestAmount(
-            @MappingTarget FullLoanFacilityLifecycleCommand.InstallmentSpecDto.InstallmentSpecDtoBuilder builder) {
-        builder.interestAmount(new AmountDto(BigDecimal.ZERO));
-    }
 
     @Named("mapInstantToLocalDate")
     default LocalDate mapInstantToLocalDate(Instant instant) {
