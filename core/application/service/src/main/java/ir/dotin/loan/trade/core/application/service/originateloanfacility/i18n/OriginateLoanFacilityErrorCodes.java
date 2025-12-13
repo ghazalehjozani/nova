@@ -27,7 +27,8 @@ public enum OriginateLoanFacilityErrorCodes implements LocalizedMessage<Originat
     DISBURSE_DESTINATION_DEPOSIT_IS_CLOSED("Disburse destination deposit is closed. deposit: {0}. "),
     INVALID_ECONOMIC_SECTOR_FOR_LOAN_TYPE("Economic sector {0} is not allowed for loan type {1}"),
     APPLICATION_NUMBER_MISMATCH("Application number mismatch. Command provided: {0}, Generated: {1}"),
-    APPLICATION_NUMBER_CREATION_FAILED("Failed to create application number: {0}");
+    APPLICATION_NUMBER_CREATION_FAILED("Failed to create application number: {0}"),
+    ECONOMIC_SECTOR_IS_PARENT("The selected economic sector {0} is a parent sector. Please select a child sector.");
 
     private final String defaultMessageFormat;
 }

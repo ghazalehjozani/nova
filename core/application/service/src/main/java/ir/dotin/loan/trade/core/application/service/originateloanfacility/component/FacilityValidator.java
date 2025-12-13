@@ -77,10 +77,14 @@ public class FacilityValidator {
 
     private Result<Void> validateEconomicalSector(OriginateLoanFacilityCommand command) {
         String code = command.loanApplication().economicSector().code();
-        Result<EconomicSector> result = loadEconomicalSectorByCode(code);
 
-        if (result.isFailure()) {
-            return Result.failure(result.notification());
+        return loadEconomicalSectorByCode(code).flatMap(this::validateNotParent);
+    }
+
+    private Result<Void> validateNotParent(EconomicalSectorResponse sector) {
+        if (Boolean.TRUE.equals(sector.hasChild())) {
+            return Result.failure(
+                    Notification.ofError(OriginateLoanFacilityErrorCodes.ECONOMIC_SECTOR_IS_PARENT, sector.code()));
         }
         return Result.success();
     }
@@ -225,8 +229,8 @@ public class FacilityValidator {
                 CurrencyType.valueOf(currencyCode).getValue());
     }
 
-    private Result<EconomicSector> loadEconomicalSectorByCode(String economicSectorCode) {
-        return loanServicePort.loadEconomicalSectorByCode(
+    private Result<EconomicalSectorResponse> loadEconomicalSectorByCode(String economicSectorCode) {
+        return loanServicePort.loadEconomicalSector(
                 EconomicSector.of(economicSectorCode).getValue());
     }
 
