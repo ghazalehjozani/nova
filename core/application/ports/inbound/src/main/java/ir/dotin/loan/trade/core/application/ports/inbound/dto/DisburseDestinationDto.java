@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.core.application.ports.inbound.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
 
 public sealed interface DisburseDestinationDto
@@ -7,14 +9,14 @@ public sealed interface DisburseDestinationDto
 
     DisburseDestinationType type();
 
-    record DepositDestinationDto(String depositNumber) implements DisburseDestinationDto {
+    record DepositDestinationDto(@NotBlank String depositNumber) implements DisburseDestinationDto {
         @Override
         public DisburseDestinationType type() {
             return DisburseDestinationType.DEPOSIT;
         }
     }
 
-    record AccountDestinationDto(String accountNumber) implements DisburseDestinationDto {
+    record AccountDestinationDto(@NotBlank String accountNumber) implements DisburseDestinationDto {
         @Override
         public DisburseDestinationType type() {
             return DisburseDestinationType.ACCOUNT;

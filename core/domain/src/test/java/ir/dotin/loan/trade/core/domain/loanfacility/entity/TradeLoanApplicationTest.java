@@ -19,20 +19,24 @@ import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.AccountDisburseDestination;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.DepositDisburseDestination;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Description;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.DisburseDestination;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.RequestReason;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.ApplicantParty;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuaranteePercentage;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuarantorParty;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 
 import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,9 +85,6 @@ final class TradeLoanApplicationTest {
     @Mock
     private InstallmentCount mockInstallmentCount;
 
-    @Mock
-    private DisburseDestination mockDisburseDestination;
-
     private static final Instant FIXED_INSTANT = Instant.parse("2023-12-01T10:00:00Z");
 
     private Money validAmount;
@@ -128,6 +129,7 @@ final class TradeLoanApplicationTest {
         @Test
         void shouldFailWhenRequiredFieldsAreMissing() {
             // given - provide all constructor required fields but trigger business validation failure
+            DisburseDestination disburseDestination = createDepositDisburseDestination();
             var builder = TradeLoanApplication.builder()
                     .requestDate(FIXED_INSTANT)
                     .parties(Set.of(mockApplicant))
@@ -139,7 +141,7 @@ final class TradeLoanApplicationTest {
                     .economicSector(mockEconomicSector)
                     .branch(mockBranch)
                     .requestReason(mockRequestReason)
-                    .disburseDestination(mockDisburseDestination)
+                    .disburseDestination(disburseDestination)
                     .disbursementMethod(DisbursementMethod.LUMP_SUM);
             // Intentionally missing some optional business validation fields
 
@@ -215,6 +217,7 @@ final class TradeLoanApplicationTest {
         @Test
         void shouldValidateAndReturnErrorsForInvalidData() {
             // given - provide minimum required fields to pass constructor validation but fail business validation
+            DisburseDestination disburseDestination = createAccountDisburseDestination();
             var builder = TradeLoanApplication.builder()
                     .id(LoanApplicationId.of(randomUUID()))
                     .applicationNumber(mockApplicationNumber)
@@ -228,7 +231,7 @@ final class TradeLoanApplicationTest {
                     .economicSector(mockEconomicSector)
                     .branch(mockBranch)
                     .requestReason(mockRequestReason)
-                    .disburseDestination(mockDisburseDestination)
+                    .disburseDestination(disburseDestination)
                     .disbursementMethod(DisbursementMethod.LUMP_SUM);
             // This builder should pass basic validation
 
@@ -319,6 +322,16 @@ final class TradeLoanApplicationTest {
         }
     }
 
+    private DisburseDestination createDepositDisburseDestination() {
+        DepositNumber depositNumber = DepositNumber.valueOf("123-456-789").orElseThrow();
+        return DepositDisburseDestination.of(depositNumber).orElseThrow();
+    }
+
+    private DisburseDestination createAccountDisburseDestination() {
+        AccountNumber accountNumber = AccountNumber.of("987-654-321").orElseThrow();
+        return AccountDisburseDestination.of(accountNumber).orElseThrow();
+    }
+
     private TradeLoanApplication.Builder createValidBuilder() {
         return TradeLoanApplication.builder()
                 .applicationNumber(mockApplicationNumber)
@@ -332,7 +345,7 @@ final class TradeLoanApplicationTest {
                 .economicSector(mockEconomicSector)
                 .branch(mockBranch)
                 .requestReason(mockRequestReason)
-                .disburseDestination(mockDisburseDestination)
+                .disburseDestination(createDepositDisburseDestination())
                 .disbursementMethod(DisbursementMethod.LUMP_SUM)
                 .description(mockDescription);
     }
