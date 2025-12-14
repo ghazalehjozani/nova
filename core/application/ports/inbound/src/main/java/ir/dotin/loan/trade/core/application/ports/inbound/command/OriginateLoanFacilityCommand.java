@@ -48,7 +48,7 @@ public record OriginateLoanFacilityCommand(
             @Valid @Nullable SubSourceDto subSource,
             @Valid @Nullable DescriptionDto description,
             @Valid @NotNull DisbursementMethod disbursementMethod,
-            @Nullable SamatDto samat,
+            @Valid @NotNull SamatDto samat,
 
             @Nullable @Pattern(regexp = "^\\d+-\\d+-\\d+-\\d+$")
             String applicationNumber,
