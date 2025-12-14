@@ -382,8 +382,8 @@ public class LoanServiceAdapter implements LoanServicePort {
 
         log.debug("Executing FCB load-covered-branches usecase");
 
-        Result<CoveredBranchesResponse> fcbResult =
-                fcbService.executeUsecase(fcbRequest, CoveredBranchesResponse.class, FcbContext.empty());
+        Result<List<BranchResponse>> fcbResult = fcbService.executeUsecase(
+                fcbRequest, (Class<List<BranchResponse>>) (Class<?>) List.class, FcbContext.empty());
 
         if (fcbResult.isFailure()) {
             log.error(
@@ -392,9 +392,9 @@ public class LoanServiceAdapter implements LoanServicePort {
             return Result.failure(fcbResult.notification());
         }
 
-        CoveredBranchesResponse fcbResponse = fcbResult.orElseThrow();
+        List<BranchResponse> branchResponses = fcbResult.orElseThrow();
 
-        return LoanMapper.mapToBranchCodeList(fcbResponse);
+        return LoanMapper.mapToBranchCodeList(branchResponses);
     }
 
     @Override
