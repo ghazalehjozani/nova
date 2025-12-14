@@ -54,6 +54,7 @@ public record TradeFacilityQueryDto(
             Integer gracePeriodDays,
             Integer installmentCount,
             String disburseDestinationDepositNumber,
+            String disburseDestinationAccountNumber,
             DisburseDestinationType disburseDestinationType,
             String economicSectorCode,
             String branchCode,

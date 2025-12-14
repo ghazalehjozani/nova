@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 
 public record FullLoanFacilityLifecycleRequest(
@@ -29,7 +28,7 @@ public record FullLoanFacilityLifecycleRequest(
             ApplicantChannel applicantChannel,
             Integer gracePeriodDays,
             Integer installmentCount,
-            DisburseDestinationDto disburseDestination,
+            DisburseDestinationRequestDto disburseDestination,
             String economicSectorCode,
             String branchCode,
             RequestReasonDto requestReason,
@@ -47,8 +46,6 @@ public record FullLoanFacilityLifecycleRequest(
             String useType,
             String exceptionCode,
             String consumptionPlaceCode) {}
-
-    public record DisburseDestinationDto(DisburseDestinationType type, String depositNumber) {}
 
     public record RequestReasonDto(String code) {}
 

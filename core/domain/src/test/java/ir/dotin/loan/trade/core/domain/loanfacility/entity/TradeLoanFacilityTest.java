@@ -26,6 +26,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.ApplicantParty;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuaranteePercentage;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuarantorParty;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCreated;
 
 import static java.time.ZoneOffset.UTC;
@@ -63,11 +64,11 @@ class TradeLoanFacilityTest {
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
                 @Mock RequestReason requestReason,
-                @Mock DisburseDestination disburseDestination,
                 @Mock Money totalDisbursementAmount) {
             // given
             PersonName customerName = new PersonName("John", "Doe");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
+            DisburseDestination disburseDestination = createDepositDisburseDestination();
 
             var applicationBuilder = createValidLoanApplicationBuilder(
                     applicationNumber,
@@ -153,11 +154,11 @@ class TradeLoanFacilityTest {
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
                 @Mock RequestReason requestReason,
-                @Mock DisburseDestination disburseDestination,
                 @Mock Money totalDisbursementAmount) {
             // given
             PersonName customerName = new PersonName("John", "Doe");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
+            DisburseDestination disburseDestination = createDepositDisburseDestination();
 
             var applicationBuilder = createValidLoanApplicationBuilder(
                     applicationNumber,
@@ -198,11 +199,11 @@ class TradeLoanFacilityTest {
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
                 @Mock RequestReason requestReason,
-                @Mock DisburseDestination disburseDestination,
                 @Mock Money totalDisbursementAmount) {
             // given
             PersonName customerName = new PersonName("John", "Doe");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
+            DisburseDestination disburseDestination = createDepositDisburseDestination();
 
             var builder = createValidLoanApplicationBuilder(
                     applicationNumber,
@@ -233,11 +234,11 @@ class TradeLoanFacilityTest {
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
                 @Mock RequestReason requestReason,
-                @Mock DisburseDestination disburseDestination,
                 @Mock Money totalDisbursementAmount) {
             // given
             PersonName customerName = new PersonName("John", "Doe");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
+            DisburseDestination disburseDestination = createDepositDisburseDestination();
 
             var builder = createValidLoanApplicationBuilder(
                     applicationNumber,
@@ -268,11 +269,11 @@ class TradeLoanFacilityTest {
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
                 @Mock RequestReason requestReason,
-                @Mock DisburseDestination disburseDestination,
                 @Mock Money totalDisbursementAmount) {
             // given
             PersonName customerName = new PersonName("John", "Doe");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
+            DisburseDestination disburseDestination = createAccountDisburseDestination();
 
             var builder = createValidLoanApplicationBuilder(
                     applicationNumber,
@@ -308,11 +309,11 @@ class TradeLoanFacilityTest {
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
                 @Mock RequestReason requestReason,
-                @Mock DisburseDestination disburseDestination,
                 @Mock Money totalDisbursementAmount) {
             // given
             PersonName customerName = new PersonName("John", "Doe");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
+            DisburseDestination disburseDestination = createDepositDisburseDestination();
 
             var builder = createValidLoanApplicationBuilder(
                     applicationNumber,
@@ -343,11 +344,11 @@ class TradeLoanFacilityTest {
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
                 @Mock RequestReason requestReason,
-                @Mock DisburseDestination disburseDestination,
                 @Mock Money totalDisbursementAmount) {
             // given
             PersonName customerName = new PersonName("John", "Doe");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
+            DisburseDestination disburseDestination = createAccountDisburseDestination();
 
             var builder = createValidLoanApplicationBuilder(
                     applicationNumber,
@@ -372,6 +373,16 @@ class TradeLoanFacilityTest {
         }
     }
 
+    private DisburseDestination createDepositDisburseDestination() {
+        DepositNumber depositNumber = DepositNumber.valueOf("123-456-789").orElseThrow();
+        return DepositDisburseDestination.of(depositNumber).orElseThrow();
+    }
+
+    private DisburseDestination createAccountDisburseDestination() {
+        AccountNumber accountNumber = AccountNumber.of("987-654-321").orElseThrow();
+        return AccountDisburseDestination.of(accountNumber).orElseThrow();
+    }
+
     private TradeLoanApplication.Builder createValidLoanApplicationBuilder(
             @Mock ApplicationNumber applicationNumber,
             ApplicantParty customer,
@@ -379,7 +390,7 @@ class TradeLoanFacilityTest {
             @Mock EconomicSector economicSector,
             @Mock Branch branch,
             @Mock RequestReason requestReason,
-            @Mock DisburseDestination disburseDestination) {
+            DisburseDestination disburseDestination) {
         // Create a real guarantor
         PersonName guarantorName = new PersonName("Jane", "Smith");
         GuarantorParty guarantor =

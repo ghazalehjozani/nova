@@ -15,7 +15,6 @@ import jakarta.validation.constraints.Pattern;
 
 import ir.dotin.platform.dispatcher.api.command.Command;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.*;
 
@@ -74,10 +73,6 @@ public record OriginateLoanFacilityCommand(
 
     @Builder(toBuilder = true)
     public record DescriptionDto(@NotBlank String value) {}
-
-    @Builder(toBuilder = true)
-    public record DisburseDestinationDto(
-            @Nullable String depositNumber, @NotNull DisburseDestinationType type) {}
 
     @Builder(toBuilder = true)
     public record RequestReasonDto(@NotBlank String code) {}

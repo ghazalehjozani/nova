@@ -15,11 +15,13 @@ import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
+import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DisburseDestinationRequestDto;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.FullLoanFacilityLifecycleRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.PartyRequestDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLoanFacilityLifecycleCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.AmountDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.CurrencyTypeDto;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.DisburseDestinationDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.PartyDto;
 
 @Mapper(
@@ -50,6 +52,15 @@ public interface FullLoanFacilityLifecycleRequestMapper {
     FullLoanFacilityLifecycleCommand.LoanApplicationDto toLoanApplicationDto(
             FullLoanFacilityLifecycleRequest.LoanApplicationDto dto);
 
+    static DisburseDestinationDto toDisburseDestinationDto(DisburseDestinationRequestDto request) {
+        return switch (request) {
+            case DisburseDestinationRequestDto.DepositDestinationDto d ->
+                new DisburseDestinationDto.DepositDestinationDto(d.depositNumber());
+            case DisburseDestinationRequestDto.AccountDestinationDto b ->
+                new DisburseDestinationDto.AccountDestinationDto(b.accountNumber());
+        };
+    }
+
     default PartyDto toPartyDto(PartyRequestDto dto) {
         return switch (dto) {
             case PartyRequestDto.ApplicantDto d -> new PartyDto.ApplicantDto(d.customerNumber());
@@ -61,9 +72,6 @@ public interface FullLoanFacilityLifecycleRequestMapper {
 
     FullLoanFacilityLifecycleCommand.RequestReasonDto toRequestReasonDto(
             FullLoanFacilityLifecycleRequest.RequestReasonDto dto);
-
-    FullLoanFacilityLifecycleCommand.DisburseDestinationDto toDisburseDestinationDto(
-            FullLoanFacilityLifecycleRequest.DisburseDestinationDto dto);
 
     FullLoanFacilityLifecycleCommand.InstallmentSchedulePlanDto toInstallmentSchedulePlanDto(
             FullLoanFacilityLifecycleRequest.InstallmentSchedulePlanDto dto);

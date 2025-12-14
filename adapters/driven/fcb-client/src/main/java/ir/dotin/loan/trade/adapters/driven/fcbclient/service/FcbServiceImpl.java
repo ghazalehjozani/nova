@@ -132,7 +132,8 @@ public class FcbServiceImpl implements FcbService {
             T parsedResponse = (T) xstream.fromXML(xmlResponse);
 
             if (parsedResponse instanceof FcbBaseResponse baseResponse) {
-                if (!baseResponse.getErrorMessage().isEmpty()) {
+                if (baseResponse.getErrorMessage() != null
+                        && !baseResponse.getErrorMessage().isEmpty()) {
                     Notification errorNotification = FcbErrorCodeMapper.mapRsCodeToNotification(baseResponse, context);
                     return Result.failure(errorNotification);
                 }
