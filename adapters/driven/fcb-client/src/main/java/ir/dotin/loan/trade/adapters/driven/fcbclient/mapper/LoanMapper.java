@@ -206,19 +206,19 @@ public class LoanMapper {
         return Result.success(branchCode);
     }
 
-    public static Result<List<BranchCode>> mapToBranchCodeList(CoveredBranchesResponse fcbResponse) {
+    public static Result<List<BranchCode>> mapToBranchCodeList(List<BranchResponse> branchResponseList) {
 
         Notification notification = Notification.create();
 
-        if (fcbResponse.getBranches() == null || fcbResponse.getBranches().isEmpty()) {
+        if (branchResponseList == null || branchResponseList.isEmpty()) {
             log.warn("FCB response has no branches in the list");
             return Result.success(List.of());
         }
 
         List<BranchCode> branchList = new ArrayList<>();
 
-        for (int i = 0; i < fcbResponse.getBranches().size(); i++) {
-            BranchResponse branchResponse = fcbResponse.getBranches().get(i);
+        for (int i = 0; i < branchResponseList.size(); i++) {
+            BranchResponse branchResponse = branchResponseList.get(i);
 
             Result<BranchCode> branchResult = mapToBranchCode(branchResponse);
 
