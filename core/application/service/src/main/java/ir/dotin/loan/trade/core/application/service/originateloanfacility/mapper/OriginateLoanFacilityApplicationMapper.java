@@ -10,18 +10,22 @@ import org.mapstruct.MappingTarget;
 
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.AccountDisburseDestination;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CredibilityRank;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.DepositDisburseDestination;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Description;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.DisburseDestination;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.RequestReason;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.RespiteSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.CurrencyTypeDto;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.DisburseDestinationDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.EconomicSectorDto;
 import ir.dotin.loan.trade.core.application.service.BaseMapperConfig;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
@@ -38,11 +42,21 @@ public interface OriginateLoanFacilityApplicationMapper {
     @Mapping(target = "installmentCount", ignore = true)
     TradeLoanApplication.Builder map(OriginateLoanFacilityCommand.LoanApplicationDto loanApplication);
 
+    default DisburseDestination toDisburseDestination(DisburseDestinationDto dto) {
+        return switch (dto) {
+            case DisburseDestinationDto.DepositDestinationDto(var depositNumber) ->
+                DepositDisburseDestination.of(
+                                DepositNumber.valueOf(depositNumber).orElseThrow())
+                        .orElseThrow();
+            case DisburseDestinationDto.AccountDestinationDto(var accountNumber) ->
+                AccountDisburseDestination.of(AccountNumber.of(accountNumber).orElseThrow())
+                        .orElseThrow();
+        };
+    }
+
     CredibilityRank map(OriginateLoanFacilityCommand.CredibilityRankDto dto);
 
     Description map(OriginateLoanFacilityCommand.DescriptionDto dto);
-
-    DisburseDestination map(OriginateLoanFacilityCommand.DisburseDestinationDto dto);
 
     RequestReason map(OriginateLoanFacilityCommand.RequestReasonDto dto);
 

@@ -46,6 +46,9 @@ public interface TradeLoanFacilityQueryMapper {
     @Mapping(
             target = "loanApplication.disburseDestinationDepositNumber",
             source = "loanApplication.disburseDestination.depositNumber")
+    @Mapping(
+            target = "loanApplication.disburseDestinationAccountNumber",
+            source = "loanApplication.disburseDestination.accountNumber")
     @Mapping(target = "loanApplication.installmentCount", source = "loanApplication.installmentCount.value")
     @Mapping(target = "loanApplication.gracePeriodDays", source = "loanApplication.gracePeriod.days")
     @Mapping(

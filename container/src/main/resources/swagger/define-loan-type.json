@@ -1,6 +1,6 @@
 {
   "code": "9910",
-  "title": "تسهیلات کوتاه‌مدت",
+  "title": "تسهیلات کوتاه مدت",
   "gatewayType": "DIGITAL_BANK",
   "loanApplicationAllowed": true,
   "economicSectorCurrencies": [
@@ -13,13 +13,13 @@
     }
   ],
   "loanArrangementCodes": [
-    "{{loanArrangementCode}}"
+    "100"
   ],
   "relationTypeLoanTopics": [
     {
       "relationType": "BANK_COMMITMENTS",
       "topicName": "تعهدات بانک",
-      "topicCode": "20162",
+      "topicCode": "835",
       "economicSectorCodes": [
         "2-1"
       ]
@@ -27,7 +27,7 @@
     {
       "relationType": "BANK_COMMITMENTS_CONTRA",
       "topicName": "طرف تعهدات بانک",
-      "topicCode": "1837",
+      "topicCode": "883",
       "economicSectorCodes": [
         "2-1"
       ]
@@ -42,7 +42,151 @@
     },
     {
       "relationType": "FUTURE_INTEREST",
-      "topicName": "سود سال‌های آینده",
+      "topicName": "سود سالهای آینده",
+      "topicCode": "20140",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "DISCOUNT",
+      "topicName": "تخفیف",
+      "topicCode": "1837",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "RECEIVED_INTEREST",
+      "topicName": "سود دريافتي",
+      "topicCode": "2288",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "ACCRUED_DEFERRED_INTEREST",
+      "topicName": "سود معوق تعهدي",
+      "topicCode": "1053",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "RECEIVABLES_DOUBTFUL",
+      "topicName": "مطالبات معوق",
+      "topicCode": "1428",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "RECEIVABLES_WRITTEN_OFF",
+      "topicName": "مطالبات سوخت شده",
+      "topicCode": "879",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "RECEIVABLES_SUBSTANDARD",
+      "topicName": "مطالبات مشکوک الوصول",
+      "topicCode": "1264",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "RECEIVABLES_PAST_DUE",
+      "topicName": "مطالبات بعد از سررسيد",
+      "topicCode": "1470",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "RECEIVABLES_ACCRUED_DEFERRED_INTEREST",
+      "topicName": "سود معوق تعهدي مطالبات",
+      "topicCode": "1530",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "RECEIVABLES_ACCRUED_PENALTY",
+      "topicName": "جريمه تعهدي مطالبات",
+      "topicCode": "1053",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "ACCRUED_PENALTY",
+      "topicName": "جريمه تعهدي",
+      "topicCode": "1837",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "RECEIVABLES_DEFERRED_INTEREST",
+      "topicName": "سود معوق مطالبات",
+      "topicCode": "200718",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "INTEREST_SHORTFALL_PROVISION",
+      "topicName": "تامين کسری سود",
+      "topicCode": "880",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "PENALTY",
+      "topicName": "سود سالهای آینده",
+      "topicCode": "23050",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "RECEIVABLES_FUTURE_INTEREST",
+      "topicName": "سود سالهای آینده",
+      "topicCode": "23050",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "RECEIVABLES_PENALTY",
+      "topicName": "سود سالهای آینده",
+      "topicCode": "23050",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "DEFERRED_INTEREST",
+      "topicName": "سود سالهای آینده",
+      "topicCode": "23050",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "ACCRUED_INTEREST",
+      "topicName": "سود سالهای آینده",
+      "topicCode": "23050",
+      "economicSectorCodes": [
+        "2-1"
+      ]
+    },
+    {
+      "relationType": "RECEIVABLES_OVERDUE",
+      "topicName": "سود سالهای آینده",
       "topicCode": "23050",
       "economicSectorCodes": [
         "2-1"

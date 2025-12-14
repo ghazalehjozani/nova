@@ -19,6 +19,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.DepositInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.DisburseDestinationDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.depositservice.DepositServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.*;
@@ -66,13 +67,17 @@ public class FacilityValidator {
     }
 
     private Result<Void> validateDeposit(OriginateLoanFacilityCommand command) {
-        String depositNumber = command.loanApplication().disburseDestination().depositNumber();
-        Result<DepositInfo> result = getDepositInfo(depositNumber);
-
-        if (result.isFailure()) {
-            return Result.failure(result.notification());
-        }
-        return Result.success();
+        DisburseDestinationDto disburseDestination = command.loanApplication().disburseDestination();
+        return switch (disburseDestination) {
+            case DisburseDestinationDto.AccountDestinationDto(var accountNumber) -> Result.success();
+            case DisburseDestinationDto.DepositDestinationDto(var depositNumber) -> {
+                Result<DepositInfo> result = getDepositInfo(depositNumber);
+                if (result.isFailure()) {
+                    yield Result.failure(result.notification());
+                }
+                yield Result.success();
+            }
+        };
     }
 
     private Result<Void> validateEconomicalSector(OriginateLoanFacilityCommand command) {
@@ -106,41 +111,76 @@ public class FacilityValidator {
     }
 
     private Result<Void> isDepositClosed(OriginateLoanFacilityCommand command) {
-        String depositNumber = command.loanApplication().disburseDestination().depositNumber();
-        String currency = command.loanApplication().currency().value();
+        DisburseDestinationDto destination = command.loanApplication().disburseDestination();
 
-        Result<DepositClosedStatus> result = isDepositClosed(depositNumber, currency);
+        return switch (destination) {
+            case DisburseDestinationDto.DepositDestinationDto(var depositNumber) -> {
+                String currency = command.loanApplication().currency().value();
+                Result<DepositClosedStatus> result = isDepositClosed(depositNumber, currency);
 
-        return validateBusinessRule(
-                result,
-                status -> !status.isClosed(),
-                () -> Notification.ofError(
-                        OriginateLoanFacilityErrorCodes.DISBURSE_DESTINATION_DEPOSIT_IS_CLOSED, depositNumber));
+                yield validateBusinessRule(
+                        result,
+                        status -> !status.isClosed(),
+                        () -> Notification.ofError(
+                                OriginateLoanFacilityErrorCodes.DISBURSE_DESTINATION_DEPOSIT_IS_CLOSED, depositNumber));
+            }
+            case DisburseDestinationDto.AccountDestinationDto(var accountNumber) -> Result.success();
+        };
     }
 
     private Result<Void> validateDebtorDeposit(OriginateLoanFacilityCommand command) {
-        String depositNumber = command.loanApplication().disburseDestination().depositNumber();
-        String currency = command.loanApplication().currency().value();
+        DisburseDestinationDto destination = command.loanApplication().disburseDestination();
 
-        Result<DebtorDepositValidation> result = validateDebtorDeposit(depositNumber, currency);
+        return switch (destination) {
+            case DisburseDestinationDto.DepositDestinationDto(var depositNumber) -> {
+                String currency = command.loanApplication().currency().value();
+                Result<DebtorDepositValidation> result = validateDebtorDeposit(depositNumber, currency);
 
-        return validateBusinessRule(
-                result,
-                DebtorDepositValidation::isValidDebtorDeposit,
-                () -> Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_DEBTOR_DEPOSIT, depositNumber));
+                yield validateBusinessRule(
+                        result,
+                        DebtorDepositValidation::isValidDebtorDeposit,
+                        () -> Notification.ofError(
+                                OriginateLoanFacilityErrorCodes.INVALID_DEBTOR_DEPOSIT, depositNumber));
+            }
+            case DisburseDestinationDto.AccountDestinationDto(var accountNumber) -> Result.success();
+        };
     }
 
     private Result<Void> validateCreditorDeposit(OriginateLoanFacilityCommand command) {
-        String depositNumber = command.loanApplication().disburseDestination().depositNumber();
-        String currency = command.loanApplication().currency().value();
-        BigDecimal amount = command.loanApplication().requestedAmount().value();
+        DisburseDestinationDto destination = command.loanApplication().disburseDestination();
 
-        Result<CreditorDepositValidation> result = validateCreditorDeposit(depositNumber, currency, amount);
+        return switch (destination) {
+            case DisburseDestinationDto.DepositDestinationDto(var depositNumber) -> {
+                String currency = command.loanApplication().currency().value();
+                BigDecimal amount = command.loanApplication().requestedAmount().value();
+                Result<CreditorDepositValidation> result = validateCreditorDeposit(depositNumber, currency, amount);
 
-        return validateBusinessRule(
-                result,
-                CreditorDepositValidation::isValidCreditorDeposit,
-                () -> Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_CREDITOR_DEPOSIT, depositNumber));
+                yield validateBusinessRule(
+                        result,
+                        CreditorDepositValidation::isValidCreditorDeposit,
+                        () -> Notification.ofError(
+                                OriginateLoanFacilityErrorCodes.INVALID_CREDITOR_DEPOSIT, depositNumber));
+            }
+            case DisburseDestinationDto.AccountDestinationDto(var accountNumber) -> Result.success();
+        };
+    }
+
+    private Result<Void> validateDepositCurrency(OriginateLoanFacilityCommand command) {
+        DisburseDestinationDto destination = command.loanApplication().disburseDestination();
+
+        return switch (destination) {
+            case DisburseDestinationDto.DepositDestinationDto(var depositNumber) -> {
+                String currency = command.loanApplication().currency().value();
+                Result<CurrencyValidation> result = hasDepositAllowedCurrencies(depositNumber, currency);
+
+                yield validateBusinessRule(
+                        result,
+                        CurrencyValidation::isValid,
+                        () -> Notification.ofError(
+                                OriginateLoanFacilityErrorCodes.INVALID_DEPOSIT_CURRENCY, depositNumber));
+            }
+            case DisburseDestinationDto.AccountDestinationDto(var accountNumber) -> Result.success();
+        };
     }
 
     private Result<Void> validateSubSource(OriginateLoanFacilityCommand command) {
@@ -151,18 +191,6 @@ public class FacilityValidator {
             return Result.failure(result.notification());
         }
         return Result.success();
-    }
-
-    private Result<Void> validateDepositCurrency(OriginateLoanFacilityCommand command) {
-        String depositNumber = command.loanApplication().disburseDestination().depositNumber();
-        String currency = command.loanApplication().currency().value();
-
-        Result<CurrencyValidation> result = hasDepositAllowedCurrencies(depositNumber, currency);
-
-        return validateBusinessRule(
-                result,
-                CurrencyValidation::isValid,
-                () -> Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_DEPOSIT_CURRENCY, depositNumber));
     }
 
     private Result<Void> validateRequestReason(OriginateLoanFacilityCommand command) {

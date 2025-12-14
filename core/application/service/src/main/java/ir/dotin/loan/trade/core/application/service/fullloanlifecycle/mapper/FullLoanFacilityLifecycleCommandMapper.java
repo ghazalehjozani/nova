@@ -36,7 +36,7 @@ public interface FullLoanFacilityLifecycleCommandMapper {
                 .applicantChannel(app.applicantChannel())
                 .gracePeriod(toOriginationGracePeriod(app.gracePeriod()))
                 .installmentCount(toOriginationInstallmentCount(app.installmentCount()))
-                .disburseDestination(toOriginationDisburseDestination(app.disburseDestination()))
+                .disburseDestination(app.disburseDestination())
                 .economicSector(toOriginationEconomicSector(app.economicSector()))
                 .branch(toOriginationBranch(app.branch()))
                 .requestReason(toOriginationRequestReason(app.requestReason()))
@@ -46,14 +46,6 @@ public interface FullLoanFacilityLifecycleCommandMapper {
                 .disbursementMethod(app.disbursementMethod())
                 .credibilityRank(toOriginationCredibilityRank(app.credibilityRank()))
                 .samat(app.samatDto())
-                .build();
-    }
-
-    default OriginateLoanFacilityCommand.DisburseDestinationDto toOriginationDisburseDestination(
-            FullLoanFacilityLifecycleCommand.DisburseDestinationDto dest) {
-        return OriginateLoanFacilityCommand.DisburseDestinationDto.builder()
-                .type(dest.type())
-                .depositNumber(dest.depositNumber())
                 .build();
     }
 

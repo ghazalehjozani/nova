@@ -6,8 +6,10 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -49,11 +51,14 @@ import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.InterestPolicy;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.PenaltyPolicy;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.RegulatoryCompliancePolicy;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.AccountDisburseDestination;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CredibilityRank;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.DepositDisburseDestination;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Description;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.DisburseDestination;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.DisbursementHistory;
@@ -69,7 +74,10 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Samat;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.EconomicSectorCurrency;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanApplicationStatus;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.InstallmentPaymentType;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.PenaltyPaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Active;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Attribute;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
@@ -323,13 +331,35 @@ public abstract class ValueObjectMapper {
 
     public abstract Description toDescription(DescriptionEmb embeddable);
 
-    @Mapping(source = "depositNumber", target = "depositNumber", qualifiedByName = "optionalDepositNumberToString")
-    @Mapping(source = "type", target = "type")
-    public abstract DisburseDestinationEmb toDisburseDestinationEmb(DisburseDestination disburseDestination);
+    public DisburseDestinationEmb toDisburseDestinationEmb(DisburseDestination destination) {
+        return switch (destination) {
+            case AccountDisburseDestination(var accountNumber) -> {
+                var emb = new DisburseDestinationEmb();
+                emb.setType(DisburseDestinationType.ACCOUNT);
+                emb.setAccountNumber(accountNumber.orElseThrow().accountNumber());
+                yield emb;
+            }
+            case DepositDisburseDestination(var depositNumber) -> {
+                var emb = new DisburseDestinationEmb();
+                emb.setType(DisburseDestinationType.DEPOSIT);
+                emb.setDepositNumber(depositNumber.orElseThrow().value());
+                yield emb;
+            }
+        };
+    }
 
-    @Mapping(source = "depositNumber", target = "depositNumber", qualifiedByName = "stringToOptionalDepositNumber")
-    @Mapping(source = "type", target = "type")
-    public abstract DisburseDestination toDisburseDestination(DisburseDestinationEmb embeddable);
+    public DisburseDestination toDisburseDestination(DisburseDestinationEmb emb) {
+        return switch (emb.getType()) {
+            case DEPOSIT ->
+                DepositDisburseDestination.of(
+                                DepositNumber.valueOf(emb.getDepositNumber()).orElseThrow())
+                        .orElseThrow();
+            case ACCOUNT ->
+                AccountDisburseDestination.of(
+                                AccountNumber.of(emb.getAccountNumber()).orElseThrow())
+                        .orElseThrow();
+        };
+    }
 
     @Named("optionalDepositNumberToString")
     public String optionalDepositNumberToString(Optional<DepositNumber> depositNumber) {
@@ -600,8 +630,7 @@ public abstract class ValueObjectMapper {
                         installmentPeriod,
                         mapStringToParameterizedFormula(emb.getInstallmentFormula()),
                         mapStringToParameterizedFormula(emb.getInterestComponentFormula()),
-                        ir.dotin.loan.baseloan.core.domain.shared.enums.InstallmentPaymentType.valueOf(
-                                emb.getInstallmentPaymentType()))
+                        InstallmentPaymentType.valueOf(emb.getInstallmentPaymentType()))
                 .orElseThrow();
     }
 
@@ -622,8 +651,7 @@ public abstract class ValueObjectMapper {
         if (emb == null) return null;
         Rate penaltyRate = Rate.valueOf(emb.getPenaltyRate()).orElseThrow();
         Rate deferralRate = Rate.valueOf(emb.getDeferralInterestRate()).orElseThrow();
-        ir.dotin.loan.baseloan.core.domain.shared.enums.PenaltyPaymentType paymentType =
-                ir.dotin.loan.baseloan.core.domain.shared.enums.PenaltyPaymentType.valueOf(emb.getPenaltyPaymentType());
+        PenaltyPaymentType paymentType = PenaltyPaymentType.valueOf(emb.getPenaltyPaymentType());
         return PenaltyPolicy.of(
                         penaltyRate,
                         deferralRate,
@@ -985,18 +1013,18 @@ public abstract class ValueObjectMapper {
 
     public Set<String> toEconomicSectorEmb(Set<EconomicSector> economicSectors) {
         return economicSectors.stream()
-                .filter(java.util.Objects::nonNull)
+                .filter(Objects::nonNull)
                 .map(EconomicSector::code)
-                .collect(java.util.stream.Collectors.toCollection(java.util.LinkedHashSet::new));
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public Set<EconomicSector> toEconomicSector(Set<String> economicSectors) {
         return economicSectors.stream()
-                .filter(java.util.Objects::nonNull)
+                .filter(Objects::nonNull)
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .map(code -> EconomicSector.of(code).getValue())
-                .collect(java.util.stream.Collectors.toCollection(java.util.LinkedHashSet::new));
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public List<AttributeEmb> mapAttributesToEmbs(List<Attribute> value) {

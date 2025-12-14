@@ -17,6 +17,9 @@ public class DisburseDestinationEmb implements Serializable {
     @Column(name = "deposit_number")
     private String depositNumber;
 
+    @Column(name = "account_number")
+    private String accountNumber;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "disburse_destination_type", nullable = false)
     private DisburseDestinationType type;

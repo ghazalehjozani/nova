@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -55,7 +54,7 @@ public record OriginateLoanFacilityRequest(
             Integer installmentCount,
 
             @Schema(description = "مقصد پرداخت", requiredMode = Schema.RequiredMode.REQUIRED)
-            DisburseDestinationDto disburseDestination,
+            DisburseDestinationRequestDto disburseDestination,
 
             @Schema(description = "کد بخش اقتصادی", requiredMode = Schema.RequiredMode.REQUIRED)
             String economicSectorCode,
@@ -97,14 +96,6 @@ public record OriginateLoanFacilityRequest(
 
             @Schema(description = "شهر محل مصرف", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
             String consumptionPlaceCode) {}
-
-    @Schema(name = "DisburseDestinationDto", description = "مقصد پرداخت")
-    public record DisburseDestinationDto(
-            @Schema(description = "شماره حساب", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-            String depositNumber,
-
-            @Schema(description = "نوع مقصد پرداخت", requiredMode = Schema.RequiredMode.REQUIRED)
-            DisburseDestinationType type) {}
 
     @Schema(name = "InstallmentSchedulePlanDto", description = "برنامه اقساط")
     public record InstallmentSchedulePlanDto(

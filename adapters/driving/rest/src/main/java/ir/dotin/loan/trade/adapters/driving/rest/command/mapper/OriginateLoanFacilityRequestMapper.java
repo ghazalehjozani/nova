@@ -9,11 +9,13 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
+import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DisburseDestinationRequestDto;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.OriginateLoanFacilityRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.PartyRequestDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.AmountDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.CurrencyTypeDto;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.DisburseDestinationDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.EconomicSectorDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.PartyDto;
 
@@ -35,6 +37,15 @@ public interface OriginateLoanFacilityRequestMapper {
     @Mapping(target = "loanApplication.subSource", source = "loanApplication.subSourceCode")
     @Mapping(target = "loanApplication.samat", source = "loanApplication.samat")
     OriginateLoanFacilityCommand toCommand(OriginateLoanFacilityRequest request);
+
+    default DisburseDestinationDto toDisburseDestinationDto(DisburseDestinationRequestDto request) {
+        return switch (request) {
+            case DisburseDestinationRequestDto.DepositDestinationDto d ->
+                new DisburseDestinationDto.DepositDestinationDto(d.depositNumber());
+            case DisburseDestinationRequestDto.AccountDestinationDto b ->
+                new DisburseDestinationDto.AccountDestinationDto(b.accountNumber());
+        };
+    }
 
     default PartyDto toPartyDto(PartyRequestDto dto) {
         return switch (dto) {

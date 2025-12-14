@@ -9,8 +9,10 @@ import java.util.UUID;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.Direction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountNumberTarget;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountTarget;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Article;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleTarget;
@@ -149,36 +151,14 @@ public class AccountMapper {
 
             String item =
                     switch (target) {
-                        case AccountTarget accountTarget ->
-                            String.format(
-                                    ITEM_FORMAT_ACCOUNT,
-                                    accountTarget.accountId().value(),
-                                    isDebtor,
-                                    amount);
-
-                        case DepositTarget depositTarget ->
-                            String.format(
-                                    ITEM_FORMAT_DEPOSIT,
-                                    depositTarget.depositNumber().value(),
-                                    isDebtor,
-                                    amount);
-
-                        case BoxTarget boxTarget -> String.format(ITEM_FORMAT_BOX, isDebtor, amount);
-
-                        default -> {
-                            log.error(
-                                    "Unknown article target type at index {}: {}",
-                                    index,
-                                    target.getClass().getName());
-                            yield null;
-                        }
+                        case AccountTarget(var accountId, RelationType<?> relationType) ->
+                            String.format(ITEM_FORMAT_ACCOUNT, accountId.value(), isDebtor, amount);
+                        case DepositTarget(var depositNumber) ->
+                            String.format(ITEM_FORMAT_DEPOSIT, depositNumber.value(), isDebtor, amount);
+                        case BoxTarget() -> String.format(ITEM_FORMAT_BOX, isDebtor, amount);
+                        case AccountNumberTarget(var accountNumber) ->
+                            String.format(ITEM_FORMAT_ACCOUNT, accountNumber.accountNumber(), isDebtor, amount);
                     };
-
-            if (item == null) {
-                return Result.failure(Notification.ofError(
-                        FcbBusinessLocalizedMessageCodes.FCB_INVALID_RESPONSE,
-                        "Unknown article target type at index " + index));
-            }
 
             log.debug("Mapped article {} to item: {}", index, item);
             return Result.success(item);
