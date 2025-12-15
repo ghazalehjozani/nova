@@ -7,7 +7,7 @@
     <parent>
         <groupId>ir.dotin.platform</groupId>
         <artifactId>platform-parent</artifactId>
-        <version>2025.12.9-SNAPSHOT</version>
+        <version>2025.12.10-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -15,7 +15,7 @@
     <artifactId>trade-loan</artifactId>
     <name>Trade Loan</name>
     <packaging>pom</packaging>
-    <version>2025.12.31-SNAPSHOT</version>
+    <version>2025.12.32-SNAPSHOT</version>
 
     <scm>
         <connection>scm:git:https://bitbucket.dotin.ir/scm/core/trade-loan.git</connection>

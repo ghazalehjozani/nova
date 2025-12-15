@@ -25,5 +25,4 @@
     <include file="/db/changelog/changes/2025/12/13-01-changelog.xml"/>
     <include file="/db/changelog/changes/2025/12/13-02-changelog.xml"/>
     <include file="db/changelog/changes/2025/12/14-01-changelog.xml"/>
-    <include file="db/changelog/changes/001-create-inbox-entries.xml"/>
 </databaseChangeLog>

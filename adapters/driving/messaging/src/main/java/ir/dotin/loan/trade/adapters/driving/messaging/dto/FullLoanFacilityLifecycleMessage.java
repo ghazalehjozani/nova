@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ir.dotin.platform.adapter.messaging.inbox.model.CommandMessage;
+import ir.dotin.platform.adapter.messaging.command.model.CommandPayload;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 
@@ -24,7 +24,7 @@ public record FullLoanFacilityLifecycleMessage(
         List<CollateralDto> collaterals,
         String confirmType,
         Map<String, Object> metadata)
-        implements CommandMessage {
+        implements CommandPayload {
 
     public record LoanApplicationDto(
             Instant requestDate,

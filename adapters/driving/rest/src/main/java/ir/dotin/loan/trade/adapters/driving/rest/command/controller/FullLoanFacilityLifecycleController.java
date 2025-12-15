@@ -38,6 +38,7 @@ class FullLoanFacilityLifecycleController extends BaseController {
 
     @PostMapping(version = "1+")
     @Operation(summary = "اجرای چرخه کامل تسهیلات از تشکیل تا پرداخت")
+    @Deprecated(forRemoval = true)
     public EventStreamResponse executeFullLifecycle(
             @RequestBody @Valid DataRequest<FullLoanFacilityLifecycleRequest> request) {
 
