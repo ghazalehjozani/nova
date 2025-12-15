@@ -15,7 +15,7 @@
     <artifactId>trade-loan</artifactId>
     <name>Trade Loan</name>
     <packaging>pom</packaging>
-    <version>2025.12.30-SNAPSHOT</version>
+    <version>2025.12.31-SNAPSHOT</version>
 
     <scm>
         <connection>scm:git:https://bitbucket.dotin.ir/scm/core/trade-loan.git</connection>
@@ -31,7 +31,7 @@
     </modules>
 
     <properties>
-        <loan.base-loan.version>2025.12.23-SNAPSHOT</loan.base-loan.version>
+        <loan.base-loan.version>2025.12.24-SNAPSHOT</loan.base-loan.version>
         <loan.trade-loan.version>${project.version}</loan.trade-loan.version>
         <sonar.projectVersion>${project.version}</sonar.projectVersion>
     </properties>
