@@ -6,7 +6,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ApplicationNumberEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.DisbursementRecordEmb;
@@ -82,11 +81,4 @@ public interface TradeLoanFacilityQueryMapper {
     @Mapping(target = "usedAmount", source = "usedAmount.amount")
     @Mapping(target = "usedAmountCurrency", source = "usedAmount.currency")
     TradeFacilityQueryDto.CollateralEmbDto toCollateralDto(CollateralEmb emb);
-
-    default ConfirmType mapConfirmType(String personCode) {
-        if (personCode == null) {
-            return null;
-        }
-        return new ConfirmType(personCode);
-    }
 }

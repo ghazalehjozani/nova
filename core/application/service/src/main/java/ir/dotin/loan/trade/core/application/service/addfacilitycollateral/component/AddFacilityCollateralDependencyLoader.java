@@ -17,6 +17,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.service.CollateralCalcula
 import ir.dotin.loan.baseloan.core.domain.loanfacility.service.validator.AbstractCollateralValidationService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.CollateralServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralDetails;
@@ -108,11 +109,8 @@ public class AddFacilityCollateralDependencyLoader {
                 .map(c -> c.usedAmount().value().longValue())
                 .toList();
 
-        Result facilityValidationResult =
-                collateralValidationService.validateFacilityCollaterals(facility, arrangementResult.value());
-        if (facilityValidationResult.isFailure()) return Result.failure(facilityValidationResult.notification());
-
-        Result<CollateralValidation> validationRes = validateAssurance(serials, usedCosts);
+        Result<CollateralValidation> validationRes = validateAssurance(
+                serials, usedCosts, facility.getLoanApplication().getBranch().code());
 
         if (validationRes.isFailure()) {
             return Result.failure(validationRes.notification());
@@ -148,7 +146,8 @@ public class AddFacilityCollateralDependencyLoader {
         return collateralServicePort.loadCollateral(serial.value(), "");
     }
 
-    private Result<CollateralValidation> validateAssurance(List<CollateralSerial> serials, List<Long> usedCosts) {
-        return collateralServicePort.validateAddAssuranceToFile(serials, usedCosts);
+    private Result<CollateralValidation> validateAssurance(
+            List<CollateralSerial> serials, List<Long> usedCosts, BranchCode branchCode) {
+        return collateralServicePort.validateAddAssuranceToFile(serials, usedCosts, branchCode);
     }
 }

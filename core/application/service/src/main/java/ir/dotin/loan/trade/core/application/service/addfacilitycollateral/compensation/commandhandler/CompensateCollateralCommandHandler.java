@@ -59,7 +59,7 @@ public class CompensateCollateralCommandHandler implements CommandHandler<Compen
             for (String serialValue : serialsToRevert) {
                 CollateralSerial serial = CollateralSerial.of(serialValue).orElseThrow();
 
-                collateralServicePort.unReserveCollateral(serial, appNumber, command.uid(), UUID.randomUUID());
+                collateralServicePort.unReserveCollateral(serial, appNumber, UUID.randomUUID(), command.uid());
             }
         }
 

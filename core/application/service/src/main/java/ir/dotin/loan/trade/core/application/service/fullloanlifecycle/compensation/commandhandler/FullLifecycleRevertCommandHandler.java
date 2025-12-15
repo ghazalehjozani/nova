@@ -210,7 +210,7 @@ public class FullLifecycleRevertCommandHandler implements CommandHandler<FullLif
             for (Collateral collateral : collateralsToRevert) {
                 try {
                     collateralServicePort.unReserveCollateral(
-                            collateral.collateralSerial(), appNumber, requestId, UUID.randomUUID());
+                            collateral.collateralSerial(), appNumber, UUID.randomUUID(), requestId);
 
                     log.debug(
                             "Successfully un-reserved collateral: {}",
