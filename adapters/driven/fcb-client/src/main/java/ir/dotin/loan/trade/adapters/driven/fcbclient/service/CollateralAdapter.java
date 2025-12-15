@@ -16,6 +16,7 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
@@ -46,7 +47,7 @@ public class CollateralAdapter implements CollateralServicePort {
 
     @Override
     public Result<CollateralValidation> validateAddAssuranceToFile(
-            List<CollateralSerial> collateralSerialList, List<Long> usedCosts) {
+            List<CollateralSerial> collateralSerialList, List<Long> usedCosts, BranchCode branchCode) {
 
         log.info("Validating add assurance to file: serials={}, costs={}", collateralSerialList, usedCosts);
 
@@ -56,7 +57,7 @@ public class CollateralAdapter implements CollateralServicePort {
             return Result.failure(inputValidation);
         }
 
-        List<Parameter> parameters = buildAssuranceParameters(collateralSerialList, usedCosts);
+        List<Parameter> parameters = buildAssuranceParameters(collateralSerialList, usedCosts, branchCode);
 
         Usecases usecases = requestBuilder.buildUseCase("validate-add-assurance-to-file", parameters);
         FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
@@ -125,7 +126,8 @@ public class CollateralAdapter implements CollateralServicePort {
         return notification;
     }
 
-    private List<Parameter> buildAssuranceParameters(List<CollateralSerial> assuranceSerials, List<Long> usedCosts) {
+    private List<Parameter> buildAssuranceParameters(
+            List<CollateralSerial> assuranceSerials, List<Long> usedCosts, BranchCode branchCode) {
 
         List<Parameter> parameters = new ArrayList<>();
 
@@ -137,6 +139,9 @@ public class CollateralAdapter implements CollateralServicePort {
 
         String costsValue = usedCosts.stream().map(String::valueOf).collect(Collectors.joining(PARAMETER_SEPARATOR));
         parameters.add(Parameter.builder().key("usedCost").value(costsValue).build());
+
+        parameters.add(
+                Parameter.builder().key("branchCode").value(branchCode.value()).build());
 
         log.debug("Built assurance parameters - serials: {}, costs: {}", serialsValue, costsValue);
 
@@ -204,7 +209,7 @@ public class CollateralAdapter implements CollateralServicePort {
                         .build(),
                 Parameter.builder()
                         .key("fileNumber")
-                        .value(applicationNumber.derivedValue())
+                        .value(applicationNumber.formattedApplicationNumber())
                         .build(),
                 Parameter.builder()
                         .key("transactionId")
@@ -246,24 +251,21 @@ public class CollateralAdapter implements CollateralServicePort {
                         .build(),
                 Parameter.builder()
                         .key("fileNumber")
-                        .value(applicationNumber.derivedValue())
+                        .value(applicationNumber.formattedApplicationNumber())
                         .build(),
                 Parameter.builder()
                         .key("transactionId")
                         .value(transactionId.toString())
                         .build(),
-                Parameter.builder()
-                        .key("rollBackId")
-                        .value(rollBackId.toString())
-                        .build());
+                Parameter.builder().key("rollBackId").value("").build());
 
         Usecases usecases = requestBuilder.buildUseCase("un-reserve-assurance-for-file", parameters);
         FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
         Map<String, Object> additionalContext = new HashMap<>();
         additionalContext.put("assuranceSerial", collateralSerial.value());
-        additionalContext.put("fileNumber", applicationNumber.derivedValue());
+        additionalContext.put("fileNumber", applicationNumber.formattedApplicationNumber());
         additionalContext.put("transactionId", transactionId.toString());
-        additionalContext.put("rollBackId", rollBackId.toString());
+        additionalContext.put("rollBackId", "");
         FcbContext fcbContext =
                 FcbContext.builder().additionalContext(additionalContext).build();
         Result<UnReserveAssuranceForFileResponse> result =

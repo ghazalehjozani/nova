@@ -14,6 +14,7 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.service.validator.AbstractCollateralValidationService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
@@ -41,6 +42,7 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
     private final TradeLoanFacilityRepository repository;
     private final TradeLoanFacilityService domainService;
     private final AddFacilityCollateralDependencyLoader dependencyLoader;
+    private final AbstractCollateralValidationService collateralValidationService;
     private final CollateralServicePort collateralServicePort;
 
     private static final Integer RESERVE_DURATION_MINUTES = 1440;
@@ -103,6 +105,11 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
             return domainService
                     .addCollateral(facility, collaterals)
                     .map(v -> facility)
+                    .flatMap(f -> {
+                        var validation =
+                                collateralValidationService.validateFacilityCollaterals(f, context.arrangement());
+                        return validation.isFailure() ? Result.failure(validation.notification()) : Result.success(f);
+                    })
                     .peekValue(f -> {
                         repository.save(f);
                         log.info(
@@ -169,7 +176,7 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
             List<Collateral> collateralsToRollback, ApplicationNumber appNumber, UUID requestId) {
         for (Collateral collateral : collateralsToRollback) {
             collateralServicePort.unReserveCollateral(
-                    collateral.collateralSerial(), appNumber, requestId, UUID.randomUUID());
+                    collateral.collateralSerial(), appNumber, UUID.randomUUID(), requestId);
         }
     }
 }
