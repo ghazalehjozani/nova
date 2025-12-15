@@ -4,4 +4,7 @@ import java.math.BigDecimal;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 
+import lombok.Builder;
+
+@Builder
 public record AmountDto(@NotNull @DecimalMin(value = "0") BigDecimal value) {}

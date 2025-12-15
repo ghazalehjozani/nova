@@ -17,4 +17,25 @@
   <packaging>jar</packaging>
 
 
+    <dependencies>
+        <dependency>
+            <groupId>ir.dotin.platform</groupId>
+            <artifactId>platform-adapter-messaging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.springwolf</groupId>
+            <artifactId>springwolf-kafka</artifactId>
+            <version>1.20.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.springwolf</groupId>
+            <artifactId>springwolf-ui</artifactId>
+            <version>1.20.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

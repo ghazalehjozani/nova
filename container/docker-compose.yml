@@ -72,6 +72,19 @@ services:
       kafka:
         condition: service_healthy
 
+  kafka-rest:
+    image: confluentinc/cp-kafka-rest:8.1.1
+    container_name: kafka-rest
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      KAFKA_REST_BOOTSTRAP_SERVERS: "PLAINTEXT://localhost:9092"
+      KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
+      KAFKA_REST_CONSUMER_REQUEST_TIMEOUT_MS: 30000
+    depends_on:
+      kafka:
+        condition: service_healthy
+
   redis:
     image: redis:8.2.2-alpine
     container_name: redis
