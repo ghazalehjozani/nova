@@ -23,4 +23,4 @@ ENV SPRING_PROFILES_ACTIVE=k8s
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "--sun-misc-unsafe-memory-access=allow -jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
