@@ -10,11 +10,11 @@ import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
 import ir.dotin.platform.adapter.rest.swagger.BaseSwaggerConfig;
+import ir.dotin.platform.adapter.rest.swagger.HeaderOperationCustomizer;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineLoanTypeRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.OriginateLoanFacilityRequest;
@@ -44,8 +44,8 @@ public class SwaggerConfig extends BaseSwaggerConfig {
     private String activeProfile;
 
     private final ObjectMapper objectMapper;
-
     private final ResourceLoader resourceLoader;
+    private final HeaderOperationCustomizer headerOperationCustomizer;
 
     public static final String TAG_FACILITY_CASE_OPENING = "Facility Case Opening";
     public static final String TAG_FACILITY_APPROVAL_SUBMISSION = "Facility Approval Submission";
@@ -88,9 +88,7 @@ public class SwaggerConfig extends BaseSwaggerConfig {
             Map.entry(TAG_LOAN_TYPE_QUERIES, 17),
             Map.entry(TAG_LOAN_ARRANGEMENT_QUERIES, 18));
 
-    @Bean
-    @Order(1)
-    public OpenApiCustomizer sortTagsCustomizer() {
+    private OpenApiCustomizer sortTagsCustomizer() {
         return openApi -> {
             var tags = openApi.getTags();
             if (tags != null) {
@@ -158,6 +156,8 @@ public class SwaggerConfig extends BaseSwaggerConfig {
         return GroupedOpenApi.builder()
                 .group("v1")
                 .pathsToMatch("/api/{version}/**")
+                .addOperationCustomizer(headerOperationCustomizer)
+                .addOpenApiCustomizer(sortTagsCustomizer())
                 .addOpenApiCustomizer(replaceVersionPlaceholder("v1"))
                 .build();
     }
