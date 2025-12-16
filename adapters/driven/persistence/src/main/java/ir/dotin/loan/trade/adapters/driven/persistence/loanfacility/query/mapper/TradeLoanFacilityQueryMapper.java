@@ -35,6 +35,7 @@ public interface TradeLoanFacilityQueryMapper {
     @Mapping(target = "sanctionedLoan.sanctionSerial", source = "sanctionedLoan.sanctionSerial.value")
     @Mapping(target = "sanctionedLoan.confirmType", source = "sanctionedLoan.confirmType.personCode")
     @Mapping(target = "loanApplication.applicationNumber", qualifiedByName = "formatAppNum")
+    @Mapping(target = "loanApplication.loanTypeCode", source = "loanApplication.applicationNumber.loanTypeCode.value")
     @Mapping(target = "loanApplication.credibilityRank", source = "loanApplication.credibilityRank.value")
     @Mapping(target = "loanApplication.description", source = "loanApplication.description.value")
     @Mapping(target = "loanApplication.subSourceCode", source = "loanApplication.subSource.code")

@@ -44,6 +44,7 @@ public record TradeFacilityQueryDto(
             UUID id,
             Long version,
             Instant requestDate,
+            String loanTypeCode,
             Set<PartyEmbDto> parties,
             BigDecimal requestedAmount,
             String requestedAmountCurrency,
