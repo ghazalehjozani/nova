@@ -8,6 +8,7 @@ import org.jspecify.annotations.NonNull;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.annotation.DomainService;
+import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.Installment;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
@@ -93,28 +94,33 @@ public class IrregularProgressiveDisbursementTransactionService {
             @NonNull InstallmentSchedule currentSchedule,
             @NonNull List<Installment> recalculatedInstallments) {
 
-        Money newTotalInterest = recalculatedInstallments.stream()
-                .map(installment -> installment.getScheduledAmount().interestAmount())
-                .reduce((money, other) -> money.add(other).getValue())
-                .orElseGet(() -> Money.zero(currentSchedule.getCurrency()).getValue());
+        Money newTotalInterest = sumInterestAmount(recalculatedInstallments, currentSchedule.getCurrency());
 
         if (firstDisbursement) {
-            Money currentTotalInterest = currentSchedule.getInstallments().stream()
-                    .map(installment -> installment.getScheduledAmount().interestAmount())
-                    .reduce((money, other) -> money.add(other).getValue())
-                    .orElseGet(() -> Money.zero(currentSchedule.getCurrency()).getValue());
-            Money incrementalInterest =
-                    newTotalInterest.subtract(currentTotalInterest).orElseThrow();
-            if (incrementalInterest.isNegative()) {
-                return Result.failure(Notification.ofError(
-                        TradeLoanFacilityLocalizedMessageCodes.INCREMENTAL_INTEREST_CANNOT_BE_NEGATIVE,
-                        newTotalInterest,
-                        currentTotalInterest));
-            }
-            Result.success(incrementalInterest);
+            return Result.success(newTotalInterest);
         }
 
-        return Result.success(newTotalInterest);
+        Money currentTotalInterest =
+                sumInterestAmount(currentSchedule.getInstallments(), currentSchedule.getCurrency());
+        Money incrementalInterest = newTotalInterest
+                .subtract(currentTotalInterest)
+                .orElseThrow(() -> new IllegalStateException("Interest calculation failed"));
+
+        if (incrementalInterest.isNegative()) {
+            return Result.failure(Notification.ofError(
+                    TradeLoanFacilityLocalizedMessageCodes.INCREMENTAL_INTEREST_CANNOT_BE_NEGATIVE,
+                    newTotalInterest,
+                    currentTotalInterest));
+        }
+
+        return Result.success(incrementalInterest);
+    }
+
+    private Money sumInterestAmount(List<Installment> installments, CurrencyType currency) {
+        return installments.stream()
+                .map(installment -> installment.getScheduledAmount().interestAmount())
+                .reduce(Money.zero(currency).orElseThrow(), (money, other) -> money.add(other)
+                        .orElseThrow());
     }
 
     private Result<LoanTransaction> createBankCommitmentTransaction(

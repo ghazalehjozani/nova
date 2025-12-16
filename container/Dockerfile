@@ -2,7 +2,7 @@ FROM eclipse-temurin:25-jre-alpine
 
 WORKDIR /app
 
-RUN apk add --no-cache ca-certificates openssl gcompat libstdc++
+RUN apk add --no-cache ca-certificates openssl libstdc++ gcompat libc6-compat java-lz4
 
 COPY ca-certificates/*.crt /usr/local/share/ca-certificates/
 
@@ -23,4 +23,4 @@ ENV SPRING_PROFILES_ACTIVE=k8s
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "--sun-misc-unsafe-memory-access=allow -jar", "app.jar"]
