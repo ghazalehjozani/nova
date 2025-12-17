@@ -6,6 +6,8 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 
@@ -25,9 +27,15 @@ public class ApplicationPartyEmb implements Serializable {
     @Column(name = "party_role", nullable = false)
     private PartyRole partyRole;
 
-    @Column(name = "first_name", nullable = false)
+    @Nullable
+    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "last_name", nullable = false)
+    @Nullable
+    @Column(name = "last_name")
     private String lastName;
+
+    @Nullable
+    @Column(name = "company_name")
+    private String companyName;
 }

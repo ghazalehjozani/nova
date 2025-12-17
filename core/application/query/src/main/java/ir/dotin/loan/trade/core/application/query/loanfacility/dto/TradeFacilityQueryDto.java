@@ -72,6 +72,7 @@ public record TradeFacilityQueryDto(
                 PartyRole partyRole,
                 String firstName,
                 String lastName,
+                String companyName,
                 @Nullable BigDecimal guaranteePercentage)
                 implements Serializable {}
     }

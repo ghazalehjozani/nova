@@ -23,9 +23,9 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.*;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.ApplicantParty;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CustomerName;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuaranteePercentage;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuarantorParty;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCreated;
 
@@ -66,7 +66,7 @@ class TradeLoanFacilityTest {
                 @Mock RequestReason requestReason,
                 @Mock Money totalDisbursementAmount) {
             // given
-            PersonName customerName = new PersonName("John", "Doe");
+            CustomerName customerName = new CustomerName("John", "Doe", "Test");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
             DisburseDestination disburseDestination = createDepositDisburseDestination();
 
@@ -156,7 +156,7 @@ class TradeLoanFacilityTest {
                 @Mock RequestReason requestReason,
                 @Mock Money totalDisbursementAmount) {
             // given
-            PersonName customerName = new PersonName("John", "Doe");
+            CustomerName customerName = new CustomerName("John", "Doe", "Test");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
             DisburseDestination disburseDestination = createDepositDisburseDestination();
 
@@ -201,7 +201,7 @@ class TradeLoanFacilityTest {
                 @Mock RequestReason requestReason,
                 @Mock Money totalDisbursementAmount) {
             // given
-            PersonName customerName = new PersonName("John", "Doe");
+            CustomerName customerName = new CustomerName("John", "Doe", "Test");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
             DisburseDestination disburseDestination = createDepositDisburseDestination();
 
@@ -236,7 +236,7 @@ class TradeLoanFacilityTest {
                 @Mock RequestReason requestReason,
                 @Mock Money totalDisbursementAmount) {
             // given
-            PersonName customerName = new PersonName("John", "Doe");
+            CustomerName customerName = new CustomerName("John", "Doe", "Test");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
             DisburseDestination disburseDestination = createDepositDisburseDestination();
 
@@ -271,7 +271,7 @@ class TradeLoanFacilityTest {
                 @Mock RequestReason requestReason,
                 @Mock Money totalDisbursementAmount) {
             // given
-            PersonName customerName = new PersonName("John", "Doe");
+            CustomerName customerName = new CustomerName("John", "Doe", "Test");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
             DisburseDestination disburseDestination = createAccountDisburseDestination();
 
@@ -311,7 +311,7 @@ class TradeLoanFacilityTest {
                 @Mock RequestReason requestReason,
                 @Mock Money totalDisbursementAmount) {
             // given
-            PersonName customerName = new PersonName("John", "Doe");
+            CustomerName customerName = new CustomerName("John", "Doe", "Test");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
             DisburseDestination disburseDestination = createDepositDisburseDestination();
 
@@ -346,7 +346,7 @@ class TradeLoanFacilityTest {
                 @Mock RequestReason requestReason,
                 @Mock Money totalDisbursementAmount) {
             // given
-            PersonName customerName = new PersonName("John", "Doe");
+            CustomerName customerName = new CustomerName("John", "Doe", "Test");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
             DisburseDestination disburseDestination = createAccountDisburseDestination();
 
@@ -392,7 +392,7 @@ class TradeLoanFacilityTest {
             @Mock RequestReason requestReason,
             DisburseDestination disburseDestination) {
         // Create a real guarantor
-        PersonName guarantorName = new PersonName("Jane", "Smith");
+        CustomerName guarantorName = new CustomerName("Jane", "Smith", "Test");
         GuarantorParty guarantor =
                 new GuarantorParty("67890", PartyType.REAL, guarantorName, GuaranteePercentage.of(25.0));
 
