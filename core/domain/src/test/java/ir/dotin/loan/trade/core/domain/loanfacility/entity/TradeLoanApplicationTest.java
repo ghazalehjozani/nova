@@ -33,9 +33,9 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.ApplicantParty;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CustomerName;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuaranteePercentage;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuarantorParty;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 
 import static java.util.UUID.randomUUID;
@@ -58,10 +58,10 @@ final class TradeLoanApplicationTest {
     @BeforeEach
     void setUp() {
         // Create real party instances
-        PersonName applicantName = new PersonName("John", "Doe");
+        CustomerName applicantName = new CustomerName("John", "Doe", "Test");
         mockApplicant = new ApplicantParty("12345", PartyType.REAL, applicantName);
 
-        PersonName guarantorName = new PersonName("Jane", "Smith");
+        CustomerName guarantorName = new CustomerName("Jane", "Smith", "Test");
         mockGuarantor = new GuarantorParty("67890", PartyType.REAL, guarantorName, GuaranteePercentage.of(25.0));
 
         validAmount =

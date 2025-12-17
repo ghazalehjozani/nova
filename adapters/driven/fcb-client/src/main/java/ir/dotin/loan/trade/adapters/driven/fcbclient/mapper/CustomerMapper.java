@@ -17,10 +17,10 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.Direction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.ApplicantParty;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CoApplicantParty;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CustomerName;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuaranteePercentage;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuarantorParty;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountTarget;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Article;
@@ -105,19 +105,20 @@ public class CustomerMapper {
             CustomerInfoResponse fcbResponse, @NotNull PartyRole role, @Nullable BigDecimal guaranteePercentage) {
         String firstName = fcbResponse.getFirstName();
         String lastName = fcbResponse.getLastName();
-        PersonName personName = new PersonName(firstName, lastName);
+        String title = fcbResponse.getTitle();
+        CustomerName customerName = new CustomerName(firstName, lastName, title);
         PartyType partyType = fcbResponse.getReal() ? PartyType.REAL : PartyType.LEGAL;
         String customerNumber = String.valueOf(fcbResponse.getCustomerNumber());
 
         Party party =
                 switch (role) {
-                    case PRIMARY_APPLICANT -> new ApplicantParty(customerNumber, partyType, personName);
-                    case CO_APPLICANT -> new CoApplicantParty(customerNumber, partyType, personName);
+                    case PRIMARY_APPLICANT -> new ApplicantParty(customerNumber, partyType, customerName);
+                    case CO_APPLICANT -> new CoApplicantParty(customerNumber, partyType, customerName);
                     case GUARANTOR ->
                         GuarantorParty.of(
                                         customerNumber,
                                         partyType,
-                                        personName,
+                                        customerName,
                                         guaranteePercentage != null
                                                 ? GuaranteePercentage.of(guaranteePercentage)
                                                 : null)

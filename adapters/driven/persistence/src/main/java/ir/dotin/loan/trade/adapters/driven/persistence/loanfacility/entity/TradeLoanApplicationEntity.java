@@ -127,12 +127,9 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
         @AttributeOverride(
                 name = "party.partyRole",
                 column = @Column(name = "application_customer_role", nullable = false)),
-        @AttributeOverride(
-                name = "party.firstName",
-                column = @Column(name = "application_customer_first_name", nullable = false)),
-        @AttributeOverride(
-                name = "party.lastName",
-                column = @Column(name = "application_customer_last_name", nullable = false))
+        @AttributeOverride(name = "party.firstName", column = @Column(name = "application_customer_first_name")),
+        @AttributeOverride(name = "party.lastName", column = @Column(name = "application_customer_last_name")),
+        @AttributeOverride(name = "party.companyName", column = @Column(name = "application_customer_company_name"))
     })
     private ApplicationNumberEmb applicationNumber;
 

@@ -29,11 +29,17 @@ public class PartyEmb implements Serializable {
     @Column(name = "party_role", nullable = false)
     private PartyRole partyRole;
 
-    @Column(name = "first_name", nullable = false)
+    @Nullable
+    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "last_name", nullable = false)
+    @Nullable
+    @Column(name = "last_name")
     private String lastName;
+
+    @Nullable
+    @Column(name = "company_name")
+    private String companyName;
 
     @Nullable
     @Column(name = "guarantee_percentage", precision = 5, scale = 2)

@@ -101,10 +101,10 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.ApplicantParty;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CoApplicantParty;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CustomerName;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuaranteePercentage;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuarantorParty;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.PersonName;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ApplicationNumberEmb;
@@ -444,6 +444,7 @@ public abstract class ValueObjectMapper {
         emb.setPartyRole(party.partyRole());
         emb.setFirstName(party.name().firstName());
         emb.setLastName(party.name().lastName());
+        emb.setCompanyName(party.name().companyName());
 
         if (party instanceof GuarantorParty guarantor) {
             emb.setGuaranteePercentage(guarantor.guaranteePercentage().value());
@@ -453,7 +454,7 @@ public abstract class ValueObjectMapper {
     }
 
     public Party toParty(PartyEmb emb) {
-        PersonName name = new PersonName(emb.getFirstName(), emb.getLastName());
+        CustomerName name = new CustomerName(emb.getFirstName(), emb.getLastName(), emb.getCompanyName());
 
         return switch (emb.getPartyRole()) {
             case PRIMARY_APPLICANT -> new ApplicantParty(emb.getCustomerNumber(), emb.getPartyType(), name);
@@ -477,11 +478,12 @@ public abstract class ValueObjectMapper {
         emb.setPartyRole(party.partyRole());
         emb.setFirstName(party.name().firstName());
         emb.setLastName(party.name().lastName());
+        emb.setCompanyName(party.name().companyName());
         return emb;
     }
 
     public Party toParty(ApplicationPartyEmb emb) {
-        PersonName name = new PersonName(emb.getFirstName(), emb.getLastName());
+        CustomerName name = new CustomerName(emb.getFirstName(), emb.getLastName(), emb.getCompanyName());
 
         return switch (emb.getPartyRole()) {
             case PRIMARY_APPLICANT -> new ApplicantParty(emb.getCustomerNumber(), emb.getPartyType(), name);
