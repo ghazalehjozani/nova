@@ -35,14 +35,14 @@ public class TradeLoanCommandConsumer {
     private final AuthenticationContextHolder authContext;
 
     @KafkaListener(
-            topics = "corridor.loan.trade.full-lifecycle.command.request.queue.v1",
+            topics = "corridor.core.loan.nova.full-lifecycle.request.queue.v1",
             groupId = "trade-loan-command-consumer",
             containerFactory = "kafkaListenerContainerFactory")
     @AsyncListener(
             operation =
                     @AsyncOperation(
-                            channelName = "corridor.loan.trade.full-lifecycle.command.request.queue.v1",
-                            description = "Process trade loan full lifecycle commands",
+                            channelName = "corridor.core.loan.nova.full-lifecycle.request.queue.v1",
+                            description = "Process nova loan full lifecycle commands",
                             payloadType = FullLoanFacilityLifecycleMessage.class,
                             headers =
                                     @AsyncOperation.Headers(
