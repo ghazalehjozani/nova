@@ -13,7 +13,7 @@ set +a
 DOCKER_HOST_IP=$(minikube ssh "ip route show default" | awk '/default/ {print $3}')
 
 DB_URL="jdbc:postgresql://${DOCKER_HOST_IP}:${DB_PORT}/${DB_NAME}"
-KAFKA_SERVERS="${DOCKER_HOST_IP}:9092"
+KAFKA_SERVERS="10.100.8.81:9093,10.100.8.82:9093,10.100.8.83:9093"
 REDIS_HOST="${DOCKER_HOST_IP}"
 
 kubectl create secret generic trade-loan-service-secrets \
