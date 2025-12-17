@@ -92,6 +92,16 @@ spec:
                 secretKeyRef:
                   name: trade-loan-service-secrets
                   key: kafka.consumer.group
+            - name: KAFKA_USER
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: kafka.user
+            - name: KAFKA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: trade-loan-service-secrets
+                  key: kafka.password
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
