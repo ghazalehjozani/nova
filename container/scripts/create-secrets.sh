@@ -25,6 +25,8 @@ kubectl create secret generic trade-loan-service-secrets \
   --from-literal=redis.password="$REDIS_PASSWORD" \
   --from-literal=kafka.bootstrap.servers="$KAFKA_SERVERS" \
   --from-literal=kafka.consumer.group="$KAFKA_CONSUMER_GROUP" \
+  --from-literal=kafka.user="$KAFKA_USER" \
+  --from-literal=kafka.password="$KAFKA_PASSWORD" \
   --from-literal=platform.messaging.encryption.password="$ENCRYPTION_PASSWORD" \
   --from-literal=oauth2.client.id="$OAUTH2_CLIENT_ID" \
   --from-literal=oauth2.client.secret="$OAUTH2_CLIENT_SECRET" \
