@@ -5,8 +5,11 @@ import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
 import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,8 +23,9 @@ import lombok.NoArgsConstructor;
 @Embeddable
 public class CollateralEmb {
 
-    @Column(name = "collateral_type_code", nullable = false, length = 50)
-    private String collateralTypeCode;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "collateral_type_code", nullable = false)
+    private CollateralType collateralType;
 
     @Column(name = "percent", nullable = false)
     private Integer percent;

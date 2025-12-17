@@ -15,6 +15,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 import ir.dotin.platform.dispatcher.api.command.Command;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.*;
@@ -116,7 +117,7 @@ public record FullLoanFacilityLifecycleCommand(
 
     @Builder(toBuilder = true)
     public record CollateralDto(
-            @NotNull String collateralTypeCode,
+            @NotNull CollateralType collateralTypeCode,
             @NotNull Integer percent,
             @NotNull String description,
             @NotNull String collateralSerial,

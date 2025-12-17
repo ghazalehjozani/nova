@@ -43,7 +43,6 @@ import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentId;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.RestructuringRecord;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.ScheduleHistory;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.CollateralPolicy;
-import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.CollateralType;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.GracePeriodPolicy;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.InstallmentPeriod;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.InstallmentPolicy;
@@ -114,7 +113,6 @@ import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.BranchEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralPolicyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralSerialEmb;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralTypeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ConfirmTypeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CredibilityRankEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CurrencyTypeEmb;
@@ -490,10 +488,6 @@ public abstract class ValueObjectMapper {
         };
     }
 
-    public abstract CollateralTypeEmb toCollateralTypeEmb(CollateralType collateralType);
-
-    public abstract CollateralType toCollateralType(CollateralTypeEmb embeddable);
-
     @Mapping(source = "economicSector.code", target = "economicSectorCode")
     public abstract EconomicSectorCurrencyEmb toEconomicSectorCurrencyEmb(
             EconomicSectorCurrency economicSectorCurrency);
@@ -581,14 +575,8 @@ public abstract class ValueObjectMapper {
         if (policy == null) return null;
         CollateralPolicyEmb emb = new CollateralPolicyEmb();
         emb.setTotalPercent(policy.totalPercent());
-        Set<CollateralTypeEmb> collateralTypeEmbs = policy.collateralTypes().stream()
-                .map(collateralType -> {
-                    CollateralTypeEmb typeEmb = new CollateralTypeEmb();
-                    typeEmb.setCode(collateralType.code());
-                    return typeEmb;
-                })
-                .collect(Collectors.toSet());
-        emb.setCollateralTypes(collateralTypeEmbs);
+        emb.setCollateralTypes(new HashSet<>(policy.collateralTypes()));
+        emb.setCollateralCalculationType(policy.collateralCalculationType());
         return emb;
     }
 
@@ -663,11 +651,10 @@ public abstract class ValueObjectMapper {
     @Named("mapCollateralPolicyEmbToPolicy")
     public CollateralPolicy mapCollateralPolicyEmbToPolicy(CollateralPolicyEmb emb) {
         if (emb == null) return null;
-        List<CollateralType> collateralTypes = emb.getCollateralTypes().stream()
-                .map(collateralTypeEmb ->
-                        CollateralType.of(collateralTypeEmb.getCode()).orElseThrow())
-                .collect(Collectors.toList());
-        return CollateralPolicy.of(collateralTypes, emb.getTotalPercent(), emb.getCollateralCalculationType())
+        return CollateralPolicy.of(
+                        new ArrayList<>(emb.getCollateralTypes()),
+                        emb.getTotalPercent(),
+                        emb.getCollateralCalculationType())
                 .orElseThrow();
     }
 
@@ -689,20 +676,6 @@ public abstract class ValueObjectMapper {
             return new ArrayList<>();
         }
         return embeddables.stream().map(this::toTrackedTransactionNumber).collect(Collectors.toList());
-    }
-
-    public Set<CollateralTypeEmb> toCollateralTypeEmbSet(List<CollateralType> collateralTypes) {
-        if (collateralTypes == null) {
-            return Set.of();
-        }
-        return collateralTypes.stream().map(this::toCollateralTypeEmb).collect(Collectors.toSet());
-    }
-
-    public List<CollateralType> toCollateralTypeList(Set<CollateralTypeEmb> embeddables) {
-        if (embeddables == null) {
-            return List.of();
-        }
-        return embeddables.stream().map(this::toCollateralType).collect(Collectors.toList());
     }
 
     @Named("periodToEmb")
@@ -1089,10 +1062,10 @@ public abstract class ValueObjectMapper {
         return new LoanArrangementCode(loanArrangementCode);
     }
 
-    @Mapping(source = "collateralType.code", target = "collateralTypeCode")
+    @Mapping(source = "collateralType", target = "collateralType")
     public abstract CollateralEmb toTradeCollateralEmb(Collateral collateral);
 
-    @Mapping(source = "collateralTypeCode", target = "collateralType", qualifiedByName = "codeToCollateralType")
+    @Mapping(source = "collateralType", target = "collateralType")
     public abstract Collateral toCollateral(CollateralEmb embeddable);
 
     public List<CollateralEmb> toTradeCollateralEmbList(List<Collateral> collaterals) {
@@ -1107,12 +1080,5 @@ public abstract class ValueObjectMapper {
             return new ArrayList<>();
         }
         return embeddables.stream().map(this::toCollateral).collect(Collectors.toList());
-    }
-
-    @Named("codeToCollateralType")
-    public CollateralType codeToCollateralType(String code) {
-        if (code == null) return null;
-        return CollateralType.of(code)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid CollateralType code: " + code));
     }
 }

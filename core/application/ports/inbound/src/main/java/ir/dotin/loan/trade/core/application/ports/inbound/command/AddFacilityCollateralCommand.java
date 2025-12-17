@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import ir.dotin.platform.dispatcher.api.command.Command;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 
 import lombok.Builder;
 
@@ -22,7 +23,7 @@ public record AddFacilityCollateralCommand(
 
     @Builder
     public record CollateralDto(
-            @NotBlank String collateralTypeCode,
+            @NotBlank CollateralType collateralTypeCode,
             @NotNull Integer percent,
             @NotBlank String description,
             @NotBlank String collateralSerial,

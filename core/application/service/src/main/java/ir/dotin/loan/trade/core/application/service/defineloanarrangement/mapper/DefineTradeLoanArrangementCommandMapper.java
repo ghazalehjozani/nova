@@ -13,8 +13,8 @@ import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Formula;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.platform.commons.domain.vo.Rate;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.CollateralPolicy;
-import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.CollateralType;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.GracePeriodPolicy;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.InstallmentPeriod;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.InstallmentPolicy;
@@ -164,7 +164,7 @@ public abstract class DefineTradeLoanArrangementCommandMapper {
 
     CollateralPolicy mapCollateralPolicy(DefineTradeLoanArrangementCommand.CollateralPolicyDto dto) {
         List<CollateralType> types = dto.collateralTypes().stream()
-                .map(ct -> CollateralType.of(ct.code()).orElseThrow())
+                .map(ct -> CollateralType.valueOf(ct.type().name()))
                 .toList();
         return CollateralPolicy.of(types, dto.totalPercent(), dto.collateralCalculationType())
                 .orElseThrow();

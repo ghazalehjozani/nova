@@ -78,6 +78,7 @@ public interface TradeLoanFacilityQueryMapper {
     TradeFacilityQueryDto.TradeSanctionedLoanEntityDto.DisbursementRecordEmbDto toDisbursementDto(
             DisbursementRecordEmb emb);
 
+    @Mapping(target = "collateralTypeCode", source = "collateralType")
     @Mapping(target = "collateralSerial", source = "collateralSerial.value")
     @Mapping(target = "usedAmount", source = "usedAmount.amount")
     @Mapping(target = "usedAmountCurrency", source = "usedAmount.currency")

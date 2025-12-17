@@ -11,6 +11,7 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.DefineTradeLoanArrangementCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.*;
@@ -120,7 +121,8 @@ public interface DefineTradeLoanArrangementRequestToCommandMapper {
         return new DefineTradeLoanArrangementCommand.CollateralPolicyDto(
                 collateralPolicy.totalPercent(),
                 collateralPolicy.collateralTypes().stream()
-                        .map(DefineTradeLoanArrangementCommand.CollateralTypeDto::new)
+                        .map(code ->
+                                new DefineTradeLoanArrangementCommand.CollateralTypeDto(CollateralType.valueOf(code)))
                         .collect(Collectors.toSet()),
                 collateralPolicy.collateralCalculationType());
     }

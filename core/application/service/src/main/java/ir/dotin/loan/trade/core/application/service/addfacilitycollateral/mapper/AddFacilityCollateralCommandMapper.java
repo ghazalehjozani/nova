@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
-import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.CollateralType;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.AddFacilityCollateralCommand;
@@ -22,7 +22,7 @@ public interface AddFacilityCollateralCommandMapper {
         if (dto == null) return null;
 
         CollateralSerial serial = CollateralSerial.of(dto.collateralSerial()).orElseThrow();
-        CollateralType type = CollateralType.of(dto.collateralTypeCode()).orElseThrow();
+        CollateralType type = CollateralType.valueOf(dto.collateralTypeCode().name());
         Money usedAmount = toMoney(dto.usedAmount());
 
         return Collateral.valueOf(type, dto.percent(), dto.description(), serial, usedAmount)

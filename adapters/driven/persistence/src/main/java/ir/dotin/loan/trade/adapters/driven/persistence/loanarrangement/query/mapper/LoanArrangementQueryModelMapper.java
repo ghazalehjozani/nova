@@ -4,8 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityParameterizedFormula;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.entity.TradeLoanArrangementEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.mapper.BaseMapperConfig;
@@ -21,6 +23,10 @@ public abstract class LoanArrangementQueryModelMapper {
     private FormulaFieldMappingService formulaFieldMappingService;
 
     public abstract TradeLoanArrangementQueryDto toQueryModel(TradeLoanArrangementEntity entity);
+
+    @Mapping(target = "code", expression = "java(type.name())")
+    protected abstract TradeLoanArrangementQueryDto.CollateralPolicyEmbDto.CollateralTypeEmbDto mapCollateralType(
+            CollateralType type);
 
     TradeLoanArrangementQueryDto.FormulaDto mapFormula(String formula) {
         LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> deserialized =

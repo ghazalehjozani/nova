@@ -14,6 +14,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import ir.dotin.platform.dispatcher.api.command.Command;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.CollateralCalculationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.InstallmentPaymentType;
@@ -97,7 +98,7 @@ public record DefineTradeLoanArrangementCommand(
             @NotNull @Valid Set<CollateralTypeDto> collateralTypes,
             @NotNull CollateralCalculationType collateralCalculationType) {}
 
-    public record CollateralTypeDto(@NotBlank String code) {}
+    public record CollateralTypeDto(@NotNull @Valid CollateralType type) {}
 
     public record AmountRangeDto(
             @NotNull @Valid AmountDto min, @NotNull @Valid AmountDto max) {}

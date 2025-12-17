@@ -22,7 +22,7 @@ public record AddFacilityCollateralRequest(
 
     @Schema(description = "Collateral details")
     public record CollateralDto(
-            @Schema(description = "Collateral type code", example = "ESTATE_1", required = true)
+            @Schema(description = "Collateral type code", example = "ESTATE", required = true)
             String collateralTypeCode,
 
             @Schema(description = "Collateral percentage", example = "100", required = true)
