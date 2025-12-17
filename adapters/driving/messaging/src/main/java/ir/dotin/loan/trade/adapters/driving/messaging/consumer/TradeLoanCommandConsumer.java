@@ -36,7 +36,7 @@ public class TradeLoanCommandConsumer {
 
     @KafkaListener(
             topics = "corridor.core.loan.nova.full-lifecycle.request.queue.v1",
-            groupId = "trade-loan-command-consumer",
+            groupId = "core.loan.facility.*",
             containerFactory = "kafkaListenerContainerFactory")
     @AsyncListener(
             operation =

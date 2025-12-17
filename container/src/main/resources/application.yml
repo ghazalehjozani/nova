@@ -227,7 +227,7 @@ platform:
     enabled: true
     kafka:
       bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
-      consumer-group-id: ${KAFKA_CONSUMER_GROUP:core.loan.trade-loan}
+      consumer-group-id: ${KAFKA_CONSUMER_GROUP:core.loan.facility.*}
       client-id: trade-loan-client
       security:
         protocol: SASL_PLAINTEXT
