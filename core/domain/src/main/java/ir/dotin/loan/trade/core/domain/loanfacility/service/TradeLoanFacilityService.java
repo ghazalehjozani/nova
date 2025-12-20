@@ -44,7 +44,9 @@ public class TradeLoanFacilityService
     protected boolean canAddCollateral(TradeLoanFacility facility, List<Collateral> collaterals) {
         // Trade loans allow collateral in approved or contract issued states
         var status = facility.getCurrentState();
-        return status == FacilityStatus.APPROVED || status == FacilityStatus.ISSUE_CONTRACT;
+        return status == FacilityStatus.APPROVED
+                || status == FacilityStatus.ISSUE_CONTRACT
+                || status == FacilityStatus.FULLY_DISBURSED;
     }
 
     @Override

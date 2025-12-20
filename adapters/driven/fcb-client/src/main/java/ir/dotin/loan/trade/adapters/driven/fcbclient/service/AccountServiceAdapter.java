@@ -17,6 +17,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Usecases;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.AccountInfoResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.DeleteAccountResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.LoadAccountResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.OpenAccountResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.mapper.LoanMapper;
@@ -254,5 +255,38 @@ public class AccountServiceAdapter implements AccountServicePort {
                 .build());
 
         return parameters;
+    }
+
+    @Override
+    public Result<AccountNumber> validateAccountNumber(String accountNumber) {
+        log.info("Validating account number: {}", accountNumber);
+
+        List<Parameter> parameters = new ArrayList<>();
+        parameters.add(Parameter.builder()
+                .key("accountNumber")
+                .value(accountNumber)
+                .type("constant")
+                .build());
+
+        Usecases usecases = requestBuilder.buildUseCase("load-account-by-account-number-service", parameters);
+        FcbRequest fcbRequest = FcbRequest.builder().usecase(usecases).build();
+
+        Result<LoadAccountResponse> result =
+                fcbService.executeUsecase(fcbRequest, LoadAccountResponse.class, FcbContext.empty());
+
+        if (result.isFailure()) {
+            return Result.failure(result.notification());
+        }
+
+        LoadAccountResponse response = result.value();
+        if (response == null || response.getId() == null) {
+            return Result.failure(
+                    Notification.ofError(FcbBusinessLocalizedMessageCodes.ACCOUNT_NUMBER_NOT_FOUND, accountNumber));
+        }
+
+        AccountNumber validAccountNumber =
+                AccountNumber.of(response.getAccountNumber()).orElseThrow();
+
+        return Result.success(validAccountNumber);
     }
 }

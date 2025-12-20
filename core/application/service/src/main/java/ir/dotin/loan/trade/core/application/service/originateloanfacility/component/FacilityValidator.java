@@ -15,11 +15,13 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.DepositInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.DisburseDestinationDto;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.AccountServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.depositservice.DepositServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.*;
@@ -35,6 +37,7 @@ public class FacilityValidator {
 
     private final DepositServicePort depositServicePort;
     private final LoanServicePort loanServicePort;
+    private final AccountServicePort accountServicePort;
 
     private static final ExecutorService VIRTUAL_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
@@ -43,6 +46,7 @@ public class FacilityValidator {
 
         var futures = List.of(
                 runAsync(() -> validateDeposit(command)),
+                runAsync(() -> validateAccountNumber(command)),
                 runAsync(() -> isDepositClosed(command)),
                 runAsync(() -> validateEconomicalSector(command)),
                 runAsync(() -> validateEconomicalSectionForLoanType(command)),
@@ -266,6 +270,23 @@ public class FacilityValidator {
             String economicSectorCode, LoanTypeCode loanTypeCode) {
         return loanServicePort.validateEconomicalSectorForLoanType(
                 EconomicSector.of(economicSectorCode).getValue(), loanTypeCode);
+    }
+
+    private Result<Void> validateAccountNumber(OriginateLoanFacilityCommand command) {
+        DisburseDestinationDto disburseDestination = command.loanApplication().disburseDestination();
+
+        return switch (disburseDestination) {
+            case DisburseDestinationDto.AccountDestinationDto(var accountNumber) -> {
+                Result<AccountNumber> result = accountServicePort.validateAccountNumber(accountNumber);
+
+                if (result.isFailure()) {
+                    yield Result.failure(Notification.ofError(
+                            OriginateLoanFacilityErrorCodes.INVALID_ACCOUNT_NUMBER, accountNumber));
+                }
+                yield Result.success();
+            }
+            case DisburseDestinationDto.DepositDestinationDto(var ignored) -> Result.success();
+        };
     }
 
     // TODO reasonType service must change load-reason-type
