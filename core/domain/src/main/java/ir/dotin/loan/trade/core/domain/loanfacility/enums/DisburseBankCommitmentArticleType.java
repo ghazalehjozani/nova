@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.core.domain.loanfacility.enums;
 
 import org.jspecify.annotations.NonNull;
 
+import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.Direction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
@@ -21,5 +22,10 @@ public enum DisburseBankCommitmentArticleType
     @NonNull
     public TradeRelationType getRelationType() {
         return relationType;
+    }
+
+    @Override
+    public Direction getDirection() {
+        return relationType.getDirection().reversed();
     }
 }
