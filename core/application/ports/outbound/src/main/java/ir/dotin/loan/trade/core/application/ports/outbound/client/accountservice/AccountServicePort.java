@@ -16,4 +16,6 @@ public interface AccountServicePort {
     Result<AccountId> openAccount(CreateAccountInfo createAccountInfo);
 
     Result<AccountNumber> deleteAccount(UUID transactionId, UUID rollBackId, AccountNumber accountNumber);
+
+    Result<AccountNumber> validateAccountNumber(String accountNumber);
 }
