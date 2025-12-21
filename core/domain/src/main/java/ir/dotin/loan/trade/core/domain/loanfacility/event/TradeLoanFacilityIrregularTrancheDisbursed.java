@@ -61,7 +61,7 @@ public record TradeLoanFacilityIrregularTrancheDisbursed(
                 TradeLoanFacilityEventType.IRREGULAR_TRANCHE_DISBURSED.getFullType(),
                 sanctionedLoanId.value(),
                 trxNumbers,
-                trancheAmount.toString(),
+                trancheAmount.value().toPlainString(),
                 totalDisbursed,
                 remainingCapacity,
                 trancheNumber,
