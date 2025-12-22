@@ -1,12 +1,20 @@
-# OpenAPI Documentation
+# Trade Loan API Documentation
 
 ## Overview
 
-This directory contains the OpenAPI 3.x specification for the Trade Loan Service API. The specification was extracted from the running service at `http://localhost:8080/v3/api-docs`.
+This document contains the OpenAPI 3.1 specification for the Trade Loan Service, a microservice that manages Morabehe (Trade) loans within the enterprise loan management system.
+
+## Service Details
+
+- **Service Name**: trade-loan-service
+- **Version**: 1.0.0
+- **Base URL**: http://127.0.0.1:8080
+- **Authentication**: Bearer JWT (OAuth 2.0)
 
 ## Files
 
-- `openapi.yaml` - Complete OpenAPI 3.x specification with dereferenced components
+- `openapi.yaml` - Complete OpenAPI 3.1 specification with dereferenced components
+- `openapi.json` - OpenAPI specification in JSON format
 - `README.md` - This file
 
 ## Accessing the API

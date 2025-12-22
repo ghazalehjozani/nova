@@ -12,6 +12,7 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentScheduleCreationContext;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentSpec;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.service.validator.LoanFacilityInstallmentAmountValidator;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
@@ -32,6 +33,7 @@ public class GradualScheduleStrategy implements InstallmentScheduleStrategy {
 
     private final TradeRepaymentSchedulingService schedulingService;
     private final InstallmentSchedulePlanMapper installmentSchedulePlanMapper;
+    private final LoanFacilityInstallmentAmountValidator installmentAmountValidator;
     private final Clock clock;
 
     @Override
@@ -49,7 +51,13 @@ public class GradualScheduleStrategy implements InstallmentScheduleStrategy {
         }
 
         return planInstallmentSchedule(command.installmentSchedulePlan(), application, context, facilityId)
-                .map(Optional::of);
+                .flatMap(schedule -> {
+                    Result<Void> validationResult = installmentAmountValidator.validate(application, schedule);
+                    if (validationResult.isFailure()) {
+                        return Result.failure(validationResult.notification());
+                    }
+                    return Result.success(Optional.of(schedule));
+                });
     }
 
     @Override

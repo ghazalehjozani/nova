@@ -1,6 +1,22 @@
-# AsyncAPI Documentation
+# Trade Loan AsyncAPI Documentation
 
-This directory contains AsyncAPI 3.0 specifications for the trade-loan microservice asynchronous messaging and event-driven architecture.
+## Overview
+
+This document contains the AsyncAPI 3.0 specification for the Trade Loan Service's asynchronous messaging and event-driven architecture. The specification was extracted from the running service using SpringWolf.
+
+## Service Details
+
+- **Service Name**: trade-loan-service
+- **Version**: 1.0.0
+- **AsyncAPI Version**: 3.0.0
+- **Message Protocol**: Apache Kafka
+- **Default Content Type**: application/json
+- **Server**: localhost:9092
+
+## Files
+
+- `asyncapi.yaml` - Complete AsyncAPI 3.0 specification with all channels and messages
+- `README.md` - This file
 
 ## AsyncAPI Standards
 
@@ -12,29 +28,41 @@ This project follows these AsyncAPI standards:
 - **Protocol**: Apache Kafka for event streaming
 - **Serialization**: JSON with Avro schema evolution
 
-## Files Structure
+## Accessing the AsyncAPI Documentation
+
+### SpringWolf UI
+- **AsyncAPI UI**: `http://localhost:8080/springwolf/docs.html`
+- **AsyncAPI YAML**: `http://localhost:8080/springwolf/docs.yaml`
+- **AsyncAPI JSON**: `http://localhost:8080/springwolf/docs.json`
+
+### Kafka Server Configuration
+- **Bootstrap Servers**: localhost:9092
+- **Protocol**: kafka
+- **Binding Version**: 0.5.0
+
+### Message Channels
+
+The service defines Kafka channels for:
+
+1. **Full Lifecycle Processing** - `corridor.core.loan.nova.full-lifecycle.request.queue.v1`
+2. **Customer Integration** - `corridor.core.loan.customer.integration.request.queue.v1`
+3. **Disbursement Operations** - Various disbursement request queues
+4. **Response Channels** - Corresponding response queues for each operation
+
+### Message Headers
+
+All messages include standardized headers:
+- `Accept-Language`: Preferred language (string)
+- `Authorization`: Bearer token authentication
+- `X-Correlation-ID`: Request correlation identifier
+- `X-Request-DateTime`: Request timestamp (UTC, ISO 8601)
+- `Idempotency-Key`: UUID for idempotent processing
+
+## Current Files Structure
 
 ```
 asyncapi/
-├── asyncapi.yaml                 # Main AsyncAPI specification
-├── channels/                     # Channel definitions
-│   ├── loan-events.yaml          # Loan lifecycle events
-│   ├── payment-events.yaml       # Payment processing events
-│   ├── audit-events.yaml         # Audit and compliance events
-│   └── notification-events.yaml  # User notification events
-├── messages/                     # Message schemas
-│   ├── commands.yaml             # Command messages
-│   ├── events.yaml               # Event messages
-│   ├── queries.yaml              # Query messages
-│   └── responses.yaml            # Response messages
-├── schemas/                      # JSON/Avro schemas
-│   ├── loan-schemas.json         # Loan-related schemas
-│   ├── payment-schemas.json      # Payment-related schemas
-│   └── common-schemas.json       # Shared schemas
-├── examples/                     # Message examples
-│   ├── commands/                 # Command examples
-│   ├── events/                   # Event examples
-│   └── integration/              # Integration test examples
+├── asyncapi.yaml                 # Main AsyncAPI 3.0 specification (extracted)
 └── README.md                     # This file
 ```
 
@@ -232,3 +260,29 @@ channels:
 3. **Use Meaningful Names**: Clear, descriptive message and topic names
 4. **Document Everything**: Maintain comprehensive AsyncAPI documentation
 5. **Version Carefully**: Plan for schema evolution from the start
+
+## Regeneration
+
+To regenerate this specification:
+
+```bash
+# Download the AsyncAPI specification
+curl -s http://localhost:8080/springwolf/docs.yaml \
+  -o documents/asyncapi/asyncapi.yaml
+
+# Or in JSON format
+curl -s http://localhost:8080/springwolf/docs.json \
+  -o documents/asyncapi/asyncapi.json
+```
+
+## Validation
+
+```bash
+# Validate AsyncAPI specification
+npx -y @asyncapi/cli validate documents/asyncapi/asyncapi.yaml
+
+# Generate HTML documentation
+npx -y @asyncapi/cli generate from-file documents/asyncapi/asyncapi.yaml \
+  --param htmlTemplate=single-page \
+  -o documents/asyncapi/index.html
+```
