@@ -1,0 +1,494 @@
+asyncapi: 3.0.0
+info:
+  title: trade-loan-service
+  version: 1.0.0
+  x-generator: springwolf
+defaultContentType: application/json
+servers:
+  kafka-server:
+    host: localhost:9092
+    protocol: kafka
+channels:
+  corridor.core.loan.nova.full-lifecycle.request.queue.v1:
+    address: corridor.core.loan.nova.full-lifecycle.request.queue.v1
+    messages:
+      ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage:
+        $ref: "#/components/messages/ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage"
+      java.lang.String:
+        $ref: "#/components/messages/java.lang.String"
+    bindings:
+      kafka:
+        bindingVersion: 0.5.0
+components:
+  schemas:
+    CommandHeaders:
+      title: CommandHeaders
+      type: object
+      properties:
+        Accept-Language:
+          type: string
+          description: Preferred language
+          enum:
+            - string
+          examples:
+            - string
+        Authorization:
+          type: string
+          description: Bearer token for authentication
+          enum:
+            - Base64 string
+          examples:
+            - Base64 string
+        Idempotency-Key:
+          type: string
+          description: Unique identifier for idempotency
+          enum:
+            - Base64 string (UUID)
+          examples:
+            - Base64 string (UUID)
+        X-Request-DateTime:
+          type: string
+          description: Request timestamp
+          enum:
+            - Base64 string (ISO-8601)
+          examples:
+            - Base64 string (ISO-8601)
+        X-Request-ID:
+          type: string
+          description: Unique identifier for request
+          enum:
+            - Base64 string (UUID)
+          examples:
+            - Base64 string (UUID)
+        X-Response-Topic:
+          type: string
+          description: Topic for async response
+          enum:
+            - Base64 string
+          examples:
+            - Base64 string
+      examples:
+        - Accept-Language: string
+          Authorization: Base64 string
+          Idempotency-Key: Base64 string (UUID)
+          X-Request-DateTime: Base64 string (ISO-8601)
+          X-Request-ID: Base64 string (UUID)
+          X-Response-Topic: Base64 string
+    SpringKafkaDefaultHeaders-string-698501698:
+      title: SpringKafkaDefaultHeaders-string-698501698
+      type: object
+      properties:
+        __TypeId__:
+          type: string
+          description: Spring Type Id Header
+          enum:
+            - java.lang.String
+          examples:
+            - java.lang.String
+        kafka_receivedTopic:
+          type: string
+          examples:
+            - '"string"'
+      examples:
+        - __TypeId__: java.lang.String
+          kafka_receivedTopic: string
+    ir.dotin.loan.trade.adapters.driving.messaging.dto.DisburseDestinationRequestDto:
+      discriminator: type
+      title: DisburseDestinationRequestDto
+      type: object
+      properties:
+        type:
+          type: string
+      examples:
+        - type: string
+      required:
+        - type
+    ir.dotin.loan.trade.adapters.driving.messaging.dto.DisburseDestinationRequestDto.AccountDestinationDto:
+      type: object
+      examples:
+        - accountNumber: string
+          type: string
+      allOf:
+        - $ref: "#/components/schemas/ir.dotin.loan.trade.adapters.driving.messaging.dto.DisburseDestinationRequestDto"
+        - type: object
+          properties:
+            accountNumber:
+              type: string
+    ir.dotin.loan.trade.adapters.driving.messaging.dto.DisburseDestinationRequestDto.DepositDestinationDto:
+      type: object
+      examples:
+        - depositNumber: string
+          type: string
+      allOf:
+        - $ref: "#/components/schemas/ir.dotin.loan.trade.adapters.driving.messaging.dto.DisburseDestinationRequestDto"
+        - type: object
+          properties:
+            depositNumber:
+              type: string
+    ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage:
+      title: FullLoanFacilityLifecycleMessage
+      type: object
+      properties:
+        collaterals:
+          type: array
+          items:
+            $ref: "#/components/schemas/ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.CollateralDto"
+        confirmType:
+          type: string
+        disbursement:
+          $ref: "#/components/schemas/ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.DisbursementDto"
+        installmentSchedulePlan:
+          $ref: "#/components/schemas/ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.InstallmentSchedulePlanDto"
+        loanApplication:
+          $ref: "#/components/schemas/ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.LoanApplicationDto"
+        loanArrangementCode:
+          type: string
+        loanTypeCode:
+          type: string
+        metadata:
+          type: object
+          additionalProperties:
+            type: object
+        version:
+          type: integer
+          format: int64
+      examples:
+        - collaterals:
+            - collateralSerial: string
+              collateralTypeCode: string
+              description: string
+              percent: 0
+              usedAmount:
+                currency: string
+                value: 1.1
+          confirmType: string
+          disbursement:
+            disbursementDate: 2015-07-20
+            trancheAmount: 1.1
+          installmentSchedulePlan:
+            installments:
+              - dueDate: 2015-07-20T15:49:04-07:00
+                interestAmount: 1.1
+                principalAmount: 1.1
+                sequenceNumber: 0
+          loanApplication:
+            applicantChannel: INTERNET_BANK
+            applicationNumber: string
+            branchCode: string
+            credibilityRank: string
+            currency: string
+            description: string
+            disburseDestination:
+              accountNumber: string
+              type: string
+            disbursementMethod: LUMP_SUM
+            economicSectorCode: string
+            gracePeriodDays: 0
+            installmentCount: 0
+            parties:
+              - customerNumber: string
+                role: string
+            requestDate: 2015-07-20T15:49:04-07:00
+            requestReason:
+              code: string
+            requestedAmount: 1.1
+            requestedLoanDurationMonths: 0
+            samat:
+              consumptionPlaceCode: string
+              exceptionCode: string
+              isicEconomicSector: string
+              subIsicEconomicSector: string
+              trackingNumber: string
+              useType: string
+            subSourceCode: string
+          loanArrangementCode: string
+          loanTypeCode: string
+          metadata:
+            key: {}
+          version: 0
+    ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.CollateralDto:
+      title: CollateralDto
+      type: object
+      properties:
+        collateralSerial:
+          type: string
+        collateralTypeCode:
+          type: string
+        description:
+          type: string
+        percent:
+          type: integer
+          format: int32
+        usedAmount:
+          $ref: "#/components/schemas/ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.MoneyDto"
+      examples:
+        - collateralSerial: string
+          collateralTypeCode: string
+          description: string
+          percent: 0
+          usedAmount:
+            currency: string
+            value: 1.1
+    ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.DisbursementDto:
+      title: DisbursementDto
+      type: object
+      properties:
+        disbursementDate:
+          type: string
+          format: date
+        trancheAmount:
+          type: number
+      examples:
+        - disbursementDate: 2015-07-20
+          trancheAmount: 1.1
+    ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.InstallmentSchedulePlanDto:
+      title: InstallmentSchedulePlanDto
+      type: object
+      properties:
+        installments:
+          type: array
+          items:
+            $ref: "#/components/schemas/ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.InstallmentSpecDto"
+      examples:
+        - installments:
+            - dueDate: 2015-07-20T15:49:04-07:00
+              interestAmount: 1.1
+              principalAmount: 1.1
+              sequenceNumber: 0
+    ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.InstallmentSpecDto:
+      title: InstallmentSpecDto
+      type: object
+      properties:
+        dueDate:
+          type: string
+          format: date-time
+        interestAmount:
+          type: number
+        principalAmount:
+          type: number
+        sequenceNumber:
+          type: integer
+          format: int32
+      examples:
+        - dueDate: 2015-07-20T15:49:04-07:00
+          interestAmount: 1.1
+          principalAmount: 1.1
+          sequenceNumber: 0
+    ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.LoanApplicationDto:
+      title: LoanApplicationDto
+      type: object
+      properties:
+        applicantChannel:
+          type: string
+          enum:
+            - INTERNET_BANK
+            - DIGITAL_BANK
+        applicationNumber:
+          type: string
+        branchCode:
+          type: string
+        credibilityRank:
+          type: string
+        currency:
+          type: string
+        description:
+          type: string
+        disburseDestination:
+          oneOf:
+            - $ref: "#/components/schemas/ir.dotin.loan.trade.adapters.driving.messaging.dto.DisburseDestinationRequestDto.AccountDestinationDto"
+            - $ref: "#/components/schemas/ir.dotin.loan.trade.adapters.driving.messaging.dto.DisburseDestinationRequestDto.DepositDestinationDto"
+        disbursementMethod:
+          type: string
+          enum:
+            - LUMP_SUM
+            - REGULAR_PROGRESSIVE
+            - IRREGULAR_PROGRESSIVE
+        economicSectorCode:
+          type: string
+        gracePeriodDays:
+          type: integer
+          format: int32
+        installmentCount:
+          type: integer
+          format: int32
+        parties:
+          type: array
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/ir.dotin.loan.trade.adapters.driving.messaging.dto.PartyRequestDto.ApplicantDto"
+              - $ref: "#/components/schemas/ir.dotin.loan.trade.adapters.driving.messaging.dto.PartyRequestDto.CoApplicantDto"
+              - $ref: "#/components/schemas/ir.dotin.loan.trade.adapters.driving.messaging.dto.PartyRequestDto.GuarantorDto"
+          uniqueItems: true
+        requestDate:
+          type: string
+          format: date-time
+        requestReason:
+          $ref: "#/components/schemas/ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.RequestReasonDto"
+        requestedAmount:
+          type: number
+        requestedLoanDurationMonths:
+          type: integer
+          format: int32
+        samat:
+          $ref: "#/components/schemas/ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.SamatDto"
+        subSourceCode:
+          type: string
+      examples:
+        - applicantChannel: INTERNET_BANK
+          applicationNumber: string
+          branchCode: string
+          credibilityRank: string
+          currency: string
+          description: string
+          disburseDestination:
+            accountNumber: string
+            type: string
+          disbursementMethod: LUMP_SUM
+          economicSectorCode: string
+          gracePeriodDays: 0
+          installmentCount: 0
+          parties:
+            - customerNumber: string
+              role: string
+          requestDate: 2015-07-20T15:49:04-07:00
+          requestReason:
+            code: string
+          requestedAmount: 1.1
+          requestedLoanDurationMonths: 0
+          samat:
+            consumptionPlaceCode: string
+            exceptionCode: string
+            isicEconomicSector: string
+            subIsicEconomicSector: string
+            trackingNumber: string
+            useType: string
+          subSourceCode: string
+    ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.MoneyDto:
+      title: MoneyDto
+      type: object
+      properties:
+        currency:
+          type: string
+        value:
+          type: number
+      examples:
+        - currency: string
+          value: 1.1
+    ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.RequestReasonDto:
+      title: RequestReasonDto
+      type: object
+      properties:
+        code:
+          type: string
+      examples:
+        - code: string
+    ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.SamatDto:
+      title: SamatDto
+      type: object
+      properties:
+        consumptionPlaceCode:
+          type: string
+        exceptionCode:
+          type: string
+        isicEconomicSector:
+          type: string
+        subIsicEconomicSector:
+          type: string
+        trackingNumber:
+          type: string
+        useType:
+          type: string
+      examples:
+        - consumptionPlaceCode: string
+          exceptionCode: string
+          isicEconomicSector: string
+          subIsicEconomicSector: string
+          trackingNumber: string
+          useType: string
+    ir.dotin.loan.trade.adapters.driving.messaging.dto.PartyRequestDto:
+      discriminator: role
+      title: PartyRequestDto
+      type: object
+      properties:
+        role:
+          type: string
+      examples:
+        - role: string
+      required:
+        - role
+    ir.dotin.loan.trade.adapters.driving.messaging.dto.PartyRequestDto.ApplicantDto:
+      type: object
+      examples:
+        - customerNumber: string
+          role: string
+      allOf:
+        - $ref: "#/components/schemas/ir.dotin.loan.trade.adapters.driving.messaging.dto.PartyRequestDto"
+        - type: object
+          properties:
+            customerNumber:
+              type: string
+    ir.dotin.loan.trade.adapters.driving.messaging.dto.PartyRequestDto.CoApplicantDto:
+      type: object
+      examples:
+        - customerNumber: string
+          role: string
+      allOf:
+        - $ref: "#/components/schemas/ir.dotin.loan.trade.adapters.driving.messaging.dto.PartyRequestDto"
+        - type: object
+          properties:
+            customerNumber:
+              type: string
+    ir.dotin.loan.trade.adapters.driving.messaging.dto.PartyRequestDto.GuarantorDto:
+      type: object
+      examples:
+        - customerNumber: string
+          guaranteePercentage: 1.1
+          role: string
+      allOf:
+        - $ref: "#/components/schemas/ir.dotin.loan.trade.adapters.driving.messaging.dto.PartyRequestDto"
+        - type: object
+          properties:
+            customerNumber:
+              type: string
+            guaranteePercentage:
+              type: number
+    java.lang.String:
+      type: string
+      examples:
+        - '"string"'
+  messages:
+    ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage:
+      headers:
+        $ref: "#/components/schemas/CommandHeaders"
+      payload:
+        schemaFormat: application/vnd.aai.asyncapi+json;version=3.0.0
+        schema:
+          $ref: "#/components/schemas/ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage"
+      name: ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage
+      title: FullLoanFacilityLifecycleMessage
+      bindings: {}
+    java.lang.String:
+      headers:
+        $ref: "#/components/schemas/SpringKafkaDefaultHeaders-string-698501698"
+      payload:
+        schemaFormat: application/vnd.aai.asyncapi+json;version=3.0.0
+        schema:
+          type: string
+          examples:
+            - '"string"'
+      name: java.lang.String
+      title: string
+      bindings:
+        kafka:
+          bindingVersion: 0.5.0
+operations:
+  corridor.core.loan.nova.full-lifecycle.request.queue.v1_receive_consume:
+    action: receive
+    channel:
+      $ref: "#/channels/corridor.core.loan.nova.full-lifecycle.request.queue.v1"
+    title: corridor.core.loan.nova.full-lifecycle.request.queue.v1_receive
+    description: Process nova loan full lifecycle commands
+    bindings: {}
+    messages:
+      - $ref: "#/channels/corridor.core.loan.nova.full-lifecycle.request.queue.v1/messages/ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage"
+      - $ref: "#/channels/corridor.core.loan.nova.full-lifecycle.request.queue.v1/messages/java.lang.String"
