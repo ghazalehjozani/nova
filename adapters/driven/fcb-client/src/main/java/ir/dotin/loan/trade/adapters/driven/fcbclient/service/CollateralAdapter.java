@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -140,8 +141,11 @@ public class CollateralAdapter implements CollateralServicePort {
         String costsValue = usedCosts.stream().map(String::valueOf).collect(Collectors.joining(PARAMETER_SEPARATOR));
         parameters.add(Parameter.builder().key("usedCost").value(costsValue).build());
 
+        String repeatedBranchCode = Collections.nCopies(assuranceSerials.size(), branchCode.value()).stream()
+                .collect(Collectors.joining(PARAMETER_SEPARATOR));
+
         parameters.add(
-                Parameter.builder().key("branchCode").value(branchCode.value()).build());
+                Parameter.builder().key("branchCode").value(repeatedBranchCode).build());
 
         log.debug("Built assurance parameters - serials: {}, costs: {}", serialsValue, costsValue);
 
@@ -213,7 +217,7 @@ public class CollateralAdapter implements CollateralServicePort {
                         .build(),
                 Parameter.builder()
                         .key("transactionId")
-                        .value(requestId.toString())
+                        .value(UUID.randomUUID().toString())
                         .build(),
                 Parameter.builder()
                         .key("reserveDurationMin")
