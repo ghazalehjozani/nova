@@ -354,6 +354,7 @@ platform:
       public-paths:
         - /actuator/health
         - /actuator/prometheus
+        - /actuator/metrics
         - /actuator/health/liveness
         - /actuator/health/readiness
         - /actuator/info
@@ -367,12 +368,12 @@ platform:
       require-authentication-by-default: true
     audit:
       enabled: true
-      log-authentication-success: true
-      log-authentication-failure: true
-      log-access-denied: true
-      log-token-acquisition: true
-      log-token-validation: true
-      log-banking-context: true
+      log-authentication-success: false
+      log-authentication-failure: false
+      log-access-denied: false
+      log-token-acquisition: false
+      log-token-validation: false
+      log-banking-context: false
       slow-request-threshold-ms: 1000
       sensitive-headers:
         - Authorization
