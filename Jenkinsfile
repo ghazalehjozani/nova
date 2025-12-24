@@ -134,7 +134,7 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-            when { expression { shouldRunQualityStage() } }
+            when { expression { isQualityBranch() } }
             environment {
                 SONAR_TOKEN = credentials('SONAR_TOKEN_TRADE_LOAN')
             }
