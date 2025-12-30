@@ -1,0 +1,74 @@
+@startuml
+set separator none
+title Trade Loan Service - Trade Loan Application - Components
+
+top to bottom direction
+
+skinparam {
+  arrowFontSize 10
+  defaultTextAlignment center
+  wrapWidth 200
+  maxMessageSize 100
+}
+
+hide stereotype
+
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.AccountServiceAdapter>> {
+  BackgroundColor #ec407a
+  FontColor #ffffff
+  BorderColor #a52c55
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.CollateralAdapter>> {
+  BackgroundColor #ec407a
+  FontColor #ffffff
+  BorderColor #a52c55
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.CustomerServiceAdapter>> {
+  BackgroundColor #ec407a
+  FontColor #ffffff
+  BorderColor #a52c55
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.DepositServiceAdapter>> {
+  BackgroundColor #ec407a
+  FontColor #ffffff
+  BorderColor #a52c55
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.FcbServiceImpl>> {
+  BackgroundColor #ec407a
+  FontColor #ffffff
+  BorderColor #a52c55
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.LoanServiceAdapter>> {
+  BackgroundColor #ec407a
+  FontColor #ffffff
+  BorderColor #a52c55
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.TransactionPostingAdapter>> {
+  BackgroundColor #ec407a
+  FontColor #ffffff
+  BorderColor #a52c55
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
+  BorderColor #2e6295
+  FontColor #2e6295
+  shadowing false
+}
+
+rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>" <<TradeLoanService.TradeLoanApplication>> {
+  rectangle "==AccountServiceAdapter\n<size:10>[Component: Spring WebClient]</size>\n\naccount service client" <<TradeLoanService.TradeLoanApplication.AccountServiceAdapter>> as TradeLoanService.TradeLoanApplication.AccountServiceAdapter
+  rectangle "==CollateralAdapter\n<size:10>[Component: Spring WebClient]</size>\n\ncollateral client" <<TradeLoanService.TradeLoanApplication.CollateralAdapter>> as TradeLoanService.TradeLoanApplication.CollateralAdapter
+  rectangle "==CustomerServiceAdapter\n<size:10>[Component: Spring WebClient]</size>\n\ncustomer service client" <<TradeLoanService.TradeLoanApplication.CustomerServiceAdapter>> as TradeLoanService.TradeLoanApplication.CustomerServiceAdapter
+  rectangle "==DepositServiceAdapter\n<size:10>[Component: Spring WebClient]</size>\n\ndeposit service client" <<TradeLoanService.TradeLoanApplication.DepositServiceAdapter>> as TradeLoanService.TradeLoanApplication.DepositServiceAdapter
+  rectangle "==FcbServiceImpl\n<size:10>[Component: Spring WebClient]</size>\n\nfcb client" <<TradeLoanService.TradeLoanApplication.FcbServiceImpl>> as TradeLoanService.TradeLoanApplication.FcbServiceImpl
+  rectangle "==LoanServiceAdapter\n<size:10>[Component: Spring WebClient]</size>\n\nloan service client" <<TradeLoanService.TradeLoanApplication.LoanServiceAdapter>> as TradeLoanService.TradeLoanApplication.LoanServiceAdapter
+  rectangle "==TransactionPostingAdapter\n<size:10>[Component: Spring WebClient]</size>\n\ntransaction posting client" <<TradeLoanService.TradeLoanApplication.TransactionPostingAdapter>> as TradeLoanService.TradeLoanApplication.TransactionPostingAdapter
+}
+
+@enduml

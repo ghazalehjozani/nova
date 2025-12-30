@@ -1,0 +1,37 @@
+digraph {
+  compound=true
+  graph [fontname="Arial", rankdir=TB, ranksep=1.0, nodesep=1.0]
+  node [fontname="Arial", shape=box, margin="0.4,0.3"]
+  edge [fontname="Arial"]
+  label=<<br /><font point-size="34">Trade Loan Service - System Context</font><br /><font point-size="24">System context showing Trade Loan Service and external dependencies</font>>
+
+  1 [id=1,shape=rect, label=<<font point-size="34">TPS SSO</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">OAuth2/OIDC provider</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
+  10 [id=10,shape=rect, label=<<font point-size="34">Trade Loan Service</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Morabehe loans with CQRS and<br />Event Sourcing</font>>, style=filled, color="#0b4884", fillcolor="#1168bd", fontcolor="#ffffff"]
+  2 [id=2,shape=rect, label=<<font point-size="34">FCB Core Banking</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Core Banking</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
+  3 [id=3,shape=rect, label=<<font point-size="34">OpenTelemetry<br />Collector</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Observability backend</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
+  38 [id=38,shape=rect, label=<<font point-size="34">Loan Officer</font><br /><font point-size="19">[Person]</font><br /><br /><font point-size="24">Bank staff managing loans</font>>, style=filled, color="#052e56", fillcolor="#08427b", fontcolor="#ffffff"]
+  4 [id=4,shape=rect, label=<<font point-size="34">Account Service</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Account management</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
+  41 [id=41,shape=rect, label=<<font point-size="34">Branch Manager</font><br /><font point-size="19">[Person]</font><br /><br /><font point-size="24">Branch level approval<br />authority</font>>, style=filled, color="#052e56", fillcolor="#08427b", fontcolor="#ffffff"]
+  44 [id=44,shape=rect, label=<<font point-size="34">System<br />Administrator</font><br /><font point-size="19">[Person]</font><br /><br /><font point-size="24">Technical staff</font>>, style=filled, color="#402a4d", fillcolor="#5c3d6e", fontcolor="#ffffff"]
+  49 [id=49,shape=rect, label=<<font point-size="34">Customer</font><br /><font point-size="19">[Person]</font><br /><br /><font point-size="24">End users</font>>, style=filled, color="#474747", fillcolor="#666666", fontcolor="#ffffff"]
+  5 [id=5,shape=rect, label=<<font point-size="34">Customer Service</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Customer data</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
+  6 [id=6,shape=rect, label=<<font point-size="34">Deposit Service</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Deposit operations</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
+  7 [id=7,shape=rect, label=<<font point-size="34">Collateral Service</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Collateral management</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
+  8 [id=8,shape=rect, label=<<font point-size="34">Loan Service</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Cross-loan operations</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
+  9 [id=9,shape=rect, label=<<font point-size="34">Formula Evaluator<br />Service</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Formula calculation</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
+
+  10 -> 2 [id=168, label=<<font point-size="24">Calls</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  10 -> 1 [id=20, label=<<font point-size="24">Authenticates</font><br /><font point-size="19">[OAuth2/OIDC]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  10 -> 2 [id=22, label=<<font point-size="24">Core banking</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  10 -> 3 [id=24, label=<<font point-size="24">Telemetry</font><br /><font point-size="19">[OTLP/gRPC]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  10 -> 4 [id=26, label=<<font point-size="24">Calls</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  10 -> 5 [id=28, label=<<font point-size="24">Calls</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  10 -> 6 [id=30, label=<<font point-size="24">Calls</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  10 -> 7 [id=32, label=<<font point-size="24">Calls</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  10 -> 8 [id=34, label=<<font point-size="24">Calls</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  10 -> 9 [id=36, label=<<font point-size="24">Calls</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  38 -> 10 [id=40, label=<<font point-size="24">Creates and manages loans</font><br /><font point-size="19">[HTTPS/JWT]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  41 -> 10 [id=43, label=<<font point-size="24">Approves facilities</font><br /><font point-size="19">[HTTPS/JWT]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  44 -> 10 [id=46, label=<<font point-size="24">Monitors system</font><br /><font point-size="19">[HTTPS/JWT]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  44 -> 10 [id=48, label=<<font point-size="24">Monitors Kafka</font><br /><font point-size="19">[HTTP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+}

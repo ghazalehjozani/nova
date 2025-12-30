@@ -1,0 +1,151 @@
+@startuml
+set separator none
+title Trade Loan Service - Trade Loan Application - Components
+
+top to bottom direction
+
+skinparam {
+  arrowFontSize 10
+  defaultTextAlignment center
+  wrapWidth 200
+  maxMessageSize 100
+}
+
+hide stereotype
+
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.FacilityQueryController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.FindAllLoanArrangementsQueryHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.FindAllLoanFacilitiesQueryHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.FindAllLoanTypesQueryHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.GetFacilityByIdQueryHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.GetInstallmentScheduleByIdQueryHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.GetLoanArrangementByIdQueryHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.GetLoanTypeByIdQueryHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.InstallmentScheduleQueryController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam database<<TradeLoanService.TradeLoanApplication.JpaFacilityQueryAdapter>> {
+  BackgroundColor #5c6bc0
+  FontColor #ffffff
+  BorderColor #404a86
+  shadowing false
+}
+skinparam database<<TradeLoanService.TradeLoanApplication.JpaTradeInstallmentScheduleQueryAdapter>> {
+  BackgroundColor #5c6bc0
+  FontColor #ffffff
+  BorderColor #404a86
+  shadowing false
+}
+skinparam database<<TradeLoanService.TradeLoanApplication.JpaTradeLoanArrangementQueryAdapter>> {
+  BackgroundColor #5c6bc0
+  FontColor #ffffff
+  BorderColor #404a86
+  shadowing false
+}
+skinparam database<<TradeLoanService.TradeLoanApplication.JpaTradeLoanTypeQueryAdapter>> {
+  BackgroundColor #5c6bc0
+  FontColor #ffffff
+  BorderColor #404a86
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.LoanArrangementQueryController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.LoanTypeArrangementFilterQueryHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.LoanTypeFilterQueryHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.LoanTypeQueryController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.SearchLoanFacilitiesQueryHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
+  BorderColor #2e6295
+  FontColor #2e6295
+  shadowing false
+}
+
+rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>" <<TradeLoanService.TradeLoanApplication>> {
+  rectangle "==GetFacilityByIdQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles get facility by id queries" <<TradeLoanService.TradeLoanApplication.GetFacilityByIdQueryHandler>> as TradeLoanService.TradeLoanApplication.GetFacilityByIdQueryHandler
+  rectangle "==SearchLoanFacilitiesQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles search loan facilities queries" <<TradeLoanService.TradeLoanApplication.SearchLoanFacilitiesQueryHandler>> as TradeLoanService.TradeLoanApplication.SearchLoanFacilitiesQueryHandler
+  rectangle "==FindAllLoanTypesQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles find all loan types queries" <<TradeLoanService.TradeLoanApplication.FindAllLoanTypesQueryHandler>> as TradeLoanService.TradeLoanApplication.FindAllLoanTypesQueryHandler
+  rectangle "==GetLoanTypeByIdQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles get loan type by id queries" <<TradeLoanService.TradeLoanApplication.GetLoanTypeByIdQueryHandler>> as TradeLoanService.TradeLoanApplication.GetLoanTypeByIdQueryHandler
+  rectangle "==LoanTypeFilterQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles loan type filter queries" <<TradeLoanService.TradeLoanApplication.LoanTypeFilterQueryHandler>> as TradeLoanService.TradeLoanApplication.LoanTypeFilterQueryHandler
+  database "==JpaTradeInstallmentScheduleQueryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nTradeInstallmentSchedule query adapter" <<TradeLoanService.TradeLoanApplication.JpaTradeInstallmentScheduleQueryAdapter>> as TradeLoanService.TradeLoanApplication.JpaTradeInstallmentScheduleQueryAdapter
+  database "==JpaTradeLoanArrangementQueryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nTradeLoanArrangement query adapter" <<TradeLoanService.TradeLoanApplication.JpaTradeLoanArrangementQueryAdapter>> as TradeLoanService.TradeLoanApplication.JpaTradeLoanArrangementQueryAdapter
+  database "==JpaFacilityQueryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nFacility query adapter" <<TradeLoanService.TradeLoanApplication.JpaFacilityQueryAdapter>> as TradeLoanService.TradeLoanApplication.JpaFacilityQueryAdapter
+  database "==JpaTradeLoanTypeQueryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nTradeLoanType query adapter" <<TradeLoanService.TradeLoanApplication.JpaTradeLoanTypeQueryAdapter>> as TradeLoanService.TradeLoanApplication.JpaTradeLoanTypeQueryAdapter
+  rectangle "==InstallmentScheduleQueryController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/installment-schedules" <<TradeLoanService.TradeLoanApplication.InstallmentScheduleQueryController>> as TradeLoanService.TradeLoanApplication.InstallmentScheduleQueryController
+  rectangle "==LoanArrangementQueryController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/loan-arrangements" <<TradeLoanService.TradeLoanApplication.LoanArrangementQueryController>> as TradeLoanService.TradeLoanApplication.LoanArrangementQueryController
+  rectangle "==FacilityQueryController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/loan-facilities" <<TradeLoanService.TradeLoanApplication.FacilityQueryController>> as TradeLoanService.TradeLoanApplication.FacilityQueryController
+  rectangle "==LoanTypeQueryController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/loan-types" <<TradeLoanService.TradeLoanApplication.LoanTypeQueryController>> as TradeLoanService.TradeLoanApplication.LoanTypeQueryController
+  rectangle "==GetInstallmentScheduleByIdQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles get installment schedule by id queries" <<TradeLoanService.TradeLoanApplication.GetInstallmentScheduleByIdQueryHandler>> as TradeLoanService.TradeLoanApplication.GetInstallmentScheduleByIdQueryHandler
+  rectangle "==FindAllLoanArrangementsQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles find all loan arrangements queries" <<TradeLoanService.TradeLoanApplication.FindAllLoanArrangementsQueryHandler>> as TradeLoanService.TradeLoanApplication.FindAllLoanArrangementsQueryHandler
+  rectangle "==GetLoanArrangementByIdQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles get loan arrangement by id queries" <<TradeLoanService.TradeLoanApplication.GetLoanArrangementByIdQueryHandler>> as TradeLoanService.TradeLoanApplication.GetLoanArrangementByIdQueryHandler
+  rectangle "==LoanTypeArrangementFilterQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles loan type arrangement filter queries" <<TradeLoanService.TradeLoanApplication.LoanTypeArrangementFilterQueryHandler>> as TradeLoanService.TradeLoanApplication.LoanTypeArrangementFilterQueryHandler
+  rectangle "==FindAllLoanFacilitiesQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles find all loan facilities queries" <<TradeLoanService.TradeLoanApplication.FindAllLoanFacilitiesQueryHandler>> as TradeLoanService.TradeLoanApplication.FindAllLoanFacilitiesQueryHandler
+}
+
+@enduml

@@ -1,0 +1,2772 @@
+{
+  "configuration" : { },
+  "description" : "C4 Architecture for Morabehe Loans Microservice",
+  "documentation" : { },
+  "id" : 0,
+  "model" : {
+    "people" : [ {
+      "description" : "Bank staff managing loans",
+      "id" : "38",
+      "location" : "Unspecified",
+      "name" : "Loan Officer",
+      "relationships" : [ {
+        "description" : "Creates and manages loans",
+        "destinationId" : "11",
+        "id" : "39",
+        "sourceId" : "38",
+        "tags" : "Relationship",
+        "technology" : "HTTPS/JWT"
+      }, {
+        "description" : "Creates and manages loans",
+        "destinationId" : "10",
+        "id" : "40",
+        "linkedRelationshipId" : "39",
+        "sourceId" : "38",
+        "technology" : "HTTPS/JWT"
+      } ],
+      "tags" : "Element,Person,Internal User"
+    }, {
+      "description" : "Branch level approval authority",
+      "id" : "41",
+      "location" : "Unspecified",
+      "name" : "Branch Manager",
+      "relationships" : [ {
+        "description" : "Approves facilities",
+        "destinationId" : "11",
+        "id" : "42",
+        "sourceId" : "41",
+        "tags" : "Relationship",
+        "technology" : "HTTPS/JWT"
+      }, {
+        "description" : "Approves facilities",
+        "destinationId" : "10",
+        "id" : "43",
+        "linkedRelationshipId" : "42",
+        "sourceId" : "41",
+        "technology" : "HTTPS/JWT"
+      } ],
+      "tags" : "Element,Person,Internal User"
+    }, {
+      "description" : "Technical staff",
+      "id" : "44",
+      "location" : "Unspecified",
+      "name" : "System Administrator",
+      "relationships" : [ {
+        "description" : "Monitors system",
+        "destinationId" : "11",
+        "id" : "45",
+        "sourceId" : "44",
+        "tags" : "Relationship",
+        "technology" : "HTTPS/JWT"
+      }, {
+        "description" : "Monitors system",
+        "destinationId" : "10",
+        "id" : "46",
+        "linkedRelationshipId" : "45",
+        "sourceId" : "44",
+        "technology" : "HTTPS/JWT"
+      }, {
+        "description" : "Monitors Kafka",
+        "destinationId" : "15",
+        "id" : "47",
+        "sourceId" : "44",
+        "tags" : "Relationship",
+        "technology" : "HTTP"
+      }, {
+        "description" : "Monitors Kafka",
+        "destinationId" : "10",
+        "id" : "48",
+        "linkedRelationshipId" : "47",
+        "sourceId" : "44",
+        "technology" : "HTTP"
+      } ],
+      "tags" : "Element,Person,Internal User,Admin"
+    }, {
+      "description" : "End users",
+      "id" : "49",
+      "location" : "Unspecified",
+      "name" : "Customer",
+      "tags" : "Element,Person,External User"
+    } ],
+    "softwareSystems" : [ {
+      "description" : "OAuth2/OIDC provider",
+      "documentation" : { },
+      "id" : "1",
+      "location" : "Unspecified",
+      "name" : "TPS SSO",
+      "tags" : "Element,Software System,External System,Security"
+    }, {
+      "description" : "Core Banking",
+      "documentation" : { },
+      "id" : "2",
+      "location" : "Unspecified",
+      "name" : "FCB Core Banking",
+      "tags" : "Element,Software System,External System,Core Banking"
+    }, {
+      "description" : "Observability backend",
+      "documentation" : { },
+      "id" : "3",
+      "location" : "Unspecified",
+      "name" : "OpenTelemetry Collector",
+      "tags" : "Element,Software System,External System,Observability"
+    }, {
+      "description" : "Account management",
+      "documentation" : { },
+      "id" : "4",
+      "location" : "Unspecified",
+      "name" : "Account Service",
+      "tags" : "Element,Software System,External System,Domain Service"
+    }, {
+      "description" : "Customer data",
+      "documentation" : { },
+      "id" : "5",
+      "location" : "Unspecified",
+      "name" : "Customer Service",
+      "tags" : "Element,Software System,External System,Domain Service"
+    }, {
+      "description" : "Deposit operations",
+      "documentation" : { },
+      "id" : "6",
+      "location" : "Unspecified",
+      "name" : "Deposit Service",
+      "tags" : "Element,Software System,External System,Domain Service"
+    }, {
+      "description" : "Collateral management",
+      "documentation" : { },
+      "id" : "7",
+      "location" : "Unspecified",
+      "name" : "Collateral Service",
+      "tags" : "Element,Software System,External System,Domain Service"
+    }, {
+      "description" : "Cross-loan operations",
+      "documentation" : { },
+      "id" : "8",
+      "location" : "Unspecified",
+      "name" : "Loan Service",
+      "tags" : "Element,Software System,External System,Domain Service"
+    }, {
+      "description" : "Formula calculation",
+      "documentation" : { },
+      "id" : "9",
+      "location" : "Unspecified",
+      "name" : "Formula Evaluator Service",
+      "tags" : "Element,Software System,External System,Domain Service"
+    }, {
+      "containers" : [ {
+        "components" : [ {
+          "description" : "REST API: /api/{version}/dev/auth",
+          "documentation" : { },
+          "id" : "50",
+          "name" : "DevAuthCallbackController",
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "REST API: /api/{version}/facilities/{facilityId}/collaterals",
+          "documentation" : { },
+          "id" : "51",
+          "name" : "AddFacilityCollateralController",
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "REST API: /api/{version}/facilities/{facilityId}/approve",
+          "documentation" : { },
+          "id" : "52",
+          "name" : "ApproveFacilityController",
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "REST API: /api/{version}/facilities/{facilityId}/cancel",
+          "documentation" : { },
+          "id" : "53",
+          "name" : "CancelFacilityController",
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "REST API: /api/{version}/facilities/{facilityId}/close-defaulted",
+          "documentation" : { },
+          "id" : "54",
+          "name" : "CloseFacilityDefaultedController",
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "REST API: /api/{version}/facilities/{facilityId}/close-paid-off",
+          "documentation" : { },
+          "id" : "55",
+          "name" : "CloseFacilityPaidOffController",
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "REST API: /api/{version}/loan-arrangements/define",
+          "documentation" : { },
+          "id" : "56",
+          "name" : "DefineLoanArrangementController",
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "REST API: /api/{version}/loan-types/define",
+          "documentation" : { },
+          "id" : "57",
+          "name" : "DefineLoanTypeController",
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "REST API: /api/{version}/facilities/full-lifecycle",
+          "documentation" : { },
+          "id" : "58",
+          "name" : "FullLoanFacilityLifecycleController",
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "REST API: /api/{version}/facilities/{facilityId}/disburse/progressive-irregular",
+          "documentation" : { },
+          "id" : "59",
+          "name" : "IrregularProgressiveDisbursementController",
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "REST API: /api/{version}/facilities/{facilityId}/issue-contract",
+          "documentation" : { },
+          "id" : "60",
+          "name" : "IssueFacilityContractController",
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "REST API: /api/{version}/facilities/{facilityId}/disburse/lump-sum",
+          "documentation" : { },
+          "id" : "61",
+          "name" : "LumpSumDisbursementController",
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "REST API: /api/{version}/facilities/open-case",
+          "documentation" : { },
+          "id" : "62",
+          "name" : "OpenFacilityCaseController",
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "REST API: /api/{version}/facilities/{facilityId}/disburse/regular",
+          "documentation" : { },
+          "id" : "63",
+          "name" : "RegularDisbursementController",
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "REST API: /api/{version}/facilities/{facilityId}/reject",
+          "documentation" : { },
+          "id" : "64",
+          "name" : "RejectFacilityController",
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "REST API: /api/{version}/facilities/{facilityId}/submit-for-approval",
+          "documentation" : { },
+          "id" : "65",
+          "name" : "SubmitFacilityForApprovalController",
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "REST API: /api/{version}/installment-schedules",
+          "documentation" : { },
+          "id" : "66",
+          "name" : "InstallmentScheduleQueryController",
+          "tags" : "Element,Component,Controller,Query",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "REST API: /api/{version}/loan-arrangements",
+          "documentation" : { },
+          "id" : "67",
+          "name" : "LoanArrangementQueryController",
+          "tags" : "Element,Component,Controller,Query",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "REST API: /api/{version}/loan-facilities",
+          "documentation" : { },
+          "id" : "68",
+          "name" : "FacilityQueryController",
+          "tags" : "Element,Component,Controller,Query",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "REST API: /api/{version}/loan-types",
+          "documentation" : { },
+          "id" : "69",
+          "name" : "LoanTypeQueryController",
+          "tags" : "Element,Component,Controller,Query",
+          "technology" : "Spring REST Controller"
+        }, {
+          "description" : "Kafka consumer",
+          "documentation" : { },
+          "id" : "70",
+          "name" : "TradeLoanCommandConsumer",
+          "relationships" : [ {
+            "description" : "Consumes from",
+            "destinationId" : "13",
+            "id" : "141",
+            "sourceId" : "70",
+            "tags" : "Relationship",
+            "technology" : "Kafka Protocol"
+          } ],
+          "tags" : "Element,Component,Consumer,Messaging",
+          "technology" : "Spring Kafka Listener"
+        }, {
+          "description" : "Handles add facility collateral",
+          "documentation" : { },
+          "id" : "71",
+          "name" : "AddFacilityCollateralCommandHandler",
+          "relationships" : [ {
+            "description" : "Uses",
+            "destinationId" : "115",
+            "id" : "143",
+            "sourceId" : "71",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles compensate collateral",
+          "documentation" : { },
+          "id" : "72",
+          "name" : "CompensateCollateralCommandHandler",
+          "tags" : "Element,Component,Handler,Command,Compensation",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles approve facility",
+          "documentation" : { },
+          "id" : "73",
+          "name" : "ApproveFacilityCommandHandler",
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles compensate approval",
+          "documentation" : { },
+          "id" : "74",
+          "name" : "CompensateApprovalCommandHandler",
+          "tags" : "Element,Component,Handler,Command,Compensation",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles cancel facility",
+          "documentation" : { },
+          "id" : "75",
+          "name" : "CancelFacilityCommandHandler",
+          "relationships" : [ {
+            "description" : "Uses",
+            "destinationId" : "115",
+            "id" : "144",
+            "sourceId" : "75",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles close facility defaulted",
+          "documentation" : { },
+          "id" : "76",
+          "name" : "CloseFacilityDefaultedCommandHandler",
+          "relationships" : [ {
+            "description" : "Uses",
+            "destinationId" : "115",
+            "id" : "145",
+            "sourceId" : "76",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles close facility paid off",
+          "documentation" : { },
+          "id" : "77",
+          "name" : "CloseFacilityPaidOffCommandHandler",
+          "relationships" : [ {
+            "description" : "Uses",
+            "destinationId" : "115",
+            "id" : "146",
+            "sourceId" : "77",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles define trade loan arrangement",
+          "documentation" : { },
+          "id" : "78",
+          "name" : "DefineTradeLoanArrangementCommandHandler",
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles define loan type",
+          "documentation" : { },
+          "id" : "79",
+          "name" : "DefineLoanTypeCommandHandler",
+          "relationships" : [ {
+            "description" : "Uses",
+            "destinationId" : "121",
+            "id" : "147",
+            "sourceId" : "79",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles full loan facility lifecycle",
+          "documentation" : { },
+          "id" : "80",
+          "name" : "FullLoanFacilityLifecycleCommandHandler",
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles full lifecycle revert",
+          "documentation" : { },
+          "id" : "81",
+          "name" : "FullLifecycleRevertCommandHandler",
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles irregular progressive disbursement",
+          "documentation" : { },
+          "id" : "82",
+          "name" : "IrregularProgressiveDisbursementCommandHandler",
+          "relationships" : [ {
+            "description" : "Uses",
+            "destinationId" : "116",
+            "id" : "148",
+            "sourceId" : "82",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles compensate irregular disbursement",
+          "documentation" : { },
+          "id" : "83",
+          "name" : "CompensateIrregularDisbursementCommandHandler",
+          "tags" : "Element,Component,Handler,Command,Compensation",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles issue facility contract",
+          "documentation" : { },
+          "id" : "84",
+          "name" : "IssueFacilityContractCommandHandler",
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles compensate contract issuance",
+          "documentation" : { },
+          "id" : "85",
+          "name" : "CompensateContractIssuanceCommandHandler",
+          "tags" : "Element,Component,Handler,Command,Compensation",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles lump sum disbursement",
+          "documentation" : { },
+          "id" : "86",
+          "name" : "LumpSumDisbursementCommandHandler",
+          "relationships" : [ {
+            "description" : "Uses",
+            "destinationId" : "118",
+            "id" : "149",
+            "sourceId" : "86",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles compensate lump sum disbursement",
+          "documentation" : { },
+          "id" : "87",
+          "name" : "CompensateLumpSumDisbursementCommandHandler",
+          "tags" : "Element,Component,Handler,Command,Compensation",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles originate loan facility",
+          "documentation" : { },
+          "id" : "88",
+          "name" : "OriginateLoanFacilityCommandHandler",
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles compensate origination",
+          "documentation" : { },
+          "id" : "89",
+          "name" : "CompensateOriginationCommandHandler",
+          "tags" : "Element,Component,Handler,Command,Compensation",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles plan equal installment schedule",
+          "documentation" : { },
+          "id" : "90",
+          "name" : "PlanEqualInstallmentScheduleCommandHandler",
+          "relationships" : [ {
+            "description" : "Uses",
+            "destinationId" : "113",
+            "id" : "150",
+            "sourceId" : "90",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles regular disbursement",
+          "documentation" : { },
+          "id" : "91",
+          "name" : "RegularDisbursementCommandHandler",
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles reject facility",
+          "documentation" : { },
+          "id" : "92",
+          "name" : "RejectFacilityCommandHandler",
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles submit facility for approval",
+          "documentation" : { },
+          "id" : "93",
+          "name" : "SubmitFacilityForApprovalCommandHandler",
+          "relationships" : [ {
+            "description" : "Uses",
+            "destinationId" : "115",
+            "id" : "151",
+            "sourceId" : "93",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles compensate approval submission",
+          "documentation" : { },
+          "id" : "94",
+          "name" : "CompensateApprovalSubmissionCommandHandler",
+          "tags" : "Element,Component,Handler,Command,Compensation",
+          "technology" : "Command Handler"
+        }, {
+          "description" : "Handles get installment schedule by id queries",
+          "documentation" : { },
+          "id" : "95",
+          "name" : "GetInstallmentScheduleByIdQueryHandler",
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "description" : "Handles find all loan arrangements queries",
+          "documentation" : { },
+          "id" : "96",
+          "name" : "FindAllLoanArrangementsQueryHandler",
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "description" : "Handles get loan arrangement by id queries",
+          "documentation" : { },
+          "id" : "97",
+          "name" : "GetLoanArrangementByIdQueryHandler",
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "description" : "Handles loan type arrangement filter queries",
+          "documentation" : { },
+          "id" : "98",
+          "name" : "LoanTypeArrangementFilterQueryHandler",
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "description" : "Handles find all loan facilities queries",
+          "documentation" : { },
+          "id" : "99",
+          "name" : "FindAllLoanFacilitiesQueryHandler",
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "description" : "Handles get facility by id queries",
+          "documentation" : { },
+          "id" : "100",
+          "name" : "GetFacilityByIdQueryHandler",
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "description" : "Handles search loan facilities queries",
+          "documentation" : { },
+          "id" : "101",
+          "name" : "SearchLoanFacilitiesQueryHandler",
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "description" : "Handles find all loan types queries",
+          "documentation" : { },
+          "id" : "102",
+          "name" : "FindAllLoanTypesQueryHandler",
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "description" : "Handles get loan type by id queries",
+          "documentation" : { },
+          "id" : "103",
+          "name" : "GetLoanTypeByIdQueryHandler",
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "description" : "Handles loan type filter queries",
+          "documentation" : { },
+          "id" : "104",
+          "name" : "LoanTypeFilterQueryHandler",
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "description" : "Orchestrates full loan facility lifecycle",
+          "documentation" : { },
+          "id" : "105",
+          "name" : "FullLoanFacilityLifecycleSaga",
+          "tags" : "Element,Component,Saga,Orchestrator",
+          "technology" : "Saga Orchestrator"
+        }, {
+          "description" : "Orchestrates issue facility contract",
+          "documentation" : { },
+          "id" : "106",
+          "name" : "IssueFacilityContractSaga",
+          "relationships" : [ {
+            "description" : "Uses",
+            "destinationId" : "117",
+            "id" : "152",
+            "sourceId" : "106",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component,Saga,Orchestrator",
+          "technology" : "Saga Orchestrator"
+        }, {
+          "description" : "trade loan arrangement aggregate",
+          "documentation" : { },
+          "id" : "107",
+          "name" : "TradeLoanArrangement",
+          "tags" : "Element,Component,Domain,Aggregate",
+          "technology" : "DDD Aggregate Root"
+        }, {
+          "description" : "trade loan application aggregate",
+          "documentation" : { },
+          "id" : "108",
+          "name" : "TradeLoanApplication",
+          "tags" : "Element,Component,Domain,Aggregate",
+          "technology" : "DDD Aggregate Root"
+        }, {
+          "description" : "trade loan facility aggregate",
+          "documentation" : { },
+          "id" : "109",
+          "name" : "TradeLoanFacility",
+          "tags" : "Element,Component,Domain,Aggregate",
+          "technology" : "DDD Aggregate Root"
+        }, {
+          "description" : "trade loan facility event factory entity",
+          "documentation" : { },
+          "id" : "110",
+          "name" : "TradeLoanFacilityEventFactory",
+          "tags" : "Element,Component,Domain,Entity",
+          "technology" : "DDD Entity"
+        }, {
+          "description" : "trade sanctioned loan aggregate",
+          "documentation" : { },
+          "id" : "111",
+          "name" : "TradeSanctionedLoan",
+          "tags" : "Element,Component,Domain,Aggregate",
+          "technology" : "DDD Aggregate Root"
+        }, {
+          "description" : "trade loan type aggregate",
+          "documentation" : { },
+          "id" : "112",
+          "name" : "TradeLoanType",
+          "tags" : "Element,Component,Domain,Aggregate",
+          "technology" : "DDD Aggregate Root"
+        }, {
+          "description" : "trade repayment scheduling service domain service",
+          "documentation" : { },
+          "id" : "113",
+          "name" : "TradeRepaymentSchedulingService",
+          "tags" : "Element,Component,Domain,Service",
+          "technology" : "Domain Service"
+        }, {
+          "description" : "trade interest calculation service domain service",
+          "documentation" : { },
+          "id" : "114",
+          "name" : "TradeInterestCalculationService",
+          "tags" : "Element,Component,Domain,Service",
+          "technology" : "Domain Service"
+        }, {
+          "description" : "trade loan facility service domain service",
+          "documentation" : { },
+          "id" : "115",
+          "name" : "TradeLoanFacilityService",
+          "tags" : "Element,Component,Domain,Service",
+          "technology" : "Domain Service"
+        }, {
+          "description" : "irregular progressive disbursement transaction service domain service",
+          "documentation" : { },
+          "id" : "116",
+          "name" : "IrregularProgressiveDisbursementTransactionService",
+          "tags" : "Element,Component,Domain,Service",
+          "technology" : "Domain Service"
+        }, {
+          "description" : "trade issue contract transaction service domain service",
+          "documentation" : { },
+          "id" : "117",
+          "name" : "TradeIssueContractTransactionService",
+          "tags" : "Element,Component,Domain,Service",
+          "technology" : "Domain Service"
+        }, {
+          "description" : "trade lamp sun disbursement transaction service domain service",
+          "documentation" : { },
+          "id" : "118",
+          "name" : "TradeLampSunDisbursementTransactionService",
+          "relationships" : [ {
+            "description" : "Uses",
+            "destinationId" : "114",
+            "id" : "153",
+            "sourceId" : "118",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component,Domain,Service",
+          "technology" : "Domain Service"
+        }, {
+          "description" : "trade loan facility validation service domain service",
+          "documentation" : { },
+          "id" : "119",
+          "name" : "TradeLoanFacilityValidationService",
+          "tags" : "Element,Component,Domain,Service",
+          "technology" : "Domain Service"
+        }, {
+          "description" : "trade sanction validation service domain service",
+          "documentation" : { },
+          "id" : "120",
+          "name" : "TradeSanctionValidationService",
+          "tags" : "Element,Component,Domain,Service",
+          "technology" : "Domain Service"
+        }, {
+          "description" : "trade loan type validation service domain service",
+          "documentation" : { },
+          "id" : "121",
+          "name" : "TradeLoanTypeValidationService",
+          "tags" : "Element,Component,Domain,Service",
+          "technology" : "Domain Service"
+        }, {
+          "description" : "InstallmentSchedule persistence adapter",
+          "documentation" : { },
+          "id" : "122",
+          "name" : "InstallmentScheduleRepositoryAdapter",
+          "relationships" : [ {
+            "description" : "Reads/Writes",
+            "destinationId" : "12",
+            "id" : "154",
+            "sourceId" : "122",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          } ],
+          "tags" : "Element,Component,Repository,Persistence",
+          "technology" : "Spring Data JPA"
+        }, {
+          "description" : "TradeLoanArrangement persistence adapter",
+          "documentation" : { },
+          "id" : "123",
+          "name" : "TradeLoanArrangementRepositoryAdapter",
+          "relationships" : [ {
+            "description" : "Reads/Writes",
+            "destinationId" : "12",
+            "id" : "155",
+            "sourceId" : "123",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          } ],
+          "tags" : "Element,Component,Repository,Persistence",
+          "technology" : "Spring Data JPA"
+        }, {
+          "description" : "TradeLoanFacility persistence adapter",
+          "documentation" : { },
+          "id" : "124",
+          "name" : "TradeLoanFacilityRepositoryAdapter",
+          "relationships" : [ {
+            "description" : "Reads/Writes",
+            "destinationId" : "12",
+            "id" : "156",
+            "sourceId" : "124",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          } ],
+          "tags" : "Element,Component,Repository,Persistence",
+          "technology" : "Spring Data JPA"
+        }, {
+          "description" : "TradeLoanType persistence adapter",
+          "documentation" : { },
+          "id" : "125",
+          "name" : "TradeLoanTypeRepositoryAdapter",
+          "relationships" : [ {
+            "description" : "Reads/Writes",
+            "destinationId" : "12",
+            "id" : "157",
+            "sourceId" : "125",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          } ],
+          "tags" : "Element,Component,Repository,Persistence",
+          "technology" : "Spring Data JPA"
+        }, {
+          "description" : "TradeInstallmentSchedule query adapter",
+          "documentation" : { },
+          "id" : "126",
+          "name" : "JpaTradeInstallmentScheduleQueryAdapter",
+          "relationships" : [ {
+            "description" : "Reads/Writes",
+            "destinationId" : "12",
+            "id" : "158",
+            "sourceId" : "126",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          } ],
+          "tags" : "Element,Component,Repository,Query",
+          "technology" : "Spring Data JPA"
+        }, {
+          "description" : "TradeLoanArrangement query adapter",
+          "documentation" : { },
+          "id" : "127",
+          "name" : "JpaTradeLoanArrangementQueryAdapter",
+          "relationships" : [ {
+            "description" : "Reads/Writes",
+            "destinationId" : "12",
+            "id" : "159",
+            "sourceId" : "127",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          } ],
+          "tags" : "Element,Component,Repository,Query",
+          "technology" : "Spring Data JPA"
+        }, {
+          "description" : "Facility query adapter",
+          "documentation" : { },
+          "id" : "128",
+          "name" : "JpaFacilityQueryAdapter",
+          "relationships" : [ {
+            "description" : "Reads/Writes",
+            "destinationId" : "12",
+            "id" : "160",
+            "sourceId" : "128",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          } ],
+          "tags" : "Element,Component,Repository,Query",
+          "technology" : "Spring Data JPA"
+        }, {
+          "description" : "TradeLoanType query adapter",
+          "documentation" : { },
+          "id" : "129",
+          "name" : "JpaTradeLoanTypeQueryAdapter",
+          "relationships" : [ {
+            "description" : "Reads/Writes",
+            "destinationId" : "12",
+            "id" : "161",
+            "sourceId" : "129",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          } ],
+          "tags" : "Element,Component,Repository,Query",
+          "technology" : "Spring Data JPA"
+        }, {
+          "description" : "account service client",
+          "documentation" : { },
+          "id" : "130",
+          "name" : "AccountServiceAdapter",
+          "relationships" : [ {
+            "description" : "Calls",
+            "destinationId" : "4",
+            "id" : "162",
+            "sourceId" : "130",
+            "tags" : "Relationship",
+            "technology" : "HTTP/REST"
+          } ],
+          "tags" : "Element,Component,Client,External",
+          "technology" : "Spring WebClient"
+        }, {
+          "description" : "collateral client",
+          "documentation" : { },
+          "id" : "131",
+          "name" : "CollateralAdapter",
+          "relationships" : [ {
+            "description" : "Calls",
+            "destinationId" : "7",
+            "id" : "163",
+            "sourceId" : "131",
+            "tags" : "Relationship",
+            "technology" : "HTTP/REST"
+          } ],
+          "tags" : "Element,Component,Client,External",
+          "technology" : "Spring WebClient"
+        }, {
+          "description" : "customer service client",
+          "documentation" : { },
+          "id" : "132",
+          "name" : "CustomerServiceAdapter",
+          "relationships" : [ {
+            "description" : "Calls",
+            "destinationId" : "5",
+            "id" : "164",
+            "sourceId" : "132",
+            "tags" : "Relationship",
+            "technology" : "HTTP/REST"
+          } ],
+          "tags" : "Element,Component,Client,External",
+          "technology" : "Spring WebClient"
+        }, {
+          "description" : "deposit service client",
+          "documentation" : { },
+          "id" : "133",
+          "name" : "DepositServiceAdapter",
+          "relationships" : [ {
+            "description" : "Calls",
+            "destinationId" : "6",
+            "id" : "165",
+            "sourceId" : "133",
+            "tags" : "Relationship",
+            "technology" : "HTTP/REST"
+          } ],
+          "tags" : "Element,Component,Client,External",
+          "technology" : "Spring WebClient"
+        }, {
+          "description" : "fcb client",
+          "documentation" : { },
+          "id" : "134",
+          "name" : "FcbServiceImpl",
+          "relationships" : [ {
+            "description" : "Calls",
+            "destinationId" : "2",
+            "id" : "166",
+            "sourceId" : "134",
+            "tags" : "Relationship",
+            "technology" : "HTTP/REST"
+          } ],
+          "tags" : "Element,Component,Client,External",
+          "technology" : "Spring WebClient"
+        }, {
+          "description" : "loan service client",
+          "documentation" : { },
+          "id" : "135",
+          "name" : "LoanServiceAdapter",
+          "relationships" : [ {
+            "description" : "Calls",
+            "destinationId" : "8",
+            "id" : "169",
+            "sourceId" : "135",
+            "tags" : "Relationship",
+            "technology" : "HTTP/REST"
+          } ],
+          "tags" : "Element,Component,Client,External",
+          "technology" : "Spring WebClient"
+        }, {
+          "description" : "transaction posting client",
+          "documentation" : { },
+          "id" : "136",
+          "name" : "TransactionPostingAdapter",
+          "relationships" : [ {
+            "description" : "Calls",
+            "destinationId" : "2",
+            "id" : "170",
+            "sourceId" : "136",
+            "tags" : "Relationship",
+            "technology" : "HTTP/REST"
+          } ],
+          "tags" : "Element,Component,Client,External",
+          "technology" : "Spring WebClient"
+        }, {
+          "description" : "InstallmentSchedule outbox handler",
+          "documentation" : { },
+          "id" : "137",
+          "name" : "InstallmentScheduleOutboxHandler",
+          "relationships" : [ {
+            "description" : "Publishes events",
+            "destinationId" : "13",
+            "id" : "171",
+            "sourceId" : "137",
+            "tags" : "Relationship",
+            "technology" : "Kafka Protocol"
+          } ],
+          "tags" : "Element,Component,Outbox,Messaging",
+          "technology" : "Outbox Pattern"
+        }, {
+          "description" : "TradeLoanArrangement outbox handler",
+          "documentation" : { },
+          "id" : "138",
+          "name" : "TradeLoanArrangementOutboxHandler",
+          "relationships" : [ {
+            "description" : "Publishes events",
+            "destinationId" : "13",
+            "id" : "173",
+            "sourceId" : "138",
+            "tags" : "Relationship",
+            "technology" : "Kafka Protocol"
+          } ],
+          "tags" : "Element,Component,Outbox,Messaging",
+          "technology" : "Outbox Pattern"
+        }, {
+          "description" : "TradeLoanFacility outbox handler",
+          "documentation" : { },
+          "id" : "139",
+          "name" : "TradeLoanFacilityOutboxHandler",
+          "relationships" : [ {
+            "description" : "Publishes events",
+            "destinationId" : "13",
+            "id" : "174",
+            "sourceId" : "139",
+            "tags" : "Relationship",
+            "technology" : "Kafka Protocol"
+          } ],
+          "tags" : "Element,Component,Outbox,Messaging",
+          "technology" : "Outbox Pattern"
+        }, {
+          "description" : "TradeLoanType outbox handler",
+          "documentation" : { },
+          "id" : "140",
+          "name" : "TradeLoanTypeOutboxHandler",
+          "relationships" : [ {
+            "description" : "Publishes events",
+            "destinationId" : "13",
+            "id" : "175",
+            "sourceId" : "140",
+            "tags" : "Relationship",
+            "technology" : "Kafka Protocol"
+          } ],
+          "tags" : "Element,Component,Outbox,Messaging",
+          "technology" : "Outbox Pattern"
+        } ],
+        "description" : "Spring Boot Hexagonal Architecture",
+        "documentation" : { },
+        "id" : "11",
+        "name" : "Trade Loan Application",
+        "relationships" : [ {
+          "description" : "Reads/Writes",
+          "destinationId" : "12",
+          "id" : "16",
+          "sourceId" : "11",
+          "tags" : "Relationship",
+          "technology" : "JDBC/HikariCP"
+        }, {
+          "description" : "Publishes/Consumes",
+          "destinationId" : "13",
+          "id" : "17",
+          "sourceId" : "11",
+          "tags" : "Relationship",
+          "technology" : "Kafka Protocol"
+        }, {
+          "description" : "Caches data",
+          "destinationId" : "14",
+          "id" : "18",
+          "sourceId" : "11",
+          "tags" : "Relationship",
+          "technology" : "Redis Protocol"
+        }, {
+          "description" : "Authenticates",
+          "destinationId" : "1",
+          "id" : "19",
+          "sourceId" : "11",
+          "tags" : "Relationship",
+          "technology" : "OAuth2/OIDC"
+        }, {
+          "description" : "Core banking",
+          "destinationId" : "2",
+          "id" : "21",
+          "sourceId" : "11",
+          "tags" : "Relationship",
+          "technology" : "HTTP/REST"
+        }, {
+          "description" : "Telemetry",
+          "destinationId" : "3",
+          "id" : "23",
+          "sourceId" : "11",
+          "tags" : "Relationship",
+          "technology" : "OTLP/gRPC"
+        }, {
+          "description" : "Calls",
+          "destinationId" : "4",
+          "id" : "25",
+          "sourceId" : "11",
+          "tags" : "Relationship",
+          "technology" : "HTTP/REST"
+        }, {
+          "description" : "Calls",
+          "destinationId" : "5",
+          "id" : "27",
+          "sourceId" : "11",
+          "tags" : "Relationship",
+          "technology" : "HTTP/REST"
+        }, {
+          "description" : "Calls",
+          "destinationId" : "6",
+          "id" : "29",
+          "sourceId" : "11",
+          "tags" : "Relationship",
+          "technology" : "HTTP/REST"
+        }, {
+          "description" : "Calls",
+          "destinationId" : "7",
+          "id" : "31",
+          "sourceId" : "11",
+          "tags" : "Relationship",
+          "technology" : "HTTP/REST"
+        }, {
+          "description" : "Calls",
+          "destinationId" : "8",
+          "id" : "33",
+          "sourceId" : "11",
+          "tags" : "Relationship",
+          "technology" : "HTTP/REST"
+        }, {
+          "description" : "Calls",
+          "destinationId" : "9",
+          "id" : "35",
+          "sourceId" : "11",
+          "tags" : "Relationship",
+          "technology" : "HTTP/REST"
+        }, {
+          "description" : "Consumes from",
+          "destinationId" : "13",
+          "id" : "142",
+          "linkedRelationshipId" : "141",
+          "sourceId" : "11",
+          "technology" : "Kafka Protocol"
+        }, {
+          "description" : "Calls",
+          "destinationId" : "2",
+          "id" : "167",
+          "linkedRelationshipId" : "166",
+          "sourceId" : "11",
+          "technology" : "HTTP/REST"
+        }, {
+          "description" : "Publishes events",
+          "destinationId" : "13",
+          "id" : "172",
+          "linkedRelationshipId" : "171",
+          "sourceId" : "11",
+          "technology" : "Kafka Protocol"
+        } ],
+        "tags" : "Element,Container,Application,Spring Boot",
+        "technology" : "Java 25, Spring Boot 4"
+      }, {
+        "description" : "Loan data storage",
+        "documentation" : { },
+        "id" : "12",
+        "name" : "PostgreSQL Database",
+        "tags" : "Element,Container,Database,Storage",
+        "technology" : "PostgreSQL 18"
+      }, {
+        "description" : "Event streaming",
+        "documentation" : { },
+        "id" : "13",
+        "name" : "Kafka",
+        "tags" : "Element,Container,Message Broker,Messaging",
+        "technology" : "Confluent Kafka 7.9"
+      }, {
+        "description" : "Caching and locks",
+        "documentation" : { },
+        "id" : "14",
+        "name" : "Redis",
+        "tags" : "Element,Container,Cache,Storage",
+        "technology" : "Redis 8.2"
+      }, {
+        "description" : "Kafka monitoring",
+        "documentation" : { },
+        "id" : "15",
+        "name" : "Kafdrop",
+        "relationships" : [ {
+          "description" : "Monitors",
+          "destinationId" : "13",
+          "id" : "37",
+          "sourceId" : "15",
+          "tags" : "Relationship",
+          "technology" : "Kafka Protocol"
+        } ],
+        "tags" : "Element,Container,Monitoring,Tool",
+        "technology" : "Kafdrop 4.2"
+      } ],
+      "description" : "Morabehe loans with CQRS and Event Sourcing",
+      "documentation" : { },
+      "id" : "10",
+      "location" : "Unspecified",
+      "name" : "Trade Loan Service",
+      "relationships" : [ {
+        "description" : "Authenticates",
+        "destinationId" : "1",
+        "id" : "20",
+        "linkedRelationshipId" : "19",
+        "sourceId" : "10",
+        "technology" : "OAuth2/OIDC"
+      }, {
+        "description" : "Core banking",
+        "destinationId" : "2",
+        "id" : "22",
+        "linkedRelationshipId" : "21",
+        "sourceId" : "10",
+        "technology" : "HTTP/REST"
+      }, {
+        "description" : "Telemetry",
+        "destinationId" : "3",
+        "id" : "24",
+        "linkedRelationshipId" : "23",
+        "sourceId" : "10",
+        "technology" : "OTLP/gRPC"
+      }, {
+        "description" : "Calls",
+        "destinationId" : "4",
+        "id" : "26",
+        "linkedRelationshipId" : "25",
+        "sourceId" : "10",
+        "technology" : "HTTP/REST"
+      }, {
+        "description" : "Calls",
+        "destinationId" : "5",
+        "id" : "28",
+        "linkedRelationshipId" : "27",
+        "sourceId" : "10",
+        "technology" : "HTTP/REST"
+      }, {
+        "description" : "Calls",
+        "destinationId" : "6",
+        "id" : "30",
+        "linkedRelationshipId" : "29",
+        "sourceId" : "10",
+        "technology" : "HTTP/REST"
+      }, {
+        "description" : "Calls",
+        "destinationId" : "7",
+        "id" : "32",
+        "linkedRelationshipId" : "31",
+        "sourceId" : "10",
+        "technology" : "HTTP/REST"
+      }, {
+        "description" : "Calls",
+        "destinationId" : "8",
+        "id" : "34",
+        "linkedRelationshipId" : "33",
+        "sourceId" : "10",
+        "technology" : "HTTP/REST"
+      }, {
+        "description" : "Calls",
+        "destinationId" : "9",
+        "id" : "36",
+        "linkedRelationshipId" : "35",
+        "sourceId" : "10",
+        "technology" : "HTTP/REST"
+      }, {
+        "description" : "Calls",
+        "destinationId" : "2",
+        "id" : "168",
+        "linkedRelationshipId" : "166",
+        "sourceId" : "10",
+        "technology" : "HTTP/REST"
+      } ],
+      "tags" : "Element,Software System,Internal System"
+    } ]
+  },
+  "name" : "Trade Loan Service",
+  "views" : {
+    "componentViews" : [ {
+      "containerId" : "11",
+      "description" : "Components (page 1/4)",
+      "elements" : [ {
+        "id" : "50",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "51",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "52",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "53",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "54",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "55",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "56",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "57",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "58",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "59",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "60",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "61",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "62",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "63",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "64",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "65",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "66",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "67",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "68",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "69",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "70",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "71",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "72",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "73",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "74",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "75",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "76",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "77",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "78",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "79",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Components",
+      "order" : 3,
+      "paperSize" : "A3_Landscape"
+    }, {
+      "containerId" : "11",
+      "description" : "Components (page 2/4)",
+      "elements" : [ {
+        "id" : "80",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "81",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "82",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "83",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "84",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "85",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "86",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "87",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "88",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "89",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "90",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "91",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "92",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "93",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "94",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "95",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "96",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "97",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "98",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "99",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "100",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "101",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "102",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "103",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "104",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "105",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "106",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "107",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "108",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "109",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Components_2",
+      "order" : 4,
+      "paperSize" : "A3_Landscape"
+    }, {
+      "containerId" : "11",
+      "description" : "Components (page 3/4)",
+      "elements" : [ {
+        "id" : "110",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "111",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "112",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "113",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "114",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "115",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "116",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "117",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "118",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "119",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "120",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "121",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "122",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "123",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "124",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "125",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "126",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "127",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "128",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "129",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "130",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "131",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "132",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "133",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "134",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "135",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "136",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "137",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "138",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "139",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Components_3",
+      "order" : 5,
+      "paperSize" : "A3_Landscape",
+      "relationships" : [ {
+        "id" : "153"
+      } ]
+    }, {
+      "containerId" : "11",
+      "description" : "Components (page 4/4)",
+      "elements" : [ {
+        "id" : "140",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Components_4",
+      "order" : 6,
+      "paperSize" : "A3_Landscape"
+    }, {
+      "containerId" : "11",
+      "description" : "REST Controllers",
+      "elements" : [ {
+        "id" : "50",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "51",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "52",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "53",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "54",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "55",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "56",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "57",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "58",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "59",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "60",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "61",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "62",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "63",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "64",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "65",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "66",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "67",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "68",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "69",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Controllers",
+      "order" : 7,
+      "paperSize" : "A4_Landscape"
+    }, {
+      "containerId" : "11",
+      "description" : "Command and Query Handlers",
+      "elements" : [ {
+        "id" : "71",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "72",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "73",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "74",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "75",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "76",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "77",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "78",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "79",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "80",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "81",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "82",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "83",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "84",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "85",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "86",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "87",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "88",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "89",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "90",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "91",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "92",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "93",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "94",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "95",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "96",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "97",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "98",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "99",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "100",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Handlers",
+      "order" : 8,
+      "paperSize" : "A4_Landscape"
+    }, {
+      "containerId" : "11",
+      "description" : "Saga Orchestrators",
+      "elements" : [ {
+        "id" : "105",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "106",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Sagas",
+      "order" : 9,
+      "paperSize" : "A4_Landscape"
+    }, {
+      "containerId" : "11",
+      "description" : "Domain Layer",
+      "elements" : [ {
+        "id" : "107",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "108",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "109",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "110",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "111",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "112",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "113",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "114",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "115",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "116",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "117",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "118",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "119",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "120",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "121",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "DomainModel",
+      "order" : 10,
+      "paperSize" : "A4_Landscape",
+      "relationships" : [ {
+        "id" : "153"
+      } ]
+    }, {
+      "containerId" : "11",
+      "description" : "Repository adapters",
+      "elements" : [ {
+        "id" : "12",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "122",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "123",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "124",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "125",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "126",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "127",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "128",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "129",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Repositories",
+      "order" : 11,
+      "paperSize" : "A4_Landscape",
+      "relationships" : [ {
+        "id" : "154"
+      }, {
+        "id" : "155"
+      }, {
+        "id" : "156"
+      }, {
+        "id" : "157"
+      }, {
+        "id" : "158"
+      }, {
+        "id" : "159"
+      }, {
+        "id" : "160"
+      }, {
+        "id" : "161"
+      } ]
+    }, {
+      "containerId" : "11",
+      "description" : "External service clients",
+      "elements" : [ {
+        "id" : "130",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "131",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "132",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "133",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "134",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "135",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "136",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "ExternalClients",
+      "order" : 12,
+      "paperSize" : "A4_Landscape"
+    }, {
+      "containerId" : "11",
+      "description" : "Kafka consumers and outbox handlers",
+      "elements" : [ {
+        "id" : "13",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "70",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "137",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "138",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "139",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "140",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Messaging",
+      "order" : 13,
+      "paperSize" : "A4_Landscape",
+      "relationships" : [ {
+        "id" : "141"
+      }, {
+        "id" : "171"
+      }, {
+        "id" : "173"
+      }, {
+        "id" : "174"
+      }, {
+        "id" : "175"
+      } ]
+    }, {
+      "containerId" : "11",
+      "description" : "CQRS Command flow",
+      "elements" : [ {
+        "id" : "50",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "51",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "52",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "53",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "54",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "55",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "56",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "57",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "58",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "59",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "60",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "61",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "62",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "63",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "64",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "65",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "71",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "72",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "73",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "74",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "75",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "76",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "77",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "78",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "79",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "80",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "81",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "82",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "83",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "84",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "CommandFlow",
+      "order" : 14,
+      "paperSize" : "A4_Landscape"
+    }, {
+      "containerId" : "11",
+      "description" : "CQRS Query flow",
+      "elements" : [ {
+        "id" : "66",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "67",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "68",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "69",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "95",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "96",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "97",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "98",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "99",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "100",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "101",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "102",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "103",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "104",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "126",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "127",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "128",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "129",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "QueryFlow",
+      "order" : 15,
+      "paperSize" : "A4_Landscape"
+    }, {
+      "containerId" : "11",
+      "description" : "Saga orchestration flow",
+      "elements" : [ {
+        "id" : "50",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "51",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "52",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "53",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "54",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "55",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "56",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "57",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "58",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "59",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "60",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "61",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "62",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "63",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "64",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "65",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "66",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "67",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "68",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "69",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "70",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "71",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "72",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "73",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "74",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "75",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "76",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "77",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "78",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "79",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "SagaFlow",
+      "order" : 16,
+      "paperSize" : "A4_Landscape"
+    } ],
+    "configuration" : {
+      "branding" : { },
+      "styles" : {
+        "elements" : [ {
+          "background" : "#438dd5",
+          "color" : "#ffffff",
+          "tag" : "Container"
+        }, {
+          "background" : "#e74c3c",
+          "shape" : "Cylinder",
+          "tag" : "Cache"
+        }, {
+          "background" : "#ff9800",
+          "color" : "#000000",
+          "tag" : "Aggregate"
+        }, {
+          "background" : "#ffb74d",
+          "color" : "#000000",
+          "tag" : "Entity"
+        }, {
+          "background" : "#08427b",
+          "color" : "#ffffff",
+          "shape" : "Person",
+          "tag" : "Person"
+        }, {
+          "background" : "#ff7043",
+          "color" : "#ffffff",
+          "shape" : "Hexagon",
+          "tag" : "Consumer"
+        }, {
+          "background" : "#1168bd",
+          "color" : "#ffffff",
+          "tag" : "Software System"
+        }, {
+          "background" : "#42a5f5",
+          "color" : "#ffffff",
+          "tag" : "Handler"
+        }, {
+          "shape" : "Cylinder",
+          "tag" : "Database"
+        }, {
+          "background" : "#08427b",
+          "tag" : "Internal User"
+        }, {
+          "background" : "#999999",
+          "border" : "Dashed",
+          "tag" : "External System"
+        }, {
+          "background" : "#ffa726",
+          "color" : "#000000",
+          "tag" : "Domain"
+        }, {
+          "background" : "#29b6f6",
+          "color" : "#ffffff",
+          "tag" : "Service"
+        }, {
+          "background" : "#27ae60",
+          "shape" : "WebBrowser",
+          "tag" : "Monitoring"
+        }, {
+          "background" : "#ec407a",
+          "color" : "#ffffff",
+          "tag" : "Client"
+        }, {
+          "background" : "#7cb342",
+          "color" : "#ffffff",
+          "tag" : "Controller"
+        }, {
+          "background" : "#85bbf0",
+          "color" : "#000000",
+          "tag" : "Component"
+        }, {
+          "background" : "#f5a623",
+          "color" : "#000000",
+          "shape" : "Pipe",
+          "tag" : "Message Broker"
+        }, {
+          "background" : "#ab47bc",
+          "color" : "#ffffff",
+          "shape" : "Diamond",
+          "tag" : "Saga"
+        }, {
+          "background" : "#ef5350",
+          "color" : "#ffffff",
+          "tag" : "Compensation"
+        }, {
+          "background" : "#5c6bc0",
+          "color" : "#ffffff",
+          "shape" : "Cylinder",
+          "tag" : "Repository"
+        }, {
+          "background" : "#66bb6a",
+          "color" : "#000000",
+          "shape" : "Hexagon",
+          "tag" : "Outbox"
+        }, {
+          "background" : "#5c3d6e",
+          "tag" : "Admin"
+        }, {
+          "background" : "#666666",
+          "tag" : "External User"
+        } ],
+        "relationships" : [ {
+          "color" : "#707070",
+          "tag" : "Relationship",
+          "thickness" : 2
+        }, {
+          "color" : "#ff6600",
+          "style" : "Dashed",
+          "tag" : "Asynchronous",
+          "thickness" : 2
+        } ]
+      },
+      "terminology" : { }
+    },
+    "containerViews" : [ {
+      "description" : "Container diagram showing application and infrastructure",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "11",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "12",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "13",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "14",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "15",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "38",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "41",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "44",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "49",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalSoftwareSystemBoundariesVisible" : false,
+      "key" : "Containers",
+      "order" : 2,
+      "paperSize" : "A4_Landscape",
+      "relationships" : [ {
+        "id" : "142"
+      }, {
+        "id" : "16"
+      }, {
+        "id" : "167"
+      }, {
+        "id" : "17"
+      }, {
+        "id" : "172"
+      }, {
+        "id" : "18"
+      }, {
+        "id" : "19"
+      }, {
+        "id" : "21"
+      }, {
+        "id" : "23"
+      }, {
+        "id" : "25"
+      }, {
+        "id" : "27"
+      }, {
+        "id" : "29"
+      }, {
+        "id" : "31"
+      }, {
+        "id" : "33"
+      }, {
+        "id" : "35"
+      }, {
+        "id" : "37"
+      }, {
+        "id" : "39"
+      }, {
+        "id" : "42"
+      }, {
+        "id" : "45"
+      }, {
+        "id" : "47"
+      } ],
+      "softwareSystemId" : "10"
+    } ],
+    "systemContextViews" : [ {
+      "description" : "System context showing Trade Loan Service and external dependencies",
+      "elements" : [ {
+        "id" : "1",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "2",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "3",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "4",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "5",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "6",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "7",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "10",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "38",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "41",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "44",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "49",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "enterpriseBoundaryVisible" : true,
+      "key" : "SystemContext",
+      "order" : 1,
+      "paperSize" : "A4_Landscape",
+      "relationships" : [ {
+        "id" : "168"
+      }, {
+        "id" : "20"
+      }, {
+        "id" : "22"
+      }, {
+        "id" : "24"
+      }, {
+        "id" : "26"
+      }, {
+        "id" : "28"
+      }, {
+        "id" : "30"
+      }, {
+        "id" : "32"
+      }, {
+        "id" : "34"
+      }, {
+        "id" : "36"
+      }, {
+        "id" : "40"
+      }, {
+        "id" : "43"
+      }, {
+        "id" : "46"
+      }, {
+        "id" : "48"
+      } ],
+      "softwareSystemId" : "10"
+    } ]
+  }
+}

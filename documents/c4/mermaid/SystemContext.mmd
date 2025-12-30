@@ -1,0 +1,50 @@
+graph TB
+  linkStyle default fill:#ffffff
+
+  subgraph diagram ["Trade Loan Service - System Context"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    1["<div style='font-weight: bold'>TPS SSO</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>OAuth2/OIDC provider</div>"]
+    style 1 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    10["<div style='font-weight: bold'>Trade Loan Service</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Morabehe loans with CQRS and<br />Event Sourcing</div>"]
+    style 10 fill:#1168bd,stroke:#0b4884,color:#ffffff
+    2["<div style='font-weight: bold'>FCB Core Banking</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Core Banking</div>"]
+    style 2 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    3["<div style='font-weight: bold'>OpenTelemetry Collector</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Observability backend</div>"]
+    style 3 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    38["<div style='font-weight: bold'>Loan Officer</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Bank staff managing loans</div>"]
+    style 38 fill:#08427b,stroke:#052e56,color:#ffffff
+    4["<div style='font-weight: bold'>Account Service</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Account management</div>"]
+    style 4 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    41["<div style='font-weight: bold'>Branch Manager</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Branch level approval<br />authority</div>"]
+    style 41 fill:#08427b,stroke:#052e56,color:#ffffff
+    44["<div style='font-weight: bold'>System Administrator</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Technical staff</div>"]
+    style 44 fill:#5c3d6e,stroke:#402a4d,color:#ffffff
+    49["<div style='font-weight: bold'>Customer</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>End users</div>"]
+    style 49 fill:#666666,stroke:#474747,color:#ffffff
+    5["<div style='font-weight: bold'>Customer Service</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Customer data</div>"]
+    style 5 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    6["<div style='font-weight: bold'>Deposit Service</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Deposit operations</div>"]
+    style 6 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    7["<div style='font-weight: bold'>Collateral Service</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Collateral management</div>"]
+    style 7 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    8["<div style='font-weight: bold'>Loan Service</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Cross-loan operations</div>"]
+    style 8 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    9["<div style='font-weight: bold'>Formula Evaluator Service</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Formula calculation</div>"]
+    style 9 fill:#999999,stroke:#6b6b6b,color:#ffffff
+
+    10-. "<div>Calls</div><div style='font-size: 70%'>[HTTP/REST]</div>" .->2
+    10-. "<div>Authenticates</div><div style='font-size: 70%'>[OAuth2/OIDC]</div>" .->1
+    10-. "<div>Core banking</div><div style='font-size: 70%'>[HTTP/REST]</div>" .->2
+    10-. "<div>Telemetry</div><div style='font-size: 70%'>[OTLP/gRPC]</div>" .->3
+    10-. "<div>Calls</div><div style='font-size: 70%'>[HTTP/REST]</div>" .->4
+    10-. "<div>Calls</div><div style='font-size: 70%'>[HTTP/REST]</div>" .->5
+    10-. "<div>Calls</div><div style='font-size: 70%'>[HTTP/REST]</div>" .->6
+    10-. "<div>Calls</div><div style='font-size: 70%'>[HTTP/REST]</div>" .->7
+    10-. "<div>Calls</div><div style='font-size: 70%'>[HTTP/REST]</div>" .->8
+    10-. "<div>Calls</div><div style='font-size: 70%'>[HTTP/REST]</div>" .->9
+    38-. "<div>Creates and manages loans</div><div style='font-size: 70%'>[HTTPS/JWT]</div>" .->10
+    41-. "<div>Approves facilities</div><div style='font-size: 70%'>[HTTPS/JWT]</div>" .->10
+    44-. "<div>Monitors system</div><div style='font-size: 70%'>[HTTPS/JWT]</div>" .->10
+    44-. "<div>Monitors Kafka</div><div style='font-size: 70%'>[HTTP]</div>" .->10
+  end

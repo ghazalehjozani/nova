@@ -1,0 +1,235 @@
+@startuml
+set separator none
+title Trade Loan Service - Trade Loan Application - Components
+
+top to bottom direction
+
+skinparam {
+  arrowFontSize 10
+  defaultTextAlignment center
+  wrapWidth 200
+  maxMessageSize 100
+}
+
+hide stereotype
+
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.AddFacilityCollateralCommandHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.AddFacilityCollateralController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.ApproveFacilityCommandHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.ApproveFacilityController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.CancelFacilityCommandHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.CancelFacilityController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.CloseFacilityDefaultedCommandHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.CloseFacilityDefaultedController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.CloseFacilityPaidOffCommandHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.CloseFacilityPaidOffController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.CompensateApprovalCommandHandler>> {
+  BackgroundColor #ef5350
+  FontColor #ffffff
+  BorderColor #a73a38
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.CompensateCollateralCommandHandler>> {
+  BackgroundColor #ef5350
+  FontColor #ffffff
+  BorderColor #a73a38
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.CompensateIrregularDisbursementCommandHandler>> {
+  BackgroundColor #ef5350
+  FontColor #ffffff
+  BorderColor #a73a38
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.DefineLoanArrangementController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.DefineLoanTypeCommandHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.DefineLoanTypeController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.DefineTradeLoanArrangementCommandHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.DevAuthCallbackController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.FullLifecycleRevertCommandHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.FullLoanFacilityLifecycleCommandHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.FullLoanFacilityLifecycleController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementCommandHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.IssueFacilityContractCommandHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.IssueFacilityContractController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.LumpSumDisbursementController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.OpenFacilityCaseController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.RegularDisbursementController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.RejectFacilityController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.SubmitFacilityForApprovalController>> {
+  BackgroundColor #7cb342
+  FontColor #ffffff
+  BorderColor #567d2e
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
+  BorderColor #2e6295
+  FontColor #2e6295
+  shadowing false
+}
+
+rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>" <<TradeLoanService.TradeLoanApplication>> {
+  rectangle "==DevAuthCallbackController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/dev/auth" <<TradeLoanService.TradeLoanApplication.DevAuthCallbackController>> as TradeLoanService.TradeLoanApplication.DevAuthCallbackController
+  rectangle "==AddFacilityCollateralController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/facilities/{facilityId}/collaterals" <<TradeLoanService.TradeLoanApplication.AddFacilityCollateralController>> as TradeLoanService.TradeLoanApplication.AddFacilityCollateralController
+  rectangle "==ApproveFacilityController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/facilities/{facilityId}/approve" <<TradeLoanService.TradeLoanApplication.ApproveFacilityController>> as TradeLoanService.TradeLoanApplication.ApproveFacilityController
+  rectangle "==CancelFacilityController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/facilities/{facilityId}/cancel" <<TradeLoanService.TradeLoanApplication.CancelFacilityController>> as TradeLoanService.TradeLoanApplication.CancelFacilityController
+  rectangle "==CloseFacilityDefaultedController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/facilities/{facilityId}/close-defaulted" <<TradeLoanService.TradeLoanApplication.CloseFacilityDefaultedController>> as TradeLoanService.TradeLoanApplication.CloseFacilityDefaultedController
+  rectangle "==CloseFacilityPaidOffController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/facilities/{facilityId}/close-paid-off" <<TradeLoanService.TradeLoanApplication.CloseFacilityPaidOffController>> as TradeLoanService.TradeLoanApplication.CloseFacilityPaidOffController
+  rectangle "==DefineLoanArrangementController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/loan-arrangements/define" <<TradeLoanService.TradeLoanApplication.DefineLoanArrangementController>> as TradeLoanService.TradeLoanApplication.DefineLoanArrangementController
+  rectangle "==DefineLoanTypeController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/loan-types/define" <<TradeLoanService.TradeLoanApplication.DefineLoanTypeController>> as TradeLoanService.TradeLoanApplication.DefineLoanTypeController
+  rectangle "==FullLoanFacilityLifecycleController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/facilities/full-lifecycle" <<TradeLoanService.TradeLoanApplication.FullLoanFacilityLifecycleController>> as TradeLoanService.TradeLoanApplication.FullLoanFacilityLifecycleController
+  rectangle "==IrregularProgressiveDisbursementController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/facilities/{facilityId}/disburse/progressive-irregular" <<TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementController>> as TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementController
+  rectangle "==IssueFacilityContractController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/facilities/{facilityId}/issue-contract" <<TradeLoanService.TradeLoanApplication.IssueFacilityContractController>> as TradeLoanService.TradeLoanApplication.IssueFacilityContractController
+  rectangle "==LumpSumDisbursementController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/facilities/{facilityId}/disburse/lump-sum" <<TradeLoanService.TradeLoanApplication.LumpSumDisbursementController>> as TradeLoanService.TradeLoanApplication.LumpSumDisbursementController
+  rectangle "==OpenFacilityCaseController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/facilities/open-case" <<TradeLoanService.TradeLoanApplication.OpenFacilityCaseController>> as TradeLoanService.TradeLoanApplication.OpenFacilityCaseController
+  rectangle "==RegularDisbursementController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/facilities/{facilityId}/disburse/regular" <<TradeLoanService.TradeLoanApplication.RegularDisbursementController>> as TradeLoanService.TradeLoanApplication.RegularDisbursementController
+  rectangle "==RejectFacilityController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/facilities/{facilityId}/reject" <<TradeLoanService.TradeLoanApplication.RejectFacilityController>> as TradeLoanService.TradeLoanApplication.RejectFacilityController
+  rectangle "==SubmitFacilityForApprovalController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/facilities/{facilityId}/submit-for-approval" <<TradeLoanService.TradeLoanApplication.SubmitFacilityForApprovalController>> as TradeLoanService.TradeLoanApplication.SubmitFacilityForApprovalController
+  rectangle "==AddFacilityCollateralCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles add facility collateral" <<TradeLoanService.TradeLoanApplication.AddFacilityCollateralCommandHandler>> as TradeLoanService.TradeLoanApplication.AddFacilityCollateralCommandHandler
+  rectangle "==CompensateCollateralCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles compensate collateral" <<TradeLoanService.TradeLoanApplication.CompensateCollateralCommandHandler>> as TradeLoanService.TradeLoanApplication.CompensateCollateralCommandHandler
+  rectangle "==ApproveFacilityCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles approve facility" <<TradeLoanService.TradeLoanApplication.ApproveFacilityCommandHandler>> as TradeLoanService.TradeLoanApplication.ApproveFacilityCommandHandler
+  rectangle "==CompensateApprovalCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles compensate approval" <<TradeLoanService.TradeLoanApplication.CompensateApprovalCommandHandler>> as TradeLoanService.TradeLoanApplication.CompensateApprovalCommandHandler
+  rectangle "==CancelFacilityCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles cancel facility" <<TradeLoanService.TradeLoanApplication.CancelFacilityCommandHandler>> as TradeLoanService.TradeLoanApplication.CancelFacilityCommandHandler
+  rectangle "==CloseFacilityDefaultedCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles close facility defaulted" <<TradeLoanService.TradeLoanApplication.CloseFacilityDefaultedCommandHandler>> as TradeLoanService.TradeLoanApplication.CloseFacilityDefaultedCommandHandler
+  rectangle "==CloseFacilityPaidOffCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles close facility paid off" <<TradeLoanService.TradeLoanApplication.CloseFacilityPaidOffCommandHandler>> as TradeLoanService.TradeLoanApplication.CloseFacilityPaidOffCommandHandler
+  rectangle "==DefineTradeLoanArrangementCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles define trade loan arrangement" <<TradeLoanService.TradeLoanApplication.DefineTradeLoanArrangementCommandHandler>> as TradeLoanService.TradeLoanApplication.DefineTradeLoanArrangementCommandHandler
+  rectangle "==DefineLoanTypeCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles define loan type" <<TradeLoanService.TradeLoanApplication.DefineLoanTypeCommandHandler>> as TradeLoanService.TradeLoanApplication.DefineLoanTypeCommandHandler
+  rectangle "==FullLoanFacilityLifecycleCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles full loan facility lifecycle" <<TradeLoanService.TradeLoanApplication.FullLoanFacilityLifecycleCommandHandler>> as TradeLoanService.TradeLoanApplication.FullLoanFacilityLifecycleCommandHandler
+  rectangle "==FullLifecycleRevertCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles full lifecycle revert" <<TradeLoanService.TradeLoanApplication.FullLifecycleRevertCommandHandler>> as TradeLoanService.TradeLoanApplication.FullLifecycleRevertCommandHandler
+  rectangle "==IrregularProgressiveDisbursementCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles irregular progressive disbursement" <<TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementCommandHandler>> as TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementCommandHandler
+  rectangle "==CompensateIrregularDisbursementCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles compensate irregular disbursement" <<TradeLoanService.TradeLoanApplication.CompensateIrregularDisbursementCommandHandler>> as TradeLoanService.TradeLoanApplication.CompensateIrregularDisbursementCommandHandler
+  rectangle "==IssueFacilityContractCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles issue facility contract" <<TradeLoanService.TradeLoanApplication.IssueFacilityContractCommandHandler>> as TradeLoanService.TradeLoanApplication.IssueFacilityContractCommandHandler
+}
+
+@enduml

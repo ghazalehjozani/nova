@@ -1,0 +1,172 @@
+@startuml
+set separator none
+title Trade Loan Service - Containers
+
+top to bottom direction
+
+skinparam {
+  arrowFontSize 10
+  defaultTextAlignment center
+  wrapWidth 200
+  maxMessageSize 100
+}
+
+hide stereotype
+
+skinparam rectangle<<AccountService>> {
+  BackgroundColor #999999
+  FontColor #ffffff
+  BorderColor #6b6b6b
+  shadowing false
+}
+skinparam person<<BranchManager>> {
+  BackgroundColor #08427b
+  FontColor #ffffff
+  BorderColor #052e56
+  shadowing false
+}
+skinparam rectangle<<CollateralService>> {
+  BackgroundColor #999999
+  FontColor #ffffff
+  BorderColor #6b6b6b
+  shadowing false
+}
+skinparam person<<Customer>> {
+  BackgroundColor #666666
+  FontColor #ffffff
+  BorderColor #474747
+  shadowing false
+}
+skinparam rectangle<<CustomerService>> {
+  BackgroundColor #999999
+  FontColor #ffffff
+  BorderColor #6b6b6b
+  shadowing false
+}
+skinparam rectangle<<DepositService>> {
+  BackgroundColor #999999
+  FontColor #ffffff
+  BorderColor #6b6b6b
+  shadowing false
+}
+skinparam rectangle<<FCBCoreBanking>> {
+  BackgroundColor #999999
+  FontColor #ffffff
+  BorderColor #6b6b6b
+  shadowing false
+}
+skinparam rectangle<<FormulaEvaluatorService>> {
+  BackgroundColor #999999
+  FontColor #ffffff
+  BorderColor #6b6b6b
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.Kafdrop>> {
+  BackgroundColor #27ae60
+  FontColor #ffffff
+  BorderColor #1b7943
+  shadowing false
+}
+skinparam queue<<TradeLoanService.Kafka>> {
+  BackgroundColor #f5a623
+  FontColor #000000
+  BorderColor #ab7418
+  shadowing false
+}
+skinparam person<<LoanOfficer>> {
+  BackgroundColor #08427b
+  FontColor #ffffff
+  BorderColor #052e56
+  shadowing false
+}
+skinparam rectangle<<LoanService>> {
+  BackgroundColor #999999
+  FontColor #ffffff
+  BorderColor #6b6b6b
+  shadowing false
+}
+skinparam rectangle<<OpenTelemetryCollector>> {
+  BackgroundColor #999999
+  FontColor #ffffff
+  BorderColor #6b6b6b
+  shadowing false
+}
+skinparam database<<TradeLoanService.PostgreSQLDatabase>> {
+  BackgroundColor #438dd5
+  FontColor #ffffff
+  BorderColor #2e6295
+  shadowing false
+}
+skinparam database<<TradeLoanService.Redis>> {
+  BackgroundColor #e74c3c
+  FontColor #ffffff
+  BorderColor #a1352a
+  shadowing false
+}
+skinparam person<<SystemAdministrator>> {
+  BackgroundColor #5c3d6e
+  FontColor #ffffff
+  BorderColor #402a4d
+  shadowing false
+}
+skinparam rectangle<<TPSSSO>> {
+  BackgroundColor #999999
+  FontColor #ffffff
+  BorderColor #6b6b6b
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
+  BackgroundColor #438dd5
+  FontColor #ffffff
+  BorderColor #2e6295
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService>> {
+  BorderColor #0b4884
+  FontColor #0b4884
+  shadowing false
+}
+
+rectangle "==TPS SSO\n<size:10>[Software System]</size>\n\nOAuth2/OIDC provider" <<TPSSSO>> as TPSSSO
+rectangle "==FCB Core Banking\n<size:10>[Software System]</size>\n\nCore Banking" <<FCBCoreBanking>> as FCBCoreBanking
+rectangle "==OpenTelemetry Collector\n<size:10>[Software System]</size>\n\nObservability backend" <<OpenTelemetryCollector>> as OpenTelemetryCollector
+rectangle "==Account Service\n<size:10>[Software System]</size>\n\nAccount management" <<AccountService>> as AccountService
+rectangle "==Customer Service\n<size:10>[Software System]</size>\n\nCustomer data" <<CustomerService>> as CustomerService
+rectangle "==Deposit Service\n<size:10>[Software System]</size>\n\nDeposit operations" <<DepositService>> as DepositService
+rectangle "==Collateral Service\n<size:10>[Software System]</size>\n\nCollateral management" <<CollateralService>> as CollateralService
+rectangle "==Loan Service\n<size:10>[Software System]</size>\n\nCross-loan operations" <<LoanService>> as LoanService
+rectangle "==Formula Evaluator Service\n<size:10>[Software System]</size>\n\nFormula calculation" <<FormulaEvaluatorService>> as FormulaEvaluatorService
+person "==Loan Officer\n<size:10>[Person]</size>\n\nBank staff managing loans" <<LoanOfficer>> as LoanOfficer
+person "==Branch Manager\n<size:10>[Person]</size>\n\nBranch level approval authority" <<BranchManager>> as BranchManager
+person "==System Administrator\n<size:10>[Person]</size>\n\nTechnical staff" <<SystemAdministrator>> as SystemAdministrator
+person "==Customer\n<size:10>[Person]</size>\n\nEnd users" <<Customer>> as Customer
+
+rectangle "Trade Loan Service\n<size:10>[Software System]</size>" <<TradeLoanService>> {
+  rectangle "==Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>\n\nSpring Boot Hexagonal Architecture" <<TradeLoanService.TradeLoanApplication>> as TradeLoanService.TradeLoanApplication
+  database "==PostgreSQL Database\n<size:10>[Container: PostgreSQL 18]</size>\n\nLoan data storage" <<TradeLoanService.PostgreSQLDatabase>> as TradeLoanService.PostgreSQLDatabase
+  queue "==Kafka\n<size:10>[Container: Confluent Kafka 7.9]</size>\n\nEvent streaming" <<TradeLoanService.Kafka>> as TradeLoanService.Kafka
+  database "==Redis\n<size:10>[Container: Redis 8.2]</size>\n\nCaching and locks" <<TradeLoanService.Redis>> as TradeLoanService.Redis
+  rectangle "==Kafdrop\n<size:10>[Container: Kafdrop 4.2]</size>\n\nKafka monitoring" <<TradeLoanService.Kafdrop>> as TradeLoanService.Kafdrop
+}
+
+TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> TradeLoanService.Kafka : "<color:#707070>Consumes from\n<color:#707070><size:8>[Kafka Protocol]</size>"
+TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> TradeLoanService.PostgreSQLDatabase : "<color:#707070>Reads/Writes\n<color:#707070><size:8>[JDBC/HikariCP]</size>"
+TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> FCBCoreBanking : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
+TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> TradeLoanService.Kafka : "<color:#707070>Publishes/Consumes\n<color:#707070><size:8>[Kafka Protocol]</size>"
+TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> TradeLoanService.Kafka : "<color:#707070>Publishes events\n<color:#707070><size:8>[Kafka Protocol]</size>"
+TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> TradeLoanService.Redis : "<color:#707070>Caches data\n<color:#707070><size:8>[Redis Protocol]</size>"
+TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> TPSSSO : "<color:#707070>Authenticates\n<color:#707070><size:8>[OAuth2/OIDC]</size>"
+TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> FCBCoreBanking : "<color:#707070>Core banking\n<color:#707070><size:8>[HTTP/REST]</size>"
+TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> OpenTelemetryCollector : "<color:#707070>Telemetry\n<color:#707070><size:8>[OTLP/gRPC]</size>"
+TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> AccountService : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
+TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> CustomerService : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
+TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> DepositService : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
+TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> CollateralService : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
+TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> LoanService : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
+TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> FormulaEvaluatorService : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
+TradeLoanService.Kafdrop .[#707070,thickness=2].> TradeLoanService.Kafka : "<color:#707070>Monitors\n<color:#707070><size:8>[Kafka Protocol]</size>"
+LoanOfficer .[#707070,thickness=2].> TradeLoanService.TradeLoanApplication : "<color:#707070>Creates and manages loans\n<color:#707070><size:8>[HTTPS/JWT]</size>"
+BranchManager .[#707070,thickness=2].> TradeLoanService.TradeLoanApplication : "<color:#707070>Approves facilities\n<color:#707070><size:8>[HTTPS/JWT]</size>"
+SystemAdministrator .[#707070,thickness=2].> TradeLoanService.TradeLoanApplication : "<color:#707070>Monitors system\n<color:#707070><size:8>[HTTPS/JWT]</size>"
+SystemAdministrator .[#707070,thickness=2].> TradeLoanService.Kafdrop : "<color:#707070>Monitors Kafka\n<color:#707070><size:8>[HTTP]</size>"
+@enduml
