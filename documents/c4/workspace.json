@@ -2,12 +2,13 @@
   "configuration" : { },
   "description" : "C4 Architecture for Morabehe Loans Microservice",
   "documentation" : { },
-  "id" : 0,
+  "id" : 1,
+  "lastModifiedAgent" : "structurizr-ui",
+  "lastModifiedDate" : "2025-12-30T12:41:18Z",
   "model" : {
     "people" : [ {
       "description" : "Bank staff managing loans",
       "id" : "38",
-      "location" : "Unspecified",
       "name" : "Loan Officer",
       "relationships" : [ {
         "description" : "Creates and manages loans",
@@ -28,7 +29,6 @@
     }, {
       "description" : "Branch level approval authority",
       "id" : "41",
-      "location" : "Unspecified",
       "name" : "Branch Manager",
       "relationships" : [ {
         "description" : "Approves facilities",
@@ -49,7 +49,6 @@
     }, {
       "description" : "Technical staff",
       "id" : "44",
-      "location" : "Unspecified",
       "name" : "System Administrator",
       "relationships" : [ {
         "description" : "Monitors system",
@@ -84,7 +83,6 @@
     }, {
       "description" : "End users",
       "id" : "49",
-      "location" : "Unspecified",
       "name" : "Customer",
       "tags" : "Element,Person,External User"
     } ],
@@ -92,63 +90,54 @@
       "description" : "OAuth2/OIDC provider",
       "documentation" : { },
       "id" : "1",
-      "location" : "Unspecified",
       "name" : "TPS SSO",
       "tags" : "Element,Software System,External System,Security"
     }, {
       "description" : "Core Banking",
       "documentation" : { },
       "id" : "2",
-      "location" : "Unspecified",
       "name" : "FCB Core Banking",
       "tags" : "Element,Software System,External System,Core Banking"
     }, {
       "description" : "Observability backend",
       "documentation" : { },
       "id" : "3",
-      "location" : "Unspecified",
       "name" : "OpenTelemetry Collector",
       "tags" : "Element,Software System,External System,Observability"
     }, {
       "description" : "Account management",
       "documentation" : { },
       "id" : "4",
-      "location" : "Unspecified",
       "name" : "Account Service",
       "tags" : "Element,Software System,External System,Domain Service"
     }, {
       "description" : "Customer data",
       "documentation" : { },
       "id" : "5",
-      "location" : "Unspecified",
       "name" : "Customer Service",
       "tags" : "Element,Software System,External System,Domain Service"
     }, {
       "description" : "Deposit operations",
       "documentation" : { },
       "id" : "6",
-      "location" : "Unspecified",
       "name" : "Deposit Service",
       "tags" : "Element,Software System,External System,Domain Service"
     }, {
       "description" : "Collateral management",
       "documentation" : { },
       "id" : "7",
-      "location" : "Unspecified",
       "name" : "Collateral Service",
       "tags" : "Element,Software System,External System,Domain Service"
     }, {
       "description" : "Cross-loan operations",
       "documentation" : { },
       "id" : "8",
-      "location" : "Unspecified",
       "name" : "Loan Service",
       "tags" : "Element,Software System,External System,Domain Service"
     }, {
       "description" : "Formula calculation",
       "documentation" : { },
       "id" : "9",
-      "location" : "Unspecified",
       "name" : "Formula Evaluator Service",
       "tags" : "Element,Software System,External System,Domain Service"
     }, {
@@ -1180,7 +1169,6 @@
       "description" : "Morabehe loans with CQRS and Event Sourcing",
       "documentation" : { },
       "id" : "10",
-      "location" : "Unspecified",
       "name" : "Trade Loan Service",
       "relationships" : [ {
         "description" : "Authenticates",
@@ -1384,6 +1372,7 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Components",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 3,
       "paperSize" : "A3_Landscape"
     }, {
@@ -1512,6 +1501,7 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Components_2",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 4,
       "paperSize" : "A3_Landscape"
     }, {
@@ -1640,6 +1630,7 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Components_3",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 5,
       "paperSize" : "A3_Landscape",
       "relationships" : [ {
@@ -1655,6 +1646,7 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Components_4",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 6,
       "paperSize" : "A3_Landscape"
     }, {
@@ -1743,6 +1735,7 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Controllers",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 7,
       "paperSize" : "A4_Landscape"
     }, {
@@ -1871,6 +1864,7 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Handlers",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 8,
       "paperSize" : "A4_Landscape"
     }, {
@@ -1887,6 +1881,7 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Sagas",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 9,
       "paperSize" : "A4_Landscape"
     }, {
@@ -1955,6 +1950,7 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "DomainModel",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 10,
       "paperSize" : "A4_Landscape",
       "relationships" : [ {
@@ -2002,6 +1998,7 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Repositories",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 11,
       "paperSize" : "A4_Landscape",
       "relationships" : [ {
@@ -2055,6 +2052,7 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "ExternalClients",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 12,
       "paperSize" : "A4_Landscape"
     }, {
@@ -2087,6 +2085,7 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Messaging",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 13,
       "paperSize" : "A4_Landscape",
       "relationships" : [ {
@@ -2226,6 +2225,7 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "CommandFlow",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 14,
       "paperSize" : "A4_Landscape"
     }, {
@@ -2306,6 +2306,7 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "QueryFlow",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 15,
       "paperSize" : "A4_Landscape"
     }, {
@@ -2434,119 +2435,122 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "SagaFlow",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 16,
       "paperSize" : "A4_Landscape"
     } ],
     "configuration" : {
       "branding" : { },
+      "lastSavedView" : "SystemContext",
+      "metadataSymbols" : "SquareBrackets",
       "styles" : {
         "elements" : [ {
-          "background" : "#438dd5",
-          "color" : "#ffffff",
-          "tag" : "Container"
-        }, {
-          "background" : "#e74c3c",
-          "shape" : "Cylinder",
-          "tag" : "Cache"
+          "background" : "#5c3d6e",
+          "tag" : "Admin"
         }, {
           "background" : "#ff9800",
           "color" : "#000000",
           "tag" : "Aggregate"
         }, {
-          "background" : "#ffb74d",
-          "color" : "#000000",
-          "tag" : "Entity"
+          "background" : "#e74c3c",
+          "shape" : "Cylinder",
+          "tag" : "Cache"
         }, {
-          "background" : "#08427b",
+          "background" : "#ec407a",
           "color" : "#ffffff",
-          "shape" : "Person",
-          "tag" : "Person"
+          "tag" : "Client"
+        }, {
+          "background" : "#ef5350",
+          "color" : "#ffffff",
+          "tag" : "Compensation"
+        }, {
+          "background" : "#85bbf0",
+          "color" : "#000000",
+          "tag" : "Component"
         }, {
           "background" : "#ff7043",
           "color" : "#ffffff",
           "shape" : "Hexagon",
           "tag" : "Consumer"
         }, {
-          "background" : "#1168bd",
+          "background" : "#438dd5",
           "color" : "#ffffff",
-          "tag" : "Software System"
-        }, {
-          "background" : "#42a5f5",
-          "color" : "#ffffff",
-          "tag" : "Handler"
-        }, {
-          "shape" : "Cylinder",
-          "tag" : "Database"
-        }, {
-          "background" : "#08427b",
-          "tag" : "Internal User"
-        }, {
-          "background" : "#999999",
-          "border" : "Dashed",
-          "tag" : "External System"
-        }, {
-          "background" : "#ffa726",
-          "color" : "#000000",
-          "tag" : "Domain"
-        }, {
-          "background" : "#29b6f6",
-          "color" : "#ffffff",
-          "tag" : "Service"
-        }, {
-          "background" : "#27ae60",
-          "shape" : "WebBrowser",
-          "tag" : "Monitoring"
-        }, {
-          "background" : "#ec407a",
-          "color" : "#ffffff",
-          "tag" : "Client"
+          "tag" : "Container"
         }, {
           "background" : "#7cb342",
           "color" : "#ffffff",
           "tag" : "Controller"
         }, {
-          "background" : "#85bbf0",
+          "shape" : "Cylinder",
+          "tag" : "Database"
+        }, {
+          "background" : "#ffa726",
           "color" : "#000000",
-          "tag" : "Component"
+          "tag" : "Domain"
+        }, {
+          "background" : "#ffb74d",
+          "color" : "#000000",
+          "tag" : "Entity"
+        }, {
+          "background" : "#999999",
+          "border" : "Dashed",
+          "tag" : "External System"
+        }, {
+          "background" : "#666666",
+          "tag" : "External User"
+        }, {
+          "background" : "#42a5f5",
+          "color" : "#ffffff",
+          "tag" : "Handler"
+        }, {
+          "background" : "#08427b",
+          "tag" : "Internal User"
         }, {
           "background" : "#f5a623",
           "color" : "#000000",
           "shape" : "Pipe",
           "tag" : "Message Broker"
         }, {
-          "background" : "#ab47bc",
-          "color" : "#ffffff",
-          "shape" : "Diamond",
-          "tag" : "Saga"
-        }, {
-          "background" : "#ef5350",
-          "color" : "#ffffff",
-          "tag" : "Compensation"
-        }, {
-          "background" : "#5c6bc0",
-          "color" : "#ffffff",
-          "shape" : "Cylinder",
-          "tag" : "Repository"
+          "background" : "#27ae60",
+          "shape" : "WebBrowser",
+          "tag" : "Monitoring"
         }, {
           "background" : "#66bb6a",
           "color" : "#000000",
           "shape" : "Hexagon",
           "tag" : "Outbox"
         }, {
-          "background" : "#5c3d6e",
-          "tag" : "Admin"
+          "background" : "#08427b",
+          "color" : "#ffffff",
+          "shape" : "Person",
+          "tag" : "Person"
         }, {
-          "background" : "#666666",
-          "tag" : "External User"
+          "background" : "#5c6bc0",
+          "color" : "#ffffff",
+          "shape" : "Cylinder",
+          "tag" : "Repository"
+        }, {
+          "background" : "#ab47bc",
+          "color" : "#ffffff",
+          "shape" : "Diamond",
+          "tag" : "Saga"
+        }, {
+          "background" : "#29b6f6",
+          "color" : "#ffffff",
+          "tag" : "Service"
+        }, {
+          "background" : "#1168bd",
+          "color" : "#ffffff",
+          "tag" : "Software System"
         } ],
         "relationships" : [ {
-          "color" : "#707070",
-          "tag" : "Relationship",
-          "thickness" : 2
-        }, {
           "color" : "#ff6600",
           "style" : "Dashed",
           "tag" : "Asynchronous",
+          "thickness" : 2
+        }, {
+          "color" : "#707070",
+          "tag" : "Relationship",
           "thickness" : 2
         } ]
       },
@@ -2629,6 +2633,7 @@
       } ],
       "externalSoftwareSystemBoundariesVisible" : false,
       "key" : "Containers",
+      "name" : "Container View: Trade Loan Service",
       "order" : 2,
       "paperSize" : "A4_Landscape",
       "relationships" : [ {
@@ -2676,73 +2681,86 @@
     } ],
     "systemContextViews" : [ {
       "description" : "System context showing Trade Loan Service and external dependencies",
+      "dimensions" : {
+        "height" : 2016,
+        "width" : 6866
+      },
       "elements" : [ {
         "id" : "1",
-        "x" : 0,
-        "y" : 0
+        "x" : 208,
+        "y" : 1508
       }, {
         "id" : "2",
-        "x" : 0,
-        "y" : 0
+        "x" : 958,
+        "y" : 1508
       }, {
         "id" : "3",
-        "x" : 0,
-        "y" : 0
+        "x" : 1708,
+        "y" : 1508
       }, {
         "id" : "4",
-        "x" : 0,
-        "y" : 0
+        "x" : 2458,
+        "y" : 1508
       }, {
         "id" : "5",
-        "x" : 0,
-        "y" : 0
+        "x" : 3208,
+        "y" : 1508
       }, {
         "id" : "6",
-        "x" : 0,
-        "y" : 0
+        "x" : 3958,
+        "y" : 1508
       }, {
         "id" : "7",
-        "x" : 0,
-        "y" : 0
+        "x" : 4708,
+        "y" : 1508
       }, {
         "id" : "8",
-        "x" : 0,
-        "y" : 0
+        "x" : 5458,
+        "y" : 1508
       }, {
         "id" : "9",
-        "x" : 0,
-        "y" : 0
+        "x" : 6208,
+        "y" : 1508
       }, {
         "id" : "10",
-        "x" : 0,
-        "y" : 0
+        "x" : 2833,
+        "y" : 908
       }, {
         "id" : "38",
-        "x" : 0,
-        "y" : 0
+        "x" : 1808,
+        "y" : 208
       }, {
         "id" : "41",
-        "x" : 0,
-        "y" : 0
+        "x" : 2508,
+        "y" : 208
       }, {
         "id" : "44",
-        "x" : 0,
-        "y" : 0
+        "x" : 3208,
+        "y" : 208
       }, {
         "id" : "49",
-        "x" : 0,
-        "y" : 0
+        "x" : 3908,
+        "y" : 208
       } ],
       "enterpriseBoundaryVisible" : true,
       "key" : "SystemContext",
+      "name" : "System Context View: Trade Loan Service",
       "order" : 1,
-      "paperSize" : "A4_Landscape",
+      "paperSize" : "A2_Landscape",
       "relationships" : [ {
         "id" : "168"
       }, {
-        "id" : "20"
+        "id" : "20",
+        "vertices" : [ {
+          "x" : 808,
+          "y" : 1508
+        } ]
       }, {
-        "id" : "22"
+        "id" : "22",
+        "vertices" : [ {
+          "x" : 1708,
+          "y" : 1508
+        } ]
       }, {
         "id" : "24"
       }, {
@@ -2752,19 +2770,39 @@
       }, {
         "id" : "30"
       }, {
-        "id" : "32"
+        "id" : "32",
+        "vertices" : [ {
+          "x" : 4558,
+          "y" : 1508
+        } ]
       }, {
-        "id" : "34"
+        "id" : "34",
+        "vertices" : [ {
+          "x" : 5308,
+          "y" : 1508
+        } ]
       }, {
-        "id" : "36"
+        "id" : "36",
+        "vertices" : [ {
+          "x" : 6058,
+          "y" : 1508
+        } ]
       }, {
         "id" : "40"
       }, {
         "id" : "43"
       }, {
-        "id" : "46"
+        "id" : "46",
+        "vertices" : [ {
+          "x" : 3100,
+          "y" : 661
+        } ]
       }, {
-        "id" : "48"
+        "id" : "48",
+        "vertices" : [ {
+          "x" : 3365,
+          "y" : 804
+        } ]
       } ],
       "softwareSystemId" : "10"
     } ]
