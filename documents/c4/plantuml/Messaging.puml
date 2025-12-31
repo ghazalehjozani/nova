@@ -1,0 +1,73 @@
+@startuml
+set separator none
+title Trade Loan Service - Trade Loan Application - Components
+
+top to bottom direction
+
+skinparam {
+  arrowFontSize 10
+  defaultTextAlignment center
+  wrapWidth 200
+  maxMessageSize 100
+}
+
+hide stereotype
+
+skinparam hexagon<<TradeLoanService.TradeLoanApplication.InstallmentScheduleOutboxHandler>> {
+  BackgroundColor #66bb6a
+  FontColor #000000
+  BorderColor #47824a
+  shadowing false
+}
+skinparam queue<<TradeLoanService.Kafka>> {
+  BackgroundColor #f5a623
+  FontColor #000000
+  BorderColor #ab7418
+  shadowing false
+}
+skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler>> {
+  BackgroundColor #66bb6a
+  FontColor #000000
+  BorderColor #47824a
+  shadowing false
+}
+skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanCommandConsumer>> {
+  BackgroundColor #ff7043
+  FontColor #ffffff
+  BorderColor #b24e2e
+  shadowing false
+}
+skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler>> {
+  BackgroundColor #66bb6a
+  FontColor #000000
+  BorderColor #47824a
+  shadowing false
+}
+skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler>> {
+  BackgroundColor #66bb6a
+  FontColor #000000
+  BorderColor #47824a
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
+  BorderColor #2e6295
+  FontColor #2e6295
+  shadowing false
+}
+
+queue "==Kafka\n<size:10>[Container: Confluent Kafka 7.9]</size>\n\nEvent streaming" <<TradeLoanService.Kafka>> as TradeLoanService.Kafka
+
+rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>" <<TradeLoanService.TradeLoanApplication>> {
+  hexagon "==InstallmentScheduleOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nInstallmentSchedule outbox handler" <<TradeLoanService.TradeLoanApplication.InstallmentScheduleOutboxHandler>> as TradeLoanService.TradeLoanApplication.InstallmentScheduleOutboxHandler
+  hexagon "==TradeLoanArrangementOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanArrangement outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler
+  hexagon "==TradeLoanFacilityOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanFacility outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler
+  hexagon "==TradeLoanTypeOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanType outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler
+  hexagon "==TradeLoanCommandConsumer\n<size:10>[Component: Spring Kafka Listener]</size>\n\nKafka consumer" <<TradeLoanService.TradeLoanApplication.TradeLoanCommandConsumer>> as TradeLoanService.TradeLoanApplication.TradeLoanCommandConsumer
+}
+
+TradeLoanService.TradeLoanApplication.TradeLoanCommandConsumer .[#707070,thickness=2].> TradeLoanService.Kafka : "<color:#707070>Consumes from\n<color:#707070><size:8>[Kafka Protocol]</size>"
+TradeLoanService.TradeLoanApplication.InstallmentScheduleOutboxHandler .[#707070,thickness=2].> TradeLoanService.Kafka : "<color:#707070>Publishes events\n<color:#707070><size:8>[Kafka Protocol]</size>"
+TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler .[#707070,thickness=2].> TradeLoanService.Kafka : "<color:#707070>Publishes events\n<color:#707070><size:8>[Kafka Protocol]</size>"
+TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler .[#707070,thickness=2].> TradeLoanService.Kafka : "<color:#707070>Publishes events\n<color:#707070><size:8>[Kafka Protocol]</size>"
+TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler .[#707070,thickness=2].> TradeLoanService.Kafka : "<color:#707070>Publishes events\n<color:#707070><size:8>[Kafka Protocol]</size>"
+@enduml

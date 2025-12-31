@@ -1,0 +1,39 @@
+@startuml
+set separator none
+title Trade Loan Service - Trade Loan Application - Components
+
+top to bottom direction
+
+skinparam {
+  arrowFontSize 10
+  defaultTextAlignment center
+  wrapWidth 200
+  maxMessageSize 100
+}
+
+hide stereotype
+
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.FullLoanFacilityLifecycleSaga>> {
+  BackgroundColor #ab47bc
+  FontColor #ffffff
+  BorderColor #773183
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.IssueFacilityContractSaga>> {
+  BackgroundColor #ab47bc
+  FontColor #ffffff
+  BorderColor #773183
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
+  BorderColor #2e6295
+  FontColor #2e6295
+  shadowing false
+}
+
+rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>" <<TradeLoanService.TradeLoanApplication>> {
+  rectangle "==FullLoanFacilityLifecycleSaga\n<size:10>[Component: Saga Orchestrator]</size>\n\nOrchestrates full loan facility lifecycle" <<TradeLoanService.TradeLoanApplication.FullLoanFacilityLifecycleSaga>> as TradeLoanService.TradeLoanApplication.FullLoanFacilityLifecycleSaga
+  rectangle "==IssueFacilityContractSaga\n<size:10>[Component: Saga Orchestrator]</size>\n\nOrchestrates issue facility contract" <<TradeLoanService.TradeLoanApplication.IssueFacilityContractSaga>> as TradeLoanService.TradeLoanApplication.IssueFacilityContractSaga
+}
+
+@enduml

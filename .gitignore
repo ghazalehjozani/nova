@@ -192,3 +192,4 @@ container/k8s/**/secret*.yml
 /container/logs/
 project-knowledge.xml
 /doc/.exports/
+/documents/c4/.structurizr/

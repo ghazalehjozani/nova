@@ -1,0 +1,36 @@
+digraph {
+  compound=true
+  graph [fontname="Arial", rankdir=TB, ranksep=1.0, nodesep=1.0]
+  node [fontname="Arial", shape=box, margin="0.4,0.3"]
+  edge [fontname="Arial"]
+  label=<<br /><font point-size="34">Trade Loan Service - Trade Loan Application - Components</font><br /><font point-size="24">Repository adapters</font>>
+
+  12 [id=12,shape=cylinder, label=<<font point-size="34">PostgreSQL Database</font><br /><font point-size="19">[Container: PostgreSQL 18]</font><br /><br /><font point-size="24">Loan data storage</font>>, style=filled, color="#2e6295", fillcolor="#438dd5", fontcolor="#ffffff"]
+
+  subgraph cluster_11 {
+    margin=25
+    label=<<font point-size="24"><br />Trade Loan Application</font><br /><font point-size="19">[Container: Java 25, Spring Boot 4]</font>>
+    labelloc=b
+    color="#444444"
+    fontcolor="#444444"
+    fillcolor="#444444"
+
+    122 [id=122,shape=cylinder, label=<<font point-size="34">InstallmentScheduleRepositoryAdapter</font><br /><font point-size="19">[Component: Spring Data JPA]</font><br /><br /><font point-size="24">InstallmentSchedule<br />persistence adapter</font>>, style=filled, color="#404a86", fillcolor="#5c6bc0", fontcolor="#ffffff"]
+    123 [id=123,shape=cylinder, label=<<font point-size="34">TradeLoanArrangementRepositoryAdapter</font><br /><font point-size="19">[Component: Spring Data JPA]</font><br /><br /><font point-size="24">TradeLoanArrangement<br />persistence adapter</font>>, style=filled, color="#404a86", fillcolor="#5c6bc0", fontcolor="#ffffff"]
+    124 [id=124,shape=cylinder, label=<<font point-size="34">TradeLoanFacilityRepositoryAdapter</font><br /><font point-size="19">[Component: Spring Data JPA]</font><br /><br /><font point-size="24">TradeLoanFacility persistence<br />adapter</font>>, style=filled, color="#404a86", fillcolor="#5c6bc0", fontcolor="#ffffff"]
+    125 [id=125,shape=cylinder, label=<<font point-size="34">TradeLoanTypeRepositoryAdapter</font><br /><font point-size="19">[Component: Spring Data JPA]</font><br /><br /><font point-size="24">TradeLoanType persistence<br />adapter</font>>, style=filled, color="#404a86", fillcolor="#5c6bc0", fontcolor="#ffffff"]
+    126 [id=126,shape=cylinder, label=<<font point-size="34">JpaTradeInstallmentScheduleQueryAdapter</font><br /><font point-size="19">[Component: Spring Data JPA]</font><br /><br /><font point-size="24">TradeInstallmentSchedule query<br />adapter</font>>, style=filled, color="#404a86", fillcolor="#5c6bc0", fontcolor="#ffffff"]
+    127 [id=127,shape=cylinder, label=<<font point-size="34">JpaTradeLoanArrangementQueryAdapter</font><br /><font point-size="19">[Component: Spring Data JPA]</font><br /><br /><font point-size="24">TradeLoanArrangement query<br />adapter</font>>, style=filled, color="#404a86", fillcolor="#5c6bc0", fontcolor="#ffffff"]
+    128 [id=128,shape=cylinder, label=<<font point-size="34">JpaFacilityQueryAdapter</font><br /><font point-size="19">[Component: Spring Data JPA]</font><br /><br /><font point-size="24">Facility query adapter</font>>, style=filled, color="#404a86", fillcolor="#5c6bc0", fontcolor="#ffffff"]
+    129 [id=129,shape=cylinder, label=<<font point-size="34">JpaTradeLoanTypeQueryAdapter</font><br /><font point-size="19">[Component: Spring Data JPA]</font><br /><br /><font point-size="24">TradeLoanType query adapter</font>>, style=filled, color="#404a86", fillcolor="#5c6bc0", fontcolor="#ffffff"]
+  }
+
+  122 -> 12 [id=154, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  123 -> 12 [id=155, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  124 -> 12 [id=156, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  125 -> 12 [id=157, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  126 -> 12 [id=158, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  127 -> 12 [id=159, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  128 -> 12 [id=160, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  129 -> 12 [id=161, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+}

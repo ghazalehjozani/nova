@@ -26,8 +26,9 @@
     <modules>
         <module>core</module>
         <module>adapters</module>
-        <module>architecture-tests</module>
         <module>container</module>
+        <module>architecture-tests</module>
+        <module>documents/c4/java</module>
     </modules>
 
     <properties>

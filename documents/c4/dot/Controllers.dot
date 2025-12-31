@@ -1,0 +1,38 @@
+digraph {
+  compound=true
+  graph [fontname="Arial", rankdir=TB, ranksep=1.0, nodesep=1.0]
+  node [fontname="Arial", shape=box, margin="0.4,0.3"]
+  edge [fontname="Arial"]
+  label=<<br /><font point-size="34">Trade Loan Service - Trade Loan Application - Components</font><br /><font point-size="24">REST Controllers</font>>
+
+  subgraph cluster_11 {
+    margin=25
+    label=<<font point-size="24"><br />Trade Loan Application</font><br /><font point-size="19">[Container: Java 25, Spring Boot 4]</font>>
+    labelloc=b
+    color="#444444"
+    fontcolor="#444444"
+    fillcolor="#444444"
+
+    50 [id=50,shape=rect, label=<<font point-size="34">DevAuthCallbackController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/dev/auth</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+    51 [id=51,shape=rect, label=<<font point-size="34">AddFacilityCollateralController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/facilities/{facilityId}/collaterals</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+    52 [id=52,shape=rect, label=<<font point-size="34">ApproveFacilityController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/facilities/{facilityId}/approve</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+    53 [id=53,shape=rect, label=<<font point-size="34">CancelFacilityController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/facilities/{facilityId}/cancel</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+    54 [id=54,shape=rect, label=<<font point-size="34">CloseFacilityDefaultedController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/facilities/{facilityId}/close-defaulted</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+    55 [id=55,shape=rect, label=<<font point-size="34">CloseFacilityPaidOffController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/facilities/{facilityId}/close-paid-off</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+    56 [id=56,shape=rect, label=<<font point-size="34">DefineLoanArrangementController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/loan-arrangements/define</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+    57 [id=57,shape=rect, label=<<font point-size="34">DefineLoanTypeController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/loan-types/define</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+    58 [id=58,shape=rect, label=<<font point-size="34">FullLoanFacilityLifecycleController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/facilities/full-lifecycle</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+    59 [id=59,shape=rect, label=<<font point-size="34">IrregularProgressiveDisbursementController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/facilities/{facilityId}/disburse/progressive-irregular</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+    60 [id=60,shape=rect, label=<<font point-size="34">IssueFacilityContractController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/facilities/{facilityId}/issue-contract</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+    61 [id=61,shape=rect, label=<<font point-size="34">LumpSumDisbursementController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/facilities/{facilityId}/disburse/lump-sum</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+    62 [id=62,shape=rect, label=<<font point-size="34">OpenFacilityCaseController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/facilities/open-case</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+    63 [id=63,shape=rect, label=<<font point-size="34">RegularDisbursementController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/facilities/{facilityId}/disburse/regular</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+    64 [id=64,shape=rect, label=<<font point-size="34">RejectFacilityController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/facilities/{facilityId}/reject</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+    65 [id=65,shape=rect, label=<<font point-size="34">SubmitFacilityForApprovalController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/facilities/{facilityId}/submit-for-approval</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+    66 [id=66,shape=rect, label=<<font point-size="34">InstallmentScheduleQueryController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/installment-schedules</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+    67 [id=67,shape=rect, label=<<font point-size="34">LoanArrangementQueryController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/loan-arrangements</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+    68 [id=68,shape=rect, label=<<font point-size="34">FacilityQueryController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/loan-facilities</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+    69 [id=69,shape=rect, label=<<font point-size="34">LoanTypeQueryController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/api/{version}/loan-types</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+  }
+
+}

@@ -1,0 +1,72 @@
+graph TB
+  linkStyle default fill:#ffffff
+
+  subgraph diagram ["Trade Loan Service - Trade Loan Application - Components"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    subgraph 11 ["Trade Loan Application"]
+      style 11 fill:#ffffff,stroke:#2e6295,color:#2e6295
+
+      100["<div style='font-weight: bold'>GetFacilityByIdQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get facility by id<br />queries</div>"]
+      style 100 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      101["<div style='font-weight: bold'>SearchLoanFacilitiesQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles search loan<br />facilities queries</div>"]
+      style 101 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      102["<div style='font-weight: bold'>FindAllLoanTypesQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles find all loan types<br />queries</div>"]
+      style 102 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      103["<div style='font-weight: bold'>GetLoanTypeByIdQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get loan type by id<br />queries</div>"]
+      style 103 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      104["<div style='font-weight: bold'>LoanTypeFilterQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles loan type filter<br />queries</div>"]
+      style 104 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      105["<div style='font-weight: bold'>FullLoanFacilityLifecycleSaga</div><div style='font-size: 70%; margin-top: 0px'>[Component: Saga Orchestrator]</div><div style='font-size: 80%; margin-top:10px'>Orchestrates full loan<br />facility lifecycle</div>"]
+      style 105 fill:#ab47bc,stroke:#773183,color:#ffffff
+      106["<div style='font-weight: bold'>IssueFacilityContractSaga</div><div style='font-size: 70%; margin-top: 0px'>[Component: Saga Orchestrator]</div><div style='font-size: 80%; margin-top:10px'>Orchestrates issue facility<br />contract</div>"]
+      style 106 fill:#ab47bc,stroke:#773183,color:#ffffff
+      107["<div style='font-weight: bold'>TradeLoanArrangement</div><div style='font-size: 70%; margin-top: 0px'>[Component: DDD Aggregate Root]</div><div style='font-size: 80%; margin-top:10px'>trade loan arrangement<br />aggregate</div>"]
+      style 107 fill:#ff9800,stroke:#b26a00,color:#000000
+      108["<div style='font-weight: bold'>TradeLoanApplication</div><div style='font-size: 70%; margin-top: 0px'>[Component: DDD Aggregate Root]</div><div style='font-size: 80%; margin-top:10px'>trade loan application<br />aggregate</div>"]
+      style 108 fill:#ff9800,stroke:#b26a00,color:#000000
+      109["<div style='font-weight: bold'>TradeLoanFacility</div><div style='font-size: 70%; margin-top: 0px'>[Component: DDD Aggregate Root]</div><div style='font-size: 80%; margin-top:10px'>trade loan facility aggregate</div>"]
+      style 109 fill:#ff9800,stroke:#b26a00,color:#000000
+      80["<div style='font-weight: bold'>FullLoanFacilityLifecycleCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles full loan facility<br />lifecycle</div>"]
+      style 80 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      81["<div style='font-weight: bold'>FullLifecycleRevertCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles full lifecycle revert</div>"]
+      style 81 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      82["<div style='font-weight: bold'>IrregularProgressiveDisbursementCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles irregular progressive<br />disbursement</div>"]
+      style 82 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      83["<div style='font-weight: bold'>CompensateIrregularDisbursementCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles compensate irregular<br />disbursement</div>"]
+      style 83 fill:#ef5350,stroke:#a73a38,color:#ffffff
+      84["<div style='font-weight: bold'>IssueFacilityContractCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles issue facility<br />contract</div>"]
+      style 84 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      85["<div style='font-weight: bold'>CompensateContractIssuanceCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles compensate contract<br />issuance</div>"]
+      style 85 fill:#ef5350,stroke:#a73a38,color:#ffffff
+      86["<div style='font-weight: bold'>LumpSumDisbursementCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles lump sum disbursement</div>"]
+      style 86 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      87["<div style='font-weight: bold'>CompensateLumpSumDisbursementCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles compensate lump sum<br />disbursement</div>"]
+      style 87 fill:#ef5350,stroke:#a73a38,color:#ffffff
+      88["<div style='font-weight: bold'>OriginateLoanFacilityCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles originate loan<br />facility</div>"]
+      style 88 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      89["<div style='font-weight: bold'>CompensateOriginationCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles compensate<br />origination</div>"]
+      style 89 fill:#ef5350,stroke:#a73a38,color:#ffffff
+      90["<div style='font-weight: bold'>PlanEqualInstallmentScheduleCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles plan equal<br />installment schedule</div>"]
+      style 90 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      91["<div style='font-weight: bold'>RegularDisbursementCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles regular disbursement</div>"]
+      style 91 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      92["<div style='font-weight: bold'>RejectFacilityCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles reject facility</div>"]
+      style 92 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      93["<div style='font-weight: bold'>SubmitFacilityForApprovalCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles submit facility for<br />approval</div>"]
+      style 93 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      94["<div style='font-weight: bold'>CompensateApprovalSubmissionCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles compensate approval<br />submission</div>"]
+      style 94 fill:#ef5350,stroke:#a73a38,color:#ffffff
+      95["<div style='font-weight: bold'>GetInstallmentScheduleByIdQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get installment<br />schedule by id queries</div>"]
+      style 95 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      96["<div style='font-weight: bold'>FindAllLoanArrangementsQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles find all loan<br />arrangements queries</div>"]
+      style 96 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      97["<div style='font-weight: bold'>GetLoanArrangementByIdQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get loan arrangement<br />by id queries</div>"]
+      style 97 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      98["<div style='font-weight: bold'>LoanTypeArrangementFilterQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles loan type arrangement<br />filter queries</div>"]
+      style 98 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      99["<div style='font-weight: bold'>FindAllLoanFacilitiesQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles find all loan<br />facilities queries</div>"]
+      style 99 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+    end
+
+  end

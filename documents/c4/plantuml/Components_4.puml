@@ -1,0 +1,32 @@
+@startuml
+set separator none
+title Trade Loan Service - Trade Loan Application - Components
+
+top to bottom direction
+
+skinparam {
+  arrowFontSize 10
+  defaultTextAlignment center
+  wrapWidth 200
+  maxMessageSize 100
+}
+
+hide stereotype
+
+skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler>> {
+  BackgroundColor #66bb6a
+  FontColor #000000
+  BorderColor #47824a
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
+  BorderColor #2e6295
+  FontColor #2e6295
+  shadowing false
+}
+
+rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>" <<TradeLoanService.TradeLoanApplication>> {
+  hexagon "==TradeLoanTypeOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanType outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler
+}
+
+@enduml
