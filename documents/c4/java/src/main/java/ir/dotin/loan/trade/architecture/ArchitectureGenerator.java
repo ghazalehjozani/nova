@@ -1,10 +1,14 @@
 package ir.dotin.loan.trade.architecture;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import com.structurizr.Workspace;
 
-import ir.dotin.loan.trade.architecture.builder.*;
+import ir.dotin.loan.trade.architecture.builder.AdrImporter;
+import ir.dotin.loan.trade.architecture.builder.ModelBuilder;
+import ir.dotin.loan.trade.architecture.builder.StyleBuilder;
+import ir.dotin.loan.trade.architecture.builder.ViewBuilder;
 import ir.dotin.loan.trade.architecture.config.ArchitectureConfig;
 import ir.dotin.loan.trade.architecture.config.DefaultConfig;
 import ir.dotin.loan.trade.architecture.export.WorkspaceExporter;
@@ -27,6 +31,7 @@ public class ArchitectureGenerator {
         var outputDir = args.length > 0 ? args[0] : "documents/c4";
 
         System.out.println("🏗️  C4 Architecture Generation");
+        System.out.println("   Current Working Directory: " + System.getProperty("user.dir"));
         System.out.println("   Output: " + outputDir);
 
         try {
@@ -70,10 +75,41 @@ public class ArchitectureGenerator {
         var styleBuilder = new StyleBuilder(workspace.getViews(), config.styles());
         styleBuilder.applyAllStyles();
 
+        Path adrPath = findAdrDirectory();
+
+        if (adrPath != null) {
+            System.out.println("   📄 Importing ADRs from: " + adrPath.toAbsolutePath());
+            new AdrImporter().importAdrs(workspace, adrPath);
+        } else {
+            System.err.println("   ⚠️  ADR folder NOT found. Decisions will be missing from workspace.json.");
+        }
+
         return workspace;
     }
 
+    private Path findAdrDirectory() {
+        Path current = Path.of(".").toAbsolutePath().normalize();
+
+        for (int i = 0; i < 5; i++) {
+            Path docsAdr = current.resolve("documents").resolve("adr");
+            if (Files.isDirectory(docsAdr)) {
+                return docsAdr;
+            }
+            Path standardAdr = current.resolve("adr");
+            if (Files.isDirectory(standardAdr)) {
+                return standardAdr;
+            }
+            current = current.getParent();
+            if (current == null) break;
+        }
+        return null;
+    }
+
     public void export(Workspace workspace, Path outputDir) throws Exception {
+        if (!Files.exists(outputDir)) {
+            Files.createDirectories(outputDir);
+        }
+
         exporter.exportJson(workspace, outputDir.resolve("workspace.json"));
         exporter.exportDsl(workspace, outputDir.resolve("generated-workspace.dsl"));
 
