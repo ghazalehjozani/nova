@@ -1,14 +1,29 @@
 {
   "configuration" : { },
   "description" : "C4 Architecture for Morabehe Loans Microservice",
-  "documentation" : { },
-  "id" : 1,
-  "lastModifiedAgent" : "structurizr-ui",
-  "lastModifiedDate" : "2025-12-30T12:41:18Z",
+  "documentation" : {
+    "decisions" : [ {
+      "content" : "<div dir=\"rtl\" style=\"text-align: right; font-family: Tahoma, 'Vazir', sans-serif;\">\n\n# ADR-0001: ساختار مستندات معماری پروژه\n\n* **وضعیت**: پیشنهادی\n* **تاریخ**: ۲۰۲۵/۱۲/۱۱\n* **تصمیم گیرندگان**: تیم معماری پروژه trade-loan\n\n## زمینه و متن (Context)\n\nبا توجه به پیچیدگی پروژه trade-loan و نیاز به مستندسازی جامع معماری، تیم به یک ساختار منسجم برای مستندات معماری نیاز داشت. پروژه شامل میکروسرویس‌های متعدد با روابط پیچیده و استانداردهای بالای کیفیت کد است.\n\nنیازهای اصلی شامل موارد زیر بود:\n- مستندسازی تصمیمات معماری به زبان فارسی\n- نگهداری نمودارهای C4 برای نمایش معماری سیستم\n- مستندسازی API ها با استفاده از OpenAPI\n- مستندسازی پیام‌رسانی نامتقارن با AsyncAPI\n- مستندسازی مدل‌های دامنه و پایگاه داده\n- نمایش روابط بین بومی‌های دامنه (Context Mapping)\n\n## تصمیم (Decision)\n\nایجاد ساختار جامع مستندات معماری در مسیر `/documents/` با شش بخش اصلی:\n\n1. **C4 Model** (`c4/`): نمودارهای معماری در چهار سطح مختلف\n2. **Architecture Decision Records** (`adr/`): ثبت تصمیمات معماری\n3. **Context Mapping** (`cmap/`): نمایش روابط بین بومی‌های دامنه\n4. **OpenAPI** (`openapi/`): مستندسازی API های REST\n5. **AsyncAPI** (`asyncapi/`): مستندسازی پیام‌رسانی نامتقارن\n6. **Data Models** (`datamodels/`): مستندسازی مدل‌های داده و پایگاه داده\n\nهر بخش شامل فایل README.md با راهنمای کامل و الگوهای استاندارد است.\n\n## دلایل و نتایج (Consequences)\n\n### مزایا (Pros)\n\n- **یکپارچگی مستندات**: تمام مستندات معماری در یک مکان متمرکز\n- **استانداردسازی**: استفاده از فرمت‌های استاندارد صنعتی (MADR، OpenAPI، AsyncAPI، C4)\n- **زبان محلی**: مستندات به زبان فارسی برای درک بهتر تیم\n- **نگهداری آسان**: ساختار واضح برای به‌روزرسانی مداوم\n- **تکامل تدریجی**: امکان شروع با مستندات اولیه و تکامل آن‌ها\n- **همکاری تیمی**: ساختار مناسب برای کار گروهی و بازبینی\n\n### معایب (Cons)\n\n- **نیاز به یادگیری**: تیم باید با فرمت‌های جدید آشنا شود\n- **زمان اولیه**: ایجاد ساختار اولیه نیازمند زمان است\n- **نگهداری مستمر**: نیاز به به‌روزرسانی منظم مستندات\n- **پیچیدگی**: ساختار جامع ممکن است در ابتدا پیچیده به نظر برسد\n\n### نتایج مورد انتظار\n\n- **افزایش شفافیت**: درک بهتر معماری سیستم برای همه اعضای تیم\n- **کاهش وابستگی**: دانش معماری فقط به افراد خاص محدود نمی‌شود\n- **بهبود کیفیت**: مستندات جامع به طراحی‌های بهتر کمک می‌کند\n- **تسهیل آنبوردینگ**: اعضای جدید سریع‌تر با معماری آشنا می‌شوند\n\n## جایگزین‌های بررسی شده (Alternatives Considered)\n\n### ۱. استفاده فقط از Confluence\n**مزایا**: دسترسی آسان، قابلیت جستجوی خوب، ادیت همزمان\n**معایب**: وابستگی به ابزار خارجی، کنترل نسخه ضعیف، دشواری در ادیت کد\n**نتیجه**: رد شد چون کنترل نسخه و ادیت کد مهم است\n\n### ۲. مستندات پراکنده در خود کد\n**مزایا**: نزدیکی به کد، به‌روزرسانی همزمان\n**معایب**: عدم وجود دید کلی، جستجوی دشوار، ساختار نامنظم\n**نتیجه**: رد شد چون دید جامع معماری را فراهم نمی‌کند\n\n### ۳. استفاده از ابزارهای تخصصی معماری (مثل Structurizr)\n**مزایا**: ابزارهای پیشرفته برای معماری\n**معایب**: هزینه، نیاز به یادگیری ابزار جدید، وابستگی به vendor\n**نتیجه**: رد شد چون پیچیدگی را افزایش می‌دهد\n\n### ۴. ساختار ساده فقط برای ADRها\n**مزایا**: شروع آسان، پیچیدگی کم\n**معایب**: ناکامل بودن، پوشش ندادن جنبه‌های دیگر معماری\n**نتیجه**: رد شد چون جامع نیست\n\n## پیاده‌سازی\n\n### گام‌های اجرایی\n\n1. **ایجاد ساختار دایرکتوری**\n   ```bash\n   mkdir -p documents/{c4,adr,cmap,openapi,asyncapi,datamodels}\n   ```\n\n2. **ایجاد فایل‌های README**\n   - هر بخش یک README.md با راهنمای کامل\n   - شامل استانداردها، ابزارها، و بهترین شیوه‌ها\n\n3. **ایجاد اولین ADR**\n   - مستندسازی خود این تصمیم به عنوان ADR-0001\n   - استفاده از فرمت MADR فارسی\n\n4. **آموزش تیم**\n   - معرفی فرمت‌های جدید به تیم\n   - ایجاد دستورالعمل‌های نگهداری مستندات\n\n### ابزارهای پیشنهادی\n\n- **ویرایش**: VS Code با پلاگین‌های Markdown و PlantUML\n- **نمودارها**: PlantUML برای C4 و Context Mapping\n- **API**: Swagger/OpenAPI برای مستندسازی REST API\n- **مessaging**: AsyncAPI برای مستندسازی پیام‌رسانی\n- **نسخه**: Git برای کنترل نسخه مستندات\n\n### اندازه‌گیری موفقیت\n\n- **پوشش مستندات**: تمام جنبه‌های معماری مستند شوند\n- **به‌روزرسانی**: مستندات همزمان با تغییرات کد به‌روز شوند\n- **استفاده**: تیم به طور منظم از مستندات استفاده کند\n- **بازخورد**: دریافت بازخورد منظم از تیم برای بهبود\n\n---\n*تاریخ آخرین به‌روزرسانی: ۲۰۲۵/۱۲/۱۱*\n*نویسنده: تیم معماری پروژه*\n\n</div>",
+      "date" : "2025-12-31T10:37:34Z",
+      "format" : "Markdown",
+      "id" : "0001",
+      "status" : "پیشنهادی",
+      "title" : "ساختار مستندات معماری پروژه"
+    }, {
+      "content" : "<div dir=\"rtl\" style=\"text-align: right; font-family: Tahoma, 'Vazir', sans-serif;\">\n\n# ADR-0002: پیاده‌سازی محصول تسهیلات مرابحه با گسترش هسته اشتراکی تسهیلات پایه\n\n* **وضعیت**: تأیید شده\n* **تاریخ**: ۲۰۲۵/۰۴/۲۹\n* **تصمیم گیرندگان**: تیم معماری پروژه trade-loan\n\n## زمینه و متن (Context)\n\nما نیاز به پیاده‌سازی محصول تسهیلات \"مرابحه\" داریم که اشتراکات قابل توجهی با سایر انواع تسهیلات دارد. معماری کلی ما از طراحی دامنه محور (DDD) و معماری شش‌ضلعی پیروی می‌کند و از ماژول `base-loan` به عنوان یک هسته اشتراکی (Shared Kernel) استفاده می‌کند که شامل اگریگیت‌های انتزاعی (abstract aggregates) و منطق دامنه مشترک برای چرخه عمر تسهیلات است. ما به یک استراتژی برای پیاده‌سازی محصول مرابحه به صورت کارآمد و با حفظ ثبات و پایبندی به اصول معماری خود نیاز داریم.\n\n## تصمیم (Decision)\n\nما محصول `trade-loan` را به عنوان یک ماژول متمایز پیاده‌سازی خواهیم کرد که هسته اشتراکی `base-loan` را **گسترش می‌دهد (extends)**.\n\n1. **وراثت برای اگریگیت‌های اصلی:** ریشه‌های اگریگیت مشخص (Concrete aggregate roots) در دامنه `trade-loan` (`MorabeheLoanType`, `MorabeheLoanArrangement`, `MorabeheLoanFacility`) از کلاس‌های پایه انتزاعی مربوطه که در `base-loan` تعریف شده‌اند (مانند `AbstractLoanType`) ارث‌بری خواهند کرد.\n\n2. **تخصصی‌سازی:** فیلدها، منطق، قوانین اعتبارسنجی و رفتارهای بالقوه بازنویسی شده (overridden behaviors) مختص مرابحه در این کلاس‌های اگریگیت مشخص و (value objects) یا سرویس‌های دامنه مرتبط آن‌ها در ماژول `trade-loan` پیاده‌سازی خواهند شد.\n\n3. **گسترش Builderها:** Builderهای مشخص در `trade-loan`، Builderهای پایه از `base-loan` را گسترش خواهند داد تا ایجاد و اعتبارسنجی ویژگی‌های مختص مرابحه را مدیریت کنند.\n\n4. **وابستگی:** ماژول `trade-loan` وابستگی مستقیم به ماژول `base-loan` دارد.\n\n## دلایل و نتایج (Consequences)\n\n### مزایا (Pros)\n\n* **استفاده مجدد از کد:** استفاده مجدد از منطق مشترک چرخه عمر تسهیلات، و ساختارهای اگریگیت تعریف شده در `base-loan` را به حداکثر می‌رساند.\n* **ثبات:** از یک رویکرد ساختاری ثابت و استفاده از زبان فراگیر (Ubiquitous Language) در بین محصولات تسهیلاتی مختلف اطمینان حاصل می‌کند.\n* **پیاده‌سازی سریع‌تر:** تلاش مورد نیاز برای پیاده‌سازی محصولات تسهیلاتی جدید که با مدل پایه تثبیت شده مطابقت دارند را کاهش می‌دهد.\n* **منطق اصلی متمرکز:** تغییرات در منطق اساسی و مشترک تسهیلات فقط باید در `base-loan` انجام شود.\n\n### معایب و چالش‌ها (Cons/Challenges)\n\n* **وابستگی شدید به هسته اشتراکی:** `trade-loan` به شدت به ماژول `base-loan` وابسته می‌شود. تغییرات (به خصوص تغییرات breaking changes) در `base-loan` می‌تواند مستقیماً بر `trade-loan` تأثیر بگذارد و نیازمند به‌روزرسانی‌های هماهنگ باشد.\n* **پتانسیل حجیم شدن هسته (Kernel Bloat):** باید مراقب بود که منطق مختص محصول به هسته `base-loan` اضافه نشود؛ باید واقعاً عمومی باقی بماند.\n* **پیچیدگی در کلاس‌های پایه:** کلاس‌های پایه انتزاعی در `base-loan` ممکن است در صورت نیاز به تطبیق با تنوع بیش از حد در انواع مختلف تسهیلات، پیچیده شوند. نقاط انتزاعی و گسترش (extension points) واضح حیاتی هستند.\n* **سربار تست:** تست یکپارچه‌سازی ممکن است پیچیده‌تر شود زیرا تغییرات در `base-loan` نیازمند تست تأثیر بر تمام ماژول‌های محصول گسترش‌دهنده است.\n\n## جایگزین‌های بررسی شده (Alternatives Considered)\n\n### ۱. پیاده‌سازی کاملاً مجزا\n**توضیح**: پیاده‌سازی مرابحه به عنوان یک ماژول مستقل بدون وابستگی به base-loan\n**مزایا**: استقلال کامل، عدم تأثیرپذیری از تغییرات base-loan\n**معایب**: تکرار کد، عدم یکپارچگی، نگهداری دو منطق مشابه\n**نتیجه**: رد شد به دلیل تکرار کد و پیچیدگی نگهداری\n\n### ۲. ترکیب به جای وراثت (Composition over Inheritance)\n**توضیح**: استفاده از الگوی ترکیب به جای وراثت مستقیم\n**مزایا**: انعطاف‌پذیری بیشتر، وابستگی شل‌تر\n**معایب**: پیچیدگی بیشتر در پیاده‌سازی، نیاز به پل زدن بین لایه‌ها\n**نتیجه**: رد شد به دلیل پیچیدگی غیرضروری\n\n### ۳. استفاده از پلاگین یا ماژولارization\n**توضیح**: طراحی base-loan به عنوان یک فریمورک با قابلیت پلاگین\n**مزایا**: انعطاف‌پذیری بالا، قابلیت توسعه آسان\n**معایب**: پیچیدگی طراحی فریمورک، overhead غیرضروری در حال حاضر\n**نتیجه**: برای آینده در نظر گرفته شد، اما فعلاً رد شد\n\n## استراتژی پیاده‌سازی\n\n### ساختار کد\n```\ntrade-loan/\n├── domain/\n│   ├── MorabeheLoanType.java           // extends AbstractLoanType\n│   ├── MorabeheLoanFacility.java       // extends AbstractLoanFacility\n│   ├── MorabeheLoanArrangement.java    // extends AbstractLoanArrangement\n│   └── value-objects/\n│       ├── MorabeheDocuments.java\n│       └── TradeSpecificRules.java\n└── application/\n    └── services/\n        └── MorabeheLoanService.java\n```\n\n### الگوهای طراحی\n- **Template Method Pattern**: برای تعریف اسکلت الگوریتم در base-loan و پیاده‌سازی مراحل مختص در trade-loan\n- **Strategy Pattern**: برای الگوریتم‌های محاسبه‌ای مختص مرابحه\n- **Factory Pattern**: برای ایجاد اشیاء مختص مرابحه\n\n### مدیریت وابستگی‌ها\n- **Version Alignment**: اطمینان از سازگاری نسخه‌های base-loan و trade-loan\n- **Contract Testing**: تست قرارداد بین ماژول‌ها\n- **Integration Testing**: تست یکپارچه‌سازی جامع بین ماژول‌ها\n\n---\n*تاریخ آخرین به‌روزرسانی: ۲۰۲۵/۱۲/۱۱*\n*نویسنده: تیم معماری پروژه*\n\n</div>",
+      "date" : "2025-12-31T10:37:34Z",
+      "format" : "Markdown",
+      "id" : "0002",
+      "status" : "تأیید شده",
+      "title" : "پیاده‌سازی محصول تسهیلات مرابحه با گسترش هسته اشتراکی تسهیلات پایه"
+    } ]
+  },
+  "id" : 0,
   "model" : {
     "people" : [ {
       "description" : "Bank staff managing loans",
       "id" : "38",
+      "location" : "Unspecified",
       "name" : "Loan Officer",
       "relationships" : [ {
         "description" : "Creates and manages loans",
@@ -29,6 +44,7 @@
     }, {
       "description" : "Branch level approval authority",
       "id" : "41",
+      "location" : "Unspecified",
       "name" : "Branch Manager",
       "relationships" : [ {
         "description" : "Approves facilities",
@@ -49,6 +65,7 @@
     }, {
       "description" : "Technical staff",
       "id" : "44",
+      "location" : "Unspecified",
       "name" : "System Administrator",
       "relationships" : [ {
         "description" : "Monitors system",
@@ -83,6 +100,7 @@
     }, {
       "description" : "End users",
       "id" : "49",
+      "location" : "Unspecified",
       "name" : "Customer",
       "tags" : "Element,Person,External User"
     } ],
@@ -90,54 +108,63 @@
       "description" : "OAuth2/OIDC provider",
       "documentation" : { },
       "id" : "1",
+      "location" : "Unspecified",
       "name" : "TPS SSO",
       "tags" : "Element,Software System,External System,Security"
     }, {
       "description" : "Core Banking",
       "documentation" : { },
       "id" : "2",
+      "location" : "Unspecified",
       "name" : "FCB Core Banking",
       "tags" : "Element,Software System,External System,Core Banking"
     }, {
       "description" : "Observability backend",
       "documentation" : { },
       "id" : "3",
+      "location" : "Unspecified",
       "name" : "OpenTelemetry Collector",
       "tags" : "Element,Software System,External System,Observability"
     }, {
       "description" : "Account management",
       "documentation" : { },
       "id" : "4",
+      "location" : "Unspecified",
       "name" : "Account Service",
       "tags" : "Element,Software System,External System,Domain Service"
     }, {
       "description" : "Customer data",
       "documentation" : { },
       "id" : "5",
+      "location" : "Unspecified",
       "name" : "Customer Service",
       "tags" : "Element,Software System,External System,Domain Service"
     }, {
       "description" : "Deposit operations",
       "documentation" : { },
       "id" : "6",
+      "location" : "Unspecified",
       "name" : "Deposit Service",
       "tags" : "Element,Software System,External System,Domain Service"
     }, {
       "description" : "Collateral management",
       "documentation" : { },
       "id" : "7",
+      "location" : "Unspecified",
       "name" : "Collateral Service",
       "tags" : "Element,Software System,External System,Domain Service"
     }, {
       "description" : "Cross-loan operations",
       "documentation" : { },
       "id" : "8",
+      "location" : "Unspecified",
       "name" : "Loan Service",
       "tags" : "Element,Software System,External System,Domain Service"
     }, {
       "description" : "Formula calculation",
       "documentation" : { },
       "id" : "9",
+      "location" : "Unspecified",
       "name" : "Formula Evaluator Service",
       "tags" : "Element,Software System,External System,Domain Service"
     }, {
@@ -1169,6 +1196,7 @@
       "description" : "Morabehe loans with CQRS and Event Sourcing",
       "documentation" : { },
       "id" : "10",
+      "location" : "Unspecified",
       "name" : "Trade Loan Service",
       "relationships" : [ {
         "description" : "Authenticates",
@@ -1247,6 +1275,15 @@
   "name" : "Trade Loan Service",
   "views" : {
     "componentViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
       "containerId" : "11",
       "description" : "Components (page 1/4)",
       "elements" : [ {
@@ -1372,10 +1409,18 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Components",
-      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 3,
       "paperSize" : "A3_Landscape"
     }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
       "containerId" : "11",
       "description" : "Components (page 2/4)",
       "elements" : [ {
@@ -1501,10 +1546,18 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Components_2",
-      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 4,
       "paperSize" : "A3_Landscape"
     }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
       "containerId" : "11",
       "description" : "Components (page 3/4)",
       "elements" : [ {
@@ -1630,13 +1683,21 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Components_3",
-      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 5,
       "paperSize" : "A3_Landscape",
       "relationships" : [ {
         "id" : "153"
       } ]
     }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
       "containerId" : "11",
       "description" : "Components (page 4/4)",
       "elements" : [ {
@@ -1646,10 +1707,18 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Components_4",
-      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 6,
       "paperSize" : "A3_Landscape"
     }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
       "containerId" : "11",
       "description" : "REST Controllers",
       "elements" : [ {
@@ -1735,10 +1804,18 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Controllers",
-      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 7,
       "paperSize" : "A4_Landscape"
     }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
       "containerId" : "11",
       "description" : "Command and Query Handlers",
       "elements" : [ {
@@ -1864,10 +1941,18 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Handlers",
-      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 8,
       "paperSize" : "A4_Landscape"
     }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
       "containerId" : "11",
       "description" : "Saga Orchestrators",
       "elements" : [ {
@@ -1881,10 +1966,18 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Sagas",
-      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 9,
       "paperSize" : "A4_Landscape"
     }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
       "containerId" : "11",
       "description" : "Domain Layer",
       "elements" : [ {
@@ -1950,13 +2043,21 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "DomainModel",
-      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 10,
       "paperSize" : "A4_Landscape",
       "relationships" : [ {
         "id" : "153"
       } ]
     }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
       "containerId" : "11",
       "description" : "Repository adapters",
       "elements" : [ {
@@ -1998,7 +2099,6 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Repositories",
-      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 11,
       "paperSize" : "A4_Landscape",
       "relationships" : [ {
@@ -2019,6 +2119,15 @@
         "id" : "161"
       } ]
     }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
       "containerId" : "11",
       "description" : "External service clients",
       "elements" : [ {
@@ -2052,10 +2161,18 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "ExternalClients",
-      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 12,
       "paperSize" : "A4_Landscape"
     }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
       "containerId" : "11",
       "description" : "Kafka consumers and outbox handlers",
       "elements" : [ {
@@ -2085,7 +2202,6 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Messaging",
-      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 13,
       "paperSize" : "A4_Landscape",
       "relationships" : [ {
@@ -2100,6 +2216,15 @@
         "id" : "175"
       } ]
     }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 400,
+        "vertices" : false
+      },
       "containerId" : "11",
       "description" : "CQRS Command flow",
       "elements" : [ {
@@ -2225,10 +2350,18 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "CommandFlow",
-      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 14,
       "paperSize" : "A4_Landscape"
     }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 400,
+        "vertices" : false
+      },
       "containerId" : "11",
       "description" : "CQRS Query flow",
       "elements" : [ {
@@ -2306,10 +2439,18 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "QueryFlow",
-      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 15,
       "paperSize" : "A4_Landscape"
     }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 400,
+        "vertices" : false
+      },
       "containerId" : "11",
       "description" : "Saga orchestration flow",
       "elements" : [ {
@@ -2435,128 +2576,134 @@
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "SagaFlow",
-      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 16,
       "paperSize" : "A4_Landscape"
     } ],
     "configuration" : {
       "branding" : { },
-      "lastSavedView" : "SystemContext",
-      "metadataSymbols" : "SquareBrackets",
       "styles" : {
         "elements" : [ {
-          "background" : "#5c3d6e",
-          "tag" : "Admin"
-        }, {
-          "background" : "#ff9800",
-          "color" : "#000000",
-          "tag" : "Aggregate"
-        }, {
-          "background" : "#e74c3c",
-          "shape" : "Cylinder",
-          "tag" : "Cache"
-        }, {
-          "background" : "#ec407a",
-          "color" : "#ffffff",
-          "tag" : "Client"
-        }, {
-          "background" : "#ef5350",
-          "color" : "#ffffff",
-          "tag" : "Compensation"
-        }, {
-          "background" : "#85bbf0",
-          "color" : "#000000",
-          "tag" : "Component"
-        }, {
-          "background" : "#ff7043",
-          "color" : "#ffffff",
-          "shape" : "Hexagon",
-          "tag" : "Consumer"
-        }, {
-          "background" : "#438dd5",
-          "color" : "#ffffff",
-          "tag" : "Container"
-        }, {
-          "background" : "#7cb342",
-          "color" : "#ffffff",
-          "tag" : "Controller"
-        }, {
-          "shape" : "Cylinder",
-          "tag" : "Database"
+          "background" : "#999999",
+          "border" : "Dashed",
+          "tag" : "External System"
         }, {
           "background" : "#ffa726",
           "color" : "#000000",
           "tag" : "Domain"
         }, {
-          "background" : "#ffb74d",
-          "color" : "#000000",
-          "tag" : "Entity"
-        }, {
-          "background" : "#999999",
-          "border" : "Dashed",
-          "tag" : "External System"
-        }, {
-          "background" : "#666666",
-          "tag" : "External User"
-        }, {
-          "background" : "#42a5f5",
+          "background" : "#29b6f6",
           "color" : "#ffffff",
-          "tag" : "Handler"
+          "tag" : "Service"
         }, {
-          "background" : "#08427b",
-          "tag" : "Internal User"
+          "background" : "#27ae60",
+          "shape" : "WebBrowser",
+          "tag" : "Monitoring"
+        }, {
+          "background" : "#ec407a",
+          "color" : "#ffffff",
+          "tag" : "Client"
+        }, {
+          "background" : "#7cb342",
+          "color" : "#ffffff",
+          "tag" : "Controller"
+        }, {
+          "background" : "#85bbf0",
+          "color" : "#000000",
+          "tag" : "Component"
         }, {
           "background" : "#f5a623",
           "color" : "#000000",
           "shape" : "Pipe",
           "tag" : "Message Broker"
         }, {
-          "background" : "#27ae60",
-          "shape" : "WebBrowser",
-          "tag" : "Monitoring"
-        }, {
-          "background" : "#66bb6a",
-          "color" : "#000000",
-          "shape" : "Hexagon",
-          "tag" : "Outbox"
-        }, {
-          "background" : "#08427b",
+          "background" : "#ab47bc",
           "color" : "#ffffff",
-          "shape" : "Person",
-          "tag" : "Person"
+          "shape" : "Diamond",
+          "tag" : "Saga"
+        }, {
+          "background" : "#ef5350",
+          "color" : "#ffffff",
+          "tag" : "Compensation"
         }, {
           "background" : "#5c6bc0",
           "color" : "#ffffff",
           "shape" : "Cylinder",
           "tag" : "Repository"
         }, {
-          "background" : "#ab47bc",
-          "color" : "#ffffff",
-          "shape" : "Diamond",
-          "tag" : "Saga"
+          "background" : "#66bb6a",
+          "color" : "#000000",
+          "shape" : "Hexagon",
+          "tag" : "Outbox"
         }, {
-          "background" : "#29b6f6",
+          "background" : "#5c3d6e",
+          "tag" : "Admin"
+        }, {
+          "background" : "#666666",
+          "tag" : "External User"
+        }, {
+          "background" : "#438dd5",
           "color" : "#ffffff",
-          "tag" : "Service"
+          "tag" : "Container"
+        }, {
+          "background" : "#e74c3c",
+          "shape" : "Cylinder",
+          "tag" : "Cache"
+        }, {
+          "background" : "#ff9800",
+          "color" : "#000000",
+          "tag" : "Aggregate"
+        }, {
+          "background" : "#ffb74d",
+          "color" : "#000000",
+          "tag" : "Entity"
+        }, {
+          "background" : "#08427b",
+          "color" : "#ffffff",
+          "shape" : "Person",
+          "tag" : "Person"
+        }, {
+          "background" : "#ff7043",
+          "color" : "#ffffff",
+          "shape" : "Hexagon",
+          "tag" : "Consumer"
         }, {
           "background" : "#1168bd",
           "color" : "#ffffff",
           "tag" : "Software System"
+        }, {
+          "background" : "#42a5f5",
+          "color" : "#ffffff",
+          "tag" : "Handler"
+        }, {
+          "shape" : "Cylinder",
+          "tag" : "Database"
+        }, {
+          "background" : "#08427b",
+          "tag" : "Internal User"
         } ],
         "relationships" : [ {
+          "color" : "#707070",
+          "tag" : "Relationship",
+          "thickness" : 2
+        }, {
           "color" : "#ff6600",
           "style" : "Dashed",
           "tag" : "Asynchronous",
-          "thickness" : 2
-        }, {
-          "color" : "#707070",
-          "tag" : "Relationship",
           "thickness" : 2
         } ]
       },
       "terminology" : { }
     },
     "containerViews" : [ {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
       "description" : "Container diagram showing application and infrastructure",
       "elements" : [ {
         "id" : "1",
@@ -2633,7 +2780,6 @@
       } ],
       "externalSoftwareSystemBoundariesVisible" : false,
       "key" : "Containers",
-      "name" : "Container View: Trade Loan Service",
       "order" : 2,
       "paperSize" : "A4_Landscape",
       "relationships" : [ {
@@ -2680,87 +2826,83 @@
       "softwareSystemId" : "10"
     } ],
     "systemContextViews" : [ {
-      "description" : "System context showing Trade Loan Service and external dependencies",
-      "dimensions" : {
-        "height" : 2016,
-        "width" : 6866
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
       },
+      "description" : "System context showing Trade Loan Service and external dependencies",
       "elements" : [ {
         "id" : "1",
-        "x" : 208,
-        "y" : 1508
+        "x" : 0,
+        "y" : 0
       }, {
         "id" : "2",
-        "x" : 958,
-        "y" : 1508
+        "x" : 0,
+        "y" : 0
       }, {
         "id" : "3",
-        "x" : 1708,
-        "y" : 1508
+        "x" : 0,
+        "y" : 0
       }, {
         "id" : "4",
-        "x" : 2458,
-        "y" : 1508
+        "x" : 0,
+        "y" : 0
       }, {
         "id" : "5",
-        "x" : 3208,
-        "y" : 1508
+        "x" : 0,
+        "y" : 0
       }, {
         "id" : "6",
-        "x" : 3958,
-        "y" : 1508
+        "x" : 0,
+        "y" : 0
       }, {
         "id" : "7",
-        "x" : 4708,
-        "y" : 1508
+        "x" : 0,
+        "y" : 0
       }, {
         "id" : "8",
-        "x" : 5458,
-        "y" : 1508
+        "x" : 0,
+        "y" : 0
       }, {
         "id" : "9",
-        "x" : 6208,
-        "y" : 1508
+        "x" : 0,
+        "y" : 0
       }, {
         "id" : "10",
-        "x" : 2833,
-        "y" : 908
+        "x" : 0,
+        "y" : 0
       }, {
         "id" : "38",
-        "x" : 1808,
-        "y" : 208
+        "x" : 0,
+        "y" : 0
       }, {
         "id" : "41",
-        "x" : 2508,
-        "y" : 208
+        "x" : 0,
+        "y" : 0
       }, {
         "id" : "44",
-        "x" : 3208,
-        "y" : 208
+        "x" : 0,
+        "y" : 0
       }, {
         "id" : "49",
-        "x" : 3908,
-        "y" : 208
+        "x" : 0,
+        "y" : 0
       } ],
       "enterpriseBoundaryVisible" : true,
       "key" : "SystemContext",
-      "name" : "System Context View: Trade Loan Service",
       "order" : 1,
-      "paperSize" : "A2_Landscape",
+      "paperSize" : "A4_Landscape",
       "relationships" : [ {
         "id" : "168"
       }, {
-        "id" : "20",
-        "vertices" : [ {
-          "x" : 808,
-          "y" : 1508
-        } ]
+        "id" : "20"
       }, {
-        "id" : "22",
-        "vertices" : [ {
-          "x" : 1708,
-          "y" : 1508
-        } ]
+        "id" : "22"
       }, {
         "id" : "24"
       }, {
@@ -2770,39 +2912,19 @@
       }, {
         "id" : "30"
       }, {
-        "id" : "32",
-        "vertices" : [ {
-          "x" : 4558,
-          "y" : 1508
-        } ]
+        "id" : "32"
       }, {
-        "id" : "34",
-        "vertices" : [ {
-          "x" : 5308,
-          "y" : 1508
-        } ]
+        "id" : "34"
       }, {
-        "id" : "36",
-        "vertices" : [ {
-          "x" : 6058,
-          "y" : 1508
-        } ]
+        "id" : "36"
       }, {
         "id" : "40"
       }, {
         "id" : "43"
       }, {
-        "id" : "46",
-        "vertices" : [ {
-          "x" : 3100,
-          "y" : 661
-        } ]
+        "id" : "46"
       }, {
-        "id" : "48",
-        "vertices" : [ {
-          "x" : 3365,
-          "y" : 804
-        } ]
+        "id" : "48"
       } ],
       "softwareSystemId" : "10"
     } ]

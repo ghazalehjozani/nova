@@ -38,6 +38,7 @@ public class ViewBuilder {
                 Views.SYSTEM_CONTEXT,
                 "System context showing Trade Loan Service and external dependencies");
         view.addAllElements();
+        view.enableAutomaticLayout(AutomaticLayout.RankDirection.TopBottom, 300, 300, 200, false);
         view.setPaperSize(PaperSize.A4_Landscape);
     }
 
@@ -45,6 +46,7 @@ public class ViewBuilder {
         var view = views.createContainerView(
                 mainSystem, Views.CONTAINERS, "Container diagram showing application and infrastructure");
         view.addAllElements();
+        view.enableAutomaticLayout(AutomaticLayout.RankDirection.TopBottom, 300, 300, 200, false);
         view.setPaperSize(PaperSize.A4_Landscape);
     }
 
@@ -55,6 +57,7 @@ public class ViewBuilder {
         if (total <= MAX_ELEMENTS_PER_VIEW) {
             var view = views.createComponentView(mainContainer, Views.COMPONENTS, "All components");
             allComponents.forEach(view::add);
+            view.enableAutomaticLayout(AutomaticLayout.RankDirection.TopBottom, 300, 300, 200, false);
             view.setPaperSize(PaperSize.A3_Landscape);
         } else {
             int pages = (total + MAX_ELEMENTS_PER_VIEW - 1) / MAX_ELEMENTS_PER_VIEW;
@@ -67,6 +70,7 @@ public class ViewBuilder {
                 for (int i = start; i < end; i++) {
                     view.add(allComponents.get(i));
                 }
+                view.enableAutomaticLayout(AutomaticLayout.RankDirection.TopBottom, 300, 300, 200, false);
                 view.setPaperSize(PaperSize.A3_Landscape);
             }
         }
@@ -131,6 +135,7 @@ public class ViewBuilder {
                         requiredTags.stream().anyMatch(tag -> c.getTagsAsSet().contains(tag)))
                 .limit(MAX_ELEMENTS_PER_VIEW)
                 .forEach(view::add);
+        view.enableAutomaticLayout(AutomaticLayout.RankDirection.TopBottom, 300, 300, 200, false);
         view.setPaperSize(PaperSize.A4_Landscape);
         return view;
     }
@@ -143,6 +148,7 @@ public class ViewBuilder {
                 .filter(filter)
                 .limit(MAX_ELEMENTS_PER_VIEW)
                 .forEach(view::add);
+        view.enableAutomaticLayout(AutomaticLayout.RankDirection.LeftRight, 400, 300, 200, false);
         view.setPaperSize(PaperSize.A4_Landscape);
     }
 

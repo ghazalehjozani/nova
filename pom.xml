@@ -28,6 +28,7 @@
         <module>adapters</module>
         <module>container</module>
         <module>architecture-tests</module>
+        <!--  mvn -pl documents/c4/java process-classes-->
         <module>documents/c4/java</module>
     </modules>
 
