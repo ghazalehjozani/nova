@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 import java.util.UUID;
 import jakarta.validation.Valid;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,10 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ir.dotin.platform.adapter.rest.controller.BaseController;
-import ir.dotin.platform.adapter.rest.request.DataRequest;
-import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.commons.security.AuthenticationContextHolder;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
+import ir.dotin.platform.protocol.api.response.BaseResponse;
+import ir.dotin.platform.protocol.api.response.EventStream;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.FullLifecycleRevertRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.FullLoanFacilityLifecycleRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.FullLoanFacilityLifecycleRequestMapper;
@@ -39,15 +40,15 @@ class FullLoanFacilityLifecycleController extends BaseController {
     @PostMapping(version = "1+")
     @Operation(summary = "اجرای چرخه کامل تسهیلات از تشکیل تا پرداخت")
     @Deprecated(forRemoval = true)
-    public EventStreamResponse executeFullLifecycle(
-            @RequestBody @Valid DataRequest<FullLoanFacilityLifecycleRequest> request) {
+    public ResponseEntity<BaseResponse<EventStream>> executeFullLifecycle(
+            @RequestBody @Valid FullLoanFacilityLifecycleRequest request) {
 
-        var command = mapper.toCommand(request.payload()).toBuilder()
-                .uid(getXRequestId())
+        var command = mapper.toCommand(request).toBuilder()
+                .uid(getIdempotencyKey())
                 .transactionMetadata(buildTransactionContext())
                 .build();
 
-        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
+        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
     }
 
     private FullLoanFacilityLifecycleCommand.TransactionMetadataDto buildTransactionContext() {
@@ -66,21 +67,21 @@ class FullLoanFacilityLifecycleController extends BaseController {
 
     @PostMapping(value = "{facilityId}/compensate", version = "1+")
     @Operation(summary = "بازگشت کامل چرخه تسهیلات")
-    public EventStreamResponse revertFullLifecycle(
+    public ResponseEntity<BaseResponse<EventStream>> revertFullLifecycle(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
             @Parameter(description = "جزئیات درخواست بازگشت", required = true) @RequestBody @Valid
-                    DataRequest<FullLifecycleRevertRequest> request) {
+                    FullLifecycleRevertRequest request) {
 
         var command = FullLifecycleRevertCommand.builder()
-                .uid(getXRequestId())
-                .version(request.payload().version())
+                .uid(getIdempotencyKey())
+                .version(request.version())
                 .loanFacilityId(facilityId)
-                .reason(request.payload().reason())
-                .contractTransactionNumberToReverse(request.payload().contractTransactionNumberToReverse())
-                .disbursementTransactionNumberToReverse(request.payload().disbursementTransactionNumberToReverse())
-                .collateralSerialsToRevert(request.payload().collateralSerialsToRevert())
+                .reason(request.reason())
+                .contractTransactionNumberToReverse(request.contractTransactionNumberToReverse())
+                .disbursementTransactionNumberToReverse(request.disbursementTransactionNumberToReverse())
+                .collateralSerialsToRevert(request.collateralSerialsToRevert())
                 .build();
 
-        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
+        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
     }
 }

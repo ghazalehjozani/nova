@@ -265,9 +265,6 @@ workspace "Trade Loan Service" {
         }
 
         styles {
-            element "External System" {
-                background #999999
-            }
             element "Domain" {
                 background #ffa726
                 color #000000
@@ -361,6 +358,9 @@ workspace "Trade Loan Service" {
             }
             element "Internal User" {
                 background #08427b
+            }
+            element "External System" {
+                background #999999
             }
         }
     }

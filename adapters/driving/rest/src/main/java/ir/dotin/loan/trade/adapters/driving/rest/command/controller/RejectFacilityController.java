@@ -2,12 +2,13 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
 import java.util.UUID;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import ir.dotin.platform.adapter.rest.controller.BaseController;
-import ir.dotin.platform.adapter.rest.request.DataRequest;
-import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
+import ir.dotin.platform.protocol.api.response.BaseResponse;
+import ir.dotin.platform.protocol.api.response.EventStream;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.RejectFacilityRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.RejectFacilityRequestToCommandMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
@@ -30,16 +31,15 @@ class RejectFacilityController extends BaseController {
 
     @PostMapping(version = "1+")
     @Operation(summary = "رد تسهیلات")
-    public EventStreamResponse rejectFacility(
+    public ResponseEntity<BaseResponse<EventStream>> rejectFacility(
             @Parameter(
                             description = "شناسه یکتای تسهیلات جهت رد",
                             example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
                             required = true)
                     @PathVariable
                     UUID facilityId,
-            @Parameter(description = "جزئیات رد تسهیلات", required = true) @RequestBody
-                    DataRequest<RejectFacilityRequest> request) {
-        var command = mapper.toCommand(facilityId, request.payload());
-        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
+            @Parameter(description = "جزئیات رد تسهیلات", required = true) @RequestBody RejectFacilityRequest request) {
+        var command = mapper.toCommand(facilityId, request);
+        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
     }
 }

@@ -104,8 +104,10 @@ management:
       environment: ${SPRING_PROFILES_ACTIVE:unknown}
   tracing:
     enabled: true
+    propagation:
+      type: w3c
     sampling:
-      probability: ${OTEL_TRACES_SAMPLER_ARG:0.1}
+      probability: ${OTEL_TRACES_SAMPLER_ARG:1.0}
     baggage:
       enabled: true
       remote-fields: user-id,correlation-id,tenant-id,request-id
@@ -215,6 +217,9 @@ platform:
     metrics:
       enabled: true
       include-command-type: true
+    retention:
+      archive-after-days: 365
+      retention-days: 2555
   saga:
     persistence:
       table-name: saga_instance
@@ -223,16 +228,19 @@ platform:
       default-timeout: 300000
       executor-core-pool-size: 4
       shutdown-timeout-seconds: 30
+    recovery:
+      enabled: true
+      stuck-threshold: 5m
   messaging:
     enabled: true
     kafka:
       bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
       consumer-group-id: ${KAFKA_CONSUMER_GROUP:core.loan.facility.*}
       client-id: trade-loan-client
-      security:
-        protocol: SASL_PLAINTEXT
-        sasl-mechanism: SCRAM-SHA-256
-        sasl-jaas-config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${KAFKA_USER}" password="${KAFKA_PASSWORD}";
+#      security:
+#        protocol: SASL_PLAINTEXT
+#        sasl-mechanism: SCRAM-SHA-256
+#        sasl-jaas-config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${KAFKA_USER}" password="${KAFKA_PASSWORD}";
       producer:
         acks: all
         retries: 3
@@ -383,6 +391,9 @@ platform:
         - password
         - secret
         - token
+      log-request-body: true
+      log-response-body: true
+      log-token-failures: false
     ssl:
       verify: true
     resilience:
@@ -405,6 +416,38 @@ platform:
     api-path-pattern: /api/*
     headers:
       default-language: fa
+  observability:
+    tracing:
+      sampling-probability: 1.0
+      propagation-type: W3C
+      enabled: true
+    enabled: true
+    health:
+      metrics-enabled: true
+      export-interval: 30s
+    metrics:
+      enabled: true
+      jvm:
+        classes: true
+        compilation: true
+        enabled: true
+        gc: true
+        memory: true
+        threads: true
+      system:
+        disk-space: true
+        enabled: true
+        file-descriptors: true
+        processor: true
+        uptime: true
+    logging:
+      format: json
+      include-trace-context: true
+      structured: true
+  protocol:
+    issuer: LN
+
+
 fcb:
   integration:
     base-url: ${FCB_BASE_URL}

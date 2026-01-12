@@ -3,13 +3,14 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 import java.util.UUID;
 import jakarta.validation.Valid;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import ir.dotin.platform.adapter.rest.controller.BaseController;
-import ir.dotin.platform.adapter.rest.request.DataRequest;
-import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.commons.security.AuthenticationContextHolder;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
+import ir.dotin.platform.protocol.api.response.BaseResponse;
+import ir.dotin.platform.protocol.api.response.EventStream;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.IssueFacilityContractRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
@@ -32,7 +33,7 @@ class IssueFacilityContractController extends BaseController {
 
     @PostMapping(version = "1+")
     @Operation(summary = "صدور قرارداد")
-    public EventStreamResponse issueFacilityContract(
+    public ResponseEntity<BaseResponse<EventStream>> issueFacilityContract(
             @Parameter(
                             description = "شناسه یکتای تسهیلات جهت صدور قرارداد",
                             example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
@@ -40,7 +41,7 @@ class IssueFacilityContractController extends BaseController {
                     @PathVariable
                     UUID facilityId,
             @Parameter(description = "جزئیات صدور قرارداد تسهیلات", required = true) @RequestBody
-                    DataRequest<IssueFacilityContractRequest> request) {
+                    IssueFacilityContractRequest request) {
 
         String branchCode = authenticationContextHolder
                 .branchCode()
@@ -52,8 +53,8 @@ class IssueFacilityContractController extends BaseController {
         var metadata = request.metadata();
         // TODO: change metadata structure and remove default value
         var command = IssueFacilityContractCommand.builder()
-                .uid(getXRequestId())
-                .version(request.payload().version())
+                .uid(getIdempotencyKey())
+                .version(request.version())
                 .loanFacilityId(facilityId)
                 .branchCode(branchCode)
                 .userId(userId)
@@ -66,21 +67,21 @@ class IssueFacilityContractController extends BaseController {
                 .networkType(metadata.getOrDefault("networkType", "INTERNET"))
                 .build();
 
-        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
+        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
     }
 
     @PostMapping(value = "/compensate", version = "1+")
     @Operation(summary = "جبران‌سازی مرحله صدور قرارداد")
-    public EventStreamResponse compensateContractIssuance(
+    public ResponseEntity<BaseResponse<EventStream>> compensateContractIssuance(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
-            @RequestBody @Valid DataRequest<CompensationRequest> request) {
+            @RequestBody @Valid CompensationRequest request) {
 
         var command = CompensateContractIssuanceCommand.builder()
-                .uid(getXRequestId())
-                .version(request.payload().version())
+                .uid(getIdempotencyKey())
+                .version(request.version())
                 .loanFacilityId(facilityId)
                 .build();
 
-        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
+        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
     }
 }

@@ -1,8 +1,10 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.dto;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import ir.dotin.platform.protocol.api.request.BaseRequest;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
@@ -29,7 +31,10 @@ public record DefineLoanTypeRequest(
         Set<String> loanArrangementCodes,
 
         @Schema(description = "سرفصل ها", requiredMode = Schema.RequiredMode.REQUIRED)
-        List<RelationTypeLoanTopicDto> relationTypeLoanTopics) {
+        List<RelationTypeLoanTopicDto> relationTypeLoanTopics,
+
+        Map<String, String> metadata)
+        implements BaseRequest {
 
     @Schema(name = "EconomicSectorCurrencyDto", description = "بخش اقتصادی و نوع ارز مرتبط")
     public record EconomicSectorCurrencyDto(

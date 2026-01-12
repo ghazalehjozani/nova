@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
 import java.util.UUID;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -9,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ir.dotin.platform.adapter.rest.controller.BaseController;
-import ir.dotin.platform.adapter.rest.request.DataRequest;
-import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
+import ir.dotin.platform.protocol.api.response.BaseResponse;
+import ir.dotin.platform.protocol.api.response.EventStream;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.AddFacilityCollateralRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.CompensateCollateralRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.AddFacilityCollateralRequestToCommandMapper;
@@ -34,7 +35,7 @@ class AddFacilityCollateralController extends BaseController {
 
     @PostMapping(version = "1+")
     @Operation(summary = "افزودن وثیقه")
-    public EventStreamResponse addCollaterals(
+    public ResponseEntity<BaseResponse<EventStream>> addCollaterals(
             @Parameter(
                             description = "شناسه یکتای تسهیلات",
                             example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
@@ -42,26 +43,26 @@ class AddFacilityCollateralController extends BaseController {
                     @PathVariable
                     UUID facilityId,
             @Parameter(description = "جزئیات افزودن وثیقه به تسهیلات", required = true) @RequestBody
-                    DataRequest<AddFacilityCollateralRequest> request) {
-        var command = mapper.toCommand(facilityId, request.payload()).toBuilder()
-                .uid(getXRequestId())
+                    AddFacilityCollateralRequest request) {
+        var command = mapper.toCommand(facilityId, request).toBuilder()
+                .uid(getIdempotencyKey())
                 .build();
-        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
+        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
     }
 
     @PostMapping(value = "/compensate", version = "1+")
     @Operation(summary = "جبران‌سازی افزودن وثایق")
-    public EventStreamResponse compensateAddCollaterals(
+    public ResponseEntity<BaseResponse<EventStream>> compensateAddCollaterals(
             @Parameter(description = "شناسه تسهیلات", required = true) @PathVariable UUID facilityId,
             @Parameter(description = "جزئیات وثایق برای جبران‌سازی", required = true) @RequestBody
-                    DataRequest<CompensateCollateralRequest> request) {
+                    CompensateCollateralRequest request) {
 
         var command = CompensateCollateralCommand.builder()
-                .uid(getXRequestId())
+                .uid(getIdempotencyKey())
                 .loanFacilityId(facilityId)
-                .collateralSerials(request.payload().collateralSerials())
+                .collateralSerials(request.collateralSerials())
                 .build();
 
-        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
+        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
     }
 }

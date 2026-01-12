@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.UUID;
 import jakarta.validation.Valid;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ir.dotin.platform.adapter.rest.controller.BaseController;
-import ir.dotin.platform.adapter.rest.request.DataRequest;
-import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.commons.security.AuthenticationContextHolder;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
+import ir.dotin.platform.protocol.api.response.BaseResponse;
+import ir.dotin.platform.protocol.api.response.EventStream;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.LumpSumDisbursementRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
@@ -38,7 +39,7 @@ class LumpSumDisbursementController extends BaseController {
 
     @PostMapping(version = "1+")
     @Operation(summary = "پرداخت یکجا")
-    public EventStreamResponse lumpSumDisbursement(
+    public ResponseEntity<BaseResponse<EventStream>> lumpSumDisbursement(
             @Parameter(
                             description = "شناسه یکتای تسهیلات",
                             example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
@@ -46,10 +47,10 @@ class LumpSumDisbursementController extends BaseController {
                     @PathVariable
                     UUID facilityId,
             @Parameter(description = "جزئیات درخواست پرداخت یکجا", required = true) @RequestBody
-                    DataRequest<LumpSumDisbursementRequest> requestBody) {
+                    LumpSumDisbursementRequest requestBody) {
         var lumpSumDisbursementCommand = LumpSumDisbursementCommand.builder()
-                .uid(getXRequestId())
-                .version(requestBody.payload().version())
+                .uid(getIdempotencyKey())
+                .version(requestBody.version())
                 .loanFacilityId(facilityId)
                 .branchCode(authenticationContextHolder.branchCode().orElseThrow())
                 .productCode("LOAN")
@@ -58,25 +59,25 @@ class LumpSumDisbursementController extends BaseController {
                 .terminalIp(authenticationContextHolder.ipAddress().orElseThrow())
                 .terminalType("Branch")
                 .toolSource("BANK")
-                .disbursementDate(
-                        Objects.requireNonNullElse(requestBody.payload().disbursementDate(), LocalDate.now()))
+                .disbursementDate(Objects.requireNonNullElse(requestBody.disbursementDate(), LocalDate.now()))
                 .userId(authenticationContextHolder.userIdOrThrow())
                 .build();
-        return EventStreamResponse.of(unwrap(dispatcher.dispatch(lumpSumDisbursementCommand)));
+        return ResponseEntity.ok(
+                BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(lumpSumDisbursementCommand)))));
     }
 
     @PostMapping(value = "/compensate", version = "1+")
     @Operation(summary = "جبران‌سازی مرحله پرداخت یکجا")
-    public EventStreamResponse compensateLumpSumDisbursement(
+    public ResponseEntity<BaseResponse<EventStream>> compensateLumpSumDisbursement(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
-            @RequestBody @Valid DataRequest<CompensationRequest> request) {
+            @RequestBody @Valid CompensationRequest request) {
 
         var command = CompensateLumpSumDisbursementCommand.builder()
-                .uid(getXRequestId())
-                .version(request.payload().version())
+                .uid(getIdempotencyKey())
+                .version(request.version())
                 .loanFacilityId(facilityId)
                 .build();
 
-        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
+        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
     }
 }

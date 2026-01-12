@@ -1,10 +1,12 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.dto;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import ir.dotin.platform.protocol.api.request.BaseRequest;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,7 +22,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
     @JsonSubTypes.Type(value = PartyRequestDto.CoApplicantDto.class, name = "CO_APPLICANT"),
     @JsonSubTypes.Type(value = PartyRequestDto.GuarantorDto.class, name = "GUARANTOR")
 })
-public sealed interface PartyRequestDto
+public sealed interface PartyRequestDto extends BaseRequest
         permits PartyRequestDto.ApplicantDto, PartyRequestDto.CoApplicantDto, PartyRequestDto.GuarantorDto {
 
     @Schema(description = "شماره مشتری", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -30,7 +32,7 @@ public sealed interface PartyRequestDto
     PartyRole role();
 
     @Schema(name = "ApplicantDto", description = "متقاضی اصلی")
-    record ApplicantDto(String customerNumber) implements PartyRequestDto {
+    record ApplicantDto(String customerNumber, Map<String, String> metadata) implements PartyRequestDto {
         @Override
         public PartyRole role() {
             return PartyRole.PRIMARY_APPLICANT;
@@ -38,7 +40,7 @@ public sealed interface PartyRequestDto
     }
 
     @Schema(name = "CoApplicantDto", description = "متقاضی همراه")
-    record CoApplicantDto(String customerNumber) implements PartyRequestDto {
+    record CoApplicantDto(String customerNumber, Map<String, String> metadata) implements PartyRequestDto {
         @Override
         public PartyRole role() {
             return PartyRole.CO_APPLICANT;
@@ -54,7 +56,9 @@ public sealed interface PartyRequestDto
                     requiredMode = Schema.RequiredMode.REQUIRED,
                     minimum = "0",
                     maximum = "100")
-            BigDecimal guaranteePercentage)
+            BigDecimal guaranteePercentage,
+
+            Map<String, String> metadata)
             implements PartyRequestDto {
         @Override
         public PartyRole role() {

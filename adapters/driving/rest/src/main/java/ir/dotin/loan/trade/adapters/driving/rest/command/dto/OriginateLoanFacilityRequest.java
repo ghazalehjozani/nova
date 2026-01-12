@@ -4,8 +4,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import ir.dotin.platform.protocol.api.request.BaseRequest;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 
@@ -23,7 +25,10 @@ public record OriginateLoanFacilityRequest(
         LoanApplicationDto loanApplication,
 
         @Schema(description = "برنامه اقساط", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-        InstallmentSchedulePlanDto installmentSchedulePlan) {
+        InstallmentSchedulePlanDto installmentSchedulePlan,
+
+        Map<String, String> metadata)
+        implements BaseRequest {
     @Schema(name = "LoanApplicationDto", description = "اطلاعات درخواست تسهیلات")
     public record LoanApplicationDto(
             @Schema(description = "تاریخ درخواست", requiredMode = Schema.RequiredMode.REQUIRED)

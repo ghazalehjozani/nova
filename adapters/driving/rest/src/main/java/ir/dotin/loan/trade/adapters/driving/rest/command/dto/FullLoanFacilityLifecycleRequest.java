@@ -4,8 +4,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import ir.dotin.platform.protocol.api.request.BaseRequest;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 
@@ -17,7 +19,9 @@ public record FullLoanFacilityLifecycleRequest(
         DisbursementDto disbursement,
         InstallmentSchedulePlanDto installmentSchedulePlan,
         List<CollateralDto> collaterals,
-        String confirmType) {
+        String confirmType,
+        Map<String, String> metadata)
+        implements BaseRequest {
 
     public record LoanApplicationDto(
             Instant requestDate,
