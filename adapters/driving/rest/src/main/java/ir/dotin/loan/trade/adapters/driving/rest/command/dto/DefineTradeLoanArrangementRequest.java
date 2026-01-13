@@ -2,8 +2,10 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.dto;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import ir.dotin.platform.protocol.api.request.BaseRequest;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.CollateralCalculationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.InstallmentPaymentType;
@@ -78,7 +80,10 @@ public record DefineTradeLoanArrangementRequest(
         CollateralPolicyDto collateralPolicy,
 
         @Schema(description = "نوع پرداخت", requiredMode = Schema.RequiredMode.REQUIRED)
-        DisbursementType disbursementType) {
+        DisbursementType disbursementType,
+
+        Map<String, String> metadata)
+        implements BaseRequest {
 
     @Schema(name = "InterestPolicyDto", description = "سیاست نرخ سود")
     public record InterestPolicyDto(

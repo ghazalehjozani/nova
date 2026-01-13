@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.rest.query.loanarrangement;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -12,13 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import ir.dotin.platform.adapter.rest.response.DataResponse;
-import ir.dotin.platform.adapter.rest.response.OffsetPaginationInfo;
-import ir.dotin.platform.adapter.rest.response.PagedResponse;
+import ir.dotin.platform.adapter.rest.pagination.CursorPaginationHelper;
 import ir.dotin.platform.dispatcher.api.dispatcher.QueryDispatcher;
+import ir.dotin.platform.protocol.api.response.BaseResponse;
+import ir.dotin.platform.protocol.api.util.PagedResponseUtils;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
-import ir.dotin.loan.trade.adapters.driving.rest.shared.pagination.CursorPaginationHelper;
 import ir.dotin.loan.trade.core.application.query.loanarrangement.dto.LoanArrangementQueryResult;
 import ir.dotin.loan.trade.core.application.query.loanarrangement.dto.TradeLoanArrangementQueryDto;
 import ir.dotin.loan.trade.core.application.query.loanarrangement.request.FindAllLoanArrangementsQuery;
@@ -33,23 +33,25 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/{version}/loan-arrangements")
 @RequiredArgsConstructor
 @Tag(name = SwaggerConfig.TAG_LOAN_ARRANGEMENT_QUERIES, description = "استعلام شرایط تسهیلات")
-public class LoanArrangementQueryController {
+class LoanArrangementQueryController {
+
     private final QueryDispatcher dispatcher;
 
     @GetMapping(value = "/{loanArrangementId}", version = "1")
     @Operation(summary = "دریافت شرایط تسهیلات بر اساس شناسه")
-    public DataResponse<TradeLoanArrangementQueryDto> getById(@PathVariable UUID loanArrangementId) {
+    public ResponseEntity<BaseResponse<TradeLoanArrangementQueryDto>> getById(@PathVariable UUID loanArrangementId) {
         GetLoanArrangementByIdQuery query = GetLoanArrangementByIdQuery.builder()
                 .loanArrangementId(loanArrangementId)
                 .build();
-        return DataResponse.of(dispatcher.dispatch(query));
+        return ResponseEntity.ok(BaseResponse.success(dispatcher.dispatch(query)));
     }
 
     @GetMapping(version = "1")
     @Operation(summary = "Get all loan arrangements with cursor-based pagination")
-    public ResponseEntity<PagedResponse<LoanArrangementQueryResult>> findAll(
+    public ResponseEntity<BaseResponse<List<TradeLoanArrangementQueryDto>>> findAll(
             @RequestParam(required = false) String cursor,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int pageSize) {
+
         FindAllLoanArrangementsQuery query = FindAllLoanArrangementsQuery.builder()
                 .cursor(cursor)
                 .pageSize(pageSize)
@@ -57,13 +59,13 @@ public class LoanArrangementQueryController {
 
         LoanArrangementQueryResult result = dispatcher.dispatch(query);
 
-        return CursorPaginationHelper.createPaginatedResponse(
-                result, result.nextCursor(), result.previousCursor(), result.hasNext(), result.hasPrevious());
+        return CursorPaginationHelper.response(
+                result.loanArrangements(), result.nextCursor(), result.previousCursor(), pageSize, result.hasNext());
     }
 
     @GetMapping(value = "/search", version = "1")
     @Operation(summary = "جستجوی شرایط تسهیلات با فیلترهای مختلف")
-    public ResponseEntity<PagedResponse<LoanArrangementQueryResult>> searchArrangements(
+    public ResponseEntity<BaseResponse<List<TradeLoanArrangementQueryDto>>> searchArrangements(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String currencyType,
@@ -75,6 +77,7 @@ public class LoanArrangementQueryController {
             @RequestParam(required = false) DisbursementMethod disbursementMethod,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int pageSize) {
+
         LoanTypeArrangementFilterQuery query = LoanTypeArrangementFilterQuery.of(
                 code,
                 title,
@@ -90,14 +93,7 @@ public class LoanArrangementQueryController {
 
         LoanArrangementQueryResult result = dispatcher.dispatch(query);
 
-        OffsetPaginationInfo paginationInfo = OffsetPaginationInfo.of(
-                result.currentPage(),
-                result.pageSize(),
-                result.totalElements(),
-                result.totalPages(),
-                result.hasNext(),
-                result.hasPrevious());
-
-        return ResponseEntity.ok(PagedResponse.success(result, paginationInfo));
+        return ResponseEntity.ok(PagedResponseUtils.offset(
+                result.loanArrangements(), result.currentPage(), result.pageSize(), result.totalElements()));
     }
 }

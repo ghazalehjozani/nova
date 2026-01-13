@@ -1,8 +1,11 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.dto;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import ir.dotin.platform.protocol.api.request.BaseRequest;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,7 +20,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
     @JsonSubTypes.Type(value = DisburseDestinationRequestDto.DepositDestinationDto.class, name = "DEPOSIT"),
     @JsonSubTypes.Type(value = DisburseDestinationRequestDto.AccountDestinationDto.class, name = "ACCOUNT")
 })
-public sealed interface DisburseDestinationRequestDto
+public sealed interface DisburseDestinationRequestDto extends BaseRequest
         permits DisburseDestinationRequestDto.DepositDestinationDto,
                 DisburseDestinationRequestDto.AccountDestinationDto {
 
@@ -27,7 +30,10 @@ public sealed interface DisburseDestinationRequestDto
     @Schema(name = "DepositDestinationDto", description = "مقصد سپرده")
     record DepositDestinationDto(
             @Schema(description = "شماره سپرده", requiredMode = Schema.RequiredMode.REQUIRED)
-            String depositNumber) implements DisburseDestinationRequestDto {
+            String depositNumber,
+
+            Map<String, String> metadata)
+            implements DisburseDestinationRequestDto {
         @Override
         public DisburseDestinationType type() {
             return DisburseDestinationType.DEPOSIT;
@@ -37,7 +43,10 @@ public sealed interface DisburseDestinationRequestDto
     @Schema(name = "AccountDestinationDto", description = "مقصد حساب")
     record AccountDestinationDto(
             @Schema(description = "شماره حساب", requiredMode = Schema.RequiredMode.REQUIRED)
-            String accountNumber) implements DisburseDestinationRequestDto {
+            String accountNumber,
+
+            Map<String, String> metadata)
+            implements DisburseDestinationRequestDto {
         @Override
         public DisburseDestinationType type() {
             return DisburseDestinationType.ACCOUNT;

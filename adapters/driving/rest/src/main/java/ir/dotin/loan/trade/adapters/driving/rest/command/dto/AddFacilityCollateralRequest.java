@@ -2,7 +2,10 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.dto;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import ir.dotin.platform.protocol.api.request.BaseRequest;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -18,7 +21,10 @@ public record AddFacilityCollateralRequest(
         Integer version,
 
         @Schema(description = "اطلاعات وثایق", requiredMode = Schema.RequiredMode.REQUIRED)
-        List<CollateralDto> collaterals) {
+        List<CollateralDto> collaterals,
+
+        Map<String, String> metadata)
+        implements BaseRequest {
 
     @Schema(description = "Collateral details")
     public record CollateralDto(

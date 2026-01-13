@@ -1,8 +1,11 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.dto;
 
+import java.util.Map;
 import java.util.UUID;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import ir.dotin.platform.protocol.api.request.BaseRequest;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -23,4 +26,7 @@ public record CancelFacilityRequest(
         UUID uid,
 
         @Schema(description = "نسخه عملیات", example = "1", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
-        Integer version) {}
+        Integer version,
+
+        Map<String, String> metadata)
+        implements BaseRequest {}

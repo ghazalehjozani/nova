@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driving.rest.query.loantype;
 
+import java.util.List;
 import java.util.UUID;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -11,12 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import ir.dotin.platform.adapter.rest.response.DataResponse;
-import ir.dotin.platform.adapter.rest.response.OffsetPaginationInfo;
-import ir.dotin.platform.adapter.rest.response.PagedResponse;
+import ir.dotin.platform.adapter.rest.pagination.CursorPaginationHelper;
 import ir.dotin.platform.dispatcher.api.dispatcher.QueryDispatcher;
+import ir.dotin.platform.protocol.api.response.BaseResponse;
+import ir.dotin.platform.protocol.api.util.PagedResponseUtils;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
-import ir.dotin.loan.trade.adapters.driving.rest.shared.pagination.CursorPaginationHelper;
 import ir.dotin.loan.trade.core.application.query.loantype.dto.LoanTypeQueryResult;
 import ir.dotin.loan.trade.core.application.query.loantype.dto.TradeLoanTypeQueryDto;
 import ir.dotin.loan.trade.core.application.query.loantype.request.FindAllLoanTypesQuery;
@@ -31,22 +31,24 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/{version}/loan-types")
 @RequiredArgsConstructor
 @Tag(name = SwaggerConfig.TAG_LOAN_TYPE_QUERIES, description = "استعلام نوع تسهیلات")
-public class LoanTypeQueryController {
+class LoanTypeQueryController {
+
     private final QueryDispatcher dispatcher;
 
     @GetMapping(value = "/{loanTypeId}", version = "1")
     @Operation(summary = "دریافت نوع تسهیلات بر اساس شناسه")
-    public DataResponse<TradeLoanTypeQueryDto> getById(@PathVariable UUID loanTypeId) {
+    public ResponseEntity<BaseResponse<TradeLoanTypeQueryDto>> getById(@PathVariable UUID loanTypeId) {
         GetLoanTypeByIdQuery query =
                 GetLoanTypeByIdQuery.builder().loanTypeId(loanTypeId).build();
-        return DataResponse.of(dispatcher.dispatch(query));
+        return ResponseEntity.ok(BaseResponse.success(dispatcher.dispatch(query)));
     }
 
     @GetMapping(version = "1")
     @Operation(summary = "Get all loan types with cursor-based pagination")
-    public ResponseEntity<PagedResponse<LoanTypeQueryResult>> findAll(
+    public ResponseEntity<BaseResponse<List<TradeLoanTypeQueryDto>>> findAll(
             @RequestParam(required = false) String cursor,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int pageSize) {
+
         FindAllLoanTypesQuery query = FindAllLoanTypesQuery.builder()
                 .cursor(cursor)
                 .pageSize(pageSize)
@@ -54,29 +56,22 @@ public class LoanTypeQueryController {
 
         LoanTypeQueryResult result = dispatcher.dispatch(query);
 
-        return CursorPaginationHelper.createPaginatedResponse(
-                result, result.nextCursor(), result.previousCursor(), result.hasNext(), result.hasPrevious());
+        return CursorPaginationHelper.response(
+                result.loanTypes(), result.nextCursor(), result.previousCursor(), pageSize, result.hasNext());
     }
 
     @GetMapping(value = "/search", version = "1")
     @Operation(summary = "جستجوی انواع تسهیلات با فیلترهای مختلف")
-    public ResponseEntity<PagedResponse<LoanTypeQueryResult>> searchLoanTypes(
+    public ResponseEntity<BaseResponse<List<TradeLoanTypeQueryDto>>> searchLoanTypes(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String title,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int pageSize) {
-        LoanTypeFilterQuery query = LoanTypeFilterQuery.of(code, title, page, pageSize);
 
+        LoanTypeFilterQuery query = LoanTypeFilterQuery.of(code, title, page, pageSize);
         LoanTypeQueryResult result = dispatcher.dispatch(query);
 
-        OffsetPaginationInfo paginationInfo = OffsetPaginationInfo.of(
-                result.currentPage(),
-                result.pageSize(),
-                result.totalElements(),
-                result.totalPages(),
-                result.hasNext(),
-                result.hasPrevious());
-
-        return ResponseEntity.ok(PagedResponse.success(result, paginationInfo));
+        return ResponseEntity.ok(PagedResponseUtils.offset(
+                result.loanTypes(), result.currentPage(), result.pageSize(), result.totalElements()));
     }
 }

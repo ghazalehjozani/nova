@@ -3,6 +3,8 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 import java.util.UUID;
 import jakarta.validation.Valid;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ir.dotin.platform.adapter.rest.controller.BaseController;
-import ir.dotin.platform.adapter.rest.request.DataRequest;
-import ir.dotin.platform.adapter.rest.response.EventStreamResponse;
 import ir.dotin.platform.commons.security.AuthenticationContextHolder;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
+import ir.dotin.platform.protocol.api.response.BaseResponse;
+import ir.dotin.platform.protocol.api.response.EventStream;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.OriginateLoanFacilityRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.OriginateLoanFacilityRequestMapper;
@@ -38,36 +40,37 @@ class OpenFacilityCaseController extends BaseController {
 
     @PostMapping(version = "1+")
     @Operation(summary = "ایجاد پرونده تسهیلات")
-    public EventStreamResponse openFacilityCase(
-            @Parameter(required = true) @Valid @RequestBody DataRequest<OriginateLoanFacilityRequest> request) {
+    public ResponseEntity<BaseResponse<EventStream>> openFacilityCase(
+            @Parameter(required = true) @Valid @RequestBody OriginateLoanFacilityRequest request) {
 
         String branchCode = authenticationContextHolder.branchCode().orElse(null);
 
-        OriginateLoanFacilityCommand command = mapper.toCommand(request.payload());
+        OriginateLoanFacilityCommand command = mapper.toCommand(request);
 
         OriginateLoanFacilityCommand enrichedCommand = command.toBuilder()
-                .uid(getXRequestId())
+                .uid(getIdempotencyKey())
                 .loanApplication(command.loanApplication().toBuilder()
                         .branch(new OriginateLoanFacilityCommand.BranchDto(branchCode))
                         .build())
                 .build();
 
-        return EventStreamResponse.of(unwrap(dispatcher.dispatch(enrichedCommand)));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(enrichedCommand)))));
     }
 
     @PostMapping(value = "/{facilityId}/compensate", version = "1+")
     @Operation(summary = "جبران‌سازی مرحله تشکیل پرونده")
-    public EventStreamResponse compensateOrigination(
+    public ResponseEntity<BaseResponse<EventStream>> compensateOrigination(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
-            @RequestBody @Valid DataRequest<CompensationRequest> request) {
+            @RequestBody @Valid CompensationRequest request) {
 
         var command = CompensateOriginationCommand.builder()
-                .uid(getXRequestId())
-                .version(request.payload().version())
+                .uid(getIdempotencyKey())
+                .version(request.version())
                 .loanFacilityId(facilityId)
-                .reason(request.payload().reason())
+                .reason(request.reason())
                 .build();
 
-        return EventStreamResponse.of(unwrap(dispatcher.dispatch(command)));
+        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
     }
 }

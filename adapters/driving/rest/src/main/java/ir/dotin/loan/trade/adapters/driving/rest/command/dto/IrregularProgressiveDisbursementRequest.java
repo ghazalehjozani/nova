@@ -3,9 +3,12 @@ package ir.dotin.loan.trade.adapters.driving.rest.command.dto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+
+import ir.dotin.platform.protocol.api.request.BaseRequest;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -15,7 +18,9 @@ public record IrregularProgressiveDisbursementRequest(
         @Schema(description = "برنامه اقساط") @NotNull InstallmentSchedulePlanDto installmentSchedulePlan,
         @Schema(description = "شناسه عملیات") @NotNull UUID uid,
         @Schema(description = "نسخه عملیات") @NotNull Long version,
-        @Schema(description = "تاریخ پرداخت") LocalDate disbursementDate) {
+        @Schema(description = "تاریخ پرداخت") LocalDate disbursementDate,
+        Map<String, String> metadata)
+        implements BaseRequest {
 
     @Schema(description = "برنامه زمانبندی اقساط")
     public record InstallmentSchedulePlanDto(

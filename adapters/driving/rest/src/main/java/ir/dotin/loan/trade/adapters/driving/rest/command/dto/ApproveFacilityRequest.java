@@ -1,6 +1,9 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.dto;
 
+import java.util.Map;
 import jakarta.validation.constraints.NotNull;
+
+import ir.dotin.platform.protocol.api.request.BaseRequest;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -10,4 +13,7 @@ public record ApproveFacilityRequest(
         Long version,
 
         @Schema(description = "مرجع تصویب", example = "99990000", requiredMode = Schema.RequiredMode.REQUIRED)
-        String confirmType) {}
+        String confirmType,
+
+        Map<String, String> metadata)
+        implements BaseRequest {}
