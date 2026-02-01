@@ -20,8 +20,6 @@ import ir.dotin.loan.trade.core.application.service.originateloanfacility.mapper
 import ir.dotin.loan.trade.core.domain.installmentschedule.service.TradeRepaymentSchedulingService;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
-import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanFacilityFormulaField;
-import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanParameterProvider;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -82,8 +80,8 @@ public class GradualScheduleStrategy implements InstallmentScheduleStrategy {
                 clock,
                 null);
 
-        InstallmentScheduleCreationContext<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> scheduleContext =
-                new InstallmentScheduleCreationContext<>(tempFacility, context.arrangement(), clock);
+        InstallmentScheduleCreationContext scheduleContext =
+                new InstallmentScheduleCreationContext(tempFacility, context.arrangement(), clock);
 
         List<InstallmentSpec> installmentSpecs =
                 installmentSchedulePlanMapper.mapSpecs(planDto.installments(), application.getCurrency());

@@ -27,11 +27,9 @@ import ir.dotin.loan.trade.core.domain.loanfacility.enums.DisburseBankCommitment
 import ir.dotin.loan.trade.core.domain.loanfacility.enums.DisbursedInterestArticleType;
 import ir.dotin.loan.trade.core.domain.loanfacility.enums.PaymentAmountArticleType;
 import ir.dotin.loan.trade.core.domain.loanfacility.i18n.TradeLoanFacilityLocalizedMessageCodes;
-import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeInterestCalculationService;
 import ir.dotin.loan.trade.core.domain.loanfacility.strategy.DisbursementStrategyProvider;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
-import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanParameterProviderImpl;
 
 import static java.util.Objects.requireNonNull;
 
@@ -40,15 +38,11 @@ public class TradeLampSunDisbursementTransactionService {
 
     private final DocumentBuilderService documentBuilderService;
     private final DisbursementStrategyProvider strategyProvider;
-    private final TradeInterestCalculationService tradeInterestCalculationService;
 
     public TradeLampSunDisbursementTransactionService(
-            DocumentBuilderService documentBuilderService,
-            DisbursementStrategyProvider strategyProvider,
-            TradeInterestCalculationService tradeInterestCalculationService) {
+            DocumentBuilderService documentBuilderService, DisbursementStrategyProvider strategyProvider) {
         this.documentBuilderService = requireNonNull(documentBuilderService);
         this.strategyProvider = requireNonNull(strategyProvider);
-        this.tradeInterestCalculationService = requireNonNull(tradeInterestCalculationService);
     }
 
     public Result<List<LoanTransaction>> createTransactions(
@@ -219,10 +213,7 @@ public class TradeLampSunDisbursementTransactionService {
                     .orElseThrow(() ->
                             new IllegalStateException("No installments found in schedule for GRADUAL payment type"));
         } else {
-            TradeLoanParameterProviderImpl tradeLoanParameterProvider = TradeLoanParameterProviderImpl.of(facility);
-            return tradeInterestCalculationService
-                    .calculateInterest(arrangement.getInterestPolicy(), tradeLoanParameterProvider)
-                    .orElseThrow();
+            throw new UnsupportedOperationException("Not Implemented");
         }
     }
 

@@ -26,6 +26,10 @@
         <artifactId>platform-starter-all</artifactId>
     </dependency>
     <dependency>
+        <groupId>ir.dotin.platform</groupId>
+        <artifactId>expression-kit-spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
       <groupId>ir.dotin.loan</groupId>
       <artifactId>trade-loan-core-domain</artifactId>
     </dependency>
@@ -58,10 +62,6 @@
     <dependency>
         <groupId>ir.dotin.loan</groupId>
         <artifactId>trade-loan-adapters-driven-fcb-client</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>ir.dotin.loan</groupId>
-        <artifactId>trade-loan-adapters-driven-formula</artifactId>
     </dependency>
     <dependency>
         <groupId>ir.dotin.loan</groupId>

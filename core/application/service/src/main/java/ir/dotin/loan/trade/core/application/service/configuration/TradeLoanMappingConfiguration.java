@@ -6,9 +6,5 @@ import org.springframework.context.annotation.Configuration;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.configuration.IssueFacilityContractConfiguration;
 
 @Configuration
-@EnableConfigurationProperties({
-    TradeLoanFormulaFieldMappingProperties.class,
-    TradeFeatureProperties.class,
-    IssueFacilityContractConfiguration.class
-})
+@EnableConfigurationProperties({TradeFeatureProperties.class, IssueFacilityContractConfiguration.class})
 public class TradeLoanMappingConfiguration {}

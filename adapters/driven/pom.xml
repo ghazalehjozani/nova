@@ -19,7 +19,6 @@
     <module>persistence</module>
     <module>fcb-client</module>
     <module>messaging</module>
-    <module>formula</module>
   </modules>
 
   <dependencies>

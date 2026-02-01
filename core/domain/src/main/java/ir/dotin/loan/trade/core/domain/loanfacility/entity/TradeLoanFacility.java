@@ -14,11 +14,13 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.*;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityEvents;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
+import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanParameterProvider;
 
 import static java.util.Objects.requireNonNull;
 
 public final class TradeLoanFacility
-        extends AbstractLoanFacility<TradeLoanApplication, TradeSanctionedLoan, TradeLoanFacility.Builder> {
+        extends AbstractLoanFacility<TradeLoanApplication, TradeSanctionedLoan, TradeLoanFacility.Builder>
+        implements TradeLoanParameterProvider {
 
     private TradeLoanFacility(Builder builder) {
         super(builder);

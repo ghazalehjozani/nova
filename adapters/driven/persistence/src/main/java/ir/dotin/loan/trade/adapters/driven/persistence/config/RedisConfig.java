@@ -6,6 +6,7 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.boot.data.redis.autoconfigure.DataRedisProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -47,7 +48,8 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+    @Primary
+    public RedisCacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
         JacksonJsonRedisSerializer<@NonNull Object> serializer = new JacksonJsonRedisSerializer<>(Object.class);
 
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()

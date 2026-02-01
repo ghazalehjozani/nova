@@ -1,25 +1,5 @@
 package ir.dotin.loan.trade.core.domain.shared.formula;
 
-import java.time.Period;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.formula.LoanFacilityParameterProvider;
 
-import ir.dotin.platform.commons.domain.vo.Money;
-import ir.dotin.platform.commons.domain.vo.Rate;
-import ir.dotin.loan.baseloan.core.domain.shared.formula.LoanFacilityParameterProvider;
-
-public interface TradeLoanParameterProvider extends LoanFacilityParameterProvider {
-
-    @Override
-    Money getApprovedAmount();
-
-    @Override
-    Money getRequestedAmount();
-
-    @Override
-    Period getGracePeriod();
-
-    Money getCommissionAmount();
-
-    Money getShipmentValue();
-
-    Rate getInsuranceRate();
-}
+public interface TradeLoanParameterProvider extends LoanFacilityParameterProvider {}

@@ -23,8 +23,6 @@ import ir.dotin.loan.trade.core.application.service.planequalinstallmentschedule
 import ir.dotin.loan.trade.core.domain.installmentschedule.service.TradeRepaymentSchedulingService;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
-import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanFacilityFormulaField;
-import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanParameterProvider;
 
 import lombok.RequiredArgsConstructor;
 
@@ -68,8 +66,8 @@ public class PlanEqualInstallmentScheduleCommandHandler implements CommandHandle
     }
 
     private Result<InstallmentSchedule> planSchedule(ScheduleCreationDependencies dependencies) {
-        InstallmentScheduleCreationContext<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> context =
-                new InstallmentScheduleCreationContext<>(dependencies.facility(), dependencies.arrangement(), clock);
+        InstallmentScheduleCreationContext context =
+                new InstallmentScheduleCreationContext(dependencies.facility(), dependencies.arrangement(), clock);
         return schedulingService.planEqualInstallmentSchedule(context);
     }
 

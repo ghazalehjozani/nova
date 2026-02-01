@@ -3,7 +3,6 @@ package ir.dotin.loan.trade.core.application.query.loanarrangement.dto;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -107,5 +106,5 @@ public record TradeLoanArrangementQueryDto(
     }
 
     @Builder
-    public record FormulaDto(String expression, Map<Character, String> fieldMappings) {}
+    public record FormulaDto(String formulaId) {}
 }

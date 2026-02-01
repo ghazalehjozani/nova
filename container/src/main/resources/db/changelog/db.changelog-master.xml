@@ -5,6 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
 
+    <!-- Separate changelog directory with aggregate + rollback scenario should be mandatory + enforce file naming convention and etc-->
     <include file="/db/changelog/changes/26-01-initial-schema-v1.0.0.xml"/>
     <include file="/db/changelog/changes/13-01-shedlock.xml"/>
     <include file="/db/changelog/changes/29-01-changelog.xml"/>
@@ -26,4 +27,5 @@
     <include file="/db/changelog/changes/2025/12/13-02-changelog.xml"/>
     <include file="db/changelog/changes/2025/12/14-01-changelog.xml"/>
     <include file="db/changelog/changes/2025/12/16-01-changelog.xml"/>
+    <include file="db/changelog/changes/001-create-formula-definitions.xml"/>
 </databaseChangeLog>

@@ -13,13 +13,10 @@ import ir.dotin.loan.trade.core.domain.loanarrangement.event.NewTradeLoanArrange
 import ir.dotin.loan.trade.core.domain.loanarrangement.event.TradeLoanArrangementActivated;
 import ir.dotin.loan.trade.core.domain.loanarrangement.event.TradeLoanArrangementCreated;
 import ir.dotin.loan.trade.core.domain.loanarrangement.event.TradeLoanArrangementDeactivated;
-import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanFacilityFormulaField;
-import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanParameterProvider;
 
 import static java.util.Objects.requireNonNull;
 
-public final class TradeLoanArrangement
-        extends AbstractLoanArrangement<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> {
+public final class TradeLoanArrangement extends AbstractLoanArrangement {
 
     private TradeLoanArrangement(Builder builder) {
         super(builder);
@@ -73,9 +70,7 @@ public final class TradeLoanArrangement
 
     @Override
     protected DomainEvent<?> getNewArrangementVersionPreparedEvent(
-            LoanArrangementId currentAggregateId,
-            AbstractBuilder<TradeLoanParameterProvider, TradeLoanFacilityFormulaField, ?, ?> validatedBuilder,
-            Clock clock) {
+            LoanArrangementId currentAggregateId, AbstractBuilder<?, ?> validatedBuilder, Clock clock) {
         Builder morabeheBuilder = (Builder) validatedBuilder;
         TradeLoanArrangement loanArrangement = morabeheBuilder.build();
 
@@ -110,9 +105,7 @@ public final class TradeLoanArrangement
         }
     }
 
-    public static final class Builder
-            extends AbstractBuilder<
-                    TradeLoanParameterProvider, TradeLoanFacilityFormulaField, TradeLoanArrangement, Builder> {
+    public static final class Builder extends AbstractBuilder<TradeLoanArrangement, Builder> {
 
         public Builder() {
             super();

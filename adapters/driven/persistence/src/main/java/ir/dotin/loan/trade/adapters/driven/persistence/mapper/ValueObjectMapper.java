@@ -26,18 +26,17 @@ import org.mapstruct.Named;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import ir.dotin.platform.adapter.persistence.embeddable.AmountRangeEmb;
 import ir.dotin.platform.adapter.persistence.embeddable.DurationRangeEmb;
-import ir.dotin.platform.adapter.persistence.embeddable.FormulaEmb;
 import ir.dotin.platform.adapter.persistence.embeddable.InterestRateEmb;
 import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
 import ir.dotin.platform.adapter.persistence.embeddable.PeriodEmb;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
-import ir.dotin.platform.commons.domain.vo.Formula;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.platform.commons.domain.vo.Rate;
+import ir.dotin.platform.formula.api.FormulaId;
+import ir.dotin.platform.formula.infrastructure.persistence.embeddable.FormulaIdRefEmb;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentAmount;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentId;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.RestructuringRecord;
@@ -89,7 +88,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LifeInsuranceId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityParameterizedFormula;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeGroupId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
@@ -145,10 +143,7 @@ import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ScheduleHisto
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.SubSourceEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.TitleEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.TransactionNumberEmb;
-import ir.dotin.loan.trade.adapters.driven.persistence.service.FormulaFieldMappingService;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
-import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanFacilityFormulaField;
-import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanParameterProvider;
 
 @SuppressWarnings("unused")
 @Mapper(
@@ -160,9 +155,6 @@ import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanParameterProvider
         injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public abstract class ValueObjectMapper {
 
-    @Autowired
-    public FormulaFieldMappingService formulaFieldMappingService;
-
     @Mapping(source = "value", target = "amount")
     @Mapping(source = "currency.code", target = "currency")
     public abstract MoneyEmb toMoneyEmb(Money money);
@@ -171,11 +163,9 @@ public abstract class ValueObjectMapper {
     @Mapping(source = "currency", target = "currency", qualifiedByName = "stringToCurrency")
     public abstract Money toMoney(MoneyEmb embeddable);
 
-    @Mapping(source = "value", target = "formula")
-    public abstract FormulaEmb toFormulaEmb(Formula formula);
+    public abstract FormulaIdRefEmb toFormulaEmb(FormulaId formula);
 
-    @Mapping(source = "formula", target = "value")
-    public abstract Formula toFormula(FormulaEmb embeddable);
+    public abstract FormulaId toFormulaId(FormulaIdRefEmb embeddable);
 
     @Mapping(source = "value", target = "value")
     public abstract InterestRateEmb toInterestRateEmb(Rate rate);
@@ -522,8 +512,7 @@ public abstract class ValueObjectMapper {
     }
 
     @Named("mapInterestPolicyToEmb")
-    public InterestPolicyEmb mapInterestPolicyToEmb(
-            InterestPolicy<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> policy) {
+    public InterestPolicyEmb mapInterestPolicyToEmb(InterestPolicy policy) {
         if (policy == null) return null;
         InterestPolicyEmb emb = new InterestPolicyEmb();
         emb.setBaseInterestRate(policy.baseInterestRate().value());
@@ -531,43 +520,40 @@ public abstract class ValueObjectMapper {
                 policy.preferentialRangeRate().lowerEndpoint().value());
         emb.setPreferentialMaxRate(
                 policy.preferentialRangeRate().upperEndpoint().value());
-        emb.setInterestFormula(mapParameterizedFormulaToString(policy.interestFormula()));
-        emb.setRefundInterestFormula(mapParameterizedFormulaToString(policy.refundInterestFormula()));
+        emb.setInterestFormula(toFormulaEmb(policy.interestFormula()));
+        emb.setRefundInterestFormula(toFormulaEmb(policy.refundInterestFormula()));
         emb.setDailyInterest(policy.dailyInterest());
         return emb;
     }
 
     @Named("mapInstallmentPolicyToEmb")
-    public InstallmentPolicyEmb mapInstallmentPolicyToEmb(
-            InstallmentPolicy<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> policy) {
+    public InstallmentPolicyEmb mapInstallmentPolicyToEmb(InstallmentPolicy policy) {
         if (policy == null) return null;
         InstallmentPolicyEmb emb = new InstallmentPolicyEmb();
         emb.setInstallmentPeriodDays(policy.installmentPeriod().value().getDays());
-        emb.setInstallmentFormula(mapParameterizedFormulaToString(policy.installmentFormula()));
-        emb.setInterestComponentFormula(mapParameterizedFormulaToString(policy.interestComponentFormula()));
+        emb.setInstallmentFormula(toFormulaEmb(policy.installmentFormula()));
+        emb.setInterestComponentFormula(toFormulaEmb(policy.interestComponentFormula()));
         emb.setInstallmentPaymentType(policy.installmentPaymentType().name());
         return emb;
     }
 
     @Named("mapGracePeriodPolicyToEmb")
-    public GracePeriodPolicyEmb mapGracePeriodPolicyToEmb(
-            GracePeriodPolicy<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> policy) {
+    public GracePeriodPolicyEmb mapGracePeriodPolicyToEmb(GracePeriodPolicy policy) {
         if (policy == null) return null;
         GracePeriodPolicyEmb emb = new GracePeriodPolicyEmb();
         emb.setMinGracePeriodDays(policy.minGracePeriod().getDays());
         emb.setMaxGracePeriodDays(policy.maxGracePeriod().getDays());
-        emb.setGracePeriodFormula(mapParameterizedFormulaToString(policy.gracePeriodFormula()));
+        emb.setGracePeriodFormula(toFormulaEmb(policy.gracePeriodFormula()));
         return emb;
     }
 
     @Named("mapPenaltyPolicyToEmb")
-    public PenaltyPolicyEmb mapPenaltyPolicyToEmb(
-            PenaltyPolicy<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> policy) {
+    public PenaltyPolicyEmb mapPenaltyPolicyToEmb(PenaltyPolicy policy) {
         if (policy == null) return null;
         PenaltyPolicyEmb emb = new PenaltyPolicyEmb();
         emb.setPenaltyRate(policy.penaltyRate().value());
         emb.setDeferralInterestRate(policy.deferralInterestRate().value());
-        emb.setPenaltyFormula(mapParameterizedFormulaToString(policy.penaltyFormula()));
+        emb.setPenaltyFormula(toFormulaEmb(policy.penaltyFormula()));
         emb.setPenaltyPaymentType(policy.penaltyPaymentType().name());
         return emb;
     }
@@ -594,8 +580,7 @@ public abstract class ValueObjectMapper {
     }
 
     @Named("mapInterestPolicyEmbToPolicy")
-    public InterestPolicy<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> mapInterestPolicyEmbToPolicy(
-            InterestPolicyEmb emb) {
+    public InterestPolicy mapInterestPolicyEmbToPolicy(InterestPolicyEmb emb) {
         if (emb == null) return null;
         Rate baseRate = Rate.valueOf(emb.getBaseInterestRate()).orElseThrow();
         Rate minRate = Rate.valueOf(emb.getPreferentialMinRate()).orElseThrow();
@@ -604,49 +589,42 @@ public abstract class ValueObjectMapper {
         return InterestPolicy.of(
                         baseRate,
                         preferentialRange,
-                        mapStringToParameterizedFormula(emb.getInterestFormula()),
-                        mapStringToParameterizedFormula(emb.getRefundInterestFormula()),
+                        toFormulaId(emb.getInterestFormula()),
+                        toFormulaId(emb.getRefundInterestFormula()),
                         emb.getDailyInterest())
                 .orElseThrow();
     }
 
     @Named("mapInstallmentPolicyEmbToPolicy")
-    public InstallmentPolicy<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> mapInstallmentPolicyEmbToPolicy(
-            InstallmentPolicyEmb emb) {
+    public InstallmentPolicy mapInstallmentPolicyEmbToPolicy(InstallmentPolicyEmb emb) {
         if (emb == null) return null;
         InstallmentPeriod installmentPeriod = InstallmentPeriod.of(Period.ofDays(emb.getInstallmentPeriodDays()))
                 .orElseThrow();
         return InstallmentPolicy.of(
                         installmentPeriod,
-                        mapStringToParameterizedFormula(emb.getInstallmentFormula()),
-                        mapStringToParameterizedFormula(emb.getInterestComponentFormula()),
+                        toFormulaId(emb.getInstallmentFormula()),
+                        toFormulaId(emb.getInterestComponentFormula()),
                         InstallmentPaymentType.valueOf(emb.getInstallmentPaymentType()))
                 .orElseThrow();
     }
 
     @Named("mapGracePeriodPolicyEmbToPolicy")
-    public GracePeriodPolicy<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> mapGracePeriodPolicyEmbToPolicy(
-            GracePeriodPolicyEmb emb) {
+    public GracePeriodPolicy mapGracePeriodPolicyEmbToPolicy(GracePeriodPolicyEmb emb) {
         if (emb == null) return null;
         return GracePeriodPolicy.of(
                         Period.ofDays(emb.getMinGracePeriodDays()),
                         Period.ofDays(emb.getMaxGracePeriodDays()),
-                        mapStringToParameterizedFormula(emb.getGracePeriodFormula()))
+                        toFormulaId(emb.getGracePeriodFormula()))
                 .orElseThrow();
     }
 
     @Named("mapPenaltyPolicyEmbToPolicy")
-    public PenaltyPolicy<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> mapPenaltyPolicyEmbToPolicy(
-            PenaltyPolicyEmb emb) {
+    public PenaltyPolicy mapPenaltyPolicyEmbToPolicy(PenaltyPolicyEmb emb) {
         if (emb == null) return null;
         Rate penaltyRate = Rate.valueOf(emb.getPenaltyRate()).orElseThrow();
         Rate deferralRate = Rate.valueOf(emb.getDeferralInterestRate()).orElseThrow();
         PenaltyPaymentType paymentType = PenaltyPaymentType.valueOf(emb.getPenaltyPaymentType());
-        return PenaltyPolicy.of(
-                        penaltyRate,
-                        deferralRate,
-                        mapStringToParameterizedFormula(emb.getPenaltyFormula()),
-                        paymentType)
+        return PenaltyPolicy.of(penaltyRate, deferralRate, toFormulaId(emb.getPenaltyFormula()), paymentType)
                 .orElseThrow();
     }
 
@@ -718,16 +696,6 @@ public abstract class ValueObjectMapper {
     @Named("embToTrackedTransactionNumber")
     public TrackedTransactionNumber embToTrackedTransactionNumber(TransactionNumberEmb emb) {
         return new TrackedTransactionNumber(emb.getValue(), emb.getCreatedAt(), emb.getTrackingId(), emb.getStatus());
-    }
-
-    public String mapParameterizedFormulaToString(
-            LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> value) {
-        return formulaFieldMappingService.serializeParameterizedFormula(value);
-    }
-
-    public LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField>
-            mapStringToParameterizedFormula(String value) {
-        return formulaFieldMappingService.deserializeParameterizedFormula(value);
     }
 
     public UUID map(LoanArrangementId value) {

@@ -19,12 +19,6 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.IrregularProgressiveD
   BorderColor #1c7fac
   shadowing false
 }
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeInterestCalculationService>> {
-  BackgroundColor #29b6f6
-  FontColor #ffffff
-  BorderColor #1c7fac
-  shadowing false
-}
 skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeIssueContractTransactionService>> {
   BackgroundColor #29b6f6
   FontColor #ffffff
@@ -117,7 +111,6 @@ rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]<
   rectangle "==TradeSanctionedLoan\n<size:10>[Component: DDD Aggregate Root]</size>\n\ntrade sanctioned loan aggregate" <<TradeLoanService.TradeLoanApplication.TradeSanctionedLoan>> as TradeLoanService.TradeLoanApplication.TradeSanctionedLoan
   rectangle "==TradeLoanType\n<size:10>[Component: DDD Aggregate Root]</size>\n\ntrade loan type aggregate" <<TradeLoanService.TradeLoanApplication.TradeLoanType>> as TradeLoanService.TradeLoanApplication.TradeLoanType
   rectangle "==TradeRepaymentSchedulingService\n<size:10>[Component: Domain Service]</size>\n\ntrade repayment scheduling service domain service" <<TradeLoanService.TradeLoanApplication.TradeRepaymentSchedulingService>> as TradeLoanService.TradeLoanApplication.TradeRepaymentSchedulingService
-  rectangle "==TradeInterestCalculationService\n<size:10>[Component: Domain Service]</size>\n\ntrade interest calculation service domain service" <<TradeLoanService.TradeLoanApplication.TradeInterestCalculationService>> as TradeLoanService.TradeLoanApplication.TradeInterestCalculationService
   rectangle "==TradeLoanFacilityService\n<size:10>[Component: Domain Service]</size>\n\ntrade loan facility service domain service" <<TradeLoanService.TradeLoanApplication.TradeLoanFacilityService>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityService
   rectangle "==IrregularProgressiveDisbursementTransactionService\n<size:10>[Component: Domain Service]</size>\n\nirregular progressive disbursement transaction service domain service" <<TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementTransactionService>> as TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementTransactionService
   rectangle "==TradeIssueContractTransactionService\n<size:10>[Component: Domain Service]</size>\n\ntrade issue contract transaction service domain service" <<TradeLoanService.TradeLoanApplication.TradeIssueContractTransactionService>> as TradeLoanService.TradeLoanApplication.TradeIssueContractTransactionService
@@ -127,5 +120,4 @@ rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]<
   rectangle "==TradeLoanTypeValidationService\n<size:10>[Component: Domain Service]</size>\n\ntrade loan type validation service domain service" <<TradeLoanService.TradeLoanApplication.TradeLoanTypeValidationService>> as TradeLoanService.TradeLoanApplication.TradeLoanTypeValidationService
 }
 
-TradeLoanService.TradeLoanApplication.TradeLampSunDisbursementTransactionService .[#707070,thickness=2].> TradeLoanService.TradeLoanApplication.TradeInterestCalculationService : "<color:#707070>Uses"
 @enduml

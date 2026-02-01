@@ -7,12 +7,11 @@ import java.util.Objects;
 import com.google.common.collect.Range;
 import org.jspecify.annotations.NonNull;
 import org.mapstruct.*;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
-import ir.dotin.platform.commons.domain.vo.Formula;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.platform.commons.domain.vo.Rate;
+import ir.dotin.platform.formula.api.FormulaId;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.CollateralPolicy;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.GracePeriodPolicy;
@@ -26,7 +25,6 @@ import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.RepaymentPriorityPo
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityParameterizedFormula;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.DefineTradeLoanArrangementCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.CurrencyTypeDto;
@@ -34,16 +32,10 @@ import ir.dotin.loan.trade.core.application.ports.inbound.dto.EconomicSectorDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.LoanArrangementCodeDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.TitleDto;
 import ir.dotin.loan.trade.core.application.service.BaseMapperConfig;
-import ir.dotin.loan.trade.core.application.service.configuration.TradeLoanFormulaFieldMappingProperties;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
-import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanFacilityFormulaField;
-import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanParameterProvider;
 
 @Mapper(config = BaseMapperConfig.class)
 public abstract class DefineTradeLoanArrangementCommandMapper {
-
-    @Autowired
-    private TradeLoanFormulaFieldMappingProperties tradeLoanFormulaFieldMappingProperties;
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "active", ignore = true)
@@ -79,68 +71,46 @@ public abstract class DefineTradeLoanArrangementCommandMapper {
         return LoanDuration.of(period).getValue();
     }
 
-    InterestPolicy<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> mapInterestPolicy(
-            DefineTradeLoanArrangementCommand.InterestPolicyDto dto) {
+    InterestPolicy mapInterestPolicy(DefineTradeLoanArrangementCommand.InterestPolicyDto dto) {
 
         Rate minRate = Rate.valueOf(dto.minPreferentialRate()).orElseThrow();
         Rate maxRate = Rate.valueOf(dto.maxPreferentialRate()).orElseThrow();
-        Formula interestFormula = Formula.valueOf(dto.interestFormula()).orElseThrow();
-        Formula refundFormula = Formula.valueOf(dto.refundFormula()).orElseThrow();
-
-        LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> interestParam =
-                createParameterizedFormula(interestFormula);
-        LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> refundParam =
-                createParameterizedFormula(refundFormula);
-
+        FormulaId interestFormula = FormulaId.of(dto.interestFormula());
+        FormulaId refundFormula = FormulaId.of(dto.refundFormula());
         Range<@NonNull Rate> preferentialRange = Range.closed(minRate, maxRate);
         return InterestPolicy.of(
                         Rate.valueOf(dto.rate()).orElseThrow(),
                         preferentialRange,
-                        interestParam,
-                        refundParam,
+                        interestFormula,
+                        refundFormula,
                         dto.dailyInterest())
                 .orElseThrow();
     }
 
-    PenaltyPolicy<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> mapPenaltyPolicy(
-            DefineTradeLoanArrangementCommand.PenaltyPolicyDto dto) {
+    PenaltyPolicy mapPenaltyPolicy(DefineTradeLoanArrangementCommand.PenaltyPolicyDto dto) {
         Rate penaltyRate = Rate.valueOf(dto.penaltyRate()).orElseThrow();
         Rate deferralRate = Rate.valueOf(dto.deferralInterestRate()).orElseThrow();
-        Formula formula = Formula.valueOf(dto.formula()).orElseThrow();
+        FormulaId formula = FormulaId.of(dto.formula());
 
-        LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> penaltyFormula =
-                createParameterizedFormula(formula);
-
-        return PenaltyPolicy.of(penaltyRate, deferralRate, penaltyFormula, dto.paymentType())
+        return PenaltyPolicy.of(penaltyRate, deferralRate, formula, dto.paymentType())
                 .orElseThrow();
     }
 
-    InstallmentPolicy<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> mapInstallmentPolicy(
-            DefineTradeLoanArrangementCommand.InstallmentPolicyDto dto) {
+    InstallmentPolicy mapInstallmentPolicy(DefineTradeLoanArrangementCommand.InstallmentPolicyDto dto) {
         InstallmentPeriod period = InstallmentPeriod.of(dto.installmentPeriod()).orElseThrow();
-        Formula installmentFormula = Formula.valueOf(dto.installmentFormula()).orElseThrow();
-        Formula interestComponentFormula =
-                Formula.valueOf(dto.interestComponentFormula()).orElseThrow();
+        FormulaId installmentFormula = FormulaId.of(dto.installmentFormula());
+        FormulaId interestComponentFormula = FormulaId.of(dto.interestComponentFormula());
 
-        LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> installmentParam =
-                createParameterizedFormula(installmentFormula);
-        LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> interestParam =
-                createParameterizedFormula(interestComponentFormula);
-
-        return InstallmentPolicy.of(period, installmentParam, interestParam, dto.paymentType())
+        return InstallmentPolicy.of(period, installmentFormula, interestComponentFormula, dto.paymentType())
                 .orElseThrow();
     }
 
-    GracePeriodPolicy<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> mapGracePeriodPolicy(
-            DefineTradeLoanArrangementCommand.GracePeriodPolicyDto dto) {
+    GracePeriodPolicy mapGracePeriodPolicy(DefineTradeLoanArrangementCommand.GracePeriodPolicyDto dto) {
         Period minPeriod = Period.ofDays(dto.minGracePeriodDays());
         Period maxPeriod = Period.ofDays(dto.maxGracePeriodDays());
-        Formula formula = Formula.valueOf(dto.formula()).orElseThrow();
+        FormulaId formula = FormulaId.of(dto.formula());
 
-        LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField> gracePeriodFormula =
-                createParameterizedFormula(formula);
-
-        return GracePeriodPolicy.of(minPeriod, maxPeriod, gracePeriodFormula).orElseThrow();
+        return GracePeriodPolicy.of(minPeriod, maxPeriod, formula).orElseThrow();
     }
 
     RepaymentPriorityPolicy mapRepaymentPriorityPolicy(
@@ -167,12 +137,6 @@ public abstract class DefineTradeLoanArrangementCommandMapper {
                 .map(ct -> CollateralType.valueOf(ct.type().name()))
                 .toList();
         return CollateralPolicy.of(types, dto.totalPercent(), dto.collateralCalculationType())
-                .orElseThrow();
-    }
-
-    LoanFacilityParameterizedFormula<TradeLoanParameterProvider, TradeLoanFacilityFormulaField>
-            createParameterizedFormula(Formula formula) {
-        return LoanFacilityParameterizedFormula.valueOf(formula, tradeLoanFormulaFieldMappingProperties.fieldMap())
                 .orElseThrow();
     }
 
