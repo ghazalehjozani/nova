@@ -1,0 +1,43 @@
+{
+  "name": "Nova DevContainer",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "devcontainer",
+  "workspaceFolder": "/workspace",
+  "remoteUser": "developer",
+  "postCreateCommand": "/usr/local/bin/post-create.sh",
+  "postStartCommand": "/usr/local/bin/post-start.sh",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "jetbrains": {
+      "backend": "IntelliJ",
+      "plugins": [
+        "com.intellij.spring",
+        "org.jetbrains.plugins.yaml",
+        "com.intellij.java",
+        "Docker",
+        "org.jetbrains.plugins.terminal",
+        "com.intellij.database"
+      ]
+    },
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vmware.vscode-boot-dev-pack",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+  "forwardPorts": [8080, 5005, 5433, 9092, 6379],
+  "mounts": [
+    {
+      "source": "${localEnv:HOME}/.gitconfig",
+      "target": "/home/developer/.gitconfig-host",
+      "type": "bind"
+    },
+    {
+      "source": "${localEnv:HOME}/.ssh",
+      "target": "/home/developer/.ssh",
+      "type": "bind"
+    }
+  ]
+}

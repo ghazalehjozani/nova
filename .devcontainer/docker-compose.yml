@@ -1,0 +1,30 @@
+services:
+  devcontainer:
+    image: nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.2-jdk25
+    volumes:
+      - ..:/workspace:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+      - maven-cache:/home/developer/.m2
+      - gradle-cache:/home/developer/.gradle
+      - npm-cache:/home/developer/.npm
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - SHELL=/bin/zsh
+      - TERM=xterm-256color
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dev}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5433/trade_loan
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-trade_loan}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-trade_loan}
+      - KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:9092
+      - SPRING_REDIS_HOST=host.docker.internal
+      - SPRING_REDIS_PORT=6379
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    security_opt:
+      - no-new-privileges:true
+    command: sleep infinity
+
+volumes:
+  maven-cache:
+  gradle-cache:
+  npm-cache:
