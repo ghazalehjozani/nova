@@ -1,5 +1,5 @@
 services:
-  devcontainer:
+  nova-devcontainer:
     image: nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.2-jdk25
     volumes:
       - ..:/workspace:cached

@@ -1,7 +1,7 @@
 {
   "name": "Nova DevContainer",
   "dockerComposeFile": "docker-compose.yml",
-  "service": "devcontainer",
+  "service": "nova-devcontainer",
   "workspaceFolder": "/workspace",
   "remoteUser": "developer",
   "postCreateCommand": "/usr/local/bin/post-create.sh",
