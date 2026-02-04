@@ -18,26 +18,13 @@
         "org.jetbrains.plugins.terminal",
         "com.intellij.database"
       ]
-    },
-    "vscode": {
-      "extensions": [
-        "vscjava.vscode-java-pack",
-        "vmware.vscode-boot-dev-pack",
-        "ms-azuretools.vscode-docker"
-      ]
     }
   },
-  "forwardPorts": [8080, 5005, 5433, 9092, 6379],
-  "mounts": [
-    {
-      "source": "${localEnv:HOME}/.gitconfig",
-      "target": "/home/developer/.gitconfig-host",
-      "type": "bind"
-    },
-    {
-      "source": "${localEnv:HOME}/.ssh",
-      "target": "/home/developer/.ssh",
-      "type": "bind"
-    }
+  "forwardPorts": [
+    8080,
+    5005,
+    5433,
+    9092,
+    6379
   ]
 }

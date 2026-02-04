@@ -7,6 +7,9 @@ services:
       - maven-cache:/home/developer/.m2
       - gradle-cache:/home/developer/.gradle
       - npm-cache:/home/developer/.npm
+      - zsh-history:/home/developer/.zsh_history_data
+      # Host home (read-only)
+      - ${HOME}:/host-home:ro
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
       - SHELL=/bin/zsh
@@ -28,3 +31,4 @@ volumes:
   maven-cache:
   gradle-cache:
   npm-cache:
+  zsh-history:
