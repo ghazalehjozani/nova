@@ -3,7 +3,7 @@ services:
     image: nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.5-jdk25
     volumes:
       - ..:/workspace:cached
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker-host.sock
       - maven-cache:/home/developer/.m2
       - gradle-cache:/home/developer/.gradle
       - npm-cache:/home/developer/.npm
@@ -11,7 +11,10 @@ services:
       # Host home (read-only)
       - ${HOME}:/host-home:ro
     environment:
-      - DOCKER_HOST=unix:///var/run/docker.sock
+      - SOURCE_SOCKET=/var/run/docker-host.sock
+      - TARGET_SOCKET=/var/run/docker.sock
+      - ENABLE_NONROOT_DOCKER=true
+      - NONROOT_USER=developer
       - SHELL=/bin/zsh
       - TERM=xterm-256color
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dev}
@@ -23,8 +26,6 @@ services:
       - SPRING_REDIS_PORT=6379
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    security_opt:
-      - no-new-privileges:true
     command: sleep infinity
 
 volumes:
