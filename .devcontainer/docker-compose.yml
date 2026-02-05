@@ -1,15 +1,14 @@
 services:
   nova-devcontainer:
-    image: nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.6-jdk25
+    image: nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.7-jdk25
     volumes:
       - ..:/workspace:cached
       - /var/run/docker.sock:/var/run/docker-host.sock
+      - ${HOME}:/host-home:ro
       - maven-cache:/home/developer/.m2
       - gradle-cache:/home/developer/.gradle
       - npm-cache:/home/developer/.npm
       - zsh-history:/home/developer/.zsh_history_data
-      # Host home (read-only)
-      - ${HOME}:/host-home:ro
     environment:
       - SOURCE_SOCKET=/var/run/docker-host.sock
       - TARGET_SOCKET=/var/run/docker.sock
