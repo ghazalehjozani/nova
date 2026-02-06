@@ -6,7 +6,6 @@
   "remoteUser": "developer",
   "containerUser": "developer",
   "overrideCommand": false,
-  "postCreateCommand": "/usr/local/bin/post-create.sh",
   "postStartCommand": "/usr/local/bin/post-start.sh",
   "shutdownAction": "stopCompose",
   "customizations": {

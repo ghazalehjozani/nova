@@ -1,6 +1,6 @@
 services:
   nova-devcontainer:
-    image: nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.10-jdk25
+    image: nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.11-jdk25
     init: true
     entrypoint: [ "/usr/local/share/docker-init.sh" ]
     volumes:
@@ -11,13 +11,12 @@ services:
       - gradle-cache:/home/developer/.gradle
       - npm-cache:/home/developer/.npm
       - zsh-history:/home/developer/.zsh_history_data
-      - ${HOME}/.gnupg/S.gpg-agent:/home/developer/.gnupg/S.gpg-agent:ro
-      - ${HOME}/.gnupg/S.gpg-agent.ssh:/home/developer/.gnupg/S.gpg-agent.ssh:ro
     environment:
       - SOURCE_SOCKET=/var/run/docker-host.sock
       - TARGET_SOCKET=/var/run/docker.sock
       - ENABLE_NONROOT_DOCKER=true
       - NONROOT_USER=developer
+      - HOST_HOME=/host-home
       - SHELL=/bin/zsh
       - TERM=xterm-256color
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dev}
