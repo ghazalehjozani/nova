@@ -1,6 +1,8 @@
 services:
   nova-devcontainer:
-    image: nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.9-jdk25
+    image: nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.10-jdk25
+    init: true
+    entrypoint: [ "/usr/local/share/docker-init.sh" ]
     volumes:
       - ..:/workspace:cached
       - /var/run/docker.sock:/var/run/docker-host.sock
