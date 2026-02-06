@@ -1,6 +1,6 @@
 services:
   nova-devcontainer:
-    image: nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.8-jdk25
+    image: nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.9-jdk25
     volumes:
       - ..:/workspace:cached
       - /var/run/docker.sock:/var/run/docker-host.sock
