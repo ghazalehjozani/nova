@@ -3,11 +3,21 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "nova-devcontainer",
   "workspaceFolder": "/workspace",
+
+  // ── User ──────────────────────────────────────────────────────────────────
   "remoteUser": "developer",
   "containerUser": "developer",
+
+  // ── Lifecycle ─────────────────────────────────────────────────────────────
+  // overrideCommand:false — docker-compose.yml defines entrypoint + command.
+  // docker-init.sh (entrypoint) runs post-create.sh on first boot via marker.
+  // postStartCommand runs on EVERY start — handles SSH agent, Docker socket
+  // re-check, and first-run fallback if entrypoint was bypassed by IDE.
   "overrideCommand": false,
   "postStartCommand": "/usr/local/bin/post-start.sh",
   "shutdownAction": "stopCompose",
+
+  // ── IDE: JetBrains ────────────────────────────────────────────────────────
   "customizations": {
     "jetbrains": {
       "backend": "IntelliJ",
@@ -19,13 +29,35 @@
         "org.jetbrains.plugins.terminal",
         "com.intellij.database"
       ]
+    },
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vmware.vscode-spring-boot",
+        "ms-azuretools.vscode-docker",
+        "ms-python.python",
+        "redhat.vscode-yaml"
+      ]
     }
   },
+
+  // ── Port Forwarding ───────────────────────────────────────────────────────
+  // Only ports served FROM the container need forwarding.
+  // Host services (PostgreSQL :5433, Kafka :9092, Redis :6379) are reached
+  // via host.docker.internal — they do NOT need forwardPorts entries.
   "forwardPorts": [
     8080,
-    5005,
-    5433,
-    9092,
-    6379
-  ]
+    5005
+  ],
+  "portsAttributes": {
+    "8080": { "label": "Spring Boot", "onAutoForward": "notify" },
+    "5005": { "label": "Java Debug (JDWP)", "onAutoForward": "silent" }
+  },
+
+  // ── Host Requirements ─────────────────────────────────────────────────────
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "12gb"
+  }
 }

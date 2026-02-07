@@ -1,34 +1,118 @@
+# =============================================================================
+# Nova DevContainer — Docker Compose
+# =============================================================================
+# Image:   nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.11-jdk25
+# Usage:   docker compose up -d  (standalone)
+#          devcontainer CLI / JetBrains Gateway / VS Code (IDE-managed)
+#
+# Infrastructure services (PostgreSQL :5433, Kafka :9092, Redis :6379)
+# run on the host — accessed via host.docker.internal.
+# =============================================================================
+
 services:
   nova-devcontainer:
     image: nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.11-jdk25
+    container_name: nova-devcontainer
+    hostname: nova-dev
     init: true
-    entrypoint: [ "/usr/local/share/docker-init.sh" ]
+    entrypoint: ["/usr/local/share/docker-init.sh"]
+    command: sleep infinity
+
+    # -------------------------------------------------------------------------
+    # Volumes
+    # -------------------------------------------------------------------------
     volumes:
+      # Project source — :cached improves I/O
       - ..:/workspace:cached
+
+      # Docker-outside-of-Docker: host socket → container source socket
+      # docker-init.sh handles permission strategies (groupmod → socat fallback)
       - /var/run/docker.sock:/var/run/docker-host.sock
+
+      # Host home (read-only) — post-create.sh copies SSH keys, GPG keyring,
+      # Maven settings.xml, Docker config, .netrc, .kube on first boot.
+      # SECURITY NOTE: Read-only mount. Only specific files are selectively
+      # copied by post-create.sh — the full home is NOT exposed at runtime.
       - ${HOME}:/host-home:ro
+
+      # Persistent caches — survive container recreation
       - maven-cache:/home/developer/.m2
       - gradle-cache:/home/developer/.gradle
       - npm-cache:/home/developer/.npm
-      - zsh-history:/home/developer/.zsh_history_data
+
+      # ZSH history persistence
+      # Mounted as a named volume to the actual history file directory.
+      # post-start.sh ensures the symlink: ~/.zsh_history → this volume.
+      - zsh-history:/home/developer/.zsh_history_vol
+
+      # GPG agent forwarding — enables commit signing from host gpg-agent.
+      # Optional mounts: won't fail if files don't exist on host.
+      - type: bind
+        source: ${HOME}/.gnupg/S.gpg-agent
+        target: /home/developer/.gnupg/S.gpg-agent
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${HOME}/.gnupg/S.gpg-agent.ssh
+        target: /home/developer/.gnupg/S.gpg-agent.ssh
+        read_only: true
+        bind:
+          create_host_path: false
+
+    # -------------------------------------------------------------------------
+    # Environment
+    # -------------------------------------------------------------------------
     environment:
-      - SOURCE_SOCKET=/var/run/docker-host.sock
-      - TARGET_SOCKET=/var/run/docker.sock
-      - ENABLE_NONROOT_DOCKER=true
-      - NONROOT_USER=developer
-      - HOST_HOME=/host-home
-      - SHELL=/bin/zsh
-      - TERM=xterm-256color
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dev}
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5433/trade_loan
-      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-trade_loan}
-      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-trade_loan}
-      - KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:9092
-      - SPRING_REDIS_HOST=host.docker.internal
-      - SPRING_REDIS_PORT=6379
+      # Docker-outside-of-Docker
+      SOURCE_SOCKET: /var/run/docker-host.sock
+      TARGET_SOCKET: /var/run/docker.sock
+      ENABLE_NONROOT_DOCKER: "true"
+      NONROOT_USER: developer
+      HOST_HOME: /host-home
+
+      # Shell
+      SHELL: /bin/zsh
+      TERM: xterm-256color
+
+      # ZSH history — override .zshrc default to use persistent volume
+      HISTFILE: /home/developer/.zsh_history_vol/.zsh_history
+
+      # Spring Boot application
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5433/trade_loan
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-trade_loan}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-trade_loan}
+      KAFKA_BOOTSTRAP_SERVERS: host.docker.internal:9092
+      SPRING_DATA_REDIS_HOST: host.docker.internal
+      SPRING_DATA_REDIS_PORT: "6379"
+
+    # -------------------------------------------------------------------------
+    # Networking
+    # -------------------------------------------------------------------------
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    command: sleep infinity
+
+    # -------------------------------------------------------------------------
+    # Security & Capabilities
+    # -------------------------------------------------------------------------
+    # SYS_PTRACE: required for Java remote debugging (jdwp), jstack, jmap,
+    #             async-profiler, and strace.
+    # seccomp:unconfined: allows perf_event_open for Java profiling tools
+    #                     and prevents false EPERM from native allocators.
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp=unconfined
+
+    # -------------------------------------------------------------------------
+    # Resource Limits
+    # -------------------------------------------------------------------------
+    # Prevent runaway builds from starving the host.
+    # Tune based on host capacity — these are conservative defaults.
+    mem_limit: 8g
+    memswap_limit: 2g
+    cpus: 4.0
 
 volumes:
   maven-cache:
