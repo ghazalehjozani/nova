@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//home/m.amirabdollahi/Projects/Microservices/**)",
+      "Read(//home/m.amirabdollahi/Projects/Microservices/trade-loan/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

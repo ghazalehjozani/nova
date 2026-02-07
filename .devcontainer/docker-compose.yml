@@ -1,17 +1,16 @@
 # =============================================================================
 # Nova DevContainer — Docker Compose
 # =============================================================================
-# Image:   nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.11-jdk25
-# Usage:   docker compose up -d  (standalone)
-#          devcontainer CLI / JetBrains Gateway / VS Code (IDE-managed)
+# Image:   nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.12-jdk25
+# Usage:   devcontainer CLI / JetBrains Gateway / VS Code (IDE-managed)
 #
-# Infrastructure services (PostgreSQL :5433, Kafka :9092, Redis :6379)
-# run on the host — accessed via host.docker.internal.
+# Infrastructure (PostgreSQL :5433, Kafka :9092, Redis :6379) runs on host —
+# accessed via host.docker.internal.
 # =============================================================================
 
 services:
   nova-devcontainer:
-    image: nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.11-jdk25
+    image: nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.15-jdk25
     container_name: nova-devcontainer
     hostname: nova-dev
     init: true
@@ -22,43 +21,23 @@ services:
     # Volumes
     # -------------------------------------------------------------------------
     volumes:
-      # Project source — :cached improves I/O
+      # Project source
       - ..:/workspace:cached
 
       # Docker-outside-of-Docker: host socket → container source socket
-      # docker-init.sh handles permission strategies (groupmod → socat fallback)
       - /var/run/docker.sock:/var/run/docker-host.sock
 
-      # Host home (read-only) — post-create.sh copies SSH keys, GPG keyring,
-      # Maven settings.xml, Docker config, .netrc, .kube on first boot.
-      # SECURITY NOTE: Read-only mount. Only specific files are selectively
-      # copied by post-create.sh — the full home is NOT exposed at runtime.
+      # Host home (read-only) — post-create.sh selectively copies SSH, GPG,
+      # Maven, Docker config. The full home is NOT exposed at runtime.
       - ${HOME}:/host-home:ro
 
-      # Persistent caches — survive container recreation
+      # Persistent caches
       - maven-cache:/home/developer/.m2
       - gradle-cache:/home/developer/.gradle
       - npm-cache:/home/developer/.npm
 
       # ZSH history persistence
-      # Mounted as a named volume to the actual history file directory.
-      # post-start.sh ensures the symlink: ~/.zsh_history → this volume.
       - zsh-history:/home/developer/.zsh_history_vol
-
-      # GPG agent forwarding — enables commit signing from host gpg-agent.
-      # Optional mounts: won't fail if files don't exist on host.
-      - type: bind
-        source: ${HOME}/.gnupg/S.gpg-agent
-        target: /home/developer/.gnupg/S.gpg-agent
-        read_only: true
-        bind:
-          create_host_path: false
-      - type: bind
-        source: ${HOME}/.gnupg/S.gpg-agent.ssh
-        target: /home/developer/.gnupg/S.gpg-agent.ssh
-        read_only: true
-        bind:
-          create_host_path: false
 
     # -------------------------------------------------------------------------
     # Environment
@@ -75,7 +54,7 @@ services:
       SHELL: /bin/zsh
       TERM: xterm-256color
 
-      # ZSH history — override .zshrc default to use persistent volume
+      # ZSH history — persistent volume
       HISTFILE: /home/developer/.zsh_history_vol/.zsh_history
 
       # Spring Boot application
@@ -96,10 +75,6 @@ services:
     # -------------------------------------------------------------------------
     # Security & Capabilities
     # -------------------------------------------------------------------------
-    # SYS_PTRACE: required for Java remote debugging (jdwp), jstack, jmap,
-    #             async-profiler, and strace.
-    # seccomp:unconfined: allows perf_event_open for Java profiling tools
-    #                     and prevents false EPERM from native allocators.
     cap_add:
       - SYS_PTRACE
     security_opt:
@@ -108,8 +83,6 @@ services:
     # -------------------------------------------------------------------------
     # Resource Limits
     # -------------------------------------------------------------------------
-    # Prevent runaway builds from starving the host.
-    # Tune based on host capacity — these are conservative defaults.
     mem_limit: 4g
     cpus: 4.0
 
