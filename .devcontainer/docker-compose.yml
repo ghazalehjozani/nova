@@ -110,8 +110,7 @@ services:
     # -------------------------------------------------------------------------
     # Prevent runaway builds from starving the host.
     # Tune based on host capacity — these are conservative defaults.
-    mem_limit: 8g
-    memswap_limit: 2g
+    mem_limit: 4g
     cpus: 4.0
 
 volumes:
