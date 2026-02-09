@@ -10,7 +10,7 @@
 
 services:
   nova-devcontainer:
-    image: nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.20-jdk25
+    image: nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.21-jdk25
     container_name: nova-devcontainer
     hostname: nova-dev
     init: true

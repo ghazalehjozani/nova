@@ -6,6 +6,8 @@
   // ── User ──────────────────────────────────────────────────────────────────
   "remoteUser": "developer",
   "containerUser": "developer",
+  "updateRemoteUserUID": false,
+  "waitFor": "postStartCommand",
   // ── Lifecycle ─────────────────────────────────────────────────────────────
   // overrideCommand:false — docker-compose.yml defines entrypoint + command.
   // docker-init.sh (entrypoint) runs post-create.sh on first boot via marker.
@@ -51,11 +53,5 @@
       "label": "Java Debug (JDWP)",
       "onAutoForward": "silent"
     }
-  },
-  // ── Host Requirements ─────────────────────────────────────────────────────
-  "hostRequirements": {
-    "cpus": 5,
-    "memory": "8gb",
-    "storage": "12gb"
   }
 }
