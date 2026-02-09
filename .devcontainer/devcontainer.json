@@ -2,7 +2,9 @@
   "name": "Nova DevContainer",
   "image": "nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.21-jdk25",
   // ── Workspace ─────────────────────────────────────────────────────────────
-  // Host path: ~/workspaces/nova (mkdir -p ~/workspaces/nova)
+  // Host path: ~/workspaces/trade-loan
+  // To access the project on the host machine, first clone the repository locally,
+  // then open the Dev Container from the local project in IntelliJ.
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
   "workspaceFolder": "/workspace",
   // ── User ──────────────────────────────────────────────────────────────────
