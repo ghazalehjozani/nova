@@ -1,20 +1,95 @@
 {
   "name": "Nova DevContainer",
-  "dockerComposeFile": "docker-compose.yml",
-  "service": "nova-devcontainer",
+  "image": "nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.21-jdk25",
+  // ── Workspace ─────────────────────────────────────────────────────────────
+  // Host path: ~/workspaces/nova (mkdir -p ~/workspaces/nova)
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
   "workspaceFolder": "/workspace",
   // ── User ──────────────────────────────────────────────────────────────────
   "remoteUser": "developer",
   "containerUser": "developer",
-  // ── Lifecycle ─────────────────────────────────────────────────────────────
-  // overrideCommand:false — docker-compose.yml defines entrypoint + command.
-  // docker-init.sh (entrypoint) runs post-create.sh on first boot via marker.
-  // postStartCommand runs on EVERY start — handles SSH agent, Docker socket
-  // re-check, and first-run fallback if entrypoint was bypassed by IDE.
+  "updateRemoteUserUID": true,
+  "userEnvProbe": "loginInteractiveShell",
+  // ── Container Behavior ────────────────────────────────────────────────────
+  // Image ENTRYPOINT=docker-init.sh, CMD=sleep infinity — must be preserved.
   "overrideCommand": false,
+  "init": true,
+  "shutdownAction": "stopContainer",
+  // ── Lifecycle ─────────────────────────────────────────────────────────────
+  "waitFor": "postStartCommand",
   "postStartCommand": "/usr/local/bin/post-start.sh",
-  "shutdownAction": "stopCompose",
-  // ── IDE: JetBrains ────────────────────────────────────────────────────────
+  // ── Mounts ────────────────────────────────────────────────────────────────
+  "mounts": [
+    // Docker-outside-of-Docker
+    "source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind",
+    // Host home (read-only) — post-create.sh selectively copies SSH, GPG, etc.
+    "source=${localEnv:HOME},target=/host-home,type=bind,readonly",
+    // Maven local repository — shared across all devcontainers on host
+    // ensure ~/.m2/repository exists on the host before first launch (mkdir -p ~/.m2/repository)
+    "source=${localEnv:HOME}/.m2/repository,target=/home/developer/.m2/repository,type=bind,consistency=cached",
+    // Persistent caches (per-devcontainer, isolated by devcontainerId)
+    "source=${devcontainerId}-gradle-cache,target=/home/developer/.gradle,type=volume",
+    "source=${devcontainerId}-npm-cache,target=/home/developer/.npm,type=volume",
+    "source=${devcontainerId}-zsh-history,target=/home/developer/.zsh_history_vol,type=volume"
+  ],
+  // ── Environment ───────────────────────────────────────────────────────────
+  "containerEnv": {
+    // Docker-outside-of-Docker
+    "SOURCE_SOCKET": "/var/run/docker-host.sock",
+    "TARGET_SOCKET": "/var/run/docker.sock",
+    "ENABLE_NONROOT_DOCKER": "true",
+    "NONROOT_USER": "developer",
+    "HOST_HOME": "/host-home",
+    // Shell
+    "SHELL": "/bin/zsh",
+    "TERM": "xterm-256color",
+    "HISTFILE": "/home/developer/.zsh_history_vol/.zsh_history",
+    // Spring Boot / Infrastructure (on host via host.docker.internal)
+    "SPRING_DATASOURCE_URL": "jdbc:postgresql://host.docker.internal:5433/trade_loan",
+    "KAFKA_BOOTSTRAP_SERVERS": "host.docker.internal:9092",
+    "SPRING_DATA_REDIS_HOST": "host.docker.internal",
+    "SPRING_DATA_REDIS_PORT": "6379"
+  },
+  "remoteEnv": {
+    "GPG_TTY": "${containerEnv:TTY}",
+    // Overridable from host — use remoteEnv so values can change without rebuild
+    "SPRING_PROFILES_ACTIVE": "${localEnv:SPRING_PROFILES_ACTIVE:dev}",
+    "SPRING_DATASOURCE_USERNAME": "${localEnv:POSTGRES_USER:trade_loan}",
+    "SPRING_DATASOURCE_PASSWORD": "${localEnv:POSTGRES_PASSWORD:trade_loan}"
+  },
+  // ── Security & Capabilities ───────────────────────────────────────────────
+  "capAdd": [
+    "SYS_PTRACE"
+  ],
+  "securityOpt": [
+    "seccomp=unconfined"
+  ],
+  // ── Docker Run Arguments ──────────────────────────────────────────────────
+  "runArgs": [
+    "--hostname=nova-dev",
+    "--add-host=host.docker.internal:host-gateway",
+    "--memory=4g",
+    "--cpus=4.0"
+  ],
+  // ── Port Forwarding ───────────────────────────────────────────────────────
+  "forwardPorts": [
+    8080,
+    5005
+  ],
+  "portsAttributes": {
+    "8080": {
+      "label": "Spring Boot",
+      "onAutoForward": "notify"
+    },
+    "5005": {
+      "label": "Java Debug (JDWP)",
+      "onAutoForward": "silent"
+    }
+  },
+  "otherPortsAttributes": {
+    "onAutoForward": "ignore"
+  },
+  // ── IDE ───────────────────────────────────────────────────────────────────
   "customizations": {
     "jetbrains": {
       "backend": "IntelliJ",
@@ -35,21 +110,6 @@
         "ms-python.python",
         "redhat.vscode-yaml"
       ]
-    }
-  },
-  // ── Port Forwarding ───────────────────────────────────────────────────────
-  "forwardPorts": [
-    8080,
-    5005
-  ],
-  "portsAttributes": {
-    "8080": {
-      "label": "Spring Boot",
-      "onAutoForward": "notify"
-    },
-    "5005": {
-      "label": "Java Debug (JDWP)",
-      "onAutoForward": "silent"
     }
   },
   // ── Host Requirements ─────────────────────────────────────────────────────
