@@ -1,6 +1,6 @@
 {
   "name": "Nova DevContainer",
-  "image": "nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.22-jdk25",
+  "image": "nexus3.dotin.ir:7111/expenditures/devcontainer-java:2026.2.24-jdk25",
   // ── Workspace ─────────────────────────────────────────────────────────────
   // IMPORTANT: workspaceFolder MUST be unique per project.
   // IntelliJ Gateway identifies remote projects by path — if two containers
