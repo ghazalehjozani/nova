@@ -6,25 +6,42 @@
   // IntelliJ Gateway identifies remote projects by path — if two containers
   // both use /workspace, Gateway says "Reusing already opened project" and
   // refuses to open the second one. Using /workspace/<project> fixes this.
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/nova,type=bind,consistency=cached",
+  //
+  // PERF: Removed `consistency=cached` — it is a macOS Docker Desktop
+  //       feature (OSXFS/VirtioFS) and is silently ignored on native Linux.
+  //       On Linux, bind mounts are already native filesystem speed.
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/nova,type=bind",
   "workspaceFolder": "/workspace/nova",
   // ── User ──────────────────────────────────────────────────────────────────
   "remoteUser": "developer",
   "containerUser": "developer",
   "updateRemoteUserUID": true,
-  "userEnvProbe": "loginInteractiveShell",
+  // PERF: Changed from `loginInteractiveShell` to `loginShell`.
+  //       `loginInteractiveShell` spawns a FULL interactive ZSH session
+  //       (Oh-My-Zsh, Powerlevel10k, all plugins, completions) every time
+  //       the IDE probes for environment variables — which IntelliJ does
+  //       repeatedly. `loginShell` reads .zprofile/.zlogin for PATH/exports
+  //       without loading interactive shell machinery. The devcontainer spec
+  //       itself warns about "the performance impact" of interactive probing.
+  "userEnvProbe": "loginShell",
   // ── Container Behavior ────────────────────────────────────────────────────
   "overrideCommand": false,
   "init": true,
   "shutdownAction": "stopContainer",
   // ── Lifecycle ─────────────────────────────────────────────────────────────
-  "waitFor": "postStartCommand",
+  // PERF: Changed from `postStartCommand` to `updateContentCommand`.
+  //       With `postStartCommand`, the IDE waits for post-start.sh to finish
+  //       before connecting — blocking the developer. With `updateContentCommand`,
+  //       the IDE connects immediately while postStartCommand runs in background.
+  //       Safe because post-start.sh is environment enrichment, not workspace setup.
+  "waitFor": "updateContentCommand",
   "postStartCommand": "/usr/local/bin/post-start.sh",
   // ── Mounts ────────────────────────────────────────────────────────────────
   "mounts": [
     "source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind",
     "source=${localEnv:HOME},target=/host-home,type=bind,readonly",
-    "source=${localEnv:HOME}/.m2/repository,target=/home/developer/.m2/repository,type=bind,consistency=cached",
+    // PERF: Removed `consistency=cached` — no-op on native Linux Docker.
+    "source=${localEnv:HOME}/.m2/repository,target=/home/developer/.m2/repository,type=bind",
     "source=${devcontainerId}-gradle-cache,target=/home/developer/.gradle,type=volume",
     "source=${devcontainerId}-npm-cache,target=/home/developer/.npm,type=volume",
     "source=${devcontainerId}-zsh-history,target=/home/developer/.zsh_history_vol,type=volume"
@@ -61,8 +78,22 @@
   "runArgs": [
     "--hostname=nova-dev",
     "--add-host=host.docker.internal:host-gateway",
-    "--memory=4g",
-    "--cpus=4.0",
+    // PERF: Increased from 4g → 8g. IntelliJ backend alone needs 1.5–3 GB.
+    //       Add JDK compiler, Maven daemon, Git, ZSH — 4 GB forces the kernel
+    //       into aggressive page cache eviction. The CPU spikes during indexing
+    //       are memory pressure (kswapd) masquerading as CPU load.
+    "--memory=8g",
+    "--cpus=5.0",
+    // PERF: tmpfs for /tmp — eliminates overlay2 write amplification.
+    //       IntelliJ writes heavily to /tmp during indexing (temp index segments,
+    //       decompiled stubs, analysis caches). Without tmpfs, every write goes
+    //       through overlay2 CoW which has significant metadata overhead.
+    //       `exec` flag required — Java creates and executes temp files.
+    "--tmpfs", "/tmp:exec,size=2g",
+    // PERF: Increased from default 64m → 512m. JVM uses /dev/shm for NIO
+    //       mapped buffers; IntelliJ UI rendering uses it for compositing.
+    //       64 MB is easily exhausted during heavy indexing + compilation.
+    "--shm-size=512m",
     "--name",
     "nova-devcontainer"
   ],
@@ -110,7 +141,7 @@
   // ── Host Requirements ─────────────────────────────────────────────────────
   "hostRequirements": {
     "cpus": 5,
-    "memory": "8gb",
+    "memory": "12gb",
     "storage": "12gb"
   }
 }
