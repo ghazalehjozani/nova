@@ -13,7 +13,8 @@ digraph {
     fontcolor="#444444"
     fillcolor="#444444"
 
-    140 [id=140,shape=hexagon, label=<<font point-size="34">TradeLoanTypeOutboxHandler</font><br /><font point-size="19">[Component: Outbox Pattern]</font><br /><br /><font point-size="24">TradeLoanType outbox handler</font>>, style=filled, color="#47824a", fillcolor="#66bb6a", fontcolor="#000000"]
+    140 [id=140,shape=hexagon, label=<<font point-size="34">TradeLoanFacilityOutboxHandler</font><br /><font point-size="19">[Component: Outbox Pattern]</font><br /><br /><font point-size="24">TradeLoanFacility outbox<br />handler</font>>, style=filled, color="#47824a", fillcolor="#66bb6a", fontcolor="#000000"]
+    141 [id=141,shape=hexagon, label=<<font point-size="34">TradeLoanTypeOutboxHandler</font><br /><font point-size="19">[Component: Outbox Pattern]</font><br /><br /><font point-size="24">TradeLoanType outbox handler</font>>, style=filled, color="#47824a", fillcolor="#66bb6a", fontcolor="#000000"]
   }
 
 }

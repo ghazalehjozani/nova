@@ -150,6 +150,29 @@ The system uses a sophisticated document and transaction creation pattern:
 - **Architecture**: ArchUnit for structural testing
 - **Documentation**: ADR (Architecture Decision Records) in doc/adr/
 
+## Hexagonal Architecture Design Rules
+
+### Dependency Rules (Critical)
+
+1. **Driving adapters must NEVER depend on outbound ports module.**
+   Driving adapters (REST, messaging) only depend on **inbound ports** (commands, queries). If a driving adapter needs to resolve data (e.g., looking up a domain ID from a legacy identifier), that resolution must happen in the **application service** (command handler), NOT in the adapter. If a driving adapter needs read access to data, use the **application query module** which is accessible from driving adapters.
+
+2. **Application service responsibilities must NOT be placed in adapters.**
+   Business logic such as ID resolution, validation against domain state, or orchestration belongs in the **application service layer** (command/query handlers). Adapters are thin translation layers: they deserialize, map to commands/queries, and delegate. If an adapter is doing more than mapping and delegating, the design is wrong.
+
+3. **Anti-Corruption Layer: Legacy terms must only appear in adapter layer.**
+   When integrating with legacy systems, legacy terminology (e.g., `fileNumber`) must be translated to domain terminology (e.g., `applicationNumber`) at the adapter boundary. Commands, handlers, outbound ports, and domain code must use **domain terms only**. The adapter's mapper serves as the anti-corruption layer and should document the term translations explicitly.
+
+### Module Dependency Summary
+
+```
+driving adapters → inbound ports (commands/queries)
+driving adapters → application query module (for read access)
+driving adapters ✗ outbound ports (FORBIDDEN)
+application services → outbound ports
+driven adapters → outbound ports (implements them)
+```
+
 ## Key External Dependencies
 - **ir.dotin.platform**: Platform-specific libraries (commons, dispatcher-api)
 - **Spring Ecosystem**: Web, Data JPA, Security, Validation

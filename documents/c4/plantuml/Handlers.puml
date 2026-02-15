@@ -43,6 +43,12 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.CloseFacilityPaidOffC
   BorderColor #2e73ab
   shadowing false
 }
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.CollectInstallmentCommandHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
 skinparam rectangle<<TradeLoanService.TradeLoanApplication.CompensateApprovalCommandHandler>> {
   BackgroundColor #ef5350
   FontColor #ffffff
@@ -121,12 +127,6 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.FullLoanFacilityLifec
   BorderColor #2e73ab
   shadowing false
 }
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.GetFacilityByIdQueryHandler>> {
-  BackgroundColor #42a5f5
-  FontColor #ffffff
-  BorderColor #2e73ab
-  shadowing false
-}
 skinparam rectangle<<TradeLoanService.TradeLoanApplication.GetInstallmentScheduleByIdQueryHandler>> {
   BackgroundColor #42a5f5
   FontColor #ffffff
@@ -200,7 +200,8 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
 }
 
 rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>" <<TradeLoanService.TradeLoanApplication>> {
-  rectangle "==GetFacilityByIdQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles get facility by id queries" <<TradeLoanService.TradeLoanApplication.GetFacilityByIdQueryHandler>> as TradeLoanService.TradeLoanApplication.GetFacilityByIdQueryHandler
+  rectangle "==LoanTypeArrangementFilterQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles loan type arrangement filter queries" <<TradeLoanService.TradeLoanApplication.LoanTypeArrangementFilterQueryHandler>> as TradeLoanService.TradeLoanApplication.LoanTypeArrangementFilterQueryHandler
+  rectangle "==FindAllLoanFacilitiesQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles find all loan facilities queries" <<TradeLoanService.TradeLoanApplication.FindAllLoanFacilitiesQueryHandler>> as TradeLoanService.TradeLoanApplication.FindAllLoanFacilitiesQueryHandler
   rectangle "==AddFacilityCollateralCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles add facility collateral" <<TradeLoanService.TradeLoanApplication.AddFacilityCollateralCommandHandler>> as TradeLoanService.TradeLoanApplication.AddFacilityCollateralCommandHandler
   rectangle "==CompensateCollateralCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles compensate collateral" <<TradeLoanService.TradeLoanApplication.CompensateCollateralCommandHandler>> as TradeLoanService.TradeLoanApplication.CompensateCollateralCommandHandler
   rectangle "==ApproveFacilityCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles approve facility" <<TradeLoanService.TradeLoanApplication.ApproveFacilityCommandHandler>> as TradeLoanService.TradeLoanApplication.ApproveFacilityCommandHandler
@@ -208,6 +209,7 @@ rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]<
   rectangle "==CancelFacilityCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles cancel facility" <<TradeLoanService.TradeLoanApplication.CancelFacilityCommandHandler>> as TradeLoanService.TradeLoanApplication.CancelFacilityCommandHandler
   rectangle "==CloseFacilityDefaultedCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles close facility defaulted" <<TradeLoanService.TradeLoanApplication.CloseFacilityDefaultedCommandHandler>> as TradeLoanService.TradeLoanApplication.CloseFacilityDefaultedCommandHandler
   rectangle "==CloseFacilityPaidOffCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles close facility paid off" <<TradeLoanService.TradeLoanApplication.CloseFacilityPaidOffCommandHandler>> as TradeLoanService.TradeLoanApplication.CloseFacilityPaidOffCommandHandler
+  rectangle "==CollectInstallmentCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles collect installment" <<TradeLoanService.TradeLoanApplication.CollectInstallmentCommandHandler>> as TradeLoanService.TradeLoanApplication.CollectInstallmentCommandHandler
   rectangle "==DefineTradeLoanArrangementCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles define trade loan arrangement" <<TradeLoanService.TradeLoanApplication.DefineTradeLoanArrangementCommandHandler>> as TradeLoanService.TradeLoanApplication.DefineTradeLoanArrangementCommandHandler
   rectangle "==DefineLoanTypeCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles define loan type" <<TradeLoanService.TradeLoanApplication.DefineLoanTypeCommandHandler>> as TradeLoanService.TradeLoanApplication.DefineLoanTypeCommandHandler
   rectangle "==FullLoanFacilityLifecycleCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles full loan facility lifecycle" <<TradeLoanService.TradeLoanApplication.FullLoanFacilityLifecycleCommandHandler>> as TradeLoanService.TradeLoanApplication.FullLoanFacilityLifecycleCommandHandler
@@ -228,8 +230,6 @@ rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]<
   rectangle "==GetInstallmentScheduleByIdQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles get installment schedule by id queries" <<TradeLoanService.TradeLoanApplication.GetInstallmentScheduleByIdQueryHandler>> as TradeLoanService.TradeLoanApplication.GetInstallmentScheduleByIdQueryHandler
   rectangle "==FindAllLoanArrangementsQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles find all loan arrangements queries" <<TradeLoanService.TradeLoanApplication.FindAllLoanArrangementsQueryHandler>> as TradeLoanService.TradeLoanApplication.FindAllLoanArrangementsQueryHandler
   rectangle "==GetLoanArrangementByIdQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles get loan arrangement by id queries" <<TradeLoanService.TradeLoanApplication.GetLoanArrangementByIdQueryHandler>> as TradeLoanService.TradeLoanApplication.GetLoanArrangementByIdQueryHandler
-  rectangle "==LoanTypeArrangementFilterQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles loan type arrangement filter queries" <<TradeLoanService.TradeLoanApplication.LoanTypeArrangementFilterQueryHandler>> as TradeLoanService.TradeLoanApplication.LoanTypeArrangementFilterQueryHandler
-  rectangle "==FindAllLoanFacilitiesQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles find all loan facilities queries" <<TradeLoanService.TradeLoanApplication.FindAllLoanFacilitiesQueryHandler>> as TradeLoanService.TradeLoanApplication.FindAllLoanFacilitiesQueryHandler
 }
 
 @enduml

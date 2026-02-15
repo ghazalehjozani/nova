@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 import ir.dotin.platform.adapter.persistence.repository.PersistentRepository;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity.TradeLoanFacilityEntity;
 
@@ -45,4 +47,10 @@ public interface TradeLoanFacilityJpaRepository extends PersistentRepository<Tra
             @Param("loanTypeCode") String loanTypeCode,
             @Param("customerNumber") String customerNumber,
             @Param("derivedValue") String derivedValue);
+
+    @Query("""
+            SELECT t FROM TradeLoanFacilityEntity t
+            WHERE t.loanApplication.applicationNumber.derivedValue = :applicationNumber
+            """)
+    Optional<TradeLoanFacilityEntity> findByApplicationNumber(@Param("applicationNumber") String applicationNumber);
 }

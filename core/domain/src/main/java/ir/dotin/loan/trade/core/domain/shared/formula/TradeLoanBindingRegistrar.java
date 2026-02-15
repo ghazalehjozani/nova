@@ -1,17 +1,18 @@
 package ir.dotin.loan.trade.core.domain.shared.formula;
 
-import ir.dotin.platform.commons.domain.annotation.DomainComponent;
-import ir.dotin.platform.formula.api.binding.FieldBinding;
-import ir.dotin.platform.formula.api.spi.BindingRegistrar;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
+import ir.dotin.platform.commons.domain.annotation.DomainComponent;
+import ir.dotin.platform.formula.api.binding.FieldBinding;
+import ir.dotin.platform.formula.api.spi.BindingRegistrar;
+
 /**
- * SPI implementation to register Trade Loan parameters with the formula engine.
- * Replaces the legacy static TradeLoanBindingRegistry.
+ * SPI implementation to register Trade Loan parameters with the formula engine. Replaces the legacy static
+ * TradeLoanBindingRegistry.
  */
 @DomainComponent
 public class TradeLoanBindingRegistrar implements BindingRegistrar {

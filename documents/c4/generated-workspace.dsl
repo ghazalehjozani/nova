@@ -39,6 +39,7 @@ workspace "Trade Loan Service" {
                 loanarrangementquerycontroller = component "LoanArrangementQueryController" "REST API: /api/{version}/loan-arrangements" "Spring REST Controller"
                 facilityquerycontroller = component "FacilityQueryController" "REST API: /api/{version}/loan-facilities" "Spring REST Controller"
                 loantypequerycontroller = component "LoanTypeQueryController" "REST API: /api/{version}/loan-types" "Spring REST Controller"
+                installmentoperationcommandconsumer = component "InstallmentOperationCommandConsumer" "Kafka consumer" "Spring Kafka Listener"
                 tradeloancommandconsumer = component "TradeLoanCommandConsumer" "Kafka consumer" "Spring Kafka Listener"
                 addfacilitycollateralcommandhandler = component "AddFacilityCollateralCommandHandler" "Handles add facility collateral" "Command Handler"
                 compensatecollateralcommandhandler = component "CompensateCollateralCommandHandler" "Handles compensate collateral" "Command Handler"
@@ -47,6 +48,7 @@ workspace "Trade Loan Service" {
                 cancelfacilitycommandhandler = component "CancelFacilityCommandHandler" "Handles cancel facility" "Command Handler"
                 closefacilitydefaultedcommandhandler = component "CloseFacilityDefaultedCommandHandler" "Handles close facility defaulted" "Command Handler"
                 closefacilitypaidoffcommandhandler = component "CloseFacilityPaidOffCommandHandler" "Handles close facility paid off" "Command Handler"
+                collectinstallmentcommandhandler = component "CollectInstallmentCommandHandler" "Handles collect installment" "Command Handler"
                 definetradeloanarrangementcommandhandler = component "DefineTradeLoanArrangementCommandHandler" "Handles define trade loan arrangement" "Command Handler"
                 defineloantypecommandhandler = component "DefineLoanTypeCommandHandler" "Handles define loan type" "Command Handler"
                 fullloanfacilitylifecyclecommandhandler = component "FullLoanFacilityLifecycleCommandHandler" "Handles full loan facility lifecycle" "Command Handler"
@@ -145,8 +147,9 @@ workspace "Trade Loan Service" {
         system_administrator -> trade_loan_service "Monitors system"
         system_administrator -> kafdrop "Monitors Kafka"
         system_administrator -> trade_loan_service "Monitors Kafka"
-        tradeloancommandconsumer -> kafka "Consumes from"
+        installmentoperationcommandconsumer -> kafka "Consumes from"
         trade_loan_application -> kafka "Consumes from"
+        tradeloancommandconsumer -> kafka "Consumes from"
         addfacilitycollateralcommandhandler -> tradeloanfacilityservice "Uses"
         cancelfacilitycommandhandler -> tradeloanfacilityservice "Uses"
         closefacilitydefaultedcommandhandler -> tradeloanfacilityservice "Uses"
@@ -207,6 +210,11 @@ workspace "Trade Loan Service" {
             autoLayout tb 300 300
         }
 
+        component trade_loan_application "Components_4" {
+            include *
+            autoLayout tb 300 300
+        }
+
         component trade_loan_application "Controllers" {
             include *
             autoLayout tb 300 300
@@ -258,52 +266,6 @@ workspace "Trade Loan Service" {
         }
 
         styles {
-            element "Repository" {
-                background #5c6bc0
-                color #ffffff
-                shape Cylinder
-            }
-            element "Outbox" {
-                background #66bb6a
-                color #000000
-                shape Hexagon
-            }
-            element "Admin" {
-                background #5c3d6e
-            }
-            element "External User" {
-                background #666666
-            }
-            element "Container" {
-                background #438dd5
-                color #ffffff
-            }
-            element "Cache" {
-                background #e74c3c
-                shape Cylinder
-            }
-            element "Aggregate" {
-                background #ff9800
-                color #000000
-            }
-            element "Entity" {
-                background #ffb74d
-                color #000000
-            }
-            element "Person" {
-                background #08427b
-                color #ffffff
-                shape Person
-            }
-            element "Consumer" {
-                background #ff7043
-                color #ffffff
-                shape Hexagon
-            }
-            element "Software System" {
-                background #1168bd
-                color #ffffff
-            }
             element "Handler" {
                 background #42a5f5
                 color #ffffff
@@ -353,6 +315,52 @@ workspace "Trade Loan Service" {
             }
             element "Compensation" {
                 background #ef5350
+                color #ffffff
+            }
+            element "Repository" {
+                background #5c6bc0
+                color #ffffff
+                shape Cylinder
+            }
+            element "Outbox" {
+                background #66bb6a
+                color #000000
+                shape Hexagon
+            }
+            element "Admin" {
+                background #5c3d6e
+            }
+            element "External User" {
+                background #666666
+            }
+            element "Container" {
+                background #438dd5
+                color #ffffff
+            }
+            element "Cache" {
+                background #e74c3c
+                shape Cylinder
+            }
+            element "Aggregate" {
+                background #ff9800
+                color #000000
+            }
+            element "Entity" {
+                background #ffb74d
+                color #000000
+            }
+            element "Person" {
+                background #08427b
+                color #ffffff
+                shape Person
+            }
+            element "Consumer" {
+                background #ff7043
+                color #ffffff
+                shape Hexagon
+            }
+            element "Software System" {
+                background #1168bd
                 color #ffffff
             }
         }

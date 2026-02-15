@@ -103,6 +103,12 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLampSunDisbursem
   BorderColor #1c7fac
   shadowing false
 }
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanApplication>> {
+  BackgroundColor #ff9800
+  FontColor #000000
+  BorderColor #b26a00
+  shadowing false
+}
 skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler>> {
   BackgroundColor #66bb6a
   FontColor #000000
@@ -115,16 +121,16 @@ skinparam database<<TradeLoanService.TradeLoanApplication.TradeLoanArrangementRe
   BorderColor #404a86
   shadowing false
 }
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanFacility>> {
+  BackgroundColor #ff9800
+  FontColor #000000
+  BorderColor #b26a00
+  shadowing false
+}
 skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanFacilityEventFactory>> {
   BackgroundColor #ffb74d
   FontColor #000000
   BorderColor #b28035
-  shadowing false
-}
-skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler>> {
-  BackgroundColor #66bb6a
-  FontColor #000000
-  BorderColor #47824a
   shadowing false
 }
 skinparam database<<TradeLoanService.TradeLoanApplication.TradeLoanFacilityRepositoryAdapter>> {
@@ -149,12 +155,6 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanType>> {
   BackgroundColor #ff9800
   FontColor #000000
   BorderColor #b26a00
-  shadowing false
-}
-skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler>> {
-  BackgroundColor #66bb6a
-  FontColor #000000
-  BorderColor #47824a
   shadowing false
 }
 skinparam database<<TradeLoanService.TradeLoanApplication.TradeLoanTypeRepositoryAdapter>> {
@@ -200,6 +200,8 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
 }
 
 rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>" <<TradeLoanService.TradeLoanApplication>> {
+  rectangle "==TradeLoanApplication\n<size:10>[Component: DDD Aggregate Root]</size>\n\ntrade loan application aggregate" <<TradeLoanService.TradeLoanApplication.TradeLoanApplication>> as TradeLoanService.TradeLoanApplication.TradeLoanApplication
+  rectangle "==TradeLoanFacility\n<size:10>[Component: DDD Aggregate Root]</size>\n\ntrade loan facility aggregate" <<TradeLoanService.TradeLoanApplication.TradeLoanFacility>> as TradeLoanService.TradeLoanApplication.TradeLoanFacility
   rectangle "==TradeLoanFacilityEventFactory\n<size:10>[Component: DDD Entity]</size>\n\ntrade loan facility event factory entity" <<TradeLoanService.TradeLoanApplication.TradeLoanFacilityEventFactory>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityEventFactory
   rectangle "==TradeSanctionedLoan\n<size:10>[Component: DDD Aggregate Root]</size>\n\ntrade sanctioned loan aggregate" <<TradeLoanService.TradeLoanApplication.TradeSanctionedLoan>> as TradeLoanService.TradeLoanApplication.TradeSanctionedLoan
   rectangle "==TradeLoanType\n<size:10>[Component: DDD Aggregate Root]</size>\n\ntrade loan type aggregate" <<TradeLoanService.TradeLoanApplication.TradeLoanType>> as TradeLoanService.TradeLoanApplication.TradeLoanType
@@ -228,8 +230,6 @@ rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]<
   rectangle "==TransactionPostingAdapter\n<size:10>[Component: Spring WebClient]</size>\n\ntransaction posting client" <<TradeLoanService.TradeLoanApplication.TransactionPostingAdapter>> as TradeLoanService.TradeLoanApplication.TransactionPostingAdapter
   hexagon "==InstallmentScheduleOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nInstallmentSchedule outbox handler" <<TradeLoanService.TradeLoanApplication.InstallmentScheduleOutboxHandler>> as TradeLoanService.TradeLoanApplication.InstallmentScheduleOutboxHandler
   hexagon "==TradeLoanArrangementOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanArrangement outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler
-  hexagon "==TradeLoanFacilityOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanFacility outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler
-  hexagon "==TradeLoanTypeOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanType outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler
 }
 
 @enduml

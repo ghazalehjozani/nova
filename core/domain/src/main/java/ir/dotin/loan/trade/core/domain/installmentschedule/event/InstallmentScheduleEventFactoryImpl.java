@@ -6,6 +6,8 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 
+import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentStatus;
+import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentPaymentRecord;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -132,4 +134,17 @@ public class InstallmentScheduleEventFactoryImpl implements InstallmentScheduleE
             @NonNull InstallmentScheduleId scheduleId, @NonNull Instant occurredAt) {
         return CompletionReverted.of(scheduleId, Clock.fixed(occurredAt, ZoneId.systemDefault()));
     }
+
+    @Override
+    public DomainEvent<?> createInstallmentCollectedEvent(
+            @NonNull InstallmentScheduleId scheduleId,
+            @NonNull LoanFacilityId loanFacilityId,
+            @NonNull InstallmentPaymentRecord paymentRecord,
+            @NonNull InstallmentStatus installmentStatus,
+            @NonNull Instant occurredAt) {
+
+        return InstallmentCollected.of(
+                scheduleId, loanFacilityId, paymentRecord, installmentStatus, occurredAt);
+    }
+
 }

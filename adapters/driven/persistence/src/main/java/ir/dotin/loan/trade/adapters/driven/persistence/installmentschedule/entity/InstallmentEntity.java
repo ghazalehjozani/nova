@@ -68,6 +68,18 @@ public class InstallmentEntity extends PersistentEntity {
     @JoinColumn(name = "installment_schedule_id", nullable = false)
     private InstallmentScheduleEntity installmentSchedule;
 
+    @Column(name = "last_payment_reference")
+    private String lastPaymentReference;
+
+    @Column(name = "last_payment_channel")
+    private String lastPaymentChannel;
+
+    @Column(name = "last_legacy_transaction_reference")
+    private String lastLegacyTransactionReference;
+
+    @Column(name = "last_value_date")
+    private LocalDate lastValueDate;
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;

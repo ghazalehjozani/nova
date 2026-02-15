@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="add-installment-payment-audit-columns" author="trade-loan-team">
+        <comment>Add payment audit trail columns to loan_installments for Installment Collection service</comment>
+
+        <addColumn tableName="loan_installments">
+            <column name="last_payment_reference" type="VARCHAR(64)"
+                    remarks="Payment reference ID from legacy core for the most recent payment"/>
+            <column name="last_payment_channel" type="VARCHAR(32)"
+                    remarks="Channel through which the most recent payment was received (e.g. BRANCH, ATM, INTERNET_BANKING)"/>
+            <column name="last_legacy_transaction_reference" type="VARCHAR(64)"
+                    remarks="Legacy core GL/transaction reference for reconciliation"/>
+            <column name="last_value_date" type="DATE"
+                    remarks="Banking value/settlement date of the most recent payment"/>
+        </addColumn>
+
+        <createIndex tableName="loan_installments"
+                     indexName="idx_installments_payment_ref">
+            <column name="last_payment_reference"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

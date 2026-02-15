@@ -34,11 +34,11 @@ digraph {
     15 [id=15,shape=rect, label=<<font point-size="34">Kafdrop</font><br /><font point-size="19">[Container: Kafdrop 4.2]</font><br /><br /><font point-size="24">Kafka monitoring</font>>, style=filled, color="#1b7943", fillcolor="#27ae60", fontcolor="#ffffff"]
   }
 
-  11 -> 13 [id=141, label=<<font point-size="24">Consumes from</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  11 -> 13 [id=143, label=<<font point-size="24">Consumes from</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
   11 -> 12 [id=16, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  11 -> 2 [id=165, label=<<font point-size="24">Calls</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  11 -> 2 [id=168, label=<<font point-size="24">Calls</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
   11 -> 13 [id=17, label=<<font point-size="24">Publishes/Consumes</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  11 -> 13 [id=170, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  11 -> 13 [id=173, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
   11 -> 14 [id=18, label=<<font point-size="24">Caches data</font><br /><font point-size="19">[Redis Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
   11 -> 1 [id=19, label=<<font point-size="24">Authenticates</font><br /><font point-size="19">[OAuth2/OIDC]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
   11 -> 2 [id=21, label=<<font point-size="24">Core banking</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
