@@ -7,14 +7,17 @@ import java.util.function.Consumer;
 
 import org.springframework.boot.test.context.TestComponent;
 
+import ir.dotin.platform.adapter.persistence.embeddable.AmountRangeEmb;
+import ir.dotin.platform.adapter.persistence.embeddable.PeriodEmb;
+import ir.dotin.platform.formula.infrastructure.persistence.embeddable.FormulaIdRefEmb;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.CollateralCalculationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LifeInsurancePaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LoanSecondaryType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.SectionType;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ConfirmTypeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralPolicyEmb;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ConfirmTypeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CurrencyTypeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.EconomicSectorEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.GracePeriodPolicyEmb;
@@ -27,8 +30,6 @@ import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RepaymentPrio
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.TitleEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.entity.TradeLoanArrangementEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.repository.TradeLoanArrangementJpaRepository;
-import ir.dotin.platform.adapter.persistence.embeddable.AmountRangeEmb;
-import ir.dotin.platform.adapter.persistence.embeddable.PeriodEmb;
 
 import lombok.RequiredArgsConstructor;
 
@@ -42,8 +43,7 @@ public class LoanArrangementTestFixture {
         return createArrangement("E2E-ARR-" + UUID.randomUUID().toString().substring(0, 8), e -> {});
     }
 
-    public TradeLoanArrangementEntity createArrangement(
-            String code, Consumer<TradeLoanArrangementEntity> customizer) {
+    public TradeLoanArrangementEntity createArrangement(String code, Consumer<TradeLoanArrangementEntity> customizer) {
 
         TradeLoanArrangementEntity entity = new TradeLoanArrangementEntity();
         entity.setId(UUID.randomUUID());
@@ -65,7 +65,7 @@ public class LoanArrangementTestFixture {
 
         AmountRangeEmb amountRange = new AmountRangeEmb();
         amountRange.setMinAmount(new BigDecimal("1000"));
-        amountRange.setMaxAmount(new BigDecimal("10000000"));
+        amountRange.setMaxAmount(new BigDecimal("100000000"));
         amountRange.setCurrency("IRR");
         entity.setAmountRange(amountRange);
 
@@ -102,20 +102,28 @@ public class LoanArrangementTestFixture {
         interestPolicy.setPreferentialMinRate(new BigDecimal("-100.000000"));
         interestPolicy.setPreferentialMaxRate(new BigDecimal("100.000000"));
         interestPolicy.setDailyInterest(true);
+        interestPolicy.setInterestFormula(FormulaIdRefEmb.of("10000"));
+        interestPolicy.setRefundInterestFormula(FormulaIdRefEmb.of("2000"));
         entity.setInterestPolicy(interestPolicy);
 
         PenaltyPolicyEmb penaltyPolicy = new PenaltyPolicyEmb();
         penaltyPolicy.setPenaltyRate(new BigDecimal("2.000000"));
         penaltyPolicy.setDeferralInterestRate(new BigDecimal("6.000000"));
+        penaltyPolicy.setPenaltyFormula(FormulaIdRefEmb.of("50000"));
+        penaltyPolicy.setPenaltyPaymentType("INSTALLMENT_PENALTY_PAYMENT");
         entity.setPenaltyPolicy(penaltyPolicy);
 
         InstallmentPolicyEmb installmentPolicy = new InstallmentPolicyEmb();
         installmentPolicy.setInstallmentPeriodDays(30);
+        installmentPolicy.setInstallmentPaymentType("GRADUAL");
+        installmentPolicy.setInstallmentFormula(FormulaIdRefEmb.of("2000"));
+        installmentPolicy.setInterestComponentFormula(FormulaIdRefEmb.of("1000"));
         entity.setInstallmentPolicy(installmentPolicy);
 
         GracePeriodPolicyEmb gracePeriodPolicy = new GracePeriodPolicyEmb();
         gracePeriodPolicy.setMinGracePeriodDays(10);
         gracePeriodPolicy.setMaxGracePeriodDays(30);
+        gracePeriodPolicy.setGracePeriodFormula(FormulaIdRefEmb.of("10000"));
         entity.setGracePeriodPolicy(gracePeriodPolicy);
 
         RepaymentPriorityPolicyEmb repaymentPolicy = new RepaymentPriorityPolicyEmb();

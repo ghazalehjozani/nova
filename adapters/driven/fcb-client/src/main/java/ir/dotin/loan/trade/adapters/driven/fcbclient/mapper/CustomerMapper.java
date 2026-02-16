@@ -31,7 +31,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CustomerBirthI
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.CustomerInfoResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyBirthInfo;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfoResponse;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -101,7 +101,7 @@ public class CustomerMapper {
         return loanTransaction.document().description();
     }
 
-    public Result<PartyInfo> mapToDomainCustomerInfo(
+    public Result<PartyInfoResponse> mapToDomainCustomerInfo(
             CustomerInfoResponse fcbResponse, @NotNull PartyRole role, @Nullable BigDecimal guaranteePercentage) {
         String firstName = fcbResponse.getFirstName();
         String lastName = fcbResponse.getLastName();
@@ -137,7 +137,7 @@ public class CustomerMapper {
         Boolean isIncapableValue = fcbResponse.getIsIncapable();
         Boolean isInGrayListValue = fcbResponse.getIsInGrayList();
 
-        PartyInfo partyInfo = new PartyInfo(
+        PartyInfoResponse partyInfo = new PartyInfoResponse(
                 party,
                 nationalCode.orElseThrow(),
                 isInBlackListValue != null && isInBlackListValue,
@@ -147,7 +147,7 @@ public class CustomerMapper {
         return Result.success(partyInfo);
     }
 
-    public static Result<List<PartyInfo>> mapToCustomerInfoList(List<CustomerInfoResponse> customers) {
+    public static Result<List<PartyInfoResponse>> mapToCustomerInfoList(List<CustomerInfoResponse> customers) {
 
         Notification notification = Notification.create();
 
@@ -156,7 +156,7 @@ public class CustomerMapper {
             return Result.success(List.of());
         }
 
-        List<PartyInfo> customerInfoList = new ArrayList<>();
+        List<PartyInfoResponse> customerInfoList = new ArrayList<>();
 
         for (int i = 0; i < customers.size(); i++) {
             CustomerInfoResponse customerResponse = customers.get(i);
@@ -164,7 +164,7 @@ public class CustomerMapper {
             if (true) {
                 throw new UnsupportedOperationException("Not supported yet, Handle PartyRole");
             }
-            Result<PartyInfo> customerResult =
+            Result<PartyInfoResponse> customerResult =
                     mapToDomainCustomerInfo(customerResponse, PartyRole.PRIMARY_APPLICANT, null);
 
             if (customerResult.isFailure()) {

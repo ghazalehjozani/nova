@@ -21,7 +21,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.SamatDto;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfoResponse;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.mapper.OriginateLoanFacilityApplicationMapper;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy.ApplicationNumberGenerationStrategy;
@@ -90,7 +90,7 @@ public class FacilityBuilder {
         Party primaryApplicant = context.primaryApplicant().party();
 
         Set<Party> enrichedParties =
-                context.partyInfos().stream().map(PartyInfo::party).collect(Collectors.toSet());
+                context.partyInfos().stream().map(PartyInfoResponse::party).collect(Collectors.toSet());
 
         ApplicationNumberGenerationStrategy strategy = applicationNumberStrategySelector.selectStrategy();
 

@@ -39,7 +39,9 @@ public class AccountServiceAdapter implements AccountServicePort {
 
     @Override
     public Result<AccountInfo> openAccount(LoanTopic loanTopic) {
-        String branchCode = authenticationContextHolder.branchCode().orElseThrow(); // TODO: add custom exception
+        //        String branchCode = authenticationContextHolder.branchCode().orElseThrow(); // TODO: add custom
+        // exception
+        String branchCode = "1";
         log.debug(
                 "Opening account with title: {}, topicCode: {}, branchCode: {}",
                 loanTopic.name(),

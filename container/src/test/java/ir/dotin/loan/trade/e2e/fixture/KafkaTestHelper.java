@@ -21,45 +21,35 @@ public final class KafkaTestHelper {
     private KafkaTestHelper() {}
 
     public static ProducerRecord<String, byte[]> buildRecord(
-            String topic,
-            String key,
-            byte[] payload,
-            String authToken,
-            String operationType,
-            String eventUid) {
+            String topic, String key, byte[] payload, String authToken, String operationType, String eventUid) {
 
         ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, key, payload);
 
         record.headers()
-                .add(new RecordHeader("Idempotency-Key",
-                        UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader("X-Request-DateTime",
-                        Instant.now().toString().getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader("Accept-Language",
-                        "fa".getBytes(StandardCharsets.UTF_8)));
+                .add(new RecordHeader(
+                        "Idempotency-Key", UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader(
+                        "X-Request-DateTime", Instant.now().toString().getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader("Accept-Language", "fa".getBytes(StandardCharsets.UTF_8)));
 
         if (authToken != null && !authToken.isBlank()) {
-            record.headers().add(new RecordHeader("Authorization",
-                    authToken.getBytes(StandardCharsets.UTF_8)));
+            record.headers().add(new RecordHeader("Authorization", authToken.getBytes(StandardCharsets.UTF_8)));
         }
 
         if (operationType != null) {
-            record.headers().add(new RecordHeader("operationType",
-                    operationType.getBytes(StandardCharsets.UTF_8)));
+            record.headers().add(new RecordHeader("operationType", operationType.getBytes(StandardCharsets.UTF_8)));
         }
 
         if (eventUid != null) {
-            record.headers().add(new RecordHeader("eventUid",
-                    eventUid.getBytes(StandardCharsets.UTF_8)));
+            record.headers().add(new RecordHeader("eventUid", eventUid.getBytes(StandardCharsets.UTF_8)));
         }
 
         String traceId = UUID.randomUUID().toString().replace("-", "");
         String spanId = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
         record.headers()
-                .add(new RecordHeader("traceparent",
-                        ("00-" + traceId + "-" + spanId + "-01").getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader("tracestate",
-                        "e2e=test".getBytes(StandardCharsets.UTF_8)));
+                .add(new RecordHeader(
+                        "traceparent", ("00-" + traceId + "-" + spanId + "-01").getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader("tracestate", "e2e=test".getBytes(StandardCharsets.UTF_8)));
 
         return record;
     }
@@ -77,7 +67,8 @@ public final class KafkaTestHelper {
         // SASL_PLAINTEXT with PLAIN mechanism (production-like)
         props.put("security.protocol", "SASL_PLAINTEXT");
         props.put("sasl.mechanism", "PLAIN");
-        props.put("sasl.jaas.config",
+        props.put(
+                "sasl.jaas.config",
                 "org.apache.kafka.common.security.plain.PlainLoginModule required "
                         + "username=\"admin\" password=\"admin-secret\";");
 

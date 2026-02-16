@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driving.messaging.consumer;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,12 +10,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-import ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage;
-import ir.dotin.loan.trade.adapters.driving.messaging.mapper.FullLoanFacilityLifecycleMessageMapper;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLoanFacilityLifecycleCommand;
 import ir.dotin.platform.adapter.messaging.command.model.RawCommandMessage;
 import ir.dotin.platform.adapter.messaging.command.processor.CommandProcessor;
 import ir.dotin.platform.adapter.messaging.command.serializer.CommandSerializer;
+import ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage;
+import ir.dotin.loan.trade.adapters.driving.messaging.mapper.FullLoanFacilityLifecycleMessageMapper;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLoanFacilityLifecycleCommand;
 
 import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
@@ -79,12 +80,17 @@ public class TradeLoanCommandConsumer {
                     .transactionMetadata(buildDefaultTransactionMetadata())
                     .build();
 
-            byte[] commandBytes = commandSerializer.serialize(command).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            byte[] commandBytes = commandSerializer.serialize(command).getBytes(StandardCharsets.UTF_8);
             RawCommandMessage original = RawCommandMessage.from(consumerRecord);
             RawCommandMessage rawMessage = new RawCommandMessage(
-                    original.topic(), original.partition(), original.offset(),
-                    original.key(), commandBytes, original.headers(),
-                    original.timestamp(), original.responseTopic());
+                    original.topic(),
+                    original.partition(),
+                    original.offset(),
+                    original.key(),
+                    commandBytes,
+                    original.headers(),
+                    original.timestamp(),
+                    original.responseTopic());
             processor.process(rawMessage);
 
         } catch (Exception e) {

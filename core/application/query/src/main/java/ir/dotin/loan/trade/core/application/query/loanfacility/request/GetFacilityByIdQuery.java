@@ -8,7 +8,7 @@ import ir.dotin.loan.trade.core.application.query.loanfacility.dto.TradeFacility
 import lombok.Builder;
 
 @Builder
-public record GetFacilityByIdQuery(UUID uid, UUID loanFacilityId) implements Query<TradeFacilityQueryDto> {
+public record GetFacilityByIdQuery(UUID loanFacilityId) implements Query<TradeFacilityQueryDto> {
     @Override
     public Class<TradeFacilityQueryDto> getResultType() {
         return TradeFacilityQueryDto.class;

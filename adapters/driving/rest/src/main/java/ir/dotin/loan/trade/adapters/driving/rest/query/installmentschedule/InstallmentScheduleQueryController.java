@@ -32,7 +32,6 @@ class InstallmentScheduleQueryController extends BaseController {
     public ResponseEntity<BaseResponse<TradeInstallmentScheduleQueryDto>> getById(
             @PathVariable UUID installmentScheduleId) {
         GetInstallmentScheduleByIdQuery query = GetInstallmentScheduleByIdQuery.builder()
-                .uid(getIdempotencyKey())
                 .installmentScheduleId(installmentScheduleId)
                 .build();
         return ResponseEntity.ok(BaseResponse.success(dispatcher.dispatch(query)));

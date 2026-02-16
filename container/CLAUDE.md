@@ -6,12 +6,15 @@ The container module is the Spring Boot application entry point (`ir.dotin.loan.
 
 ## Build Commands
 
+e2e tests only run in docker and devcontainer
+
 ```bash
 # Build with unit tests only
 cd /workspace/trade-loan && mvn clean verify -P!dev -DskipITs=true
 
 # Run E2E tests (requires Docker)
 cd /workspace/trade-loan && mvn verify -Pe2e -P!dev
+cd /workspace/trade-loan && mvn verify -Pe2e -P\!dev -rf :trade-loan-container
 
 # Run E2E tests with auth token
 cd /workspace/trade-loan && mvn verify -Pe2e -P!dev -De2e.auth.token="Bearer eyJ..."
@@ -30,16 +33,16 @@ Tests boot the full Spring Boot context (`@SpringBootTest`) with `@ActiveProfile
 
 ### Key Files
 
-| File | Purpose |
-|------|---------|
-| `src/test/java/.../e2e/E2ETestConfiguration.java` | Test config: DockerCompose container, dynamic properties |
-| `src/test/java/.../e2e/AbstractMessagingE2E.java` | Base class: KafkaTemplate, ObjectMapper, auth token, send helpers, **@MockitoBean declarations** |
-| `src/test/java/.../e2e/fixture/KafkaTestHelper.java` | Kafka utilities: build records with headers, create consumers |
-| `src/test/java/.../e2e/fixture/LoanArrangementTestFixture.java` | Creates loan arrangements in DB |
-| `src/test/java/.../e2e/fixture/LoanTypeTestFixture.java` | Creates loan types in DB |
-| `src/test/java/.../e2e/fixture/LoanFacilityTestFixture.java` | Creates disbursed facilities with installment schedules |
-| `src/test/resources/application-e2e.yml` | E2E Spring profile config |
-| `src/test/resources/e2e/docker-compose-e2e.yml` | Docker Compose for Testcontainers |
+| File                                                            | Purpose                                                                                          |
+|-----------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
+| `src/test/java/.../e2e/E2ETestConfiguration.java`               | Test config: DockerCompose container, dynamic properties                                         |
+| `src/test/java/.../e2e/AbstractMessagingE2E.java`               | Base class: KafkaTemplate, ObjectMapper, auth token, send helpers, **@MockitoBean declarations** |
+| `src/test/java/.../e2e/fixture/KafkaTestHelper.java`            | Kafka utilities: build records with headers, create consumers                                    |
+| `src/test/java/.../e2e/fixture/LoanArrangementTestFixture.java` | Creates loan arrangements in DB                                                                  |
+| `src/test/java/.../e2e/fixture/LoanTypeTestFixture.java`        | Creates loan types in DB                                                                         |
+| `src/test/java/.../e2e/fixture/LoanFacilityTestFixture.java`    | Creates disbursed facilities with installment schedules                                          |
+| `src/test/resources/application-e2e.yml`                        | E2E Spring profile config                                                                        |
+| `src/test/resources/e2e/docker-compose-e2e.yml`                 | Docker Compose for Testcontainers                                                                |
 
 ### Test Classes
 
@@ -67,70 +70,70 @@ Pattern: `**/e2e/**/*E2E.java` and `**/e2e/**/*E2ETest.java` (Maven Failsafe)
 
 When writing test fixtures that create JPA entities directly, use the correct setter names for `@Embeddable` types:
 
-| Embeddable Class | Field | Setter |
-|-----------------|-------|--------|
-| `TitleEmb` | `value` | `setValue()` (NOT `setFaTitle`/`setEnTitle`) |
-| `CurrencyTypeEmb` | `value` | `setValue()` (NOT `setCurrencyType`) |
-| `InstallmentCountEmb` | `value` | `setValue()` (NOT `setCount`) |
-| `LoanTypeCodeEmb` | `value` | `setValue()` |
-| `InterestPolicyEmb` | `baseInterestRate`, `preferentialMinRate`, `preferentialMaxRate`, `dailyInterest` | Direct setters |
-| `PenaltyPolicyEmb` | `penaltyRate`, `deferralInterestRate` | Direct setters |
-| `InstallmentPolicyEmb` | `installmentPeriodDays` | `setInstallmentPeriodDays()` |
-| `GracePeriodPolicyEmb` | `minGracePeriodDays`, `maxGracePeriodDays` | Direct setters |
-| `PeriodRangeEmb` | `minPeriod`, `maxPeriod` | `setMinPeriod(PeriodEmb)`, `setMaxPeriod(PeriodEmb)` |
-| `AmountRangeEmb` | `minAmount`, `maxAmount`, `currency` | Direct setters |
-| `GracePeriodEmb` | `days`, `months`, `years` | Direct setters |
-| `MoneyEmb` | `amount`, `currency` | `setAmount(BigDecimal)`, `setCurrency(String)` |
-| `PeriodEmb` | `years`, `months`, `days` | Direct setters |
-| `RepaymentPriorityPolicyEmb` | `installmentMainAmountPriority`, `installmentInterestAmountPriority`, `installmentPenaltyAmountPriority`, `installmentIncomeAmountPriority`, `insuranceAmountPriority`, `insurancePenaltyAmountPriority`, `hasEqualPriority` | Direct setters (NOT `principalPriority`/`interestPriority`) |
-| `RegulatoryCompliancePolicyEmb` | `overDuePeriod`, `deferralPeriod`, `suspiciousPeriod` | Direct setters (NOT `overDuePeriodMonths`) |
-| `CollateralPolicyEmb` | `totalPercent`, `collateralTypes`, `collateralCalculationType` | Direct setters. **`collateralCalculationType` is NOT NULL** |
-| `ConfirmTypeEmb` | `personCode` | `setPersonCode(String)` (NOT a raw String list) |
+| Embeddable Class                | Field                                                                                                                                                                                                                        | Setter                                                      |
+|---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
+| `TitleEmb`                      | `value`                                                                                                                                                                                                                      | `setValue()` (NOT `setFaTitle`/`setEnTitle`)                |
+| `CurrencyTypeEmb`               | `value`                                                                                                                                                                                                                      | `setValue()` (NOT `setCurrencyType`)                        |
+| `InstallmentCountEmb`           | `value`                                                                                                                                                                                                                      | `setValue()` (NOT `setCount`)                               |
+| `LoanTypeCodeEmb`               | `value`                                                                                                                                                                                                                      | `setValue()`                                                |
+| `InterestPolicyEmb`             | `baseInterestRate`, `preferentialMinRate`, `preferentialMaxRate`, `dailyInterest`                                                                                                                                            | Direct setters                                              |
+| `PenaltyPolicyEmb`              | `penaltyRate`, `deferralInterestRate`                                                                                                                                                                                        | Direct setters                                              |
+| `InstallmentPolicyEmb`          | `installmentPeriodDays`                                                                                                                                                                                                      | `setInstallmentPeriodDays()`                                |
+| `GracePeriodPolicyEmb`          | `minGracePeriodDays`, `maxGracePeriodDays`                                                                                                                                                                                   | Direct setters                                              |
+| `PeriodRangeEmb`                | `minPeriod`, `maxPeriod`                                                                                                                                                                                                     | `setMinPeriod(PeriodEmb)`, `setMaxPeriod(PeriodEmb)`        |
+| `AmountRangeEmb`                | `minAmount`, `maxAmount`, `currency`                                                                                                                                                                                         | Direct setters                                              |
+| `GracePeriodEmb`                | `days`, `months`, `years`                                                                                                                                                                                                    | Direct setters                                              |
+| `MoneyEmb`                      | `amount`, `currency`                                                                                                                                                                                                         | `setAmount(BigDecimal)`, `setCurrency(String)`              |
+| `PeriodEmb`                     | `years`, `months`, `days`                                                                                                                                                                                                    | Direct setters                                              |
+| `RepaymentPriorityPolicyEmb`    | `installmentMainAmountPriority`, `installmentInterestAmountPriority`, `installmentPenaltyAmountPriority`, `installmentIncomeAmountPriority`, `insuranceAmountPriority`, `insurancePenaltyAmountPriority`, `hasEqualPriority` | Direct setters (NOT `principalPriority`/`interestPriority`) |
+| `RegulatoryCompliancePolicyEmb` | `overDuePeriod`, `deferralPeriod`, `suspiciousPeriod`                                                                                                                                                                        | Direct setters (NOT `overDuePeriodMonths`)                  |
+| `CollateralPolicyEmb`           | `totalPercent`, `collateralTypes`, `collateralCalculationType`                                                                                                                                                               | Direct setters. **`collateralCalculationType` is NOT NULL** |
+| `ConfirmTypeEmb`                | `personCode`                                                                                                                                                                                                                 | `setPersonCode(String)` (NOT a raw String list)             |
 
 ## Important Enum Values (Gotchas)
 
 Common enum values that differ from what you might expect:
 
-| Enum | Correct Values | NOT This |
-|------|---------------|----------|
-| `ApplicantChannel` | `INTERNET_BANK`, `DIGITAL_BANK` | ~~BRANCH~~ |
-| `GatewayType` | `CARD`, `DIGITAL_BANK`, `LOAN`, `GUARANTEE`, `CHEQUE`, `LETTER_OF_CREDIT`, `COLLATERAL`, `STAFF` | ~~API_GATEWAY~~ |
-| `FacilityStatus` | `FULLY_DISBURSED`, `PARTIALLY_DISBURSED` | ~~DISBURSED~~ |
-| `InstallmentScheduleType` | `EQUAL_INSTALLMENTS`, `GRADUAL_INSTALLMENTS` | ~~EQUAL~~ |
-| `InstallmentStatus` | `SCHEDULED`, `PAID`, `PARTIALLY_PAID`, `OVERDUE`, `CANCELLED` | ~~PENDING~~ |
-| `CollateralCalculationType` | `BASED_ON_PRINCIPAL`, `BASED_ON_PRINCIPAL_AND_TOTAL_INTEREST` | (no NONE value) |
-| `DisbursementType` | `LUMP_SUM`, `PROGRESSIVE` | (arrangement-level, controls allowed `DisbursementMethod`) |
-| `DisbursementMethod` | `LUMP_SUM`, `REGULAR_PROGRESSIVE`, `IRREGULAR_PROGRESSIVE` | (facility-level) |
-| `LoanSecondaryType` | `GENERAL`, `SPECIFIC`, `GENERAL_AND_SPECIFIC`, `NONE` | |
-| `SectionType` | `FIXED`, `CURRENT`, `FIXED_AND_CURRENT`, `NONE` | |
+| Enum                        | Correct Values                                                                                   | NOT This                                                   |
+|-----------------------------|--------------------------------------------------------------------------------------------------|------------------------------------------------------------|
+| `ApplicantChannel`          | `INTERNET_BANK`, `DIGITAL_BANK`                                                                  | ~~BRANCH~~                                                 |
+| `GatewayType`               | `CARD`, `DIGITAL_BANK`, `LOAN`, `GUARANTEE`, `CHEQUE`, `LETTER_OF_CREDIT`, `COLLATERAL`, `STAFF` | ~~API_GATEWAY~~                                            |
+| `FacilityStatus`            | `FULLY_DISBURSED`, `PARTIALLY_DISBURSED`                                                         | ~~DISBURSED~~                                              |
+| `InstallmentScheduleType`   | `EQUAL_INSTALLMENTS`, `GRADUAL_INSTALLMENTS`                                                     | ~~EQUAL~~                                                  |
+| `InstallmentStatus`         | `SCHEDULED`, `PAID`, `PARTIALLY_PAID`, `OVERDUE`, `CANCELLED`                                    | ~~PENDING~~                                                |
+| `CollateralCalculationType` | `BASED_ON_PRINCIPAL`, `BASED_ON_PRINCIPAL_AND_TOTAL_INTEREST`                                    | (no NONE value)                                            |
+| `DisbursementType`          | `LUMP_SUM`, `PROGRESSIVE`                                                                        | (arrangement-level, controls allowed `DisbursementMethod`) |
+| `DisbursementMethod`        | `LUMP_SUM`, `REGULAR_PROGRESSIVE`, `IRREGULAR_PROGRESSIVE`                                       | (facility-level)                                           |
+| `LoanSecondaryType`         | `GENERAL`, `SPECIFIC`, `GENERAL_AND_SPECIFIC`, `NONE`                                            |                                                            |
+| `SectionType`               | `FIXED`, `CURRENT`, `FIXED_AND_CURRENT`, `NONE`                                                  |                                                            |
 
 ## Important Enum Locations
 
-| Enum | Package |
-|------|---------|
-| `GatewayType` | `ir.dotin.loan.baseloan.core.domain.shared.enums` (NOT in trade-loan) |
-| `FacilityStatus` | `ir.dotin.loan.baseloan.core.domain.loanfacility.enums` |
-| `PartyRole`, `PartyType` | `ir.dotin.loan.baseloan.core.domain.shared.enums` |
-| `ApplicantChannel`, `DisbursementMethod` | `ir.dotin.loan.baseloan.core.domain.loanfacility.enums` |
-| `InstallmentStatus`, `InstallmentScheduleStatus` | `ir.dotin.loan.baseloan.core.domain.installmentschedule.enums` |
-| `CollateralCalculationType` | `ir.dotin.loan.baseloan.core.domain.shared.enums` |
-| `DisbursementType` | `ir.dotin.loan.baseloan.core.domain.loanarrangement.enums` |
+| Enum                                             | Package                                                               |
+|--------------------------------------------------|-----------------------------------------------------------------------|
+| `GatewayType`                                    | `ir.dotin.loan.baseloan.core.domain.shared.enums` (NOT in trade-loan) |
+| `FacilityStatus`                                 | `ir.dotin.loan.baseloan.core.domain.loanfacility.enums`               |
+| `PartyRole`, `PartyType`                         | `ir.dotin.loan.baseloan.core.domain.shared.enums`                     |
+| `ApplicantChannel`, `DisbursementMethod`         | `ir.dotin.loan.baseloan.core.domain.loanfacility.enums`               |
+| `InstallmentStatus`, `InstallmentScheduleStatus` | `ir.dotin.loan.baseloan.core.domain.installmentschedule.enums`        |
+| `CollateralCalculationType`                      | `ir.dotin.loan.baseloan.core.domain.shared.enums`                     |
+| `DisbursementType`                               | `ir.dotin.loan.baseloan.core.domain.loanarrangement.enums`            |
 
 ## External Service Mocking
 
 All outbound ports to external services are mocked via `@MockitoBean` in `AbstractMessagingE2E` (the base test class):
 
-| Port | Purpose |
-|------|---------|
-| `LoanServicePort` | Economic sectors, topics, application numbers, branches |
-| `AccountServicePort` | Account validation, account opening |
-| `TransactionPostingPort` | Transaction posting |
-| `CollateralServicePort` | Collateral/assurance validation |
-| `DepositServicePort` | Deposit info, debtor deposit validation |
-| `CustomerServicePort` | Customer info, related customers |
-| `FindOrCreateAccountPort` | Account resolution |
-| `FindAccountByIdPort` | Account lookup |
-| `FetchSanctionDetailsPort` | Sanction checks |
+| Port                       | Purpose                                                 |
+|----------------------------|---------------------------------------------------------|
+| `LoanServicePort`          | Economic sectors, topics, application numbers, branches |
+| `AccountServicePort`       | Account validation, account opening                     |
+| `TransactionPostingPort`   | Transaction posting                                     |
+| `CollateralServicePort`    | Collateral/assurance validation                         |
+| `DepositServicePort`       | Deposit info, debtor deposit validation                 |
+| `CustomerServicePort`      | Customer info, related customers                        |
+| `FindOrCreateAccountPort`  | Account resolution                                      |
+| `FindAccountByIdPort`      | Account lookup                                          |
+| `FetchSanctionDetailsPort` | Sanction checks                                         |
 
 Default stubs return `Result.success()`. Override in individual tests with `when(...).thenReturn(...)`.
 

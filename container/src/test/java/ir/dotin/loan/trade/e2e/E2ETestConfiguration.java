@@ -24,12 +24,16 @@ public class E2ETestConfiguration {
     ComposeContainer composeContainer() {
         File composeFile = new File("src/test/resources/e2e/docker-compose-e2e.yml");
         return new ComposeContainer(composeFile)
-                .withExposedService(POSTGRES_SERVICE, POSTGRES_PORT,
+                .withExposedService(
+                        POSTGRES_SERVICE,
+                        POSTGRES_PORT,
                         Wait.forHealthcheck().withStartupTimeout(Duration.ofMinutes(2)))
-                .withExposedService(KAFKA_SERVICE, KAFKA_INTERNAL_PORT,
+                .withExposedService(
+                        KAFKA_SERVICE,
+                        KAFKA_INTERNAL_PORT,
                         Wait.forHealthcheck().withStartupTimeout(Duration.ofMinutes(3)))
-                .withExposedService(REDIS_SERVICE, REDIS_PORT,
-                        Wait.forHealthcheck().withStartupTimeout(Duration.ofMinutes(1)));
+                .withExposedService(
+                        REDIS_SERVICE, REDIS_PORT, Wait.forHealthcheck().withStartupTimeout(Duration.ofMinutes(1)));
     }
 
     @Bean

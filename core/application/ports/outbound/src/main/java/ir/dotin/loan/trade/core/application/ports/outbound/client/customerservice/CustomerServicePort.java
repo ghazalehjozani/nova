@@ -10,17 +10,17 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CustomerInfoLoadOptions;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyBirthInfo;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfoResponse;
 
 public interface CustomerServicePort {
 
-    Result<PartyInfo> loadCustomerInfo(
+    Result<PartyInfoResponse> loadCustomerInfo(
             String customerNumber,
             @NotNull PartyRole role,
             @Nullable BigDecimal guaranteePercentage,
             CustomerInfoLoadOptions options);
 
-    Result<List<PartyInfo>> findRelatedCustomers(List<String> customerNumbers);
+    Result<List<PartyInfoResponse>> findRelatedCustomers(List<String> customerNumbers);
 
     Result<PartyBirthInfo> loadCustomerBirthInfo(String customerNumber);
 }

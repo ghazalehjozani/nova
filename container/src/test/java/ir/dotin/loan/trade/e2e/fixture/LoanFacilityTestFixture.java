@@ -11,6 +11,8 @@ import java.util.UUID;
 
 import org.springframework.boot.test.context.TestComponent;
 
+import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
+import ir.dotin.platform.adapter.persistence.embeddable.PeriodEmb;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleStatus;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleType;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentStatus;
@@ -37,8 +39,6 @@ import ir.dotin.loan.trade.adapters.driven.persistence.installmentschedule.repos
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity.TradeLoanApplicationEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity.TradeLoanFacilityEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.repository.TradeLoanFacilityJpaRepository;
-import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
-import ir.dotin.platform.adapter.persistence.embeddable.PeriodEmb;
 
 import lombok.RequiredArgsConstructor;
 
@@ -49,10 +49,7 @@ public class LoanFacilityTestFixture {
     private final TradeLoanFacilityJpaRepository facilityRepository;
     private final InstallmentScheduleJpaRepository scheduleRepository;
 
-    public record DisbursedFacilityResult(
-            String applicationNumber,
-            UUID facilityId,
-            UUID installmentScheduleId) {}
+    public record DisbursedFacilityResult(String applicationNumber, UUID facilityId, UUID installmentScheduleId) {}
 
     public DisbursedFacilityResult createDisbursedFacilityForCollection(
             UUID loanTypeId, String loanTypeCode, UUID loanArrangementId) {
@@ -62,16 +59,14 @@ public class LoanFacilityTestFixture {
         UUID scheduleId = UUID.randomUUID();
         String applicationNumber = "E2E-" + UUID.randomUUID().toString().substring(0, 8);
 
-        TradeLoanApplicationEntity application = createApplication(
-                applicationId, loanTypeCode, applicationNumber);
+        TradeLoanApplicationEntity application = createApplication(applicationId, loanTypeCode, applicationNumber);
 
-        TradeLoanFacilityEntity facility = createFacility(
-                facilityId, application, loanTypeId, loanArrangementId, scheduleId);
+        TradeLoanFacilityEntity facility =
+                createFacility(facilityId, application, loanTypeId, loanArrangementId, scheduleId);
 
         facilityRepository.save(facility);
 
-        InstallmentScheduleEntity schedule = createScheduleWithInstallments(
-                scheduleId, facilityId, 3);
+        InstallmentScheduleEntity schedule = createScheduleWithInstallments(scheduleId, facilityId, 3);
 
         scheduleRepository.save(schedule);
 
@@ -196,6 +191,10 @@ public class LoanFacilityTestFixture {
         schedule.setLastModifiedAt(Instant.now());
         schedule.setInterestRate(new BigDecimal("18.000000"));
 
+        GracePeriodEmb scheduleGracePeriod = new GracePeriodEmb();
+        scheduleGracePeriod.setDays(30);
+        schedule.setGracePeriod(scheduleGracePeriod);
+
         MoneyEmb totalAmount = new MoneyEmb();
         totalAmount.setAmount(new BigDecimal("100000000"));
         totalAmount.setCurrency("IRR");
@@ -242,6 +241,11 @@ public class LoanFacilityTestFixture {
             outstanding.setAmount(totalPerInstallment);
             outstanding.setCurrency("IRR");
             installment.setOutstandingAmount(outstanding);
+
+            MoneyEmb paidAmount = new MoneyEmb();
+            paidAmount.setAmount(BigDecimal.ZERO);
+            paidAmount.setCurrency("IRR");
+            installment.setPaidAmount(paidAmount);
 
             installments.add(installment);
         }

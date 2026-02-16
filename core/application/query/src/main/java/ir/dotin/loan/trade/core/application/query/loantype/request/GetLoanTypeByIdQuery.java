@@ -8,7 +8,7 @@ import ir.dotin.loan.trade.core.application.query.loantype.dto.TradeLoanTypeQuer
 import lombok.Builder;
 
 @Builder
-public record GetLoanTypeByIdQuery(UUID uid, UUID loanTypeId) implements Query<TradeLoanTypeQueryDto> {
+public record GetLoanTypeByIdQuery(UUID loanTypeId) implements Query<TradeLoanTypeQueryDto> {
     @Override
     public Class<TradeLoanTypeQueryDto> getResultType() {
         return TradeLoanTypeQueryDto.class;

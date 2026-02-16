@@ -10,15 +10,6 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
     enabled: true
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:host.docker.internal:9094}
-    properties:
-      security.protocol: SASL_PLAINTEXT
-      sasl.mechanism: PLAIN
-      sasl.jaas.config: >-
-        org.apache.kafka.common.security.plain.PlainLoginModule required
-        username="admin"
-        password="admin-secret";
   cache:
     type: redis
     redis:
@@ -67,7 +58,8 @@ management:
     readinessstate:
       enabled: false
   tracing:
-    enabled: false
+    export:
+      enabled: false
 
 logging:
   level:
@@ -133,9 +125,9 @@ platform:
       table-name: saga_instance
       compensation-table: saga_compensation
     execution:
-      default-timeout: 60000
-      executor-core-pool-size: 2
-      shutdown-timeout-seconds: 10
+      default-timeout: 300000
+      executor-core-pool-size: 4
+      shutdown-timeout-seconds: 30
     recovery:
       enabled: false
   messaging:
@@ -153,28 +145,28 @@ platform:
           password="admin-secret";
       producer:
         acks: all
-        retries: 1
-        batch-size: 4096
-        linger: 10ms
-        compression-type: none
-        request-timeout: 10s
-        delivery-timeout: 30s
+        retries: 3
+        batch-size: 16384
+        linger: 100ms
+        compression-type: snappy
+        request-timeout: 30s
+        delivery-timeout: 2m
       consumer:
         auto-offset-reset: earliest
         enable-auto-commit: false
-        max-poll-records: 10
-        max-poll-interval: 1m
-        session-timeout: 30s
+        max-poll-records: 100
+        max-poll-interval: 5m
+        session-timeout: 120s
         heartbeat-interval: 3s
     outbox:
       enabled: true
-      processor-threads: 1
-      batch-size: 10
-      poll-interval: 1s
-      retention-period: 1d
-      enable-cleanup: false
-      enable-metrics: false
-      lock-timeout: 1m
+      processor-threads: 3
+      batch-size: 100
+      poll-interval: 5s
+      retention-period: 30d
+      enable-cleanup: true
+      enable-metrics: true
+      lock-timeout: 5m
       topic-mappings:
         InstallmentSchedule: "corridor.core.loan.nova.trade-loan-installment-schedule.event.topic.v1"
         TradeLoanArrangement: "corridor.core.loan.nova.trade-loan-arrangement.event.topic.v1"
@@ -182,39 +174,143 @@ platform:
         TradeLoanType: "corridor.core.loan.nova.trade-loan-type.event.topic.v1"
     inbox:
       enabled: true
-      processor-threads: 1
-      batch-size: 10
-      poll-interval: 2s
-      retention-period: 1d
+      processor-threads: 3
+      batch-size: 50
+      poll-interval: 10s
+      retention-period: 7d
       enable-deduplication: true
-      enable-metrics: false
-      processing-timeout: 1m
+      enable-metrics: true
+      processing-timeout: 5m
     dead-letter:
-      enabled: false
+      enabled: true
+      topic-suffix: dlq
+      max-retries: 3
+      retry-interval: 1m
+      enable-alerts: true
+      alert-threshold: 5m
+      alert-batch-size: 10
     retry:
-      max-attempts: 1
-      initial-interval: 100ms
-      multiplier: 1.0
-      max-interval: 1s
-      max-duration: 10s
+      max-attempts: 3
+      initial-interval: 500ms
+      multiplier: 2.0
+      max-interval: 30s
+      max-duration: 10m
     resilience:
       circuit-breaker:
-        enabled: false
+        enabled: true
+        failure-rate-threshold: 50.0
+        wait-duration-in-open-state: 30s
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        slow-call-rate-threshold: 80.0
+        slow-call-duration-threshold: 5s
+        enable-metrics: true
       retry-pattern:
-        enabled: false
+        enabled: true
+        max-attempts: 3
+        wait-duration: 500ms
+        exponential-backoff-multiplier: 2.0
+        max-wait-duration: 10s
+        enable-metrics: true
       bulkhead:
         enabled: false
+        max-concurrent-calls: 25
+        max-wait-duration: 1s
       rate-limiter:
         enabled: false
+        limit-for-period: 100
+        limit-refresh-period: 1s
+        timeout-duration: 500ms
     encryption:
       password: e2e-encryption-key-for-test
     scheduling:
-      enabled: false
+      enabled: true
+      default-lock-at-most-for: 10m
+      default-lock-at-least-for: 1m
   security:
     enabled: false
     resource-server:
-      issuer-uri: https://sso.example.com
-      jwk-set-uri: https://sso.example.com/.well-known/openid-configuration/jwks
+      issuer-uri: https://sso.tps.ir
+      jwk-set-uri: https://sso.tps.ir/.well-known/openid-configuration/jwks
+      jwks-cache-lifespan: 5m
+      extract-user-context: true
+      user-id-claim: sub
+      client-id-claim: azp
+      branch-code-claim: branch_code
+      server-address-claim: server_address
+      validate-azp-claim: true
+      validate-branch-code: true
+      allowed-clients:
+        - 1ebad0ab-39d1-4718-9690-ec1873c6914f
+    oauth2-client:
+      enabled: true
+      client-id: ${OAUTH2_CLIENT_ID}
+      client-secret: ${OAUTH2_CLIENT_SECRET}
+      token-uri: https://sso.tps.ir/oauth/token
+      scopes:
+        - openid
+        - upgrade_token
+        - core
+      use-refresh-token: true
+      cache-tokens: true
+      token-cache-buffer: 5m
+      support-token-upgrade: true
+      connection-timeout: 5s
+      read-timeout: 10s
+      max-connections: 100
+      max-per-route: 20
+    authorization:
+      public-paths:
+        - /actuator/health
+        - /actuator/prometheus
+        - /actuator/metrics
+        - /actuator/health/liveness
+        - /actuator/health/readiness
+        - /actuator/info
+        - /swagger-ui/**
+        - /springwolf/asyncapi-ui.html
+        - /springwolf/**
+        - /springwolf/docs.yaml
+        - /v3/api-docs/**
+        - /v3/api-docs
+        - /api/v1/dev/auth/callback
+      require-authentication-by-default: true
+    audit:
+      enabled: true
+      log-authentication-success: false
+      log-authentication-failure: false
+      log-access-denied: false
+      log-token-acquisition: false
+      log-token-validation: false
+      log-banking-context: false
+      slow-request-threshold-ms: 1000
+      sensitive-headers:
+        - Authorization
+        - Cookie
+        - Set-Cookie
+      sensitive-fields:
+        - password
+        - secret
+        - token
+      log-request-body: true
+      log-response-body: true
+      log-token-failures: false
+    ssl:
+      verify: true
+    resilience:
+      circuit-breaker:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 5
+        sliding-window-size: 10
+      retry:
+        max-attempts: 3
+        wait-duration: 500ms
+      rate-limiter:
+        limit-for-period: 100
+        limit-refresh-period: 1s
+        timeout-duration: 5s
     dev-auth:
       enabled: true
       branch-code: "1"
@@ -223,17 +319,33 @@ platform:
     headers:
       default-language: fa
   observability:
-    enabled: false
     tracing:
-      enabled: false
+      sampling-probability: 1.0
+      propagation-type: W3C
+      enabled: true
+    enabled: true
     health:
-      metrics-enabled: false
+      metrics-enabled: true
+      export-interval: 30s
     metrics:
-      enabled: false
+      enabled: true
+      jvm:
+        classes: true
+        compilation: true
+        enabled: true
+        gc: true
+        memory: true
+        threads: true
+      system:
+        disk-space: true
+        enabled: true
+        file-descriptors: true
+        processor: true
+        uptime: true
     logging:
-      format: text
-      include-trace-context: false
-      structured: false
+      format: json
+      include-trace-context: true
+      structured: true
   protocol:
     issuer: LN
 

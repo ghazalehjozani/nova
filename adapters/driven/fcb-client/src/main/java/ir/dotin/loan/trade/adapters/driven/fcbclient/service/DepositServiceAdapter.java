@@ -257,7 +257,7 @@ public class DepositServiceAdapter implements DepositServicePort {
     }
 
     @Override
-    public Result<List<PartyInfo>> getAllDepositSignerOwnerCustomer(String depositNumber) {
+    public Result<List<PartyInfoResponse>> getAllDepositSignerOwnerCustomer(String depositNumber) {
 
         if (depositNumber == null || depositNumber.isBlank()) {
             return Result.failure(Notification.ofError(

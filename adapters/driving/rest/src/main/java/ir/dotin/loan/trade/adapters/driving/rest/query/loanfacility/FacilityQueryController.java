@@ -43,10 +43,8 @@ class FacilityQueryController extends BaseController {
     @GetMapping(value = "/{facilityId}", version = "1")
     @Operation(summary = "دریافت تسهیلات بر اساس شناسه")
     public ResponseEntity<BaseResponse<TradeFacilityQueryDto>> getById(@PathVariable UUID facilityId) {
-        GetFacilityByIdQuery query = GetFacilityByIdQuery.builder()
-                .uid(getIdempotencyKey())
-                .loanFacilityId(facilityId)
-                .build();
+        GetFacilityByIdQuery query =
+                GetFacilityByIdQuery.builder().loanFacilityId(facilityId).build();
         return ResponseEntity.ok(BaseResponse.success(queryDispatcher.dispatch(query)));
     }
 

@@ -11,7 +11,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.response.Credi
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CurrencyValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.DebtorDepositValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.DepositClosedStatus;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfoResponse;
 
 public interface DepositServicePort {
 
@@ -27,5 +27,5 @@ public interface DepositServicePort {
     Result<CurrencyValidation> hasDepositAllowedCurrencies(
             DepositNumber depositNumber, List<CurrencyType> currencyTypes);
 
-    Result<List<PartyInfo>> getAllDepositSignerOwnerCustomer(String depositNumber);
+    Result<List<PartyInfoResponse>> getAllDepositSignerOwnerCustomer(String depositNumber);
 }

@@ -79,7 +79,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                                 FullLoanFacilityLifecycleStep.ORIGINATE_FACILITY,
                                 this::originateFacility,
                                 this::compensateOrigination)
-                        .withTimeout(Duration.ofSeconds(60))
+                        .withTimeout(Duration.ofSeconds(600))
                         .withNoRetry(),
                 SagaSteps.step(
                                 FullLoanFacilityLifecycleStep.SUBMIT_FOR_APPROVAL,
@@ -101,13 +101,13 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                                 this::issueContract,
                                 this::compensateContractIssuance)
                         .withConservativeRetry()
-                        .withTimeout(Duration.ofSeconds(60)),
+                        .withTimeout(Duration.ofSeconds(600)),
                 SagaSteps.step(
                                 FullLoanFacilityLifecycleStep.EXECUTE_DISBURSEMENT,
                                 this::executeDisbursement,
                                 this::compensateDisbursement)
                         .withConservativeRetry()
-                        .withTimeout(Duration.ofSeconds(60)));
+                        .withTimeout(Duration.ofSeconds(600)));
     }
 
     @Override

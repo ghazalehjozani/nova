@@ -171,8 +171,8 @@ platform:
     query-cache: false
   dispatcher:
     command:
-      sync-timeout: 120s
-      shutdown-timeout: 60s
+      sync-timeout: 1200s
+      shutdown-timeout: 600s
       middleware-enabled: true
       idempotency:
         enabled: true
@@ -182,9 +182,9 @@ platform:
         cleanup-threshold: 100
         cache-strategy: REDIS
     query:
-      sync-timeout: 30s
+      sync-timeout: 300s
       middleware-enabled: true
-      caching-enabled: true
+      caching-enabled: false
       cache-strategy: REDIS
       cache-ttl: 2m
     events:
@@ -225,7 +225,7 @@ platform:
       table-name: saga_instance
       compensation-table: saga_compensation
     execution:
-      default-timeout: 300000
+      default-timeout: 3000000
       executor-core-pool-size: 4
       shutdown-timeout-seconds: 30
     recovery:
@@ -237,10 +237,10 @@ platform:
       bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
       consumer-group-id: ${KAFKA_CONSUMER_GROUP:core.loan.facility.*}
       client-id: trade-loan-client
-#      security:
-#        protocol: SASL_PLAINTEXT
-#        sasl-mechanism: SCRAM-SHA-256
-#        sasl-jaas-config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${KAFKA_USER}" password="${KAFKA_PASSWORD}";
+      security:
+        protocol: SASL_PLAINTEXT
+        sasl-mechanism: SCRAM-SHA-256
+        sasl-jaas-config: org.apache.kafka.common.security.scram.ScramLoginModule required username="${KAFKA_USER}" password="${KAFKA_PASSWORD}";
       producer:
         acks: all
         retries: 3
@@ -453,7 +453,7 @@ fcb:
     base-url: ${FCB_BASE_URL}
     app-name: FCB
     service-path: httpUsecaseRunner
-    connection-timeout: 60000
+    connection-timeout: 600000
     read-timeout: 80000
     credentials:
       username: ${FCB_USERNAME}

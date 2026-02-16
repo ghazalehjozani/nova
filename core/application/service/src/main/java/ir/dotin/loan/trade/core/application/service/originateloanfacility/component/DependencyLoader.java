@@ -21,7 +21,7 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanF
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.PartyDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.customerservice.CustomerServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CustomerInfoLoadOptions;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfoResponse;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanTypeRepository;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
@@ -106,14 +106,15 @@ public class DependencyLoader {
         }
     }
 
-    private Result<PartyInfo> loadCustomerInfo(
+    private Result<PartyInfoResponse> loadCustomerInfo(
             String customerNumber, @NotNull PartyRole role, @Nullable BigDecimal guaranteePercentage) {
         return customerServicePort.loadCustomerInfo(
                 customerNumber, role, guaranteePercentage, CustomerInfoLoadOptions.baseInfoOnly());
     }
 
-    private Result<List<PartyInfo>> aggregatePartyResults(List<CompletableFuture<Result<PartyInfo>>> futures) {
-        var parties = new ArrayList<PartyInfo>(futures.size());
+    private Result<List<PartyInfoResponse>> aggregatePartyResults(
+            List<CompletableFuture<Result<PartyInfoResponse>>> futures) {
+        var parties = new ArrayList<PartyInfoResponse>(futures.size());
         var notification = Notification.create();
 
         for (var future : futures) {

@@ -24,7 +24,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.util.FcbBaseRequestBuilder;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.customerservice.CustomerServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CustomerInfoLoadOptions;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyBirthInfo;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfoResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +40,7 @@ public class CustomerServiceAdapter implements CustomerServicePort {
     private final FcbBaseRequestBuilder requestBuilder;
 
     @Override
-    public Result<PartyInfo> loadCustomerInfo(
+    public Result<PartyInfoResponse> loadCustomerInfo(
             String customerNumber,
             @NotNull PartyRole role,
             @Nullable BigDecimal guaranteePercentage,
@@ -81,7 +81,7 @@ public class CustomerServiceAdapter implements CustomerServicePort {
                     FcbBusinessLocalizedMessageCodes.FCB_BUSINESS_EXCEPTION, fcbResponse.getErrorDescription()));
         }
 
-        Result<PartyInfo> mappingResult =
+        Result<PartyInfoResponse> mappingResult =
                 CustomerMapper.mapToDomainCustomerInfo(fcbResponse, role, guaranteePercentage);
 
         if (mappingResult.isFailure()) {
@@ -167,7 +167,7 @@ public class CustomerServiceAdapter implements CustomerServicePort {
     }
 
     @Override
-    public Result<List<PartyInfo>> findRelatedCustomers(List<String> customerNumbers) {
+    public Result<List<PartyInfoResponse>> findRelatedCustomers(List<String> customerNumbers) {
         log.info("Finding related customers: count={}, numbers={}", customerNumbers.size(), customerNumbers);
 
         List<Parameter> parameters = buildFindRelatedCustomersParameters(customerNumbers);

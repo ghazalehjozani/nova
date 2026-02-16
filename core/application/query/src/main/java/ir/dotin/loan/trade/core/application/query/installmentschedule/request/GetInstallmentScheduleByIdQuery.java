@@ -8,7 +8,7 @@ import ir.dotin.loan.trade.core.application.query.installmentschedule.dto.TradeI
 import lombok.Builder;
 
 @Builder
-public record GetInstallmentScheduleByIdQuery(UUID uid, UUID installmentScheduleId)
+public record GetInstallmentScheduleByIdQuery(UUID installmentScheduleId)
         implements Query<TradeInstallmentScheduleQueryDto> {
     @Override
     public Class<TradeInstallmentScheduleQueryDto> getResultType() {

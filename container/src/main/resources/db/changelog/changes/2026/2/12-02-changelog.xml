@@ -25,4 +25,16 @@
         </createIndex>
     </changeSet>
 
+    <changeSet id="increase-payment-ref-column-size" author="trade-loan-team">
+        <comment>Increase column size to support longer reference IDs (fixes varchar 64 limit)</comment>
+
+        <modifyDataType tableName="loan_installments"
+                        columnName="last_payment_reference"
+                        newDataType="VARCHAR(255)"/>
+
+        <modifyDataType tableName="loan_installments"
+                        columnName="last_legacy_transaction_reference"
+                        newDataType="VARCHAR(255)"/>
+    </changeSet>
+
 </databaseChangeLog>

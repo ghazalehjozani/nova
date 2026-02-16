@@ -20,17 +20,17 @@ public sealed interface DisburseDestinationRequestDto
 
     DisburseDestinationType type();
 
-    record DepositDestinationDto(String depositNumber) implements DisburseDestinationRequestDto {
-        @Override
-        public DisburseDestinationType type() {
-            return DisburseDestinationType.DEPOSIT;
+    record DepositDestinationDto(String depositNumber, DisburseDestinationType type)
+            implements DisburseDestinationRequestDto {
+        public DepositDestinationDto(String depositNumber) {
+            this(depositNumber, DisburseDestinationType.DEPOSIT);
         }
     }
 
-    record AccountDestinationDto(String accountNumber) implements DisburseDestinationRequestDto {
-        @Override
-        public DisburseDestinationType type() {
-            return DisburseDestinationType.ACCOUNT;
+    record AccountDestinationDto(String accountNumber, DisburseDestinationType type)
+            implements DisburseDestinationRequestDto {
+        public AccountDestinationDto(String accountNumber) {
+            this(accountNumber, DisburseDestinationType.ACCOUNT);
         }
     }
 }

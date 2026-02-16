@@ -24,24 +24,22 @@ public sealed interface PartyRequestDto
 
     PartyRole role();
 
-    record ApplicantDto(String customerNumber) implements PartyRequestDto {
-        @Override
-        public PartyRole role() {
-            return PartyRole.PRIMARY_APPLICANT;
+    record ApplicantDto(String customerNumber, PartyRole role) implements PartyRequestDto {
+        public ApplicantDto(String customerNumber) {
+            this(customerNumber, PartyRole.PRIMARY_APPLICANT);
         }
     }
 
-    record CoApplicantDto(String customerNumber) implements PartyRequestDto {
-        @Override
-        public PartyRole role() {
-            return PartyRole.CO_APPLICANT;
+    record CoApplicantDto(String customerNumber, PartyRole role) implements PartyRequestDto {
+        public CoApplicantDto(String customerNumber) {
+            this(customerNumber, PartyRole.CO_APPLICANT);
         }
     }
 
-    record GuarantorDto(String customerNumber, BigDecimal guaranteePercentage) implements PartyRequestDto {
-        @Override
-        public PartyRole role() {
-            return PartyRole.GUARANTOR;
+    record GuarantorDto(String customerNumber, BigDecimal guaranteePercentage, PartyRole role)
+            implements PartyRequestDto {
+        public GuarantorDto(String customerNumber, BigDecimal guaranteePercentage) {
+            this(customerNumber, guaranteePercentage, PartyRole.GUARANTOR);
         }
     }
 }

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;
+import net.time4j.PlainDate;
+import net.time4j.calendar.PersianCalendar;
 
 import ir.dotin.loan.trade.adapters.driving.messaging.dto.InstallmentPaymentMessage;
 import ir.dotin.loan.trade.adapters.driving.messaging.dto.InstallmentPaymentMessage.PaymentDetailDto;
@@ -57,6 +59,16 @@ public class InstallmentCollectionMessageMapper {
         if (date == null || date.isBlank()) {
             return LocalDate.now();
         }
-        return LocalDate.parse(date);
+
+        String[] parts = date.split("/");
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("Invalid date format. Expected yyyy/MM/dd");
+        }
+
+        PlainDate gregorian = PersianCalendar.of(
+                        Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]))
+                .transform(PlainDate.class);
+
+        return LocalDate.of(gregorian.getYear(), gregorian.getMonth(), gregorian.getDayOfMonth());
     }
 }

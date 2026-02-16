@@ -48,8 +48,37 @@ public interface TradeLoanFacilityJpaRepository extends PersistentRepository<Tra
             @Param("derivedValue") String derivedValue);
 
     @Query("""
-            SELECT t FROM TradeLoanFacilityEntity t
-            WHERE t.loanApplication.applicationNumber.derivedValue = :applicationNumber
-            """)
-    Optional<TradeLoanFacilityEntity> findByApplicationNumber(@Param("applicationNumber") String applicationNumber);
+        SELECT t
+        FROM TradeLoanFacilityEntity t
+        WHERE t.loanApplication.applicationNumber.branch.code = :branchCode
+        AND t.loanApplication.applicationNumber.loanTypeCode.value = :loanTypeCode
+        AND t.loanApplication.applicationNumber.party.customerNumber = :customerNumber
+        AND t.loanApplication.applicationNumber.derivedValue = :derivedValue
+        """)
+    Optional<TradeLoanFacilityEntity> findByApplicationNumberComponents(
+            @Param("branchCode") String branchCode,
+            @Param("loanTypeCode") String loanTypeCode,
+            @Param("customerNumber") String customerNumber,
+            @Param("derivedValue") String derivedValue);
+
+    default Optional<TradeLoanFacilityEntity> findByApplicationNumber(String applicationNumber) {
+        if (applicationNumber == null || applicationNumber.isBlank()) {
+            return Optional.empty();
+        }
+
+        String[] parts = applicationNumber.split("-");
+
+        if (parts.length != 4) {
+            throw new IllegalArgumentException(
+                    "Invalid Application Number format. Expected 4 parts (Branch-Type-Customer-Derived), got: "
+                            + applicationNumber);
+        }
+
+        return findByApplicationNumberComponents(
+                parts[0], // branchCode
+                parts[1], // loanTypeCode
+                parts[2], // customerNumber
+                parts[3] // derivedValue
+                );
+    }
 }

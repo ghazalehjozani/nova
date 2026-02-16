@@ -3,14 +3,14 @@ package ir.dotin.loan.trade.core.application.service.originateloanfacility.strat
 import java.util.List;
 
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfo;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfoResponse;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 
 public record FacilityOriginationContext(
-        TradeLoanArrangement arrangement, TradeLoanType loanType, List<PartyInfo> partyInfos) {
+        TradeLoanArrangement arrangement, TradeLoanType loanType, List<PartyInfoResponse> partyInfos) {
 
-    public PartyInfo primaryApplicant() {
+    public PartyInfoResponse primaryApplicant() {
         return partyInfos.stream()
                 .filter(info -> info.party().partyRole() == PartyRole.PRIMARY_APPLICANT)
                 .findFirst()
