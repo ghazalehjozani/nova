@@ -1,25 +1,23 @@
 package ir.dotin.loan.trade.adapters.driving.messaging.dto;
 
-import ir.dotin.platform.adapter.messaging.command.model.CommandPayload;
-import org.jspecify.annotations.Nullable;
-
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
+import ir.dotin.platform.adapter.messaging.command.model.CommandPayload;
+
 /**
- * Inbound message consumed from Kafka topic:
- * {@code corridor.core.loan.nova.installment-operation.request.queue.v1}
+ * Inbound message consumed from Kafka topic: {@code corridor.core.loan.nova.installment-operation.request.queue.v1}
  * with operationType = "INSTALLMENT_COLLECTION".
  *
- * <p>Wire format matches {@code InstallmentCollectionMessage} published by the
- * old system (Java 8). No {@code @JsonTypeInfo} — type discrimination is
- * handled by the consumer via the {@code operationType} field.</p>
+ * <p>Wire format matches {@code InstallmentCollectionMessage} published by the old system (Java 8). No
+ * {@code @JsonTypeInfo} — type discrimination is handled by the consumer via the {@code operationType} field.
  *
- * <p><b>Note:</b> The old system sends {@code fileNumber} (loan file number),
- * not UUIDs. The command mapper must resolve {@code loanFacilityId} and
- * {@code installmentScheduleId} from the {@code fileNumber} via repository lookup.</p>
+ * <p><b>Note:</b> The old system sends {@code fileNumber} (loan file number), not UUIDs. The command mapper must
+ * resolve {@code loanFacilityId} and {@code installmentScheduleId} from the {@code fileNumber} via repository lookup.
  */
 public record InstallmentPaymentMessage(
         // --- Corridor envelope (from AbstractMessage) ---
@@ -73,6 +71,5 @@ public record InstallmentPaymentMessage(
             BigDecimal totalAmount,
             @Nullable String valueDate,
             @Nullable String paymentDate,
-            boolean fullySettled) {
-    }
+            boolean fullySettled) {}
 }

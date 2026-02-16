@@ -3,12 +3,12 @@ package ir.dotin.loan.trade.adapters.driving.messaging.dto;
 /**
  * SWA.101-compliant response structure for installment operations.
  *
- * <p>This V2 response aligns with the Inter-Service Communication Standards (SWA.101 v1.1).
- * It is currently unused because the old system (Java 8 / Corridor) expects the V1 format
- * ({@link InstallmentOperationResponse}). Once the old system is migrated or updated to
- * support the SWA.101 format, this class should replace V1.</p>
+ * <p>This V2 response aligns with the Inter-Service Communication Standards (SWA.101 v1.1). It is currently unused
+ * because the old system (Java 8 / Corridor) expects the V1 format ({@link InstallmentOperationResponse}). Once the old
+ * system is migrated or updated to support the SWA.101 format, this class should replace V1.
  *
- * <p><b>Wire format (SWA.101):</b></p>
+ * <p><b>Wire format (SWA.101):</b>
+ *
  * <pre>{@code
  * {
  *   "header": {
@@ -30,13 +30,14 @@ package ir.dotin.loan.trade.adapters.driving.messaging.dto;
  * }
  * }</pre>
  *
- * <p><b>Migration plan:</b></p>
+ * <p><b>Migration plan:</b>
+ *
  * <ol>
- *   <li>Old system consumer updated to parse SWA.101 BaseResponse format</li>
- *   <li>Replace {@link InstallmentOperationResponse} with this class</li>
+ *   <li>Old system consumer updated to parse SWA.101 BaseResponse format
+ *   <li>Replace {@link InstallmentOperationResponse} with this class
  *   <li>Use platform's {@code CommandResponsePublisher} instead of
- *       {@link ir.dotin.loan.trade.adapters.driving.messaging.publisher.InstallmentOperationResponsePublisher}</li>
- *   <li>Headers embedded in body per SWA.101 section 4.3 (Corridor doesn't support Kafka headers)</li>
+ *       {@link ir.dotin.loan.trade.adapters.driving.messaging.publisher.InstallmentOperationResponsePublisher}
+ *   <li>Headers embedded in body per SWA.101 section 4.3 (Corridor doesn't support Kafka headers)
  * </ol>
  */
 // @formatter:off

@@ -1,0 +1,64 @@
+services:
+  postgres:
+    image: postgres:18.0-alpine
+    environment:
+      POSTGRES_USER: e2e_user
+      POSTGRES_PASSWORD: e2e_password
+      POSTGRES_DB: trade_loan_e2e
+      TZ: Asia/Tehran
+    ports:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U e2e_user"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  kafka:
+    image: confluentinc/cp-kafka:7.9.4
+    hostname: kafka
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command:
+      - bash
+      - -c
+      - |
+        echo 'KafkaServer { org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="admin-secret" user_admin="admin-secret"; };' > /tmp/kafka_jaas.conf
+        export KAFKA_OPTS="-Djava.security.auth.login.config=/tmp/kafka_jaas.conf"
+        /etc/confluent/docker/run
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,SASL_PLAINTEXT://0.0.0.0:9094,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,SASL_PLAINTEXT://host.docker.internal:9094
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,SASL_PLAINTEXT:SASL_PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
+      KAFKA_OPTS: "-Djava.security.auth.login.config=/tmp/kafka_jaas.conf"
+      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - "9094:9094"
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1"]
+      interval: 5s
+      timeout: 10s
+      retries: 15
+      start_period: 15s
+
+  redis:
+    image: redis:8.2.2-alpine
+    command: redis-server --requirepass e2e_redis_pass
+    ports:
+      - "6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "e2e_redis_pass", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10

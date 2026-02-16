@@ -53,17 +53,14 @@ public class CollectInstallmentCommandHandler implements CommandHandler<CollectI
     private Result<LoanIdentifiers> resolveIdentifiers(CollectInstallmentCommand command) {
         return Result.fromOptional(
                 applicationNumberResolver.resolveByApplicationNumber(command.applicationNumber()),
-                Notification.ofError(
-                        CollectInstallmentErrorCodes.FILE_NUMBER_NOT_FOUND,
-                        command.applicationNumber()));
+                Notification.ofError(CollectInstallmentErrorCodes.FILE_NUMBER_NOT_FOUND, command.applicationNumber()));
     }
 
     private Result<InstallmentSchedule> loadSchedule(LoanIdentifiers ids, CollectInstallmentCommand command) {
         return Result.fromOptional(
-                installmentScheduleRepository.findById(InstallmentScheduleId.of(ids.installmentScheduleId()).getValue()),
-                Notification.ofError(
-                        CollectInstallmentErrorCodes.SCHEDULE_NOT_FOUND,
-                        ids.installmentScheduleId()));
+                installmentScheduleRepository.findById(
+                        InstallmentScheduleId.of(ids.installmentScheduleId()).getValue()),
+                Notification.ofError(CollectInstallmentErrorCodes.SCHEDULE_NOT_FOUND, ids.installmentScheduleId()));
     }
 
     private Result<InstallmentSchedule> collectAllPayments(

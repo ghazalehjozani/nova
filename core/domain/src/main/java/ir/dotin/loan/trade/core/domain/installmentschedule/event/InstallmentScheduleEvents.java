@@ -5,7 +5,20 @@ import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.Installment
 
 public sealed interface InstallmentScheduleEvents<T extends Record & InstallmentScheduleEvents<T>>
         extends DomainEvent<T>
-        permits ActivationReverted, CompletionReverted, EqualInstallmentsCreated, GradualInstallmentsCreated, InstallmentCollected, InstallmentCreationReverted, RestructuringReverted, ScheduleActivated, ScheduleCancelled, ScheduleCompleted, ScheduleCreationReverted, ScheduleOnHold, ScheduleRestructured, ScheduleStateTransitioned {
+        permits ActivationReverted,
+                CompletionReverted,
+                EqualInstallmentsCreated,
+                GradualInstallmentsCreated,
+                InstallmentCollected,
+                InstallmentCreationReverted,
+                RestructuringReverted,
+                ScheduleActivated,
+                ScheduleCancelled,
+                ScheduleCompleted,
+                ScheduleCreationReverted,
+                ScheduleOnHold,
+                ScheduleRestructured,
+                ScheduleStateTransitioned {
 
     @Override
     default Class<InstallmentSchedule> aggregateType() {

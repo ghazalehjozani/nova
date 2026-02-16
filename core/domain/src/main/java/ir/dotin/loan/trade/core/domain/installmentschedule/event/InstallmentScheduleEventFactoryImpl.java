@@ -6,16 +6,16 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 
-import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentStatus;
-import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentPaymentRecord;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.commons.domain.annotation.DomainFactory;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleStatus;
+import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentStatus;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.event.InstallmentScheduleEventFactory;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentId;
+import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentPaymentRecord;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 
@@ -143,8 +143,6 @@ public class InstallmentScheduleEventFactoryImpl implements InstallmentScheduleE
             @NonNull InstallmentStatus installmentStatus,
             @NonNull Instant occurredAt) {
 
-        return InstallmentCollected.of(
-                scheduleId, loanFacilityId, paymentRecord, installmentStatus, occurredAt);
+        return InstallmentCollected.of(scheduleId, loanFacilityId, paymentRecord, installmentStatus, occurredAt);
     }
-
 }

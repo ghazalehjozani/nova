@@ -9,12 +9,10 @@ import org.jspecify.annotations.Nullable;
 /**
  * Response sent to the corridor response topic as part of the request/reply pattern.
  *
- * <p>The old system (Java 8) publishes a request to the request topic and
- * listens on the response topic for acknowledgment. This DTO is serialized
- * as JSON and published by Nova after command processing.</p>
+ * <p>The old system (Java 8) publishes a request to the request topic and listens on the response topic for
+ * acknowledgment. This DTO is serialized as JSON and published by Nova after command processing.
  *
- * <p>The {@code eventUid} is the correlation key — it matches the
- * {@code eventUid} from the inbound request message.</p>
+ * <p>The {@code eventUid} is the correlation key — it matches the {@code eventUid} from the inbound request message.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record InstallmentOperationResponse(
@@ -33,32 +31,26 @@ public record InstallmentOperationResponse(
 
     public record ErrorDetail(int code, String description) {}
 
-    public static InstallmentOperationResponse success(
-            String eventUid, String operationType, String fileNumber) {
+    public static InstallmentOperationResponse success(String eventUid, String operationType, String fileNumber) {
         return new InstallmentOperationResponse(
-                eventUid, operationType, fileNumber,
-                Status.SUCCESS, Instant.now(), null, null);
+                eventUid, operationType, fileNumber, Status.SUCCESS, Instant.now(), null, null);
     }
 
     public static InstallmentOperationResponse success(
             String eventUid, String operationType, String fileNumber, String message) {
         return new InstallmentOperationResponse(
-                eventUid, operationType, fileNumber,
-                Status.SUCCESS, Instant.now(), message, null);
+                eventUid, operationType, fileNumber, Status.SUCCESS, Instant.now(), message, null);
     }
 
     public static InstallmentOperationResponse failed(
-            String eventUid, String operationType, String fileNumber,
-            String message, List<ErrorDetail> errors) {
+            String eventUid, String operationType, String fileNumber, String message, List<ErrorDetail> errors) {
         return new InstallmentOperationResponse(
-                eventUid, operationType, fileNumber,
-                Status.FAILED, Instant.now(), message, errors);
+                eventUid, operationType, fileNumber, Status.FAILED, Instant.now(), message, errors);
     }
 
     public static InstallmentOperationResponse failed(
             String eventUid, String operationType, String fileNumber, String message) {
         return new InstallmentOperationResponse(
-                eventUid, operationType, fileNumber,
-                Status.FAILED, Instant.now(), message, null);
+                eventUid, operationType, fileNumber, Status.FAILED, Instant.now(), message, null);
     }
 }

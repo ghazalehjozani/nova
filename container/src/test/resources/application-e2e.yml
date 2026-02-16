@@ -1,0 +1,267 @@
+spring:
+  messages:
+    basename: messages
+    encoding: UTF-8
+  jpa:
+    open-in-view: false
+  sql:
+    init:
+      mode: never
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:host.docker.internal:9094}
+    properties:
+      security.protocol: SASL_PLAINTEXT
+      sasl.mechanism: PLAIN
+      sasl.jaas.config: >-
+        org.apache.kafka.common.security.plain.PlainLoginModule required
+        username="admin"
+        password="admin-secret";
+  cache:
+    type: redis
+    redis:
+      time-to-live: 60s
+      cache-null-values: false
+    cache-names:
+      - oauth2-tokens
+      - jwt-jwks
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      password: ${REDIS_PASSWORD:e2e_redis_pass}
+      timeout: 3000ms
+      database: 0
+      client-type: lettuce
+  threads:
+    virtual:
+      enabled: true
+  cloud:
+    kubernetes:
+      discovery:
+        enabled: false
+
+server:
+  port: 0
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: false
+      group:
+        liveness:
+          include: ping
+        readiness:
+          include: ping
+  health:
+    livenessstate:
+      enabled: false
+    readinessstate:
+      enabled: false
+  tracing:
+    enabled: false
+
+logging:
+  level:
+    ir.dotin: DEBUG
+    org.springframework.kafka: INFO
+    org.apache.kafka: WARN
+    org.testcontainers: INFO
+    org.springframework.cloud.kubernetes: WARN
+
+platform:
+  persistence:
+    show-sql: false
+    statistics: false
+    ddl-auto: none
+    batch-size: 25
+    order-inserts: true
+    order-updates: true
+    batch-versioned-data: true
+    fail-on-pagination-over-collection-fetch: true
+    plan-cache-max-size: 256
+    second-level-cache: false
+    query-cache: false
+  dispatcher:
+    command:
+      sync-timeout: 30s
+      shutdown-timeout: 10s
+      middleware-enabled: true
+      idempotency:
+        enabled: true
+        ttl: 1h
+        lock-ttl: 30s
+        cleanup-interval: 5m
+        cleanup-threshold: 100
+        cache-strategy: REDIS
+    query:
+      sync-timeout: 10s
+      middleware-enabled: true
+      caching-enabled: true
+      cache-strategy: REDIS
+      cache-ttl: 1m
+    events:
+      publisher: spring
+      publish-before-commit: true
+      publish-async: false
+      enforce-event-ordering: true
+      max-concurrent-listeners: 4
+      shutdown-timeout-seconds: 10
+    metrics:
+      enabled: false
+      log-execution: false
+      store-in-context: false
+      record-timings: false
+      record-counts: false
+      record-errors: false
+    tracing:
+      enabled: false
+      propagate-headers: false
+      add-mdc-entries: false
+  audit:
+    enabled: false
+  saga:
+    persistence:
+      table-name: saga_instance
+      compensation-table: saga_compensation
+    execution:
+      default-timeout: 60000
+      executor-core-pool-size: 2
+      shutdown-timeout-seconds: 10
+    recovery:
+      enabled: false
+  messaging:
+    enabled: true
+    kafka:
+      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:host.docker.internal:9094}
+      consumer-group-id: ${KAFKA_CONSUMER_GROUP:core.loan.facility.*}
+      client-id: trade-loan-e2e-client
+      security:
+        protocol: SASL_PLAINTEXT
+        sasl-mechanism: PLAIN
+        sasl-jaas-config: >-
+          org.apache.kafka.common.security.plain.PlainLoginModule required
+          username="admin"
+          password="admin-secret";
+      producer:
+        acks: all
+        retries: 1
+        batch-size: 4096
+        linger: 10ms
+        compression-type: none
+        request-timeout: 10s
+        delivery-timeout: 30s
+      consumer:
+        auto-offset-reset: earliest
+        enable-auto-commit: false
+        max-poll-records: 10
+        max-poll-interval: 1m
+        session-timeout: 30s
+        heartbeat-interval: 3s
+    outbox:
+      enabled: true
+      processor-threads: 1
+      batch-size: 10
+      poll-interval: 1s
+      retention-period: 1d
+      enable-cleanup: false
+      enable-metrics: false
+      lock-timeout: 1m
+      topic-mappings:
+        InstallmentSchedule: "corridor.core.loan.nova.trade-loan-installment-schedule.event.topic.v1"
+        TradeLoanArrangement: "corridor.core.loan.nova.trade-loan-arrangement.event.topic.v1"
+        TradeLoanFacility: "corridor.core.loan.nova.trade-loan-facility.event.topic.v1"
+        TradeLoanType: "corridor.core.loan.nova.trade-loan-type.event.topic.v1"
+    inbox:
+      enabled: true
+      processor-threads: 1
+      batch-size: 10
+      poll-interval: 2s
+      retention-period: 1d
+      enable-deduplication: true
+      enable-metrics: false
+      processing-timeout: 1m
+    dead-letter:
+      enabled: false
+    retry:
+      max-attempts: 1
+      initial-interval: 100ms
+      multiplier: 1.0
+      max-interval: 1s
+      max-duration: 10s
+    resilience:
+      circuit-breaker:
+        enabled: false
+      retry-pattern:
+        enabled: false
+      bulkhead:
+        enabled: false
+      rate-limiter:
+        enabled: false
+    encryption:
+      password: e2e-encryption-key-for-test
+    scheduling:
+      enabled: false
+  security:
+    enabled: false
+    resource-server:
+      issuer-uri: https://sso.example.com
+      jwk-set-uri: https://sso.example.com/.well-known/openid-configuration/jwks
+    dev-auth:
+      enabled: true
+      branch-code: "1"
+  rest:
+    api-path-pattern: /api/*
+    headers:
+      default-language: fa
+  observability:
+    enabled: false
+    tracing:
+      enabled: false
+    health:
+      metrics-enabled: false
+    metrics:
+      enabled: false
+    logging:
+      format: text
+      include-trace-context: false
+      structured: false
+  protocol:
+    issuer: LN
+
+fcb:
+  integration:
+    base-url: http://localhost:9999/mock-fcb
+    app-name: FCB
+    service-path: httpUsecaseRunner
+    connection-timeout: 5000
+    read-timeout: 5000
+    credentials:
+      username: e2e_user
+      password: e2e_pass
+    encoding: UTF-8
+    show-exceptions: true
+    same-session: false
+  health:
+    enabled: false
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+springwolf:
+  enabled: false
+
+e2e:
+  auth:
+    token: ${E2E_AUTH_TOKEN:}

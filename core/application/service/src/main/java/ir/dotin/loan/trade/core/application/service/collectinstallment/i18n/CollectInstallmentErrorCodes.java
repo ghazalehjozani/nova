@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public enum CollectInstallmentErrorCodes implements LocalizedMessage<CollectInstallmentErrorCodes> {
-
     SCHEDULE_NOT_FOUND("Installment schedule not found: {0}"),
     FACILITY_NOT_FOUND("Loan facility not found: {0}"),
     FILE_NUMBER_NOT_FOUND("No facility found for file number: {0}"),

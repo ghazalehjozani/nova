@@ -19,9 +19,8 @@ public class JpaApplicationNumberResolver implements ApplicationNumberResolver {
 
     @Override
     public Optional<LoanIdentifiers> resolveByApplicationNumber(String applicationNumber) {
-        return facilityRepository.findByApplicationNumber(applicationNumber)
-                .map(entity -> new LoanIdentifiers(
-                        entity.getId(),
-                        entity.getInstallmentScheduleId()));
+        return facilityRepository
+                .findByApplicationNumber(applicationNumber)
+                .map(entity -> new LoanIdentifiers(entity.getId(), entity.getInstallmentScheduleId()));
     }
 }

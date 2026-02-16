@@ -6,9 +6,8 @@ import java.util.UUID;
 /**
  * Resolves application numbers to domain aggregate identifiers.
  *
- * <p>This is a driven (outbound) port implemented by the persistence adapter.
- * Used by application services (command handlers) to resolve loan identifiers
- * from application numbers.</p>
+ * <p>This is a driven (outbound) port implemented by the persistence adapter. Used by application services (command
+ * handlers) to resolve loan identifiers from application numbers.
  */
 public interface ApplicationNumberResolver {
 

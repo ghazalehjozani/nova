@@ -31,6 +31,5 @@ public record CollectInstallmentCommand(
             boolean fullySettled) {}
 
     public record TransactionMetadata(
-            @Nullable String correlationId,
-            @Nullable String initiatedBy) {}
+            @Nullable String correlationId, @Nullable String initiatedBy) {}
 }

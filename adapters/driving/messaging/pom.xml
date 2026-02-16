@@ -16,7 +16,6 @@
   <name>Trade Loan :: Adapters :: Driving :: Messaging</name>
   <packaging>jar</packaging>
 
-
     <dependencies>
         <dependency>
             <groupId>ir.dotin.platform</groupId>

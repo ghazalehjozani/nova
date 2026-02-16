@@ -4,22 +4,22 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.stereotype.Component;
+
 import ir.dotin.loan.trade.adapters.driving.messaging.dto.InstallmentPaymentMessage;
 import ir.dotin.loan.trade.adapters.driving.messaging.dto.InstallmentPaymentMessage.PaymentDetailDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CollectInstallmentCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CollectInstallmentCommand.InstallmentPaymentItem;
 
-import org.springframework.stereotype.Component;
-
 /**
- * Anti-corruption layer: translates the old system's installment payment message
- * into the Nova domain command.
+ * Anti-corruption layer: translates the old system's installment payment message into the Nova domain command.
  *
- * <p>Key translations:</p>
+ * <p>Key translations:
+ *
  * <ul>
- *   <li>{@code fileNumber} (legacy term) -> {@code applicationNumber} (domain term)</li>
- *   <li>{@code transactionNumber} (legacy) -> {@code transactionReference} (domain)</li>
- *   <li>{@code PaymentDetailDto.totalAmount} -> {@code InstallmentPaymentItem.totalPaidAmount}</li>
+ *   <li>{@code fileNumber} (legacy term) -> {@code applicationNumber} (domain term)
+ *   <li>{@code transactionNumber} (legacy) -> {@code transactionReference} (domain)
+ *   <li>{@code PaymentDetailDto.totalAmount} -> {@code InstallmentPaymentItem.totalPaidAmount}
  * </ul>
  */
 @Component
