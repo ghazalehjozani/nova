@@ -104,7 +104,7 @@ public class CollectInstallmentCommandHandler implements CommandHandler<CollectI
                 .valueDate(item.valueDate())
                 .paymentDate(item.paymentDate())
                 .channel(command.channel())
-                .legacyTransactionReference(command.legacyTransactionReference())
+                .transactionReference(command.legacyTransactionReference())
                 .build();
 
         Notification validation = record.validate();

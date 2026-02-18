@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <changeSet id="20260218-1" author="DOTIN\m.amirabdollahi">
+        <dropColumn tableName="loan_installments" columnName="last_payment_date"/>
+        <dropColumn tableName="loan_installments" columnName="last_payment_reference"/>
+        <dropColumn tableName="loan_installments" columnName="last_payment_channel"/>
+        <dropColumn tableName="loan_installments" columnName="last_legacy_transaction_reference"/>
+        <dropColumn tableName="loan_installments" columnName="last_value_date"/>
+
+        <createTable tableName="loan_installment_payments">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="installment_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_loan_installment_payments_installment_id" references="loan_installments(id)"/>
+            </column>
+            <column name="payment_reference" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="principal_amount" type="DECIMAL(19, 4)"/>
+            <column name="principal_amount_currency" type="VARCHAR(3)"/>
+            <column name="interest_amount" type="DECIMAL(19, 4)"/>
+            <column name="interest_amount_currency" type="VARCHAR(3)"/>
+            <column name="total_paid_amount" type="DECIMAL(19, 4)"/>
+            <column name="total_paid_amount_currency" type="VARCHAR(3)"/>
+            <column name="value_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payment_date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="channel" type="VARCHAR(255)"/>
+            <column name="transaction_reference" type="VARCHAR(255)"/>
+            <column name="remarks" type="VARCHAR(255)"/>
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="modified_at" type="TIMESTAMP"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="modified_by" type="VARCHAR(255)"/>
+            <column name="version" type="BIGINT"/>
+        </createTable>
+
+        <createIndex tableName="loan_installment_payments" indexName="idx_loan_installment_payments_installment_id">
+            <column name="installment_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="20260218-2" author="DOTIN\m.amirabdollahi">
+        <dropColumn tableName="loan_installment_payments" columnName="id"/>
+
+        <dropColumn tableName="loan_installment_payments" columnName="created_at"/>
+        <dropColumn tableName="loan_installment_payments" columnName="modified_at"/>
+        <dropColumn tableName="loan_installment_payments" columnName="created_by"/>
+        <dropColumn tableName="loan_installment_payments" columnName="modified_by"/>
+        <dropColumn tableName="loan_installment_payments" columnName="version"/>
+    </changeSet>
+
+    <changeSet id="20260218-3" author="DOTIN\m.amirabdollahi">
+        <addColumn tableName="loan_installment_payments">
+            <column name="installment_sequence_number" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

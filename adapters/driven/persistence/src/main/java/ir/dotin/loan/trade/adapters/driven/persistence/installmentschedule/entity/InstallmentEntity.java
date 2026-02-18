@@ -1,14 +1,19 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.installmentschedule.entity;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -19,6 +24,7 @@ import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
 import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentStatus;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.InstallmentAmountEmb;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.InstallmentPaymentEmb;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -58,9 +64,6 @@ public class InstallmentEntity extends PersistentEntity {
     })
     private MoneyEmb outstandingAmount;
 
-    @Column(name = "last_payment_date")
-    private LocalDate lastPaymentDate;
-
     @Column(name = "paid_date")
     private LocalDate paidDate;
 
@@ -68,17 +71,9 @@ public class InstallmentEntity extends PersistentEntity {
     @JoinColumn(name = "installment_schedule_id", nullable = false)
     private InstallmentScheduleEntity installmentSchedule;
 
-    @Column(name = "last_payment_reference")
-    private String lastPaymentReference;
-
-    @Column(name = "last_payment_channel")
-    private String lastPaymentChannel;
-
-    @Column(name = "last_legacy_transaction_reference")
-    private String lastLegacyTransactionReference;
-
-    @Column(name = "last_value_date")
-    private LocalDate lastValueDate;
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "loan_installment_payments", joinColumns = @JoinColumn(name = "installment_id"))
+    private List<InstallmentPaymentEmb> payments = new ArrayList<>();
 
     @Override
     public final boolean equals(Object o) {

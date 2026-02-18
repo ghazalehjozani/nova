@@ -41,8 +41,21 @@ public record TradeInstallmentScheduleQueryDto(
             InstallmentStatus status,
             BigDecimal paidAmount,
             BigDecimal outstandingAmount,
-            LocalDate lastPaymentDate,
-            LocalDate paidDate)
+            LocalDate paidDate,
+            List<InstallmentPaymentDto> payments)
+            implements Serializable {}
+
+    public record InstallmentPaymentDto(
+            Integer installmentSequenceNumber,
+            String paymentReference,
+            BigDecimal principalAmount,
+            BigDecimal interestAmount,
+            BigDecimal totalPaidAmount,
+            LocalDate valueDate,
+            LocalDate paymentDate,
+            String channel,
+            String transactionReference,
+            String remarks)
             implements Serializable {}
 
     public record ScheduleHistoryEmbDto(List<UUID> previousScheduleIds) implements Serializable {}

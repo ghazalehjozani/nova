@@ -29,4 +29,5 @@
     <include file="db/changelog/changes/2025/12/16-01-changelog.xml"/>
     <include file="db/changelog/changes/001-create-formula-definitions.xml"/>
     <include file="db/changelog/changes/2026/2/12-02-changelog.xml"/>
+    <include file="db/changelog/changes/2026/2/18-02-changelog.xml"/>
 </databaseChangeLog>

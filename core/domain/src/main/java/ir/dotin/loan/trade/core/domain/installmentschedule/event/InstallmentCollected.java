@@ -29,7 +29,7 @@ public record InstallmentCollected(
         LocalDate valueDate,
         LocalDate paymentDate,
         @Nullable String channel,
-        @Nullable String legacyTransactionReference,
+        @Nullable String transactionReference,
         String installmentStatus,
         Instant createdAt)
         implements InstallmentScheduleEvents<InstallmentCollected> {
@@ -69,7 +69,7 @@ public record InstallmentCollected(
                 paymentRecord.valueDate(),
                 paymentRecord.paymentDate(),
                 paymentRecord.channel(),
-                paymentRecord.legacyTransactionReference(),
+                paymentRecord.transactionReference(),
                 installmentStatus.name(),
                 occurredAt);
     }
