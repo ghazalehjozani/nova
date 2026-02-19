@@ -63,13 +63,19 @@ public class InstallmentOperationCommandConsumer {
         String operationType = getText(rootNode, "operationType", "UNKNOWN");
         String eventUid = getText(rootNode, "eventUid", null);
         String authorization = getText(rootNode, "authorization", null);
+        if (authorization == null) {
+            authorization = getHeader(consumerRecord, "Authorization");
+        }
         String idempotencyKey = getText(rootNode, "idempotencyKey", null);
+        if (idempotencyKey == null) {
+            idempotencyKey = getHeader(consumerRecord, "Idempotency-Key");
+        }
         String responseTopic = getText(rootNode, "responseTopic", null);
 
         CommandHeaders headers = CommandHeaders.builder()
                 .authorizationToken(authorization)
                 .idempotencyKey(idempotencyKey)
-                .requestDateTime(getText(rootNode, "dateTime", null))
+                .requestDateTime(getText(rootNode, "dateTime", getHeader(consumerRecord, "X-Request-DateTime")))
                 .build();
 
         LOG.info(
@@ -110,5 +116,13 @@ public class InstallmentOperationCommandConsumer {
             return node.get(fieldName).asText();
         }
         return defaultValue;
+    }
+
+    private String getHeader(ConsumerRecord<String, byte[]> record, String headerName) {
+        var header = record.headers().lastHeader(headerName);
+        if (header == null || header.value() == null) {
+            return null;
+        }
+        return new String(header.value(), java.nio.charset.StandardCharsets.UTF_8);
     }
 }

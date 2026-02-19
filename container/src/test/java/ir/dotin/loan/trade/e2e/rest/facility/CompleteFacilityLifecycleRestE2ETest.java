@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
@@ -33,6 +34,7 @@ import static ir.dotin.loan.trade.e2e.assertion.BaseResponseAssertions.assertSuc
 import static ir.dotin.loan.trade.e2e.assertion.BaseResponseAssertions.extractData;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled
 class CompleteFacilityLifecycleRestE2ETest extends AbstractRestE2E {
 
     private String loanTypeCode;

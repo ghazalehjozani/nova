@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
@@ -21,6 +22,7 @@ import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator.MinimalChai
 import static ir.dotin.loan.trade.e2e.assertion.BaseResponseAssertions.assertSuccess;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled
 class DefineLoanTypeRestE2ETest extends AbstractRestE2E {
 
     private TradeLoanArrangementEntity arrangement;

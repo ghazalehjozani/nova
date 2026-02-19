@@ -3,9 +3,10 @@ package ir.dotin.loan.trade.e2e;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -15,7 +16,9 @@ import org.springframework.http.ResponseEntity;
 import ir.dotin.loan.trade.e2e.orchestrator.MockPortConfigurator;
 import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator;
 
-@Import({MockPortConfigurator.class, PrerequisiteOrchestrator.class})
+// TODO: mock get token instead of real call, and also mock AuthenticationContextHolder
+@Disabled
+@AutoConfigureTestRestTemplate
 public abstract class AbstractRestE2E extends AbstractE2E {
 
     @Autowired

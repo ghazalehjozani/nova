@@ -17,9 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.entity.TradeLoanArrangementEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.loantype.entity.TradeLoanTypeEntity;
+import ir.dotin.loan.trade.adapters.driving.messaging.dto.InstallmentOperationType;
 import ir.dotin.loan.trade.adapters.driving.messaging.dto.InstallmentPaymentMessage;
 import ir.dotin.loan.trade.e2e.AbstractMessagingE2E;
 import ir.dotin.loan.trade.e2e.fixture.FormulaTestFixture;
@@ -28,11 +28,10 @@ import ir.dotin.loan.trade.e2e.fixture.LoanArrangementTestFixture;
 import ir.dotin.loan.trade.e2e.fixture.LoanFacilityTestFixture;
 import ir.dotin.loan.trade.e2e.fixture.LoanFacilityTestFixture.DisbursedFacilityResult;
 import ir.dotin.loan.trade.e2e.fixture.LoanTypeTestFixture;
+import ir.dotin.loan.trade.e2e.orchestrator.MockPortConfigurator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 class InstallmentCollectionE2ETest extends AbstractMessagingE2E {
 
@@ -51,6 +50,9 @@ class InstallmentCollectionE2ETest extends AbstractMessagingE2E {
 
     @Autowired
     private LoanFacilityTestFixture facilityFixture;
+
+    @Autowired
+    private MockPortConfigurator mockPortConfigurator;
 
     @Value("${platform.messaging.kafka.bootstrap-servers}")
     private String bootstrapServers;
@@ -75,7 +77,7 @@ class InstallmentCollectionE2ETest extends AbstractMessagingE2E {
 
     @BeforeEach
     void setupMocks() {
-        configureMockStubs();
+        mockPortConfigurator.configureAllDefaults();
     }
 
     @AfterAll
@@ -83,19 +85,6 @@ class InstallmentCollectionE2ETest extends AbstractMessagingE2E {
         if (responseConsumer != null) {
             responseConsumer.close();
         }
-    }
-
-    private void configureMockStubs() {
-        when(transactionPostingPort.postTransaction(any())).thenReturn(Result.success());
-        when(transactionPostingPort.postTransactions(any(), any(), any())).thenReturn(Result.success(List.of()));
-        when(loanServicePort.loadEconomicalSectorByCode(any())).thenReturn(Result.success());
-        when(accountServicePort.validateAccountNumber(any())).thenReturn(Result.success());
-        when(collateralServicePort.validateAddAssuranceToFile(any(), any(), any()))
-                .thenReturn(Result.success());
-        when(depositServicePort.getDepositInfo(any())).thenReturn(Result.success());
-        when(customerServicePort.loadCustomerInfo(any(), any(), any(), any())).thenReturn(Result.success());
-        when(findOrCreateAccountPort.findOrCreateAccount(any())).thenReturn(Result.success());
-        when(fetchSanctionDetailsPort.fetchBySanctionSerial(any())).thenReturn(Result.success());
     }
 
     @Test
@@ -109,7 +98,7 @@ class InstallmentCollectionE2ETest extends AbstractMessagingE2E {
                 1,
                 RESPONSE_TOPIC,
                 null,
-                "INSTALLMENT_COLLECTION",
+                InstallmentOperationType.INSTALLMENT_COLLECTION.getCode(),
                 facilityResult.applicationNumber(),
                 "TXN-E2E-" + UUID.randomUUID().toString().substring(0, 8),
                 null,
@@ -144,7 +133,7 @@ class InstallmentCollectionE2ETest extends AbstractMessagingE2E {
 
         byte[] payload = objectMapper.writeValueAsBytes(message);
         var record = KafkaTestHelper.buildRecord(
-                INSTALLMENT_OPERATION_TOPIC, eventUid, payload, authToken, "INSTALLMENT_COLLECTION", eventUid);
+                INSTALLMENT_OPERATION_TOPIC, eventUid, payload, authToken, InstallmentOperationType.INSTALLMENT_COLLECTION.getCode(), eventUid);
 
         sendAndWait(record);
 
@@ -173,7 +162,7 @@ class InstallmentCollectionE2ETest extends AbstractMessagingE2E {
                 1,
                 RESPONSE_TOPIC,
                 null,
-                "INSTALLMENT_COLLECTION",
+                InstallmentOperationType.INSTALLMENT_COLLECTION.getCode(),
                 "NON-EXISTENT-FILE-NUMBER",
                 "TXN-FAIL-" + UUID.randomUUID().toString().substring(0, 8),
                 null,
@@ -208,7 +197,7 @@ class InstallmentCollectionE2ETest extends AbstractMessagingE2E {
 
         byte[] payload = objectMapper.writeValueAsBytes(message);
         var record = KafkaTestHelper.buildRecord(
-                INSTALLMENT_OPERATION_TOPIC, eventUid, payload, authToken, "INSTALLMENT_COLLECTION", eventUid);
+                INSTALLMENT_OPERATION_TOPIC, eventUid, payload, authToken, InstallmentOperationType.INSTALLMENT_COLLECTION.getCode(), eventUid);
 
         sendAndWait(record);
 

@@ -266,101 +266,101 @@ workspace "Trade Loan Service" {
         }
 
         styles {
-            element "Cache" {
-                background #e74c3c
-                shape Cylinder
-            }
-            element "Aggregate" {
-                background #ff9800
-                color #000000
-            }
-            element "Entity" {
-                background #ffb74d
-                color #000000
-            }
-            element "Person" {
-                background #08427b
+            element "Software System" {
+                background #1168bd
                 color #ffffff
-                shape Person
             }
             element "Consumer" {
                 background #ff7043
                 color #ffffff
                 shape Hexagon
             }
-            element "Software System" {
-                background #1168bd
-                color #ffffff
-            }
-            element "Handler" {
-                background #42a5f5
-                color #ffffff
-            }
-            element "Database" {
-                shape Cylinder
-            }
-            element "Internal User" {
+            element "Person" {
                 background #08427b
+                color #ffffff
+                shape Person
             }
-            element "External System" {
-                background #999999
-            }
-            element "Domain" {
-                background #ffa726
+            element "Entity" {
+                background #ffb74d
                 color #000000
             }
-            element "Service" {
-                background #29b6f6
-                color #ffffff
-            }
-            element "Monitoring" {
-                background #27ae60
-                shape WebBrowser
-            }
-            element "Client" {
-                background #ec407a
-                color #ffffff
-            }
-            element "Controller" {
-                background #7cb342
-                color #ffffff
-            }
-            element "Component" {
-                background #85bbf0
+            element "Aggregate" {
+                background #ff9800
                 color #000000
             }
-            element "Message Broker" {
-                background #f5a623
-                color #000000
-                shape Pipe
-            }
-            element "Saga" {
-                background #ab47bc
-                color #ffffff
-                shape Diamond
-            }
-            element "Compensation" {
-                background #ef5350
-                color #ffffff
-            }
-            element "Repository" {
-                background #5c6bc0
-                color #ffffff
+            element "Cache" {
+                background #e74c3c
                 shape Cylinder
+            }
+            element "Container" {
+                background #438dd5
+                color #ffffff
+            }
+            element "External User" {
+                background #666666
+            }
+            element "Admin" {
+                background #5c3d6e
             }
             element "Outbox" {
                 background #66bb6a
                 color #000000
                 shape Hexagon
             }
-            element "Admin" {
-                background #5c3d6e
+            element "Repository" {
+                background #5c6bc0
+                color #ffffff
+                shape Cylinder
             }
-            element "External User" {
-                background #666666
+            element "Compensation" {
+                background #ef5350
+                color #ffffff
             }
-            element "Container" {
-                background #438dd5
+            element "Saga" {
+                background #ab47bc
+                color #ffffff
+                shape Diamond
+            }
+            element "Message Broker" {
+                background #f5a623
+                color #000000
+                shape Pipe
+            }
+            element "Component" {
+                background #85bbf0
+                color #000000
+            }
+            element "Controller" {
+                background #7cb342
+                color #ffffff
+            }
+            element "Client" {
+                background #ec407a
+                color #ffffff
+            }
+            element "Monitoring" {
+                background #27ae60
+                shape WebBrowser
+            }
+            element "Service" {
+                background #29b6f6
+                color #ffffff
+            }
+            element "Domain" {
+                background #ffa726
+                color #000000
+            }
+            element "External System" {
+                background #999999
+            }
+            element "Internal User" {
+                background #08427b
+            }
+            element "Database" {
+                shape Cylinder
+            }
+            element "Handler" {
+                background #42a5f5
                 color #ffffff
             }
         }

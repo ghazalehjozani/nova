@@ -25,7 +25,7 @@ public class LoanTypeTestFixture {
     private final TradeLoanTypeJpaRepository repository;
 
     public TradeLoanTypeEntity createDefaultLoanType(UUID arrangementId) {
-        return createLoanType("E2E-TYPE-" + UUID.randomUUID().toString().substring(0, 8), arrangementId, e -> {});
+        return createLoanType("E2ETYPE" + UUID.randomUUID().toString().substring(0, 8), arrangementId, e -> {});
     }
 
     public TradeLoanTypeEntity createLoanType(

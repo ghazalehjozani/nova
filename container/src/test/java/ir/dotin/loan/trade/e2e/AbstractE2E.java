@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.e2e;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,6 +25,8 @@ import ir.dotin.loan.trade.e2e.fixture.FormulaTestFixture;
 import ir.dotin.loan.trade.e2e.fixture.LoanArrangementTestFixture;
 import ir.dotin.loan.trade.e2e.fixture.LoanFacilityTestFixture;
 import ir.dotin.loan.trade.e2e.fixture.LoanTypeTestFixture;
+import ir.dotin.loan.trade.e2e.orchestrator.MockPortConfigurator;
+import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator;
 
 @SpringBootTest(
         classes = {Main.class, E2ETestConfiguration.class},
@@ -33,7 +36,9 @@ import ir.dotin.loan.trade.e2e.fixture.LoanTypeTestFixture;
     FormulaTestFixture.class,
     LoanArrangementTestFixture.class,
     LoanTypeTestFixture.class,
-    LoanFacilityTestFixture.class
+    LoanFacilityTestFixture.class,
+    MockPortConfigurator.class,
+    PrerequisiteOrchestrator.class
 })
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class AbstractE2E {
@@ -73,4 +78,5 @@ public abstract class AbstractE2E {
 
     @LocalServerPort
     protected int port;
+
 }

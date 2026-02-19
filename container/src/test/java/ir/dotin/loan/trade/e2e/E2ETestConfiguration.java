@@ -20,10 +20,14 @@ public class E2ETestConfiguration {
     private static final String REDIS_SERVICE = "redis";
     private static final int REDIS_PORT = 6379;
 
-    @Bean(initMethod = "start", destroyMethod = "stop")
-    ComposeContainer composeContainer() {
+    // Static singleton: shared across all Spring contexts in the same JVM,
+    // preventing multiple Docker Compose startups when REST and messaging tests
+    // use different context configurations.
+    private static final ComposeContainer SHARED_CONTAINER = createContainer();
+
+    private static ComposeContainer createContainer() {
         File composeFile = new File("src/test/resources/e2e/docker-compose-e2e.yml");
-        return new ComposeContainer(composeFile)
+        ComposeContainer container = new ComposeContainer(composeFile)
                 .withExposedService(
                         POSTGRES_SERVICE,
                         POSTGRES_PORT,
@@ -34,6 +38,13 @@ public class E2ETestConfiguration {
                         Wait.forHealthcheck().withStartupTimeout(Duration.ofMinutes(3)))
                 .withExposedService(
                         REDIS_SERVICE, REDIS_PORT, Wait.forHealthcheck().withStartupTimeout(Duration.ofMinutes(1)));
+        container.start();
+        return container;
+    }
+
+    @Bean
+    ComposeContainer composeContainer() {
+        return SHARED_CONTAINER;
     }
 
     @Bean

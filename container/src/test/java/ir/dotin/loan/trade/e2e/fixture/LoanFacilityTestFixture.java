@@ -57,9 +57,14 @@ public class LoanFacilityTestFixture {
         UUID facilityId = UUID.randomUUID();
         UUID applicationId = UUID.randomUUID();
         UUID scheduleId = UUID.randomUUID();
-        String applicationNumber = "E2E-" + UUID.randomUUID().toString().substring(0, 8);
+        String branchCode = "1";
+        String customerNumber = "12345678";
+        String derivedValue = UUID.randomUUID().toString().substring(0, 8);
+        String applicationNumber =
+                branchCode + "-" + loanTypeCode + "-" + customerNumber + "-" + derivedValue;
 
-        TradeLoanApplicationEntity application = createApplication(applicationId, loanTypeCode, applicationNumber);
+        TradeLoanApplicationEntity application = createApplication(
+                applicationId, loanTypeCode, applicationNumber, derivedValue, branchCode, customerNumber);
 
         TradeLoanFacilityEntity facility =
                 createFacility(facilityId, application, loanTypeId, loanArrangementId, scheduleId);
@@ -74,7 +79,12 @@ public class LoanFacilityTestFixture {
     }
 
     private TradeLoanApplicationEntity createApplication(
-            UUID applicationId, String loanTypeCode, String applicationNumber) {
+            UUID applicationId,
+            String loanTypeCode,
+            String applicationNumber,
+            String derivedValue,
+            String branchCode,
+            String customerNumber) {
 
         TradeLoanApplicationEntity app = new TradeLoanApplicationEntity();
         app.setId(applicationId);
@@ -115,11 +125,11 @@ public class LoanFacilityTestFixture {
         app.setEconomicSector(economicSector);
 
         BranchEmb branch = new BranchEmb();
-        branch.setCode("1");
+        branch.setCode(branchCode);
         app.setBranch(branch);
 
         PartyEmb applicantParty = new PartyEmb();
-        applicantParty.setCustomerNumber("12345678");
+        applicantParty.setCustomerNumber(customerNumber);
         applicantParty.setPartyType(PartyType.REAL);
         applicantParty.setPartyRole(PartyRole.PRIMARY_APPLICANT);
         applicantParty.setFirstName("Test");
@@ -130,7 +140,7 @@ public class LoanFacilityTestFixture {
 
         ApplicationNumberEmb appNumber = new ApplicationNumberEmb();
         BranchEmb appBranch = new BranchEmb();
-        appBranch.setCode("1");
+        appBranch.setCode(branchCode);
         appNumber.setBranch(appBranch);
 
         LoanTypeCodeEmb appLoanTypeCode = new LoanTypeCodeEmb();
@@ -138,13 +148,13 @@ public class LoanFacilityTestFixture {
         appNumber.setLoanTypeCode(appLoanTypeCode);
 
         ApplicationPartyEmb appParty = new ApplicationPartyEmb();
-        appParty.setCustomerNumber("12345678");
+        appParty.setCustomerNumber(customerNumber);
         appParty.setPartyType(PartyType.REAL);
         appParty.setPartyRole(PartyRole.PRIMARY_APPLICANT);
         appParty.setFirstName("Test");
         appParty.setLastName("User");
         appNumber.setParty(appParty);
-        appNumber.setDerivedValue(applicationNumber);
+        appNumber.setDerivedValue(derivedValue);
         app.setApplicationNumber(appNumber);
 
         return app;
