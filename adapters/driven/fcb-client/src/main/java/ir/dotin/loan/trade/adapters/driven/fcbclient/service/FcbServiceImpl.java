@@ -6,6 +6,7 @@ import jakarta.xml.bind.Marshaller;
 
 import com.thoughtworks.xstream.XStream;
 import org.jspecify.annotations.NonNull;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@Profile("!activemq")
 @RequiredArgsConstructor
 public class FcbServiceImpl implements FcbService {
 

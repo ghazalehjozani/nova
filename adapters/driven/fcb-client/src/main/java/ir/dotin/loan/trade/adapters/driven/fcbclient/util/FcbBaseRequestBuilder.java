@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.util;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.loan.trade.adapters.driven.fcbclient.config.FcbConfiguration;
@@ -14,6 +15,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.resolver.FcbContextResolver
 import lombok.RequiredArgsConstructor;
 
 @Component
+@Profile("!activemq")
 @RequiredArgsConstructor
 public class FcbBaseRequestBuilder {
 

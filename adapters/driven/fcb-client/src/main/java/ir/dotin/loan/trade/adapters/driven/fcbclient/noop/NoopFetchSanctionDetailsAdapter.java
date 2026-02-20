@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.noop;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.commons.core.Result;
@@ -7,6 +8,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.FetchSanctionD
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.SanctionDetails;
 
 @Component
+@Profile("!activemq")
 public class NoopFetchSanctionDetailsAdapter implements FetchSanctionDetailsPort {
 
     @Override

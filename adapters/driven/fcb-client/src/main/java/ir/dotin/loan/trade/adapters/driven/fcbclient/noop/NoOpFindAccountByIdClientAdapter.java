@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.fcbclient.noop;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.commons.core.Result;
@@ -12,6 +13,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.FindAccountByI
  * implementation is available, providing a safe fallback.
  */
 @Component
+@Profile("!activemq")
 public class NoOpFindAccountByIdClientAdapter implements FindAccountByIdPort {
 
     @Override

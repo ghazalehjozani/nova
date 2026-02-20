@@ -71,7 +71,7 @@ management:
         liveness:
           include: livenessState
         readiness:
-          include: readinessState,db,tpsSso,dispatcher,saga,fcb,diskSpace
+          include: readinessState,db,tpsSso,dispatcher,saga,fcb,fcbJms,diskSpace
       probes:
         enabled: true
   prometheus:
@@ -501,6 +501,31 @@ fcb:
     logging:
       enabled: true
       structured-json: true
+
+nova:
+  fcb:
+    activemq:
+      broker-url: ${FCB_ACTIVEMQ_BROKER_URL:tcp://localhost:61616}
+      credentials:
+        username: ${FCB_ACTIVEMQ_USERNAME:admin}
+        password: ${FCB_ACTIVEMQ_PASSWORD:admin}
+      pool:
+        max-connections: ${FCB_ACTIVEMQ_POOL_MAX_CONNECTIONS:10}
+        idle-timeout: ${FCB_ACTIVEMQ_POOL_IDLE_TIMEOUT:30000}
+        expiry-timeout: ${FCB_ACTIVEMQ_POOL_EXPIRY_TIMEOUT:60000}
+      queues:
+        validation:
+          request-queue: ${FCB_ACTIVEMQ_VALIDATION_REQ_QUEUE:corridor.core.loan.fcb.nova-validation.request.queue.v1}
+          reply-queue: ${FCB_ACTIVEMQ_VALIDATION_REPLY_QUEUE:corridor.core.loan.fcb.nova-validation.response.queue.v1}
+          receive-timeout-ms: ${FCB_ACTIVEMQ_VALIDATION_TIMEOUT:30000}
+        account:
+          request-queue: ${FCB_ACTIVEMQ_ACCOUNT_REQ_QUEUE:corridor.core.loan.fcb.nova-account.request.queue.v1}
+          reply-queue: ${FCB_ACTIVEMQ_ACCOUNT_REPLY_QUEUE:corridor.core.loan.fcb.nova-account.response.queue.v1}
+          receive-timeout-ms: ${FCB_ACTIVEMQ_ACCOUNT_TIMEOUT:30000}
+        transaction:
+          request-queue: ${FCB_ACTIVEMQ_TRANSACTION_REQ_QUEUE:corridor.core.loan.fcb.nova-transaction.request.queue.v1}
+          reply-queue: ${FCB_ACTIVEMQ_TRANSACTION_REPLY_QUEUE:corridor.core.loan.fcb.nova-transaction.response.queue.v1}
+          receive-timeout-ms: ${FCB_ACTIVEMQ_TRANSACTION_TIMEOUT:60000}
 
 springdoc:
   api-docs:
