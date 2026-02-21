@@ -18,12 +18,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-activemq</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.messaginghub</groupId>
-            <artifactId>pooled-jms</artifactId>
+            <groupId>ir.dotin.platform</groupId>
+            <artifactId>platform-adapter-messaging</artifactId>
         </dependency>
         <dependency>
             <groupId>tools.jackson.core</groupId>

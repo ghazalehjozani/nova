@@ -256,6 +256,10 @@ platform:
         max-poll-interval: 5m
         session-timeout: 120s
         heartbeat-interval: 3s
+      reply:
+        reply-topic: ${FCB_KAFKA_REPLY_TOPIC:corridor.core.loan.fcb.nova.response.queue.v1}
+        reply-group-id: ${FCB_KAFKA_REPLY_GROUP_ID:core.loan.fcb-reply}
+        default-timeout: ${FCB_KAFKA_DEFAULT_TIMEOUT:30s}
     outbox:
       enabled: true
       processor-threads: 3
@@ -504,28 +508,12 @@ fcb:
 
 nova:
   fcb:
-    activemq:
-      broker-url: ${FCB_ACTIVEMQ_BROKER_URL:tcp://localhost:61616}
-      credentials:
-        username: ${FCB_ACTIVEMQ_USERNAME:admin}
-        password: ${FCB_ACTIVEMQ_PASSWORD:admin}
-      pool:
-        max-connections: ${FCB_ACTIVEMQ_POOL_MAX_CONNECTIONS:10}
-        idle-timeout: ${FCB_ACTIVEMQ_POOL_IDLE_TIMEOUT:30000}
-        expiry-timeout: ${FCB_ACTIVEMQ_POOL_EXPIRY_TIMEOUT:60000}
-      queues:
-        validation:
-          request-queue: ${FCB_ACTIVEMQ_VALIDATION_REQ_QUEUE:corridor.core.loan.fcb.nova-validation.request.queue.v1}
-          reply-queue: ${FCB_ACTIVEMQ_VALIDATION_REPLY_QUEUE:corridor.core.loan.fcb.nova-validation.response.queue.v1}
-          receive-timeout-ms: ${FCB_ACTIVEMQ_VALIDATION_TIMEOUT:30000}
-        account:
-          request-queue: ${FCB_ACTIVEMQ_ACCOUNT_REQ_QUEUE:corridor.core.loan.fcb.nova-account.request.queue.v1}
-          reply-queue: ${FCB_ACTIVEMQ_ACCOUNT_REPLY_QUEUE:corridor.core.loan.fcb.nova-account.response.queue.v1}
-          receive-timeout-ms: ${FCB_ACTIVEMQ_ACCOUNT_TIMEOUT:30000}
-        transaction:
-          request-queue: ${FCB_ACTIVEMQ_TRANSACTION_REQ_QUEUE:corridor.core.loan.fcb.nova-transaction.request.queue.v1}
-          reply-queue: ${FCB_ACTIVEMQ_TRANSACTION_REPLY_QUEUE:corridor.core.loan.fcb.nova-transaction.response.queue.v1}
-          receive-timeout-ms: ${FCB_ACTIVEMQ_TRANSACTION_TIMEOUT:60000}
+    kafka:
+      request-topic: ${FCB_KAFKA_REQUEST_TOPIC:corridor.core.loan.fcb.nova.request.queue.v1}
+      reply-topic: ${FCB_KAFKA_REPLY_TOPIC:corridor.core.loan.fcb.nova.response.queue.v1}
+      reply-group-id: ${FCB_KAFKA_REPLY_GROUP_ID:core.loan.fcb-reply}
+      default-timeout: ${FCB_KAFKA_DEFAULT_TIMEOUT:30s}
+      transaction-timeout: ${FCB_KAFKA_TRANSACTION_TIMEOUT:60s}
 
 springdoc:
   api-docs:
