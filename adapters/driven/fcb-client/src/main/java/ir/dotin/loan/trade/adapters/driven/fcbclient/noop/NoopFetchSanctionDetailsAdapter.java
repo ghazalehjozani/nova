@@ -8,7 +8,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.FetchSanctionD
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.SanctionDetails;
 
 @Component
-@Profile("!activemq")
+@Profile("!kafka-fcb")
 public class NoopFetchSanctionDetailsAdapter implements FetchSanctionDetailsPort {
 
     @Override

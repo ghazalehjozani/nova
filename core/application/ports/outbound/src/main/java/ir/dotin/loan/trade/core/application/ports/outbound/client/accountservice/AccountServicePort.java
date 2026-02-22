@@ -11,7 +11,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.request.Create
 
 public interface AccountServicePort {
 
-    Result<AccountInfo> openAccount(LoanTopic loanTopic);
+    Result<AccountInfo> openAccount(LoanTopic loanTopic, String currencyCode);
 
     Result<AccountId> openAccount(CreateAccountInfo createAccountInfo);
 

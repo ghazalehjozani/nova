@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
-@Profile("!activemq")
+@Profile("!kafka-fcb")
 @RequiredArgsConstructor
 @EnableConfigurationProperties(FcbConfiguration.class)
 public class HttpClientConfiguration {

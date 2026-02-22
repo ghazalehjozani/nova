@@ -57,6 +57,7 @@ import ir.dotin.loan.trade.e2e.fixture.LoanTypeTestFixture;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -117,7 +118,7 @@ class FullLoanFacilityLifecycleE2ETest extends AbstractMessagingE2E {
                         "1", "Main Branch", "Main", 1L, "Manager", "1", "SWIFT", "001", "001", "001")));
 
         // AccountServicePort
-        when(accountServicePort.openAccount(any(LoanTopic.class))).thenAnswer(invocation -> {
+        when(accountServicePort.openAccount(any(LoanTopic.class), anyString())).thenAnswer(invocation -> {
             LoanTopic topic = invocation.getArgument(0);
             return Result.success(new AccountInfo(new AccountId("ACC-" + topic.code()), topic));
         });

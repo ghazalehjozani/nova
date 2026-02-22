@@ -15,7 +15,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbclient.resolver.FcbContextResolver
 import lombok.RequiredArgsConstructor;
 
 @Component
-@Profile("!activemq")
+@Profile("!kafka-fcb")
 @RequiredArgsConstructor
 public class FcbBaseRequestBuilder {
 

@@ -35,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-@Profile("!activemq")
+@Profile("!kafka-fcb")
 @RequiredArgsConstructor
 public class TransactionPostingAdapter implements TransactionPostingPort {
 

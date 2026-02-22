@@ -257,9 +257,9 @@ platform:
         session-timeout: 120s
         heartbeat-interval: 3s
       reply:
-        reply-topic: ${FCB_KAFKA_REPLY_TOPIC:corridor.core.loan.fcb.nova.response.queue.v1}
-        reply-group-id: ${FCB_KAFKA_REPLY_GROUP_ID:core.loan.fcb-reply}
-        default-timeout: ${FCB_KAFKA_DEFAULT_TIMEOUT:30s}
+        reply-topic-pattern: ${KAFKA_REPLY_TOPIC_PATTERN:corridor\..*\.response\.queue\.v\d+$}
+        reply-group-id: ${KAFKA_REPLY_GROUP_ID:core.loan.fcb-reply}
+        default-timeout: ${KAFKA_DEFAULT_TIMEOUT:30s}
     outbox:
       enabled: true
       processor-threads: 3

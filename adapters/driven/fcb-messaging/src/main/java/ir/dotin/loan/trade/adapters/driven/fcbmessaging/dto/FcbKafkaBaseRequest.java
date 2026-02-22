@@ -61,11 +61,15 @@ public abstract class FcbKafkaBaseRequest {
     private final @Nullable Map<String, String> tags;
 
     protected FcbKafkaBaseRequest(String operationName) {
+        this(operationName, null);
+    }
+
+    protected FcbKafkaBaseRequest(String operationName, @Nullable String responseTopic) {
         this.operationName = operationName;
         this.eventUid = UUID.randomUUID().toString();
         this.dateTime = Instant.now();
         this.version = "1.0";
-        this.responseTopic = null;
+        this.responseTopic = responseTopic;
         this.tags = null;
     }
 

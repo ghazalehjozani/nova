@@ -30,7 +30,7 @@ public class InstallmentOperationResponsePublisher {
 
     private static final Logger LOG = LoggerFactory.getLogger(InstallmentOperationResponsePublisher.class);
 
-    private final KafkaTemplate<String, byte[]> kafkaTemplate;
+    private final KafkaTemplate<String, byte[]> byteArrayKafkaTemplate;
     private final ObjectMapper objectMapper;
 
     /**
@@ -55,7 +55,7 @@ public class InstallmentOperationResponsePublisher {
                 .add(new RecordHeader("operationType", response.operationType().getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader("status", response.status().name().getBytes(StandardCharsets.UTF_8)));
 
-        CompletableFuture<SendResult<String, byte[]>> future = kafkaTemplate.send(record);
+        CompletableFuture<SendResult<String, byte[]>> future = byteArrayKafkaTemplate.send(record);
 
         future.whenComplete((result, ex) -> {
             if (ex != null) {

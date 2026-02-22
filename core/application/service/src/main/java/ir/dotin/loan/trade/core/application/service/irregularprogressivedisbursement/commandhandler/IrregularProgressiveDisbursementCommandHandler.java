@@ -102,7 +102,7 @@ public class IrregularProgressiveDisbursementCommandHandler
         Set<LoanTopic> requiredTopics = loanTopicResolver.resolveTopics(
                 context.loanType(), facility.getLoanApplication().getEconomicSector(), requiredRelationTypes);
 
-        return accountResolutionService.resolveAccounts(requiredTopics, facility.getAccountInfoMap());
+        return accountResolutionService.resolveAccounts(requiredTopics, facility.getAccountInfoMap(), context.arrangement().getCurrencyType().getCode());
     }
 
     private Result<DisbursementOperationResult> processDisbursement(

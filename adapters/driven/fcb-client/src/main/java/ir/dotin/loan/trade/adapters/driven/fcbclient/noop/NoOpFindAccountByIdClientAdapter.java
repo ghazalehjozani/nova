@@ -13,7 +13,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.FindAccountByI
  * implementation is available, providing a safe fallback.
  */
 @Component
-@Profile("!activemq")
+@Profile("!kafka-fcb")
 public class NoOpFindAccountByIdClientAdapter implements FindAccountByIdPort {
 
     @Override

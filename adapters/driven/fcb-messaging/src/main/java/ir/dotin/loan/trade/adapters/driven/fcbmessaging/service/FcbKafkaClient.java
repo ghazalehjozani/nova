@@ -9,6 +9,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.kafka.requestreply.RequestReplyFuture;
 import org.springframework.stereotype.Component;
 
@@ -55,6 +56,13 @@ public class FcbKafkaClient {
                     .add(new RecordHeader(
                             "Idempotency-Key",
                             request.getEventUid().getBytes(StandardCharsets.UTF_8)));
+
+            // Resolve reply topic: per-request override > adapter default
+            String replyTopic = (request.getResponseTopic() != null && !request.getResponseTopic().isBlank())
+                    ? request.getResponseTopic()
+                    : properties.replyTopic();
+            record.headers().add(new RecordHeader(
+                    KafkaHeaders.REPLY_TOPIC, replyTopic.getBytes(StandardCharsets.UTF_8)));
 
             RequestReplyFuture<String, byte[], byte[]> future =
                     replyingKafkaTemplate.sendAndReceive(record, timeout);

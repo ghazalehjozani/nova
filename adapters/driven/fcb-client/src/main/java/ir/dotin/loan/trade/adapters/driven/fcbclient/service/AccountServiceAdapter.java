@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 
 import java.util.*;
 
+import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-@Profile("!activemq")
+@Profile("!kafka-fcb")
 @RequiredArgsConstructor
 public class AccountServiceAdapter implements AccountServicePort {
 
@@ -40,7 +41,7 @@ public class AccountServiceAdapter implements AccountServicePort {
     private final AuthenticationContextHolder authenticationContextHolder;
 
     @Override
-    public Result<AccountInfo> openAccount(LoanTopic loanTopic) {
+    public Result<AccountInfo> openAccount(LoanTopic loanTopic, String currencyCode) {
         //        String branchCode = authenticationContextHolder.branchCode().orElseThrow(); // TODO: add custom
         // exception
         String branchCode = "1";

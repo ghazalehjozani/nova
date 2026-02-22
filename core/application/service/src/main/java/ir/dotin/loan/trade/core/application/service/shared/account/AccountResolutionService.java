@@ -26,7 +26,7 @@ public class AccountResolutionService {
     private final AccountServicePort accountServicePort;
 
     public Result<ResolvedAccounts> resolveAccounts(
-            Set<LoanTopic> requiredTopics, Map<RelationType<?>, AccountId> existingAccounts) {
+            Set<LoanTopic> requiredTopics, Map<RelationType<?>, AccountId> existingAccounts, String currencyCode) {
 
         Map<RelationType<?>, AccountId> resolved = new LinkedHashMap<>();
         if (existingAccounts != null) {
@@ -43,7 +43,7 @@ public class AccountResolutionService {
                 continue;
             }
 
-            Result<AccountId> result = accountServicePort.openAccount(topic).map(AccountInfo::id);
+            Result<AccountId> result = accountServicePort.openAccount(topic, currencyCode).map(AccountInfo::id);
 
             if (result.hasErrors()) {
                 notification.merge(result.notification());

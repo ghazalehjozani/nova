@@ -33,12 +33,14 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.document.PostTitle;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.metadata.OperationalInfo;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
+import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanTypeRepository;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.configuration.IssueFacilityContractConfiguration;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.i18n.IssueFacilityContractErrorCodes;
 import ir.dotin.loan.trade.core.application.service.shared.account.AccountResolutionService;
 import ir.dotin.loan.trade.core.application.service.shared.account.LoanTopicResolver;
+import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityContractIssued;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.transaction.TradeIssueContractTransactionService;
@@ -57,6 +59,7 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
 
     private final TradeLoanFacilityRepository facilityRepository;
     private final TradeLoanTypeRepository loanTypeRepository;
+    private final TradeLoanArrangementRepository loanArrangementRepository;
     private final TradeIssueContractTransactionService transactionService;
     private final TransactionPostingPort transactionPostingPort;
     private final AccountResolutionService accountResolutionService;
@@ -116,16 +119,22 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         var data = ctx.getSagaData();
 
         var result = loadFacility(LoanFacilityId.of(data.facilityId()))
-                .flatMap(facility -> loadLoanType(facility).flatMap(loanType -> {
-                    Set<TradeRelationType> requiredRelationTypes =
-                            issueContractStrategy.getRequiredRelationTypes().stream()
-                                    .collect(Collectors.toSet());
+                .flatMap(facility -> loadLoanType(facility).flatMap(loanType -> loadLoanArrangement(facility)
+                        .flatMap(arrangement -> {
+                            Set<TradeRelationType> requiredRelationTypes =
+                                    issueContractStrategy.getRequiredRelationTypes().stream()
+                                            .collect(Collectors.toSet());
 
-                    Set<LoanTopic> requiredTopics = loanTopicResolver.resolveTopics(
-                            loanType, facility.getLoanApplication().getEconomicSector(), requiredRelationTypes);
+                            Set<LoanTopic> requiredTopics = loanTopicResolver.resolveTopics(
+                                    loanType,
+                                    facility.getLoanApplication().getEconomicSector(),
+                                    requiredRelationTypes);
 
-                    return accountResolutionService.resolveAccounts(requiredTopics, facility.getAccountInfoMap());
-                }));
+                            return accountResolutionService.resolveAccounts(
+                                    requiredTopics,
+                                    facility.getAccountInfoMap(),
+                                    arrangement.getCurrencyType().getCode());
+                        })));
 
         if (result.hasErrors()) {
             return new StepResult.Failure<>(new StepError.BusinessRuleError(result.notification()));
@@ -253,6 +262,14 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         return Result.fromOptional(
                 facilityRepository.findById(facilityId),
                 Notification.ofError(IssueFacilityContractErrorCodes.FACILITY_NOT_FOUND, facilityId));
+    }
+
+    private Result<TradeLoanArrangement> loadLoanArrangement(TradeLoanFacility facility) {
+        return Result.fromOptional(
+                loanArrangementRepository.findById(facility.getLoanArrangementId()),
+                Notification.ofError(
+                        IssueFacilityContractErrorCodes.LOAN_ARRANGEMENT_NOT_FOUND,
+                        facility.getLoanArrangementId()));
     }
 
     private Result<TradeLoanType> loadLoanType(TradeLoanFacility facility) {

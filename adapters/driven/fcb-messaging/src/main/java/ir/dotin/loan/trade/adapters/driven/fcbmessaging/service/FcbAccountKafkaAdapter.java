@@ -38,10 +38,11 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
     // ── AccountServicePort ──
 
     @Override
-    public Result<AccountInfo> openAccount(LoanTopic loanTopic) {
+    public Result<AccountInfo> openAccount(LoanTopic loanTopic, String currencyCode) {
         String branchCode = "1"; // TODO: resolve from security context
+        String idempotencyKey = UUID.randomUUID().toString();
         return sendAndMap(
-                new OpenAccountByTopicRequest(loanTopic.name(), loanTopic.code(), branchCode),
+                new OpenAccountByTopicRequest(loanTopic.name(), loanTopic.code(), branchCode,currencyCode, idempotencyKey),
                 response -> KafkaAccountMapper.mapToAccountInfoFromOpenAccount(response, loanTopic));
     }
 
