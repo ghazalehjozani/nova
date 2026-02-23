@@ -43,8 +43,7 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
 
         var request = KafkaTransactionMapper.mapToPostTransactionRequest(loanTransaction, trackingId);
 
-        Result<FcbKafkaBaseResponse> result =
-                kafkaClient.sendAndReceive(request, properties.transactionTimeout());
+        Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.transactionTimeout());
 
         if (result.isFailure()) {
             return Result.failure(result.notification());
@@ -88,8 +87,7 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
 
         var request = new ReverseTransactionRequest(transactionNumber.value());
 
-        Result<FcbKafkaBaseResponse> result =
-                kafkaClient.sendAndReceive(request, properties.transactionTimeout());
+        Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.transactionTimeout());
 
         if (result.isFailure()) {
             return Result.failure(result.notification());

@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import jakarta.validation.constraints.NotNull;
 
 import org.jspecify.annotations.Nullable;
@@ -128,16 +128,16 @@ public class FcbValidationKafkaAdapter
 
     @Override
     public Result<ApplicationNumber> getApplicationNumber(Branch branch, LoanTypeCode loanTypeCode, Party party) {
-        var request = new GetApplicationNumberRequest(
-                branch.code().value(), loanTypeCode.value(), party.customerNumber());
+        var request =
+                new GetApplicationNumberRequest(branch.code().value(), loanTypeCode.value(), party.customerNumber());
         Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.defaultTimeout());
         if (result.isFailure()) {
             return Result.failure(result.notification());
         }
         FcbKafkaBaseResponse raw = result.orElseThrow();
         if (!(raw instanceof ApplicationNumberKafkaResponse response)) {
-            return Result.failure(Notification.ofError(
-                    FcbKafkaLocalizedMessageCodes.KAFKA_INVALID_RESPONSE, "getApplicationNumber"));
+            return Result.failure(
+                    Notification.ofError(FcbKafkaLocalizedMessageCodes.KAFKA_INVALID_RESPONSE, "getApplicationNumber"));
         }
         return KafkaValidationMapper.mapToApplicationNumber(response, branch, loanTypeCode, party);
     }
@@ -233,7 +233,8 @@ public class FcbValidationKafkaAdapter
     @Override
     public Result<CurrencyValidation> hasDepositAllowedCurrencies(
             DepositNumber depositNumber, List<CurrencyType> currencyTypes) {
-        List<String> currencies = currencyTypes.stream().map(CurrencyType::getCode).collect(Collectors.toList());
+        List<String> currencies =
+                currencyTypes.stream().map(CurrencyType::getCode).collect(Collectors.toList());
         return sendAndMap(
                 new HasDepositAllowedCurrenciesRequest(depositNumber.value(), currencies),
                 CurrencyValidationKafkaResponse.class,
@@ -253,9 +254,9 @@ public class FcbValidationKafkaAdapter
     @Override
     public Result<CollateralValidation> validateAddAssuranceToFile(
             List<CollateralSerial> collateralSerials, List<Long> usedCosts, BranchCode branchCode) {
-        List<String> serials = collateralSerials.stream().map(CollateralSerial::value).collect(Collectors.toList());
-        List<String> branchCodes =
-                Collections.nCopies(collateralSerials.size(), branchCode.value());
+        List<String> serials =
+                collateralSerials.stream().map(CollateralSerial::value).collect(Collectors.toList());
+        List<String> branchCodes = Collections.nCopies(collateralSerials.size(), branchCode.value());
         return sendAndMap(
                 new ValidateAssuranceRequest(serials, usedCosts, branchCodes),
                 CollateralValidationKafkaResponse.class,
@@ -319,9 +320,7 @@ public class FcbValidationKafkaAdapter
     // ── Internal helpers ──
 
     private <R extends FcbKafkaBaseResponse, T> Result<T> sendAndMap(
-            FcbKafkaBaseRequest request,
-            Class<R> responseType,
-            java.util.function.Function<R, Result<T>> responseMapper) {
+            FcbKafkaBaseRequest request, Class<R> responseType, Function<R, Result<T>> responseMapper) {
 
         Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.defaultTimeout());
         if (result.isFailure()) {

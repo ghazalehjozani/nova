@@ -42,7 +42,8 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
         String branchCode = "1"; // TODO: resolve from security context
         String idempotencyKey = UUID.randomUUID().toString();
         return sendAndMap(
-                new OpenAccountByTopicRequest(loanTopic.name(), loanTopic.code(), branchCode,currencyCode, idempotencyKey),
+                new OpenAccountByTopicRequest(
+                        loanTopic.name(), loanTopic.code(), branchCode, currencyCode, idempotencyKey),
                 response -> KafkaAccountMapper.mapToAccountInfoFromOpenAccount(response, loanTopic));
     }
 
@@ -78,8 +79,7 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
     @Override
     public Result<AccountNumber> validateAccountNumber(String accountNumber) {
         return sendAndMap(
-                new ValidateAccountNumberRequest(accountNumber),
-                KafkaAccountMapper::mapToValidatedAccountNumber);
+                new ValidateAccountNumberRequest(accountNumber), KafkaAccountMapper::mapToValidatedAccountNumber);
     }
 
     // ── FindOrCreateAccountPort ──

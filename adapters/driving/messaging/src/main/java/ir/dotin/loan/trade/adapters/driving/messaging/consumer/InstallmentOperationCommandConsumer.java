@@ -15,6 +15,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.adapter.messaging.command.model.CommandHeaders;
+import ir.dotin.platform.adapter.messaging.header.NovaHeader;
 import ir.dotin.loan.trade.adapters.driving.messaging.consumer.handler.InstallmentOperationHandler;
 import ir.dotin.loan.trade.adapters.driving.messaging.dto.InstallmentOperationResponse;
 import ir.dotin.loan.trade.adapters.driving.messaging.dto.InstallmentOperationType;
@@ -50,7 +51,45 @@ public class InstallmentOperationCommandConsumer {
             operation =
                     @AsyncOperation(
                             channelName = "corridor.core.loan.nova.installment-operation.request.queue.v1",
-                            description = "Process nova installment operation commands (request/reply)"))
+                            description = "Process nova installment operation commands (request/reply)",
+                            headers =
+                                    @AsyncOperation.Headers(
+                                            schemaName = "InstallmentOperationHeaders",
+                                            values = {
+                                                @AsyncOperation.Headers.Header(
+                                                        name = "Idempotency-Key",
+                                                        description = "Unique identifier for idempotency (UUID v4)",
+                                                        value = "UUID string"),
+                                                @AsyncOperation.Headers.Header(
+                                                        name = "X-Request-DateTime",
+                                                        description = "Request timestamp (ISO 8601 UTC)",
+                                                        value = "2025-08-22T14:30:00.123Z"),
+                                                @AsyncOperation.Headers.Header(
+                                                        name = "Accept-Language",
+                                                        description = "Preferred language for error messages",
+                                                        value = "fa | en-US"),
+                                                @AsyncOperation.Headers.Header(
+                                                        name = "Authorization",
+                                                        description = "Bearer token for authentication",
+                                                        value = "Bearer token"),
+                                                @AsyncOperation.Headers.Header(
+                                                        name = "traceparent",
+                                                        description = "W3C trace context (distributed tracing)",
+                                                        value =
+                                                                "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"),
+                                                @AsyncOperation.Headers.Header(
+                                                        name = "tracestate",
+                                                        description = "W3C trace state (vendor-specific)",
+                                                        value = "congo=t61rcWkgMzE"),
+                                                @AsyncOperation.Headers.Header(
+                                                        name = "X-Operation-Type",
+                                                        description = "Discriminator: INSTALLMENT_COLLECTION, etc.",
+                                                        value = "Operation type code"),
+                                                @AsyncOperation.Headers.Header(
+                                                        name = "kafka_correlationId",
+                                                        description = "Kafka correlation identifier",
+                                                        value = "UUID string")
+                                            })))
     public void consume(ConsumerRecord<String, byte[]> consumerRecord) {
         JsonNode rootNode;
         try {
@@ -60,22 +99,25 @@ public class InstallmentOperationCommandConsumer {
             return;
         }
 
-        String operationType = getText(rootNode, "operationType", "UNKNOWN");
-        String eventUid = getText(rootNode, "eventUid", null);
-        String authorization = getText(rootNode, "authorization", null);
-        if (authorization == null) {
-            authorization = getHeader(consumerRecord, "Authorization");
+        String operationType = getHeader(consumerRecord, NovaHeader.OPERATION_TYPE.getValue());
+        if (operationType == null || operationType.isBlank()) {
+            operationType = "UNKNOWN";
         }
-        String idempotencyKey = getText(rootNode, "idempotencyKey", null);
-        if (idempotencyKey == null) {
-            idempotencyKey = getHeader(consumerRecord, "Idempotency-Key");
+
+        String eventUid = getHeader(consumerRecord, "eventUid");
+        if (eventUid == null) {
+            eventUid = getHeader(consumerRecord, NovaHeader.IDEMPOTENCY_KEY.getValue());
         }
+
         String responseTopic = getText(rootNode, "responseTopic", null);
 
         CommandHeaders headers = CommandHeaders.builder()
-                .authorizationToken(authorization)
-                .idempotencyKey(idempotencyKey)
-                .requestDateTime(getText(rootNode, "dateTime", getHeader(consumerRecord, "X-Request-DateTime")))
+                .authorizationToken(getHeader(consumerRecord, NovaHeader.AUTHORIZATION.getValue()))
+                .idempotencyKey(getHeader(consumerRecord, NovaHeader.IDEMPOTENCY_KEY.getValue()))
+                .requestDateTime(getHeader(consumerRecord, NovaHeader.REQUEST_DATETIME.getValue()))
+                .acceptLanguage(getHeader(consumerRecord, NovaHeader.ACCEPT_LANGUAGE.getValue()))
+                .traceparent(getHeader(consumerRecord, NovaHeader.TRACEPARENT.getValue()))
+                .tracestate(getHeader(consumerRecord, NovaHeader.TRACESTATE.getValue()))
                 .build();
 
         LOG.info(

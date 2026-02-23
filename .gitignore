@@ -193,3 +193,4 @@ container/k8s/**/secret*.yml
 project-knowledge.xml
 /doc/.exports/
 /documents/c4/.structurizr/
+.flattened-pom.xml

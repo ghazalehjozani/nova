@@ -133,7 +133,12 @@ class InstallmentCollectionE2ETest extends AbstractMessagingE2E {
 
         byte[] payload = objectMapper.writeValueAsBytes(message);
         var record = KafkaTestHelper.buildRecord(
-                INSTALLMENT_OPERATION_TOPIC, eventUid, payload, authToken, InstallmentOperationType.INSTALLMENT_COLLECTION.getCode(), eventUid);
+                INSTALLMENT_OPERATION_TOPIC,
+                eventUid,
+                payload,
+                authToken,
+                InstallmentOperationType.INSTALLMENT_COLLECTION.getCode(),
+                eventUid);
 
         sendAndWait(record);
 
@@ -197,7 +202,12 @@ class InstallmentCollectionE2ETest extends AbstractMessagingE2E {
 
         byte[] payload = objectMapper.writeValueAsBytes(message);
         var record = KafkaTestHelper.buildRecord(
-                INSTALLMENT_OPERATION_TOPIC, eventUid, payload, authToken, InstallmentOperationType.INSTALLMENT_COLLECTION.getCode(), eventUid);
+                INSTALLMENT_OPERATION_TOPIC,
+                eventUid,
+                payload,
+                authToken,
+                InstallmentOperationType.INSTALLMENT_COLLECTION.getCode(),
+                eventUid);
 
         sendAndWait(record);
 

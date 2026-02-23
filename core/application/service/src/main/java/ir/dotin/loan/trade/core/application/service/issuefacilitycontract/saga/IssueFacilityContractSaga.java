@@ -118,23 +118,20 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
     private StepResult<Map<String, String>> openAccounts(SagaContext<IssueFacilityContractSagaData> ctx) {
         var data = ctx.getSagaData();
 
-        var result = loadFacility(LoanFacilityId.of(data.facilityId()))
-                .flatMap(facility -> loadLoanType(facility).flatMap(loanType -> loadLoanArrangement(facility)
-                        .flatMap(arrangement -> {
-                            Set<TradeRelationType> requiredRelationTypes =
-                                    issueContractStrategy.getRequiredRelationTypes().stream()
-                                            .collect(Collectors.toSet());
+        var result = loadFacility(LoanFacilityId.of(data.facilityId())).flatMap(facility -> loadLoanType(facility)
+                .flatMap(loanType -> loadLoanArrangement(facility).flatMap(arrangement -> {
+                    Set<TradeRelationType> requiredRelationTypes =
+                            issueContractStrategy.getRequiredRelationTypes().stream()
+                                    .collect(Collectors.toSet());
 
-                            Set<LoanTopic> requiredTopics = loanTopicResolver.resolveTopics(
-                                    loanType,
-                                    facility.getLoanApplication().getEconomicSector(),
-                                    requiredRelationTypes);
+                    Set<LoanTopic> requiredTopics = loanTopicResolver.resolveTopics(
+                            loanType, facility.getLoanApplication().getEconomicSector(), requiredRelationTypes);
 
-                            return accountResolutionService.resolveAccounts(
-                                    requiredTopics,
-                                    facility.getAccountInfoMap(),
-                                    arrangement.getCurrencyType().getCode());
-                        })));
+                    return accountResolutionService.resolveAccounts(
+                            requiredTopics,
+                            facility.getAccountInfoMap(),
+                            arrangement.getCurrencyType().getCode());
+                })));
 
         if (result.hasErrors()) {
             return new StepResult.Failure<>(new StepError.BusinessRuleError(result.notification()));
@@ -268,8 +265,7 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         return Result.fromOptional(
                 loanArrangementRepository.findById(facility.getLoanArrangementId()),
                 Notification.ofError(
-                        IssueFacilityContractErrorCodes.LOAN_ARRANGEMENT_NOT_FOUND,
-                        facility.getLoanArrangementId()));
+                        IssueFacilityContractErrorCodes.LOAN_ARRANGEMENT_NOT_FOUND, facility.getLoanArrangementId()));
     }
 
     private Result<TradeLoanType> loadLoanType(TradeLoanFacility facility) {

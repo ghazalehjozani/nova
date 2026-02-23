@@ -71,7 +71,8 @@ management:
         liveness:
           include: livenessState
         readiness:
-          include: readinessState,db,tpsSso,dispatcher,saga,fcb,fcbJms,diskSpace
+#          Add FCB Kafka health
+          include: readinessState,db,tpsSso,dispatcher,saga,diskSpace
       probes:
         enabled: true
   prometheus:
@@ -257,9 +258,9 @@ platform:
         session-timeout: 120s
         heartbeat-interval: 3s
       reply:
-        reply-topic-pattern: ${KAFKA_REPLY_TOPIC_PATTERN:corridor\..*\.response\.queue\.v\d+$}
+        reply-topic-pattern: ${KAFKA_REPLY_TOPIC_PATTERN:corridor\.core\.loan\.nova\..*\.response\.queue\.v\d+$}
         reply-group-id: ${KAFKA_REPLY_GROUP_ID:core.loan.fcb-reply}
-        default-timeout: ${KAFKA_DEFAULT_TIMEOUT:30s}
+        default-timeout: ${KAFKA_DEFAULT_TIMEOUT:60s}
     outbox:
       enabled: true
       processor-threads: 3
@@ -509,10 +510,10 @@ fcb:
 nova:
   fcb:
     kafka:
-      request-topic: ${FCB_KAFKA_REQUEST_TOPIC:corridor.core.loan.fcb.nova.request.queue.v1}
-      reply-topic: ${FCB_KAFKA_REPLY_TOPIC:corridor.core.loan.fcb.nova.response.queue.v1}
+      request-topic: ${FCB_KAFKA_REQUEST_TOPIC:corridor.core.loan.nova.fcb-integration.request.queue.v1}
+      reply-topic: ${FCB_KAFKA_REPLY_TOPIC:corridor.core.loan.nova.fcb-integration.response.queue.v1}
       reply-group-id: ${FCB_KAFKA_REPLY_GROUP_ID:core.loan.fcb-reply}
-      default-timeout: ${FCB_KAFKA_DEFAULT_TIMEOUT:30s}
+      default-timeout: ${FCB_KAFKA_DEFAULT_TIMEOUT:60s}
       transaction-timeout: ${FCB_KAFKA_TRANSACTION_TIMEOUT:60s}
 
 springdoc:

@@ -2,7 +2,6 @@ package ir.dotin.loan.trade.e2e;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -78,5 +77,4 @@ public abstract class AbstractE2E {
 
     @LocalServerPort
     protected int port;
-
 }

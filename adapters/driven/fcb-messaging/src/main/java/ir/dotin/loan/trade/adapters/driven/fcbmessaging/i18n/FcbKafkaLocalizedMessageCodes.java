@@ -14,6 +14,8 @@ public enum FcbKafkaLocalizedMessageCodes implements LocalizedMessage<FcbKafkaLo
     KAFKA_BROKER_UNAVAILABLE("Kafka broker is unavailable: {0}"),
     KAFKA_INVALID_RESPONSE("Invalid Kafka response payload for operation {0}"),
     KAFKA_FCB_BUSINESS_ERROR("FCB business error via Kafka: code={0}, message={1}"),
+    KAFKA_FCB_SERVER_ERROR("FCB server error via Kafka (5xx): code={0}, message={1}"),
+    KAFKA_FCB_CLIENT_ERROR("FCB client error via Kafka (4xx): code={0}, message={1}"),
     KAFKA_SERIALIZATION_ERROR("Failed to serialize/deserialize Kafka message: {0}");
 
     private final String defaultMessageFormat;

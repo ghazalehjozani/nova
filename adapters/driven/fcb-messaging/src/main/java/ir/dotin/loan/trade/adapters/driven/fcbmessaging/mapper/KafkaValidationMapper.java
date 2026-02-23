@@ -3,7 +3,6 @@ package ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper;
 import java.math.BigDecimal;
 import java.time.Period;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
@@ -134,7 +133,17 @@ public class KafkaValidationMapper {
             return Result.failure(
                     Notification.ofError(FcbKafkaLocalizedMessageCodes.KAFKA_INVALID_RESPONSE, "getApplicationNumber"));
         }
-        return ApplicationNumber.of(branch, loanTypeCode, party, response.getFileNumber());
+        String fileNumber = response.getFileNumber();
+
+        String[] parts = fileNumber.split("-");
+
+        if (parts.length < 2) {
+            throw new IllegalArgumentException("Invalid fileNumber format: " + fileNumber);
+        }
+
+        String serialNumber = parts[parts.length - 1];
+
+        return ApplicationNumber.of(branch, loanTypeCode, party, serialNumber);
     }
 
     public Result<BranchDetails> mapToBranchDetails(BranchDetailsKafkaResponse response) {
@@ -165,15 +174,12 @@ public class KafkaValidationMapper {
         }
         CustomerName customerName =
                 new CustomerName(response.getFirstName(), response.getLastName(), response.getTitle());
-        PartyType partyType =
-                Boolean.TRUE.equals(response.getReal()) ? PartyType.REAL : PartyType.LEGAL;
+        PartyType partyType = Boolean.TRUE.equals(response.getReal()) ? PartyType.REAL : PartyType.LEGAL;
 
         Party party =
                 switch (role) {
-                    case PRIMARY_APPLICANT ->
-                        new ApplicantParty(response.getCustomerNumber(), partyType, customerName);
-                    case CO_APPLICANT ->
-                        new CoApplicantParty(response.getCustomerNumber(), partyType, customerName);
+                    case PRIMARY_APPLICANT -> new ApplicantParty(response.getCustomerNumber(), partyType, customerName);
+                    case CO_APPLICANT -> new CoApplicantParty(response.getCustomerNumber(), partyType, customerName);
                     case GUARANTOR ->
                         GuarantorParty.of(
                                         response.getCustomerNumber(),
@@ -200,8 +206,8 @@ public class KafkaValidationMapper {
 
     public Result<List<PartyInfoResponse>> mapToPartyInfoResponseList(CustomerListKafkaResponse response) {
         if (response.getCustomers() == null) {
-            return Result.failure(Notification.ofError(
-                    FcbKafkaLocalizedMessageCodes.KAFKA_INVALID_RESPONSE, "findRelatedCustomers"));
+            return Result.failure(
+                    Notification.ofError(FcbKafkaLocalizedMessageCodes.KAFKA_INVALID_RESPONSE, "findRelatedCustomers"));
         }
         List<PartyInfoResponse> result = new ArrayList<>();
         for (CustomerListKafkaResponse.CustomerInfoDto dto : response.getCustomers()) {

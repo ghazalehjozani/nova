@@ -2,7 +2,6 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.service;
 
 import java.util.*;
 
-import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 

@@ -1,7 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.config;
 
 import java.time.Duration;
-
 import jakarta.validation.constraints.NotBlank;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;

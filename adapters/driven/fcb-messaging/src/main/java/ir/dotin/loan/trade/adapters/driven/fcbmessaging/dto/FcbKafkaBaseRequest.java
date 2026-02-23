@@ -1,15 +1,40 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto;
 
-import java.time.Instant;
-import java.util.Map;
-import java.util.UUID;
+import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.*;
-
-import org.jspecify.annotations.Nullable;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.DeleteAccountRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.FetchSanctionDetailsRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.FindOrCreateAccountRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.FindRelatedCustomersRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.GetApplicationNumberRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.GetDepositSignerOwnerRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.HasDepositAllowedCurrenciesRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.IsDepositClosedRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.LoadBranchRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.LoadCollateralRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.LoadCoveredBranchesRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.LoadCustomerBirthInfoRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.LoadCustomerInfoRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.LoadDepositInfoRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.LoadEconomicSectorRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.LoadReasonTypeForCreateRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.LoadReasonTypeForRevokeRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.LoadResourceRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.LoadTopicRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.OpenAccountByTopicRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.OpenAccountRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.PostTransactionRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ReserveCollateralRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ReverseTransactionRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.UnReserveCollateralRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ValidateAccountNumberRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ValidateAssuranceRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ValidateCreditorDepositRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ValidateDebtorDepositRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ValidateEcoSectorRequest;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -54,46 +79,66 @@ import org.jspecify.annotations.Nullable;
 public abstract class FcbKafkaBaseRequest {
 
     private final String operationName;
-    private final String eventUid;
-    private final Instant dateTime;
-    private final @Nullable String version;
-    private final @Nullable String responseTopic;
-    private final @Nullable Map<String, String> tags;
+    private String producerCode;
+    private String responseTopic;
+    private String eventUid;
+    private String[] tags;
+    private Date dateTime;
+    private int version;
 
     protected FcbKafkaBaseRequest(String operationName) {
-        this(operationName, null);
-    }
-
-    protected FcbKafkaBaseRequest(String operationName, @Nullable String responseTopic) {
         this.operationName = operationName;
-        this.eventUid = UUID.randomUUID().toString();
-        this.dateTime = Instant.now();
-        this.version = "1.0";
-        this.responseTopic = responseTopic;
-        this.tags = null;
     }
 
     public String getOperationName() {
         return operationName;
     }
 
+    public String getProducerCode() {
+        return producerCode;
+    }
+
+    public void setProducerCode(String producerCode) {
+        this.producerCode = producerCode;
+    }
+
     public String getEventUid() {
         return eventUid;
     }
 
-    public Instant getDateTime() {
+    public void setEventUid(String eventUid) {
+        this.eventUid = eventUid;
+    }
+
+    public Date getDateTime() {
         return dateTime;
     }
 
-    public @Nullable String getVersion() {
+    public void setDateTime(Date dateTime) {
+        this.dateTime = dateTime;
+    }
+
+    public int getVersion() {
         return version;
     }
 
-    public @Nullable String getResponseTopic() {
+    public void setVersion(int version) {
+        this.version = version;
+    }
+
+    public String getResponseTopic() {
         return responseTopic;
     }
 
-    public @Nullable Map<String, String> getTags() {
+    public void setResponseTopic(String responseTopic) {
+        this.responseTopic = responseTopic;
+    }
+
+    public String[] getTags() {
         return tags;
+    }
+
+    public void setTags(String[] tags) {
+        this.tags = tags;
     }
 }

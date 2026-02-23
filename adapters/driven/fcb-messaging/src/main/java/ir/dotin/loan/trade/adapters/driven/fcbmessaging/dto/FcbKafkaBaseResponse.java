@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.*;
 
-import org.jspecify.annotations.Nullable;
-
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.EXISTING_PROPERTY,
@@ -46,19 +44,19 @@ import org.jspecify.annotations.Nullable;
 })
 public abstract class FcbKafkaBaseResponse {
 
-    private @Nullable String correlationId;
+    private String correlationId;
     private boolean success;
-    private @Nullable String errorCode;
-    private @Nullable String errorMessage;
-    private @Nullable String operationName;
+    private String errorCode;
+    private String errorMessage;
+    private String operationName;
 
     protected FcbKafkaBaseResponse() {}
 
-    public @Nullable String getCorrelationId() {
+    public String getCorrelationId() {
         return correlationId;
     }
 
-    public void setCorrelationId(@Nullable String correlationId) {
+    public void setCorrelationId(String correlationId) {
         this.correlationId = correlationId;
     }
 
@@ -70,27 +68,27 @@ public abstract class FcbKafkaBaseResponse {
         this.success = success;
     }
 
-    public @Nullable String getErrorCode() {
+    public String getErrorCode() {
         return errorCode;
     }
 
-    public void setErrorCode(@Nullable String errorCode) {
+    public void setErrorCode(String errorCode) {
         this.errorCode = errorCode;
     }
 
-    public @Nullable String getErrorMessage() {
+    public String getErrorMessage() {
         return errorMessage;
     }
 
-    public void setErrorMessage(@Nullable String errorMessage) {
+    public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
     }
 
-    public @Nullable String getOperationName() {
+    public String getOperationName() {
         return operationName;
     }
 
-    public void setOperationName(@Nullable String operationName) {
+    public void setOperationName(String operationName) {
         this.operationName = operationName;
     }
 

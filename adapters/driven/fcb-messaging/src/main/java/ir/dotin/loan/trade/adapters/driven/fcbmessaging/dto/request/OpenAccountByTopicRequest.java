@@ -10,7 +10,8 @@ public final class OpenAccountByTopicRequest extends FcbKafkaBaseRequest {
     private final String currencyCode;
     private final String transactionId;
 
-    public OpenAccountByTopicRequest(String title, String topicCode, String branchCode, String currencyCode, String transactionId) {
+    public OpenAccountByTopicRequest(
+            String title, String topicCode, String branchCode, String currencyCode, String transactionId) {
         super("electronic-bill-create-account");
         this.title = title;
         this.topicCode = topicCode;

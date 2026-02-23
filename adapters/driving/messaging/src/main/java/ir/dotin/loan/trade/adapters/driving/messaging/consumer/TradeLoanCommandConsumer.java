@@ -98,6 +98,7 @@ public class TradeLoanCommandConsumer {
 
             FullLoanFacilityLifecycleCommand command = messageMapper.toCommand(message).toBuilder()
                     .uid(UUID.randomUUID())
+                    .transactionMetadata(buildDefaultTransactionMetadata()) // TODO: Fix
                     .build();
 
             byte[] commandBytes = commandSerializer.serialize(command).getBytes(StandardCharsets.UTF_8);
@@ -116,6 +117,20 @@ public class TradeLoanCommandConsumer {
             LOG.error("Failed to process full lifecycle command [key={}]: {}", consumerRecord.key(), e.getMessage(), e);
             throw new RuntimeException("Full lifecycle command processing failed", e);
         }
+    }
+
+    private FullLoanFacilityLifecycleCommand.TransactionMetadataDto buildDefaultTransactionMetadata() {
+        return FullLoanFacilityLifecycleCommand.TransactionMetadataDto.builder()
+                .branchCode("1")
+                .userId("SYSTEM")
+                .terminalId("KAFKA")
+                .terminalIp("0.0.0.0")
+                .terminalType("MESSAGING")
+                .channel("KAFKA")
+                .toolSource("NOVA")
+                .productCode("TRADE_LOAN")
+                .networkType("INTERNAL")
+                .build();
     }
 
     private String getText(JsonNode node, String fieldName, String defaultValue) {

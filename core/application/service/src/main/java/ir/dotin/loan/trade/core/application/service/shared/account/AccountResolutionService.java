@@ -43,7 +43,8 @@ public class AccountResolutionService {
                 continue;
             }
 
-            Result<AccountId> result = accountServicePort.openAccount(topic, currencyCode).map(AccountInfo::id);
+            Result<AccountId> result =
+                    accountServicePort.openAccount(topic, currencyCode).map(AccountInfo::id);
 
             if (result.hasErrors()) {
                 notification.merge(result.notification());

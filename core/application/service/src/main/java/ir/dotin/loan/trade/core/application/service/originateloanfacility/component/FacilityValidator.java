@@ -191,19 +191,19 @@ public class FacilityValidator {
         String code = command.loanApplication().subSource().code();
         Result<SubSource> result = loadResourceByCode(code);
 
-        if (result.isFailure()) {
-            return Result.failure(result.notification());
-        }
+        //        if (result.isFailure()) {
+        //            return Result.failure(result.notification());
+        //        }
         return Result.success();
     }
 
     private Result<Void> validateRequestReason(OriginateLoanFacilityCommand command) {
         String code = command.loanApplication().requestReason().code();
-        Result<ReasonType> result = loadRequestReasonByCode(code);
+        //        Result<ReasonType> result = loadRequestReasonByCode(code);
 
-        if (result.isFailure()) {
-            return Result.failure(result.notification());
-        }
+        //        if (result.isFailure()) {
+        //            return Result.failure(result.notification());
+        //        }
         return Result.success();
     }
 

@@ -68,7 +68,8 @@ public class KafkaTransactionMapper {
 
     public Result<TrackedTransactionNumber> mapToTrackedTransactionNumber(
             TransactionResultKafkaResponse response, UUID trackingId, Clock clock) {
-        if (response.getTransactionCode() == null || response.getTransactionCode().isBlank()) {
+        if (response.getTransactionCode() == null
+                || response.getTransactionCode().isBlank()) {
             return Result.failure(
                     Notification.ofError(FcbKafkaLocalizedMessageCodes.KAFKA_INVALID_RESPONSE, "postTransaction"));
         }

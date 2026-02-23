@@ -1,8 +1,8 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request;
 
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
-
 import org.jspecify.annotations.Nullable;
+
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
 
 public final class DeleteAccountRequest extends FcbKafkaBaseRequest {
 

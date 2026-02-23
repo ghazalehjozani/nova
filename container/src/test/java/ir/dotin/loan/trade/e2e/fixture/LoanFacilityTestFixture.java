@@ -60,8 +60,7 @@ public class LoanFacilityTestFixture {
         String branchCode = "1";
         String customerNumber = "12345678";
         String derivedValue = UUID.randomUUID().toString().substring(0, 8);
-        String applicationNumber =
-                branchCode + "-" + loanTypeCode + "-" + customerNumber + "-" + derivedValue;
+        String applicationNumber = branchCode + "-" + loanTypeCode + "-" + customerNumber + "-" + derivedValue;
 
         TradeLoanApplicationEntity application = createApplication(
                 applicationId, loanTypeCode, applicationNumber, derivedValue, branchCode, customerNumber);
