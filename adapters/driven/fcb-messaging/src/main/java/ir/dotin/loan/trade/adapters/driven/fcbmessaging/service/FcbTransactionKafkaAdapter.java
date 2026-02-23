@@ -4,6 +4,8 @@ import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
 
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.PostTransactionRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.KafkaTransactionMapper;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +19,6 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseResponse
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ReverseTransactionRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.TransactionResultKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.i18n.FcbKafkaLocalizedMessageCodes;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.KafkaTransactionMapper;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
 
 import lombok.RequiredArgsConstructor;
@@ -41,8 +42,20 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
                 loanTransaction.loanFacilityId().value(),
                 trackingId);
 
-        var request = KafkaTransactionMapper.mapToPostTransactionRequest(loanTransaction, trackingId);
+        Result<PostTransactionRequest> mappingResult =
+                KafkaTransactionMapper.mapToIssueDocumentRequest(loanTransaction, trackingId);
 
+        if (mappingResult.isFailure()) {
+            log.error(
+                    "Failed to map LoanTransaction to IssueDocumentRequest: {}",
+                    mappingResult.notification().getErrorMessages());
+            return Result.failure(mappingResult.notification());
+        }
+
+        PostTransactionRequest request = mappingResult.orElseThrow();
+        log.debug(
+                "Successfully mapped LoanTransaction to IssueDocumentRequest - items: {}",
+                request.getItems().size());
         Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.transactionTimeout());
 
         if (result.isFailure()) {
@@ -70,7 +83,7 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
                 transactionsToPost.size(),
                 facilityId.value());
 
-        java.util.List<TrackedTransactionNumber> results = new java.util.ArrayList<>();
+        List<TrackedTransactionNumber> results = new java.util.ArrayList<>();
         for (LoanTransaction transaction : transactionsToPost) {
             Result<TrackedTransactionNumber> postResult = postTransaction(transaction);
             if (postResult.isFailure()) {

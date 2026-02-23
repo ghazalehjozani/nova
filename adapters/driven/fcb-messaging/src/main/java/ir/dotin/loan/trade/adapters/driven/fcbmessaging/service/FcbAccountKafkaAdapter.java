@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.adapters.driven.fcbmessaging.service;
 
 import java.util.UUID;
 
+import ir.dotin.platform.commons.security.AuthenticationContextHolder;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -34,12 +35,13 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
 
     private final FcbKafkaClient kafkaClient;
     private final FcbKafkaProperties properties;
+    private final AuthenticationContextHolder authenticationContextHolder;
 
     // ── AccountServicePort ──
 
     @Override
     public Result<AccountInfo> openAccount(LoanTopic loanTopic, String currencyCode) {
-        String branchCode = "1"; // TODO: resolve from security context
+        String branchCode = authenticationContextHolder.branchCode().orElseThrow();
         String idempotencyKey = UUID.randomUUID().toString();
         return sendAndMap(
                 new OpenAccountByTopicRequest(
