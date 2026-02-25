@@ -1,8 +1,13 @@
 package ir.dotin.loan.trade.core.application.service.shared.account;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import org.springframework.stereotype.Service;
 
@@ -25,6 +30,8 @@ public class AccountResolutionService {
 
     private final AccountServicePort accountServicePort;
 
+    private final Executor executor = Executors.newVirtualThreadPerTaskExecutor();
+
     public Result<ResolvedAccounts> resolveAccounts(
             Set<LoanTopic> requiredTopics, Map<RelationType<?>, AccountId> existingAccounts, String currencyCode) {
 
@@ -33,24 +40,45 @@ public class AccountResolutionService {
             resolved.putAll(existingAccounts);
         }
 
+        Set<RelationType<?>> seenRelationTypes = new HashSet<>();
+        List<LoanTopic> topicsToProcess = requiredTopics.stream()
+                .filter(topic -> {
+                    RelationType<?> type = topic.relationType();
+                    if (resolved.containsKey(type) || !seenRelationTypes.add(type)) {
+                        log.debug("Account already exists or is being opened for {}", type);
+                        return false;
+                    }
+                    return true;
+                })
+                .toList();
+
+        if (topicsToProcess.isEmpty()) {
+            return Result.success(new ResolvedAccounts(resolved));
+        }
+
+        List<CompletableFuture<TopicResult>> futures = topicsToProcess.stream()
+                .map(topic -> CompletableFuture.supplyAsync(
+                        () -> new TopicResult(
+                                topic,
+                                accountServicePort
+                                        .openAccount(topic, currencyCode)
+                                        .map(AccountInfo::id)),
+                        executor))
+                .toList();
+
         Notification notification = Notification.create();
 
-        for (LoanTopic topic : requiredTopics) {
-            RelationType<?> relationType = topic.relationType();
-
-            if (resolved.containsKey(relationType)) {
-                log.debug("Account already exists for {}", relationType);
-                continue;
-            }
-
-            Result<AccountId> result =
-                    accountServicePort.openAccount(topic, currencyCode).map(AccountInfo::id);
-
-            if (result.hasErrors()) {
-                notification.merge(result.notification());
+        for (var future : futures) {
+            TopicResult tr = future.join();
+            if (tr.result().hasErrors()) {
+                notification.merge(tr.result().notification());
             } else {
-                resolved.put(relationType, result.orElseThrow());
-                log.info("Opened account {} for {}", result.orElseThrow().value(), relationType);
+                AccountId accountId = tr.result().orElseThrow();
+                resolved.put(tr.topic().relationType(), accountId);
+                log.info(
+                        "Opened account {} for {}",
+                        accountId.value(),
+                        tr.topic().relationType());
             }
         }
 
@@ -60,4 +88,6 @@ public class AccountResolutionService {
 
         return Result.success(new ResolvedAccounts(resolved));
     }
+
+    record TopicResult(LoanTopic topic, Result<AccountId> result) {}
 }

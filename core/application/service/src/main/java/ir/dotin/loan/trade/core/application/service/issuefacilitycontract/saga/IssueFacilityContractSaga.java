@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -121,8 +122,7 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         var result = loadFacility(LoanFacilityId.of(data.facilityId())).flatMap(facility -> loadLoanType(facility)
                 .flatMap(loanType -> loadLoanArrangement(facility).flatMap(arrangement -> {
                     Set<TradeRelationType> requiredRelationTypes =
-                            issueContractStrategy.getRequiredRelationTypes().stream()
-                                    .collect(Collectors.toSet());
+                            new HashSet<>(issueContractStrategy.getRequiredRelationTypes());
 
                     Set<LoanTopic> requiredTopics = loanTopicResolver.resolveTopics(
                             loanType, facility.getLoanApplication().getEconomicSector(), requiredRelationTypes);

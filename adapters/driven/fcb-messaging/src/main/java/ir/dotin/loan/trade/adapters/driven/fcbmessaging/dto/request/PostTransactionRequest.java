@@ -1,15 +1,15 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request;
 
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
+
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 @Setter
 @Getter
@@ -51,7 +51,21 @@ public class PostTransactionRequest extends FcbKafkaBaseRequest {
         super("issue-general-document");
     }
 
-    public PostTransactionRequest(String transactionId, String comment, String isoCode, String branchCode, String transferMoneyBillNumber, String documentTemplateCode, Boolean skipTransferMoneyBillNumber, Map<String, Object> templateObject, List<String> items, List<String> itemComments, List<String> transferMoneyBills, List<String> itemSOCs, String documentExtraInfo, List<ExtraInfoVO> documentItemExtraInfoList) {
+    public PostTransactionRequest(
+            String transactionId,
+            String comment,
+            String isoCode,
+            String branchCode,
+            String transferMoneyBillNumber,
+            String documentTemplateCode,
+            Boolean skipTransferMoneyBillNumber,
+            Map<String, Object> templateObject,
+            List<String> items,
+            List<String> itemComments,
+            List<String> transferMoneyBills,
+            List<String> itemSOCs,
+            String documentExtraInfo,
+            List<ExtraInfoVO> documentItemExtraInfoList) {
         super("issue-general-document");
         this.transactionId = transactionId;
         this.comment = comment;

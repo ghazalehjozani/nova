@@ -1,5 +1,16 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper;
 
+import java.time.Clock;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.i18n.CoreCommonMessages;
+import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.Direction;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
@@ -17,20 +28,10 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ExtraInfoVO;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.PostTransactionRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.TransactionResultKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.i18n.FcbKafkaLocalizedMessageCodes;
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.core.i18n.CoreCommonMessages;
-import ir.dotin.platform.commons.domain.vo.CurrencyType;
+
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.ObjectMapper;
-
-import java.time.Clock;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @Slf4j
 @UtilityClass
@@ -156,12 +157,12 @@ public class KafkaTransactionMapper {
         String item =
                 switch (target) {
                     case AccountTarget(var accountId, RelationType<?> relationType) ->
-                            String.format(ITEM_FORMAT_ACCOUNT, accountId.value(), isDebtor, amount);
+                        String.format(ITEM_FORMAT_ACCOUNT, accountId.value(), isDebtor, amount);
                     case DepositTarget(var depositNumber) ->
-                            String.format(ITEM_FORMAT_DEPOSIT, depositNumber.value(), isDebtor, amount);
+                        String.format(ITEM_FORMAT_DEPOSIT, depositNumber.value(), isDebtor, amount);
                     case BoxTarget() -> String.format(ITEM_FORMAT_BOX, isDebtor, amount);
                     case AccountNumberTarget(var accountNumber) ->
-                            String.format(ITEM_FORMAT_ACCOUNT, accountNumber.accountNumber(), isDebtor, amount);
+                        String.format(ITEM_FORMAT_ACCOUNT, accountNumber.accountNumber(), isDebtor, amount);
                 };
 
         log.debug("Mapped article {} to item: {}", index, item);
@@ -253,7 +254,8 @@ public class KafkaTransactionMapper {
 
     public Result<TrackedTransactionNumber> mapToTrackedTransactionNumber(
             TransactionResultKafkaResponse response, UUID trackingId, Clock clock) {
-        if (response.getTransactionCode() == null || response.getTransactionCode().isBlank()) {
+        if (response.getTransactionCode() == null
+                || response.getTransactionCode().isBlank()) {
             return Result.failure(
                     Notification.ofError(FcbKafkaLocalizedMessageCodes.KAFKA_INVALID_RESPONSE, "postTransaction"));
         }

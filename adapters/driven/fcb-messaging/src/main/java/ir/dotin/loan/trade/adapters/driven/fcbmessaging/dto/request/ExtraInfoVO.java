@@ -1,14 +1,15 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request;
 
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Data
