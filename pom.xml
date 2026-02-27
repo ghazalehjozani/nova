@@ -33,7 +33,7 @@
     </modules>
 
     <properties>
-        <loan.base-loan.version>2026.2.2-SNAPSHOT</loan.base-loan.version>
+        <loan.base-loan.version>2026.2.3-SNAPSHOT</loan.base-loan.version>
         <loan.trade-loan.version>${project.version}</loan.trade-loan.version>
         <sonar.projectVersion>${project.version}</sonar.projectVersion>
         <commons-pool2.version>2.13.0</commons-pool2.version>

@@ -8,6 +8,7 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
+import ir.dotin.platform.saga.api.exception.SagaSuspendedException;
 import ir.dotin.platform.saga.api.i18n.SagaErrorCodes;
 import ir.dotin.platform.saga.api.model.SagaResult;
 import ir.dotin.platform.saga.api.model.StepError;
@@ -54,6 +55,11 @@ public class FullLoanFacilityLifecycleCommandHandler implements CommandHandler<F
 
         log.info("Saga completed: sagaId={}, success={}", sagaResult.sagaId(), sagaResult.isSuccess());
 
+        if (sagaResult.isSuspended()) {
+            var suspended = (SagaResult.Suspended<FullLoanFacilityLifecycleSagaData>) sagaResult;
+            throw new SagaSuspendedException(sagaResult.sagaId(), extractSuspendedStep(sagaResult), suspended.reason());
+        }
+
         if (sagaResult.isSuccess()) {
             List<DomainEvent<?>> events =
                     sagaResult.dataOrNull() != null ? sagaResult.dataOrNull().collectedDomainEvents() : List.of();
@@ -88,6 +94,16 @@ public class FullLoanFacilityLifecycleCommandHandler implements CommandHandler<F
         if (sagaResult instanceof SagaResult.Failed<FullLoanFacilityLifecycleSagaData> f) {
             return f.reason();
         }
+        if (sagaResult instanceof SagaResult.Suspended<FullLoanFacilityLifecycleSagaData> s) {
+            return s.reason();
+        }
         return "Unknown error";
+    }
+
+    private String extractSuspendedStep(SagaResult<FullLoanFacilityLifecycleSagaData> sagaResult) {
+        if (sagaResult instanceof SagaResult.Suspended<FullLoanFacilityLifecycleSagaData> s) {
+            return s.reason();
+        }
+        return "unknown";
     }
 }
