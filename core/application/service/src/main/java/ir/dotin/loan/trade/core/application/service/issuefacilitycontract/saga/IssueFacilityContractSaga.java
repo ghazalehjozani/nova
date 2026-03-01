@@ -75,6 +75,21 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
     }
 
     @Override
+    public boolean allowStrategyOverride() {
+        return true;
+    }
+
+    @Override
+    public boolean allowBreakpoints() {
+        return true;
+    }
+
+    @Override
+    public long timeoutMillis() {
+        return SagaDefinition.super.timeoutMillis();
+    }
+
+    @Override
     public List<SagaStep<IssueFacilityContractSagaData, ?>> steps() {
         return List.of(
                 SagaSteps.readOnlyStep(IssueFacilityContractStep.VALIDATE_FACILITY, this::validateFacility)

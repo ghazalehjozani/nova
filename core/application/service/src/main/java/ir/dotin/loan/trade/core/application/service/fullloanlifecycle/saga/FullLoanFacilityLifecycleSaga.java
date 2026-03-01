@@ -20,6 +20,8 @@ import ir.dotin.platform.saga.api.definition.SagaDefinition;
 import ir.dotin.platform.saga.api.definition.SagaInput;
 import ir.dotin.platform.saga.api.definition.SagaStep;
 import ir.dotin.platform.saga.api.definition.SagaSteps;
+import ir.dotin.platform.saga.api.model.CompensationMode;
+import ir.dotin.platform.saga.api.model.ExecutionStrategy;
 import ir.dotin.platform.saga.api.model.StepError;
 import ir.dotin.platform.saga.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode;
@@ -68,6 +70,31 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
     @Override
     public String sagaType() {
         return "full-loan-facility-lifecycle";
+    }
+
+    @Override
+    public CompensationMode compensationMode() {
+        return CompensationMode.LIFO_SEQUENTIAL;
+    }
+
+    @Override
+    public boolean allowStrategyOverride() {
+        return true;
+    }
+
+    @Override
+    public boolean allowBreakpoints() {
+        return true;
+    }
+
+    @Override
+    public ExecutionStrategy executionStrategy() {
+        return ExecutionStrategy.STOP_ON_STEP;
+    }
+
+    @Override
+    public long timeoutMillis() {
+        return SagaDefinition.super.timeoutMillis();
     }
 
     @Override

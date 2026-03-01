@@ -84,11 +84,7 @@ public class InstallmentOperationCommandConsumer {
                                                 @AsyncOperation.Headers.Header(
                                                         name = "X-Operation-Type",
                                                         description = "Discriminator: INSTALLMENT_COLLECTION, etc.",
-                                                        value = "Operation type code"),
-                                                @AsyncOperation.Headers.Header(
-                                                        name = "kafka_correlationId",
-                                                        description = "Kafka correlation identifier",
-                                                        value = "UUID string")
+                                                        value = "Operation type code")
                                             })))
     public void consume(ConsumerRecord<String, byte[]> consumerRecord) {
         JsonNode rootNode;

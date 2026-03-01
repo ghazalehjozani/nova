@@ -69,9 +69,20 @@ public class TradeLoanCommandConsumer {
                                                         description = "W3C trace context",
                                                         value = "Trace parent ID"),
                                                 @AsyncOperation.Headers.Header(
-                                                        name = "tracestate",
-                                                        description = "W3C trace state",
-                                                        value = "Trace state")
+                                                        name = "X-Saga-Id",
+                                                        description =
+                                                                "Unique identifier for the saga instance, used to correlate all related operations.",
+                                                        value = "uuid-string"),
+                                                @AsyncOperation.Headers.Header(
+                                                        name = "X-Saga-Step-Code",
+                                                        description =
+                                                                "Identifier for the step for breakpoint in the saga workflow.",
+                                                        value = "step-identifier"),
+                                                @AsyncOperation.Headers.Header(
+                                                        name = "X-Saga-Execution-Strategy",
+                                                        description =
+                                                                "Strategy for handling saga failures—either rollback all changes or suspend/halt execution.",
+                                                        value = "ROLLBACK_ALL | STOP_ON_STEP")
                                             })))
     public void consume(ConsumerRecord<String, byte[]> consumerRecord) {
         try {
