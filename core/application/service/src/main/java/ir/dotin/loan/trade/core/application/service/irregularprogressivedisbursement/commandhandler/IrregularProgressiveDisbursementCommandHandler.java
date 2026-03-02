@@ -89,7 +89,7 @@ public class IrregularProgressiveDisbursementCommandHandler
                 .flatMap(facility -> loadDependencies(facility, command)
                         .flatMap(context -> validateAll(facility, context)
                                 .flatMap(ignored -> resolveAccounts(facility, context))
-                                .flatMap(resolvedAccounts -> processDisbursement(facility, context, resolvedAccounts))))
+                                .flatMap(resolvedAccounts -> processDisbursement(context, resolvedAccounts))))
                 .flatMap(this::persistAndCollectEvents)
                 .peekValue(result ->
                         log.info("Irregular disbursement completed for facility: {}", command.loanFacilityId()))
@@ -109,16 +109,17 @@ public class IrregularProgressiveDisbursementCommandHandler
     }
 
     private Result<DisbursementOperationResult> processDisbursement(
-            TradeLoanFacility facility, ProcessingContext context, ResolvedAccounts resolvedAccounts) {
+            ProcessingContext context, ResolvedAccounts resolvedAccounts) {
 
         return recalculateSchedule(context).flatMap(recalculatedInstallments -> restructureAndActivateSchedule(
-                        facility, context, recalculatedInstallments)
-                .flatMap(newSchedule -> createBaseMetadata(facility, context)
+                        context.facility(), context, recalculatedInstallments)
+                .flatMap(newSchedule -> createBaseMetadata(context.facility(), context)
                         .flatMap(metadata -> createTransactions(
-                                facility, context, metadata, recalculatedInstallments, resolvedAccounts))
-                        .flatMap(transactions -> postTransactionsInBatch(facility.getId(), transactions))
-                        .flatMap(transactionResults ->
-                                performDisbursementOperations(facility, context, transactionResults, newSchedule))));
+                                context.facility(), context, metadata, recalculatedInstallments, resolvedAccounts))
+                        .flatMap(transactions ->
+                                postTransactionsInBatch(context.facility().getId(), transactions))
+                        .flatMap(transactionResults -> performDisbursementOperations(
+                                context.facility(), context, transactionResults, newSchedule))));
     }
 
     private Result<TradeLoanFacility> loadFacility(LoanFacilityId loanFacilityId) {
@@ -159,6 +160,7 @@ public class IrregularProgressiveDisbursementCommandHandler
                                         .map(postTitle -> new ProcessingContext(
                                                 loanType,
                                                 arrangement,
+                                                facility,
                                                 schedule,
                                                 branchCode,
                                                 config,
@@ -257,7 +259,7 @@ public class IrregularProgressiveDisbursementCommandHandler
 
     private Result<List<Installment>> recalculateSchedule(ProcessingContext context) {
         return recalculationService.recalculateForIrregularDisbursement(
-                context.schedule(), context.trancheAmount(), context.customPlan());
+                context.schedule(), context.facility(), context.trancheAmount(), context.customPlan());
     }
 
     private Result<InstallmentSchedule> restructureAndActivateSchedule(
@@ -375,6 +377,7 @@ public class IrregularProgressiveDisbursementCommandHandler
     private record ProcessingContext(
             TradeLoanType loanType,
             TradeLoanArrangement arrangement,
+            TradeLoanFacility facility,
             InstallmentSchedule schedule,
             BranchCode branchCode,
             TransactionConfig config,
