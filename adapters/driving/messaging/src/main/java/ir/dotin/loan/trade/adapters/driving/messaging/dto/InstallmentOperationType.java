@@ -6,7 +6,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public enum InstallmentOperationType {
-    INSTALLMENT_COLLECTION("installment.collection");
+    INSTALLMENT_COLLECTION("installment.collection"),
+    INSTALLMENT_COLLECTION_COMPENSATE("installment.collection.compensate");
 
     private final String code;
 

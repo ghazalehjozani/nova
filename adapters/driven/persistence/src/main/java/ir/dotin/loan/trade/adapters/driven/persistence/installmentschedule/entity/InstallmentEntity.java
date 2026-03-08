@@ -71,7 +71,7 @@ public class InstallmentEntity extends PersistentEntity {
     @JoinColumn(name = "installment_schedule_id", nullable = false)
     private InstallmentScheduleEntity installmentSchedule;
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "loan_installment_payments", joinColumns = @JoinColumn(name = "installment_id"))
     private List<InstallmentPaymentEmb> payments = new ArrayList<>();
 

@@ -1,0 +1,59 @@
+package ir.dotin.loan.trade.core.application.service.collectinstallment.compensationn.commandhandler;
+
+import java.time.Clock;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.domain.entity.AbstractAggregateRoot;
+import ir.dotin.platform.commons.domain.event.DomainEvent;
+import ir.dotin.platform.dispatcher.api.command.CommandHandler;
+import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateCollectInstallmentCommand;
+import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.InstallmentScheduleRepository;
+import ir.dotin.loan.trade.core.application.ports.outbound.query.ApplicationNumberResolver;
+import ir.dotin.loan.trade.core.application.service.collectinstallment.i18n.CollectInstallmentErrorCodes;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class CompensateCollectInstallmentCommandHandler implements CommandHandler<CompensateCollectInstallmentCommand> {
+
+    private final ApplicationNumberResolver applicationNumberResolver;
+    private final InstallmentScheduleRepository installmentScheduleRepository;
+    private final Clock clock;
+
+    @Override
+    public Result<List<DomainEvent<?>>> handle(CompensateCollectInstallmentCommand command) {
+        return resolveIdentifiers(command)
+                .flatMap(this::loadSchedule)
+                .flatMap(schedule -> {
+                    schedule.revertCollectInstallment(command.transactionNumbers(), clock);
+                    return Result.success(schedule);
+                })
+                .peekValue(installmentScheduleRepository::save)
+                .peekValue(schedule -> log.info(
+                        "Revert Installment collection completed: applicationNumber={}", command.applicationNumber()))
+                .mapNonNull(AbstractAggregateRoot::domainEvents);
+    }
+
+    private Result<ApplicationNumberResolver.LoanIdentifiers> resolveIdentifiers(
+            CompensateCollectInstallmentCommand command) {
+        return Result.fromOptional(
+                applicationNumberResolver.resolveByApplicationNumber(command.applicationNumber()),
+                Notification.ofError(CollectInstallmentErrorCodes.FILE_NUMBER_NOT_FOUND, command.applicationNumber()));
+    }
+
+    private Result<InstallmentSchedule> loadSchedule(ApplicationNumberResolver.LoanIdentifiers ids) {
+        return Result.fromOptional(
+                installmentScheduleRepository.findById(
+                        InstallmentScheduleId.of(ids.installmentScheduleId()).getValue()),
+                Notification.ofError(CollectInstallmentErrorCodes.SCHEDULE_NOT_FOUND, ids.installmentScheduleId()));
+    }
+}

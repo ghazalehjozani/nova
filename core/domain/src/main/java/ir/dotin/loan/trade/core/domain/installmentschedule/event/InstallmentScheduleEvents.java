@@ -9,6 +9,7 @@ public sealed interface InstallmentScheduleEvents<T extends Record & Installment
                 CompletionReverted,
                 EqualInstallmentsCreated,
                 GradualInstallmentsCreated,
+                InstallmentCollectReverted,
                 InstallmentCollected,
                 InstallmentCreationReverted,
                 RestructuringReverted,

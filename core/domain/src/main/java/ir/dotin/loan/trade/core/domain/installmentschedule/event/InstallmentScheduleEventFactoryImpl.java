@@ -145,4 +145,10 @@ public class InstallmentScheduleEventFactoryImpl implements InstallmentScheduleE
 
         return InstallmentCollected.of(scheduleId, loanFacilityId, paymentRecord, installmentStatus, occurredAt);
     }
+
+    @Override
+    public DomainEvent<?> createInstallmentRevertedEvent(
+            InstallmentScheduleId id, LoanFacilityId loanFacilityId, Instant occurredAt) {
+        return InstallmentCollectReverted.of(id, loanFacilityId, occurredAt);
+    }
 }
