@@ -11,6 +11,7 @@ import ir.dotin.platform.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
+import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentScheduleCompensationOperations;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateCollectInstallmentCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.InstallmentScheduleRepository;
@@ -33,9 +34,9 @@ public class CompensateCollectInstallmentCommandHandler implements CommandHandle
     public Result<List<DomainEvent<?>>> handle(CompensateCollectInstallmentCommand command) {
         return resolveIdentifiers(command)
                 .flatMap(this::loadSchedule)
-                .flatMap(schedule -> {
-                    schedule.revertCollectInstallment(command.transactionNumbers(), clock);
-                    return Result.success(schedule);
+                .flatMap(compensationOperations -> {
+                    compensationOperations.revertCollectInstallment(command.transactionNumbers(), clock);
+                    return Result.success((InstallmentSchedule) compensationOperations);
                 })
                 .peekValue(installmentScheduleRepository::save)
                 .peekValue(schedule -> log.info(
@@ -50,10 +51,13 @@ public class CompensateCollectInstallmentCommandHandler implements CommandHandle
                 Notification.ofError(CollectInstallmentErrorCodes.FILE_NUMBER_NOT_FOUND, command.applicationNumber()));
     }
 
-    private Result<InstallmentSchedule> loadSchedule(ApplicationNumberResolver.LoanIdentifiers ids) {
+    private Result<InstallmentScheduleCompensationOperations> loadSchedule(
+            ApplicationNumberResolver.LoanIdentifiers ids) {
         return Result.fromOptional(
-                installmentScheduleRepository.findById(
-                        InstallmentScheduleId.of(ids.installmentScheduleId()).getValue()),
+                installmentScheduleRepository
+                        .findById(InstallmentScheduleId.of(ids.installmentScheduleId())
+                                .getValue())
+                        .map(installmentSchedule -> (InstallmentScheduleCompensationOperations) installmentSchedule),
                 Notification.ofError(CollectInstallmentErrorCodes.SCHEDULE_NOT_FOUND, ids.installmentScheduleId()));
     }
 }
