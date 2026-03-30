@@ -8,6 +8,9 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
+import ir.dotin.platform.dispatcher.api.context.DispatchContext;
+import ir.dotin.platform.dispatcher.api.context.DispatchContextHolder;
+import ir.dotin.platform.dispatcher.api.context.StandardHeaders;
 import ir.dotin.platform.saga.api.exception.SagaSuspendedException;
 import ir.dotin.platform.saga.api.i18n.SagaErrorCodes;
 import ir.dotin.platform.saga.api.model.SagaResult;
@@ -50,8 +53,11 @@ public class FullLoanFacilityLifecycleCommandHandler implements CommandHandler<F
                 command.uid(),
                 command.confirmType());
 
-        SagaResult<FullLoanFacilityLifecycleSagaData> sagaResult = sagaOrchestrator.executeSaga(
-                "full-loan-facility-lifecycle", input, command.uid().toString());
+        DispatchContext dispatchContext = DispatchContextHolder.current();
+        String sagaCorrelationId = dispatchContext.getHeader(StandardHeaders.X_SAGA_CORRELATION_ID);
+
+        SagaResult<FullLoanFacilityLifecycleSagaData> sagaResult =
+                sagaOrchestrator.executeSaga("full-loan-facility-lifecycle", input, sagaCorrelationId);
 
         log.info("Saga completed: sagaId={}, success={}", sagaResult.sagaId(), sagaResult.isSuccess());
 

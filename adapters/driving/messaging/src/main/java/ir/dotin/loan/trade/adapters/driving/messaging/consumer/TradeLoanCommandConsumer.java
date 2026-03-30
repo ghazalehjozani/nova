@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-import ir.dotin.platform.adapter.messaging.command.model.CommandHeaders;
 import ir.dotin.platform.adapter.messaging.command.model.RawCommandMessage;
 import ir.dotin.platform.adapter.messaging.command.processor.CommandProcessor;
 import ir.dotin.platform.adapter.messaging.command.serializer.CommandSerializer;
@@ -69,7 +68,7 @@ public class TradeLoanCommandConsumer {
                                                         description = "W3C trace context",
                                                         value = "Trace parent ID"),
                                                 @AsyncOperation.Headers.Header(
-                                                        name = "X-Saga-Id",
+                                                        name = "X-Saga-Correlation-ID",
                                                         description =
                                                                 "Unique identifier for the saga instance, used to correlate all related operations.",
                                                         value = "uuid-string"),
@@ -88,22 +87,6 @@ public class TradeLoanCommandConsumer {
         try {
             JsonNode rootNode = objectMapper.readTree(consumerRecord.value());
 
-            String authorization = getText(rootNode, "authorization", null);
-            if (authorization == null) {
-                authorization = getHeader(consumerRecord, "Authorization");
-            }
-            String idempotencyKey = getHeader(consumerRecord, "Idempotency-Key");
-            String requestDateTime = getHeader(consumerRecord, "X-Request-DateTime");
-
-            CommandHeaders headers = CommandHeaders.builder()
-                    .authorizationToken(authorization)
-                    .idempotencyKey(idempotencyKey)
-                    .requestDateTime(requestDateTime)
-                    .acceptLanguage(getHeader(consumerRecord, "Accept-Language"))
-                    .traceparent(getHeader(consumerRecord, "traceparent"))
-                    .tracestate(getHeader(consumerRecord, "tracestate"))
-                    .build();
-
             FullLoanFacilityLifecycleMessage message =
                     objectMapper.treeToValue(rootNode, FullLoanFacilityLifecycleMessage.class);
 
@@ -112,18 +95,13 @@ public class TradeLoanCommandConsumer {
                     .transactionMetadata(buildDefaultTransactionMetadata()) // TODO: Fix
                     .build();
 
-            byte[] commandBytes = commandSerializer.serialize(command).getBytes(StandardCharsets.UTF_8);
-            RawCommandMessage rawMessage = new RawCommandMessage(
-                    consumerRecord.topic(),
-                    consumerRecord.partition(),
-                    consumerRecord.offset(),
-                    consumerRecord.key(),
-                    commandBytes,
-                    headers,
-                    consumerRecord.timestamp(),
-                    null);
-            processor.process(rawMessage);
+            byte[] commandBytes = commandSerializer
+                    .serialize(command)
+                    .getBytes(StandardCharsets.UTF_8); // TODO: remove after get extra info from user
 
+            RawCommandMessage rawMessage = RawCommandMessage.from(consumerRecord);
+
+            processor.process(rawMessage.toBuilder().payload(commandBytes).build());
         } catch (Exception e) {
             LOG.error("Failed to process full lifecycle command [key={}]: {}", consumerRecord.key(), e.getMessage(), e);
             throw new RuntimeException("Full lifecycle command processing failed", e);
