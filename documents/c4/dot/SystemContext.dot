@@ -20,7 +20,7 @@ digraph {
   8 [id=8,shape=rect, label=<<font point-size="34">Loan Service</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Cross-loan operations</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
   9 [id=9,shape=rect, label=<<font point-size="34">Formula Evaluator<br />Service</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Formula calculation</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
 
-  10 -> 2 [id=169, label=<<font point-size="24">Calls</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  10 -> 2 [id=170, label=<<font point-size="24">Calls</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
   10 -> 1 [id=20, label=<<font point-size="24">Authenticates</font><br /><font point-size="19">[OAuth2/OIDC]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
   10 -> 2 [id=22, label=<<font point-size="24">Core banking</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
   10 -> 3 [id=24, label=<<font point-size="24">Telemetry</font><br /><font point-size="19">[OTLP/gRPC]</font>>, style="dashed", color="#707070", fontcolor="#707070"]

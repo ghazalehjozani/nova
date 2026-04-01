@@ -13,7 +13,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateContractIssuanceCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
-import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.i18n.IssueFacilityContractErrorCodes;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ class CompensateContractIssuanceCommandHandler implements CommandHandler<Compens
         return Result.fromOptional(
                         repository.findById(LoanFacilityId.of(command.loanFacilityId())),
                         () -> Notification.ofError(
-                                IssueFacilityContractErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId()))
+                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId()))
                 .flatMap(facility -> facility.revertContractIssuance(clock)
                         .flatMap(transactionPostingPort::reverseTransaction)
                         .map(v -> facility))

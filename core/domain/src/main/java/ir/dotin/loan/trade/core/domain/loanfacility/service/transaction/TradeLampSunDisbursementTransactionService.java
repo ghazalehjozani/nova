@@ -26,7 +26,7 @@ import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan;
 import ir.dotin.loan.trade.core.domain.loanfacility.enums.DisburseBankCommitmentArticleType;
 import ir.dotin.loan.trade.core.domain.loanfacility.enums.DisbursedInterestArticleType;
 import ir.dotin.loan.trade.core.domain.loanfacility.enums.PaymentAmountArticleType;
-import ir.dotin.loan.trade.core.domain.loanfacility.i18n.TradeLoanFacilityLocalizedMessageCodes;
+import ir.dotin.loan.trade.core.domain.loanfacility.error.TradeLoanFacilityErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.strategy.DisbursementStrategyProvider;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
@@ -67,7 +67,7 @@ public class TradeLampSunDisbursementTransactionService {
                         installmentSchedule,
                         resolvedAccounts))
                 .orElseGet(() -> Result.failure(Notification.ofError(
-                        TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND_FOR_FACILITY,
+                        TradeLoanFacilityErrors.SANCTIONED_LOAN_NOT_FOUND_FOR_FACILITY,
                         facility.getId().value())));
     }
 
@@ -99,8 +99,8 @@ public class TradeLampSunDisbursementTransactionService {
                                 findStrategy(DisburseBankCommitmentArticleType.class, facility),
                                 baseMetadata,
                                 resolvedAccounts))
-                        .orElseGet(() -> Result.failure(Notification.ofError(
-                                TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND_FOR_FACILITY))));
+                        .orElseGet(() -> Result.failure(
+                                Notification.ofError(TradeLoanFacilityErrors.SANCTIONED_LOAN_NOT_FOUND_FOR_FACILITY))));
     }
 
     public Result<LoanTransaction> createPaymentAmountTransaction(
@@ -132,8 +132,8 @@ public class TradeLampSunDisbursementTransactionService {
                                 findStrategy(PaymentAmountArticleType.class, facility),
                                 baseMetadata,
                                 resolvedAccounts))
-                        .orElseGet(() -> Result.failure(Notification.ofError(
-                                TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND))));
+                        .orElseGet(() -> Result.failure(
+                                Notification.ofError(TradeLoanFacilityErrors.SANCTIONED_LOAN_NOT_FOUND))));
     }
 
     public Result<LoanTransaction> createDisbursedInterestTransaction(
@@ -164,8 +164,8 @@ public class TradeLampSunDisbursementTransactionService {
                                 findStrategy(DisbursedInterestArticleType.class, facility),
                                 baseMetadata,
                                 resolvedAccounts))
-                        .orElseGet(() -> Result.failure(Notification.ofError(
-                                TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND))));
+                        .orElseGet(() -> Result.failure(
+                                Notification.ofError(TradeLoanFacilityErrors.SANCTIONED_LOAN_NOT_FOUND))));
     }
 
     private Result<List<LoanTransaction>> buildTransactions(

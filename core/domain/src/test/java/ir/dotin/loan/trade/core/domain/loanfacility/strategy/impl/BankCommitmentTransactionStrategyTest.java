@@ -23,7 +23,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.validator.ArticleBalanceValidat
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountArticleComponent;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.enums.DisburseBankCommitmentArticleType;
-import ir.dotin.loan.trade.core.domain.loanfacility.i18n.TradeLoanFacilityLocalizedMessageCodes;
+import ir.dotin.loan.trade.core.domain.loanfacility.error.TradeLoanFacilityErrors;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -135,8 +135,8 @@ final class BankCommitmentTransactionStrategyTest {
         void shouldCallRequiredComponentsWhenGeneratingDebits() {
             given(mockCalculationContext.requireArticleComponent(
                             DisburseBankCommitmentArticleType.BANK_COMMITMENT_DEBIT_LEG))
-                    .willReturn(Result.failure(Notification.ofError(
-                            TradeLoanFacilityLocalizedMessageCodes.UNEXPECTED_ERROR, "Component not found")));
+                    .willReturn(Result.failure(
+                            Notification.ofError(TradeLoanFacilityErrors.UNEXPECTED_ERROR, "Component not found")));
 
             var result = strategy.generateDebits(mockCalculationContext);
 
@@ -152,7 +152,7 @@ final class BankCommitmentTransactionStrategyTest {
             given(mockCalculationContext.requireArticleComponent(
                             DisburseBankCommitmentArticleType.BANK_COMMITMENT_DEBIT_LEG))
                     .willReturn(Result.failure(Notification.ofError(
-                            TradeLoanFacilityLocalizedMessageCodes.UNEXPECTED_ERROR, "Article component not found")));
+                            TradeLoanFacilityErrors.UNEXPECTED_ERROR, "Article component not found")));
 
             var result = strategy.generateDebits(mockCalculationContext);
 
@@ -167,8 +167,8 @@ final class BankCommitmentTransactionStrategyTest {
                             DisburseBankCommitmentArticleType.BANK_COMMITMENT_DEBIT_LEG))
                     .willReturn(Result.success(mockArticleComponent));
             given(mockSpecFactory.createDebitSpec(mockArticleComponent))
-                    .willReturn(Result.failure(Notification.ofError(
-                            TradeLoanFacilityLocalizedMessageCodes.UNEXPECTED_ERROR, "Spec creation failed")));
+                    .willReturn(Result.failure(
+                            Notification.ofError(TradeLoanFacilityErrors.UNEXPECTED_ERROR, "Spec creation failed")));
 
             var result = strategy.generateDebits(mockCalculationContext);
 
@@ -185,8 +185,8 @@ final class BankCommitmentTransactionStrategyTest {
         void shouldCallRequiredComponentsWhenGeneratingCredits() {
             given(mockCalculationContext.requireArticleComponent(
                             DisburseBankCommitmentArticleType.BANK_COMMITMENT_CREDIT_LEG))
-                    .willReturn(Result.failure(Notification.ofError(
-                            TradeLoanFacilityLocalizedMessageCodes.UNEXPECTED_ERROR, "Component not found")));
+                    .willReturn(Result.failure(
+                            Notification.ofError(TradeLoanFacilityErrors.UNEXPECTED_ERROR, "Component not found")));
 
             var result = strategy.generateCredits(mockCalculationContext);
 
@@ -202,7 +202,7 @@ final class BankCommitmentTransactionStrategyTest {
             given(mockCalculationContext.requireArticleComponent(
                             DisburseBankCommitmentArticleType.BANK_COMMITMENT_CREDIT_LEG))
                     .willReturn(Result.failure(Notification.ofError(
-                            TradeLoanFacilityLocalizedMessageCodes.UNEXPECTED_ERROR, "Article component not found")));
+                            TradeLoanFacilityErrors.UNEXPECTED_ERROR, "Article component not found")));
 
             var result = strategy.generateCredits(mockCalculationContext);
 
@@ -217,8 +217,8 @@ final class BankCommitmentTransactionStrategyTest {
                             DisburseBankCommitmentArticleType.BANK_COMMITMENT_CREDIT_LEG))
                     .willReturn(Result.success(mockArticleComponent));
             given(mockSpecFactory.createCreditSpec(mockArticleComponent))
-                    .willReturn(Result.failure(Notification.ofError(
-                            TradeLoanFacilityLocalizedMessageCodes.UNEXPECTED_ERROR, "Spec creation failed")));
+                    .willReturn(Result.failure(
+                            Notification.ofError(TradeLoanFacilityErrors.UNEXPECTED_ERROR, "Spec creation failed")));
 
             var result = strategy.generateCredits(mockCalculationContext);
 

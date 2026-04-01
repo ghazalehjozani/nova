@@ -9,7 +9,7 @@ import java.util.UUID;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.core.i18n.CoreCommonMessages;
+import ir.dotin.platform.commons.core.error.CoreCommonErrors;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.Direction;
@@ -27,7 +27,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Document;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ExtraInfoVO;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.PostTransactionRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.TransactionResultKafkaResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.i18n.FcbKafkaLocalizedMessageCodes;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -60,19 +60,19 @@ public class KafkaTransactionMapper {
 
         String branchCode = document.branchCode().value();
         if (branchCode.isBlank()) {
-            notification.addError(CoreCommonMessages.GENERAL_FIELD_REQUIRED, "Branch code");
+            notification.addError(CoreCommonErrors.GENERAL_FIELD_REQUIRED, "Branch code");
             return Result.failure(notification);
         }
 
         String isoCode = extractIsoCode(loanTransaction);
         if (isoCode == null || isoCode.isBlank()) {
-            notification.addError(CoreCommonMessages.GENERAL_FIELD_REQUIRED, "ISO code (currency)");
+            notification.addError(CoreCommonErrors.GENERAL_FIELD_REQUIRED, "ISO code (currency)");
             return Result.failure(notification);
         }
 
         String comment = document.description();
         if (comment.isBlank()) {
-            notification.addError(CoreCommonMessages.GENERAL_FIELD_REQUIRED, "Document description");
+            notification.addError(CoreCommonErrors.GENERAL_FIELD_REQUIRED, "Document description");
             return Result.failure(notification);
         }
 
@@ -126,7 +126,7 @@ public class KafkaTransactionMapper {
         List<String> items = new ArrayList<>();
 
         if (articles == null || articles.isEmpty()) {
-            notification.addError(CoreCommonMessages.GENERAL_FIELD_REQUIRED, "Articles list");
+            notification.addError(CoreCommonErrors.GENERAL_FIELD_REQUIRED, "Articles list");
             return Result.failure(notification);
         }
 
@@ -174,7 +174,7 @@ public class KafkaTransactionMapper {
         List<String> itemComments = new ArrayList<>();
 
         if (articles == null || articles.isEmpty()) {
-            notification.addError(CoreCommonMessages.GENERAL_FIELD_REQUIRED, "Articles list");
+            notification.addError(CoreCommonErrors.GENERAL_FIELD_REQUIRED, "Articles list");
             return Result.failure(notification);
         }
 
@@ -256,8 +256,7 @@ public class KafkaTransactionMapper {
             TransactionResultKafkaResponse response, UUID trackingId, Clock clock) {
         if (response.getTransactionCode() == null
                 || response.getTransactionCode().isBlank()) {
-            return Result.failure(
-                    Notification.ofError(FcbKafkaLocalizedMessageCodes.KAFKA_INVALID_RESPONSE, "postTransaction"));
+            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "postTransaction"));
         }
         Result<TransactionNumber> txnResult = TransactionNumber.of(response.getTransactionCode());
         if (txnResult.isFailure()) {

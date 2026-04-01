@@ -45,7 +45,7 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanF
 import ir.dotin.loan.trade.core.application.ports.inbound.command.SubmitFacilityForApprovalCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanTypeRepository;
-import ir.dotin.loan.trade.core.application.service.fullloanlifecycle.i18n.FullLoanFacilityLifecycleErrorCodes;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityApproved;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCollateralAdded;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCreated;
@@ -178,7 +178,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 .findByCode(LoanTypeCode.of(command.loanTypeCode()).getValue())
                 .isEmpty()) {
             return new StepResult.Failure<>(new StepError.BusinessRuleError(Notification.ofError(
-                    FullLoanFacilityLifecycleErrorCodes.LOAN_TYPE_NOT_FOUND, command.loanTypeCode())));
+                    TradeLoanApplicationServiceErrors.LOAN_TYPE_NOT_FOUND, command.loanTypeCode())));
         }
 
         if (arrangementRepository
@@ -186,7 +186,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                         .getValue())
                 .isEmpty()) {
             return new StepResult.Failure<>(new StepError.BusinessRuleError(Notification.ofError(
-                    FullLoanFacilityLifecycleErrorCodes.LOAN_ARRANGEMENT_NOT_FOUND, command.loanArrangementCode())));
+                    TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND, command.loanArrangementCode())));
         }
 
         return new StepResult.Success<>(null);

@@ -9,7 +9,7 @@ import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
-import ir.dotin.loan.baseloan.core.domain.shared.i18n.ValidationLocalizedMessageCodes;
+import ir.dotin.loan.baseloan.core.domain.shared.error.LoanValidationErrors;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
@@ -33,7 +33,7 @@ public final class LoanTransactionMerger {
 
         if (transactions.isEmpty()) {
             return Result.failure(
-                    notification.addError(ValidationLocalizedMessageCodes.VALIDATION_FIELD_REQUIRED, "transactions"));
+                    notification.addError(LoanValidationErrors.VALIDATION_FIELD_REQUIRED, "transactions"));
         }
 
         List<Document> documents =
@@ -54,8 +54,8 @@ public final class LoanTransactionMerger {
             @NonNull List<LoanTransaction> transactions) {
 
         if (transactions.isEmpty()) {
-            return Result.failure(Notification.create()
-                    .addError(ValidationLocalizedMessageCodes.VALIDATION_FIELD_REQUIRED, "transactions"));
+            return Result.failure(
+                    Notification.create().addError(LoanValidationErrors.VALIDATION_FIELD_REQUIRED, "transactions"));
         }
 
         LoanTransaction first = transactions.getFirst();
@@ -76,7 +76,7 @@ public final class LoanTransactionMerger {
 
         if (transactions.isEmpty()) {
             return Result.failure(
-                    notification.addError(ValidationLocalizedMessageCodes.VALIDATION_FIELD_REQUIRED, "transactions"));
+                    notification.addError(LoanValidationErrors.VALIDATION_FIELD_REQUIRED, "transactions"));
         }
 
         LoanFacilityId firstLoanId = transactions.getFirst().loanFacilityId();
@@ -85,7 +85,7 @@ public final class LoanTransactionMerger {
 
         if (!allSameLoanId) {
             return Result.failure(notification.addError(
-                    ValidationLocalizedMessageCodes.VALIDATION_FIELD_REQUIRED,
+                    LoanValidationErrors.VALIDATION_FIELD_REQUIRED,
                     "All transactions must have the same loanFacilityId"));
         }
 

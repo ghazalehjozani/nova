@@ -128,6 +128,7 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
 }
 
 rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>" <<TradeLoanService.TradeLoanApplication>> {
+  rectangle "==GetLoanArrangementByIdQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles get loan arrangement by id queries" <<TradeLoanService.TradeLoanApplication.GetLoanArrangementByIdQueryHandler>> as TradeLoanService.TradeLoanApplication.GetLoanArrangementByIdQueryHandler
   rectangle "==LoanTypeArrangementFilterQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles loan type arrangement filter queries" <<TradeLoanService.TradeLoanApplication.LoanTypeArrangementFilterQueryHandler>> as TradeLoanService.TradeLoanApplication.LoanTypeArrangementFilterQueryHandler
   rectangle "==FindAllLoanFacilitiesQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles find all loan facilities queries" <<TradeLoanService.TradeLoanApplication.FindAllLoanFacilitiesQueryHandler>> as TradeLoanService.TradeLoanApplication.FindAllLoanFacilitiesQueryHandler
   rectangle "==GetFacilityByIdQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles get facility by id queries" <<TradeLoanService.TradeLoanApplication.GetFacilityByIdQueryHandler>> as TradeLoanService.TradeLoanApplication.GetFacilityByIdQueryHandler
@@ -145,7 +146,6 @@ rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]<
   rectangle "==LoanTypeQueryController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/loan-types" <<TradeLoanService.TradeLoanApplication.LoanTypeQueryController>> as TradeLoanService.TradeLoanApplication.LoanTypeQueryController
   rectangle "==GetInstallmentScheduleByIdQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles get installment schedule by id queries" <<TradeLoanService.TradeLoanApplication.GetInstallmentScheduleByIdQueryHandler>> as TradeLoanService.TradeLoanApplication.GetInstallmentScheduleByIdQueryHandler
   rectangle "==FindAllLoanArrangementsQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles find all loan arrangements queries" <<TradeLoanService.TradeLoanApplication.FindAllLoanArrangementsQueryHandler>> as TradeLoanService.TradeLoanApplication.FindAllLoanArrangementsQueryHandler
-  rectangle "==GetLoanArrangementByIdQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles get loan arrangement by id queries" <<TradeLoanService.TradeLoanApplication.GetLoanArrangementByIdQueryHandler>> as TradeLoanService.TradeLoanApplication.GetLoanArrangementByIdQueryHandler
 }
 
 @enduml

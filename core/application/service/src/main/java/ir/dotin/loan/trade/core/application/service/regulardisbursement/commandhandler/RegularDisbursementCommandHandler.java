@@ -16,8 +16,8 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.RegularDisbursementCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
-import ir.dotin.loan.trade.core.application.service.regulardisbursement.i18n.RegularDisbursementErrorCodes;
 import ir.dotin.loan.trade.core.application.service.regulardisbursement.mapper.RegularDisbursementCommandMapper;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 import lombok.RequiredArgsConstructor;
@@ -39,7 +39,7 @@ public class RegularDisbursementCommandHandler implements CommandHandler<Regular
         return Result.fromOptional(
                         repository.findById(loanFacilityId),
                         () -> Notification.ofError(
-                                RegularDisbursementErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId()))
+                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId()))
                 .flatMap(this::validateDisbursementMethod)
                 //                .flatMap(facility -> {
                 //                    Money trancheAmount = mapper.toMoney(command.trancheAmount());
@@ -63,7 +63,7 @@ public class RegularDisbursementCommandHandler implements CommandHandler<Regular
                 .filter(sl -> sl.getDisbursementMethod() == DisbursementMethod.REGULAR_PROGRESSIVE)
                 .map(sl -> Result.success(facility))
                 .orElseGet(() -> Result.failure(Notification.ofError(
-                        RegularDisbursementErrorCodes.INVALID_DISBURSEMENT_METHOD,
+                        TradeLoanApplicationServiceErrors.INVALID_DISBURSEMENT_METHOD,
                         facility.getSanctionedLoan()
                                 .map(sl -> sl.getDisbursementMethod().name())
                                 .orElse("UNKNOWN"))));

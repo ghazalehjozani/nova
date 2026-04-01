@@ -12,7 +12,7 @@ import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateApprovalCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
-import ir.dotin.loan.trade.core.application.service.approvefacility.i18n.ApproveFacilityErrorCodes;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,7 @@ class CompensateApprovalCommandHandler implements CommandHandler<CompensateAppro
         return Result.fromOptional(
                         repository.findById(LoanFacilityId.of(command.loanFacilityId())),
                         () -> Notification.ofError(
-                                ApproveFacilityErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId()))
+                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId()))
                 .flatMap(facility -> facility.revertApproval(clock).map(v -> facility))
                 .peekValue(repository::save)
                 .mapNonNull(TradeLoanFacility::domainEvents);

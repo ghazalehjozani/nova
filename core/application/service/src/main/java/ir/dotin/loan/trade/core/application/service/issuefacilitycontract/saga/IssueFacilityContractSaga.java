@@ -38,9 +38,9 @@ import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.Tr
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanTypeRepository;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.configuration.IssueFacilityContractConfiguration;
-import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.i18n.IssueFacilityContractErrorCodes;
 import ir.dotin.loan.trade.core.application.service.shared.account.AccountResolutionService;
 import ir.dotin.loan.trade.core.application.service.shared.account.LoanTopicResolver;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityContractIssued;
@@ -273,21 +273,21 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
     private Result<TradeLoanFacility> loadFacility(LoanFacilityId facilityId) {
         return Result.fromOptional(
                 facilityRepository.findById(facilityId),
-                Notification.ofError(IssueFacilityContractErrorCodes.FACILITY_NOT_FOUND, facilityId));
+                Notification.ofError(TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, facilityId));
     }
 
     private Result<TradeLoanArrangement> loadLoanArrangement(TradeLoanFacility facility) {
         return Result.fromOptional(
                 loanArrangementRepository.findById(facility.getLoanArrangementId()),
                 Notification.ofError(
-                        IssueFacilityContractErrorCodes.LOAN_ARRANGEMENT_NOT_FOUND, facility.getLoanArrangementId()));
+                        TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND, facility.getLoanArrangementId()));
     }
 
     private Result<TradeLoanType> loadLoanType(TradeLoanFacility facility) {
         return Result.fromOptional(
                 loanTypeRepository.findById(facility.getLoanTypeId()),
                 Notification.ofError(
-                        IssueFacilityContractErrorCodes.LOAN_TYPE_NOT_FOUND,
+                        TradeLoanApplicationServiceErrors.LOAN_TYPE_NOT_FOUND,
                         facility.getLoanTypeId(),
                         facility.getId().value()));
     }

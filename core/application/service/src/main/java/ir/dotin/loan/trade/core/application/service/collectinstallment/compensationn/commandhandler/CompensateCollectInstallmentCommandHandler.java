@@ -16,7 +16,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateCollectInstallmentCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.InstallmentScheduleRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.query.ApplicationNumberResolver;
-import ir.dotin.loan.trade.core.application.service.collectinstallment.i18n.CollectInstallmentErrorCodes;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +48,8 @@ public class CompensateCollectInstallmentCommandHandler implements CommandHandle
             CompensateCollectInstallmentCommand command) {
         return Result.fromOptional(
                 applicationNumberResolver.resolveByApplicationNumber(command.applicationNumber()),
-                Notification.ofError(CollectInstallmentErrorCodes.FILE_NUMBER_NOT_FOUND, command.applicationNumber()));
+                Notification.ofError(
+                        TradeLoanApplicationServiceErrors.APPLICATION_NUMBER_MISSING, command.applicationNumber()));
     }
 
     private Result<InstallmentScheduleCompensationOperations> loadSchedule(
@@ -58,6 +59,7 @@ public class CompensateCollectInstallmentCommandHandler implements CommandHandle
                         .findById(InstallmentScheduleId.of(ids.installmentScheduleId())
                                 .getValue())
                         .map(installmentSchedule -> (InstallmentScheduleCompensationOperations) installmentSchedule),
-                Notification.ofError(CollectInstallmentErrorCodes.SCHEDULE_NOT_FOUND, ids.installmentScheduleId()));
+                Notification.ofError(
+                        TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND, ids.installmentScheduleId()));
     }
 }

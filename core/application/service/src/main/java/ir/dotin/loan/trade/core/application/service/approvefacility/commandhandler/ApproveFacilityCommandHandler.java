@@ -16,8 +16,8 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.ApproveFacilit
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.service.approvefacility.factory.ApprovalStrategyFactory;
-import ir.dotin.loan.trade.core.application.service.approvefacility.i18n.ApproveFacilityErrorCodes;
 import ir.dotin.loan.trade.core.application.service.approvefacility.strategy.ApprovalStrategy;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,11 +39,11 @@ public class ApproveFacilityCommandHandler implements CommandHandler<ApproveFaci
         return Result.fromOptional(
                         loanFacilityRepository.findById(loanFacilityId),
                         () -> Notification.ofError(
-                                ApproveFacilityErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId()))
+                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId()))
                 .flatMap(facility -> Result.fromOptional(
                                 loanArrangementRepository.findById(facility.getLoanArrangementId()),
                                 () -> Notification.ofError(
-                                        ApproveFacilityErrorCodes.LOAN_ARRANGEMENT_NOT_FOUND,
+                                        TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND,
                                         facility.getLoanArrangementId()))
                         .flatMap(arrangement -> {
                             ApprovalStrategy strategy = strategyFactory.getStrategy(command);

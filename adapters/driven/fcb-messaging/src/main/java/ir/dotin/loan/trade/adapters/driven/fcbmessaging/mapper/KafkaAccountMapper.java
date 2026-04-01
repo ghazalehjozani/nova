@@ -7,7 +7,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.AccountInfoKafkaResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.i18n.FcbKafkaLocalizedMessageCodes;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 
 import lombok.experimental.UtilityClass;
 
@@ -16,8 +16,7 @@ public class KafkaAccountMapper {
 
     public Result<AccountInfo> mapToAccountInfoFromOpenAccount(AccountInfoKafkaResponse response, LoanTopic loanTopic) {
         if (response.getAccountNumber() == null || response.getAccountNumber().isBlank()) {
-            return Result.failure(
-                    Notification.ofError(FcbKafkaLocalizedMessageCodes.KAFKA_INVALID_RESPONSE, "openAccount"));
+            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "openAccount"));
         }
         Result<AccountId> accountIdResult = AccountId.valueOf(response.getAccountNumber());
         if (accountIdResult.isFailure()) {
@@ -28,24 +27,22 @@ public class KafkaAccountMapper {
 
     public Result<AccountId> mapToAccountId(AccountInfoKafkaResponse response) {
         if (response.getAccountNumber() == null || response.getAccountNumber().isBlank()) {
-            return Result.failure(
-                    Notification.ofError(FcbKafkaLocalizedMessageCodes.KAFKA_INVALID_RESPONSE, "nova-open-account"));
+            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "nova-open-account"));
         }
         return AccountId.valueOf(response.getAccountNumber());
     }
 
     public Result<AccountNumber> mapToDeletedAccountNumber(AccountInfoKafkaResponse response) {
         if (response.getAccountNumber() == null || response.getAccountNumber().isBlank()) {
-            return Result.failure(
-                    Notification.ofError(FcbKafkaLocalizedMessageCodes.KAFKA_INVALID_RESPONSE, "deleteAccount"));
+            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "deleteAccount"));
         }
         return AccountNumber.of(response.getAccountNumber());
     }
 
     public Result<AccountNumber> mapToValidatedAccountNumber(AccountInfoKafkaResponse response) {
         if (response.getId() == null || response.getAccountNumber() == null) {
-            return Result.failure(Notification.ofError(
-                    FcbKafkaLocalizedMessageCodes.KAFKA_INVALID_RESPONSE, "validateAccountNumber"));
+            return Result.failure(
+                    Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "validateAccountNumber"));
         }
         return AccountNumber.of(response.getAccountNumber());
     }
@@ -53,7 +50,7 @@ public class KafkaAccountMapper {
     public Result<AccountInfo> mapToFindOrCreateAccountInfo(AccountInfoKafkaResponse response, LoanTopic loanTopic) {
         if (response.getAccountNumber() == null || response.getAccountNumber().isBlank()) {
             return Result.failure(
-                    Notification.ofError(FcbKafkaLocalizedMessageCodes.KAFKA_INVALID_RESPONSE, "findOrCreateAccount"));
+                    Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "findOrCreateAccount"));
         }
         Result<AccountId> accountIdResult = AccountId.valueOf(response.getAccountNumber());
         if (accountIdResult.isFailure()) {

@@ -24,7 +24,7 @@
 // import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleComponent;
 // import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 // import ir.dotin.loan.trade.core.domain.loanfacility.enums.IssueContractBankCommitmentArticleType;
-// import ir.dotin.loan.trade.core.domain.loanfacility.i18n.TradeLoanFacilityLocalizedMessageCodes;
+// import ir.dotin.loan.trade.core.domain.loanfacility.error.TradeLoanFacilityLocalizedMessageCodes;
 // import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 //
 // import static org.assertj.core.api.Assertions.assertThat;

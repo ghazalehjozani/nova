@@ -26,8 +26,8 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.response.Econo
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.TopicInfo;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanTypeRepository;
-import ir.dotin.loan.trade.core.application.service.defineloantype.i18n.DefineLoanTypeErrorCodes;
 import ir.dotin.loan.trade.core.application.service.defineloantype.mapper.DefineLoanTypeCommandMapper;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 import ir.dotin.loan.trade.core.domain.loantype.service.TradeLoanTypeValidationService;
 
@@ -89,7 +89,7 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
         boolean exists =
                 loanTypeRepository.existsByCode(LoanTypeCode.of(codeValue).getValue());
         return Result.requireFalse(
-                exists, Notification.ofError(DefineLoanTypeErrorCodes.LOAN_TYPE_ALREADY_EXISTS, codeValue));
+                exists, Notification.ofError(TradeLoanApplicationServiceErrors.DUPLICATE_LOAN_TYPE, codeValue));
     }
 
     private CompletableFuture<Result<Set<LoanArrangementId>>> resolveArrangementIdsAsync(
@@ -108,7 +108,7 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
     private Result<LoanArrangementId> findArrangementId(LoanArrangementCode code) {
         return Result.fromOptional(
                 loanArrangementRepository.getIdByCode(code).map(LoanArrangementId::of),
-                () -> Notification.ofError(DefineLoanTypeErrorCodes.LOAN_ARRANGEMENT_NOT_FOUND, code.value()));
+                () -> Notification.ofError(TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND, code.value()));
     }
 
     private CompletableFuture<Result<Void>> validateEconomicSectorsAsync(
@@ -133,7 +133,7 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
             aggregatedNotification.merge(result.notification());
             if (result.hasValue() && !result.getValue().isValid()) {
                 aggregatedNotification.addError(
-                        DefineLoanTypeErrorCodes.INVALID_ECONOMIC_SECTOR_FOR_LOAN_TYPE,
+                        TradeLoanApplicationServiceErrors.INVALID_ECONOMIC_SECTOR_FOR_LOAN_TYPE,
                         result.getValue().message());
             }
         }

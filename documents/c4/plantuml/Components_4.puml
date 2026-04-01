@@ -13,6 +13,12 @@ skinparam {
 
 hide stereotype
 
+skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler>> {
+  BackgroundColor #66bb6a
+  FontColor #000000
+  BorderColor #47824a
+  shadowing false
+}
 skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler>> {
   BackgroundColor #66bb6a
   FontColor #000000
@@ -32,6 +38,7 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
 }
 
 rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>" <<TradeLoanService.TradeLoanApplication>> {
+  hexagon "==TradeLoanArrangementOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanArrangement outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler
   hexagon "==TradeLoanFacilityOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanFacility outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler
   hexagon "==TradeLoanTypeOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanType outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler
 }

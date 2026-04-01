@@ -7,7 +7,7 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.NotificationError;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.validation.Specification;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.i18n.LoanFacilityLocalizedMessageCodes;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.error.LoanFacilityErrors;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
@@ -28,7 +28,7 @@ public final class CollateralContractIssuanceEligibilitySpecification implements
             List<Collateral> facilityCollaterals = facility.getCollaterals();
 
             if (facilityCollaterals == null || facilityCollaterals.isEmpty()) {
-                NotificationError error = NotificationError.of(LoanFacilityLocalizedMessageCodes.COLLATERAL_REQUIRED);
+                NotificationError error = NotificationError.of(LoanFacilityErrors.COLLATERAL_REQUIRED);
                 return Result.of(false, Notification.ofError(error));
             }
         }

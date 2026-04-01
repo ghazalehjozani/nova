@@ -109,10 +109,10 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanApplication>
   BorderColor #b26a00
   shadowing false
 }
-skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler>> {
-  BackgroundColor #66bb6a
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanArrangement>> {
+  BackgroundColor #ff9800
   FontColor #000000
-  BorderColor #47824a
+  BorderColor #b26a00
   shadowing false
 }
 skinparam database<<TradeLoanService.TradeLoanApplication.TradeLoanArrangementRepositoryAdapter>> {
@@ -200,6 +200,7 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
 }
 
 rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>" <<TradeLoanService.TradeLoanApplication>> {
+  rectangle "==TradeLoanArrangement\n<size:10>[Component: DDD Aggregate Root]</size>\n\ntrade loan arrangement aggregate" <<TradeLoanService.TradeLoanApplication.TradeLoanArrangement>> as TradeLoanService.TradeLoanApplication.TradeLoanArrangement
   rectangle "==TradeLoanApplication\n<size:10>[Component: DDD Aggregate Root]</size>\n\ntrade loan application aggregate" <<TradeLoanService.TradeLoanApplication.TradeLoanApplication>> as TradeLoanService.TradeLoanApplication.TradeLoanApplication
   rectangle "==TradeLoanFacility\n<size:10>[Component: DDD Aggregate Root]</size>\n\ntrade loan facility aggregate" <<TradeLoanService.TradeLoanApplication.TradeLoanFacility>> as TradeLoanService.TradeLoanApplication.TradeLoanFacility
   rectangle "==TradeLoanFacilityEventFactory\n<size:10>[Component: DDD Entity]</size>\n\ntrade loan facility event factory entity" <<TradeLoanService.TradeLoanApplication.TradeLoanFacilityEventFactory>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityEventFactory
@@ -229,7 +230,6 @@ rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]<
   rectangle "==LoanServiceAdapter\n<size:10>[Component: Spring WebClient]</size>\n\nloan service client" <<TradeLoanService.TradeLoanApplication.LoanServiceAdapter>> as TradeLoanService.TradeLoanApplication.LoanServiceAdapter
   rectangle "==TransactionPostingAdapter\n<size:10>[Component: Spring WebClient]</size>\n\ntransaction posting client" <<TradeLoanService.TradeLoanApplication.TransactionPostingAdapter>> as TradeLoanService.TradeLoanApplication.TransactionPostingAdapter
   hexagon "==InstallmentScheduleOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nInstallmentSchedule outbox handler" <<TradeLoanService.TradeLoanApplication.InstallmentScheduleOutboxHandler>> as TradeLoanService.TradeLoanApplication.InstallmentScheduleOutboxHandler
-  hexagon "==TradeLoanArrangementOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanArrangement outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler
 }
 
 @enduml

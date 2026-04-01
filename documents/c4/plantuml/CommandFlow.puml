@@ -91,7 +91,7 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.CompensateCollateralC
   BorderColor #a73a38
   shadowing false
 }
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.CompensateIrregularDisbursementCommandHandler>> {
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.CompensateCollectInstallmentCommandHandler>> {
   BackgroundColor #ef5350
   FontColor #ffffff
   BorderColor #a73a38
@@ -224,12 +224,12 @@ rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]<
   rectangle "==CloseFacilityDefaultedCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles close facility defaulted" <<TradeLoanService.TradeLoanApplication.CloseFacilityDefaultedCommandHandler>> as TradeLoanService.TradeLoanApplication.CloseFacilityDefaultedCommandHandler
   rectangle "==CloseFacilityPaidOffCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles close facility paid off" <<TradeLoanService.TradeLoanApplication.CloseFacilityPaidOffCommandHandler>> as TradeLoanService.TradeLoanApplication.CloseFacilityPaidOffCommandHandler
   rectangle "==CollectInstallmentCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles collect installment" <<TradeLoanService.TradeLoanApplication.CollectInstallmentCommandHandler>> as TradeLoanService.TradeLoanApplication.CollectInstallmentCommandHandler
+  rectangle "==CompensateCollectInstallmentCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles compensate collect installment" <<TradeLoanService.TradeLoanApplication.CompensateCollectInstallmentCommandHandler>> as TradeLoanService.TradeLoanApplication.CompensateCollectInstallmentCommandHandler
   rectangle "==DefineTradeLoanArrangementCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles define trade loan arrangement" <<TradeLoanService.TradeLoanApplication.DefineTradeLoanArrangementCommandHandler>> as TradeLoanService.TradeLoanApplication.DefineTradeLoanArrangementCommandHandler
   rectangle "==DefineLoanTypeCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles define loan type" <<TradeLoanService.TradeLoanApplication.DefineLoanTypeCommandHandler>> as TradeLoanService.TradeLoanApplication.DefineLoanTypeCommandHandler
   rectangle "==FullLoanFacilityLifecycleCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles full loan facility lifecycle" <<TradeLoanService.TradeLoanApplication.FullLoanFacilityLifecycleCommandHandler>> as TradeLoanService.TradeLoanApplication.FullLoanFacilityLifecycleCommandHandler
   rectangle "==FullLifecycleRevertCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles full lifecycle revert" <<TradeLoanService.TradeLoanApplication.FullLifecycleRevertCommandHandler>> as TradeLoanService.TradeLoanApplication.FullLifecycleRevertCommandHandler
   rectangle "==IrregularProgressiveDisbursementCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles irregular progressive disbursement" <<TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementCommandHandler>> as TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementCommandHandler
-  rectangle "==CompensateIrregularDisbursementCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles compensate irregular disbursement" <<TradeLoanService.TradeLoanApplication.CompensateIrregularDisbursementCommandHandler>> as TradeLoanService.TradeLoanApplication.CompensateIrregularDisbursementCommandHandler
 }
 
 @enduml

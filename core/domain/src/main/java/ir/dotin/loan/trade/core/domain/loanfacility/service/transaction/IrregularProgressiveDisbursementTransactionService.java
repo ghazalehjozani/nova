@@ -25,7 +25,7 @@ import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.enums.DisburseBankCommitmentArticleType;
 import ir.dotin.loan.trade.core.domain.loanfacility.enums.DisbursedInterestArticleType;
 import ir.dotin.loan.trade.core.domain.loanfacility.enums.PaymentAmountArticleType;
-import ir.dotin.loan.trade.core.domain.loanfacility.i18n.TradeLoanFacilityLocalizedMessageCodes;
+import ir.dotin.loan.trade.core.domain.loanfacility.error.TradeLoanFacilityErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.strategy.DisbursementStrategyProvider;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
@@ -108,7 +108,7 @@ public class IrregularProgressiveDisbursementTransactionService {
 
         if (incrementalInterest.isNegative()) {
             return Result.failure(Notification.ofError(
-                    TradeLoanFacilityLocalizedMessageCodes.INCREMENTAL_INTEREST_CANNOT_BE_NEGATIVE,
+                    TradeLoanFacilityErrors.INCREMENTAL_INTEREST_CANNOT_BE_NEGATIVE,
                     newTotalInterest,
                     currentTotalInterest));
         }
@@ -151,8 +151,8 @@ public class IrregularProgressiveDisbursementTransactionService {
                                 findStrategy(DisburseBankCommitmentArticleType.class, facility),
                                 baseMetadata,
                                 resolvedAccounts))
-                        .orElseGet(() -> Result.failure(Notification.ofError(
-                                TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND_FOR_FACILITY))));
+                        .orElseGet(() -> Result.failure(
+                                Notification.ofError(TradeLoanFacilityErrors.SANCTIONED_LOAN_NOT_FOUND_FOR_FACILITY))));
     }
 
     private Result<LoanTransaction> createPaymentAmountTransaction(
@@ -184,8 +184,8 @@ public class IrregularProgressiveDisbursementTransactionService {
                                 findStrategy(PaymentAmountArticleType.class, facility),
                                 baseMetadata,
                                 resolvedAccounts))
-                        .orElseGet(() -> Result.failure(Notification.ofError(
-                                TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND))));
+                        .orElseGet(() -> Result.failure(
+                                Notification.ofError(TradeLoanFacilityErrors.SANCTIONED_LOAN_NOT_FOUND))));
     }
 
     private Result<LoanTransaction> createDisbursedInterestTransaction(
@@ -216,8 +216,8 @@ public class IrregularProgressiveDisbursementTransactionService {
                                 findStrategy(DisbursedInterestArticleType.class, facility),
                                 baseMetadata,
                                 resolvedAccounts))
-                        .orElseGet(() -> Result.failure(Notification.ofError(
-                                TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND))));
+                        .orElseGet(() -> Result.failure(
+                                Notification.ofError(TradeLoanFacilityErrors.SANCTIONED_LOAN_NOT_FOUND))));
     }
 
     private <K extends Enum<K> & ArticleType<K, TradeRelationType>>

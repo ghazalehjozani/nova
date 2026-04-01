@@ -20,7 +20,7 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateIrre
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.InstallmentScheduleRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
-import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.i18n.IrregularProgressiveDisbursementErrorCodes;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 import lombok.RequiredArgsConstructor;
@@ -43,8 +43,7 @@ class CompensateIrregularDisbursementCommandHandler implements CommandHandler<Co
         return Result.fromOptional(
                         facilityRepository.findById(LoanFacilityId.of(command.loanFacilityId())),
                         () -> Notification.ofError(
-                                IrregularProgressiveDisbursementErrorCodes.FACILITY_NOT_FOUND,
-                                command.loanFacilityId()))
+                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId()))
                 .flatMap(facility -> revertDisbursementAndSchedules(facility, command));
     }
 

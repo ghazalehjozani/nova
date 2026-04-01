@@ -11,6 +11,7 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
+import ir.dotin.platform.saga.api.error.SagaErrors;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
@@ -21,7 +22,7 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLifecycleR
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.CollateralServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
-import ir.dotin.loan.trade.core.application.service.fullloanlifecycle.i18n.FullLoanFacilityLifecycleErrorCodes;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 import lombok.RequiredArgsConstructor;
@@ -47,7 +48,7 @@ public class FullLifecycleRevertCommandHandler implements CommandHandler<FullLif
     private Result<TradeLoanFacility> loadFacility(java.util.UUID facilityId) {
         return Result.fromOptional(
                 repository.findById(LoanFacilityId.of(facilityId)),
-                Notification.ofError(FullLoanFacilityLifecycleErrorCodes.FACILITY_NOT_FOUND, facilityId));
+                Notification.ofError(TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, facilityId));
     }
 
     private Result<List<DomainEvent<?>>> executeLifoRevert(
@@ -70,7 +71,7 @@ public class FullLifecycleRevertCommandHandler implements CommandHandler<FullLif
             case APPLICATION_SUBMITTED -> revertFromOrigination(facility, command, collectedEvents);
             default ->
                 Result.failure(Notification.ofError(
-                        FullLoanFacilityLifecycleErrorCodes.INVALID_STATE_FOR_COMPENSATION,
+                        SagaErrors.INVALID_STATE_FOR_COMPENSATION,
                         facility.getId().value(),
                         currentStatus));
         };

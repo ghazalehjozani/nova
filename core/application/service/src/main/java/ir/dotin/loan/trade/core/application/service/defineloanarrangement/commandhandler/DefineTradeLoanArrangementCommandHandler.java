@@ -17,8 +17,8 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.DefineTradeLoanArrangementCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
-import ir.dotin.loan.trade.core.application.service.defineloanarrangement.i18n.DefineLoanArrangementErrorCodes;
 import ir.dotin.loan.trade.core.application.service.defineloanarrangement.mapper.DefineTradeLoanArrangementCommandMapper;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 
 import lombok.RequiredArgsConstructor;
@@ -47,7 +47,7 @@ public class DefineTradeLoanArrangementCommandHandler implements CommandHandler<
                                 LoanArrangementCode.valueOf(command.code().value())
                                         .getValue()),
                         Notification.ofError(
-                                DefineLoanArrangementErrorCodes.DUPLICATE_CODE,
+                                TradeLoanApplicationServiceErrors.DUPLICATE_CODE,
                                 command.code().value()))
                 .flatMap(ignored -> {
                     Result<EconomicSector> economicSectorResult = economicSectorFuture.join();

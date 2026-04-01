@@ -12,8 +12,8 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.IssueFacilityContractCommand;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
-import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.i18n.IssueFacilityContractErrorCodes;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.strategy.FacilityContractContext;
 
 import lombok.RequiredArgsConstructor;
@@ -59,7 +59,7 @@ public class FacilityContractValidator {
                 .anyMatch(coveredBranch -> coveredBranch.value().equals(branchCode));
 
         if (!isBranchCovered) {
-            return Result.failure(Notification.ofError(IssueFacilityContractErrorCodes.BRANCH_NOT_FOUND, branchCode));
+            return Result.failure(Notification.ofError(CoreBankingErrors.BRANCH_NOT_COVERED, branchCode));
         }
 
         return Result.success();

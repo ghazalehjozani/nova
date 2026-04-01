@@ -16,7 +16,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.ApproveFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FetchSanctionDetailsPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.SanctionDetails;
-import ir.dotin.loan.trade.core.application.service.approvefacility.i18n.ApproveFacilityErrorCodes;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan;
@@ -38,14 +38,14 @@ public class ManualApprovalStrategy implements ApprovalStrategy {
             ApproveFacilityCommand command, TradeLoanFacility facility, TradeLoanArrangement arrangement) {
 
         if (command.sanctionSerial() == null) {
-            return Result.failure(
-                    Notification.ofError(ApproveFacilityErrorCodes.SANCTION_SERIAL_REQUIRED_FOR_MANUAL_APPROVAL));
+            return Result.failure(Notification.ofError(
+                    TradeLoanApplicationServiceErrors.SANCTION_SERIAL_REQUIRED_FOR_MANUAL_APPROVAL));
         }
         boolean isAutoApproval = facility.getLoanApplication().getApplicantChannel() == DIGITAL_BANK;
 
         if (isAutoApproval) {
             return Result.failure(
-                    Notification.ofError(ApproveFacilityErrorCodes.MANUAL_APPROVAL_NOT_ALLOWED, DIGITAL_BANK));
+                    Notification.ofError(TradeLoanApplicationServiceErrors.MANUAL_APPROVAL_NOT_ALLOWED, DIGITAL_BANK));
         }
 
         return Result.success();
@@ -86,7 +86,7 @@ public class ManualApprovalStrategy implements ApprovalStrategy {
             return Result.success(builder);
         } catch (Exception e) {
             return Result.failure(
-                    Notification.ofError(ApproveFacilityErrorCodes.INVALID_SANCTION_DETAILS, e.getMessage()));
+                    Notification.ofError(TradeLoanApplicationServiceErrors.INVALID_SANCTION_DETAILS, e.getMessage()));
         }
     }
 }

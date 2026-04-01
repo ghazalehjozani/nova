@@ -32,8 +32,8 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.exception.FcbSerializationException;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.exception.FcbServerException;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.i18n.FcbKafkaLocalizedMessageCodes;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.KafkaErrorCodeMapper;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
@@ -97,34 +97,30 @@ public class FcbKafkaClient {
         if (cause instanceof FcbServerException fse) {
             log.error("FCB server error after retries: operation={}, code={}", operationType, fse.getErrorCode());
             return Result.failure(Notification.ofError(
-                    FcbKafkaLocalizedMessageCodes.KAFKA_FCB_SERVER_ERROR, fse.getErrorCode(), fse.getErrorMessage()));
+                    CoreBankingErrors.KAFKA_FCB_SERVER_ERROR, fse.getErrorCode(), fse.getErrorMessage()));
         }
         if (cause instanceof java.util.concurrent.TimeoutException) {
             log.warn("Kafka reply timed out: operation={}, timeout={}ms", operationType, timeout.toMillis());
             return Result.failure(Notification.ofError(
-                    FcbKafkaLocalizedMessageCodes.KAFKA_REPLY_TIMEOUT,
-                    operationType,
-                    String.valueOf(timeout.toMillis())));
+                    CoreBankingErrors.KAFKA_REPLY_TIMEOUT, operationType, String.valueOf(timeout.toMillis())));
         }
         if (cause instanceof CallNotPermittedException) {
             log.error("FCB Kafka circuit breaker OPEN: operation={}", operationType);
-            return Result.failure(Notification.ofError(
-                    FcbKafkaLocalizedMessageCodes.KAFKA_BROKER_UNAVAILABLE, "Circuit breaker OPEN"));
+            return Result.failure(
+                    Notification.ofError(CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, "Circuit breaker OPEN"));
         }
         if (cause instanceof org.springframework.kafka.KafkaException ke) {
             log.error("Kafka broker error: operation={}", operationType, ke);
-            return Result.failure(
-                    Notification.ofError(FcbKafkaLocalizedMessageCodes.KAFKA_BROKER_UNAVAILABLE, ke.getMessage()));
+            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, ke.getMessage()));
         }
         if (cause instanceof FcbSerializationException fse) {
             log.error("Serialization error: operation={}", operationType, fse);
-            return Result.failure(Notification.ofError(
-                    FcbKafkaLocalizedMessageCodes.KAFKA_SERIALIZATION_ERROR, fse.getErrorMessage()));
+            return Result.failure(
+                    Notification.ofError(CoreBankingErrors.KAFKA_SERIALIZATION_ERROR, fse.getErrorMessage()));
         }
         log.error("Kafka communication error: operation={}", operationType, cause);
         return Result.failure(Notification.ofError(
-                FcbKafkaLocalizedMessageCodes.KAFKA_COMMUNICATION_ERROR,
-                cause != null ? cause.getMessage() : e.getMessage()));
+                CoreBankingErrors.KAFKA_COMMUNICATION_ERROR, cause != null ? cause.getMessage() : e.getMessage()));
     }
 
     private Result<FcbKafkaBaseResponse> executeRequest(
@@ -166,8 +162,7 @@ public class FcbKafkaClient {
 
         if (replyRecord.value() == null || replyRecord.value().length == 0) {
             log.warn("Empty Kafka reply for operation={}", operationType);
-            return Result.failure(
-                    Notification.ofError(FcbKafkaLocalizedMessageCodes.KAFKA_INVALID_RESPONSE, operationType));
+            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, operationType));
         }
 
         FcbKafkaBaseResponse response;
@@ -190,8 +185,8 @@ public class FcbKafkaClient {
             if (KafkaErrorCodeMapper.isServerError(errorCode)) {
                 throw new FcbServerException(errorCode, errorMessage);
             } else if (KafkaErrorCodeMapper.isClientError(errorCode)) {
-                return Result.failure(Notification.ofError(
-                        FcbKafkaLocalizedMessageCodes.KAFKA_FCB_CLIENT_ERROR, errorCode, errorMessage));
+                return Result.failure(
+                        Notification.ofError(CoreBankingErrors.KAFKA_FCB_CLIENT_ERROR, errorCode, errorMessage));
             } else {
                 return Result.failure(KafkaErrorCodeMapper.mapToNotification(response));
             }

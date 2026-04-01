@@ -8,7 +8,7 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.ApproveFacilityCommand;
-import ir.dotin.loan.trade.core.application.service.approvefacility.i18n.ApproveFacilityErrorCodes;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilityService;
@@ -28,8 +28,8 @@ public class AutoApprovalStrategy implements ApprovalStrategy {
             ApproveFacilityCommand command, TradeLoanFacility facility, TradeLoanArrangement arrangement) {
 
         if (command.sanctionSerial() != null) {
-            return Result.failure(
-                    Notification.ofError(ApproveFacilityErrorCodes.SANCTION_SERIAL_NOT_ALLOWED_FOR_AUTO_APPROVAL));
+            return Result.failure(Notification.ofError(
+                    TradeLoanApplicationServiceErrors.SANCTION_SERIAL_NOT_ALLOWED_FOR_AUTO_APPROVAL));
         }
         boolean isAutoApproval = facility.getLoanApplication().getApplicantChannel() == DIGITAL_BANK;
 
@@ -38,14 +38,14 @@ public class AutoApprovalStrategy implements ApprovalStrategy {
 
         if (allowedConfirmTypes == null || !allowedConfirmTypes.contains(requestConfirmType)) {
             return Result.failure(Notification.ofError(
-                    ApproveFacilityErrorCodes.CONFIRM_TYPE_NOT_ALLOWED,
+                    TradeLoanApplicationServiceErrors.CONFIRM_TYPE_NOT_ALLOWED,
                     command.confirmType(),
                     arrangement.getCode().value()));
         }
 
         if (!isAutoApproval) {
             return Result.failure(Notification.ofError(
-                    ApproveFacilityErrorCodes.AUTO_APPROVAL_NOT_ENABLED,
+                    TradeLoanApplicationServiceErrors.AUTO_APPROVAL_NOT_ENABLED,
                     facility.getLoanApplication().getApplicantChannel().name()));
         }
 

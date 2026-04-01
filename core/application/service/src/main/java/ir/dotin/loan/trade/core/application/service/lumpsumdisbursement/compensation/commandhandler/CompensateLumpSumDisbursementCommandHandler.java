@@ -13,7 +13,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateLumpSumDisbursementCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
-import ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.i18n.LumpSumDisbursementErrorCodes;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ class CompensateLumpSumDisbursementCommandHandler implements CommandHandler<Comp
         return Result.fromOptional(
                         repository.findById(LoanFacilityId.of(command.loanFacilityId())),
                         () -> Notification.ofError(
-                                LumpSumDisbursementErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId()))
+                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId()))
                 .flatMap(facility -> facility.revertLumpSumDisbursement(clock)
                         .flatMap(transactionPostingPort::reverseTransactions)
                         .map(s -> facility))

@@ -17,11 +17,11 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.*;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.AccountInfoKafkaResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.i18n.FcbKafkaLocalizedMessageCodes;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.KafkaAccountMapper;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FindAccountByIdPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FindOrCreateAccountPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.AccountServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CreateAccountInfo;
 
 import lombok.RequiredArgsConstructor;
@@ -113,8 +113,8 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
         }
         FcbKafkaBaseResponse raw = result.orElseThrow();
         if (!(raw instanceof AccountInfoKafkaResponse response)) {
-            return Result.failure(Notification.ofError(
-                    FcbKafkaLocalizedMessageCodes.KAFKA_INVALID_RESPONSE, request.getOperationName()));
+            return Result.failure(
+                    Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, request.getOperationName()));
         }
         return responseMapper.apply(response);
     }

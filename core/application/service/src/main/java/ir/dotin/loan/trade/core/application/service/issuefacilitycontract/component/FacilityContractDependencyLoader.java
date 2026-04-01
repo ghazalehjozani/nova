@@ -14,8 +14,8 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.IssueFacilityContractCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
-import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.i18n.IssueFacilityContractErrorCodes;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.strategy.FacilityContractContext;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
@@ -57,27 +57,18 @@ public class FacilityContractDependencyLoader {
     }
 
     private Result<TradeLoanFacility> safeLoadFacility(UUID facilityId) {
-        try {
-            return facilityRepository
-                    .findById(LoanFacilityId.of(facilityId))
-                    .map(Result::success)
-                    .orElseGet(() -> Result.failure(Notification.ofError(
-                            IssueFacilityContractErrorCodes.FACILITY_NOT_FOUND, facilityId.toString())));
-        } catch (Exception e) {
-            return Result.failure(Notification.ofError(IssueFacilityContractErrorCodes.FACILITY_NOT_FOUND, facilityId));
-        }
+        return facilityRepository
+                .findById(LoanFacilityId.of(facilityId))
+                .map(Result::success)
+                .orElseGet(() -> Result.failure(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, facilityId.toString())));
     }
 
     private Result<TradeLoanArrangement> safeLoadArrangement(LoanArrangementId arrangementId) {
-        try {
-            return loanArrangementRepository
-                    .findById(arrangementId)
-                    .map(Result::success)
-                    .orElseGet(() -> Result.failure(Notification.ofError(
-                            IssueFacilityContractErrorCodes.LOAN_ARRANGEMENT_NOT_FOUND, arrangementId)));
-        } catch (Exception e) {
-            return Result.failure(
-                    Notification.ofError(IssueFacilityContractErrorCodes.LOAN_ARRANGEMENT_NOT_FOUND, arrangementId));
-        }
+        return loanArrangementRepository
+                .findById(arrangementId)
+                .map(Result::success)
+                .orElseGet(() -> Result.failure(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND, arrangementId)));
     }
 }

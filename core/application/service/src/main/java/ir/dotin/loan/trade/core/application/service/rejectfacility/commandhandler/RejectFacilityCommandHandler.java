@@ -14,7 +14,7 @@ import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.RejectFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
-import ir.dotin.loan.trade.core.application.service.rejectfacility.i18n.RejectFacilityErrorCodes;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class RejectFacilityCommandHandler implements CommandHandler<RejectFacili
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
         return Result.fromOptional(
                         repository.findById(loanFacilityId),
-                        () -> Notification.ofError(RejectFacilityErrorCodes.FACILITY_NOT_FOUND, command.uid()))
+                        () -> Notification.ofError(TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.uid()))
                 .peekValue(facility -> {
                     facility.reject(clock);
                     repository.save(facility);

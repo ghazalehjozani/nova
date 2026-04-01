@@ -25,7 +25,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.response.Colla
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.InstallmentScheduleRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
-import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.i18n.AddFacilityCollateralErrorCodes;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
@@ -51,7 +51,7 @@ public class AddFacilityCollateralDependencyLoader {
 
         Result<TradeLoanFacility> facilityResult = Result.fromOptional(
                 facilityRepository.findById(loanFacilityId),
-                Notification.ofError(AddFacilityCollateralErrorCodes.FACILITY_NOT_FOUND, loanFacilityId));
+                Notification.ofError(TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, loanFacilityId));
         if (facilityResult.isFailure()) {
             return Result.failure(facilityResult.notification());
         }
@@ -119,7 +119,7 @@ public class AddFacilityCollateralDependencyLoader {
         CollateralValidation validation = validationRes.value();
         if (!validation.isValid()) {
             return Result.failure(Notification.ofError(
-                    AddFacilityCollateralErrorCodes.COLLATERAL_VALIDATION_FAILED, validation.message()));
+                    TradeLoanApplicationServiceErrors.COLLATERAL_VALIDATION_FAILED, validation.message()));
         }
 
         return Result.success(new CollateralValidationContext(
@@ -135,7 +135,7 @@ public class AddFacilityCollateralDependencyLoader {
         return Result.fromOptional(
                 arrangementRepository.findById(facility.getLoanArrangementId()),
                 Notification.ofError(
-                        AddFacilityCollateralErrorCodes.LOAN_ARRANGEMENT_NOT_FOUND, facility.getLoanArrangementId()));
+                        TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND, facility.getLoanArrangementId()));
     }
 
     private Result<Optional<InstallmentSchedule>> loadSchedule(TradeLoanFacility facility) {

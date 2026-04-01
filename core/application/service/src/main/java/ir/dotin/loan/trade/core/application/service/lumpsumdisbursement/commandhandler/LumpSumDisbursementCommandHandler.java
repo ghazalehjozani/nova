@@ -34,9 +34,9 @@ import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.Tr
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanTypeRepository;
 import ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.configuration.LumpSumDisbursementConfiguration;
-import ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.i18n.LumpSumDisbursementErrorCodes;
 import ir.dotin.loan.trade.core.application.service.shared.account.AccountResolutionService;
 import ir.dotin.loan.trade.core.application.service.shared.account.LoanTopicResolver;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.application.service.shared.util.DocumentMetadataUtils;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
@@ -87,7 +87,8 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
     private Result<TradeLoanFacility> loadFacility(LoanFacilityId loanFacilityId) {
         return Result.fromOptional(
                 tradeLoanFacilityRepository.findById(loanFacilityId),
-                () -> Notification.ofError(LumpSumDisbursementErrorCodes.FACILITY_NOT_FOUND, loanFacilityId.value()));
+                () -> Notification.ofError(
+                        TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, loanFacilityId.value()));
     }
 
     private Result<TradeLoanFacility> validateDisbursementMethod(TradeLoanFacility facility) {
@@ -95,7 +96,7 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
                 .filter(sl -> sl.getDisbursementMethod() == DisbursementMethod.LUMP_SUM)
                 .map(ignored -> Result.success(facility))
                 .orElseGet(() -> Result.failure(Notification.ofError(
-                        LumpSumDisbursementErrorCodes.INVALID_DISBURSEMENT_METHOD,
+                        TradeLoanApplicationServiceErrors.INVALID_DISBURSEMENT_METHOD,
                         facility.getSanctionedLoan()
                                 .map(AbstractSanctionedLoan::getDisbursementMethod)
                                 .orElse(null))));
@@ -120,7 +121,7 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
         return Result.fromOptional(
                 tradeLoanTypeRepository.findById(facility.getLoanTypeId()),
                 () -> Notification.ofError(
-                        LumpSumDisbursementErrorCodes.LOAN_TYPE_NOT_FOUND,
+                        TradeLoanApplicationServiceErrors.LOAN_TYPE_NOT_FOUND,
                         facility.getLoanTypeId(),
                         facility.getId().value()));
     }
@@ -129,7 +130,7 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
         return Result.fromOptional(
                 tradeLoanArrangementRepository.findById(facility.getLoanArrangementId()),
                 () -> Notification.ofError(
-                        LumpSumDisbursementErrorCodes.LOAN_ARRANGEMENT_NOT_FOUND,
+                        TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND,
                         facility.getLoanArrangementId(),
                         facility.getId().value()));
     }
@@ -139,10 +140,10 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
                 .map(scheduleId -> Result.fromOptional(
                         installmentScheduleRepository.findById(scheduleId),
                         () -> Notification.ofError(
-                                LumpSumDisbursementErrorCodes.INSTALLMENT_SCHEDULE_NOT_FOUND,
+                                TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
                                 facility.getId().value())))
                 .orElseGet(() -> Result.failure(Notification.ofError(
-                        LumpSumDisbursementErrorCodes.INSTALLMENT_SCHEDULE_NOT_FOUND,
+                        TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
                         facility.getId().value())));
     }
 
@@ -150,7 +151,7 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
         return BranchCode.of(command.branchCode())
                 .flatMapOptional(
                         Optional::ofNullable,
-                        Notification.ofError(LumpSumDisbursementErrorCodes.INVALID_AMOUNT, command.branchCode()));
+                        Notification.ofError(TradeLoanApplicationServiceErrors.INVALID_AMOUNT, command.branchCode()));
     }
 
     private Result<TransactionConfig> createTransactionConfig(LumpSumDisbursementCommand command) {
@@ -174,7 +175,7 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
     private Result<Void> validateDisbursement(TradeLoanFacility facility, ProcessingContext context) {
         if (facility.getSanctionedLoan().isEmpty()) {
             return Result.failure(Notification.ofError(
-                    LumpSumDisbursementErrorCodes.SANCTIONED_LOAN_NOT_FOUND,
+                    TradeLoanApplicationServiceErrors.SANCTIONED_LOAN_NOT_FOUND,
                     facility.getId().value()));
         }
         AbstractSanctionedLoan<TradeSanctionedLoan.Builder> sanctionedLoan =
@@ -257,7 +258,7 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
                                 context.disbursementDate())
                         .map(ignored -> new DisbursementOperationResult(facility, context.schedule())))
                 .orElseGet(() -> Result.failure(Notification.ofError(
-                        LumpSumDisbursementErrorCodes.SANCTIONED_LOAN_NOT_FOUND,
+                        TradeLoanApplicationServiceErrors.SANCTIONED_LOAN_NOT_FOUND,
                         facility.getId().value())));
     }
 

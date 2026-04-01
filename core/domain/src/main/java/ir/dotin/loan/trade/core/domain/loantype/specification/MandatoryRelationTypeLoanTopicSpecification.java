@@ -8,7 +8,7 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.validation.Specification;
 import ir.dotin.loan.baseloan.core.domain.loantype.entity.AbstractLoanType;
-import ir.dotin.loan.baseloan.core.domain.loantype.i18n.LoanTypeLocalizedMessageCodes;
+import ir.dotin.loan.baseloan.core.domain.loantype.error.LoanTypeErrors;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
@@ -35,8 +35,8 @@ public class MandatoryRelationTypeLoanTopicSpecification implements Specificatio
 
         if (!missing.isEmpty()) {
             String missingTypes = missing.stream().map(TradeRelationType::name).collect(Collectors.joining(", "));
-            return Result.failure(Notification.ofError(
-                    LoanTypeLocalizedMessageCodes.MISSING_MANDATORY_RELATION_TYPE_TOPICS, missingTypes));
+            return Result.failure(
+                    Notification.ofError(LoanTypeErrors.MISSING_MANDATORY_RELATION_TYPE_TOPICS, missingTypes));
         }
 
         return Result.success(true);

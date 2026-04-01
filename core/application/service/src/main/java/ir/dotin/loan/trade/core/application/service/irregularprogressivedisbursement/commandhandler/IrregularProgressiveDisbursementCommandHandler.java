@@ -41,10 +41,10 @@ import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.Tr
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanTypeRepository;
 import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.configuration.IrregularProgressiveDisbursementConfiguration;
-import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.i18n.IrregularProgressiveDisbursementErrorCodes;
 import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.mapper.IrregularProgressiveDisbursementInstallmentSchedulePlanMapper;
 import ir.dotin.loan.trade.core.application.service.shared.account.AccountResolutionService;
 import ir.dotin.loan.trade.core.application.service.shared.account.LoanTopicResolver;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.application.service.shared.util.DocumentMetadataUtils;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
@@ -126,7 +126,7 @@ public class IrregularProgressiveDisbursementCommandHandler
         return Result.fromOptional(
                 tradeLoanFacilityRepository.findById(loanFacilityId),
                 () -> Notification.ofError(
-                        IrregularProgressiveDisbursementErrorCodes.FACILITY_NOT_FOUND, loanFacilityId.value()));
+                        TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, loanFacilityId.value()));
     }
 
     private Result<TradeLoanFacility> validateDisbursementMethod(TradeLoanFacility facility) {
@@ -134,7 +134,7 @@ public class IrregularProgressiveDisbursementCommandHandler
                 .filter(sl -> sl.getDisbursementMethod() == DisbursementMethod.IRREGULAR_PROGRESSIVE)
                 .map(ignored -> Result.success(facility))
                 .orElseGet(() -> Result.failure(Notification.ofError(
-                        IrregularProgressiveDisbursementErrorCodes.INVALID_DISBURSEMENT_METHOD,
+                        TradeLoanApplicationServiceErrors.INVALID_DISBURSEMENT_METHOD,
                         facility.getSanctionedLoan()
                                 .map(sl -> sl.getDisbursementMethod().name())
                                 .orElse("UNKNOWN"))));
@@ -174,7 +174,7 @@ public class IrregularProgressiveDisbursementCommandHandler
         return Result.fromOptional(
                 tradeLoanTypeRepository.findById(facility.getLoanTypeId()),
                 () -> Notification.ofError(
-                        IrregularProgressiveDisbursementErrorCodes.LOAN_TYPE_NOT_FOUND,
+                        TradeLoanApplicationServiceErrors.LOAN_TYPE_NOT_FOUND,
                         facility.getLoanTypeId(),
                         facility.getId().value()));
     }
@@ -183,7 +183,7 @@ public class IrregularProgressiveDisbursementCommandHandler
         return Result.fromOptional(
                 tradeLoanArrangementRepository.findById(facility.getLoanArrangementId()),
                 () -> Notification.ofError(
-                        IrregularProgressiveDisbursementErrorCodes.LOAN_ARRANGEMENT_NOT_FOUND,
+                        TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND,
                         facility.getLoanArrangementId(),
                         facility.getId().value()));
     }
@@ -193,10 +193,10 @@ public class IrregularProgressiveDisbursementCommandHandler
                 .map(scheduleId -> Result.fromOptional(
                         installmentScheduleRepository.findById(scheduleId),
                         () -> Notification.ofError(
-                                IrregularProgressiveDisbursementErrorCodes.INSTALLMENT_SCHEDULE_NOT_FOUND,
+                                TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
                                 facility.getId().value())))
                 .orElseGet(() -> Result.failure(Notification.ofError(
-                        IrregularProgressiveDisbursementErrorCodes.INSTALLMENT_SCHEDULE_NOT_FOUND,
+                        TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
                         facility.getId().value())));
     }
 
@@ -205,7 +205,7 @@ public class IrregularProgressiveDisbursementCommandHandler
                 .flatMapOptional(
                         java.util.Optional::ofNullable,
                         Notification.ofError(
-                                IrregularProgressiveDisbursementErrorCodes.INVALID_BRANCH_CODE, command.branchCode()));
+                                TradeLoanApplicationServiceErrors.INVALID_BRANCH_CODE, command.branchCode()));
     }
 
     private Result<TransactionConfig> createTransactionConfig(IrregularProgressiveDisbursementCommand command) {
@@ -243,13 +243,13 @@ public class IrregularProgressiveDisbursementCommandHandler
         if (isFirstDisbursement) {
             if (currentStatus != InstallmentScheduleStatus.DRAFT) {
                 return Result.failure(Notification.ofError(
-                        IrregularProgressiveDisbursementErrorCodes.INVALID_SCHEDULE_STATUS_FOR_FIRST_DISBURSEMENT,
+                        TradeLoanApplicationServiceErrors.INVALID_SCHEDULE_STATUS_FOR_FIRST_DISBURSEMENT,
                         currentStatus));
             }
         } else {
             if (currentStatus != InstallmentScheduleStatus.ACTIVE) {
                 return Result.failure(Notification.ofError(
-                        IrregularProgressiveDisbursementErrorCodes.INVALID_SCHEDULE_STATUS_FOR_SUBSEQUENT_DISBURSEMENT,
+                        TradeLoanApplicationServiceErrors.INVALID_SCHEDULE_STATUS_FOR_SUBSEQUENT_DISBURSEMENT,
                         currentStatus));
             }
         }

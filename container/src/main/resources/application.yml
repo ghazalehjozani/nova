@@ -450,7 +450,7 @@ platform:
       include-trace-context: true
       structured: true
   protocol:
-    issuer: LN
+    issuer: NOVA
 
 
 fcb:

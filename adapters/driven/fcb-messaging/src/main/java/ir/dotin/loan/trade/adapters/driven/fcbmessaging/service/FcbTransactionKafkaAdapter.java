@@ -17,9 +17,9 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseResponse
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.PostTransactionRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ReverseTransactionRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.TransactionResultKafkaResponse;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.i18n.FcbKafkaLocalizedMessageCodes;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.KafkaTransactionMapper;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,8 +64,8 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
 
         FcbKafkaBaseResponse raw = result.orElseThrow();
         if (!(raw instanceof TransactionResultKafkaResponse response)) {
-            return Result.failure(Notification.ofError(
-                    FcbKafkaLocalizedMessageCodes.KAFKA_INVALID_RESPONSE, "issue-general-document"));
+            return Result.failure(
+                    Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "issue-general-document"));
         }
 
         return KafkaTransactionMapper.mapToTrackedTransactionNumber(response, trackingId, clock);

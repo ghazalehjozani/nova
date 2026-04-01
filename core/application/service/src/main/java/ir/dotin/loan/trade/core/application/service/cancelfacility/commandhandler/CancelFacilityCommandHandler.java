@@ -13,7 +13,7 @@ import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CancelFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
-import ir.dotin.loan.trade.core.application.service.cancelfacility.i18n.CancelFacilityErrorCodes;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilityService;
 
@@ -34,7 +34,7 @@ public class CancelFacilityCommandHandler implements CommandHandler<CancelFacili
         return Result.fromOptional(
                         repository.findById(loanFacilityId),
                         () -> Notification.ofError(
-                                CancelFacilityErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId()))
+                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId()))
                 .flatMap(facility -> domainService
                         .cancel(facility, command.cancellationNotes())
                         .map(v -> facility))

@@ -19,7 +19,7 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.PlanEqualInsta
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.InstallmentScheduleRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
-import ir.dotin.loan.trade.core.application.service.planequalinstallmentschedule.i18n.PlanEqualInstallmentScheduleErrorCodes;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.installmentschedule.service.TradeRepaymentSchedulingService;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
@@ -51,14 +51,13 @@ public class PlanEqualInstallmentScheduleCommandHandler implements CommandHandle
     private Result<ScheduleCreationDependencies> loadDependencies(PlanEqualInstallmentScheduleCommand command) {
         Result<TradeLoanFacility> facility = Result.fromOptional(
                 tradeLoanFacilityRepository.findById(LoanFacilityId.of(command.loanFacilityId())),
-                Notification.ofError(
-                        PlanEqualInstallmentScheduleErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId()));
+                Notification.ofError(TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId()));
 
         return facility.flatMap(f -> {
             Result<TradeLoanArrangement> arrangement = Result.fromOptional(
                     tradeLoanArrangementRepository.findById(f.getLoanArrangementId()),
                     Notification.ofError(
-                            PlanEqualInstallmentScheduleErrorCodes.ARRANGEMENT_NOT_FOUND,
+                            TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND,
                             f.getLoanArrangementId().value()));
 
             return arrangement.mapNonNull(a -> new ScheduleCreationDependencies(f, a));

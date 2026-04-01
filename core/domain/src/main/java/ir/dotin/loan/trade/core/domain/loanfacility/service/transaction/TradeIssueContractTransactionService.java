@@ -18,7 +18,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.document.metadata.ArticleMet
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan;
 import ir.dotin.loan.trade.core.domain.loanfacility.enums.IssueContractBankCommitmentArticleType;
-import ir.dotin.loan.trade.core.domain.loanfacility.i18n.TradeLoanFacilityLocalizedMessageCodes;
+import ir.dotin.loan.trade.core.domain.loanfacility.error.TradeLoanFacilityErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.strategy.IssueContractCommitmentHandlingStrategy;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
@@ -49,7 +49,7 @@ public class TradeIssueContractTransactionService {
                 .map(sanctionedLoan -> buildTransaction(
                         facility, sanctionedLoan, loanType, branchCode, postTitle, baseMetadata, resolvedAccounts))
                 .orElseGet(() -> Result.failure(Notification.ofError(
-                        TradeLoanFacilityLocalizedMessageCodes.SANCTIONED_LOAN_NOT_FOUND_FOR_FACILITY,
+                        TradeLoanFacilityErrors.SANCTIONED_LOAN_NOT_FOUND_FOR_FACILITY,
                         facility.getId().value())));
     }
 

@@ -32,11 +32,11 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.*;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.*;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.i18n.FcbKafkaLocalizedMessageCodes;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.KafkaValidationMapper;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FetchSanctionDetailsPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.customerservice.CustomerServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.depositservice.DepositServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.CollateralServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CustomerInfoLoadOptions;
@@ -137,7 +137,7 @@ public class FcbValidationKafkaAdapter
         FcbKafkaBaseResponse raw = result.orElseThrow();
         if (!(raw instanceof ApplicationNumberKafkaResponse response)) {
             return Result.failure(
-                    Notification.ofError(FcbKafkaLocalizedMessageCodes.KAFKA_INVALID_RESPONSE, "getApplicationNumber"));
+                    Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "getApplicationNumber"));
         }
         return KafkaValidationMapper.mapToApplicationNumber(response, branch, loanTypeCode, party);
     }
@@ -172,8 +172,7 @@ public class FcbValidationKafkaAdapter
         }
         FcbKafkaBaseResponse raw = result.orElseThrow();
         if (!(raw instanceof CustomerInfoKafkaResponse response)) {
-            return Result.failure(
-                    Notification.ofError(FcbKafkaLocalizedMessageCodes.KAFKA_INVALID_RESPONSE, "loadCustomerInfo"));
+            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "loadCustomerInfo"));
         }
         return KafkaValidationMapper.mapToPartyInfoResponse(response, role, guaranteePercentage);
     }
@@ -328,8 +327,8 @@ public class FcbValidationKafkaAdapter
         }
         FcbKafkaBaseResponse raw = result.orElseThrow();
         if (!responseType.isInstance(raw)) {
-            return Result.failure(Notification.ofError(
-                    FcbKafkaLocalizedMessageCodes.KAFKA_INVALID_RESPONSE, request.getOperationName()));
+            return Result.failure(
+                    Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, request.getOperationName()));
         }
         return responseMapper.apply(responseType.cast(raw));
     }

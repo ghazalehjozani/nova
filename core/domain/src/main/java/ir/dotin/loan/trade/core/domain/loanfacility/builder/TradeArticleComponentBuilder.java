@@ -15,7 +15,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ResolvedAccounts;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleComponent;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleType;
-import ir.dotin.loan.trade.core.domain.loanfacility.i18n.TradeLoanFacilityLocalizedMessageCodes;
+import ir.dotin.loan.trade.core.domain.loanfacility.error.TradeLoanFacilityErrors;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
 import static java.util.Objects.requireNonNull;
@@ -53,8 +53,7 @@ public class TradeArticleComponentBuilder {
     public <K extends Enum<K> & ArticleType<K, TradeRelationType>> Result<Map<K, ArticleComponent>> build(
             Class<K> articleTypeClass) {
         if (components.isEmpty()) {
-            return Result.failure(
-                    Notification.ofError(TradeLoanFacilityLocalizedMessageCodes.NO_ARTICLE_COMPONENTS_ADDED));
+            return Result.failure(Notification.ofError(TradeLoanFacilityErrors.NO_ARTICLE_COMPONENTS_ADDED));
         }
 
         Map<K, ArticleComponent> typedMap = new HashMap<>();

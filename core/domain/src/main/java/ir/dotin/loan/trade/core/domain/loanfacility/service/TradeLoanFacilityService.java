@@ -17,7 +17,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan;
-import ir.dotin.loan.trade.core.domain.loanfacility.i18n.TradeLoanFacilityLocalizedMessageCodes;
+import ir.dotin.loan.trade.core.domain.loanfacility.error.TradeLoanFacilityErrors;
 
 @DomainService
 public class TradeLoanFacilityService
@@ -33,7 +33,7 @@ public class TradeLoanFacilityService
 
         if (transactionNumbers == null) {
             return Result.failure(Notification.ofError(
-                    TradeLoanFacilityLocalizedMessageCodes.BUILDER_VALIDATION_FAILED,
+                    TradeLoanFacilityErrors.BUILDER_VALIDATION_FAILED,
                     "Transaction numbers cannot be null for trade loans"));
         }
 

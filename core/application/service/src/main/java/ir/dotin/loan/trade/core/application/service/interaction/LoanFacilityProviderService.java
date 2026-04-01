@@ -7,7 +7,7 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
-import ir.dotin.loan.trade.core.application.service.fullloanlifecycle.i18n.FullLoanFacilityLifecycleErrorCodes;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.installmentschedule.intraction.LoanFacilityProvider;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
@@ -23,6 +23,6 @@ public class LoanFacilityProviderService implements LoanFacilityProvider {
     public Result<TradeLoanFacility> findLoanFacilityById(@NonNull LoanFacilityId id) {
         return Result.fromOptional(
                 tradeLoanFacilityRepository.findById(id),
-                Notification.ofError(FullLoanFacilityLifecycleErrorCodes.FACILITY_NOT_FOUND, id));
+                Notification.ofError(TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, id));
     }
 }

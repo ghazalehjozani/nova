@@ -22,7 +22,7 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.CollectInstall
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.InstallmentScheduleRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.query.ApplicationNumberResolver;
 import ir.dotin.loan.trade.core.application.ports.outbound.query.ApplicationNumberResolver.LoanIdentifiers;
-import ir.dotin.loan.trade.core.application.service.collectinstallment.i18n.CollectInstallmentErrorCodes;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 
 import lombok.RequiredArgsConstructor;
 
@@ -53,14 +53,16 @@ public class CollectInstallmentCommandHandler implements CommandHandler<CollectI
     private Result<LoanIdentifiers> resolveIdentifiers(CollectInstallmentCommand command) {
         return Result.fromOptional(
                 applicationNumberResolver.resolveByApplicationNumber(command.applicationNumber()),
-                Notification.ofError(CollectInstallmentErrorCodes.FILE_NUMBER_NOT_FOUND, command.applicationNumber()));
+                Notification.ofError(
+                        TradeLoanApplicationServiceErrors.APPLICATION_NUMBER_MISSING, command.applicationNumber()));
     }
 
     private Result<InstallmentSchedule> loadSchedule(LoanIdentifiers ids, CollectInstallmentCommand command) {
         return Result.fromOptional(
                 installmentScheduleRepository.findById(
                         InstallmentScheduleId.of(ids.installmentScheduleId()).getValue()),
-                Notification.ofError(CollectInstallmentErrorCodes.SCHEDULE_NOT_FOUND, ids.installmentScheduleId()));
+                Notification.ofError(
+                        TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND, ids.installmentScheduleId()));
     }
 
     private Result<InstallmentSchedule> collectAllPayments(

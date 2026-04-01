@@ -11,8 +11,8 @@ import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.platform.dispatcher.api.context.DispatchContext;
 import ir.dotin.platform.dispatcher.api.context.DispatchContextHolder;
 import ir.dotin.platform.dispatcher.api.context.StandardHeaders;
+import ir.dotin.platform.saga.api.error.SagaErrors;
 import ir.dotin.platform.saga.api.exception.SagaSuspendedException;
-import ir.dotin.platform.saga.api.i18n.SagaErrorCodes;
 import ir.dotin.platform.saga.api.model.SagaResult;
 import ir.dotin.platform.saga.api.model.StepError;
 import ir.dotin.platform.saga.api.orchestration.SagaOrchestrator;
@@ -75,21 +75,21 @@ public class FullLoanFacilityLifecycleCommandHandler implements CommandHandler<F
         return sagaResult
                 .error()
                 .map(this::toResult)
-                .orElseGet(() -> Result.failure(
-                        Notification.ofError(SagaErrorCodes.SAGA_COMPENSATED, extractReason(sagaResult))));
+                .orElseGet(
+                        () -> Result.failure(Notification.ofError(SagaErrors.COMPENSATED, extractReason(sagaResult))));
     }
 
     private Result<List<DomainEvent<?>>> toResult(StepError stepError) {
         return switch (stepError) {
             case StepError.BusinessRuleError bre -> Result.failure(bre.notification());
             case StepError.ValidationError ve ->
-                Result.failure(Notification.ofError(SagaErrorCodes.SAGA_VALIDATION_FAILED, ve.message()));
+                Result.failure(Notification.ofError(SagaErrors.VALIDATION_FAILED, ve.message()));
             case StepError.BusinessError be ->
-                Result.failure(Notification.ofError(SagaErrorCodes.SAGA_STEP_FAILED, be.message()));
+                Result.failure(Notification.ofError(SagaErrors.STEP_FAILED, be.message()));
             case StepError.TechnicalError te ->
-                Result.failure(Notification.ofError(SagaErrorCodes.SAGA_TECHNICAL_ERROR, te.message()));
+                Result.failure(Notification.ofError(SagaErrors.TECHNICAL_ERROR, te.message()));
             case StepError.TimeoutError toe ->
-                Result.failure(Notification.ofError(SagaErrorCodes.SAGA_TIMEOUT, toe.timeoutMillis()));
+                Result.failure(Notification.ofError(SagaErrors.TIMEOUT, toe.timeoutMillis()));
         };
     }
 

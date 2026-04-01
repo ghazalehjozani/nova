@@ -13,7 +13,7 @@ import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CloseFacilityPaidOffCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
-import ir.dotin.loan.trade.core.application.service.closefacilitypaidoff.i18n.CloseFacilityPaidOffErrorCodes;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilityService;
 
@@ -34,7 +34,7 @@ public class CloseFacilityPaidOffCommandHandler implements CommandHandler<CloseF
         return Result.fromOptional(
                         repository.findById(loanFacilityId),
                         () -> Notification.ofError(
-                                CloseFacilityPaidOffErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId()))
+                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId()))
                 .flatMap(facility -> domainService.closePaidOff(facility).map(v -> facility))
                 .peekValue(facility -> {
                     repository.save(facility);

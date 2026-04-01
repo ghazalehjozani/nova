@@ -25,8 +25,8 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.response.Colla
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.component.AddFacilityCollateralDependencyLoader;
 import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.component.CollateralValidationContext;
-import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.i18n.AddFacilityCollateralErrorCodes;
 import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.mapper.AddFacilityCollateralCommandMapper;
+import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilityService;
 
@@ -66,7 +66,7 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
             CollateralDetails details = context.collateralDetailsMap().get(collateral.collateralSerial());
             if (details == null) {
                 return Result.failure(Notification.ofError(
-                        AddFacilityCollateralErrorCodes.COLLATERAL_DETAILS_NOT_FOUND,
+                        TradeLoanApplicationServiceErrors.COLLATERAL_DETAILS_NOT_FOUND,
                         collateral.collateralSerial().value()));
             }
 
@@ -124,7 +124,7 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
                     facility.getLoanApplication().getApplicationNumber().orElseThrow(),
                     command.uid());
             return Result.failure(
-                    Notification.ofError(AddFacilityCollateralErrorCodes.ADD_COLLATERAL_PROCESS_COULD_NOT_COMPLETE));
+                    Notification.ofError(TradeLoanApplicationServiceErrors.ADD_COLLATERAL_PROCESS_COULD_NOT_COMPLETE));
         }
     }
 
@@ -132,7 +132,7 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
         if (Boolean.TRUE.equals(totalValue.isLessThan(requiredAmount).value())) {
             log.warn("Total new collateral value {} is less than required amount {}", totalValue, requiredAmount);
             return Result.failure(Notification.ofError(
-                    AddFacilityCollateralErrorCodes.INSUFFICIENT_COLLATERAL_VALUE, totalValue, requiredAmount));
+                    TradeLoanApplicationServiceErrors.INSUFFICIENT_COLLATERAL_VALUE, totalValue, requiredAmount));
         }
         return Result.success();
     }
@@ -140,7 +140,7 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
     private Result<Void> validateCollateralAdequacy(Money usedAmount, Money realCollateralPrice) {
         if (Boolean.TRUE.equals(usedAmount.isGreaterThan(realCollateralPrice).value())) {
             return Result.failure(Notification.ofError(
-                    AddFacilityCollateralErrorCodes.INSUFFICIENT_COLLATERAL_VALUE, realCollateralPrice, usedAmount));
+                    TradeLoanApplicationServiceErrors.INSUFFICIENT_COLLATERAL_VALUE, realCollateralPrice, usedAmount));
         }
         return Result.success();
     }
@@ -149,7 +149,7 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
         List<Collateral> successfulReservations = new ArrayList<>();
 
         if (facility.getLoanApplication().getApplicationNumber().isEmpty()) {
-            return Result.failure(Notification.ofError(AddFacilityCollateralErrorCodes.APPLICATION_NUMBER_MISSING));
+            return Result.failure(Notification.ofError(TradeLoanApplicationServiceErrors.APPLICATION_NUMBER_MISSING));
         }
         ApplicationNumber appNumber =
                 facility.getLoanApplication().getApplicationNumber().get();
