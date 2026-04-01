@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <!-- ===== loan_facilities ===== -->
+
+    <changeSet id="tl-1.0.0-024-create-loan-facilities" author="DOTIN\m.amirabdollahi">
+        <comment>Central facility entity tying application, sanction, arrangement, and schedule together</comment>
+        <createTable tableName="loan_facilities">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_facilities"/>
+            </column>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="modified_by" type="VARCHAR(255)"/>
+            <column name="loan_application_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sanctioned_loan_id" type="UUID"/>
+            <column name="loan_type_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="loan_arrangement_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="installment_schedule_id" type="UUID"/>
+            <column name="current_state" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="facility_type" type="VARCHAR(255)"/>
+            <column name="total_disbursed_amount" type="DECIMAL(19, 4)"/>
+            <column name="total_disbursed_currency" type="VARCHAR(3)"/>
+            <column name="disbursement_date" type="DATE"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="loan_facilities"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-025-uc-facility-application" author="DOTIN\m.amirabdollahi">
+        <comment>One facility per loan application (1:1 relationship)</comment>
+        <addUniqueConstraint columnNames="loan_application_id"
+                             constraintName="uc_loan_facilities_application"
+                             tableName="loan_facilities"/>
+        <rollback>
+            <dropUniqueConstraint tableName="loan_facilities" constraintName="uc_loan_facilities_application"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-026-uc-facility-sanctioned-loan" author="DOTIN\m.amirabdollahi">
+        <comment>One facility per sanctioned loan (1:1 relationship)</comment>
+        <addUniqueConstraint columnNames="sanctioned_loan_id"
+                             constraintName="uc_loan_facilities_sanctioned_loan"
+                             tableName="loan_facilities"/>
+        <rollback>
+            <dropUniqueConstraint tableName="loan_facilities" constraintName="uc_loan_facilities_sanctioned_loan"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-027-fk-facility-to-application" author="DOTIN\m.amirabdollahi">
+        <comment>FK from facility to its originating loan application</comment>
+        <addForeignKeyConstraint baseColumnNames="loan_application_id"
+                                 baseTableName="loan_facilities"
+                                 constraintName="fk_facilities_on_application"
+                                 referencedColumnNames="id"
+                                 referencedTableName="loan_applications"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="loan_facilities"
+                                      constraintName="fk_facilities_on_application"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-028-fk-facility-to-sanctioned-loan" author="DOTIN\m.amirabdollahi">
+        <comment>FK from facility to its sanctioned loan</comment>
+        <addForeignKeyConstraint baseColumnNames="sanctioned_loan_id"
+                                 baseTableName="loan_facilities"
+                                 constraintName="fk_facilities_on_sanctioned_loan"
+                                 referencedColumnNames="id"
+                                 referencedTableName="sanctioned_loans"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="loan_facilities"
+                                      constraintName="fk_facilities_on_sanctioned_loan"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ===== loan_facility_accounts ===== -->
+
+    <changeSet id="tl-1.0.0-029-create-facility-accounts" author="DOTIN\m.amirabdollahi">
+        <comment>Bank accounts linked to a facility by relation type (e.g. disbursement, repayment)</comment>
+        <createTable tableName="loan_facility_accounts">
+            <column name="facility_id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_facility_accounts"/>
+            </column>
+            <column name="account_id" type="VARCHAR(255)"/>
+            <column name="relation_type" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_facility_accounts"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="loan_facility_accounts"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-030-fk-facility-accounts" author="DOTIN\m.amirabdollahi">
+        <comment>FK from facility accounts to loan_facilities</comment>
+        <addForeignKeyConstraint baseColumnNames="facility_id"
+                                 baseTableName="loan_facility_accounts"
+                                 constraintName="fk_facility_accounts_on_facilities"
+                                 referencedColumnNames="id"
+                                 referencedTableName="loan_facilities"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="loan_facility_accounts"
+                                      constraintName="fk_facility_accounts_on_facilities"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ===== loan_facility_collaterals ===== -->
+
+    <changeSet id="tl-1.0.0-031-create-facility-collaterals" author="DOTIN\m.amirabdollahi">
+        <comment>Collateral pledges against a facility, with type, percentage, and used amount</comment>
+        <createTable tableName="loan_facility_collaterals">
+            <column name="loan_facility_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="collateral_type_code" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="percent" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="collateral_serial" type="VARCHAR(255)"/>
+            <column name="used_amount" type="DECIMAL(19, 4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="used_currency" type="VARCHAR(3)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="loan_facility_collaterals"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-032-fk-facility-collaterals" author="DOTIN\m.amirabdollahi">
+        <comment>FK from facility collaterals to loan_facilities</comment>
+        <addForeignKeyConstraint baseColumnNames="loan_facility_id"
+                                 baseTableName="loan_facility_collaterals"
+                                 constraintName="fk_facility_collaterals_on_facilities"
+                                 referencedColumnNames="id"
+                                 referencedTableName="loan_facilities"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="loan_facility_collaterals"
+                                      constraintName="fk_facility_collaterals_on_facilities"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ===== loan_facility_disbursement_transaction_numbers ===== -->
+
+    <changeSet id="tl-1.0.0-033-create-facility-disbursement-txns" author="DOTIN\m.amirabdollahi">
+        <comment>Transaction numbers generated during facility disbursement with legacy core</comment>
+        <createTable tableName="loan_facility_disbursement_transaction_numbers">
+            <column name="loan_facility_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="transaction_number_value" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tracking_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="loan_facility_disbursement_transaction_numbers"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-034-fk-facility-disbursement-txns" author="DOTIN\m.amirabdollahi">
+        <comment>FK from disbursement transaction numbers to loan_facilities</comment>
+        <addForeignKeyConstraint baseColumnNames="loan_facility_id"
+                                 baseTableName="loan_facility_disbursement_transaction_numbers"
+                                 constraintName="fk_facility_disbursement_txns_on_facilities"
+                                 referencedColumnNames="id"
+                                 referencedTableName="loan_facilities"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="loan_facility_disbursement_transaction_numbers"
+                                      constraintName="fk_facility_disbursement_txns_on_facilities"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ===== loan_facility_issue_contract_transaction_numbers ===== -->
+
+    <changeSet id="tl-1.0.0-035-create-facility-contract-txns" author="DOTIN\m.amirabdollahi">
+        <comment>Transaction numbers generated during facility contract issuance with legacy core</comment>
+        <createTable tableName="loan_facility_issue_contract_transaction_numbers">
+            <column name="loan_facility_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="transaction_number_value" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tracking_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="loan_facility_issue_contract_transaction_numbers"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-036-fk-facility-contract-txns" author="DOTIN\m.amirabdollahi">
+        <comment>FK from contract transaction numbers to loan_facilities</comment>
+        <addForeignKeyConstraint baseColumnNames="loan_facility_id"
+                                 baseTableName="loan_facility_issue_contract_transaction_numbers"
+                                 constraintName="fk_facility_contract_txns_on_facilities"
+                                 referencedColumnNames="id"
+                                 referencedTableName="loan_facilities"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="loan_facility_issue_contract_transaction_numbers"
+                                      constraintName="fk_facility_contract_txns_on_facilities"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

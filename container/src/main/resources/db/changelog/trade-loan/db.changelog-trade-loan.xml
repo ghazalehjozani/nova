@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <!--
+        Trade Loan module changelog: INCLUDES ONLY.
+        Contains all domain tables for trade loan origination, sanctioning,
+        disbursement, installment scheduling, and event outboxes.
+    -->
+
+    <!-- Core reference data -->
+    <include file="db/changelog/trade-loan/v2026.3.0/001-create-loan-types.xml"/>
+    <include file="db/changelog/trade-loan/v2026.3.0/002-create-loan-arrangements.xml"/>
+
+    <!-- Loan lifecycle: application → sanction → facility -->
+    <include file="db/changelog/trade-loan/v2026.3.0/003-create-loan-applications.xml"/>
+    <include file="db/changelog/trade-loan/v2026.3.0/004-create-sanctioned-loans.xml"/>
+    <include file="db/changelog/trade-loan/v2026.3.0/005-create-loan-facilities.xml"/>
+
+    <!-- Financial operations -->
+    <include file="db/changelog/trade-loan/v2026.3.0/006-create-disbursement-tables.xml"/>
+    <include file="db/changelog/trade-loan/v2026.3.0/007-create-installment-tables.xml"/>
+
+    <!-- Event-driven outbox -->
+    <include file="db/changelog/trade-loan/v2026.3.0/008-create-outbox-events.xml"/>
+
+</databaseChangeLog>

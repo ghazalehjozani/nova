@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <!-- ===== loan_types ===== -->
+
+    <changeSet id="tl-1.0.0-001-create-loan-types" author="DOTIN\m.amirabdollahi">
+        <comment>Master table defining available loan products and their gateway/application rules</comment>
+        <createTable tableName="loan_types">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_types"/>
+            </column>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="modified_by" type="VARCHAR(255)"/>
+            <column name="gateway_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="loan_application_allowed" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="group_id" type="UUID"/>
+            <column name="active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="disable" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="previous_version_id" type="UUID"/>
+            <column name="loan_type_code" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="edit_reason" type="VARCHAR(500)"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="loan_types"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-002-uc-loan-type-code" author="DOTIN\m.amirabdollahi">
+        <comment>Enforce unique loan type code across all loan products</comment>
+        <addUniqueConstraint columnNames="loan_type_code"
+                             constraintName="uc_loan_types_loan_type_code"
+                             tableName="loan_types"/>
+        <rollback>
+            <dropUniqueConstraint tableName="loan_types" constraintName="uc_loan_types_loan_type_code"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ===== loan_type_arrangement_ids ===== -->
+
+    <changeSet id="tl-1.0.0-003-create-loan-type-arrangement-ids" author="DOTIN\m.amirabdollahi">
+        <comment>Junction table linking loan types to their eligible arrangements</comment>
+        <createTable tableName="loan_type_arrangement_ids">
+            <column name="loan_type_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="arrangement_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="loan_type_arrangement_ids"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-004-fk-type-arrangement-ids" author="DOTIN\m.amirabdollahi">
+        <comment>FK from loan_type_arrangement_ids to loan_types</comment>
+        <addForeignKeyConstraint baseColumnNames="loan_type_id"
+                                 baseTableName="loan_type_arrangement_ids"
+                                 constraintName="fk_loan_type_arrangement_ids_on_loan_types"
+                                 referencedColumnNames="id"
+                                 referencedTableName="loan_types"/>
+        <createIndex indexName="idx_loan_type_arrangement" tableName="loan_type_arrangement_ids">
+            <column name="loan_type_id"/>
+        </createIndex>
+        <rollback>
+            <dropIndex tableName="loan_type_arrangement_ids" indexName="idx_loan_type_arrangement"/>
+            <dropForeignKeyConstraint baseTableName="loan_type_arrangement_ids"
+                                      constraintName="fk_loan_type_arrangement_ids_on_loan_types"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ===== loan_type_economic_sectors ===== -->
+
+    <changeSet id="tl-1.0.0-005-create-loan-type-economic-sectors" author="DOTIN\m.amirabdollahi">
+        <comment>Economic sectors each loan type is eligible for, with per-sector currency config</comment>
+        <createTable tableName="loan_type_economic_sectors">
+            <column name="loan_type_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="economic_sector_code" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="economic_sector_currency_types" type="jsonb"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="loan_type_economic_sectors"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-006-fk-type-economic-sectors" author="DOTIN\m.amirabdollahi">
+        <comment>FK from loan_type_economic_sectors to loan_types</comment>
+        <addForeignKeyConstraint baseColumnNames="loan_type_id"
+                                 baseTableName="loan_type_economic_sectors"
+                                 constraintName="fk_loan_type_economic_sectors_on_loan_types"
+                                 referencedColumnNames="id"
+                                 referencedTableName="loan_types"/>
+        <createIndex indexName="idx_loan_type_economic_sector" tableName="loan_type_economic_sectors">
+            <column name="loan_type_id"/>
+        </createIndex>
+        <rollback>
+            <dropIndex tableName="loan_type_economic_sectors" indexName="idx_loan_type_economic_sector"/>
+            <dropForeignKeyConstraint baseTableName="loan_type_economic_sectors"
+                                      constraintName="fk_loan_type_economic_sectors_on_loan_types"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ===== loan_type_income_ids ===== -->
+
+    <changeSet id="tl-1.0.0-007-create-loan-type-income-ids" author="DOTIN\m.amirabdollahi">
+        <comment>Income definitions associated with each loan type</comment>
+        <createTable tableName="loan_type_income_ids">
+            <column name="loan_type_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="income_id" type="UUID"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="loan_type_income_ids"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-008-fk-type-income-ids" author="DOTIN\m.amirabdollahi">
+        <comment>FK from loan_type_income_ids to loan_types</comment>
+        <addForeignKeyConstraint baseColumnNames="loan_type_id"
+                                 baseTableName="loan_type_income_ids"
+                                 constraintName="fk_loan_type_income_ids_on_loan_types"
+                                 referencedColumnNames="id"
+                                 referencedTableName="loan_types"/>
+        <createIndex indexName="idx_loan_type_income" tableName="loan_type_income_ids">
+            <column name="loan_type_id"/>
+        </createIndex>
+        <rollback>
+            <dropIndex tableName="loan_type_income_ids" indexName="idx_loan_type_income"/>
+            <dropForeignKeyConstraint baseTableName="loan_type_income_ids"
+                                      constraintName="fk_loan_type_income_ids_on_loan_types"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ===== loan_type_topics ===== -->
+
+    <changeSet id="tl-1.0.0-009-create-loan-type-topics" author="DOTIN\m.amirabdollahi">
+        <comment>Kafka topic routing config per loan type and trade relation</comment>
+        <createTable tableName="loan_type_topics">
+            <column name="loan_type_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="trade_relation_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="topic_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="topic_code" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="loan_topic_economic_sectors" type="jsonb"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="loan_type_topics"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-010-fk-type-topics" author="DOTIN\m.amirabdollahi">
+        <comment>FK from loan_type_topics to loan_types</comment>
+        <addForeignKeyConstraint baseColumnNames="loan_type_id"
+                                 baseTableName="loan_type_topics"
+                                 constraintName="fk_loan_type_topics_on_loan_types"
+                                 referencedColumnNames="id"
+                                 referencedTableName="loan_types"/>
+        <createIndex indexName="idx_loan_type_topic" tableName="loan_type_topics">
+            <column name="loan_type_id"/>
+        </createIndex>
+        <rollback>
+            <dropIndex tableName="loan_type_topics" indexName="idx_loan_type_topic"/>
+            <dropForeignKeyConstraint baseTableName="loan_type_topics"
+                                      constraintName="fk_loan_type_topics_on_loan_types"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

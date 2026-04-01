@@ -174,9 +174,7 @@
                     <locales>
                         <locale/>
                         <locale>en</locale>
-                        <locale>fa</locale>
-                        <locale>ar</locale>
-                        <locale>ru</locale>
+<!--                        <locale>fa</locale>-->
                     </locales>
                     <enableAutoTranslation>true</enableAutoTranslation>
                     <translationApiBaseUrl>https://api.deepseek.com</translationApiBaseUrl>

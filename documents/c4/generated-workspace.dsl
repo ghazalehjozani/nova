@@ -267,6 +267,52 @@ workspace "Trade Loan Service" {
         }
 
         styles {
+            element "Message Broker" {
+                background #f5a623
+                color #000000
+                shape Pipe
+            }
+            element "Saga" {
+                background #ab47bc
+                color #ffffff
+                shape Diamond
+            }
+            element "Compensation" {
+                background #ef5350
+                color #ffffff
+            }
+            element "Repository" {
+                background #5c6bc0
+                color #ffffff
+                shape Cylinder
+            }
+            element "Outbox" {
+                background #66bb6a
+                color #000000
+                shape Hexagon
+            }
+            element "Admin" {
+                background #5c3d6e
+            }
+            element "External User" {
+                background #666666
+            }
+            element "Container" {
+                background #438dd5
+                color #ffffff
+            }
+            element "Cache" {
+                background #e74c3c
+                shape Cylinder
+            }
+            element "Aggregate" {
+                background #ff9800
+                color #000000
+            }
+            element "Entity" {
+                background #ffb74d
+                color #000000
+            }
             element "Person" {
                 background #08427b
                 color #ffffff
@@ -316,52 +362,6 @@ workspace "Trade Loan Service" {
             }
             element "Component" {
                 background #85bbf0
-                color #000000
-            }
-            element "Message Broker" {
-                background #f5a623
-                color #000000
-                shape Pipe
-            }
-            element "Saga" {
-                background #ab47bc
-                color #ffffff
-                shape Diamond
-            }
-            element "Compensation" {
-                background #ef5350
-                color #ffffff
-            }
-            element "Repository" {
-                background #5c6bc0
-                color #ffffff
-                shape Cylinder
-            }
-            element "Outbox" {
-                background #66bb6a
-                color #000000
-                shape Hexagon
-            }
-            element "Admin" {
-                background #5c3d6e
-            }
-            element "External User" {
-                background #666666
-            }
-            element "Container" {
-                background #438dd5
-                color #ffffff
-            }
-            element "Cache" {
-                background #e74c3c
-                shape Cylinder
-            }
-            element "Aggregate" {
-                background #ff9800
-                color #000000
-            }
-            element "Entity" {
-                background #ffb74d
                 color #000000
             }
         }

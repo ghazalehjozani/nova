@@ -3,31 +3,21 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-                      https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
 
-    <!-- Separate changelog directory with aggregate + rollback scenario should be mandatory + enforce file naming convention and etc-->
-    <include file="/db/changelog/changes/26-01-initial-schema-v1.0.0.xml"/>
-    <include file="/db/changelog/changes/13-01-shedlock.xml"/>
-    <include file="/db/changelog/changes/29-01-changelog.xml"/>
-    <include file="db/changelog/changes/01-01-changelog.xml"/>
-    <include file="/db/changelog/changes/02-01-changelog.xml"/>
-    <include file="/db/changelog/changes/04-01-changelog.xml"/>
-    <include file="db/changelog/changes/15-01-changelog.xml"/>
-    <include file="db/changelog/changes/17-01-changelog.xml"/>
-    <include file="db/changelog/2025/11/create_saga_tables.xml"/>
-    <include file="db/changelog/changes/30-01-changelog.xml"/>
-    <include file="db/changelog/audit/audit-changelog.xml"/>
-    <include file="db/changelog/changes/01-02-2025-add-disbursement-date.xml"/>
-    <include file="/db/changelog/changes/2025/12/02-01-changelog.xml"/>
-    <include file="db/changelog/changes/2025/12/07-01-changelog.xml"/>
-    <include file="db/changelog/changes/2025/12/08-01-changelog.xml"/>
-    <include file="/db/changelog/changes/2025/12/09-01-changelog.xml"/>
-    <include file="/db/changelog/changes/2025/12/10-01-changelog.xml"/>
-    <include file="/db/changelog/changes/2025/12/13-01-changelog.xml"/>
-    <include file="/db/changelog/changes/2025/12/13-02-changelog.xml"/>
-    <include file="db/changelog/changes/2025/12/14-01-changelog.xml"/>
-    <include file="db/changelog/changes/2025/12/16-01-changelog.xml"/>
-    <include file="db/changelog/changes/001-create-formula-definitions.xml"/>
-    <include file="db/changelog/changes/2026/2/12-02-changelog.xml"/>
-    <include file="db/changelog/changes/2026/2/18-02-changelog.xml"/>
+    <!--
+        Master changelog: INCLUDES ONLY — no changeSets here.
+        Order matters: framework tables first, then trade-loan domain tables.
+    -->
+
+    <!-- ======================== -->
+    <!-- Framework / Platform     -->
+    <!-- ======================== -->
+    <include file="db/changelog/framework/db.changelog-framework.xml"/>
+
+    <!-- ======================== -->
+    <!-- Trade Loan Domain        -->
+    <!-- ======================== -->
+    <include file="db/changelog/trade-loan/db.changelog-trade-loan.xml"/>
+
 </databaseChangeLog>

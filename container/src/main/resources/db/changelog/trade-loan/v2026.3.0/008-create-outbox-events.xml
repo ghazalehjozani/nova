@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <!--
+        Transactional Outbox pattern tables for reliable event publishing.
+        Four aggregate types share the same schema:
+          1. loan_arrangement
+          2. loan_facility
+          3. loan_type
+          4. installment_schedule
+    -->
+
+    <!-- ================================================================== -->
+    <!-- 1. LOAN ARRANGEMENT OUTBOX                                         -->
+    <!-- ================================================================== -->
+
+    <changeSet id="tl-1.0.0-051-create-arrangement-outbox-events" author="DOTIN\m.amirabdollahi">
+        <comment>Outbox events for loan arrangement aggregate domain events</comment>
+        <createTable tableName="loan_arrangement_outbox_events">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_arrangement_outbox_events"/>
+            </column>
+            <column name="event_id" type="UUID"><constraints nullable="false"/></column>
+            <column name="idempotency_key" type="VARCHAR(255)"/>
+            <column name="aggregate_id" type="UUID"><constraints nullable="false"/></column>
+            <column name="event_type" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="event_version" type="INT"><constraints nullable="false"/></column>
+            <column name="sequence_number" type="BIGINT"><constraints nullable="false"/></column>
+            <column name="payload" type="TEXT"><constraints nullable="false"/></column>
+            <column name="partition_key" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="target_topic" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="status" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="retry_count" type="INT"><constraints nullable="false"/></column>
+            <column name="next_retry_at" type="DATETIME"/>
+            <column name="error_message" type="VARCHAR(4000)"/>
+            <column name="error_stacktrace" type="TEXT"/>
+            <column name="aggregate_type" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="processed_at" type="DATETIME"/>
+            <column name="locked_at" type="DATETIME"/>
+            <column name="locked_by" type="VARCHAR(255)"/>
+            <column name="correlation_id" type="UUID"/>
+            <column name="causation_id" type="UUID"/>
+            <column name="version" type="BIGINT"><constraints nullable="false"/></column>
+            <column name="created_at" type="DATETIME"><constraints nullable="false"/></column>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="modified_by" type="VARCHAR(255)"/>
+        </createTable>
+        <rollback><dropTable tableName="loan_arrangement_outbox_events"/></rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-052-uc-arrangement-outbox" author="DOTIN\m.amirabdollahi">
+        <comment>Unique event_id and idempotency_key for arrangement outbox deduplication</comment>
+        <addUniqueConstraint columnNames="event_id"
+                             constraintName="uc_arrangement_outbox_event_id"
+                             tableName="loan_arrangement_outbox_events"/>
+        <addUniqueConstraint columnNames="idempotency_key"
+                             constraintName="uc_arrangement_outbox_idempotency_key"
+                             tableName="loan_arrangement_outbox_events"/>
+        <rollback>
+            <dropUniqueConstraint tableName="loan_arrangement_outbox_events" constraintName="uc_arrangement_outbox_idempotency_key"/>
+            <dropUniqueConstraint tableName="loan_arrangement_outbox_events" constraintName="uc_arrangement_outbox_event_id"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-053-create-arrangement-outbox-metadata" author="DOTIN\m.amirabdollahi">
+        <comment>Key-value metadata for arrangement outbox events</comment>
+        <createTable tableName="loan_arrangement_outbox_metadata">
+            <column name="outbox_event_id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_arrangement_outbox_metadata"/>
+            </column>
+            <column name="meta_value" type="VARCHAR(2000)"/>
+            <column name="meta_key" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_arrangement_outbox_metadata"/>
+            </column>
+        </createTable>
+        <rollback><dropTable tableName="loan_arrangement_outbox_metadata"/></rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-054-fk-arrangement-outbox-metadata" author="DOTIN\m.amirabdollahi">
+        <comment>FK from arrangement outbox metadata to its parent event</comment>
+        <addForeignKeyConstraint baseColumnNames="outbox_event_id"
+                                 baseTableName="loan_arrangement_outbox_metadata"
+                                 constraintName="fk_arrangement_outbox_metadata_on_event"
+                                 referencedColumnNames="id"
+                                 referencedTableName="loan_arrangement_outbox_events"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="loan_arrangement_outbox_metadata"
+                                      constraintName="fk_arrangement_outbox_metadata_on_event"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ================================================================== -->
+    <!-- 2. LOAN FACILITY OUTBOX                                            -->
+    <!-- ================================================================== -->
+
+    <changeSet id="tl-1.0.0-055-create-facility-outbox-events" author="DOTIN\m.amirabdollahi">
+        <comment>Outbox events for loan facility aggregate domain events</comment>
+        <createTable tableName="loan_facility_outbox_events">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_facility_outbox_events"/>
+            </column>
+            <column name="event_id" type="UUID"><constraints nullable="false"/></column>
+            <column name="idempotency_key" type="VARCHAR(255)"/>
+            <column name="aggregate_id" type="UUID"><constraints nullable="false"/></column>
+            <column name="event_type" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="event_version" type="INT"><constraints nullable="false"/></column>
+            <column name="sequence_number" type="BIGINT"><constraints nullable="false"/></column>
+            <column name="payload" type="TEXT"><constraints nullable="false"/></column>
+            <column name="partition_key" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="target_topic" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="status" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="retry_count" type="INT"><constraints nullable="false"/></column>
+            <column name="next_retry_at" type="DATETIME"/>
+            <column name="error_message" type="VARCHAR(4000)"/>
+            <column name="error_stacktrace" type="TEXT"/>
+            <column name="aggregate_type" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="processed_at" type="DATETIME"/>
+            <column name="locked_at" type="DATETIME"/>
+            <column name="locked_by" type="VARCHAR(255)"/>
+            <column name="correlation_id" type="UUID"/>
+            <column name="causation_id" type="UUID"/>
+            <column name="version" type="BIGINT"><constraints nullable="false"/></column>
+            <column name="created_at" type="DATETIME"><constraints nullable="false"/></column>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="modified_by" type="VARCHAR(255)"/>
+        </createTable>
+        <rollback><dropTable tableName="loan_facility_outbox_events"/></rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-056-uc-facility-outbox" author="DOTIN\m.amirabdollahi">
+        <comment>Unique event_id and idempotency_key for facility outbox deduplication</comment>
+        <addUniqueConstraint columnNames="event_id"
+                             constraintName="uc_facility_outbox_event_id"
+                             tableName="loan_facility_outbox_events"/>
+        <addUniqueConstraint columnNames="idempotency_key"
+                             constraintName="uc_facility_outbox_idempotency_key"
+                             tableName="loan_facility_outbox_events"/>
+        <rollback>
+            <dropUniqueConstraint tableName="loan_facility_outbox_events" constraintName="uc_facility_outbox_idempotency_key"/>
+            <dropUniqueConstraint tableName="loan_facility_outbox_events" constraintName="uc_facility_outbox_event_id"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-057-create-facility-outbox-metadata" author="DOTIN\m.amirabdollahi">
+        <comment>Key-value metadata for facility outbox events</comment>
+        <createTable tableName="loan_facility_outbox_metadata">
+            <column name="outbox_event_id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_facility_outbox_metadata"/>
+            </column>
+            <column name="meta_value" type="VARCHAR(2000)"/>
+            <column name="meta_key" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_facility_outbox_metadata"/>
+            </column>
+        </createTable>
+        <rollback><dropTable tableName="loan_facility_outbox_metadata"/></rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-058-fk-facility-outbox-metadata" author="DOTIN\m.amirabdollahi">
+        <comment>FK from facility outbox metadata to its parent event</comment>
+        <addForeignKeyConstraint baseColumnNames="outbox_event_id"
+                                 baseTableName="loan_facility_outbox_metadata"
+                                 constraintName="fk_facility_outbox_metadata_on_event"
+                                 referencedColumnNames="id"
+                                 referencedTableName="loan_facility_outbox_events"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="loan_facility_outbox_metadata"
+                                      constraintName="fk_facility_outbox_metadata_on_event"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ================================================================== -->
+    <!-- 3. LOAN TYPE OUTBOX                                                -->
+    <!-- ================================================================== -->
+
+    <changeSet id="tl-1.0.0-059-create-loan-type-outbox-events" author="DOTIN\m.amirabdollahi">
+        <comment>Outbox events for loan type aggregate domain events</comment>
+        <createTable tableName="loan_type_outbox_events">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_type_outbox_events"/>
+            </column>
+            <column name="event_id" type="UUID"><constraints nullable="false"/></column>
+            <column name="idempotency_key" type="VARCHAR(255)"/>
+            <column name="aggregate_id" type="UUID"><constraints nullable="false"/></column>
+            <column name="event_type" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="event_version" type="INT"><constraints nullable="false"/></column>
+            <column name="sequence_number" type="BIGINT"><constraints nullable="false"/></column>
+            <column name="payload" type="TEXT"><constraints nullable="false"/></column>
+            <column name="partition_key" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="target_topic" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="status" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="retry_count" type="INT"><constraints nullable="false"/></column>
+            <column name="next_retry_at" type="DATETIME"/>
+            <column name="error_message" type="VARCHAR(4000)"/>
+            <column name="error_stacktrace" type="TEXT"/>
+            <column name="aggregate_type" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="processed_at" type="DATETIME"/>
+            <column name="locked_at" type="DATETIME"/>
+            <column name="locked_by" type="VARCHAR(255)"/>
+            <column name="correlation_id" type="UUID"/>
+            <column name="causation_id" type="UUID"/>
+            <column name="version" type="BIGINT"><constraints nullable="false"/></column>
+            <column name="created_at" type="DATETIME"><constraints nullable="false"/></column>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="modified_by" type="VARCHAR(255)"/>
+        </createTable>
+        <rollback><dropTable tableName="loan_type_outbox_events"/></rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-060-uc-loan-type-outbox" author="DOTIN\m.amirabdollahi">
+        <comment>Unique event_id and idempotency_key for loan type outbox deduplication</comment>
+        <addUniqueConstraint columnNames="event_id"
+                             constraintName="uc_loan_type_outbox_event_id"
+                             tableName="loan_type_outbox_events"/>
+        <addUniqueConstraint columnNames="idempotency_key"
+                             constraintName="uc_loan_type_outbox_idempotency_key"
+                             tableName="loan_type_outbox_events"/>
+        <rollback>
+            <dropUniqueConstraint tableName="loan_type_outbox_events" constraintName="uc_loan_type_outbox_idempotency_key"/>
+            <dropUniqueConstraint tableName="loan_type_outbox_events" constraintName="uc_loan_type_outbox_event_id"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-061-create-loan-type-outbox-metadata" author="DOTIN\m.amirabdollahi">
+        <comment>Key-value metadata for loan type outbox events</comment>
+        <createTable tableName="loan_type_outbox_metadata">
+            <column name="outbox_event_id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_type_outbox_metadata"/>
+            </column>
+            <column name="meta_value" type="VARCHAR(2000)"/>
+            <column name="meta_key" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_type_outbox_metadata"/>
+            </column>
+        </createTable>
+        <rollback><dropTable tableName="loan_type_outbox_metadata"/></rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-062-fk-loan-type-outbox-metadata" author="DOTIN\m.amirabdollahi">
+        <comment>FK from loan type outbox metadata to its parent event</comment>
+        <addForeignKeyConstraint baseColumnNames="outbox_event_id"
+                                 baseTableName="loan_type_outbox_metadata"
+                                 constraintName="fk_loan_type_outbox_metadata_on_event"
+                                 referencedColumnNames="id"
+                                 referencedTableName="loan_type_outbox_events"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="loan_type_outbox_metadata"
+                                      constraintName="fk_loan_type_outbox_metadata_on_event"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ================================================================== -->
+    <!-- 4. INSTALLMENT SCHEDULE OUTBOX                                     -->
+    <!-- ================================================================== -->
+
+    <changeSet id="tl-1.0.0-063-create-installment-schedule-outbox-events" author="DOTIN\m.amirabdollahi">
+        <comment>Outbox events for installment schedule aggregate domain events</comment>
+        <createTable tableName="installment_schedule_outbox_events">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_installment_schedule_outbox_events"/>
+            </column>
+            <column name="event_id" type="UUID"><constraints nullable="false"/></column>
+            <column name="idempotency_key" type="VARCHAR(255)"/>
+            <column name="aggregate_id" type="UUID"><constraints nullable="false"/></column>
+            <column name="event_type" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="event_version" type="INT"><constraints nullable="false"/></column>
+            <column name="sequence_number" type="BIGINT"><constraints nullable="false"/></column>
+            <column name="payload" type="TEXT"><constraints nullable="false"/></column>
+            <column name="partition_key" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="target_topic" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="status" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="retry_count" type="INT"><constraints nullable="false"/></column>
+            <column name="next_retry_at" type="DATETIME"/>
+            <column name="error_message" type="VARCHAR(4000)"/>
+            <column name="error_stacktrace" type="TEXT"/>
+            <column name="aggregate_type" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="processed_at" type="DATETIME"/>
+            <column name="locked_at" type="DATETIME"/>
+            <column name="locked_by" type="VARCHAR(255)"/>
+            <column name="correlation_id" type="UUID"/>
+            <column name="causation_id" type="UUID"/>
+            <column name="version" type="BIGINT"><constraints nullable="false"/></column>
+            <column name="created_at" type="DATETIME"><constraints nullable="false"/></column>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="modified_by" type="VARCHAR(255)"/>
+        </createTable>
+        <rollback><dropTable tableName="installment_schedule_outbox_events"/></rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-064-uc-installment-schedule-outbox" author="DOTIN\m.amirabdollahi">
+        <comment>Unique event_id and idempotency_key for installment schedule outbox deduplication</comment>
+        <addUniqueConstraint columnNames="event_id"
+                             constraintName="uc_installment_schedule_outbox_event_id"
+                             tableName="installment_schedule_outbox_events"/>
+        <addUniqueConstraint columnNames="idempotency_key"
+                             constraintName="uc_installment_schedule_outbox_idempotency_key"
+                             tableName="installment_schedule_outbox_events"/>
+        <rollback>
+            <dropUniqueConstraint tableName="installment_schedule_outbox_events" constraintName="uc_installment_schedule_outbox_idempotency_key"/>
+            <dropUniqueConstraint tableName="installment_schedule_outbox_events" constraintName="uc_installment_schedule_outbox_event_id"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-065-create-installment-schedule-outbox-metadata" author="DOTIN\m.amirabdollahi">
+        <comment>Key-value metadata for installment schedule outbox events</comment>
+        <createTable tableName="installment_schedule_outbox_metadata">
+            <column name="outbox_event_id" type="UUID">
+                <constraints nullable="false" primaryKey="true"
+                             primaryKeyName="pk_installment_schedule_outbox_metadata"/>
+            </column>
+            <column name="meta_value" type="VARCHAR(2000)"/>
+            <column name="meta_key" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"
+                             primaryKeyName="pk_installment_schedule_outbox_metadata"/>
+            </column>
+        </createTable>
+        <rollback><dropTable tableName="installment_schedule_outbox_metadata"/></rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-066-fk-installment-schedule-outbox-metadata" author="DOTIN\m.amirabdollahi">
+        <comment>FK from installment schedule outbox metadata to its parent event</comment>
+        <addForeignKeyConstraint baseColumnNames="outbox_event_id"
+                                 baseTableName="installment_schedule_outbox_metadata"
+                                 constraintName="fk_installment_schedule_outbox_metadata_on_event"
+                                 referencedColumnNames="id"
+                                 referencedTableName="installment_schedule_outbox_events"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="installment_schedule_outbox_metadata"
+                                      constraintName="fk_installment_schedule_outbox_metadata_on_event"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

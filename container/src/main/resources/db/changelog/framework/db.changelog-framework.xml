@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <!--
+        Framework module changelog: INCLUDES ONLY.
+        Contains infrastructure and platform-level tables
+        (ShedLock, Dead-Letter Queue, Saga, Command Audit).
+    -->
+
+    <include file="db/changelog/framework/v2026.3.0/001-create-shedlock.xml"/>
+    <include file="db/changelog/framework/v2026.3.0/002-create-dead-letter-tables.xml"/>
+    <include file="db/changelog/framework/v2026.3.0/003-create-saga-tables.xml"/>
+    <include file="db/changelog/framework/v2026.3.0/004-create-command-audit.xml"/>
+
+</databaseChangeLog>

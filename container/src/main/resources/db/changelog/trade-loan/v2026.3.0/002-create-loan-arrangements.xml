@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <!-- ===== loan_arrangements ===== -->
+
+    <changeSet id="tl-1.0.0-011-create-loan-arrangements" author="DOTIN\m.amirabdollahi">
+        <comment>Loan arrangement master table defining interest, penalty, installment, and collateral rules</comment>
+        <createTable tableName="loan_arrangements">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_arrangements"/>
+            </column>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="modified_by" type="VARCHAR(255)"/>
+            <column name="code" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="disable" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="guarantor_count" type="INT"/>
+            <column name="party_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="has_installment_card" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="life_insurance_payment_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="loan_secondary_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="section_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="previous_version_id" type="UUID"/>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="VARCHAR(255)"/>
+            <column name="economic_sector_code" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="disbursement_type" type="VARCHAR(255)"/>
+            <!-- Amount range -->
+            <column name="min_amount" type="DECIMAL(19, 4)"/>
+            <column name="max_amount" type="DECIMAL(19, 4)"/>
+            <column name="amount_currency" type="VARCHAR(255)"/>
+            <!-- Duration range -->
+            <column name="min_years" type="INT"/>
+            <column name="min_months" type="INT"/>
+            <column name="min_days" type="INT"/>
+            <column name="max_years" type="INT"/>
+            <column name="max_months" type="INT"/>
+            <column name="max_days" type="INT"/>
+            <!-- Interest configuration -->
+            <column name="base_interest_rate" type="DECIMAL(10, 6)"/>
+            <column name="preferential_min_rate" type="DECIMAL(10, 6)"/>
+            <column name="preferential_max_rate" type="DECIMAL(10, 6)"/>
+            <column name="interest_formula" type="TEXT"/>
+            <column name="refund_interest_formula" type="TEXT"/>
+            <column name="daily_interest" type="BOOLEAN"/>
+            <!-- Penalty configuration -->
+            <column name="penalty_rate" type="DECIMAL(10, 6)"/>
+            <column name="deferral_interest_rate" type="DECIMAL(10, 6)"/>
+            <column name="penalty_formula" type="TEXT"/>
+            <column name="penalty_payment_type" type="VARCHAR(255)"/>
+            <!-- Installment configuration -->
+            <column name="installment_period_days" type="INT"/>
+            <column name="installment_formula" type="TEXT"/>
+            <column name="interest_component_formula" type="TEXT"/>
+            <column name="installment_payment_type" type="VARCHAR(255)"/>
+            <!-- Grace period -->
+            <column name="min_grace_period_days" type="INT"/>
+            <column name="max_grace_period_days" type="INT"/>
+            <column name="grace_period_formula" type="TEXT"/>
+            <!-- Payment priority -->
+            <column name="installment_main_amount_priority" type="INT"/>
+            <column name="installment_interest_amount_priority" type="INT"/>
+            <column name="installment_penalty_amount_priority" type="INT"/>
+            <column name="installment_income_amount_priority" type="INT"/>
+            <column name="insurance_amount_priority" type="INT"/>
+            <column name="insurance_penalty_amount_priority" type="INT"/>
+            <column name="has_equal_priority" type="BOOLEAN"/>
+            <!-- Overdue / deferral / suspicious thresholds -->
+            <column name="overdue_period_days" type="INT"/>
+            <column name="deferral_period_days" type="INT"/>
+            <column name="suspicious_period_days" type="INT"/>
+            <!-- Collateral -->
+            <column name="collateral_total_percent" type="INT"/>
+            <column name="collateral_calculation_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="loan_arrangements"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-012-uc-arrangement-code" author="DOTIN\m.amirabdollahi">
+        <comment>Enforce unique arrangement code across all arrangements</comment>
+        <addUniqueConstraint columnNames="code"
+                             constraintName="uc_loan_arrangements_code"
+                             tableName="loan_arrangements"/>
+        <rollback>
+            <dropUniqueConstraint tableName="loan_arrangements" constraintName="uc_loan_arrangements_code"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ===== loan_arrangement_collateral_types ===== -->
+
+    <changeSet id="tl-1.0.0-013-create-arrangement-collateral-types" author="DOTIN\m.amirabdollahi">
+        <comment>Allowed collateral codes for each loan arrangement</comment>
+        <createTable tableName="loan_arrangement_collateral_types">
+            <column name="loan_arrangement_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="collateral_code" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="loan_arrangement_collateral_types"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-014-fk-arrangement-collateral-types" author="DOTIN\m.amirabdollahi">
+        <comment>FK from arrangement collateral types to loan_arrangements</comment>
+        <addForeignKeyConstraint baseColumnNames="loan_arrangement_id"
+                                 baseTableName="loan_arrangement_collateral_types"
+                                 constraintName="fk_arrangement_collateral_types_on_arrangements"
+                                 referencedColumnNames="id"
+                                 referencedTableName="loan_arrangements"/>
+        <createIndex indexName="idx_arrangement_collateral" tableName="loan_arrangement_collateral_types">
+            <column name="loan_arrangement_id"/>
+        </createIndex>
+        <rollback>
+            <dropIndex tableName="loan_arrangement_collateral_types" indexName="idx_arrangement_collateral"/>
+            <dropForeignKeyConstraint baseTableName="loan_arrangement_collateral_types"
+                                      constraintName="fk_arrangement_collateral_types_on_arrangements"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ===== loan_arrangement_confirm_types ===== -->
+
+    <changeSet id="tl-1.0.0-015-create-arrangement-confirm-types" author="DOTIN\m.amirabdollahi">
+        <comment>Approval/confirmation person codes required for each arrangement</comment>
+        <createTable tableName="loan_arrangement_confirm_types">
+            <column name="loan_arrangement_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="confirm_person_code" type="VARCHAR(255)"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="loan_arrangement_confirm_types"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-016-fk-arrangement-confirm-types" author="DOTIN\m.amirabdollahi">
+        <comment>FK from arrangement confirm types to loan_arrangements</comment>
+        <addForeignKeyConstraint baseColumnNames="loan_arrangement_id"
+                                 baseTableName="loan_arrangement_confirm_types"
+                                 constraintName="fk_arrangement_confirm_types_on_arrangements"
+                                 referencedColumnNames="id"
+                                 referencedTableName="loan_arrangements"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="loan_arrangement_confirm_types"
+                                      constraintName="fk_arrangement_confirm_types_on_arrangements"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

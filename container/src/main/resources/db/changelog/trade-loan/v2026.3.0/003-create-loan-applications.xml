@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <!-- ===== loan_applications ===== -->
+
+    <changeSet id="tl-1.0.0-017-create-loan-applications" author="DOTIN\m.amirabdollahi">
+        <comment>Core loan application table capturing the full request from customer through branch</comment>
+        <createTable tableName="loan_applications">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_loan_applications"/>
+            </column>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="modified_by" type="VARCHAR(255)"/>
+            <column name="request_date" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="applicant_channel" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="disbursement_method" type="VARCHAR(255)"/>
+            <column name="currency" type="VARCHAR(255)"/>
+            <column name="requested_amount" type="DECIMAL(19, 4)"/>
+            <column name="requested_currency" type="VARCHAR(3)"/>
+            <column name="requested_duration_years" type="INT"/>
+            <column name="requested_duration_months" type="INT"/>
+            <column name="requested_duration_days" type="INT"/>
+            <column name="grace_period_days" type="INT"/>
+            <column name="grace_period_months" type="INT"/>
+            <column name="grace_period_years" type="INT"/>
+            <column name="installment_count" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deposit_number" type="VARCHAR(255)"/>
+            <column name="disburse_destination_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="economic_sector_code" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="branch_code" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="request_reason_code" type="VARCHAR(500)"/>
+            <column name="sub_source_code" type="VARCHAR(500)"/>
+            <column name="description" type="TEXT"/>
+            <column name="credibility_rank" type="VARCHAR(255)"/>
+            <column name="application_branch_code" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="loan_type_code" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="application_customer_number" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="application_customer_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="application_customer_first_name" type="VARCHAR(255)"/>
+            <column name="application_customer_last_name" type="VARCHAR(255)"/>
+            <column name="application_customer_company_name" type="VARCHAR(255)"/>
+            <column name="application_customer_role" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="derived_value" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tracking_number" type="VARCHAR(16)"/>
+            <column name="account_number" type="VARCHAR(255)"/>
+            <!-- ISIC economic classification -->
+            <column name="isic_economic_sector" type="VARCHAR(255)"/>
+            <column name="sub_isic_economic_sector" type="VARCHAR(255)"/>
+            <column name="use_type" type="VARCHAR(255)"/>
+            <column name="consumption_place_code" type="VARCHAR(255)"/>
+            <column name="exception_code" type="VARCHAR(255)"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="loan_applications"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-018-uc-loan-application-natural-key" author="DOTIN\m.amirabdollahi">
+        <comment>Business uniqueness: one active application per branch+type+customer+derived value</comment>
+        <addUniqueConstraint
+                columnNames="application_branch_code, loan_type_code, application_customer_number, derived_value"
+                constraintName="uc_loan_application_natural_key"
+                tableName="loan_applications"/>
+        <rollback>
+            <dropUniqueConstraint tableName="loan_applications" constraintName="uc_loan_application_natural_key"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ===== loan_application_parties ===== -->
+
+    <changeSet id="tl-1.0.0-019-create-loan-application-parties" author="DOTIN\m.amirabdollahi">
+        <comment>Parties involved in a loan application (borrower, guarantor, co-signer, etc.)</comment>
+        <createTable tableName="loan_application_parties">
+            <column name="loan_application_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="customer_number" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="party_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="party_role" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="first_name" type="VARCHAR(255)"/>
+            <column name="last_name" type="VARCHAR(255)"/>
+            <column name="company_name" type="VARCHAR(255)"/>
+            <column name="guarantee_percentage" type="DECIMAL(5, 2)"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="loan_application_parties"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-020-fk-application-parties" author="DOTIN\m.amirabdollahi">
+        <comment>FK from application parties to loan_applications with covering index</comment>
+        <addForeignKeyConstraint baseColumnNames="loan_application_id"
+                                 baseTableName="loan_application_parties"
+                                 constraintName="fk_application_parties_on_applications"
+                                 referencedColumnNames="id"
+                                 referencedTableName="loan_applications"/>
+        <createIndex indexName="idx_application_parties_app_id" tableName="loan_application_parties">
+            <column name="loan_application_id"/>
+        </createIndex>
+        <rollback>
+            <dropIndex tableName="loan_application_parties" indexName="idx_application_parties_app_id"/>
+            <dropForeignKeyConstraint baseTableName="loan_application_parties"
+                                      constraintName="fk_application_parties_on_applications"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
