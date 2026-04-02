@@ -336,6 +336,7 @@ platform:
     resource-server:
       issuer-uri: https://sso.tps.ir
       jwk-set-uri: https://sso.tps.ir/.well-known/openid-configuration/jwks
+      delegation-request-uri: https://sso.tps.ir/oauth/delegate/token-request
       jwks-cache-lifespan: 5m
       extract-user-context: true
       user-id-claim: sub
@@ -345,7 +346,7 @@ platform:
       validate-azp-claim: true
       validate-branch-code: true
       allowed-clients:
-        - 1ebad0ab-39d1-4718-9690-ec1873c6914f
+        - edfa96a6-8818-44b7-9de6-54c253b952e3
     oauth2-client:
       enabled: true
       client-id: ${OAUTH2_CLIENT_ID}
@@ -355,6 +356,9 @@ platform:
         - openid
         - upgrade_token
         - core
+        - delegate_token
+      support-delegation: true
+      delegation-claim-buffer: 10s
       use-refresh-token: true
       cache-tokens: true
       token-cache-buffer: 5m

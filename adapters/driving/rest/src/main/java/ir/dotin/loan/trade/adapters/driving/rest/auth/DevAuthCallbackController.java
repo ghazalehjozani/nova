@@ -37,7 +37,8 @@ public class DevAuthCallbackController {
     public ResponseEntity<?> tokenProxy(
             @RequestParam String code,
             @RequestParam(name = "redirect_uri") String redirectUri,
-            @RequestParam(name = "client_id") String clientId) {
+            @RequestParam(name = "client_id") String clientId,
+            @RequestParam(name = "client_secret") String clientSecrete) {
 
         var devConfig = securityProperties.devAuth();
         var oauth2Config = securityProperties.oauth2Client();
@@ -52,7 +53,7 @@ public class DevAuthCallbackController {
             body.add("grant_type", "authorization_code");
             body.add("code", code);
             body.add("client_id", clientId);
-            body.add("client_secret", oauth2Config.clientSecret());
+            body.add("client_secret", clientSecrete);
             body.add("redirect_uri", redirectUri);
             body.add("client_claims", claimsJson);
 

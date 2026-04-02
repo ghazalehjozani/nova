@@ -132,7 +132,7 @@ public class FcbKafkaClient {
             throw new FcbSerializationException("Failed to serialize request: " + e.getMessage());
         }
 
-        OAuth2TokenResponse token = tokenClientService.delegateToken(null, null, "core");
+        OAuth2TokenResponse token = tokenClientService.delegateToken();
 
         ProducerRecord<String, byte[]> record =
                 new ProducerRecord<>(properties.requestTopic(), request.getEventUid(), requestBytes);
