@@ -98,6 +98,7 @@ public enum TradeLoanApplicationServiceErrors implements ProductErrorCode<TradeL
     INVALID_DISBURSEMENT_METHOD(
             PlatformErrorCategory.VALIDATION, 295, "Current method: {0} in not valid for disbursement"),
     INVALID_BRANCH_CODE(PlatformErrorCategory.VALIDATION, 296, "Branch code {0} is not valid"),
+    FORMULA_NOT_EXIST(PlatformErrorCategory.VALIDATION, 297, "Formula with id {0} not exist"),
 
     // ── INTEGRATION (03) ────────────────────────────────────────────────────────
 
