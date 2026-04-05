@@ -49,7 +49,7 @@
         </dependency>
         <dependency>
             <groupId>ir.dotin.loan</groupId>
-            <artifactId>trade-loan-adapters-driving-messaging</artifactId>
+            <artifactId>trade-loan-adapters-driving-messaging-kafka</artifactId>
         </dependency>
         <dependency>
             <groupId>ir.dotin.loan</groupId>

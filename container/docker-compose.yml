@@ -106,9 +106,23 @@ services:
       timeout: 3s
       retries: 5
 
+  activemq:
+    image: rmohr/activemq
+    container_name: activemq
+    ports:
+      - "61616:61616"   # JMS
+      - "8161:8161"     # Web console
+    environment:
+      ACTIVEMQ_ADMIN_LOGIN: admin
+      ACTIVEMQ_ADMIN_PASSWORD: admin
+    volumes:
+      - activemq-data:/opt/activemq/data
+    restart: unless-stopped
+
 volumes:
   postgres-data:
   redis-data:
+  activemq-data:
 #  kafka-data:
 
 networks:

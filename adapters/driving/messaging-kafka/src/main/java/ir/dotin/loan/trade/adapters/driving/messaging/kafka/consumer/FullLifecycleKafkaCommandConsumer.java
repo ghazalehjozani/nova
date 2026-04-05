@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.adapters.driving.messaging.consumer;
+package ir.dotin.loan.trade.adapters.driving.messaging.kafka.consumer;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -25,9 +25,9 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class TradeLoanCommandConsumer {
+public class FullLifecycleKafkaCommandConsumer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TradeLoanCommandConsumer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FullLifecycleKafkaCommandConsumer.class);
 
     private final ObjectMapper objectMapper;
     private final FullLoanFacilityLifecycleMessageMapper messageMapper;
