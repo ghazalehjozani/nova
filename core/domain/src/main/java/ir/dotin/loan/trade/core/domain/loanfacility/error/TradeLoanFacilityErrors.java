@@ -21,9 +21,7 @@ public enum TradeLoanFacilityErrors implements ProductErrorCode<TradeLoanFacilit
     // ── TRADE_FACILITY (52) — trade-specific processing ─────────────────────────
 
     BUILDER_VALIDATION_FAILED(
-            TradeLoanErrorCategory.TRADE_FACILITY,
-            1,
-            "Failed to build MorabeheLoanApplication due to validation errors."),
+            TradeLoanErrorCategory.TRADE_FACILITY, 1, "Failed to build application due to validation errors."),
     LOAN_TYPE_ID_REQUIRED(TradeLoanErrorCategory.TRADE_FACILITY, 2, "Trade Loan Type ID is required."),
     LOAN_RULE_ID_REQUIRED(TradeLoanErrorCategory.TRADE_FACILITY, 3, "Trade Loan Rule ID is required."),
     ARRANGEMENT_FETCH_FAILED(

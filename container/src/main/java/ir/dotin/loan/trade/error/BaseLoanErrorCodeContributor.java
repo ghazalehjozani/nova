@@ -1,6 +1,5 @@
 package ir.dotin.loan.trade.error;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.commons.core.error.CodedMessage;
 import ir.dotin.platform.protocol.api.error.ErrorCodeContributor;
-
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.error.InstallmentScheduleErrors;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.error.LoanArrangementErrors;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.error.LoanFacilityErrors;
@@ -20,8 +18,8 @@ import ir.dotin.loan.baseloan.core.domain.shared.error.LoanValidationErrors;
 /**
  * Contributes all error codes from the BaseLoan shared kernel.
  *
- * <p>Registered with {@code @Order(0)} so shared kernel codes load before
- * product-specific codes, making collision messages point to the product side.
+ * <p>Registered with {@code @Order(0)} so shared kernel codes load before product-specific codes, making collision
+ * messages point to the product side.
  *
  * @since 2.0
  */

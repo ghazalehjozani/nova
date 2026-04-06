@@ -12,14 +12,28 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>trade-loan-adapters-driving-messaging</artifactId>
-  <name>Trade Loan :: Adapters :: Driving :: Messaging</name>
+  <artifactId>trade-loan-adapters-driving-messaging-kafka</artifactId>
+  <name>Trade Loan :: Adapters :: Driving :: Messaging (Kafka)</name>
   <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>ir.dotin.platform</groupId>
             <artifactId>platform-adapter-messaging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>trade-loan-adapters-driving-messaging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.springwolf</groupId>
+            <artifactId>springwolf-kafka</artifactId>
+            <version>1.20.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.springwolf</groupId>
+            <artifactId>springwolf-ui</artifactId>
+            <version>1.20.0</version>
         </dependency>
         <dependency>
             <groupId>net.time4j</groupId>

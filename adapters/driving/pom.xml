@@ -19,6 +19,8 @@
   <modules>
     <module>rest</module>
     <module>messaging</module>
+    <module>messaging-kafka</module>
+    <module>messaging-activemq</module>
   </modules>
 
   <dependencies>

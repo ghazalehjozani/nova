@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.adapters.driving.messaging.consumer;
+package ir.dotin.loan.trade.adapters.driving.messaging.kafka.consumer;
 
 import java.io.IOException;
 import java.util.List;
@@ -16,29 +16,23 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.adapter.messaging.command.model.CommandHeaders;
 import ir.dotin.platform.adapter.messaging.header.NovaHeader;
-import ir.dotin.loan.trade.adapters.driving.messaging.consumer.handler.InstallmentOperationHandler;
-import ir.dotin.loan.trade.adapters.driving.messaging.dto.InstallmentOperationResponse;
 import ir.dotin.loan.trade.adapters.driving.messaging.dto.InstallmentOperationType;
-import ir.dotin.loan.trade.adapters.driving.messaging.publisher.InstallmentOperationResponsePublisher;
+import ir.dotin.loan.trade.adapters.driving.messaging.kafka.consumer.handler.InstallmentOperationHandler;
 
 import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 
+// TODO: Remove Operation type and use consumer per event
 @Component
-public class InstallmentOperationCommandConsumer {
+public class InstallmentFcbEventConsumer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InstallmentOperationCommandConsumer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InstallmentFcbEventConsumer.class);
 
     private final ObjectMapper objectMapper;
-    private final InstallmentOperationResponsePublisher responsePublisher;
     private final Map<InstallmentOperationType, InstallmentOperationHandler> handlers;
 
-    public InstallmentOperationCommandConsumer(
-            ObjectMapper objectMapper,
-            InstallmentOperationResponsePublisher responsePublisher,
-            List<InstallmentOperationHandler> handlerList) {
+    public InstallmentFcbEventConsumer(ObjectMapper objectMapper, List<InstallmentOperationHandler> handlerList) {
         this.objectMapper = objectMapper;
-        this.responsePublisher = responsePublisher;
         this.handlers = handlerList.stream()
                 .collect(Collectors.toMap(InstallmentOperationHandler::getSupportedOperationType, Function.identity()));
     }
@@ -127,25 +121,7 @@ public class InstallmentOperationCommandConsumer {
         if (handler != null) {
             handler.handle(rootNode, headers, consumerRecord, eventUid, responseTopic);
         } else {
-            LOG.warn("Unknown operationType [{}], eventUid={}, skipping.", operationType, eventUid);
-            sendGenericErrorResponse(eventUid, responseTopic, operationType, "Unknown operationType: " + operationType);
-        }
-    }
-
-    private void sendGenericErrorResponse(
-            String eventUid, String responseTopic, String operationType, String errorMessage) {
-
-        if (responseTopic == null || responseTopic.isBlank()) {
-            return;
-        }
-
-        InstallmentOperationResponse response = InstallmentOperationResponse.failed(
-                eventUid != null ? eventUid : "UNKNOWN", operationType, "UNKNOWN", errorMessage);
-
-        try {
-            responsePublisher.sendResponse(responseTopic, response);
-        } catch (Exception e) {
-            LOG.error("Failed to send generic error response [eventUid={}]", eventUid, e);
+            LOG.error("Unknown operationType [{}], eventUid={}, skipping.", operationType, eventUid);
         }
     }
 
