@@ -163,8 +163,11 @@ public abstract class ValueObjectMapper {
     @Mapping(source = "currency", target = "currency", qualifiedByName = "stringToCurrency")
     public abstract Money toMoney(MoneyEmb embeddable);
 
-    public abstract FormulaIdRefEmb toFormulaEmb(FormulaId formula);
+    public FormulaIdRefEmb toFormulaEmb(FormulaId formula) {
+        return FormulaIdRefEmb.of(formula);
+    }
 
+    @Mapping(source = "value", target = "value")
     public abstract FormulaId toFormulaId(FormulaIdRefEmb embeddable);
 
     @Mapping(source = "value", target = "value")

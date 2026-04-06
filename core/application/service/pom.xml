@@ -32,7 +32,7 @@
     </dependency>
     <dependency>
       <groupId>ir.dotin.platform</groupId>
-      <artifactId>expression-kit-core</artifactId>
+      <artifactId>expression-kit-service</artifactId>
     </dependency>
 
     <dependency>
