@@ -14,6 +14,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.messaging.activemq.converter.JmsInboundMessageConverter;
+import ir.dotin.platform.messaging.activemq.support.JmsDestinationResolver;
 import ir.dotin.platform.messaging.api.command.CommandResponse;
 import ir.dotin.platform.messaging.api.inbound.InboundMessage;
 import ir.dotin.platform.messaging.api.outbound.spi.ResponsePublisher;
@@ -32,8 +33,6 @@ public class FullLifecycleJmsCommandConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(FullLifecycleJmsCommandConsumer.class);
 
-    private static final String OPERATION_TYPE = "FULL_LOAN_FACILITY_LIFECYCLE";
-
     private final ObjectMapper objectMapper;
     private final FullLoanFacilityLifecycleMessageMapper messageMapper;
     private final InboundCommandProcessor inboundCommandProcessor;
@@ -46,7 +45,6 @@ public class FullLifecycleJmsCommandConsumer {
             Message jmsMessage,
             @Payload String body,
             @Header(value = "Idempotency-Key") String idempotencyKey,
-            @Header(value = "X-Correlation-ID") String correlationId,
             @Header(value = "X-Request-DateTime") String requestDateTime,
             @Header(value = "Accept-Language") String acceptLanguage,
             @Header(value = "Authorization") String authorization,
@@ -56,9 +54,9 @@ public class FullLifecycleJmsCommandConsumer {
             @Header(value = "X-Saga-Execution-Strategy") String sagaExecutionStrategy,
             @Header(value = "X-Saga-Step-Code", required = false) String sagaStepCode)
             throws JMSException {
+        String correlationKey = JmsDestinationResolver.resolveCorrelationId(jmsMessage);
         try {
             InboundMessage inboundMessage = jmsConverter.convert(jmsMessage, ActiveMqJmsConfig.FULL_LIFECYCLE_QUEUE);
-            String correlationKey = inboundMessage.correlationKey();
 
             FullLoanFacilityLifecycleMessage message =
                     objectMapper.readValue(body, FullLoanFacilityLifecycleMessage.class);
@@ -78,10 +76,10 @@ public class FullLifecycleJmsCommandConsumer {
                 jmsResponsePublisher.publish(responseDestination, correlationKey, response);
             }
 
-            LOG.info("JMS command processed successfully [correlationId={}]", correlationId);
+            LOG.info("JMS command processed successfully [correlationId={}]", correlationKey);
         } catch (Exception e) {
-            LOG.error("Failed to process JMS command [correlationId={}]: {}", correlationId, e.getMessage(), e);
-            throw new RuntimeException("JMS command processing failed [correlationId=" + correlationId + "]", e);
+            LOG.error("Failed to process JMS command [correlationId={}]: {}", correlationKey, e.getMessage(), e);
+            throw new RuntimeException("JMS command processing failed [correlationId=" + correlationKey + "]", e);
         } finally {
             jmsMessage.acknowledge();
         }

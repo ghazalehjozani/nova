@@ -56,7 +56,7 @@ public class FullLifecycleKafkaCommandConsumer {
                                                         description = "Unique identifier for idempotency",
                                                         value = "UUID string"),
                                                 @AsyncOperation.Headers.Header(
-                                                        name = "X-Correlation-ID",
+                                                        name = "kafka_correlationId",
                                                         description = "Unique identifier for correlation ID",
                                                         value = "string"),
                                                 @AsyncOperation.Headers.Header(
