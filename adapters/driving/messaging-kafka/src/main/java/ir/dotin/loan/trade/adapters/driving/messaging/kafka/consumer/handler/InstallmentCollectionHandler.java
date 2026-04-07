@@ -4,19 +4,17 @@ import java.nio.charset.StandardCharsets;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import ir.dotin.platform.adapter.messaging.command.model.CommandHeaders;
-import ir.dotin.platform.adapter.messaging.command.model.CommandResponse;
-import ir.dotin.platform.adapter.messaging.command.model.RawCommandMessage;
-import ir.dotin.platform.adapter.messaging.command.processor.CommandProcessor;
-import ir.dotin.platform.adapter.messaging.command.serializer.CommandSerializer;
-import ir.dotin.loan.trade.adapters.driving.messaging.dto.InstallmentOperationType;
-import ir.dotin.loan.trade.adapters.driving.messaging.dto.InstallmentPaymentMessage;
-import ir.dotin.loan.trade.adapters.driving.messaging.mapper.InstallmentCollectionMessageMapper;
+import ir.dotin.platform.messaging.api.inbound.InboundMessage;
+import ir.dotin.platform.messaging.api.inbound.InboundMessageHeaders;
+import ir.dotin.platform.messaging.core.processor.InboundCommandProcessor;
+import ir.dotin.platform.messaging.core.serialization.CommandSerializer;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentOperationType;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentPaymentMessage;
+import ir.dotin.loan.trade.adapters.driving.contract.mapper.InstallmentCollectionMessageMapper;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CollectInstallmentCommand;
 
 import lombok.RequiredArgsConstructor;
@@ -30,7 +28,7 @@ public class InstallmentCollectionHandler implements InstallmentOperationHandler
 
     private final ObjectMapper objectMapper;
     private final InstallmentCollectionMessageMapper messageMapper;
-    private final CommandProcessor processor;
+    private final InboundCommandProcessor inboundCommandProcessor;
     private final CommandSerializer commandSerializer;
 
     @Override
@@ -39,15 +37,10 @@ public class InstallmentCollectionHandler implements InstallmentOperationHandler
     }
 
     @Override
-    public void handle(
-            JsonNode rootNode,
-            CommandHeaders headers,
-            ConsumerRecord<String, byte[]> record,
-            String eventUid,
-            String responseTopic) {
-        InstallmentPaymentMessage message;
+    public void handle(JsonNode rootNode, InboundMessageHeaders headers, InboundMessage message, String eventUid) {
+        InstallmentPaymentMessage paymentMessage;
         try {
-            message = objectMapper.treeToValue(rootNode, InstallmentPaymentMessage.class);
+            paymentMessage = objectMapper.treeToValue(rootNode, InstallmentPaymentMessage.class);
         } catch (Exception e) {
             LOG.error("Malformed INSTALLMENT_COLLECTION message [eventUid={}]", eventUid, e);
             return;
@@ -56,34 +49,21 @@ public class InstallmentCollectionHandler implements InstallmentOperationHandler
         LOG.info(
                 "Processing INSTALLMENT_COLLECTION [eventUid={}, fileNumber={}, payments={}]",
                 eventUid,
-                message.fileNumber(),
-                message.payments() != null ? message.payments().size() : 0);
+                paymentMessage.fileNumber(),
+                paymentMessage.payments() != null ? paymentMessage.payments().size() : 0);
 
         try {
-            // Map DTO to domain command (anti-corruption layer)
-            CollectInstallmentCommand command = messageMapper.toCommand(message);
+            CollectInstallmentCommand command = messageMapper.toCommand(paymentMessage);
 
-            // Serialize command with type info for CommandProcessor
             byte[] commandBytes = commandSerializer.serialize(command).getBytes(StandardCharsets.UTF_8);
 
-            // Construct RawCommandMessage
-            RawCommandMessage rawMessage = new RawCommandMessage(
-                    record.topic(),
-                    record.partition(),
-                    record.offset(),
-                    record.key(),
-                    commandBytes,
-                    headers,
-                    record.timestamp(),
-                    responseTopic);
-
-            CommandResponse<?> response = processor.process(rawMessage);
+            inboundCommandProcessor.process(message.withPayload(commandBytes));
 
         } catch (Exception e) {
             LOG.error(
                     "Failed to process INSTALLMENT_COLLECTION [eventUid={}, fileNumber={}]",
                     eventUid,
-                    message.fileNumber(),
+                    paymentMessage.fileNumber(),
                     e);
             throw new RuntimeException("INSTALLMENT_COLLECTION processing failed: " + eventUid, e);
         }

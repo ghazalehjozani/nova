@@ -9,7 +9,6 @@
     <groupId>ir.dotin.loan</groupId>
     <artifactId>trade-loan-adapters-driving</artifactId>
     <version>${revision}</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>trade-loan-adapters-driving-messaging-activemq</artifactId>
@@ -17,77 +16,38 @@
   <packaging>jar</packaging>
 
     <dependencies>
-        <!-- ── Platform ─────────────────────────────────────────── -->
+        <!-- Platform -->
         <dependency>
             <groupId>ir.dotin.platform</groupId>
-            <artifactId>platform-adapter-messaging</artifactId>
+            <artifactId>platform-messaging-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform</groupId>
+            <artifactId>platform-messaging-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform</groupId>
+            <artifactId>platform-spring-boot-starter-messaging-activemq</artifactId>
         </dependency>
 
-        <!-- ── Sibling module – reuse DTOs & mapper ───────────────  -->
+        <!-- Sibling module -->
         <dependency>
             <groupId>ir.dotin.loan</groupId>
-            <artifactId>trade-loan-adapters-driving-messaging</artifactId>
+            <artifactId>trade-loan-adapters-driving-contract</artifactId>
         </dependency>
 
-        <!-- ── Spring / JMS ─────────────────────────────────────── -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-activemq</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jms</artifactId>
-        </dependency>
-
-        <!-- ── Jakarta JMS API (provided by starter, explicit for clarity) -->
+        <!-- Spring / JMS (provided by platform starter, explicit for clarity) -->
         <dependency>
             <groupId>jakarta.jms</groupId>
             <artifactId>jakarta.jms-api</artifactId>
         </dependency>
 
-        <!-- ── ActiveMQ connection pooling ──────────────────────── -->
-        <dependency>
-            <groupId>org.messaginghub</groupId>
-            <artifactId>pooled-jms</artifactId>
-            <version>3.1.8</version>
-        </dependency>
+        <!-- pooled-jms now provided by platform starter -->
 
-        <!-- ── Jackson ──────────────────────────────────────────── -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-
-        <!-- ── Lombok ───────────────────────────────────────────── -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
-        </dependency>
-
-        <!-- ── AsyncAPI docs (Springwolf – optional) ────────────── -->
-<!--        <dependency>
-            <groupId>io.github.springwolf</groupId>
-            <artifactId>springwolf-jms</artifactId>
-            <version>1.20.0</version>
-            <optional>true</optional>
-        </dependency>-->
-
-        <!-- ── Test ─────────────────────────────────────────────── -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-<!--        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-broker</artifactId>
-            <scope>test</scope>
-        </dependency>-->
-        <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

@@ -9,17 +9,16 @@
     <groupId>ir.dotin.loan</groupId>
     <artifactId>trade-loan-adapters-driving</artifactId>
     <version>${revision}</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>trade-loan-adapters-driving-messaging</artifactId>
-  <name>Trade Loan :: Adapters :: Driving :: Messaging</name>
+  <artifactId>trade-loan-adapters-driving-contract</artifactId>
+  <name>Trade Loan :: Adapters :: Driving :: Contract</name>
   <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>ir.dotin.platform</groupId>
-            <artifactId>platform-adapter-messaging</artifactId>
+            <artifactId>platform-messaging-api</artifactId>
         </dependency>
         <dependency>
             <groupId>net.time4j</groupId>

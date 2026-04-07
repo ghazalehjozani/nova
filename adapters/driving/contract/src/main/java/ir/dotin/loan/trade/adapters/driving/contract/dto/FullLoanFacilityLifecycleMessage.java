@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.adapters.driving.messaging.dto;
+package ir.dotin.loan.trade.adapters.driving.contract.dto;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ir.dotin.platform.adapter.messaging.command.model.CommandPayload;
+import ir.dotin.platform.messaging.api.command.CommandPayload;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 

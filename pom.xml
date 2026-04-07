@@ -7,7 +7,7 @@
     <parent>
         <groupId>ir.dotin.platform</groupId>
         <artifactId>platform-parent</artifactId>
-        <version>2026.2.2-SNAPSHOT</version>
+        <version>2026.4.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -92,19 +92,13 @@
             </dependency>
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
-                <artifactId>trade-loan-adapters-driven-messaging</artifactId>
-                <version>${loan.trade-loan.version}</version>
-                <scope>compile</scope>
-            </dependency>
-            <dependency>
-                <groupId>ir.dotin.loan</groupId>
                 <artifactId>trade-loan-adapters-driving-rest</artifactId>
                 <version>${loan.trade-loan.version}</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
-                <artifactId>trade-loan-adapters-driving-messaging</artifactId>
+                <artifactId>trade-loan-adapters-driving-contract</artifactId>
                 <version>${loan.trade-loan.version}</version>
                 <scope>compile</scope>
             </dependency>

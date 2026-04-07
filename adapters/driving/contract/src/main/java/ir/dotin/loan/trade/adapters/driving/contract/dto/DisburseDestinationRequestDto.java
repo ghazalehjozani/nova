@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.adapters.driving.messaging.dto;
+package ir.dotin.loan.trade.adapters.driving.contract.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

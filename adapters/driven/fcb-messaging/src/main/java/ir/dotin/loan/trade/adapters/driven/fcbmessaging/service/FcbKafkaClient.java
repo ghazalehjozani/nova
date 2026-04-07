@@ -21,7 +21,6 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
-import ir.dotin.platform.adapter.messaging.header.NovaHeader;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.security.OAuth2TokenResponse;
@@ -138,18 +137,13 @@ public class FcbKafkaClient {
                 new ProducerRecord<>(properties.requestTopic(), request.getEventUid(), requestBytes);
 
         record.headers()
-                .add(new RecordHeader(
-                        NovaHeader.OPERATION_TYPE.getValue(), operationType.getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader("X-Operation-Type", operationType.getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader("eventUid", request.getEventUid().getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader("Idempotency-Key", request.getEventUid().getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(
-                        NovaHeader.IDEMPOTENCY_KEY.getValue(),
-                        request.getEventUid().getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader(
-                        NovaHeader.REQUEST_DATETIME.getValue(),
-                        request.getDateTime().toString().getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader(
-                        NovaHeader.AUTHORIZATION.getValue(), ("Bearer " + token).getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader(NovaHeader.ACCEPT_LANGUAGE.getValue(), "fa".getBytes(StandardCharsets.UTF_8)));
+                        "X-Request-DateTime", request.getDateTime().toString().getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader("Authorization", ("Bearer " + token).getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader("Accept-Language", "fa".getBytes(StandardCharsets.UTF_8)));
 
         addTracingHeaders(record);
 
@@ -203,7 +197,6 @@ public class FcbKafkaClient {
         io.micrometer.tracing.TraceContext ctx = tracer.currentSpan().context();
         String sampledFlag = Boolean.TRUE.equals(ctx.sampled()) ? "01" : "00";
         String traceparent = "00-" + ctx.traceId() + "-" + ctx.spanId() + "-" + sampledFlag;
-        record.headers()
-                .add(new RecordHeader(NovaHeader.TRACEPARENT.getValue(), traceparent.getBytes(StandardCharsets.UTF_8)));
+        record.headers().add(new RecordHeader("traceparent", traceparent.getBytes(StandardCharsets.UTF_8)));
     }
 }

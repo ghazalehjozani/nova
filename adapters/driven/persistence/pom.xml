@@ -35,7 +35,7 @@
     </dependency>
     <dependency>
       <groupId>ir.dotin.platform</groupId>
-      <artifactId>platform-adapter-messaging-persistence</artifactId>
+      <artifactId>platform-outbox-data-jpa</artifactId>
     </dependency>
     <dependency>
         <groupId>ir.dotin.platform</groupId>

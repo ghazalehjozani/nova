@@ -1,20 +1,23 @@
 package ir.dotin.loan.trade.adapters.driving.messaging.kafka.consumer.handler;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import ir.dotin.platform.adapter.messaging.command.model.CommandHeaders;
-import ir.dotin.loan.trade.adapters.driving.messaging.dto.InstallmentOperationType;
+import ir.dotin.platform.messaging.api.inbound.InboundMessage;
+import ir.dotin.platform.messaging.api.inbound.InboundMessageHeaders;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentOperationType;
 
 public interface InstallmentOperationHandler {
-    /** Returns the operation type string this handler supports. */
+
+    /** Returns the operation type this handler supports. */
     InstallmentOperationType getSupportedOperationType();
 
-    /** Handles the specific business logic for the operation. */
-    void handle(
-            JsonNode rootNode,
-            CommandHeaders headers,
-            ConsumerRecord<String, byte[]> record,
-            String eventUid,
-            String responseTopic);
+    /**
+     * Handles the specific business logic for the operation.
+     *
+     * @param rootNode the parsed JSON root of the message body
+     * @param headers transport-agnostic inbound headers
+     * @param message the inbound message (response destination available via {@code message.responseDestination()})
+     * @param eventUid the event correlation identifier
+     */
+    void handle(JsonNode rootNode, InboundMessageHeaders headers, InboundMessage message, String eventUid);
 }
