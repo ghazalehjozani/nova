@@ -53,6 +53,10 @@ public class FullLifecycleKafkaCommandConsumer {
                                                         description = "Unique identifier for idempotency",
                                                         value = "UUID string"),
                                                 @AsyncOperation.Headers.Header(
+                                                        name = "X-Correlation-ID",
+                                                        description = "Unique identifier for correlation ID",
+                                                        value = "string"),
+                                                @AsyncOperation.Headers.Header(
                                                         name = "X-Request-DateTime",
                                                         description = "Request timestamp",
                                                         value = "ISO-8601 format"),
