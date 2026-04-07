@@ -10,8 +10,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import ir.dotin.platform.messaging.api.command.CommandResponse;
 import ir.dotin.platform.messaging.api.inbound.InboundMessage;
 import ir.dotin.platform.messaging.api.inbound.InboundMessageHeaders;
+import ir.dotin.platform.messaging.api.outbound.spi.ResponsePublisher;
 import ir.dotin.platform.messaging.core.processor.InboundCommandProcessor;
 import ir.dotin.platform.messaging.core.serialization.CommandSerializer;
 import ir.dotin.platform.messaging.kafka.converter.KafkaInboundMessageConverter;
@@ -34,6 +36,7 @@ public class FullLifecycleKafkaCommandConsumer {
     private final InboundCommandProcessor inboundCommandProcessor;
     private final CommandSerializer commandSerializer;
     private final KafkaInboundMessageConverter converter;
+    private final ResponsePublisher kafkaResponsePublisher;
 
     @KafkaListener(
             topics = "corridor.core.loan.nova.full-lifecycle.request.queue.v1",
@@ -111,7 +114,14 @@ public class FullLifecycleKafkaCommandConsumer {
             // pre-built Command directly — consider adding such an overload.
             byte[] commandBytes = commandSerializer.serialize(command).getBytes(StandardCharsets.UTF_8);
 
-            inboundCommandProcessor.process(inboundMessage.withPayload(commandBytes));
+            CommandResponse<Object> response =
+                    inboundCommandProcessor.process(inboundMessage.withPayload(commandBytes));
+
+            String responseDestination = inboundMessage.responseDestination();
+            if (responseDestination != null && !responseDestination.isBlank()) {
+                kafkaResponsePublisher.publish(responseDestination, inboundMessage.correlationKey(), response);
+            }
+
         } catch (Exception e) {
             LOG.error("Failed to process full lifecycle command [key={}]: {}", consumerRecord.key(), e.getMessage(), e);
             throw new RuntimeException("Full lifecycle command processing failed", e);

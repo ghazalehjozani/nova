@@ -14,7 +14,6 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.messaging.activemq.converter.JmsInboundMessageConverter;
-import ir.dotin.platform.messaging.activemq.support.JmsDestinationResolver;
 import ir.dotin.platform.messaging.api.command.CommandResponse;
 import ir.dotin.platform.messaging.api.inbound.InboundMessage;
 import ir.dotin.platform.messaging.api.outbound.spi.ResponsePublisher;
@@ -47,6 +46,7 @@ public class FullLifecycleJmsCommandConsumer {
             Message jmsMessage,
             @Payload String body,
             @Header(value = "Idempotency-Key") String idempotencyKey,
+            @Header(value = "X-Correlation-ID") String correlationId,
             @Header(value = "X-Request-DateTime") String requestDateTime,
             @Header(value = "Accept-Language") String acceptLanguage,
             @Header(value = "Authorization") String authorization,
@@ -56,16 +56,9 @@ public class FullLifecycleJmsCommandConsumer {
             @Header(value = "X-Saga-Execution-Strategy") String sagaExecutionStrategy,
             @Header(value = "X-Saga-Step-Code", required = false) String sagaStepCode)
             throws JMSException {
-
-        String correlationId = JmsDestinationResolver.resolveCorrelationId(jmsMessage);
-
         try {
-            LOG.info(
-                    "Received JMS command [correlationId={}, destination={}]",
-                    correlationId,
-                    ActiveMqJmsConfig.FULL_LIFECYCLE_QUEUE);
-
             InboundMessage inboundMessage = jmsConverter.convert(jmsMessage, ActiveMqJmsConfig.FULL_LIFECYCLE_QUEUE);
+            String correlationKey = inboundMessage.correlationKey();
 
             FullLoanFacilityLifecycleMessage message =
                     objectMapper.readValue(body, FullLoanFacilityLifecycleMessage.class);
@@ -80,14 +73,12 @@ public class FullLifecycleJmsCommandConsumer {
             CommandResponse<?> response = inboundCommandProcessor.process(inboundMessage.withPayload(commandBytes));
 
             // Publish protocol-compliant response via ResponsePublisher
-            String responseDestination =
-                    JmsDestinationResolver.resolveReplyDestination(jmsMessage).orElse(null);
-            if (responseDestination != null) {
-                jmsResponsePublisher.publish(responseDestination, correlationId, response);
+            String responseDestination = inboundMessage.responseDestination();
+            if (responseDestination != null && !responseDestination.isBlank()) {
+                jmsResponsePublisher.publish(responseDestination, correlationKey, response);
             }
 
             LOG.info("JMS command processed successfully [correlationId={}]", correlationId);
-
         } catch (Exception e) {
             LOG.error("Failed to process JMS command [correlationId={}]: {}", correlationId, e.getMessage(), e);
             throw new RuntimeException("JMS command processing failed [correlationId=" + correlationId + "]", e);
