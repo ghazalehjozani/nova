@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.adapters.driving.messaging.mapper;
+package ir.dotin.loan.trade.adapters.driving.contract.mapper;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -8,22 +8,12 @@ import org.springframework.stereotype.Component;
 import net.time4j.PlainDate;
 import net.time4j.calendar.PersianCalendar;
 
-import ir.dotin.loan.trade.adapters.driving.messaging.dto.InstallmentPaymentMessage;
-import ir.dotin.loan.trade.adapters.driving.messaging.dto.InstallmentPaymentMessage.PaymentDetailDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentPaymentMessage;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentPaymentMessage.PaymentDetailDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CollectInstallmentCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CollectInstallmentCommand.InstallmentPaymentItem;
 
-/**
- * Anti-corruption layer: translates the old system's installment payment message into the Nova domain command.
- *
- * <p>Key translations:
- *
- * <ul>
- *   <li>{@code fileNumber} (legacy term) -> {@code applicationNumber} (domain term)
- *   <li>{@code transactionNumber} (legacy) -> {@code transactionReference} (domain)
- *   <li>{@code PaymentDetailDto.totalAmount} -> {@code InstallmentPaymentItem.totalPaidAmount}
- * </ul>
- */
+/** Anti-corruption layer: translates the old system's installment payment message into the Nova domain command. */
 @Component
 public class InstallmentCollectionMessageMapper {
 

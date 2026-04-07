@@ -242,6 +242,13 @@ platform:
       stuck-threshold: 5m
   messaging:
     enabled: true
+    activemq:
+      enabled: true
+      listener:
+        acknowledge-mode: client
+        concurrency: 3-10
+      reply:
+        timeout-ms: 30000
     kafka:
       bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
       consumer-group-id: ${KAFKA_CONSUMER_GROUP:core.loan.facility.*}

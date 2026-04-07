@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.messaging.kafka.consumer;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -14,25 +15,30 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-import ir.dotin.platform.adapter.messaging.command.model.CommandHeaders;
-import ir.dotin.platform.adapter.messaging.header.NovaHeader;
-import ir.dotin.loan.trade.adapters.driving.messaging.dto.InstallmentOperationType;
+import ir.dotin.platform.messaging.api.inbound.InboundMessage;
+import ir.dotin.platform.messaging.api.inbound.InboundMessageHeaders;
+import ir.dotin.platform.messaging.kafka.converter.KafkaInboundMessageConverter;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentOperationType;
 import ir.dotin.loan.trade.adapters.driving.messaging.kafka.consumer.handler.InstallmentOperationHandler;
 
 import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 
-// TODO: Remove Operation type and use consumer per event
 @Component
 public class InstallmentFcbEventConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(InstallmentFcbEventConsumer.class);
 
     private final ObjectMapper objectMapper;
+    private final KafkaInboundMessageConverter converter;
     private final Map<InstallmentOperationType, InstallmentOperationHandler> handlers;
 
-    public InstallmentFcbEventConsumer(ObjectMapper objectMapper, List<InstallmentOperationHandler> handlerList) {
+    public InstallmentFcbEventConsumer(
+            ObjectMapper objectMapper,
+            KafkaInboundMessageConverter converter,
+            List<InstallmentOperationHandler> handlerList) {
         this.objectMapper = objectMapper;
+        this.converter = converter;
         this.handlers = handlerList.stream()
                 .collect(Collectors.toMap(InstallmentOperationHandler::getSupportedOperationType, Function.identity()));
     }
@@ -51,92 +57,111 @@ public class InstallmentFcbEventConsumer {
                                             schemaName = "InstallmentOperationHeaders",
                                             values = {
                                                 @AsyncOperation.Headers.Header(
-                                                        name = "Idempotency-Key",
-                                                        description = "Unique identifier for idempotency (UUID v4)",
+                                                        name = "eventUid",
+                                                        description = "Unique event identifier (GUID)",
                                                         value = "UUID string"),
                                                 @AsyncOperation.Headers.Header(
-                                                        name = "X-Request-DateTime",
-                                                        description = "Request timestamp (ISO 8601 UTC)",
-                                                        value = "2025-08-22T14:30:00.123Z"),
-                                                @AsyncOperation.Headers.Header(
-                                                        name = "Accept-Language",
-                                                        description = "Preferred language for error messages",
-                                                        value = "fa | en-US"),
-                                                @AsyncOperation.Headers.Header(
-                                                        name = "Authorization",
-                                                        description = "Bearer token for authentication",
-                                                        value = "Bearer token"),
-                                                @AsyncOperation.Headers.Header(
-                                                        name = "traceparent",
-                                                        description = "W3C trace context (distributed tracing)",
-                                                        value =
-                                                                "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"),
-                                                @AsyncOperation.Headers.Header(
-                                                        name = "tracestate",
-                                                        description = "W3C trace state (vendor-specific)",
-                                                        value = "congo=t61rcWkgMzE"),
-                                                @AsyncOperation.Headers.Header(
-                                                        name = "X-Operation-Type",
+                                                        name = "operationType",
                                                         description = "Discriminator: INSTALLMENT_COLLECTION, etc.",
-                                                        value = "Operation type code")
+                                                        value = "Operation type code"),
+                                                @AsyncOperation.Headers.Header(
+                                                        name = "Idempotency-Key",
+                                                        description = "Unique identifier for idempotency",
+                                                        value = "UUID string")
                                             })))
     public void consume(ConsumerRecord<String, byte[]> consumerRecord) {
-        JsonNode rootNode;
+        InboundMessage inboundMessage = converter.convert(consumerRecord);
+        validateRequiredHeaders(inboundMessage.headers());
+        InboundMessageHeaders headers = inboundMessage.headers();
+
+        String operationType;
+        String eventUid;
         try {
-            rootNode = objectMapper.readTree(consumerRecord.value());
+            JsonNode rootNode = objectMapper.readTree(inboundMessage.payload());
+            operationType = resolveOperationType(rootNode, consumerRecord);
+            eventUid = resolveEventUid(rootNode, consumerRecord);
+
+            LOG.info(
+                    "Received installment operation [operationType={}, eventUid={}, key={}]",
+                    operationType,
+                    eventUid,
+                    consumerRecord.key());
+
+            InstallmentOperationType opType;
+            try {
+                opType = InstallmentOperationType.ofCode(operationType);
+            } catch (IllegalArgumentException e) {
+                LOG.warn("Unknown operationType [{}], eventUid={}, skipping.", operationType, eventUid);
+                return;
+            }
+
+            InstallmentOperationHandler handler = handlers.get(opType);
+            if (handler == null) {
+                LOG.warn("No handler registered for operationType [{}], eventUid={}", operationType, eventUid);
+                return;
+            }
+
+            handler.handle(rootNode, headers, inboundMessage, eventUid);
+
         } catch (IOException e) {
-            LOG.error("Failed to parse JSON body from key={}", consumerRecord.key(), e);
-            return;
-        }
-
-        String operationType = getHeader(consumerRecord, NovaHeader.OPERATION_TYPE.getValue());
-        if (operationType == null || operationType.isBlank()) {
-            operationType = "UNKNOWN";
-        }
-
-        String eventUid = getHeader(consumerRecord, "eventUid");
-        if (eventUid == null) {
-            eventUid = getHeader(consumerRecord, NovaHeader.IDEMPOTENCY_KEY.getValue());
-        }
-
-        String responseTopic = getText(rootNode, "responseTopic", null);
-
-        CommandHeaders headers = CommandHeaders.builder()
-                .authorizationToken(getHeader(consumerRecord, NovaHeader.AUTHORIZATION.getValue()))
-                .idempotencyKey(getHeader(consumerRecord, NovaHeader.IDEMPOTENCY_KEY.getValue()))
-                .requestDateTime(getHeader(consumerRecord, NovaHeader.REQUEST_DATETIME.getValue()))
-                .acceptLanguage(getHeader(consumerRecord, NovaHeader.ACCEPT_LANGUAGE.getValue()))
-                .traceparent(getHeader(consumerRecord, NovaHeader.TRACEPARENT.getValue()))
-                .tracestate(getHeader(consumerRecord, NovaHeader.TRACESTATE.getValue()))
-                .build();
-
-        LOG.info(
-                "Received installment operation [operationType={}, eventUid={}, key={}]",
-                operationType,
-                eventUid,
-                consumerRecord.key());
-
-        InstallmentOperationHandler handler = handlers.get(InstallmentOperationType.ofCode(operationType));
-
-        if (handler != null) {
-            handler.handle(rootNode, headers, consumerRecord, eventUid, responseTopic);
-        } else {
-            LOG.error("Unknown operationType [{}], eventUid={}, skipping.", operationType, eventUid);
+            LOG.error(
+                    "Failed to parse installment operation message [key={}]: {}",
+                    consumerRecord.key(),
+                    e.getMessage(),
+                    e);
+            throw new RuntimeException("Installment operation message parsing failed", e);
         }
     }
 
-    private String getText(JsonNode node, String fieldName, String defaultValue) {
-        if (node.has(fieldName) && !node.get(fieldName).isNull()) {
-            return node.get(fieldName).asText();
+    private String resolveOperationType(JsonNode rootNode, ConsumerRecord<String, byte[]> record) {
+        // 1. Try header first (cheap)
+        String fromHeader = extractHeader(record, "operationType");
+        if (fromHeader != null && !fromHeader.isEmpty()) {
+            return fromHeader;
         }
-        return defaultValue;
+        // 2. Fallback to body
+        JsonNode opNode = rootNode.get("operationType");
+        if (opNode != null && !opNode.isNull()) {
+            return opNode.asText();
+        }
+        return "UNKNOWN";
     }
 
-    private String getHeader(ConsumerRecord<String, byte[]> record, String headerName) {
+    private String resolveEventUid(JsonNode rootNode, ConsumerRecord<String, byte[]> record) {
+        String fromHeader = extractHeader(record, "eventUid");
+        if (fromHeader != null && !fromHeader.isEmpty()) {
+            return fromHeader;
+        }
+        JsonNode node = rootNode.get("eventUid");
+        if (node != null && !node.isNull()) {
+            return node.asText();
+        }
+        return null;
+    }
+
+    private String extractHeader(ConsumerRecord<String, byte[]> record, String headerName) {
         var header = record.headers().lastHeader(headerName);
-        if (header == null || header.value() == null) {
-            return null;
+        if (header != null && header.value() != null) {
+            return new String(header.value(), StandardCharsets.UTF_8);
         }
-        return new String(header.value(), java.nio.charset.StandardCharsets.UTF_8);
+        return null;
+    }
+
+    private void validateRequiredHeaders(InboundMessageHeaders headers) {
+        if (headers.idempotencyKey() == null) {
+            throw new IllegalArgumentException("Missing required header: Idempotency-Key");
+        }
+        if (headers.requestDateTime() == null) {
+            throw new IllegalArgumentException("Missing required header: X-Request-DateTime");
+        }
+        if (headers.acceptLanguage() == null) {
+            throw new IllegalArgumentException("Missing required header: Accept-Language");
+        }
+        if (headers.authorizationToken() == null) {
+            throw new IllegalArgumentException("Missing required header: Authorization");
+        }
+        if (headers.traceparent() == null) {
+            throw new IllegalArgumentException("Missing required header: traceparent");
+        }
     }
 }

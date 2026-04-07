@@ -4,9 +4,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-import ir.dotin.platform.adapter.messaging.outbox.model.OutboxEvent;
 import ir.dotin.platform.adapter.messaging.persistence.mapper.BaseOutboxEventMapper;
 import ir.dotin.platform.commons.domain.entity.AbstractAggregateRoot;
+import ir.dotin.platform.outbox.api.OutboxEvent;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity.TradeLoanFacilityOutboxEventEntity;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 

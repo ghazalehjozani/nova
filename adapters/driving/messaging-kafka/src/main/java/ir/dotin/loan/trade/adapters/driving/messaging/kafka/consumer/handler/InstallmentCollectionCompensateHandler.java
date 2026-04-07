@@ -5,18 +5,16 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import ir.dotin.platform.adapter.messaging.command.model.CommandHeaders;
-import ir.dotin.platform.adapter.messaging.command.model.CommandResponse;
-import ir.dotin.platform.adapter.messaging.command.model.RawCommandMessage;
-import ir.dotin.platform.adapter.messaging.command.processor.CommandProcessor;
-import ir.dotin.platform.adapter.messaging.command.serializer.CommandSerializer;
-import ir.dotin.loan.trade.adapters.driving.messaging.dto.InstallmentCollectionCompensateMessage;
-import ir.dotin.loan.trade.adapters.driving.messaging.dto.InstallmentOperationType;
+import ir.dotin.platform.messaging.api.inbound.InboundMessage;
+import ir.dotin.platform.messaging.api.inbound.InboundMessageHeaders;
+import ir.dotin.platform.messaging.core.processor.InboundCommandProcessor;
+import ir.dotin.platform.messaging.core.serialization.CommandSerializer;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentCollectionCompensateMessage;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentOperationType;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateCollectInstallmentCommand;
 
 import lombok.RequiredArgsConstructor;
@@ -30,7 +28,7 @@ public class InstallmentCollectionCompensateHandler implements InstallmentOperat
             InstallmentOperationType.INSTALLMENT_COLLECTION_COMPENSATE;
 
     private final ObjectMapper objectMapper;
-    private final CommandProcessor processor;
+    private final InboundCommandProcessor inboundCommandProcessor;
     private final CommandSerializer commandSerializer;
 
     @Override
@@ -39,15 +37,10 @@ public class InstallmentCollectionCompensateHandler implements InstallmentOperat
     }
 
     @Override
-    public void handle(
-            JsonNode rootNode,
-            CommandHeaders headers,
-            ConsumerRecord<String, byte[]> record,
-            String eventUid,
-            String responseTopic) {
-        InstallmentCollectionCompensateMessage message;
+    public void handle(JsonNode rootNode, InboundMessageHeaders headers, InboundMessage message, String eventUid) {
+        InstallmentCollectionCompensateMessage compensateMessage;
         try {
-            message = objectMapper.treeToValue(rootNode, InstallmentCollectionCompensateMessage.class);
+            compensateMessage = objectMapper.treeToValue(rootNode, InstallmentCollectionCompensateMessage.class);
         } catch (Exception e) {
             LOG.error("Malformed INSTALLMENT_COLLECTION_COMPENSATE message [eventUid={}]", eventUid, e);
             return;
@@ -56,38 +49,26 @@ public class InstallmentCollectionCompensateHandler implements InstallmentOperat
         LOG.info(
                 "Processing INSTALLMENT_COLLECTION_COMPENSATE [eventUid={}, fileNumber={}]",
                 eventUid,
-                message.fileNumber());
+                compensateMessage.fileNumber());
 
         try {
             CompensateCollectInstallmentCommand command = CompensateCollectInstallmentCommand.builder()
-                    .uid(UUID.fromString(message.eventUid()))
-                    .applicationNumber(message.fileNumber())
-                    .transactionNumbers(message.transactionNumbers())
+                    .uid(UUID.fromString(compensateMessage.eventUid()))
+                    .applicationNumber(compensateMessage.fileNumber())
+                    .transactionNumbers(compensateMessage.transactionNumbers())
                     .build();
 
-            // Serialize command with type info for CommandProcessor
             byte[] commandBytes = commandSerializer.serialize(command).getBytes(StandardCharsets.UTF_8);
 
-            // Construct RawCommandMessage
-            RawCommandMessage rawMessage = new RawCommandMessage(
-                    record.topic(),
-                    record.partition(),
-                    record.offset(),
-                    record.key(),
-                    commandBytes,
-                    headers,
-                    record.timestamp(),
-                    responseTopic);
-
-            CommandResponse<?> response = processor.process(rawMessage);
+            inboundCommandProcessor.process(message.withPayload(commandBytes));
 
         } catch (Exception e) {
             LOG.error(
-                    "Failed to process INSTALLMENT_COLLECTION [eventUid={}, fileNumber={}]",
+                    "Failed to process INSTALLMENT_COLLECTION_COMPENSATE [eventUid={}, fileNumber={}]",
                     eventUid,
-                    message.fileNumber(),
+                    compensateMessage.fileNumber(),
                     e);
-            throw new RuntimeException("INSTALLMENT_COLLECTION processing failed: " + eventUid, e);
+            throw new RuntimeException("INSTALLMENT_COLLECTION_COMPENSATE processing failed: " + eventUid, e);
         }
     }
 }

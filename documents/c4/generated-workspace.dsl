@@ -267,38 +267,6 @@ workspace "Trade Loan Service" {
         }
 
         styles {
-            element "Message Broker" {
-                background #f5a623
-                color #000000
-                shape Pipe
-            }
-            element "Component" {
-                background #85bbf0
-                color #000000
-            }
-            element "Controller" {
-                background #7cb342
-                color #ffffff
-            }
-            element "Client" {
-                background #ec407a
-                color #ffffff
-            }
-            element "Monitoring" {
-                background #27ae60
-                shape WebBrowser
-            }
-            element "Service" {
-                background #29b6f6
-                color #ffffff
-            }
-            element "Domain" {
-                background #ffa726
-                color #000000
-            }
-            element "External System" {
-                background #999999
-            }
             element "Internal User" {
                 background #08427b
             }
@@ -363,6 +331,38 @@ workspace "Trade Loan Service" {
                 background #ab47bc
                 color #ffffff
                 shape Diamond
+            }
+            element "Message Broker" {
+                background #f5a623
+                color #000000
+                shape Pipe
+            }
+            element "Component" {
+                background #85bbf0
+                color #000000
+            }
+            element "Controller" {
+                background #7cb342
+                color #ffffff
+            }
+            element "Client" {
+                background #ec407a
+                color #ffffff
+            }
+            element "Monitoring" {
+                background #27ae60
+                shape WebBrowser
+            }
+            element "Service" {
+                background #29b6f6
+                color #ffffff
+            }
+            element "Domain" {
+                background #ffa726
+                color #000000
+            }
+            element "External System" {
+                background #999999
             }
         }
     }

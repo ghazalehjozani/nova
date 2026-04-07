@@ -9,7 +9,6 @@
     <groupId>ir.dotin.loan</groupId>
     <artifactId>trade-loan-adapters-driving</artifactId>
     <version>${revision}</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>trade-loan-adapters-driving-messaging-kafka</artifactId>
@@ -17,14 +16,27 @@
   <packaging>jar</packaging>
 
     <dependencies>
+        <!-- Platform -->
         <dependency>
             <groupId>ir.dotin.platform</groupId>
-            <artifactId>platform-adapter-messaging</artifactId>
+            <artifactId>platform-messaging-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ir.dotin.loan</groupId>
-            <artifactId>trade-loan-adapters-driving-messaging</artifactId>
+            <groupId>ir.dotin.platform</groupId>
+            <artifactId>platform-messaging-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform</groupId>
+            <artifactId>platform-spring-boot-starter-messaging-kafka</artifactId>
+        </dependency>
+
+        <!-- Sibling module -->
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>trade-loan-adapters-driving-contract</artifactId>
+        </dependency>
+
+        <!-- AsyncAPI documentation -->
         <dependency>
             <groupId>io.github.springwolf</groupId>
             <artifactId>springwolf-kafka</artifactId>
@@ -35,6 +47,7 @@
             <artifactId>springwolf-ui</artifactId>
             <version>1.20.0</version>
         </dependency>
+
         <dependency>
             <groupId>net.time4j</groupId>
             <artifactId>time4j-base</artifactId>

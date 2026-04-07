@@ -10,15 +10,9 @@ import java.util.Set;
 
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
-import ir.dotin.loan.trade.adapters.driving.messaging.dto.DisburseDestinationRequestDto;
-import ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage;
-import ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.DisbursementDto;
-import ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.InstallmentSchedulePlanDto;
-import ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.InstallmentSpecDto;
-import ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.LoanApplicationDto;
-import ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.RequestReasonDto;
-import ir.dotin.loan.trade.adapters.driving.messaging.dto.FullLoanFacilityLifecycleMessage.SamatDto;
-import ir.dotin.loan.trade.adapters.driving.messaging.dto.PartyRequestDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DisburseDestinationRequestDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.FullLoanFacilityLifecycleMessage;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.PartyRequestDto;
 
 public final class FullLifecycleMessageBuilder {
 
@@ -70,10 +64,10 @@ public final class FullLifecycleMessageBuilder {
                 amount.subtract(principalPerInstallment.multiply(BigDecimal.valueOf(installmentCount - 1)));
         BigDecimal interestPerInstallment = new BigDecimal("750000");
 
-        List<InstallmentSpecDto> installments = new java.util.ArrayList<>();
+        List<FullLoanFacilityLifecycleMessage.InstallmentSpecDto> installments = new java.util.ArrayList<>();
         for (int i = 1; i <= installmentCount; i++) {
             BigDecimal principal = (i == installmentCount) ? lastPrincipal : principalPerInstallment;
-            installments.add(new InstallmentSpecDto(
+            installments.add(new FullLoanFacilityLifecycleMessage.InstallmentSpecDto(
                     i, Instant.now().plus(Duration.ofDays(30L * i)), principal, interestPerInstallment));
         }
 
@@ -81,7 +75,7 @@ public final class FullLifecycleMessageBuilder {
                 .version(1L)
                 .loanTypeCode(loanTypeCode)
                 .loanArrangementCode(loanArrangementCode)
-                .loanApplication(new LoanApplicationDto(
+                .loanApplication(new FullLoanFacilityLifecycleMessage.LoanApplicationDto(
                         Instant.now(),
                         Set.of(new PartyRequestDto.ApplicantDto(customerNumber)),
                         amount,
@@ -93,15 +87,15 @@ public final class FullLifecycleMessageBuilder {
                         new DisburseDestinationRequestDto.DepositDestinationDto("1.10.1357.60"),
                         "2-1",
                         "1",
-                        new RequestReasonDto("0"),
+                        new FullLoanFacilityLifecycleMessage.RequestReasonDto("0"),
                         "03",
                         "E2E test facility",
                         null,
                         disbursementMethod,
-                        new SamatDto("1234567899876543", null, null, null, null, null),
+                        new FullLoanFacilityLifecycleMessage.SamatDto("1234567899876543", null, null, null, null, null),
                         "A"))
-                .disbursement(new DisbursementDto(amount, LocalDate.now()))
-                .installmentSchedulePlan(new InstallmentSchedulePlanDto(installments))
+                .disbursement(new FullLoanFacilityLifecycleMessage.DisbursementDto(amount, LocalDate.now()))
+                .installmentSchedulePlan(new FullLoanFacilityLifecycleMessage.InstallmentSchedulePlanDto(installments))
                 .collaterals(List.of())
                 .confirmType("1")
                 .metadata(Map.of())

@@ -9,7 +9,6 @@
     <groupId>ir.dotin.loan</groupId>
     <artifactId>trade-loan-adapters</artifactId>
     <version>${revision}</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>trade-loan-adapters-driving</artifactId>
@@ -17,8 +16,8 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>contract</module>
     <module>rest</module>
-    <module>messaging</module>
     <module>messaging-kafka</module>
     <module>messaging-activemq</module>
   </modules>
