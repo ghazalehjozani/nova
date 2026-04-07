@@ -66,7 +66,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <artifactId>platform-commons-security</artifactId>
+            <artifactId>platform-security-api</artifactId>
             <groupId>ir.dotin.platform</groupId>
         </dependency>
     </dependencies>

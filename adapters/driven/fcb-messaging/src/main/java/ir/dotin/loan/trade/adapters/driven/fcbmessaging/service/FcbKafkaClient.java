@@ -23,8 +23,8 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.security.OAuth2TokenResponse;
-import ir.dotin.platform.commons.security.TokenClientService;
+import ir.dotin.platform.security.api.OAuth2TokenResponse;
+import ir.dotin.platform.security.api.TokenClientService;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbResilienceConfig;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.security.AuthenticationContextHolder;
+import ir.dotin.platform.security.api.AuthenticationContextHolder;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;

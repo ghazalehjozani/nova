@@ -31,7 +31,7 @@
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform</groupId>
-            <artifactId>platform-commons-security</artifactId>
+            <artifactId>platform-security-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
