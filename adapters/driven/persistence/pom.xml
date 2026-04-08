@@ -31,7 +31,7 @@
     </dependency>
     <dependency>
         <groupId>ir.dotin.platform</groupId>
-        <artifactId>platform-adapter-persistence</artifactId>
+        <artifactId>platform-spring-boot-starter-persistence-jpa</artifactId>
     </dependency>
     <dependency>
       <groupId>ir.dotin.platform</groupId>

@@ -19,7 +19,7 @@
   <dependencies>
       <dependency>
           <groupId>ir.dotin.platform</groupId>
-          <artifactId>platform-adapter-rest</artifactId>
+          <artifactId>platform-spring-boot-starter-protocol-rest</artifactId>
       </dependency>
       <dependency>
           <groupId>ir.dotin.loan</groupId>
