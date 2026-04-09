@@ -10,15 +10,15 @@ import java.util.function.Supplier;
 
 import org.springframework.stereotype.Component;
 
+import ir.dotin.platform.accounting.document.api.model.AccountNumber;
+import ir.dotin.platform.accounting.document.api.model.DepositNumber;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.DepositInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.DisburseDestinationDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.AccountServicePort;

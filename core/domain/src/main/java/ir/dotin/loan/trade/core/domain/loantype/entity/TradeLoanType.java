@@ -4,11 +4,11 @@ import java.time.Clock;
 
 import com.google.common.collect.ImmutableSetMultimap;
 
+import ir.dotin.platform.accounting.document.api.enumeration.RelationType;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.loan.baseloan.core.domain.loantype.entity.AbstractLoanType;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Active;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Disable;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;

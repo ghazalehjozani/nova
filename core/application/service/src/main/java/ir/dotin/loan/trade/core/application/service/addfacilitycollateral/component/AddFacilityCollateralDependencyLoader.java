@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 
 import org.springframework.stereotype.Component;
 
+import ir.dotin.platform.accounting.document.api.model.BranchCode;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.Money;
@@ -17,7 +18,6 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.service.CollateralCalcula
 import ir.dotin.loan.baseloan.core.domain.loanfacility.service.validator.AbstractCollateralValidationService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.CollateralServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralDetails;

@@ -11,11 +11,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
+import ir.dotin.platform.accounting.document.api.enumeration.RelationType;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.EconomicSectorCurrency;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanApplicationStatus;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;

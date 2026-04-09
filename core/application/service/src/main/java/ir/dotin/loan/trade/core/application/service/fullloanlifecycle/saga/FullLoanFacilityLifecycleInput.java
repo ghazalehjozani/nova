@@ -5,9 +5,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
 import ir.dotin.platform.saga.api.definition.SagaInput;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLoanFacilityLifecycleCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 

@@ -55,12 +55,6 @@ skinparam database<<TradeLoanService.TradeLoanApplication.InstallmentScheduleRep
   BorderColor #404a86
   shadowing false
 }
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementTransactionService>> {
-  BackgroundColor #29b6f6
-  FontColor #ffffff
-  BorderColor #1c7fac
-  shadowing false
-}
 skinparam database<<TradeLoanService.TradeLoanApplication.JpaFacilityQueryAdapter>> {
   BackgroundColor #5c6bc0
   FontColor #ffffff
@@ -91,18 +85,6 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.LoanServiceAdapter>> 
   BorderColor #a52c55
   shadowing false
 }
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeIssueContractTransactionService>> {
-  BackgroundColor #29b6f6
-  FontColor #ffffff
-  BorderColor #1c7fac
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLampSunDisbursementTransactionService>> {
-  BackgroundColor #29b6f6
-  FontColor #ffffff
-  BorderColor #1c7fac
-  shadowing false
-}
 skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanApplication>> {
   BackgroundColor #ff9800
   FontColor #000000
@@ -113,6 +95,12 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanArrangement>
   BackgroundColor #ff9800
   FontColor #000000
   BorderColor #b26a00
+  shadowing false
+}
+skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler>> {
+  BackgroundColor #66bb6a
+  FontColor #000000
+  BorderColor #47824a
   shadowing false
 }
 skinparam database<<TradeLoanService.TradeLoanApplication.TradeLoanArrangementRepositoryAdapter>> {
@@ -131,6 +119,12 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanFacilityEven
   BackgroundColor #ffb74d
   FontColor #000000
   BorderColor #b28035
+  shadowing false
+}
+skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler>> {
+  BackgroundColor #66bb6a
+  FontColor #000000
+  BorderColor #47824a
   shadowing false
 }
 skinparam database<<TradeLoanService.TradeLoanApplication.TradeLoanFacilityRepositoryAdapter>> {
@@ -155,6 +149,12 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanType>> {
   BackgroundColor #ff9800
   FontColor #000000
   BorderColor #b26a00
+  shadowing false
+}
+skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler>> {
+  BackgroundColor #66bb6a
+  FontColor #000000
+  BorderColor #47824a
   shadowing false
 }
 skinparam database<<TradeLoanService.TradeLoanApplication.TradeLoanTypeRepositoryAdapter>> {
@@ -208,9 +208,6 @@ rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]<
   rectangle "==TradeLoanType\n<size:10>[Component: DDD Aggregate Root]</size>\n\ntrade loan type aggregate" <<TradeLoanService.TradeLoanApplication.TradeLoanType>> as TradeLoanService.TradeLoanApplication.TradeLoanType
   rectangle "==TradeRepaymentSchedulingService\n<size:10>[Component: Domain Service]</size>\n\ntrade repayment scheduling service domain service" <<TradeLoanService.TradeLoanApplication.TradeRepaymentSchedulingService>> as TradeLoanService.TradeLoanApplication.TradeRepaymentSchedulingService
   rectangle "==TradeLoanFacilityService\n<size:10>[Component: Domain Service]</size>\n\ntrade loan facility service domain service" <<TradeLoanService.TradeLoanApplication.TradeLoanFacilityService>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityService
-  rectangle "==IrregularProgressiveDisbursementTransactionService\n<size:10>[Component: Domain Service]</size>\n\nirregular progressive disbursement transaction service domain service" <<TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementTransactionService>> as TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementTransactionService
-  rectangle "==TradeIssueContractTransactionService\n<size:10>[Component: Domain Service]</size>\n\ntrade issue contract transaction service domain service" <<TradeLoanService.TradeLoanApplication.TradeIssueContractTransactionService>> as TradeLoanService.TradeLoanApplication.TradeIssueContractTransactionService
-  rectangle "==TradeLampSunDisbursementTransactionService\n<size:10>[Component: Domain Service]</size>\n\ntrade lamp sun disbursement transaction service domain service" <<TradeLoanService.TradeLoanApplication.TradeLampSunDisbursementTransactionService>> as TradeLoanService.TradeLoanApplication.TradeLampSunDisbursementTransactionService
   rectangle "==TradeLoanFacilityValidationService\n<size:10>[Component: Domain Service]</size>\n\ntrade loan facility validation service domain service" <<TradeLoanService.TradeLoanApplication.TradeLoanFacilityValidationService>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityValidationService
   rectangle "==TradeSanctionValidationService\n<size:10>[Component: Domain Service]</size>\n\ntrade sanction validation service domain service" <<TradeLoanService.TradeLoanApplication.TradeSanctionValidationService>> as TradeLoanService.TradeLoanApplication.TradeSanctionValidationService
   rectangle "==TradeLoanTypeValidationService\n<size:10>[Component: Domain Service]</size>\n\ntrade loan type validation service domain service" <<TradeLoanService.TradeLoanApplication.TradeLoanTypeValidationService>> as TradeLoanService.TradeLoanApplication.TradeLoanTypeValidationService
@@ -230,6 +227,9 @@ rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]<
   rectangle "==LoanServiceAdapter\n<size:10>[Component: Spring WebClient]</size>\n\nloan service client" <<TradeLoanService.TradeLoanApplication.LoanServiceAdapter>> as TradeLoanService.TradeLoanApplication.LoanServiceAdapter
   rectangle "==TransactionPostingAdapter\n<size:10>[Component: Spring WebClient]</size>\n\ntransaction posting client" <<TradeLoanService.TradeLoanApplication.TransactionPostingAdapter>> as TradeLoanService.TradeLoanApplication.TransactionPostingAdapter
   hexagon "==InstallmentScheduleOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nInstallmentSchedule outbox handler" <<TradeLoanService.TradeLoanApplication.InstallmentScheduleOutboxHandler>> as TradeLoanService.TradeLoanApplication.InstallmentScheduleOutboxHandler
+  hexagon "==TradeLoanArrangementOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanArrangement outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler
+  hexagon "==TradeLoanFacilityOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanFacility outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler
+  hexagon "==TradeLoanTypeOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanType outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler
 }
 
 @enduml

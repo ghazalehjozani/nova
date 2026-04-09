@@ -2,12 +2,12 @@ package ir.dotin.loan.trade.core.application.service.shared.util;
 
 import java.util.List;
 
+import ir.dotin.platform.accounting.document.api.model.BranchCode;
+import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
+import ir.dotin.platform.accounting.document.api.model.metadata.ArticleMetadata;
+import ir.dotin.platform.accounting.document.api.model.metadata.OperationalInfo;
+import ir.dotin.platform.accounting.document.core.factory.DocumentMetadataFactory;
 import ir.dotin.platform.commons.core.Result;
-import ir.dotin.loan.baseloan.core.domain.shared.factory.DocumentMetadataFactory;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.metadata.ArticleMetadata;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.metadata.OperationalInfo;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 

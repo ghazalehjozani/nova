@@ -13,12 +13,12 @@ import java.util.stream.Collectors;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import ir.dotin.platform.accounting.document.api.model.BranchCode;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.context.FcbContext;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.FcbRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.Parameter;

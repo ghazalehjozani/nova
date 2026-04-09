@@ -13,13 +13,13 @@ digraph {
     fontcolor="#444444"
     fillcolor="#444444"
 
-    132 [id=132,shape=rect, label=<<font point-size="34">AccountServiceAdapter</font><br /><font point-size="19">[Component: Spring WebClient]</font><br /><br /><font point-size="24">account service client</font>>, style=filled, color="#a52c55", fillcolor="#ec407a", fontcolor="#ffffff"]
-    133 [id=133,shape=rect, label=<<font point-size="34">CollateralAdapter</font><br /><font point-size="19">[Component: Spring WebClient]</font><br /><br /><font point-size="24">collateral client</font>>, style=filled, color="#a52c55", fillcolor="#ec407a", fontcolor="#ffffff"]
-    134 [id=134,shape=rect, label=<<font point-size="34">CustomerServiceAdapter</font><br /><font point-size="19">[Component: Spring WebClient]</font><br /><br /><font point-size="24">customer service client</font>>, style=filled, color="#a52c55", fillcolor="#ec407a", fontcolor="#ffffff"]
-    135 [id=135,shape=rect, label=<<font point-size="34">DepositServiceAdapter</font><br /><font point-size="19">[Component: Spring WebClient]</font><br /><br /><font point-size="24">deposit service client</font>>, style=filled, color="#a52c55", fillcolor="#ec407a", fontcolor="#ffffff"]
-    136 [id=136,shape=rect, label=<<font point-size="34">FcbServiceImpl</font><br /><font point-size="19">[Component: Spring WebClient]</font><br /><br /><font point-size="24">fcb client</font>>, style=filled, color="#a52c55", fillcolor="#ec407a", fontcolor="#ffffff"]
-    137 [id=137,shape=rect, label=<<font point-size="34">LoanServiceAdapter</font><br /><font point-size="19">[Component: Spring WebClient]</font><br /><br /><font point-size="24">loan service client</font>>, style=filled, color="#a52c55", fillcolor="#ec407a", fontcolor="#ffffff"]
-    138 [id=138,shape=rect, label=<<font point-size="34">TransactionPostingAdapter</font><br /><font point-size="19">[Component: Spring WebClient]</font><br /><br /><font point-size="24">transaction posting client</font>>, style=filled, color="#a52c55", fillcolor="#ec407a", fontcolor="#ffffff"]
+    129 [id=129,shape=rect, label=<<font point-size="34">AccountServiceAdapter</font><br /><font point-size="19">[Component: Spring WebClient]</font><br /><br /><font point-size="24">account service client</font>>, style=filled, color="#a52c55", fillcolor="#ec407a", fontcolor="#ffffff"]
+    130 [id=130,shape=rect, label=<<font point-size="34">CollateralAdapter</font><br /><font point-size="19">[Component: Spring WebClient]</font><br /><br /><font point-size="24">collateral client</font>>, style=filled, color="#a52c55", fillcolor="#ec407a", fontcolor="#ffffff"]
+    131 [id=131,shape=rect, label=<<font point-size="34">CustomerServiceAdapter</font><br /><font point-size="19">[Component: Spring WebClient]</font><br /><br /><font point-size="24">customer service client</font>>, style=filled, color="#a52c55", fillcolor="#ec407a", fontcolor="#ffffff"]
+    132 [id=132,shape=rect, label=<<font point-size="34">DepositServiceAdapter</font><br /><font point-size="19">[Component: Spring WebClient]</font><br /><br /><font point-size="24">deposit service client</font>>, style=filled, color="#a52c55", fillcolor="#ec407a", fontcolor="#ffffff"]
+    133 [id=133,shape=rect, label=<<font point-size="34">FcbServiceImpl</font><br /><font point-size="19">[Component: Spring WebClient]</font><br /><br /><font point-size="24">fcb client</font>>, style=filled, color="#a52c55", fillcolor="#ec407a", fontcolor="#ffffff"]
+    134 [id=134,shape=rect, label=<<font point-size="34">LoanServiceAdapter</font><br /><font point-size="19">[Component: Spring WebClient]</font><br /><br /><font point-size="24">loan service client</font>>, style=filled, color="#a52c55", fillcolor="#ec407a", fontcolor="#ffffff"]
+    135 [id=135,shape=rect, label=<<font point-size="34">TransactionPostingAdapter</font><br /><font point-size="19">[Component: Spring WebClient]</font><br /><br /><font point-size="24">transaction posting client</font>>, style=filled, color="#a52c55", fillcolor="#ec407a", fontcolor="#ffffff"]
   }
 
 }

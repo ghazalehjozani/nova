@@ -12,6 +12,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import ir.dotin.platform.accounting.document.api.enumeration.TransactionStatus;
+import ir.dotin.platform.accounting.document.api.model.BranchCode;
+import ir.dotin.platform.accounting.document.api.model.PostTitle;
+import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
+import ir.dotin.platform.accounting.document.api.model.metadata.OperationalInfo;
+import ir.dotin.platform.accounting.document.core.factory.DocumentMetadataFactory;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.saga.api.annotation.SagaHandler;
@@ -23,16 +29,11 @@ import ir.dotin.platform.saga.api.definition.SagaSteps;
 import ir.dotin.platform.saga.api.model.ResultStepAdapter;
 import ir.dotin.platform.saga.api.model.StepError;
 import ir.dotin.platform.saga.api.model.StepResult;
-import ir.dotin.loan.baseloan.core.domain.shared.factory.DocumentMetadataFactory;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ResolvedAccounts;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.PostTitle;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.metadata.OperationalInfo;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
@@ -44,10 +45,10 @@ import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplic
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityContractIssued;
-import ir.dotin.loan.trade.core.domain.loanfacility.service.transaction.TradeIssueContractTransactionService;
-import ir.dotin.loan.trade.core.domain.loanfacility.strategy.IssueContractCommitmentHandlingStrategy;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
+import ir.dotin.loan.trade.core.domain.shared.document.strategy.IssueContractCommitmentHandlingStrategy;
+import ir.dotin.loan.trade.core.domain.shared.document.transaction.TradeIssueContractTransactionService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -203,10 +204,7 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         log.warn("Reversing transaction: {}", transactionNumber);
 
         var trackedNumber = TrackedTransactionNumber.create(
-                data.postedTransactionNumber(),
-                data.postedTrackingId(),
-                ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus.POSTED,
-                clock);
+                data.postedTransactionNumber(), data.postedTrackingId(), TransactionStatus.POSTED, clock);
 
         return ResultStepAdapter.toStepResultVoid(transactionPostingPort.reverseTransaction(trackedNumber));
     }

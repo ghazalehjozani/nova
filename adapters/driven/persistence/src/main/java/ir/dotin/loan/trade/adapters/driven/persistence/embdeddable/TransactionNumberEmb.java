@@ -7,7 +7,7 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
-import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
+import ir.dotin.platform.accounting.document.api.enumeration.TransactionStatus;
 
 import lombok.Data;
 

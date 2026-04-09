@@ -1,11 +1,11 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper;
 
+import ir.dotin.platform.accounting.document.api.model.AccountId;
+import ir.dotin.platform.accounting.document.api.model.AccountNumber;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountInfo;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.AccountInfoKafkaResponse;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 

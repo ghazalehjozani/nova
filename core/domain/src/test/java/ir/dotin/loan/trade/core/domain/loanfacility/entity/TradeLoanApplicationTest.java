@@ -15,6 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import ir.dotin.platform.accounting.document.api.model.AccountNumber;
+import ir.dotin.platform.accounting.document.api.model.DepositNumber;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
@@ -29,14 +31,12 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.RequestReason;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.ApplicantParty;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CustomerName;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuaranteePercentage;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuarantorParty;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 
 import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;

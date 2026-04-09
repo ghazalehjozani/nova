@@ -21,6 +21,10 @@
       <groupId>ir.dotin.loan</groupId>
       <artifactId>base-loan-core-domain</artifactId>
     </dependency>
+    <dependency>
+      <groupId>ir.dotin.platform</groupId>
+      <artifactId>accounting-document-core</artifactId>
+    </dependency>
     <!--region Test-->
     <dependency>
       <groupId>org.junit.jupiter</groupId>

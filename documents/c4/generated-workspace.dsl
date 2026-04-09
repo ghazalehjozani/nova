@@ -87,9 +87,6 @@ workspace "Trade Loan Service" {
                 tradeloantype = component "TradeLoanType" "trade loan type aggregate" "DDD Aggregate Root"
                 traderepaymentschedulingservice = component "TradeRepaymentSchedulingService" "trade repayment scheduling service domain service" "Domain Service"
                 tradeloanfacilityservice = component "TradeLoanFacilityService" "trade loan facility service domain service" "Domain Service"
-                irregularprogressivedisbursementtransactionservice = component "IrregularProgressiveDisbursementTransactionService" "irregular progressive disbursement transaction service domain service" "Domain Service"
-                tradeissuecontracttransactionservice = component "TradeIssueContractTransactionService" "trade issue contract transaction service domain service" "Domain Service"
-                tradelampsundisbursementtransactionservice = component "TradeLampSunDisbursementTransactionService" "trade lamp sun disbursement transaction service domain service" "Domain Service"
                 tradeloanfacilityvalidationservice = component "TradeLoanFacilityValidationService" "trade loan facility validation service domain service" "Domain Service"
                 tradesanctionvalidationservice = component "TradeSanctionValidationService" "trade sanction validation service domain service" "Domain Service"
                 tradeloantypevalidationservice = component "TradeLoanTypeValidationService" "trade loan type validation service domain service" "Domain Service"
@@ -156,11 +153,8 @@ workspace "Trade Loan Service" {
         closefacilitydefaultedcommandhandler -> tradeloanfacilityservice "Uses"
         closefacilitypaidoffcommandhandler -> tradeloanfacilityservice "Uses"
         defineloantypecommandhandler -> tradeloantypevalidationservice "Uses"
-        irregularprogressivedisbursementcommandhandler -> irregularprogressivedisbursementtransactionservice "Uses"
-        lumpsumdisbursementcommandhandler -> tradelampsundisbursementtransactionservice "Uses"
         planequalinstallmentschedulecommandhandler -> traderepaymentschedulingservice "Uses"
         submitfacilityforapprovalcommandhandler -> tradeloanfacilityservice "Uses"
-        issuefacilitycontractsaga -> tradeissuecontracttransactionservice "Uses"
         installmentschedulerepositoryadapter -> postgresql_database "Reads/Writes"
         tradeloanarrangementrepositoryadapter -> postgresql_database "Reads/Writes"
         tradeloanfacilityrepositoryadapter -> postgresql_database "Reads/Writes"
@@ -207,11 +201,6 @@ workspace "Trade Loan Service" {
         }
 
         component trade_loan_application "Components_3" {
-            include *
-            autoLayout tb 300 300
-        }
-
-        component trade_loan_application "Components_4" {
             include *
             autoLayout tb 300 300
         }
@@ -267,102 +256,102 @@ workspace "Trade Loan Service" {
         }
 
         styles {
-            element "Message Broker" {
-                background #f5a623
-                color #000000
-                shape Pipe
-            }
-            element "Component" {
-                background #85bbf0
-                color #000000
+            element "Client" {
+                background #ec407a
+                color #ffffff
             }
             element "Controller" {
                 background #7cb342
                 color #ffffff
             }
-            element "Client" {
-                background #ec407a
-                color #ffffff
-            }
-            element "Monitoring" {
-                background #27ae60
-                shape WebBrowser
-            }
-            element "Service" {
-                background #29b6f6
-                color #ffffff
-            }
-            element "Domain" {
-                background #ffa726
+            element "Component" {
+                background #85bbf0
                 color #000000
             }
-            element "External System" {
-                background #999999
-            }
-            element "Internal User" {
-                background #08427b
-            }
-            element "Database" {
-                shape Cylinder
-            }
-            element "Handler" {
-                background #42a5f5
-                color #ffffff
-            }
-            element "Software System" {
-                background #1168bd
-                color #ffffff
-            }
-            element "Consumer" {
-                background #ff7043
-                color #ffffff
-                shape Hexagon
-            }
-            element "Person" {
-                background #08427b
-                color #ffffff
-                shape Person
-            }
-            element "Entity" {
-                background #ffb74d
+            element "Message Broker" {
+                background #f5a623
                 color #000000
+                shape Pipe
             }
-            element "Aggregate" {
-                background #ff9800
-                color #000000
-            }
-            element "Cache" {
-                background #e74c3c
-                shape Cylinder
-            }
-            element "Container" {
-                background #438dd5
+            element "Saga" {
+                background #ab47bc
                 color #ffffff
+                shape Diamond
             }
-            element "External User" {
-                background #666666
-            }
-            element "Admin" {
-                background #5c3d6e
-            }
-            element "Outbox" {
-                background #66bb6a
-                color #000000
-                shape Hexagon
+            element "Compensation" {
+                background #ef5350
+                color #ffffff
             }
             element "Repository" {
                 background #5c6bc0
                 color #ffffff
                 shape Cylinder
             }
-            element "Compensation" {
-                background #ef5350
+            element "Outbox" {
+                background #66bb6a
+                color #000000
+                shape Hexagon
+            }
+            element "Admin" {
+                background #5c3d6e
+            }
+            element "External User" {
+                background #666666
+            }
+            element "Container" {
+                background #438dd5
                 color #ffffff
             }
-            element "Saga" {
-                background #ab47bc
+            element "Cache" {
+                background #e74c3c
+                shape Cylinder
+            }
+            element "Aggregate" {
+                background #ff9800
+                color #000000
+            }
+            element "Entity" {
+                background #ffb74d
+                color #000000
+            }
+            element "Person" {
+                background #08427b
                 color #ffffff
-                shape Diamond
+                shape Person
+            }
+            element "Consumer" {
+                background #ff7043
+                color #ffffff
+                shape Hexagon
+            }
+            element "Software System" {
+                background #1168bd
+                color #ffffff
+            }
+            element "Handler" {
+                background #42a5f5
+                color #ffffff
+            }
+            element "Database" {
+                shape Cylinder
+            }
+            element "Internal User" {
+                background #08427b
+            }
+            element "External System" {
+                background #999999
+            }
+            element "Domain" {
+                background #ffa726
+                color #000000
+            }
+            element "Service" {
+                background #29b6f6
+                color #ffffff
+            }
+            element "Monitoring" {
+                background #27ae60
+                shape WebBrowser
             }
         }
     }

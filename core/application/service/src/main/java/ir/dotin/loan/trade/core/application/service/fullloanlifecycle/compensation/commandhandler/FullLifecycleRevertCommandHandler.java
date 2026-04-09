@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import ir.dotin.platform.accounting.document.api.enumeration.TransactionStatus;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
@@ -15,7 +16,6 @@ import ir.dotin.platform.saga.api.error.SagaErrors;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLifecycleRevertCommand;

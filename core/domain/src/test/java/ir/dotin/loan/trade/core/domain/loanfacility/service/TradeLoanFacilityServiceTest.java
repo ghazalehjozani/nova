@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import ir.dotin.platform.accounting.document.api.enumeration.TransactionStatus;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
@@ -25,7 +26,6 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;

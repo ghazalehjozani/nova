@@ -14,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import ir.dotin.platform.accounting.document.api.model.AccountNumber;
+import ir.dotin.platform.accounting.document.api.model.DepositNumber;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
@@ -26,7 +28,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.ApplicantParty;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CustomerName;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuaranteePercentage;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuarantorParty;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCreated;
 
 import static java.time.ZoneOffset.UTC;

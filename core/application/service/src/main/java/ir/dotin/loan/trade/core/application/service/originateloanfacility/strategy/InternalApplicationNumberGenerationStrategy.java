@@ -3,12 +3,12 @@ package ir.dotin.loan.trade.core.application.service.originateloanfacility.strat
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 
+import ir.dotin.platform.accounting.document.api.model.BranchCode;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;

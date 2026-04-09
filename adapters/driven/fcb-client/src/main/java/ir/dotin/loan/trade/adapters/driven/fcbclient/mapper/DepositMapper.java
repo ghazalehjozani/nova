@@ -2,11 +2,11 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.mapper;
 
 import java.util.Objects;
 
+import ir.dotin.platform.accounting.document.api.model.DepositNumber;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.DepositInfo;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.DepositClosedResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.DepositInfoResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.response.ValidateCreditorDepositResponse;

@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
+import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.Command;
@@ -27,7 +28,6 @@ import ir.dotin.platform.saga.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.AddFacilityCollateralCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.ApproveFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateApprovalCommand;

@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
+import ir.dotin.platform.accounting.document.api.model.BranchCode;
+import ir.dotin.platform.accounting.document.api.model.DepositNumber;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
@@ -20,7 +22,6 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.DepositInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
@@ -30,7 +31,6 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CustomerName;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuaranteePercentage;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuarantorParty;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.*;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.*;

@@ -2,6 +2,8 @@ package ir.dotin.loan.trade.e2e.orchestrator;
 
 import java.util.List;
 
+import ir.dotin.platform.accounting.document.api.model.AccountNumber;
+import ir.dotin.platform.accounting.document.api.model.DepositNumber;
 import org.springframework.boot.test.context.TestComponent;
 
 import ir.dotin.platform.commons.core.Result;
@@ -12,16 +14,15 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
+import ir.dotin.platform.accounting.document.api.enumeration.TransactionStatus;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountInfo;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountNumber;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
+import ir.dotin.platform.accounting.document.api.model.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.ApplicantParty;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CustomerName;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
+import ir.dotin.platform.accounting.document.api.model.AccountId;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FetchSanctionDetailsPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FindAccountByIdPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FindOrCreateAccountPort;
@@ -153,7 +154,7 @@ public class MockPortConfigurator {
     private void configureDepositServiceDefaults() {
         when(depositServicePort.getDepositInfo(any()))
                 .thenReturn(Result.success(new ir.dotin.loan.baseloan.core.domain.shared.vo.DepositInfo(
-                        new ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber("1.10.1357.60"),
+                        new DepositNumber("1.10.1357.60"),
                         "E2E Test Deposit",
                         "CURRENT",
                         new CurrencyType(java.util.Currency.getInstance("IRR")),

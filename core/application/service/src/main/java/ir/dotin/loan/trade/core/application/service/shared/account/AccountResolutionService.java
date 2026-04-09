@@ -11,13 +11,13 @@ import java.util.concurrent.Executors;
 
 import org.springframework.stereotype.Service;
 
+import ir.dotin.platform.accounting.document.api.enumeration.RelationType;
+import ir.dotin.platform.accounting.document.api.model.AccountId;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ResolvedAccounts;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.AccountServicePort;
 
 import lombok.RequiredArgsConstructor;

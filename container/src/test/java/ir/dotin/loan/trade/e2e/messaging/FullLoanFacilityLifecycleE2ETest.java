@@ -12,6 +12,8 @@ import java.util.UUID;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.DisburseDestinationRequestDto;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.FullLoanFacilityLifecycleMessage;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.PartyRequestDto;
+import ir.dotin.platform.accounting.document.api.model.AccountNumber;
+import ir.dotin.platform.accounting.document.api.model.DepositNumber;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,16 +28,15 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
+import ir.dotin.platform.accounting.document.api.enumeration.TransactionStatus;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountInfo;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountNumber;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
+import ir.dotin.platform.accounting.document.api.model.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.ApplicantParty;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CustomerName;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
+import ir.dotin.platform.accounting.document.api.model.AccountId;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.entity.TradeLoanArrangementEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.repository.TradeLoanFacilityJpaRepository;
 import ir.dotin.loan.trade.adapters.driven.persistence.loantype.entity.TradeLoanTypeEntity;
@@ -154,7 +155,7 @@ class FullLoanFacilityLifecycleE2ETest extends AbstractMessagingE2E {
         // DepositServicePort
         when(depositServicePort.getDepositInfo(any()))
                 .thenReturn(Result.success(new ir.dotin.loan.baseloan.core.domain.shared.vo.DepositInfo(
-                        new ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositNumber("1.10.1357.60"),
+                        new DepositNumber("1.10.1357.60"),
                         "E2E Test Deposit",
                         "CURRENT",
                         new ir.dotin.platform.commons.domain.vo.CurrencyType(java.util.Currency.getInstance("IRR")),

@@ -7,17 +7,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import ir.dotin.platform.accounting.document.api.enumeration.Direction;
+import ir.dotin.platform.accounting.document.api.model.Article;
+import ir.dotin.platform.accounting.document.api.model.BranchCode;
+import ir.dotin.platform.accounting.document.api.model.target.AccountTarget;
+import ir.dotin.platform.accounting.document.api.model.target.ArticleTarget;
+import ir.dotin.platform.accounting.document.api.model.target.BoxTarget;
+import ir.dotin.platform.accounting.document.api.model.target.DepositTarget;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.Direction;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.FailureReason;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountTarget;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Article;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.ArticleTarget;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.BoxTarget;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.DepositTarget;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.dto.request.ExtraInfoVO;
 import ir.dotin.loan.trade.adapters.driven.fcbclient.i18n.FcbBusinessLocalizedMessageCodes;
 

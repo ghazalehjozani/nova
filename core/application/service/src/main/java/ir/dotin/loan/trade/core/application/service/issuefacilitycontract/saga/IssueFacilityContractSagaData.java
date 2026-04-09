@@ -9,11 +9,11 @@ import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
-import ir.dotin.loan.baseloan.core.domain.shared.enums.RelationType;
-import ir.dotin.loan.baseloan.core.domain.shared.enums.transaction.TransactionStatus;
+import ir.dotin.platform.accounting.document.api.enumeration.RelationType;
+import ir.dotin.platform.accounting.document.api.enumeration.TransactionStatus;
+import ir.dotin.platform.accounting.document.api.model.AccountId;
+import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ResolvedAccounts;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
 public record IssueFacilityContractSagaData(

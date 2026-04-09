@@ -3,9 +3,9 @@ package ir.dotin.loan.trade.adapters.driven.fcbclient.noop;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import ir.dotin.platform.accounting.document.api.model.AccountId;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountInfo;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.AccountId;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FindAccountByIdPort;
 
 /**

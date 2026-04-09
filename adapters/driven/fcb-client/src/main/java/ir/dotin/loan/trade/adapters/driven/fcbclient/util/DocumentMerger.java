@@ -8,14 +8,14 @@ import java.util.stream.Collectors;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import ir.dotin.platform.accounting.document.api.model.Article;
+import ir.dotin.platform.accounting.document.api.model.BranchCode;
+import ir.dotin.platform.accounting.document.api.model.Document;
+import ir.dotin.platform.accounting.document.api.model.IsoCode;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.shared.error.LoanValidationErrors;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.BranchCode;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Article;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.Document;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.IsoCode;
 
 import lombok.experimental.UtilityClass;
 

@@ -2,7 +2,7 @@ package ir.dotin.loan.trade.core.application.service.fullloanlifecycle.mapper;
 
 import org.mapstruct.Mapper;
 
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
+import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLoanFacilityLifecycleCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.EconomicSectorDto;

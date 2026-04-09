@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
@@ -16,7 +17,6 @@ import ir.dotin.platform.saga.api.exception.SagaSuspendedException;
 import ir.dotin.platform.saga.api.model.SagaResult;
 import ir.dotin.platform.saga.api.model.StepError;
 import ir.dotin.platform.saga.api.orchestration.SagaOrchestrator;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.document.TransactionConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.IssueFacilityContractCommand;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.component.FacilityContractDependencyLoader;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.component.FacilityContractValidator;
