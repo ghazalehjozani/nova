@@ -44,6 +44,7 @@ spring:
     cache-names:
       - oauth2-tokens
       - jwt-jwks
+      - delegation:accessTokenCache
   data:
     redis:
       host: ${REDIS_HOST}
