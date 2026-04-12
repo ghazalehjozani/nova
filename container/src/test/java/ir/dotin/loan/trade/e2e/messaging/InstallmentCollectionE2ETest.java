@@ -1,26 +1,16 @@
 package ir.dotin.loan.trade.e2e.messaging;
 
-import java.math.BigDecimal;
-import java.time.Duration;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.entity.TradeLoanArrangementEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.loantype.entity.TradeLoanTypeEntity;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentOperationType;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentPaymentMessage;
 import ir.dotin.loan.trade.e2e.AbstractMessagingE2E;
 import ir.dotin.loan.trade.e2e.fixture.FormulaTestFixture;
 import ir.dotin.loan.trade.e2e.fixture.KafkaTestHelper;

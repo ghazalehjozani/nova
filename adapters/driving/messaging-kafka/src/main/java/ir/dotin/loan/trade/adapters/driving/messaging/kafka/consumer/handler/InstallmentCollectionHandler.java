@@ -12,7 +12,7 @@ import ir.dotin.platform.messaging.api.inbound.InboundMessage;
 import ir.dotin.platform.messaging.api.inbound.InboundMessageHeaders;
 import ir.dotin.platform.messaging.core.processor.InboundCommandProcessor;
 import ir.dotin.platform.messaging.core.serialization.CommandSerializer;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentOperationType;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.FcbEventOperationType;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentPaymentMessage;
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.InstallmentCollectionMessageMapper;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CollectInstallmentCommand;
@@ -21,10 +21,10 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class InstallmentCollectionHandler implements InstallmentOperationHandler {
+public class InstallmentCollectionHandler implements FcbEventOperationHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(InstallmentCollectionHandler.class);
-    private static final InstallmentOperationType OPERATION_TYPE = InstallmentOperationType.INSTALLMENT_COLLECTION;
+    private static final FcbEventOperationType OPERATION_TYPE = FcbEventOperationType.INSTALLMENT_COLLECTION;
 
     private final ObjectMapper objectMapper;
     private final InstallmentCollectionMessageMapper messageMapper;
@@ -32,7 +32,7 @@ public class InstallmentCollectionHandler implements InstallmentOperationHandler
     private final CommandSerializer commandSerializer;
 
     @Override
-    public InstallmentOperationType getSupportedOperationType() {
+    public FcbEventOperationType getSupportedOperationType() {
         return OPERATION_TYPE;
     }
 

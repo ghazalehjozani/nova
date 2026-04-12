@@ -39,8 +39,8 @@ workspace "Trade Loan Service" {
                 loanarrangementquerycontroller = component "LoanArrangementQueryController" "REST API: /api/{version}/loan-arrangements" "Spring REST Controller"
                 facilityquerycontroller = component "FacilityQueryController" "REST API: /api/{version}/loan-facilities" "Spring REST Controller"
                 loantypequerycontroller = component "LoanTypeQueryController" "REST API: /api/{version}/loan-types" "Spring REST Controller"
+                fcbeventconsumer = component "FcbEventConsumer" "Kafka consumer" "Spring Kafka Listener"
                 fulllifecyclekafkacommandconsumer = component "FullLifecycleKafkaCommandConsumer" "Kafka consumer" "Spring Kafka Listener"
-                installmentfcbeventconsumer = component "InstallmentFcbEventConsumer" "Kafka consumer" "Spring Kafka Listener"
                 addfacilitycollateralcommandhandler = component "AddFacilityCollateralCommandHandler" "Handles add facility collateral" "Command Handler"
                 compensatecollateralcommandhandler = component "CompensateCollateralCommandHandler" "Handles compensate collateral" "Command Handler"
                 approvefacilitycommandhandler = component "ApproveFacilityCommandHandler" "Handles approve facility" "Command Handler"
@@ -145,9 +145,9 @@ workspace "Trade Loan Service" {
         system_administrator -> trade_loan_service "Monitors system"
         system_administrator -> kafdrop "Monitors Kafka"
         system_administrator -> trade_loan_service "Monitors Kafka"
-        fulllifecyclekafkacommandconsumer -> kafka "Consumes from"
+        fcbeventconsumer -> kafka "Consumes from"
         trade_loan_application -> kafka "Consumes from"
-        installmentfcbeventconsumer -> kafka "Consumes from"
+        fulllifecyclekafkacommandconsumer -> kafka "Consumes from"
         addfacilitycollateralcommandhandler -> tradeloanfacilityservice "Uses"
         cancelfacilitycommandhandler -> tradeloanfacilityservice "Uses"
         closefacilitydefaultedcommandhandler -> tradeloanfacilityservice "Uses"
@@ -256,6 +256,24 @@ workspace "Trade Loan Service" {
         }
 
         styles {
+            element "Internal User" {
+                background #08427b
+            }
+            element "External System" {
+                background #999999
+            }
+            element "Domain" {
+                background #ffa726
+                color #000000
+            }
+            element "Service" {
+                background #29b6f6
+                color #ffffff
+            }
+            element "Monitoring" {
+                background #27ae60
+                shape WebBrowser
+            }
             element "Client" {
                 background #ec407a
                 color #ffffff
@@ -334,24 +352,6 @@ workspace "Trade Loan Service" {
             }
             element "Database" {
                 shape Cylinder
-            }
-            element "Internal User" {
-                background #08427b
-            }
-            element "External System" {
-                background #999999
-            }
-            element "Domain" {
-                background #ffa726
-                color #000000
-            }
-            element "Service" {
-                background #29b6f6
-                color #ffffff
-            }
-            element "Monitoring" {
-                background #27ae60
-                shape WebBrowser
             }
         }
     }

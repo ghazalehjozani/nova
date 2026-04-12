@@ -115,6 +115,12 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.FacilityQueryControll
   BorderColor #567d2e
   shadowing false
 }
+skinparam hexagon<<TradeLoanService.TradeLoanApplication.FcbEventConsumer>> {
+  BackgroundColor #ff7043
+  FontColor #ffffff
+  BorderColor #b24e2e
+  shadowing false
+}
 skinparam hexagon<<TradeLoanService.TradeLoanApplication.FullLifecycleKafkaCommandConsumer>> {
   BackgroundColor #ff7043
   FontColor #ffffff
@@ -125,12 +131,6 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.FullLoanFacilityLifec
   BackgroundColor #7cb342
   FontColor #ffffff
   BorderColor #567d2e
-  shadowing false
-}
-skinparam hexagon<<TradeLoanService.TradeLoanApplication.InstallmentFcbEventConsumer>> {
-  BackgroundColor #ff7043
-  FontColor #ffffff
-  BorderColor #b24e2e
   shadowing false
 }
 skinparam rectangle<<TradeLoanService.TradeLoanApplication.InstallmentScheduleQueryController>> {
@@ -220,8 +220,8 @@ rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]<
   rectangle "==LoanArrangementQueryController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/loan-arrangements" <<TradeLoanService.TradeLoanApplication.LoanArrangementQueryController>> as TradeLoanService.TradeLoanApplication.LoanArrangementQueryController
   rectangle "==FacilityQueryController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/loan-facilities" <<TradeLoanService.TradeLoanApplication.FacilityQueryController>> as TradeLoanService.TradeLoanApplication.FacilityQueryController
   rectangle "==LoanTypeQueryController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/loan-types" <<TradeLoanService.TradeLoanApplication.LoanTypeQueryController>> as TradeLoanService.TradeLoanApplication.LoanTypeQueryController
+  hexagon "==FcbEventConsumer\n<size:10>[Component: Spring Kafka Listener]</size>\n\nKafka consumer" <<TradeLoanService.TradeLoanApplication.FcbEventConsumer>> as TradeLoanService.TradeLoanApplication.FcbEventConsumer
   hexagon "==FullLifecycleKafkaCommandConsumer\n<size:10>[Component: Spring Kafka Listener]</size>\n\nKafka consumer" <<TradeLoanService.TradeLoanApplication.FullLifecycleKafkaCommandConsumer>> as TradeLoanService.TradeLoanApplication.FullLifecycleKafkaCommandConsumer
-  hexagon "==InstallmentFcbEventConsumer\n<size:10>[Component: Spring Kafka Listener]</size>\n\nKafka consumer" <<TradeLoanService.TradeLoanApplication.InstallmentFcbEventConsumer>> as TradeLoanService.TradeLoanApplication.InstallmentFcbEventConsumer
   rectangle "==AddFacilityCollateralCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles add facility collateral" <<TradeLoanService.TradeLoanApplication.AddFacilityCollateralCommandHandler>> as TradeLoanService.TradeLoanApplication.AddFacilityCollateralCommandHandler
   rectangle "==CompensateCollateralCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles compensate collateral" <<TradeLoanService.TradeLoanApplication.CompensateCollateralCommandHandler>> as TradeLoanService.TradeLoanApplication.CompensateCollateralCommandHandler
   rectangle "==ApproveFacilityCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles approve facility" <<TradeLoanService.TradeLoanApplication.ApproveFacilityCommandHandler>> as TradeLoanService.TradeLoanApplication.ApproveFacilityCommandHandler

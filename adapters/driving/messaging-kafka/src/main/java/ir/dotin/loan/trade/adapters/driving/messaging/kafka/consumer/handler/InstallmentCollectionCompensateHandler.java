@@ -13,26 +13,25 @@ import ir.dotin.platform.messaging.api.inbound.InboundMessage;
 import ir.dotin.platform.messaging.api.inbound.InboundMessageHeaders;
 import ir.dotin.platform.messaging.core.processor.InboundCommandProcessor;
 import ir.dotin.platform.messaging.core.serialization.CommandSerializer;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.FcbEventOperationType;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentCollectionCompensateMessage;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentOperationType;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateCollectInstallmentCommand;
 
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class InstallmentCollectionCompensateHandler implements InstallmentOperationHandler {
+public class InstallmentCollectionCompensateHandler implements FcbEventOperationHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(InstallmentCollectionCompensateHandler.class);
-    private static final InstallmentOperationType OPERATION_TYPE =
-            InstallmentOperationType.INSTALLMENT_COLLECTION_COMPENSATE;
+    private static final FcbEventOperationType OPERATION_TYPE = FcbEventOperationType.INSTALLMENT_COLLECTION_COMPENSATE;
 
     private final ObjectMapper objectMapper;
     private final InboundCommandProcessor inboundCommandProcessor;
     private final CommandSerializer commandSerializer;
 
     @Override
-    public InstallmentOperationType getSupportedOperationType() {
+    public FcbEventOperationType getSupportedOperationType() {
         return OPERATION_TYPE;
     }
 

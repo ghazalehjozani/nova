@@ -18,29 +18,29 @@ import org.springframework.stereotype.Component;
 import ir.dotin.platform.messaging.api.inbound.InboundMessage;
 import ir.dotin.platform.messaging.api.inbound.InboundMessageHeaders;
 import ir.dotin.platform.messaging.kafka.converter.KafkaInboundMessageConverter;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentOperationType;
-import ir.dotin.loan.trade.adapters.driving.messaging.kafka.consumer.handler.InstallmentOperationHandler;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.FcbEventOperationType;
+import ir.dotin.loan.trade.adapters.driving.messaging.kafka.consumer.handler.FcbEventOperationHandler;
 
 import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
 import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 
 @Component
-public class InstallmentFcbEventConsumer {
+public class FcbEventConsumer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InstallmentFcbEventConsumer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FcbEventConsumer.class);
 
     private final ObjectMapper objectMapper;
     private final KafkaInboundMessageConverter converter;
-    private final Map<InstallmentOperationType, InstallmentOperationHandler> handlers;
+    private final Map<FcbEventOperationType, FcbEventOperationHandler> handlers;
 
-    public InstallmentFcbEventConsumer(
+    public FcbEventConsumer(
             ObjectMapper objectMapper,
             KafkaInboundMessageConverter converter,
-            List<InstallmentOperationHandler> handlerList) {
+            List<FcbEventOperationHandler> handlerList) {
         this.objectMapper = objectMapper;
         this.converter = converter;
         this.handlers = handlerList.stream()
-                .collect(Collectors.toMap(InstallmentOperationHandler::getSupportedOperationType, Function.identity()));
+                .collect(Collectors.toMap(FcbEventOperationHandler::getSupportedOperationType, Function.identity()));
     }
 
     @KafkaListener(
@@ -87,15 +87,15 @@ public class InstallmentFcbEventConsumer {
                     eventUid,
                     consumerRecord.key());
 
-            InstallmentOperationType opType;
+            FcbEventOperationType opType;
             try {
-                opType = InstallmentOperationType.ofCode(operationType);
+                opType = FcbEventOperationType.ofCode(operationType);
             } catch (IllegalArgumentException e) {
                 LOG.warn("Unknown operationType [{}], eventUid={}, skipping.", operationType, eventUid);
                 return;
             }
 
-            InstallmentOperationHandler handler = handlers.get(opType);
+            FcbEventOperationHandler handler = handlers.get(opType);
             if (handler == null) {
                 LOG.warn("No handler registered for operationType [{}], eventUid={}", operationType, eventUid);
                 return;

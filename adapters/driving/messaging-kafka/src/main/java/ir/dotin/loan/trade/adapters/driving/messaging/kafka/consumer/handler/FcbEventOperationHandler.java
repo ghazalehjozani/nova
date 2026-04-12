@@ -4,12 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import ir.dotin.platform.messaging.api.inbound.InboundMessage;
 import ir.dotin.platform.messaging.api.inbound.InboundMessageHeaders;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentOperationType;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.FcbEventOperationType;
 
-public interface InstallmentOperationHandler {
+public interface FcbEventOperationHandler {
 
     /** Returns the operation type this handler supports. */
-    InstallmentOperationType getSupportedOperationType();
+    FcbEventOperationType getSupportedOperationType();
 
     /**
      * Handles the specific business logic for the operation.

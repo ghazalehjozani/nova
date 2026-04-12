@@ -13,13 +13,13 @@ skinparam {
 
 hide stereotype
 
-skinparam hexagon<<TradeLoanService.TradeLoanApplication.FullLifecycleKafkaCommandConsumer>> {
+skinparam hexagon<<TradeLoanService.TradeLoanApplication.FcbEventConsumer>> {
   BackgroundColor #ff7043
   FontColor #ffffff
   BorderColor #b24e2e
   shadowing false
 }
-skinparam hexagon<<TradeLoanService.TradeLoanApplication.InstallmentFcbEventConsumer>> {
+skinparam hexagon<<TradeLoanService.TradeLoanApplication.FullLifecycleKafkaCommandConsumer>> {
   BackgroundColor #ff7043
   FontColor #ffffff
   BorderColor #b24e2e
@@ -68,12 +68,12 @@ rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]<
   hexagon "==TradeLoanArrangementOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanArrangement outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler
   hexagon "==TradeLoanFacilityOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanFacility outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler
   hexagon "==TradeLoanTypeOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanType outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler
+  hexagon "==FcbEventConsumer\n<size:10>[Component: Spring Kafka Listener]</size>\n\nKafka consumer" <<TradeLoanService.TradeLoanApplication.FcbEventConsumer>> as TradeLoanService.TradeLoanApplication.FcbEventConsumer
   hexagon "==FullLifecycleKafkaCommandConsumer\n<size:10>[Component: Spring Kafka Listener]</size>\n\nKafka consumer" <<TradeLoanService.TradeLoanApplication.FullLifecycleKafkaCommandConsumer>> as TradeLoanService.TradeLoanApplication.FullLifecycleKafkaCommandConsumer
-  hexagon "==InstallmentFcbEventConsumer\n<size:10>[Component: Spring Kafka Listener]</size>\n\nKafka consumer" <<TradeLoanService.TradeLoanApplication.InstallmentFcbEventConsumer>> as TradeLoanService.TradeLoanApplication.InstallmentFcbEventConsumer
 }
 
+TradeLoanService.TradeLoanApplication.FcbEventConsumer .[#707070,thickness=2].> TradeLoanService.Kafka : "<color:#707070>Consumes from\n<color:#707070><size:8>[Kafka Protocol]</size>"
 TradeLoanService.TradeLoanApplication.FullLifecycleKafkaCommandConsumer .[#707070,thickness=2].> TradeLoanService.Kafka : "<color:#707070>Consumes from\n<color:#707070><size:8>[Kafka Protocol]</size>"
-TradeLoanService.TradeLoanApplication.InstallmentFcbEventConsumer .[#707070,thickness=2].> TradeLoanService.Kafka : "<color:#707070>Consumes from\n<color:#707070><size:8>[Kafka Protocol]</size>"
 TradeLoanService.TradeLoanApplication.InstallmentScheduleOutboxHandler .[#707070,thickness=2].> TradeLoanService.Kafka : "<color:#707070>Publishes events\n<color:#707070><size:8>[Kafka Protocol]</size>"
 TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler .[#707070,thickness=2].> TradeLoanService.Kafka : "<color:#707070>Publishes events\n<color:#707070><size:8>[Kafka Protocol]</size>"
 TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler .[#707070,thickness=2].> TradeLoanService.Kafka : "<color:#707070>Publishes events\n<color:#707070><size:8>[Kafka Protocol]</size>"
