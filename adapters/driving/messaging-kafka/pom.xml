@@ -27,8 +27,13 @@
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform</groupId>
+            <artifactId>platform-inbox-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform</groupId>
             <artifactId>platform-spring-boot-starter-messaging-kafka</artifactId>
         </dependency>
+
 
         <!-- Sibling module -->
         <dependency>

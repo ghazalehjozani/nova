@@ -52,7 +52,7 @@ import ir.dotin.platform.commons.core.error.ErrorCategory;
  * <p>The Trade Loan product is characterized by its integration with the core banking system (FCB — Facility Core
  * Banking) and trade-specific facility processing rules (Morabehe contracts, trade-specific disbursement, etc.).
  *
- * <h4>When to use Trade vs Shared categories</h4>
+ * <h2>When to use Trade vs Shared categories</h2>
  *
  * <ul>
  *   <li><strong>Use {@code LoanErrorCategory}</strong> for errors in shared domain concepts: facility lifecycle,
@@ -63,7 +63,7 @@ import ir.dotin.platform.commons.core.error.ErrorCategory;
  *       data access, etc.
  * </ul>
  *
- * <h4>Category Design Rationale</h4>
+ * <h2>Category Design Rationale</h2>
  *
  * <p>{@link #CORE_BANKING_INTEGRATION} is separate from {@code PlatformErrorCategory.INTEGRATION} because FCB errors
  * are <em>business-level</em> (customer not found, unsupported sector, invalid account) rather than

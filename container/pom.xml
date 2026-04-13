@@ -72,6 +72,14 @@
             <artifactId>trade-loan-adapters-driven-fcb-messaging</artifactId>
         </dependency>
         <dependency>
+            <groupId>ir.dotin.platform</groupId>
+            <artifactId>platform-inbox-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform</groupId>
+            <artifactId>platform-spring-boot-starter-inbox</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ir.dotin.loan</groupId>
             <artifactId>trade-loan-adapters-driving-rest</artifactId>
         </dependency>
