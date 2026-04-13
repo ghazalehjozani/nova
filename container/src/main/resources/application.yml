@@ -117,7 +117,7 @@ management:
     propagation:
       type: w3c
     sampling:
-      probability: ${OTEL_TRACES_SAMPLER_ARG:1.0}
+      probability: ${OTEL_TRACES_SAMPLER_ARG:0.2}
     baggage:
       enabled: true
       remote-fields: user-id,correlation-id,tenant-id,request-id
@@ -243,6 +243,12 @@ platform:
       stuck-threshold: 5m
   messaging:
     enabled: true
+    pipeline:
+      max-payload-bytes: 2097152   # 2 MiB
+      bulkhead:
+        enabled: true
+        max-concurrent-calls: 200
+        max-wait-duration: 0ms
     activemq:
       enabled: true
       listener:

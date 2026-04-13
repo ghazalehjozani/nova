@@ -5,7 +5,6 @@ import java.util.UUID;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.annotation.JmsListener;
@@ -26,6 +25,7 @@ import ir.dotin.loan.trade.adapters.driving.messaging.activemq.config.ActiveMqJm
 import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLoanFacilityLifecycleCommand;
 
 import lombok.RequiredArgsConstructor;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 @RequiredArgsConstructor
