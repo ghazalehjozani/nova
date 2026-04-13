@@ -1,63 +1,69 @@
 package ir.dotin.loan.trade.adapters.driving.messaging.kafka.consumer.handler;
 
-import java.nio.charset.StandardCharsets;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
+import ir.dotin.platform.dispatcher.api.execution.ExecutionResult;
+import ir.dotin.platform.inbox.api.HandlerResult;
+import ir.dotin.platform.inbox.api.InboxMessageHandler;
 import ir.dotin.platform.messaging.api.inbound.InboundMessage;
-import ir.dotin.platform.messaging.api.inbound.InboundMessageHeaders;
-import ir.dotin.platform.messaging.core.processor.InboundCommandProcessor;
-import ir.dotin.platform.messaging.core.serialization.CommandSerializer;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.FcbEventOperationType;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentPaymentMessage;
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.InstallmentCollectionMessageMapper;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CollectInstallmentCommand;
 
 import lombok.RequiredArgsConstructor;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 @RequiredArgsConstructor
-public class InstallmentCollectionHandler implements FcbEventOperationHandler {
+public class InstallmentCollectionHandler implements InboxMessageHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(InstallmentCollectionHandler.class);
-    private static final FcbEventOperationType OPERATION_TYPE = FcbEventOperationType.INSTALLMENT_COLLECTION;
 
     private final ObjectMapper objectMapper;
     private final InstallmentCollectionMessageMapper messageMapper;
-    private final InboundCommandProcessor inboundCommandProcessor;
-    private final CommandSerializer commandSerializer;
+    private final CommandDispatcher dispatcher;
 
     @Override
-    public FcbEventOperationType getSupportedOperationType() {
-        return OPERATION_TYPE;
+    public @NonNull String supportedMessageType() {
+        return FcbEventOperationType.INSTALLMENT_COLLECTION.getCode();
     }
 
     @Override
-    public void handle(JsonNode rootNode, InboundMessageHeaders headers, InboundMessage message, String eventUid) {
+    public @NonNull HandlerResult handle(@NonNull InboundMessage message) {
+        String eventUid = "unknown";
         InstallmentPaymentMessage paymentMessage;
+
         try {
+            JsonNode rootNode = objectMapper.readTree(message.payload());
+            eventUid = rootNode.path("eventUid").asString(eventUid);
             paymentMessage = objectMapper.treeToValue(rootNode, InstallmentPaymentMessage.class);
         } catch (Exception e) {
             LOG.error("Malformed INSTALLMENT_COLLECTION message [eventUid={}]", eventUid, e);
-            return;
+            return HandlerResult.permanent(e);
         }
 
         LOG.info(
-                "Processing INSTALLMENT_COLLECTION [eventUid={}, fileNumber={}, payments={}]",
+                "Processing INSTALLMENT_COLLECTION from Inbox [eventUid={}, fileNumber={}]",
                 eventUid,
-                paymentMessage.fileNumber(),
-                paymentMessage.payments() != null ? paymentMessage.payments().size() : 0);
+                paymentMessage.fileNumber());
 
         try {
             CollectInstallmentCommand command = messageMapper.toCommand(paymentMessage);
+            ExecutionResult<?> executionResult = dispatcher.dispatch(command);
 
-            byte[] commandBytes = commandSerializer.serialize(command).getBytes(StandardCharsets.UTF_8);
-
-            inboundCommandProcessor.process(message.withPayload(commandBytes));
+            return switch (executionResult) {
+                case ExecutionResult.Fresh<?> ignored -> HandlerResult.success();
+                case ExecutionResult.Replayed<?> ignored -> HandlerResult.success();
+                case ExecutionResult.BusinessFailure<?> failure ->
+                    HandlerResult.permanent(
+                            new IllegalStateException(failure.notification().toString()));
+            };
 
         } catch (Exception e) {
             LOG.error(
@@ -65,7 +71,7 @@ public class InstallmentCollectionHandler implements FcbEventOperationHandler {
                     eventUid,
                     paymentMessage.fileNumber(),
                     e);
-            throw new RuntimeException("INSTALLMENT_COLLECTION processing failed: " + eventUid, e);
+            return HandlerResult.retryable(e);
         }
     }
 }

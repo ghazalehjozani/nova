@@ -256,50 +256,6 @@ workspace "Trade Loan Service" {
         }
 
         styles {
-            element "Internal User" {
-                background #08427b
-            }
-            element "External System" {
-                background #999999
-            }
-            element "Domain" {
-                background #ffa726
-                color #000000
-            }
-            element "Service" {
-                background #29b6f6
-                color #ffffff
-            }
-            element "Monitoring" {
-                background #27ae60
-                shape WebBrowser
-            }
-            element "Client" {
-                background #ec407a
-                color #ffffff
-            }
-            element "Controller" {
-                background #7cb342
-                color #ffffff
-            }
-            element "Component" {
-                background #85bbf0
-                color #000000
-            }
-            element "Message Broker" {
-                background #f5a623
-                color #000000
-                shape Pipe
-            }
-            element "Saga" {
-                background #ab47bc
-                color #ffffff
-                shape Diamond
-            }
-            element "Compensation" {
-                background #ef5350
-                color #ffffff
-            }
             element "Repository" {
                 background #5c6bc0
                 color #ffffff
@@ -352,6 +308,50 @@ workspace "Trade Loan Service" {
             }
             element "Database" {
                 shape Cylinder
+            }
+            element "Internal User" {
+                background #08427b
+            }
+            element "External System" {
+                background #999999
+            }
+            element "Domain" {
+                background #ffa726
+                color #000000
+            }
+            element "Service" {
+                background #29b6f6
+                color #ffffff
+            }
+            element "Monitoring" {
+                background #27ae60
+                shape WebBrowser
+            }
+            element "Client" {
+                background #ec407a
+                color #ffffff
+            }
+            element "Controller" {
+                background #7cb342
+                color #ffffff
+            }
+            element "Component" {
+                background #85bbf0
+                color #000000
+            }
+            element "Message Broker" {
+                background #f5a623
+                color #000000
+                shape Pipe
+            }
+            element "Saga" {
+                background #ab47bc
+                color #ffffff
+                shape Diamond
+            }
+            element "Compensation" {
+                background #ef5350
+                color #ffffff
             }
         }
     }
