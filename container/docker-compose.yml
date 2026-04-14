@@ -106,23 +106,23 @@ services:
       timeout: 3s
       retries: 5
 
-  activemq:
-    image: rmohr/activemq
-    container_name: activemq
+  artemis:
+    image: docker.arvancloud.ir/apache/activemq-artemis:latest-alpine
+    container_name: artemis
     ports:
-      - "61616:61616"   # JMS
+      - "61616:61616"   # AMQP, CORE, OpenWire, MQTT, STOMP
       - "8161:8161"     # Web console
     environment:
-      ACTIVEMQ_ADMIN_LOGIN: admin
-      ACTIVEMQ_ADMIN_PASSWORD: admin
+      ARTEMIS_USER: admin
+      ARTEMIS_PASSWORD: admin
     volumes:
-      - activemq-data:/opt/activemq/data
+      - artemis-data:/var/lib/artemis/data
     restart: unless-stopped
 
 volumes:
   postgres-data:
   redis-data:
-  activemq-data:
+  artemis-data:
 #  kafka-data:
 
 networks:
