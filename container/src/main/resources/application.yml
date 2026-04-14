@@ -389,6 +389,12 @@ platform:
       read-timeout: 10s
       max-connections: 100
       max-per-route: 20
+      cache:
+        backend: redis
+        key-prefix: "platform:security:token:"
+        maximum-size: 10000
+      single-flight:
+        wait-timeout: 30s
     authorization:
       public-paths:
         - /actuator/health
@@ -532,6 +538,27 @@ fcb:
     logging:
       enabled: true
       structured-json: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      tps-sso:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        sliding-window-size: 20
+        minimum-number-of-calls: 10
+  retry:
+    instances:
+      tps-sso:
+        max-attempts: 3
+        wait-duration: 500ms
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.io.IOException
+        ignore-exceptions:
+          - ir.dotin.platform.adapter.security.oauth2.core.exception.TokenDelegationException
 
 nova:
   fcb:

@@ -14,13 +14,9 @@ import ir.dotin.platform.adapter.rest.controller.BaseController;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.protocol.api.response.BaseResponse;
 import ir.dotin.platform.protocol.api.response.EventStream;
-import ir.dotin.platform.security.api.AuthenticationContextHolder;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.FullLifecycleRevertRequest;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.FullLoanFacilityLifecycleRequest;
-import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.FullLoanFacilityLifecycleRequestMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLifecycleRevertCommand;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLoanFacilityLifecycleCommand;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,36 +30,6 @@ import lombok.RequiredArgsConstructor;
 class FullLoanFacilityLifecycleController extends BaseController {
 
     private final CommandDispatcher dispatcher;
-    private final FullLoanFacilityLifecycleRequestMapper mapper;
-    private final AuthenticationContextHolder authenticationContextHolder;
-
-    @PostMapping(version = "1+")
-    @Operation(summary = "اجرای چرخه کامل تسهیلات از تشکیل تا پرداخت")
-    @Deprecated(forRemoval = true)
-    public ResponseEntity<BaseResponse<EventStream>> executeFullLifecycle(
-            @RequestBody @Valid FullLoanFacilityLifecycleRequest request) {
-
-        var command = mapper.toCommand(request).toBuilder()
-                .uid(getIdempotencyKey())
-                .transactionMetadata(buildTransactionContext())
-                .build();
-
-        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
-    }
-
-    private FullLoanFacilityLifecycleCommand.TransactionMetadataDto buildTransactionContext() {
-        return FullLoanFacilityLifecycleCommand.TransactionMetadataDto.builder()
-                .branchCode(authenticationContextHolder.branchCode().orElseThrow())
-                .userId(authenticationContextHolder.userIdOrThrow())
-                .terminalIp(authenticationContextHolder.ipAddress().orElseThrow())
-                .terminalId("1")
-                .productCode("LOAN")
-                .channel("Branch")
-                .networkType("BankBook")
-                .terminalType("Branch")
-                .toolSource("BANK")
-                .build();
-    }
 
     @PostMapping(value = "{facilityId}/compensate", version = "1+")
     @Operation(summary = "بازگشت کامل چرخه تسهیلات")
