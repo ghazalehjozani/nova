@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import ir.dotin.platform.asyncapi.header.MessagingHeaderNames;
 import ir.dotin.platform.inbox.core.InboundEventIngestor;
 import ir.dotin.platform.messaging.api.inbound.InboundMessage;
 import ir.dotin.platform.messaging.kafka.converter.KafkaInboundMessageConverter;
@@ -34,33 +35,19 @@ public class FcbEventConsumer {
         this.ingestor = ingestor;
     }
 
-    @KafkaListener(
-            topics = "corridor.core.loan.nova.installment-operation.request.queue.v1",
-            groupId = "${platform.messaging.kafka.consumer-group-id}",
-            containerFactory = "byteArrayKafkaListenerContainerFactory")
     @AsyncListener(
             operation =
                     @AsyncOperation(
                             channelName = "corridor.core.loan.nova.installment-operation.request.queue.v1",
-                            description = "Process nova installment operation commands (request/reply)",
-                            payloadType = Byte.class,
+                            description = "Process FCB Events (Kafka).",
+                            servers = "kafka",
                             headers =
                                     @AsyncOperation.Headers(
-                                            schemaName = "InstallmentOperationHeaders",
-                                            values = {
-                                                @AsyncOperation.Headers.Header(
-                                                        name = "eventUid",
-                                                        description = "Unique event identifier (GUID)",
-                                                        value = "UUID string"),
-                                                @AsyncOperation.Headers.Header(
-                                                        name = "operationType",
-                                                        description = "Discriminator: INSTALLMENT_COLLECTION, etc.",
-                                                        value = "Operation type code"),
-                                                @AsyncOperation.Headers.Header(
-                                                        name = "Idempotency-Key",
-                                                        description = "Unique identifier for idempotency",
-                                                        value = "UUID string")
-                                            })))
+                                            schemaName = MessagingHeaderNames.SCHEMA_EVENT_HANDLER_HEADERS)))
+    @KafkaListener(
+            topics = "corridor.core.loan.nova.installment-operation.request.queue.v1",
+            groupId = "${platform.messaging.kafka.consumer-group-id}",
+            containerFactory = "byteArrayKafkaListenerContainerFactory")
     public void consume(ConsumerRecord<String, byte[]> consumerRecord) {
         InboundMessage inboundMessage = converter.convert(consumerRecord);
         String operationType;

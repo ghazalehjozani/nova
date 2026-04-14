@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import ir.dotin.platform.asyncapi.header.MessagingHeaderNames;
 import ir.dotin.platform.messaging.api.command.CommandResponse;
 import ir.dotin.platform.messaging.api.inbound.InboundMessage;
 import ir.dotin.platform.messaging.api.inbound.InboundMessageHeaders;
@@ -38,61 +39,21 @@ public class FullLifecycleKafkaCommandConsumer {
     private final KafkaInboundMessageConverter converter;
     private final ResponsePublisher kafkaResponsePublisher;
 
-    @KafkaListener(
-            topics = "corridor.core.loan.nova.full-lifecycle.request.queue.v1",
-            groupId = "${platform.messaging.kafka.consumer-group-id}",
-            containerFactory = "byteArrayKafkaListenerContainerFactory")
     @AsyncListener(
             operation =
                     @AsyncOperation(
                             channelName = "corridor.core.loan.nova.full-lifecycle.request.queue.v1",
-                            description = "Process nova loan full lifecycle commands",
+                            description =
+                                    "Process nova loan full lifecycle commands (Kafka, saga-driven, request/reply).",
+                            servers = "kafka",
+                            payloadType = FullLoanFacilityLifecycleMessage.class,
                             headers =
                                     @AsyncOperation.Headers(
-                                            schemaName = "CommandHeaders",
-                                            values = {
-                                                @AsyncOperation.Headers.Header(
-                                                        name = "Idempotency-Key",
-                                                        description = "Unique identifier for idempotency",
-                                                        value = "UUID string"),
-                                                @AsyncOperation.Headers.Header(
-                                                        name = "kafka_correlationId",
-                                                        description = "Unique identifier for correlation ID",
-                                                        value = "string"),
-                                                @AsyncOperation.Headers.Header(
-                                                        name = "X-Request-DateTime",
-                                                        description = "Request timestamp",
-                                                        value = "ISO-8601 format"),
-                                                @AsyncOperation.Headers.Header(
-                                                        name = "Accept-Language",
-                                                        description = "Preferred language",
-                                                        value = "Language code"),
-                                                @AsyncOperation.Headers.Header(
-                                                        name = "Authorization",
-                                                        description = "Bearer token for authentication",
-                                                        value = "Bearer token"),
-                                                @AsyncOperation.Headers.Header(
-                                                        name = "traceparent",
-                                                        description = "W3C trace context",
-                                                        value = "Trace parent ID"),
-                                                @AsyncOperation.Headers.Header(
-                                                        name = "tracestate",
-                                                        description = "W3C trace state",
-                                                        value = "Trace state"),
-                                                @AsyncOperation.Headers.Header(
-                                                        name = "X-Saga-Correlation-ID",
-                                                        description = "Correlation ID for saga orchestration.",
-                                                        value = "uuid-string"),
-                                                @AsyncOperation.Headers.Header(
-                                                        name = "X-Saga-Step-Code",
-                                                        description =
-                                                                "Identifier for the step for breakpoint in the saga workflow.",
-                                                        value = "step-identifier"),
-                                                @AsyncOperation.Headers.Header(
-                                                        name = "X-Saga-Execution-Strategy",
-                                                        description = "Strategy for handling saga failures.",
-                                                        value = "ROLLBACK_ALL | STOP_ON_STEP")
-                                            })))
+                                            schemaName = MessagingHeaderNames.SCHEMA_SAGA_COMMAND_HEADERS)))
+    @KafkaListener(
+            topics = "corridor.core.loan.nova.full-lifecycle.request.queue.v1",
+            groupId = "${platform.messaging.kafka.consumer-group-id}",
+            containerFactory = "byteArrayKafkaListenerContainerFactory")
     public void consume(ConsumerRecord<String, byte[]> consumerRecord) {
         try {
             InboundMessage inboundMessage = converter.convert(consumerRecord);

@@ -8,10 +8,9 @@ import jakarta.jms.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.annotation.JmsListener;
-import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
+import ir.dotin.platform.asyncapi.header.MessagingHeaderNames;
 import ir.dotin.platform.messaging.activemq.converter.JmsInboundMessageConverter;
 import ir.dotin.platform.messaging.activemq.support.JmsDestinationResolver;
 import ir.dotin.platform.messaging.api.command.CommandResponse;
@@ -24,6 +23,8 @@ import ir.dotin.loan.trade.adapters.driving.contract.mapper.FullLoanFacilityLife
 import ir.dotin.loan.trade.adapters.driving.messaging.activemq.config.ActiveMqJmsConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLoanFacilityLifecycleCommand;
 
+import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
+import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 import lombok.RequiredArgsConstructor;
 import tools.jackson.databind.ObjectMapper;
 
@@ -40,29 +41,28 @@ public class FullLifecycleJmsCommandConsumer {
     private final JmsInboundMessageConverter jmsConverter;
     private final ResponsePublisher jmsResponsePublisher;
 
+    @AsyncListener(
+            operation =
+                    @AsyncOperation(
+                            channelName = ActiveMqJmsConfig.FULL_LIFECYCLE_QUEUE,
+                            description =
+                                    "Process nova loan full lifecycle command (ActiveMQ, saga-driven, request/reply).",
+                            servers = "activemq",
+                            payloadType = FullLoanFacilityLifecycleMessage.class,
+                            headers =
+                                    @AsyncOperation.Headers(
+                                            schemaName = MessagingHeaderNames.SCHEMA_SAGA_COMMAND_HEADERS)))
     @JmsListener(
             destination = ActiveMqJmsConfig.FULL_LIFECYCLE_QUEUE,
             subscription = "${platform.messaging.kafka.consumer-group-id}",
             containerFactory = "jmsListenerContainerFactory")
-    public void consume(
-            Message jmsMessage,
-            @Payload String body,
-            @Header(value = "Idempotency-Key") String idempotencyKey,
-            @Header(value = "X-Request-DateTime") String requestDateTime,
-            @Header(value = "Accept-Language") String acceptLanguage,
-            @Header(value = "Authorization") String authorization,
-            @Header(value = "traceparent") String traceparent,
-            @Header(value = "tracestate", required = false) String tracestate,
-            @Header(value = "X-Saga-Correlation-ID") String sagaCorrelationId,
-            @Header(value = "X-Saga-Execution-Strategy") String sagaExecutionStrategy,
-            @Header(value = "X-Saga-Step-Code", required = false) String sagaStepCode)
-            throws JMSException {
+    public void consume(Message jmsMessage) throws JMSException {
         String correlationKey = JmsDestinationResolver.resolveCorrelationId(jmsMessage);
         try {
             InboundMessage inboundMessage = jmsConverter.convert(jmsMessage, ActiveMqJmsConfig.FULL_LIFECYCLE_QUEUE);
 
             FullLoanFacilityLifecycleMessage message =
-                    objectMapper.readValue(body, FullLoanFacilityLifecycleMessage.class);
+                    objectMapper.readValue(jmsMessage.getBody(String.class), FullLoanFacilityLifecycleMessage.class);
 
             FullLoanFacilityLifecycleCommand command = messageMapper.toCommand(message).toBuilder()
                     .uid(UUID.randomUUID())

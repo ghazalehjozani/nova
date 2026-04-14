@@ -256,46 +256,6 @@ workspace "Trade Loan Service" {
         }
 
         styles {
-            element "Outbox" {
-                background #66bb6a
-                color #000000
-                shape Hexagon
-            }
-            element "Repository" {
-                background #5c6bc0
-                color #ffffff
-                shape Cylinder
-            }
-            element "Compensation" {
-                background #ef5350
-                color #ffffff
-            }
-            element "Saga" {
-                background #ab47bc
-                color #ffffff
-                shape Diamond
-            }
-            element "Message Broker" {
-                background #f5a623
-                color #000000
-                shape Pipe
-            }
-            element "Component" {
-                background #85bbf0
-                color #000000
-            }
-            element "Controller" {
-                background #7cb342
-                color #ffffff
-            }
-            element "Client" {
-                background #ec407a
-                color #ffffff
-            }
-            element "Monitoring" {
-                background #27ae60
-                shape WebBrowser
-            }
             element "Service" {
                 background #29b6f6
                 color #ffffff
@@ -352,6 +312,46 @@ workspace "Trade Loan Service" {
             }
             element "Admin" {
                 background #5c3d6e
+            }
+            element "Outbox" {
+                background #66bb6a
+                color #000000
+                shape Hexagon
+            }
+            element "Repository" {
+                background #5c6bc0
+                color #ffffff
+                shape Cylinder
+            }
+            element "Compensation" {
+                background #ef5350
+                color #ffffff
+            }
+            element "Saga" {
+                background #ab47bc
+                color #ffffff
+                shape Diamond
+            }
+            element "Message Broker" {
+                background #f5a623
+                color #000000
+                shape Pipe
+            }
+            element "Component" {
+                background #85bbf0
+                color #000000
+            }
+            element "Controller" {
+                background #7cb342
+                color #ffffff
+            }
+            element "Client" {
+                background #ec407a
+                color #ffffff
+            }
+            element "Monitoring" {
+                background #27ae60
+                shape WebBrowser
             }
         }
     }

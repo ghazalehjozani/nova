@@ -258,7 +258,7 @@ platform:
         timeout-ms: 30000
     kafka:
       bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
-      consumer-group-id: ${KAFKA_CONSUMER_GROUP:core.loan.nova.*}
+      consumer-group-id: ${KAFKA_CONSUMER_GROUP:core.loan.facility.*}
       client-id: trade-loan-client
       security:
         protocol: SASL_PLAINTEXT
@@ -281,7 +281,6 @@ platform:
         heartbeat-interval: 3s
       reply:
         reply-topic-pattern: ${KAFKA_REPLY_TOPIC_PATTERN:corridor\.core\.loan\.nova\..*\.response\.queue\.v\d+$}
-        reply-group-id: ${KAFKA_REPLY_GROUP_ID:core.loan.fcb-reply}
         default-timeout: ${KAFKA_DEFAULT_TIMEOUT:60s}
     outbox:
       enabled: true
@@ -404,9 +403,9 @@ platform:
         - /actuator/health/readiness
         - /actuator/info
         - /swagger-ui/**
-        - /springwolf/asyncapi-ui.html
-        - /springwolf/**
-        - /springwolf/docs.yaml
+        - /asyncapi/asyncapi-ui.html
+        - /asyncapi/**
+        - /asyncapi/docs.yaml
         - /v3/api-docs/**
         - /v3/api-docs
         - /api/v1/dev/auth/callback
@@ -455,7 +454,7 @@ platform:
       default-language: fa
   observability:
     tracing:
-      sampling-probability: 1.0
+      sampling-probability: 0.1
       propagation-type: W3C
       enabled: true
     enabled: true
@@ -483,6 +482,23 @@ platform:
       structured: true
   protocol:
     issuer: NOVA
+  asyncapi:
+    enabled: true
+    register-common-header-schemas: true
+    description: >-
+      Nova exposes request/reply command channels for the nova loan product. Headers follow the platform
+      CommandHeaders / SagaCommandHeaders / InstallmentOperationHeaders schemas defined in the components section.
+    contact:
+      name: Loan Customer base Team
+    license:
+      name: Proprietary
+    tags:
+      - name: nova-loan
+        description: Nova loan product command channels.
+      - name: full-lifecycle
+        description: Saga-driven full loan lifecycle operations.
+      - name: fcb-event-consumer
+        description: Fcb Event Consumer
 
 
 fcb:
@@ -565,7 +581,6 @@ nova:
     kafka:
       request-topic: ${FCB_KAFKA_REQUEST_TOPIC:corridor.core.loan.nova.fcb-integration.request.queue.v1}
       reply-topic: ${FCB_KAFKA_REPLY_TOPIC:corridor.core.loan.nova.fcb-integration.response.queue.v1}
-      reply-group-id: ${FCB_KAFKA_REPLY_GROUP_ID:core.loan.fcb-reply}
       default-timeout: ${FCB_KAFKA_DEFAULT_TIMEOUT:60s}
       transaction-timeout: ${FCB_KAFKA_TRANSACTION_TIMEOUT:60s}
 
@@ -588,18 +603,63 @@ springdoc:
         - openid
         - core
         - offline_access
+        - delegate_token
   show-actuator: true
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
 
 springwolf:
   enabled: true
+
+  # ---- Document metadata ---------------------------------------------------------------------------------------------
   docket:
     base-package: ir.dotin.loan.trade
+    default-content-type: application/json
     info:
       title: ${spring.application.name}
-      version: 1.0.0
+      version: "@project.version@"
+      description: >-
+        AsyncAPI contract for the Nova service. Documents every inbound command channel (Kafka and ActiveMQ)
+        together with the reply destinations used for request/reply and saga orchestration flows.
     servers:
-      kafka-server:
+      kafka:
         protocol: kafka
-        host: localhost:9092
+        host: 10.100.8.81:9093,10.100.8.82:9093,10.100.8.83:9093
+        description: Primary Kafka cluster (SASL/OAUTHBEARER).
+        security:
+          - type: oauth2
+      activemq:
+        protocol: jms
+        host: 127.0.0.1:61616
+        description: ActiveMQ broker for legacy JMS command channels.
+        security:
+          - type: oauth2
+
+  # ---- HTTP endpoints ------------------------------------------------------------------------------------------------
+  path:
+    base: /asyncapi
+  # ---- UI ------------------------------------------------------------------------------------------------------------
+  ui:
+    defaults:
+      show-bindings: true
+      group-by: channel
+
+  # ---- Scanners / plugins --------------------------------------------------------------------------------------------
+  scanner:
+    async-listener:
+      enabled: true
+    consumer-data:
+      enabled: true
+    producer-data:
+      enabled: true
+
+  plugin:
+    kafka:
+      publishing:
+        enabled: true
+        producer:
+          acks: all
+    jms:
+      publishing:
+        enabled: true
+
