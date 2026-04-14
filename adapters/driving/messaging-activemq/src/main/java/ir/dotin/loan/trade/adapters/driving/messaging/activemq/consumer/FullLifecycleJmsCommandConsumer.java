@@ -40,7 +40,10 @@ public class FullLifecycleJmsCommandConsumer {
     private final JmsInboundMessageConverter jmsConverter;
     private final ResponsePublisher jmsResponsePublisher;
 
-    @JmsListener(destination = ActiveMqJmsConfig.FULL_LIFECYCLE_QUEUE, containerFactory = "jmsListenerContainerFactory")
+    @JmsListener(
+            destination = ActiveMqJmsConfig.FULL_LIFECYCLE_QUEUE,
+            subscription = "${platform.messaging.kafka.consumer-group-id}",
+            containerFactory = "jmsListenerContainerFactory")
     public void consume(
             Message jmsMessage,
             @Payload String body,

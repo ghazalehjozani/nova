@@ -258,7 +258,7 @@ platform:
         timeout-ms: 30000
     kafka:
       bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
-      consumer-group-id: ${KAFKA_CONSUMER_GROUP:core.loan.facility.*}
+      consumer-group-id: ${KAFKA_CONSUMER_GROUP:core.loan.nova.*}
       client-id: trade-loan-client
       security:
         protocol: SASL_PLAINTEXT

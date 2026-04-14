@@ -40,7 +40,7 @@ public class FullLifecycleKafkaCommandConsumer {
 
     @KafkaListener(
             topics = "corridor.core.loan.nova.full-lifecycle.request.queue.v1",
-            groupId = "core.loan.facility.*",
+            groupId = "${platform.messaging.kafka.consumer-group-id}",
             containerFactory = "byteArrayKafkaListenerContainerFactory")
     @AsyncListener(
             operation =

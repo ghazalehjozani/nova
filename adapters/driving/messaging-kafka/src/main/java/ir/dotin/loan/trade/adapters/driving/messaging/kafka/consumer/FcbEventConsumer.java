@@ -36,7 +36,7 @@ public class FcbEventConsumer {
 
     @KafkaListener(
             topics = "corridor.core.loan.nova.installment-operation.request.queue.v1",
-            groupId = "core.loan.installment-operation.*",
+            groupId = "${platform.messaging.kafka.consumer-group-id}",
             containerFactory = "byteArrayKafkaListenerContainerFactory")
     @AsyncListener(
             operation =

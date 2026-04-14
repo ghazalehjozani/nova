@@ -17,3 +17,7 @@ spring:
 server:
   ssl:
     enabled: false
+platform:
+  messaging:
+    kafka:
+      consumer-group-id: core.loan.nova-#{T(java.net.InetAddress).getLocalHost().getHostName()}.*
