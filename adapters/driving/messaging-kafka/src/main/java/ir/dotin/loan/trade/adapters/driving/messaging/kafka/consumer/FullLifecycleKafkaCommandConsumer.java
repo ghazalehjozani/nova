@@ -46,7 +46,6 @@ public class FullLifecycleKafkaCommandConsumer {
                             description =
                                     "Process nova loan full lifecycle commands (Kafka, saga-driven, request/reply).",
                             servers = "kafka",
-                            payloadType = FullLoanFacilityLifecycleMessage.class,
                             headers =
                                     @AsyncOperation.Headers(
                                             schemaName = MessagingHeaderNames.SCHEMA_SAGA_COMMAND_HEADERS)))

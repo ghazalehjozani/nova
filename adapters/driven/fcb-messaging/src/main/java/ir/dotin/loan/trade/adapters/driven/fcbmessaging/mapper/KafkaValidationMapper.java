@@ -10,6 +10,7 @@ import org.jspecify.annotations.Nullable;
 import ir.dotin.platform.accounting.document.api.model.BranchCode;
 import ir.dotin.platform.accounting.document.api.model.DepositNumber;
 import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.commons.core.NotificationError;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.NationalCode;
@@ -411,5 +412,42 @@ public class KafkaValidationMapper {
         } catch (NumberFormatException ignored) {
         }
         return null;
+    }
+
+    public static Result<Void> mapSamatViolationToNotification(ValidateSamatKafkaResponse validateSamatKafkaResponse) {
+        if (validateSamatKafkaResponse == null || validateSamatKafkaResponse.getViolations() == null) {
+            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "validateSamat"));
+        }
+
+        List<SamatViolationDto> violations = validateSamatKafkaResponse.getViolations();
+
+        if (violations.isEmpty()) {
+            return Result.success();
+        }
+
+        Notification notification = violations.stream()
+                .map(violation -> NotificationError.of(resolveViolationError(violation), buildViolationArgs(violation)))
+                .collect(Notification::create, Notification::addError, Notification::merge);
+
+        return Result.failure(notification);
+    }
+
+    private static CoreBankingErrors resolveViolationError(SamatViolationDto violation) {
+        return switch (violation.getViolationCode()) {
+            case "INVALID_USE_TYPE" -> CoreBankingErrors.SAMAT_INVALID_USE_TYPE;
+            case "INVALID_ISIC_ECONOMIC_SECTOR" -> CoreBankingErrors.SAMAT_INVALID_ISIC_ECONOMIC_SECTOR;
+            case "INVALID_ISIC_SUB_COMBINATION" -> CoreBankingErrors.SAMAT_INVALID_ISIC_SUB_COMBINATION;
+            case "INVALID_EXCEPTION_CODE" -> CoreBankingErrors.SAMAT_INVALID_EXCEPTION_CODE;
+            case "INVALID_CONSUMPTION_PLACE_CODE" -> CoreBankingErrors.SAMAT_INVALID_CONSUMPTION_PLACE_CODE;
+            default -> CoreBankingErrors.SAMAT_UNKNOWN_VIOLATION;
+        };
+    }
+
+    private static Object[] buildViolationArgs(SamatViolationDto violation) {
+        return switch (violation.getViolationCode()) {
+            case "INVALID_ISIC_SUB_COMBINATION" -> new Object[] {violation.getProvidedValue(), violation.getField()};
+            case "SAMAT_UNKNOWN_VIOLATION" -> new Object[] {violation.getViolationCode(), violation.getMessage()};
+            default -> new Object[] {violation.getProvidedValue()};
+        };
     }
 }

@@ -35,6 +35,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ValidateAssu
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ValidateCreditorDepositRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ValidateDebtorDepositRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ValidateEcoSectorRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ValidateSamatRequest;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -74,7 +75,8 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ValidateEcoS
     @JsonSubTypes.Type(value = FindOrCreateAccountRequest.class, name = "find-or-create-account"),
     // Transaction operations
     @JsonSubTypes.Type(value = PostTransactionRequest.class, name = "issue-general-document"),
-    @JsonSubTypes.Type(value = ReverseTransactionRequest.class, name = "cancel-transfer-money-loan")
+    @JsonSubTypes.Type(value = ReverseTransactionRequest.class, name = "cancel-transfer-money-loan"),
+    @JsonSubTypes.Type(value = ValidateSamatRequest.class, name = "validate-samat")
 })
 public abstract class FcbKafkaBaseRequest {
 

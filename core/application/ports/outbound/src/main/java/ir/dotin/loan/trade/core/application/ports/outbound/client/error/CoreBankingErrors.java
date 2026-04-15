@@ -60,7 +60,7 @@ public enum CoreBankingErrors implements ProductErrorCode<CoreBankingErrors> {
     KAFKA_INVALID_RESPONSE(
             TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 20, "Invalid Kafka response payload for operation {0}"),
     KAFKA_FCB_BUSINESS_ERROR(
-            TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 21, "FCB business error via Kafka: code={0}, message={1}"),
+            TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 21, "FCB business error: code={0}, message={1}"),
     KAFKA_FCB_SERVER_ERROR(
             TradeLoanErrorCategory.CORE_BANKING_INTEGRATION,
             22,
@@ -69,6 +69,20 @@ public enum CoreBankingErrors implements ProductErrorCode<CoreBankingErrors> {
             TradeLoanErrorCategory.CORE_BANKING_INTEGRATION,
             23,
             "FCB client error via Kafka (4xx): code={0}, message={1}"),
+    SAMAT_INVALID_USE_TYPE(TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 25, "نوع مصرف با کد {0} معتبر نمی‌باشد"),
+    SAMAT_INVALID_ISIC_ECONOMIC_SECTOR(
+            TradeLoanErrorCategory.CORE_BANKING_INTEGRATION,
+            26,
+            "کد بخش اقتصادی ISIC با مقدار {0} برای بخش اقتصادی انتخاب‌شده تعریف نشده است"),
+    SAMAT_INVALID_ISIC_SUB_COMBINATION(
+            TradeLoanErrorCategory.CORE_BANKING_INTEGRATION,
+            27,
+            "زیربخش ISIC با مقدار {0} با بخش اقتصادی {1} همخوانی ندارد"),
+    SAMAT_INVALID_EXCEPTION_CODE(
+            TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 28, "کد استثناء با مقدار {0} در سیستم تعریف نشده است"),
+    SAMAT_INVALID_CONSUMPTION_PLACE_CODE(
+            TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 29, "کد محل مصرف با مقدار {0} معتبر نمی‌باشد"),
+    SAMAT_UNKNOWN_VIOLATION(TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 30, "خطای ناشناخته سامات با کد {0}: {1}"),
 
     // ── INTEGRATION (03) — transport-level errors ───────────────────────────────
 
