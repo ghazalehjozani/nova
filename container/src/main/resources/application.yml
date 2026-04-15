@@ -22,11 +22,10 @@ spring:
     enabled: true
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
-  artemis:
-    mode: native
-    broker-url: tcp://${ARTEMIS_HOST:localhost}:${ARTEMIS_PORT:61616}
-    user: ${ARTEMIS_USER:admin}
-    password: ${ARTEMIS_PASSWORD:admin}
+  activemq:
+    broker-url: tcp://${ACTIVEMQ_HOST:localhost}:${ACTIVEMQ_PORT:61616}
+    user: ${ACTIVEMQ_USER:admin}
+    password: ${ACTIVEMQ_PASSWORD:admin}
     pool:
       enabled: true
       max-connections: 10
