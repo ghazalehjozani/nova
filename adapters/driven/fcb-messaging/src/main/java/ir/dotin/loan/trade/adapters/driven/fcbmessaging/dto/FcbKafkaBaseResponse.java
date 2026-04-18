@@ -39,6 +39,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.*;
     @JsonSubTypes.Type(value = AccountInfoKafkaResponse.class, name = "nova-delete-account"),
     @JsonSubTypes.Type(value = AccountInfoKafkaResponse.class, name = "load-account-by-account-number-service"),
     @JsonSubTypes.Type(value = AccountInfoKafkaResponse.class, name = "find-or-create-account"),
+    @JsonSubTypes.Type(value = ValidateSamatKafkaResponse.class, name = "validate-samat"),
     @JsonSubTypes.Type(value = TransactionResultKafkaResponse.class, name = "issue-general-document"),
     @JsonSubTypes.Type(value = SimpleSuccessKafkaResponse.class, name = "cancel-transfer-money-loan")
 })

@@ -16,15 +16,19 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Samat;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.DepositInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.DisburseDestinationDto;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.EconomicSectorDto;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.SamatDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.AccountServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.depositservice.DepositServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.*;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.samat.ValidateSamatPort;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
 
 import lombok.RequiredArgsConstructor;
@@ -38,6 +42,7 @@ public class FacilityValidator {
     private final DepositServicePort depositServicePort;
     private final LoanServicePort loanServicePort;
     private final AccountServicePort accountServicePort;
+    private final ValidateSamatPort validateSamatPort;
 
     private static final ExecutorService VIRTUAL_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
@@ -54,6 +59,7 @@ public class FacilityValidator {
                 runAsync(() -> validateCreditorDeposit(command)),
                 runAsync(() -> validateSubSource(command)),
                 runAsync(() -> validateDepositCurrency(command)),
+                runAsync(() -> validateSamat(command)),
                 runAsync(() -> validateRequestReason(command)));
 
         CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
@@ -82,6 +88,13 @@ public class FacilityValidator {
                 yield Result.success();
             }
         };
+    }
+
+    private Result<Void> validateSamat(OriginateLoanFacilityCommand command) {
+        SamatDto samatDto = command.loanApplication().samat();
+        EconomicSectorDto economicSectorDto = command.loanApplication().economicSector();
+        Samat samat = samatDtoToSamat(samatDto);
+        return validateSamatPort.validateSamat(samat, command.loanTypeCode(), economicSectorDto.code());
     }
 
     private Result<Void> validateEconomicalSector(OriginateLoanFacilityCommand command) {
@@ -289,5 +302,46 @@ public class FacilityValidator {
         };
     }
 
+    protected Samat samatDtoToSamat(SamatDto samatDto) {
+        if (samatDto == null) {
+            return null;
+        }
+
+        String trackingNumber = null;
+        String isicEconomicSector = null;
+        String subIsicEconomicSector = null;
+        String useType = null;
+        String exceptionCode = null;
+        String consumptionPlaceCode = null;
+
+        if (samatDto.trackingNumber() != null) {
+            trackingNumber = samatDto.trackingNumber();
+        }
+        if (samatDto.isicEconomicSector() != null) {
+            isicEconomicSector = samatDto.isicEconomicSector();
+        }
+        if (samatDto.subIsicEconomicSector() != null) {
+            subIsicEconomicSector = samatDto.subIsicEconomicSector();
+        }
+        if (samatDto.useType() != null) {
+            useType = samatDto.useType();
+        }
+        if (samatDto.exceptionCode() != null) {
+            exceptionCode = samatDto.exceptionCode();
+        }
+        if (samatDto.consumptionPlaceCode() != null) {
+            consumptionPlaceCode = samatDto.consumptionPlaceCode();
+        }
+
+        Samat samat = new Samat(
+                trackingNumber,
+                isicEconomicSector,
+                subIsicEconomicSector,
+                useType,
+                exceptionCode,
+                consumptionPlaceCode);
+
+        return samat;
+    }
     // TODO reasonType service must change load-reason-type
 }

@@ -7,8 +7,8 @@ import jakarta.validation.constraints.Pattern;
 
 public record SamatDto(
         @NotBlank @Valid @Pattern(regexp = "^\\d{16}$") String trackingNumber,
-        @Nullable String isicEconomicSector,
-        @Nullable String subIsicEconomicSector,
-        @Nullable String useType,
-        @Nullable String exceptionCode,
-        @Nullable String consumptionPlaceCode) {}
+        @Nullable @Valid @Pattern(regexp = "^\\d{2}$") String isicEconomicSector,
+        @Nullable @Valid @Pattern(regexp = "^\\d{4}$") String subIsicEconomicSector,
+        @Nullable @Valid @Pattern(regexp = "^\\d+$") String useType,
+        @Nullable @Valid @Pattern(regexp = "^\\d+$") String exceptionCode,
+        @Nullable @Valid @Pattern(regexp = "^\\d+$") String consumptionPlaceCode) {}

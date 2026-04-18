@@ -22,6 +22,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Samat;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.DepositInfo;
@@ -41,6 +42,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.Co
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CustomerInfoLoadOptions;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.*;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.samat.ValidateSamatPort;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +56,8 @@ public class FcbValidationKafkaAdapter
                 CustomerServicePort,
                 DepositServicePort,
                 CollateralServicePort,
-                FetchSanctionDetailsPort {
+                FetchSanctionDetailsPort,
+                ValidateSamatPort {
 
     private final FcbKafkaClient kafkaClient;
     private final FcbKafkaProperties properties;
@@ -314,6 +317,22 @@ public class FcbValidationKafkaAdapter
                 new FetchSanctionDetailsRequest(sanctionSerial),
                 SanctionDetailsKafkaResponse.class,
                 KafkaValidationMapper::mapToSanctionDetails);
+    }
+
+    @Override
+    public Result<Void> validateSamat(Samat samat, String loanTypeCode, String economicalSectionCode) {
+        ValidateSamatRequest samatRequest = ValidateSamatRequest.builder()
+                .withConsumptionPlaceCode(samat.consumptionPlaceCode())
+                .withExceptionCode(samat.exceptionCode())
+                .withLoanTypeCode(loanTypeCode)
+                .withEconomicalSectionCode(economicalSectionCode)
+                .withTrackingNumber(samat.trackingNumber())
+                .withIsicEconomicSector(samat.isicEconomicSector())
+                .withSubIsicEconomicSector(samat.subIsicEconomicSector())
+                .withUseType(samat.useType())
+                .build();
+        return sendAndMap(
+                samatRequest, ValidateSamatKafkaResponse.class, KafkaValidationMapper::mapSamatViolationToNotification);
     }
 
     // ── Internal helpers ──
