@@ -1,15 +1,23 @@
-package ir.dotin.loan.trade.adapters.driving.rest.command.dto;
+package ir.dotin.loan.trade.adapters.driving.contract.dto;
 
 import java.util.Map;
 import java.util.UUID;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import ir.dotin.platform.protocol.api.request.BaseRequest;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(name = "CloseFacilityDefaultedRequest", description = "عملیات بستن تسهیلات")
-public record CloseFacilityDefaultedRequest(
+@Schema(name = "CancelFacilityRequest", description = "درخواست لغو تسهیلات")
+public record CancelFacilityRequest(
+        @Schema(
+                description = "یادداشت‌های لغو تسهیلات",
+                example = "لغو تسهیلات به دلیل عدم ارائه مدارک",
+                requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        @Size(max = 1000, message = "طول یادداشت‌های لغو نباید بیشتر از 1000 کاراکتر باشد.")
+        String cancellationNotes,
+
         @Schema(
                 description = "شناسه عملیات",
                 example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",

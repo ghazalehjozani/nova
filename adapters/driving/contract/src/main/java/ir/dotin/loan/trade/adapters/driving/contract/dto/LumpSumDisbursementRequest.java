@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.adapters.driving.rest.command.dto;
+package ir.dotin.loan.trade.adapters.driving.contract.dto;
 
 import java.time.LocalDate;
 import java.util.Map;

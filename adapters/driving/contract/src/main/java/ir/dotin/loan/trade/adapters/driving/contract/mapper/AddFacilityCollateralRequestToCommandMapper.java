@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.adapters.driving.rest.command.mapper;
+package ir.dotin.loan.trade.adapters.driving.contract.mapper;
 
 import java.util.UUID;
 
@@ -8,7 +8,7 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.AddFacilityCollateralRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.AddFacilityCollateralRequest;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.AddFacilityCollateralCommand;
 
 @Mapper(

@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.adapters.driving.rest.command.dto;
+package ir.dotin.loan.trade.adapters.driving.contract.dto;
 
 import java.util.Map;
 import java.util.UUID;
@@ -8,8 +8,8 @@ import ir.dotin.platform.protocol.api.request.BaseRequest;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(name = "RejectFacilityRequest", description = "عملیات رد تسهیلات")
-public record RejectFacilityRequest(
+@Schema(name = "CloseFacilityPaidOffRequest", description = "عملیات بستن تسهیلات پرداخت شده")
+public record CloseFacilityPaidOffRequest(
         @Schema(
                 description = "شناسه عملیات",
                 example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",

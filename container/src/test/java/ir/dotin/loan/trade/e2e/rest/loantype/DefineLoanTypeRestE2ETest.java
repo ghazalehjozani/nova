@@ -12,9 +12,9 @@ import org.springframework.http.ResponseEntity;
 
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.entity.TradeLoanArrangementEntity;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineLoanTypeRequest;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineLoanTypeRequest.EconomicSectorCurrencyDto;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineLoanTypeRequest.RelationTypeLoanTopicDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineLoanTypeRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineLoanTypeRequest.EconomicSectorCurrencyDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineLoanTypeRequest.RelationTypeLoanTopicDto;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 import ir.dotin.loan.trade.e2e.AbstractRestE2E;
 import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator.MinimalChain;

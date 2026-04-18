@@ -30,6 +30,10 @@
           <artifactId>expression-kit-rest</artifactId>
       </dependency>
       <dependency>
+          <groupId>ir.dotin.loan</groupId>
+          <artifactId>trade-loan-adapters-driving-contract</artifactId>
+      </dependency>
+      <dependency>
           <groupId>org.mapstruct</groupId>
           <artifactId>mapstruct</artifactId>
       </dependency>

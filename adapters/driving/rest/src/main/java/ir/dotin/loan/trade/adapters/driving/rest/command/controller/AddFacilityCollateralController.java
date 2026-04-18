@@ -13,9 +13,9 @@ import ir.dotin.platform.adapter.rest.controller.BaseController;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.protocol.api.response.BaseResponse;
 import ir.dotin.platform.protocol.api.response.EventStream;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.AddFacilityCollateralRequest;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.CompensateCollateralRequest;
-import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.AddFacilityCollateralRequestToCommandMapper;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.AddFacilityCollateralRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.CompensateCollateralRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.mapper.AddFacilityCollateralRequestToCommandMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateCollateralCommand;
 

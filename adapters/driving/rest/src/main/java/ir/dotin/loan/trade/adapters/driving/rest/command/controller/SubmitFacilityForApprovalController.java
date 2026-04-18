@@ -14,9 +14,9 @@ import ir.dotin.platform.adapter.rest.controller.BaseController;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.protocol.api.response.BaseResponse;
 import ir.dotin.platform.protocol.api.response.EventStream;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.CompensationRequest;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.SubmitFacilityForApprovalRequest;
-import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.SubmitFacilityForApprovalRequestToCommandMapper;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.CompensationRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.SubmitFacilityForApprovalRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.mapper.SubmitFacilityForApprovalRequestToCommandMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateApprovalSubmissionCommand;
 

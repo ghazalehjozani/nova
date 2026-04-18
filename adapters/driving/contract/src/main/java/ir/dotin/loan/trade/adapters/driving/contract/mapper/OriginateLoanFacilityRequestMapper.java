@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.adapters.driving.rest.command.mapper;
+package ir.dotin.loan.trade.adapters.driving.contract.mapper;
 
 import java.math.BigDecimal;
 import java.time.Period;
@@ -9,9 +9,9 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DisburseDestinationRequestDto;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.OriginateLoanFacilityRequest;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.PartyRequestDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DisburseDestinationRequestDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.PartyRequestDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.AmountDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.CurrencyTypeDto;

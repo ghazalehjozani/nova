@@ -9,8 +9,8 @@ import ir.dotin.platform.adapter.rest.controller.BaseController;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.protocol.api.response.BaseResponse;
 import ir.dotin.platform.protocol.api.response.EventStream;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.CloseFacilityDefaultedRequest;
-import ir.dotin.loan.trade.adapters.driving.rest.command.mapper.CloseFacilityDefaultedRequestToCommandMapper;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.CloseFacilityDefaultedRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.mapper.CloseFacilityDefaultedRequestToCommandMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
 import io.swagger.v3.oas.annotations.Operation;

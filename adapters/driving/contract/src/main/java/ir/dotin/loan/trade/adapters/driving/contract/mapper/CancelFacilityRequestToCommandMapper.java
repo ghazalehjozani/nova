@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.adapters.driving.rest.command.mapper;
+package ir.dotin.loan.trade.adapters.driving.contract.mapper;
 
 import java.util.UUID;
 
@@ -7,15 +7,15 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.CloseFacilityDefaultedRequest;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.CloseFacilityDefaultedCommand;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.CancelFacilityRequest;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.CancelFacilityCommand;
 
 @Mapper(
         componentModel = MappingConstants.ComponentModel.SPRING,
         unmappedSourcePolicy = ReportingPolicy.WARN,
         unmappedTargetPolicy = ReportingPolicy.ERROR,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-public interface CloseFacilityDefaultedRequestToCommandMapper {
+public interface CancelFacilityRequestToCommandMapper {
 
-    CloseFacilityDefaultedCommand toCommand(UUID loanFacilityId, CloseFacilityDefaultedRequest request);
+    CancelFacilityCommand toCommand(UUID loanFacilityId, CancelFacilityRequest request);
 }

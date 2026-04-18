@@ -54,37 +54,30 @@ public class FullLifecycleKafkaCommandConsumer {
             groupId = "${platform.messaging.kafka.consumer-group-id}",
             containerFactory = "byteArrayKafkaListenerContainerFactory")
     public void consume(ConsumerRecord<String, byte[]> consumerRecord) {
-        try {
-            InboundMessage inboundMessage = converter.convert(consumerRecord);
-            validateRequiredHeaders(inboundMessage.headers());
+        InboundMessage inboundMessage = converter.convert(consumerRecord);
+        validateRequiredHeaders(inboundMessage.headers());
 
-            FullLoanFacilityLifecycleMessage message =
-                    objectMapper.readValue(inboundMessage.payload(), FullLoanFacilityLifecycleMessage.class);
+        FullLoanFacilityLifecycleMessage message =
+                objectMapper.readValue(inboundMessage.payload(), FullLoanFacilityLifecycleMessage.class);
 
-            FullLoanFacilityLifecycleCommand command = messageMapper.toCommand(message).toBuilder()
-                    .uid(UUID.randomUUID())
-                    // FIXME: transactionMetadata should be extracted from message headers/body
-                    // when the upstream system provides it. Using defaults as fallback.
-                    .transactionMetadata(buildDefaultTransactionMetadata())
-                    .build();
+        FullLoanFacilityLifecycleCommand command = messageMapper.toCommand(message).toBuilder()
+                .uid(UUID.randomUUID())
+                // FIXME: transactionMetadata should be extracted from message headers/body
+                // when the upstream system provides it. Using defaults as fallback.
+                .transactionMetadata(buildDefaultTransactionMetadata())
+                .build();
 
-            // Re-serialize with polymorphic type info for the command pipeline.
-            // This is required because the pipeline deserializes the byte payload back to a
-            // Command instance using type information. Ideally the pipeline would accept a
-            // pre-built Command directly — consider adding such an overload.
-            byte[] commandBytes = commandSerializer.serialize(command).getBytes(StandardCharsets.UTF_8);
+        // Re-serialize with polymorphic type info for the command pipeline.
+        // This is required because the pipeline deserializes the byte payload back to a
+        // Command instance using type information. Ideally the pipeline would accept a
+        // pre-built Command directly — consider adding such an overload.
+        byte[] commandBytes = commandSerializer.serialize(command).getBytes(StandardCharsets.UTF_8);
 
-            CommandResponse<Object> response =
-                    inboundCommandProcessor.process(inboundMessage.withPayload(commandBytes));
+        CommandResponse<Object> response = inboundCommandProcessor.process(inboundMessage.withPayload(commandBytes));
 
-            String responseDestination = inboundMessage.responseDestination();
-            if (responseDestination != null && !responseDestination.isBlank()) {
-                kafkaResponsePublisher.publish(responseDestination, inboundMessage.correlationKey(), response);
-            }
-
-        } catch (Exception e) {
-            LOG.error("Failed to process full lifecycle command [key={}]: {}", consumerRecord.key(), e.getMessage(), e);
-            throw new RuntimeException("Full lifecycle command processing failed", e);
+        String responseDestination = inboundMessage.responseDestination();
+        if (responseDestination != null && !responseDestination.isBlank()) {
+            kafkaResponsePublisher.publish(responseDestination, inboundMessage.correlationKey(), response);
         }
     }
 

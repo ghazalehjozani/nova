@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.adapters.driving.rest.command.dto;
+package ir.dotin.loan.trade.adapters.driving.contract.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

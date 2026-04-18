@@ -15,9 +15,9 @@ import org.springframework.core.io.ResourceLoader;
 
 import ir.dotin.platform.adapter.rest.swagger.BaseSwaggerConfig;
 import ir.dotin.platform.adapter.rest.swagger.HeaderOperationCustomizer;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineLoanTypeRequest;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.OriginateLoanFacilityRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineLoanTypeRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineTradeLoanArrangementRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Paths;

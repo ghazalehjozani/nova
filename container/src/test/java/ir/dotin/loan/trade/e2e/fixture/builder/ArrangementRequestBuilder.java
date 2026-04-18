@@ -14,16 +14,16 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.LoanSecondaryType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PenaltyPaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.SectionType;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest.AmountRangeDto;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest.CollateralPolicyDto;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest.GracePeriodPolicyDto;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest.InstallmentPolicyDto;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest.InterestPolicyDto;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest.LoanDurationRangeDto;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest.PenaltyPolicyDto;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest.RegulatoryCompliancePolicyDto;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest.RepaymentPriorityPolicyDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineTradeLoanArrangementRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineTradeLoanArrangementRequest.AmountRangeDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineTradeLoanArrangementRequest.CollateralPolicyDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineTradeLoanArrangementRequest.GracePeriodPolicyDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineTradeLoanArrangementRequest.InstallmentPolicyDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineTradeLoanArrangementRequest.InterestPolicyDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineTradeLoanArrangementRequest.LoanDurationRangeDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineTradeLoanArrangementRequest.PenaltyPolicyDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineTradeLoanArrangementRequest.RegulatoryCompliancePolicyDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineTradeLoanArrangementRequest.RepaymentPriorityPolicyDto;
 
 public final class ArrangementRequestBuilder {
 

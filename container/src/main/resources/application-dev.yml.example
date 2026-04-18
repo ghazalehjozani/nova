@@ -7,7 +7,7 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}  # ⚠️ Set your password in .env
   jpa:
-    show-sql: true
+    show-sql: false
   docker:
     compose:
       lifecycle-management: start_only

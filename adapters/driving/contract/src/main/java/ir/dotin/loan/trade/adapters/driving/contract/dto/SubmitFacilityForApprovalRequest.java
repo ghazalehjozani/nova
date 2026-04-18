@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.adapters.driving.rest.command.dto;
+package ir.dotin.loan.trade.adapters.driving.contract.dto;
 
 import java.util.Map;
 import java.util.UUID;
@@ -8,8 +8,8 @@ import ir.dotin.platform.protocol.api.request.BaseRequest;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(name = "IssueFacilityContractRequest", description = "عملیات صدور قرارداد")
-public record IssueFacilityContractRequest(
+@Schema(name = "SubmitFacilityForApprovalRequest", description = "ثبت درخواست تصویب مصوبه")
+public record SubmitFacilityForApprovalRequest(
         @Schema(
                 description = "شناسه عملیات",
                 example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
@@ -18,7 +18,7 @@ public record IssueFacilityContractRequest(
         UUID uid,
 
         @Schema(description = "نسخه عملیات", example = "1", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
-        Long version,
+        Integer version,
 
         Map<String, String> metadata)
         implements BaseRequest {}

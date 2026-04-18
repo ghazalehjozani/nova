@@ -1,10 +1,10 @@
-package ir.dotin.loan.trade.adapters.driving.rest.command.mapper;
+package ir.dotin.loan.trade.adapters.driving.contract.mapper;
 
 import java.util.stream.Collectors;
 
 import org.mapstruct.*;
 
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineLoanTypeRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineLoanTypeRequest;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.DefineLoanTypeCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.*;
 

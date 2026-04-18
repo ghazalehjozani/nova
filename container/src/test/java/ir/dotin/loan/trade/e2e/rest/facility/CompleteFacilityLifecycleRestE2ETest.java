@@ -16,17 +16,17 @@ import org.springframework.http.ResponseEntity;
 
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.ApproveFacilityRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.ApproveFacilityRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DisburseDestinationRequestDto;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.IssueFacilityContractRequest;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.LumpSumDisbursementRequest;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.OriginateLoanFacilityRequest;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.OriginateLoanFacilityRequest.InstallmentSchedulePlanDto;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.OriginateLoanFacilityRequest.InstallmentSpecDto;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.OriginateLoanFacilityRequest.LoanApplicationDto;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.OriginateLoanFacilityRequest.SamatDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.IssueFacilityContractRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.LumpSumDisbursementRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest.InstallmentSchedulePlanDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest.InstallmentSpecDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest.LoanApplicationDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest.SamatDto;
 import ir.dotin.loan.trade.adapters.driving.rest.command.dto.PartyRequestDto;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.SubmitFacilityForApprovalRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.SubmitFacilityForApprovalRequest;
 import ir.dotin.loan.trade.e2e.AbstractRestE2E;
 import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator.MinimalChain;
 

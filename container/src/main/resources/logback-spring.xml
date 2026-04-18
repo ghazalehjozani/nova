@@ -242,6 +242,8 @@
 
         <!-- Enhanced debug levels for dev -->
         <logger name="ir.dotin" level="DEBUG"/>
+        <logger name="ir.dotin.platform.commons.core.Notification" level="DEBUG"/>
+        <logger name="ir.dotin.platform.commons.core.exception.BusinessRuleViolationException" level="DEBUG"/>
         <logger name="ir.dotin.loan.trade.adapters.driven.fcbclient.service" level="DEBUG"/>
         <logger name="SECURITY_AUDIT" level="DEBUG"/>
         <logger name="org.springframework.web" level="DEBUG"/>
@@ -250,7 +252,7 @@
         <logger name="org.hibernate.SQL" level="INFO"/>
         <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>
         <logger name="org.springframework.kafka" level="INFO"/>
-        <logger name="org.springframework.transaction" level="DEBUG"/>
+        <logger name="org.springframework.transaction" level="INFO"/>
     </springProfile>
 
     <!-- =========================================== -->

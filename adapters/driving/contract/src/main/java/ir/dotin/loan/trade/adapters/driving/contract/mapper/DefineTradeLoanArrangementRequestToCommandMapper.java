@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.adapters.driving.rest.command.mapper;
+package ir.dotin.loan.trade.adapters.driving.contract.mapper;
 
 import java.time.Period;
 import java.util.Collections;
@@ -12,7 +12,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DefineTradeLoanArrangementRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineTradeLoanArrangementRequest;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.DefineTradeLoanArrangementCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.*;
 
