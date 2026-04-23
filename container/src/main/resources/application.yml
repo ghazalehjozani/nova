@@ -73,16 +73,15 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus,refresh
+        include: health, info, metrics, prometheus, refresh
   endpoint:
     health:
       show-details: always
       group:
         liveness:
-          include: livenessState
+          include: livenessState, fcbKafkaLiveness
         readiness:
-#          Add FCB Kafka health
-          include: readinessState,db,tpsSso,dispatcher,saga,diskSpace
+          include: readinessState, db, tpsSso, dispatcher, saga, diskSpace, fcbKafkaReadiness, redis
       probes:
         enabled: true
   prometheus:
@@ -582,8 +581,20 @@ nova:
     kafka:
       request-topic: ${FCB_KAFKA_REQUEST_TOPIC:corridor.core.loan.nova.fcb-integration.request.queue.v1}
       reply-topic: ${FCB_KAFKA_REPLY_TOPIC:corridor.core.loan.nova.fcb-integration.response.queue.v1}
-      default-timeout: ${FCB_KAFKA_DEFAULT_TIMEOUT:60s}
+      default-timeout: ${FCB_KAFKA_DEFAULT_TIMEOUT:30s}
       transaction-timeout: ${FCB_KAFKA_TRANSACTION_TIMEOUT:60s}
+    health:
+      enabled: true
+      probe-interval: 5s
+      recovery-probe-interval: 1s
+      probe-timeout: 2s
+      degraded-latency-threshold: 500ms
+      consecutive-failures-to-open: 3
+      consecutive-successes-to-close: 3
+      initial-delay: 15s
+      fail-open-on-unknown: true
+      heartbeat-operation-name: heartbeat
+      producer-code: NOVA
 
 springdoc:
   api-docs:

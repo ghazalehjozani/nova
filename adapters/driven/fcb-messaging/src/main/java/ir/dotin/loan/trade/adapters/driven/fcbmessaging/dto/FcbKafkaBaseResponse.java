@@ -3,7 +3,30 @@ package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.*;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.AccountInfoKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.ApplicationNumberKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.BranchCodeListKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.BranchDetailsKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.CollateralDetailsKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.CollateralSerialsKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.CollateralValidationKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.CurrencyValidationKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.CustomerBirthInfoKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.CustomerInfoKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.CustomerListKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.DepositClosedKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.DepositInfoKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.EcoSectorValidationKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.EconomicSectorKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.HeartbeatKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.ReasonTypeKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.ResourceKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.SanctionDetailsKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.SimpleSuccessKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.TopicInfoListKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.TransactionResultKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.ValidateSamatKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.ValidationResultKafkaResponse;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -41,7 +64,8 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.*;
     @JsonSubTypes.Type(value = AccountInfoKafkaResponse.class, name = "find-or-create-account"),
     @JsonSubTypes.Type(value = ValidateSamatKafkaResponse.class, name = "validate-samat"),
     @JsonSubTypes.Type(value = TransactionResultKafkaResponse.class, name = "issue-general-document"),
-    @JsonSubTypes.Type(value = SimpleSuccessKafkaResponse.class, name = "cancel-transfer-money-loan")
+    @JsonSubTypes.Type(value = SimpleSuccessKafkaResponse.class, name = "cancel-transfer-money-loan"),
+    @JsonSubTypes.Type(value = HeartbeatKafkaResponse.class, name = "heartbeat")
 })
 public abstract class FcbKafkaBaseResponse {
 

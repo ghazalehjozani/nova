@@ -12,6 +12,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.FindRelatedC
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.GetApplicationNumberRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.GetDepositSignerOwnerRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.HasDepositAllowedCurrenciesRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.HeartbeatRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.IsDepositClosedRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.LoadBranchRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.LoadCollateralRequest;
@@ -43,7 +44,6 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ValidateSama
         property = "operationName",
         visible = true)
 @JsonSubTypes({
-    // Validation operations
     @JsonSubTypes.Type(value = LoadEconomicSectorRequest.class, name = "load-economicalSection-by-code"),
     @JsonSubTypes.Type(value = ValidateEcoSectorRequest.class, name = "validate-ecoSection-loanType"),
     @JsonSubTypes.Type(value = LoadReasonTypeForCreateRequest.class, name = "load-reason-type-for-create"),
@@ -67,16 +67,15 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ValidateSama
     @JsonSubTypes.Type(value = LoadCollateralRequest.class, name = "load-assurance-service"),
     @JsonSubTypes.Type(value = UnReserveCollateralRequest.class, name = "un-reserve-assurance-for-file"),
     @JsonSubTypes.Type(value = FetchSanctionDetailsRequest.class, name = "fetch-sanction-details"),
-    // Account operations
     @JsonSubTypes.Type(value = OpenAccountByTopicRequest.class, name = "electronic-bill-create-account"),
     @JsonSubTypes.Type(value = OpenAccountRequest.class, name = "nova-open-account"),
     @JsonSubTypes.Type(value = DeleteAccountRequest.class, name = "nova-delete-account"),
     @JsonSubTypes.Type(value = ValidateAccountNumberRequest.class, name = "load-account-by-account-number-service"),
     @JsonSubTypes.Type(value = FindOrCreateAccountRequest.class, name = "find-or-create-account"),
-    // Transaction operations
     @JsonSubTypes.Type(value = PostTransactionRequest.class, name = "issue-general-document"),
     @JsonSubTypes.Type(value = ReverseTransactionRequest.class, name = "cancel-transfer-money-loan"),
-    @JsonSubTypes.Type(value = ValidateSamatRequest.class, name = "validate-samat")
+    @JsonSubTypes.Type(value = ValidateSamatRequest.class, name = "validate-samat"),
+    @JsonSubTypes.Type(value = HeartbeatRequest.class, name = "heartbeat")
 })
 public abstract class FcbKafkaBaseRequest {
 

@@ -103,7 +103,7 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
                                 this::postTransaction,
                                 this::reverseTransaction)
                         .withConservativeRetry()
-                        .withTimeout(Duration.ofSeconds(600)),
+                        .withTimeout(Duration.ofSeconds(30)),
                 SagaSteps.step(
                                 IssueFacilityContractStep.UPDATE_FACILITY_STATE,
                                 this::updateFacilityState,

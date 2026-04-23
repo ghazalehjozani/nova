@@ -5,7 +5,6 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -31,12 +30,11 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.exception.FcbSerializationException;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.exception.FcbServerException;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.health.FcbHealthGate;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.health.FcbHealthMetrics;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.KafkaErrorCodeMapper;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 
-import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
-import io.github.resilience4j.circuitbreaker.CircuitBreaker;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.micrometer.tracing.Tracer;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.ObjectMapper;
@@ -51,7 +49,8 @@ public class FcbKafkaClient {
     private final FcbKafkaProperties properties;
     private final TokenClientService tokenClientService;
     private final RetryTemplate retryTemplate;
-    private final CircuitBreaker circuitBreaker;
+    private final FcbHealthGate healthGate;
+    private final FcbHealthMetrics healthMetrics;
     private final Tracer tracer;
 
     public FcbKafkaClient(
@@ -60,14 +59,16 @@ public class FcbKafkaClient {
             FcbKafkaProperties properties,
             TokenClientService tokenClientService,
             @Qualifier(FcbResilienceConfig.FCB_KAFKA_RETRY_TEMPLATE) RetryTemplate retryTemplate,
-            CircuitBreakerRegistry circuitBreakerRegistry,
+            FcbHealthGate healthGate,
+            FcbHealthMetrics healthMetrics,
             @Nullable Tracer tracer) {
         this.replyingKafkaTemplate = replyingKafkaTemplate;
         this.objectMapper = objectMapper;
         this.properties = properties;
         this.tokenClientService = tokenClientService;
         this.retryTemplate = retryTemplate;
-        this.circuitBreaker = circuitBreakerRegistry.circuitBreaker(FcbResilienceConfig.FCB_KAFKA_CB);
+        this.healthGate = healthGate;
+        this.healthMetrics = healthMetrics;
         this.tracer = tracer;
     }
 
@@ -79,13 +80,17 @@ public class FcbKafkaClient {
 
         String operationType = request.getOperationName();
 
+        Result<FcbKafkaBaseResponse> gateDecision = healthGate.checkPermitted(operationType);
+        if (gateDecision != null) {
+            healthMetrics.recordGateRejection();
+            log.warn("FCB gate rejected call: operation={}, eventUid={}", operationType, request.getEventUid());
+            return gateDecision;
+        }
+
         log.debug("Sending Kafka request: operation={}, eventUid={}", operationType, request.getEventUid());
 
-        Callable<Result<FcbKafkaBaseResponse>> cbCallable =
-                CircuitBreaker.decorateCallable(circuitBreaker, () -> executeRequest(request, operationType, timeout));
-
         try {
-            return retryTemplate.execute(() -> cbCallable.call());
+            return retryTemplate.execute(() -> executeRequest(request, operationType, timeout));
         } catch (RetryException e) {
             return mapRetryException(e, operationType, timeout);
         }
@@ -93,37 +98,41 @@ public class FcbKafkaClient {
 
     private Result<FcbKafkaBaseResponse> mapRetryException(RetryException e, String operationType, Duration timeout) {
         Throwable cause = e.getCause();
-        if (cause instanceof FcbServerException fse) {
-            log.error("FCB server error after retries: operation={}, code={}", operationType, fse.getErrorCode());
-            return Result.failure(Notification.ofError(
-                    CoreBankingErrors.KAFKA_FCB_SERVER_ERROR, fse.getErrorCode(), fse.getErrorMessage()));
-        }
-        if (cause instanceof java.util.concurrent.TimeoutException) {
-            log.warn("Kafka reply timed out: operation={}, timeout={}ms", operationType, timeout.toMillis());
-            return Result.failure(Notification.ofError(
-                    CoreBankingErrors.KAFKA_REPLY_TIMEOUT, operationType, String.valueOf(timeout.toMillis())));
-        }
-        if (cause instanceof CallNotPermittedException) {
-            log.error("FCB Kafka circuit breaker OPEN: operation={}", operationType);
-            return Result.failure(
-                    Notification.ofError(CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, "Circuit breaker OPEN"));
-        }
-        if (cause instanceof org.springframework.kafka.KafkaException ke) {
-            log.error("Kafka broker error: operation={}", operationType, ke);
-            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, ke.getMessage()));
-        }
-        if (cause instanceof FcbSerializationException fse) {
-            log.error("Serialization error: operation={}", operationType, fse);
-            return Result.failure(
-                    Notification.ofError(CoreBankingErrors.KAFKA_SERIALIZATION_ERROR, fse.getErrorMessage()));
-        }
-        log.error("Kafka communication error: operation={}", operationType, cause);
-        return Result.failure(Notification.ofError(
-                CoreBankingErrors.KAFKA_COMMUNICATION_ERROR, cause != null ? cause.getMessage() : e.getMessage()));
+        return switch (cause) {
+            case FcbServerException fse -> {
+                log.error("FCB server error after retries: operation={}, code={}", operationType, fse.getErrorCode());
+                yield Result.failure(Notification.ofError(
+                        CoreBankingErrors.KAFKA_FCB_SERVER_ERROR, fse.getErrorCode(), fse.getErrorMessage()));
+            }
+            case java.util.concurrent.TimeoutException ignored -> {
+                log.warn("Kafka reply timed out: operation={}, timeout={}ms", operationType, timeout.toMillis());
+                yield Result.failure(Notification.ofError(
+                        CoreBankingErrors.KAFKA_REPLY_TIMEOUT, operationType, String.valueOf(timeout.toMillis())));
+            }
+            case org.springframework.kafka.KafkaException ke -> {
+                log.error("Kafka broker error: operation={}", operationType, ke);
+                yield Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, ke.getMessage()));
+            }
+            case FcbSerializationException fse -> {
+                log.error("Serialization error: operation={}", operationType, fse);
+                yield Result.failure(
+                        Notification.ofError(CoreBankingErrors.KAFKA_SERIALIZATION_ERROR, fse.getErrorMessage()));
+            }
+            case null -> {
+                log.error("Kafka communication error (no cause): operation={}", operationType, e);
+                yield Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_COMMUNICATION_ERROR, e.getMessage()));
+            }
+            default -> {
+                log.error("Kafka communication error: operation={}", operationType, cause);
+                yield Result.failure(
+                        Notification.ofError(CoreBankingErrors.KAFKA_COMMUNICATION_ERROR, cause.getMessage()));
+            }
+        };
     }
 
     private Result<FcbKafkaBaseResponse> executeRequest(
             FcbKafkaBaseRequest request, String operationType, Duration timeout) throws Exception {
+
         byte[] requestBytes;
         try {
             requestBytes = objectMapper.writeValueAsBytes(request);
@@ -132,6 +141,7 @@ public class FcbKafkaClient {
         }
 
         OAuth2TokenResponse token = tokenClientService.delegateToken();
+        String bearerValue = buildBearerHeader(token);
 
         ProducerRecord<String, byte[]> record =
                 new ProducerRecord<>(properties.requestTopic(), request.getEventUid(), requestBytes);
@@ -141,8 +151,9 @@ public class FcbKafkaClient {
                 .add(new RecordHeader("eventUid", request.getEventUid().getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader("Idempotency-Key", request.getEventUid().getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(
-                        "X-Request-DateTime", request.getDateTime().toString().getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader("Authorization", ("Bearer " + token).getBytes(StandardCharsets.UTF_8)))
+                        "X-Request-DateTime",
+                        request.getDateTime().toInstant().toString().getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader("Authorization", bearerValue.getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader("Accept-Language", "fa".getBytes(StandardCharsets.UTF_8)));
 
         addTracingHeaders(record);
@@ -178,16 +189,27 @@ public class FcbKafkaClient {
 
             if (KafkaErrorCodeMapper.isServerError(errorCode)) {
                 throw new FcbServerException(errorCode, errorMessage);
-            } else if (KafkaErrorCodeMapper.isClientError(errorCode)) {
+            }
+            if (KafkaErrorCodeMapper.isClientError(errorCode)) {
                 return Result.failure(
                         Notification.ofError(CoreBankingErrors.KAFKA_FCB_CLIENT_ERROR, errorCode, errorMessage));
-            } else {
-                return Result.failure(KafkaErrorCodeMapper.mapToNotification(response));
             }
+            return Result.failure(KafkaErrorCodeMapper.mapToNotification(response));
         }
 
         log.debug("Kafka reply received: operation={}, correlationId={}", operationType, response.getCorrelationId());
         return Result.success(response);
+    }
+
+    private String buildBearerHeader(OAuth2TokenResponse token) {
+        if (token == null) {
+            throw new IllegalStateException("TokenClientService returned null token");
+        }
+        String accessToken = token.accessToken();
+        if (accessToken == null || accessToken.isBlank()) {
+            throw new IllegalStateException("OAuth2TokenResponse contains blank accessToken");
+        }
+        return "Bearer " + accessToken;
     }
 
     private void addTracingHeaders(ProducerRecord<String, byte[]> record) {

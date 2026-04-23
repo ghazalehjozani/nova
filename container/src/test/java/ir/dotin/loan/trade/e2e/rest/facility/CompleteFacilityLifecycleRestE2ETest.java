@@ -9,6 +9,10 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.DisburseDestinationRequestDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.PartyRequestDto;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -17,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.ApproveFacilityRequest;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.DisburseDestinationRequestDto;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.IssueFacilityContractRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.LumpSumDisbursementRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest;
@@ -25,7 +28,6 @@ import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRe
 import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest.InstallmentSpecDto;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest.LoanApplicationDto;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest.SamatDto;
-import ir.dotin.loan.trade.adapters.driving.rest.command.dto.PartyRequestDto;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.SubmitFacilityForApprovalRequest;
 import ir.dotin.loan.trade.e2e.AbstractRestE2E;
 import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator.MinimalChain;
@@ -174,7 +176,7 @@ class CompleteFacilityLifecycleRestE2ETest extends AbstractRestE2E {
                 arrangementCode,
                 new LoanApplicationDto(
                         Instant.now(),
-                        Set.of(new PartyRequestDto.ApplicantDto("12345678", Map.of())),
+                        Set.of(new PartyRequestDto.ApplicantDto("12345678", PartyRole.PRIMARY_APPLICANT)),
                         new BigDecimal("50000000"),
                         DisbursementMethod.LUMP_SUM,
                         "IRR",
@@ -182,7 +184,7 @@ class CompleteFacilityLifecycleRestE2ETest extends AbstractRestE2E {
                         ApplicantChannel.DIGITAL_BANK,
                         10,
                         3,
-                        new DisburseDestinationRequestDto.DepositDestinationDto("1.10.1357.60", Map.of()),
+                        new DisburseDestinationRequestDto.DepositDestinationDto("1.10.1357.60", DisburseDestinationType.DEPOSIT),
                         "2-1",
                         "0",
                         "03",
