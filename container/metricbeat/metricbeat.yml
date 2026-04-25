@@ -1,0 +1,44 @@
+metricbeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+fields_under_root: true
+fields:
+  service.name: trade-loan-service
+  service.environment: dev
+  developer: "${DEV_NAME}"
+
+processors:
+  - add_host_metadata:
+      netinfo.enabled: false
+  - add_fields:
+      target: service
+      fields:
+        node.name: "${DEV_NAME}"
+
+output.kafka:
+  enabled: true
+  hosts: ["10.100.8.81:9093","10.100.8.82:9093","10.100.8.83:9093"]
+  topic: corridor.core.loan.nova.obs.metrics.v1
+  version: "2.8.0"
+  partition.round_robin:
+    reachable_only: true
+  required_acks: 1
+  compression: gzip
+  max_message_bytes: 1000000
+  timeout: 30s
+  broker_timeout: 10s
+  username: ${KAFKA_USER}
+  password: ${KAFKA_PASSWORD}
+  sasl.mechanism: SCRAM-SHA-256
+
+setup.ilm.enabled: false
+setup.template.enabled: false
+
+logging.level: debug
+logging.selectors: ["kafka","publisher"]
+#logging.level: info
+logging.to_stderr: true
+logging.metrics.enabled: false
+
+monitoring.enabled: false

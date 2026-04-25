@@ -167,6 +167,7 @@ logging:
     org.springframework.cloud.kubernetes: WARN
 
 platform:
+  environment: ${PLATFORM_ENV:dev}
   persistence:
     show-sql: ${SHOW_SQL:false}
     statistics: false

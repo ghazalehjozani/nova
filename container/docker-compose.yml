@@ -22,71 +22,6 @@ services:
       timeout: 5s
       retries: 5
 
-#  kafka:
-#    image: confluentinc/cp-kafka:7.9.4
-#    container_name: kafka
-#    restart: unless-stopped
-#    environment:
-#      KAFKA_NODE_ID: 1
-#      KAFKA_PROCESS_ROLES: broker,controller
-#      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,SASL_PLAINTEXT://0.0.0.0:9094
-#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,SASL_PLAINTEXT://localhost:9094
-#      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-#      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,SASL_PLAINTEXT:SASL_PLAINTEXT
-#      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-#      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
-#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-#      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-#      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-#      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
-#      KAFKA_SASL_ENABLED_MECHANISMS: SCRAM-SHA-256
-#      KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/kafka_jaas.conf"
-#      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
-#    volumes:
-#      - ./kafka_jaas.conf:/etc/kafka/kafka_jaas.conf:ro
-#      - kafka-data:/var/lib/kafka/data
-#    ports:
-#      - "9092:9092"
-#      - "9093:9093"
-#      - "9094:9094"
-#    networks:
-#      - app-network
-#    healthcheck:
-#      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1"]
-#      interval: 10s
-#      timeout: 10s
-#      retries: 5
-#
-#  kafdrop:
-#    image: obsidiandynamics/kafdrop:4.2.0
-#    container_name: kafdrop
-#    restart: unless-stopped
-#    environment:
-#      KAFKA_BROKERCONNECT: 127.0.0.1:9092
-#      KAFKA_PROPERTIES: |
-#        security.protocol=SASL_PLAINTEXT
-#        sasl.mechanism=SCRAM-SHA-256
-#        sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="${KAFKA_USER}" password="${KAFKA_PASSWORD}";
-#      JVM_OPTS: "-Xms32M -Xmx64M"
-#      SERVER_SERVLET_CONTEXTPATH: "/"
-#    network_mode: host
-#    depends_on:
-#      kafka:
-#        condition: service_healthy
-#
-#  kafka-rest:
-#    image: confluentinc/cp-kafka-rest:8.1.1
-#    container_name: kafka-rest
-#    restart: unless-stopped
-#    network_mode: host
-#    environment:
-#      KAFKA_REST_BOOTSTRAP_SERVERS: "PLAINTEXT://localhost:9092"
-#      KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
-#      KAFKA_REST_CONSUMER_REQUEST_TIMEOUT_MS: 30000
-#    depends_on:
-#      kafka:
-#        condition: service_healthy
-
   redis:
     image: redis:8.2.2-alpine
     container_name: redis
@@ -119,23 +54,33 @@ services:
       - activemq-data:/opt/activemq/data
     restart: unless-stopped
 
-  vault:
-    image: hashicorp/vault
-    container_name: vault
-    ports:
-      - "8200:8200"
+  metricbeat:
+    image: elastic/metricbeat:8.15.3
+    container_name: metricbeat
+    restart: unless-stopped
+    user: root
+    command: [ "--strict.perms=false", "-e" ]
     environment:
-      VAULT_DEV_ROOT_TOKEN_ID: root-token
-      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
-    cap_add:
-      - IPC_LOCK
-    command: vault server -dev
+      APP_HOST: ${APP_HOST:-host.docker.internal}
+      APP_PORT: ${APP_PORT:-8080}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+      KAFKA_USER: ${KAFKA_USER}
+      KAFKA_PASSWORD: ${KAFKA_PASSWORD}
+      DEV_NAME: ${DEV_NAME:-${USER:-unknown}}
+    volumes:
+      - ./metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
+      - ./metricbeat/modules.d:/usr/share/metricbeat/modules.d:ro
+      - metricbeat-data:/usr/share/metricbeat/data
+    networks:
+      - app-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
   postgres-data:
   redis-data:
   activemq-data:
-#  kafka-data:
+  metricbeat-data:
 
 networks:
   app-network:

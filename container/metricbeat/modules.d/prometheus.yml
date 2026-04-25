@@ -1,0 +1,8 @@
+- module: prometheus
+  period: 15s
+  metricsets: ["collector"]
+  hosts: ["${APP_HOST}:${APP_PORT}"]
+  metrics_path: /actuator/prometheus
+  use_types: true
+  rate_counters: true
+  enabled: true

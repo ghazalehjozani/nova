@@ -1,47 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="30 seconds" debug="false">
 
-    <!-- =========================================== -->
-    <!-- PROPERTY DEFINITIONS                        -->
-    <!-- =========================================== -->
     <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="trade-loan-service"/>
     <springProperty scope="context" name="APP_VERSION" source="spring.application.version" defaultValue="unknown"/>
+    <springProperty scope="context" name="ENV" source="platform.environment" defaultValue="dev"/>
+    <springProperty scope="context" name="KAFKA_BOOTSTRAP" source="platform.observability.elk.kafka.bootstrap-servers" defaultValue="localhost:9092"/>
+    <springProperty scope="context" name="KAFKA_LOG_TOPIC" source="platform.observability.elk.kafka.log-topic" defaultValue="corridor.obs.nova.logs.v1"/>
+    <springProperty scope="context" name="KAFKA_SECURITY_PROTOCOL" source="platform.observability.elk.kafka.security-protocol" defaultValue="PLAINTEXT"/>
+    <springProperty scope="context" name="KAFKA_SASL_MECHANISM" source="platform.observability.elk.kafka.sasl-mechanism" defaultValue=""/>
+    <springProperty scope="context" name="KAFKA_SASL_JAAS_CONFIG" source="platform.observability.elk.kafka.sasl-jaas-config" defaultValue=""/>
+
     <property name="LOG_PATH" value="${LOG_PATH:-./logs}"/>
     <property name="HOSTNAME" value="${HOSTNAME:-localhost}"/>
-    <conversionRule conversionWord="clr" class="org.springframework.boot.logging.logback.ColorConverter" />
-    <conversionRule conversionWord="wex" class="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
-    <conversionRule conversionWord="wEx" class="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
 
-    <!-- =========================================== -->
-    <!-- CONSOLE PATTERNS                            -->
-    <!-- =========================================== -->
+    <conversionRule conversionWord="clr" class="org.springframework.boot.logging.logback.ColorConverter"/>
+    <conversionRule conversionWord="wex" class="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
+    <conversionRule conversionWord="wEx" class="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
 
-    <!-- Colorful pattern for development -->
     <property name="DEV_CONSOLE_PATTERN"
               value="%clr(%d{HH:mm:ss.SSS}){faint} %clr(%-5p){bold,highlight} %clr([%X{traceId:--},%X{spanId:--}]){cyan} %clr(%-40.40logger{39}){blue} %clr(:){faint} %m%n%clr(%wEx){red}"/>
-
-    <!-- Standard pattern for non-dev -->
-    <property name="CONSOLE_PATTERN"
-              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId:-},%X{spanId:-}] %logger{40} - %msg%n%ex"/>
-
-    <!-- File pattern with comprehensive MDC -->
     <property name="FILE_PATTERN"
-              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [trace=%X{traceId:-},span=%X{spanId:-},user=%X{userId:-},corr=%X{correlationId:-},tenant=%X{tenantId:-},session=%X{sessionId:-}] %logger{40} - %msg%n%ex"/>
-
-    <!-- =========================================== -->
-    <!-- JSON PATTERN (ECS Compatible)               -->
-    <!-- =========================================== -->
-    <property name="JSON_PATTERN" value='{"@timestamp":"%d{yyyy-MM-dd&apos;T&apos;HH:mm:ss.SSSXXX}","log.level":"%level","process.thread.name":"%thread","service.name":"${APP_NAME}","service.version":"${APP_VERSION}","host.hostname":"${HOSTNAME}","log.logger":"%logger","trace.id":"%X{traceId:-}","span.id":"%X{spanId:-}","user.id":"%X{userId:-}","correlation.id":"%X{correlationId:-}","tenant.id":"%X{tenantId:-}","session.id":"%X{sessionId:-}","message":"%replace(%msg){&apos;\"&apos;,&apos;\\\"&apos;}","stack_trace":"%replace(%ex{full}){&apos;\"&apos;,&apos;\\\"&apos;}","labels":%X{labels:-\{\}}}%n'/>
-
-    <!-- =========================================== -->
-    <!-- CONSOLE APPENDER                            -->
-    <!-- =========================================== -->
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>${CONSOLE_PATTERN}</pattern>
-            <charset>UTF-8</charset>
-        </encoder>
-    </appender>
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [trace=%X{traceId:-},span=%X{spanId:-},user=%X{userId:-},corr=%X{correlationId:-},tenant=%X{tenantId:-}] %logger{40} - %msg%n%ex"/>
 
     <appender name="DEV_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -50,11 +29,6 @@
         </encoder>
     </appender>
 
-    <!-- =========================================== -->
-    <!-- FILE APPENDERS                              -->
-    <!-- =========================================== -->
-
-    <!-- Application Log -->
     <appender name="APP_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/${APP_NAME}.log</file>
         <encoder>
@@ -66,11 +40,9 @@
             <maxFileSize>200MB</maxFileSize>
             <maxHistory>30</maxHistory>
             <totalSizeCap>20GB</totalSizeCap>
-            <cleanHistoryOnStart>false</cleanHistoryOnStart>
         </rollingPolicy>
     </appender>
 
-    <!-- Error Log -->
     <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/${APP_NAME}-error.log</file>
         <encoder>
@@ -88,54 +60,55 @@
         </rollingPolicy>
     </appender>
 
-    <!-- JSON Structured Log -->
-    <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/${APP_NAME}-json.log</file>
-        <encoder>
-            <pattern>${JSON_PATTERN}</pattern>
-            <charset>UTF-8</charset>
+    <appender name="KAFKA" class="com.github.danielwegener.logback.kafka.KafkaAppender">
+        <encoder class="co.elastic.logging.logback.EcsEncoder">
+            <serviceName>${APP_NAME}</serviceName>
+            <serviceVersion>${APP_VERSION}</serviceVersion>
+            <serviceEnvironment>${ENV}</serviceEnvironment>
+            <serviceNodeName>${HOSTNAME}</serviceNodeName>
+            <includeMarkers>true</includeMarkers>
+            <includeOrigin>false</includeOrigin>
+            <eventDataset>${APP_NAME}.application</eventDataset>
         </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/archive/${APP_NAME}-json-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
-            <maxFileSize>200MB</maxFileSize>
-            <maxHistory>30</maxHistory>
-            <totalSizeCap>20GB</totalSizeCap>
-        </rollingPolicy>
+        <topic>${KAFKA_LOG_TOPIC}</topic>
+        <keyingStrategy class="com.github.danielwegener.logback.kafka.keying.HostNameKeyingStrategy"/>
+        <deliveryStrategy class="com.github.danielwegener.logback.kafka.delivery.AsynchronousDeliveryStrategy"/>
+
+        <producerConfig>bootstrap.servers=${KAFKA_BOOTSTRAP}</producerConfig>
+        <producerConfig>security.protocol=${KAFKA_SECURITY_PROTOCOL}</producerConfig>
+        <producerConfig>sasl.mechanism=${KAFKA_SASL_MECHANISM}</producerConfig>
+        <producerConfig>sasl.jaas.config=${KAFKA_SASL_JAAS_CONFIG}</producerConfig>
+
+        <producerConfig>acks=1</producerConfig>
+        <producerConfig>linger.ms=100</producerConfig>
+        <producerConfig>batch.size=65536</producerConfig>
+        <producerConfig>compression.type=lz4</producerConfig>
+        <producerConfig>max.block.ms=2000</producerConfig>
+        <producerConfig>buffer.memory=67108864</producerConfig>
+        <producerConfig>request.timeout.ms=10000</producerConfig>
+        <producerConfig>delivery.timeout.ms=15000</producerConfig>
+        <producerConfig>client.id=${APP_NAME}-logback</producerConfig>
+        <producerConfig>reconnect.backoff.ms=1000</producerConfig>
+        <producerConfig>reconnect.backoff.max.ms=10000</producerConfig>
+
+        <appender-ref ref="ASYNC_APP_FALLBACK"/>
     </appender>
 
-    <!-- Audit Log (separate retention policy) -->
-    <appender name="AUDIT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/${APP_NAME}-audit.log</file>
-        <encoder>
-            <pattern>${JSON_PATTERN}</pattern>
-            <charset>UTF-8</charset>
-        </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/archive/${APP_NAME}-audit-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
-            <maxFileSize>500MB</maxFileSize>
-            <maxHistory>365</maxHistory>
-            <totalSizeCap>50GB</totalSizeCap>
-        </rollingPolicy>
+    <appender name="ASYNC_APP_FALLBACK" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="APP_FILE"/>
+        <queueSize>1024</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
     </appender>
 
-    <!-- Performance Metrics Log -->
-    <appender name="PERF_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/${APP_NAME}-performance.log</file>
-        <encoder>
-            <pattern>${JSON_PATTERN}</pattern>
-            <charset>UTF-8</charset>
-        </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/archive/${APP_NAME}-performance-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
-            <maxFileSize>100MB</maxFileSize>
-            <maxHistory>7</maxHistory>
-            <totalSizeCap>5GB</totalSizeCap>
-        </rollingPolicy>
+    <appender name="ASYNC_KAFKA" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="KAFKA"/>
+        <queueSize>8192</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>false</includeCallerData>
+        <neverBlock>true</neverBlock>
+        <maxFlushTime>5000</maxFlushTime>
     </appender>
-
-    <!-- =========================================== -->
-    <!-- ASYNC APPENDERS                             -->
-    <!-- =========================================== -->
 
     <appender name="ASYNC_APP" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="APP_FILE"/>
@@ -155,47 +128,14 @@
         <maxFlushTime>10000</maxFlushTime>
     </appender>
 
-    <appender name="ASYNC_JSON" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="JSON_FILE"/>
-        <queueSize>2048</queueSize>
-        <discardingThreshold>0</discardingThreshold>
-        <includeCallerData>false</includeCallerData>
-        <neverBlock>true</neverBlock>
-        <maxFlushTime>5000</maxFlushTime>
-    </appender>
+    <logger name="org.apache.kafka" level="WARN"/>
+    <logger name="org.apache.kafka.clients" level="ERROR"/>
+    <logger name="org.apache.kafka.clients.NetworkClient" level="ERROR"/>
+    <logger name="com.github.danielwegener.logback.kafka" level="WARN"/>
 
-    <appender name="ASYNC_AUDIT" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="AUDIT_FILE"/>
-        <queueSize>512</queueSize>
-        <discardingThreshold>0</discardingThreshold>
-        <includeCallerData>true</includeCallerData>
-        <neverBlock>false</neverBlock>
-        <maxFlushTime>15000</maxFlushTime>
-    </appender>
-
-    <!-- =========================================== -->
-    <!-- SPECIAL LOGGERS                             -->
-    <!-- =========================================== -->
-
-    <!-- Audit Logger (additive=false, separate channel) -->
-    <logger name="AUDIT" level="INFO" additivity="false">
-        <appender-ref ref="ASYNC_AUDIT"/>
-    </logger>
-
-    <!-- Performance Logger -->
-    <logger name="PERFORMANCE" level="INFO" additivity="false">
-        <appender-ref ref="PERF_FILE"/>
-    </logger>
-
-    <!-- =========================================== -->
-    <!-- FRAMEWORK LOGGERS                           -->
-    <!-- =========================================== -->
-
-    <!-- Platform/Domain Loggers -->
     <logger name="ir.dotin.platform" level="INFO"/>
     <logger name="ir.dotin.loan" level="INFO"/>
 
-    <!-- Spring Framework -->
     <logger name="org.springframework" level="WARN"/>
     <logger name="org.springframework.boot" level="INFO"/>
     <logger name="org.springframework.web" level="INFO"/>
@@ -203,93 +143,101 @@
     <logger name="org.springframework.kafka" level="WARN"/>
     <logger name="org.springframework.transaction" level="INFO"/>
     <logger name="org.springframework.orm.jpa" level="INFO"/>
-    <logger name="org.springframework.cloud.kubernetes" level="INFO"/>
 
-    <!-- Hibernate/JPA -->
     <logger name="org.hibernate" level="WARN"/>
     <logger name="org.hibernate.SQL" level="INFO"/>
     <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="WARN"/>
-    <logger name="org.hibernate.engine.transaction" level="WARN"/>
 
-    <!-- Connection Pool -->
     <logger name="com.zaxxer.hikari" level="INFO"/>
     <logger name="com.zaxxer.hikari.HikariConfig" level="WARN"/>
 
-    <!-- Kafka -->
-    <logger name="org.apache.kafka" level="WARN"/>
-    <logger name="org.apache.kafka.clients.consumer.internals" level="ERROR"/>
-    <logger name="org.apache.kafka.clients.producer.internals" level="ERROR"/>
-
-    <!-- Database Drivers -->
     <logger name="org.postgresql" level="WARN"/>
 
-    <!-- Observability -->
     <logger name="io.opentelemetry" level="INFO"/>
     <logger name="io.micrometer" level="INFO"/>
     <logger name="io.micrometer.core.instrument" level="WARN"/>
-    <logger name="io.jaegertracing" level="WARN"/>
 
-    <!-- =========================================== -->
-    <!-- PROFILE: DEVELOPMENT (Local)                -->
-    <!-- =========================================== -->
-    <springProfile name="dev">
-        <root level="INFO">
-            <appender-ref ref="DEV_CONSOLE"/>
-            <appender-ref ref="ASYNC_APP"/>
-            <appender-ref ref="ASYNC_ERROR"/>
-            <appender-ref ref="ASYNC_JSON"/>
-        </root>
-
-        <!-- Enhanced debug levels for dev -->
-        <logger name="ir.dotin" level="DEBUG"/>
-        <logger name="ir.dotin.platform.commons.core.Notification" level="DEBUG"/>
-        <logger name="ir.dotin.platform.commons.core.exception.BusinessRuleViolationException" level="DEBUG"/>
-        <logger name="ir.dotin.loan.trade.adapters.driven.fcbclient.service" level="DEBUG"/>
-        <logger name="SECURITY_AUDIT" level="DEBUG"/>
-        <logger name="org.springframework.web" level="DEBUG"/>
-        <logger name="org.springframework.security" level="DEBUG"/>
-        <logger name="org.springframework.security.oauth2" level="TRACE"/>
-        <logger name="org.hibernate.SQL" level="INFO"/>
-        <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>
-        <logger name="org.springframework.kafka" level="INFO"/>
-        <logger name="org.springframework.transaction" level="INFO"/>
-    </springProfile>
-
-    <!-- =========================================== -->
-    <!-- PROFILE: KUBERNETES (Stage/Production)      -->
-    <!-- =========================================== -->
-    <springProfile name="k8s">
-        <!-- JSON to stdout for container log aggregation -->
-        <appender name="K8S_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-            <encoder>
-                <pattern>${JSON_PATTERN}</pattern>
-                <charset>UTF-8</charset>
+    <springProfile name="dev-local">
+        <appender name="ECS_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_PATH}/${APP_NAME}-ecs.log</file>
+            <encoder class="co.elastic.logging.logback.EcsEncoder">
+                <serviceName>${APP_NAME}</serviceName>
+                <serviceVersion>${APP_VERSION}</serviceVersion>
+                <serviceEnvironment>${ENV}</serviceEnvironment>
+                <serviceNodeName>${HOSTNAME}</serviceNodeName>
+                <includeMarkers>true</includeMarkers>
+                <includeOrigin>false</includeOrigin>
+                <eventDataset>${APP_NAME}.application</eventDataset>
             </encoder>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${LOG_PATH}/archive/${APP_NAME}-ecs-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                <maxFileSize>200MB</maxFileSize>
+                <maxHistory>7</maxHistory>
+                <totalSizeCap>10GB</totalSizeCap>
+            </rollingPolicy>
         </appender>
 
-        <appender name="ASYNC_K8S_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
-            <appender-ref ref="K8S_CONSOLE"/>
+        <appender name="ASYNC_ECS" class="ch.qos.logback.classic.AsyncAppender">
+            <appender-ref ref="ECS_FILE"/>
             <queueSize>2048</queueSize>
             <discardingThreshold>0</discardingThreshold>
             <includeCallerData>false</includeCallerData>
             <neverBlock>true</neverBlock>
+            <maxFlushTime>5000</maxFlushTime>
         </appender>
 
         <root level="INFO">
-            <appender-ref ref="ASYNC_K8S_CONSOLE"/>
-            <appender-ref ref="ASYNC_JSON"/>
+            <appender-ref ref="DEV_CONSOLE"/>
+            <appender-ref ref="ASYNC_APP"/>
+            <appender-ref ref="ASYNC_ERROR"/>
+            <appender-ref ref="ASYNC_ECS"/>
+        </root>
+        <logger name="ir.dotin" level="DEBUG"/>
+        <logger name="org.springframework.security" level="DEBUG"/>
+        <logger name="org.springframework.security.oauth2" level="TRACE"/>
+        <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>
+    </springProfile>
+
+    <springProfile name="dev-elk">
+        <root level="INFO">
+            <appender-ref ref="DEV_CONSOLE"/>
+            <appender-ref ref="ASYNC_KAFKA"/>
+            <appender-ref ref="ASYNC_APP"/>
+            <appender-ref ref="ASYNC_ERROR"/>
+        </root>
+        <logger name="ir.dotin" level="DEBUG"/>
+    </springProfile>
+
+    <springProfile name="stage,prod,k8s">
+        <appender name="STDOUT_ECS" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="co.elastic.logging.logback.EcsEncoder">
+                <serviceName>${APP_NAME}</serviceName>
+                <serviceVersion>${APP_VERSION}</serviceVersion>
+                <serviceEnvironment>${ENV}</serviceEnvironment>
+                <serviceNodeName>${HOSTNAME}</serviceNodeName>
+                <includeMarkers>true</includeMarkers>
+                <eventDataset>${APP_NAME}.application</eventDataset>
+            </encoder>
+        </appender>
+
+        <appender name="ASYNC_STDOUT_ECS" class="ch.qos.logback.classic.AsyncAppender">
+            <appender-ref ref="STDOUT_ECS"/>
+            <queueSize>2048</queueSize>
+            <discardingThreshold>0</discardingThreshold>
+            <neverBlock>true</neverBlock>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="ASYNC_KAFKA"/>
+            <appender-ref ref="ASYNC_STDOUT_ECS"/>
+            <appender-ref ref="ASYNC_ERROR"/>
         </root>
 
-        <!-- Production log levels -->
         <logger name="ir.dotin.platform" level="INFO"/>
         <logger name="ir.dotin.loan" level="INFO"/>
         <logger name="org.springframework.web" level="WARN"/>
         <logger name="org.springframework.security" level="INFO"/>
         <logger name="org.hibernate.SQL" level="WARN"/>
-        <logger name="org.springframework.cloud.kubernetes" level="INFO"/>
-        <logger name="org.springframework.kafka" level="WARN"/>
-
-        <logger name="org.apache.kafka.clients" level="ERROR"/>
     </springProfile>
 
 </configuration>
