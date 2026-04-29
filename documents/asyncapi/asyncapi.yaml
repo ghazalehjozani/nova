@@ -1,3 +1,5 @@
+---
+
 asyncapi: 3.0.0
 info:
   title: trade-loan-service
