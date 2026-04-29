@@ -7,7 +7,7 @@
     <parent>
         <groupId>ir.dotin.platform</groupId>
         <artifactId>platform-parent</artifactId>
-        <version>2026.4.10-SNAPSHOT</version>
+        <version>2026.4.12-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -36,6 +36,7 @@
         <loan.base-loan.version>2026.4.1-SNAPSHOT</loan.base-loan.version>
         <loan.trade-loan.version>${project.version}</loan.trade-loan.version>
         <sonar.projectVersion>${project.version}</sonar.projectVersion>
+        <platform.accounting.document.version>2026.4.1-SNAPSHOT</platform.accounting.document.version>
     </properties>
 
     <dependencyManagement>
@@ -123,6 +124,22 @@
                 <artifactId>trade-loan-adapters-driven-fcb-messaging</artifactId>
                 <version>${loan.trade-loan.version}</version>
                 <scope>compile</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>ir.dotin.platform</groupId>
+                <artifactId>accounting-document-api</artifactId>
+                <version>${platform.accounting.document.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ir.dotin.platform</groupId>
+                <artifactId>accounting-document-core</artifactId>
+                <version>${platform.accounting.document.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ir.dotin.platform</groupId>
+                <artifactId>accounting-document-spring-boot-starter</artifactId>
+                <version>${platform.accounting.document.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

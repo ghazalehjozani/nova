@@ -206,6 +206,8 @@
             <appender-ref ref="ASYNC_ERROR"/>
         </root>
         <logger name="ir.dotin" level="DEBUG"/>
+        <logger name="ir.dotin.platform.commons.core.Notification" level="DEBUG"/>
+        <logger name="ir.dotin.platform.commons.core.exception.BusinessRuleViolationException" level="DEBUG"/>
     </springProfile>
 
     <springProfile name="stage,prod,k8s">

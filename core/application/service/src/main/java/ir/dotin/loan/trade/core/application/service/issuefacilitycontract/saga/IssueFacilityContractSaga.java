@@ -268,23 +268,26 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         return new StepResult.Success<>(null);
     }
 
-    private Result<TradeLoanFacility> loadFacility(LoanFacilityId facilityId) {
+    private Result<TradeLoanFacility> loadFacility(LoanFacilityId loanFacilityId) {
         return Result.fromOptional(
-                facilityRepository.findById(facilityId),
-                Notification.ofError(TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, facilityId));
+                facilityRepository.findById(loanFacilityId),
+                () -> Notification.ofError(
+                        TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, loanFacilityId.value()));
     }
 
     private Result<TradeLoanArrangement> loadLoanArrangement(TradeLoanFacility facility) {
         return Result.fromOptional(
                 loanArrangementRepository.findById(facility.getLoanArrangementId()),
-                Notification.ofError(
-                        TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND, facility.getLoanArrangementId()));
+                () -> Notification.ofError(
+                        TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND,
+                        facility.getLoanArrangementId(),
+                        facility.getId().value()));
     }
 
     private Result<TradeLoanType> loadLoanType(TradeLoanFacility facility) {
         return Result.fromOptional(
                 loanTypeRepository.findById(facility.getLoanTypeId()),
-                Notification.ofError(
+                () -> Notification.ofError(
                         TradeLoanApplicationServiceErrors.LOAN_TYPE_NOT_FOUND,
                         facility.getLoanTypeId(),
                         facility.getId().value()));

@@ -18,6 +18,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.PostTransact
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ReverseTransactionRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.TransactionResultKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.KafkaTransactionMapper;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.LoanTransactionMerger;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 
@@ -79,19 +80,26 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
         }
 
         log.info(
-                "Batch posting {} transactions via Kafka for facility: {}",
+                "Batch posting {} transactions via Kafka (merged into single document) for facility: {}",
                 transactionsToPost.size(),
                 facilityId.value());
 
-        List<TrackedTransactionNumber> results = new java.util.ArrayList<>();
-        for (LoanTransaction transaction : transactionsToPost) {
-            Result<TrackedTransactionNumber> postResult = postTransaction(transaction);
-            if (postResult.isFailure()) {
-                return Result.failure(postResult.notification());
-            }
-            results.add(postResult.orElseThrow());
+        Result<LoanTransaction> mergedTransactionResult =
+                LoanTransactionMerger.merge(clock, facilityId, documentComment, transactionsToPost);
+
+        if (mergedTransactionResult.isFailure()) {
+            log.error(
+                    "Failed to merge transactions: {}",
+                    mergedTransactionResult.notification().getErrorMessages());
+            return Result.failure(mergedTransactionResult.notification());
         }
-        return Result.success(results);
+
+        Result<TrackedTransactionNumber> postResult = postTransaction(mergedTransactionResult.orElseThrow());
+        if (postResult.isFailure()) {
+            return Result.failure(postResult.notification());
+        }
+
+        return Result.success(List.of(postResult.orElseThrow()));
     }
 
     @Override

@@ -202,10 +202,8 @@ public class IrregularProgressiveDisbursementCommandHandler
 
     private Result<BranchCode> createBranchCode(IrregularProgressiveDisbursementCommand command) {
         return BranchCode.of(command.branchCode())
-                .flatMapOptional(
-                        java.util.Optional::ofNullable,
-                        Notification.ofError(
-                                TradeLoanApplicationServiceErrors.INVALID_BRANCH_CODE, command.branchCode()));
+                .recoverWith(() -> Result.failure(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.INVALID_BRANCH_CODE, command.branchCode())));
     }
 
     private Result<TransactionConfig> createTransactionConfig(IrregularProgressiveDisbursementCommand command) {
