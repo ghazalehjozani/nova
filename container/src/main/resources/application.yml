@@ -1,3 +1,5 @@
+---
+
 spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE}
@@ -675,4 +677,3 @@ springwolf:
     jms:
       publishing:
         enabled: true
-

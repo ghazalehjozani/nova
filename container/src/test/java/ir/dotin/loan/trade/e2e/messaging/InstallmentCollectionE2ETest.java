@@ -20,9 +20,6 @@ import ir.dotin.loan.trade.e2e.fixture.LoanFacilityTestFixture.DisbursedFacility
 import ir.dotin.loan.trade.e2e.fixture.LoanTypeTestFixture;
 import ir.dotin.loan.trade.e2e.orchestrator.MockPortConfigurator;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-
 class InstallmentCollectionE2ETest extends AbstractMessagingE2E {
 
     private static final String INSTALLMENT_OPERATION_TOPIC =
@@ -77,7 +74,7 @@ class InstallmentCollectionE2ETest extends AbstractMessagingE2E {
         }
     }
 
-/*    @Test
+    /*    @Test
     void shouldCollectInstallment_andSendSuccessResponse() throws Exception {
         String eventUid = UUID.randomUUID().toString();
 

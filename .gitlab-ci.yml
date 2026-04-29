@@ -13,3 +13,17 @@ variables:
   MVN_BUILD_PROFILES: '!dev,nexus'
   MVN_DEPLOY_SNAPSHOT_PROFILES: '!dev,nexus,release'
   MVN_DEPLOY_RELEASE_PROFILES: '!dev,nexus,release'
+
+scan-secrets:
+  rules:
+    - when: never
+
+.mvn-build:
+  artifacts:
+    exclude:
+      - "container/target/*.jar"
+
+.mvn-deploy-release:
+  artifacts:
+    exclude:
+      - "container/target/*.jar"

@@ -1,3 +1,5 @@
+---
+
 - module: prometheus
   period: 15s
   metricsets: ["collector"]
