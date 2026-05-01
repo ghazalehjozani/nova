@@ -12,7 +12,7 @@ import org.springframework.validation.annotation.Validated;
 public record FcbKafkaProperties(
         @NotBlank String requestTopic,
         @NotBlank String replyTopic,
-        @DefaultValue("30s") Duration defaultTimeout,
+        @DefaultValue("10s") Duration defaultTimeout,
         @DefaultValue("60s") Duration transactionTimeout) {
 
     public static final String PREFIX = "nova.fcb.kafka";

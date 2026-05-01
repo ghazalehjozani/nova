@@ -63,7 +63,8 @@ public class GradualScheduleStrategy implements InstallmentScheduleStrategy {
     public Result<Void> validateCommand(@NonNull OriginateLoanFacilityCommand command) {
         return Result.requireTrue(
                 command.installmentSchedulePlan() != null,
-                Notification.ofError(OriginateLoanFacilityErrorCodes.INSTALLMENT_SCHEDULE_IS_MANDATORY_IN_GRADUAL));
+                () -> Notification.ofError(
+                        OriginateLoanFacilityErrorCodes.INSTALLMENT_SCHEDULE_IS_MANDATORY_IN_GRADUAL));
     }
 
     private Result<InstallmentSchedule> planInstallmentSchedule(

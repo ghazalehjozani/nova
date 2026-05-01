@@ -90,7 +90,7 @@ public class DependencyLoader {
             return Result.fromOptional(
                     loanArrangementRepository.findByCode(
                             LoanArrangementCode.valueOf(code).getValue()),
-                    Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_LOAN_ARRANGEMENT, code));
+                    () -> Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_LOAN_ARRANGEMENT, code));
         } catch (IllegalArgumentException | NullPointerException e) {
             return Result.failure(Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_LOAN_ARRANGEMENT, code));
         }
@@ -100,7 +100,7 @@ public class DependencyLoader {
         try {
             return Result.fromOptional(
                     tradeLoanTypeRepository.findByCode(LoanTypeCode.of(code).getValue()),
-                    Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_LOAN_TYPE, code));
+                    () -> Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_LOAN_TYPE, code));
         } catch (IllegalArgumentException | NullPointerException e) {
             return Result.failure(Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_LOAN_TYPE, code));
         }

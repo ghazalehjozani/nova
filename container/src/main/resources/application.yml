@@ -590,7 +590,7 @@ nova:
       enabled: true
       probe-interval: 5s
       recovery-probe-interval: 1s
-      probe-timeout: 2s
+      probe-timeout: 10s
       degraded-latency-threshold: 500ms
       consecutive-failures-to-open: 3
       consecutive-successes-to-close: 3

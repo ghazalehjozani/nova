@@ -33,8 +33,10 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.exception.FcbServerExcep
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.health.FcbHealthGate;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.health.FcbHealthMetrics;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.KafkaErrorCodeMapper;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.util.HostResolver;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 
+import io.micrometer.tracing.TraceContext;
 import io.micrometer.tracing.Tracer;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.ObjectMapper;
@@ -43,6 +45,19 @@ import tools.jackson.databind.ObjectMapper;
 @Component
 @Profile("kafka-fcb")
 public class FcbKafkaClient {
+
+    private static final String HEADER_OPERATION_TYPE = "X-Operation-Type";
+    private static final String HEADER_EVENT_UID = "eventUid";
+    private static final String HEADER_IDEMPOTENCY_KEY = "Idempotency-Key";
+    private static final String HEADER_REQUEST_DATETIME = "X-Request-DateTime";
+    private static final String HEADER_AUTHORIZATION = "Authorization";
+    private static final String HEADER_ACCEPT_LANGUAGE = "Accept-Language";
+    private static final String HEADER_TRACEPARENT = "traceparent";
+    private static final String HEADER_REQUEST_TIMESTAMP_EPOCH_MS = "X-Request-Timestamp-Epoch-Ms";
+    private static final String HEADER_REQUEST_DEADLINE_EPOCH_MS = "X-Request-Deadline-Epoch-Ms";
+    private static final String HEADER_HOST = "X-Host";
+    private static final String ACCEPT_LANGUAGE_FA = "fa";
+    private static final String PRODUCER_CODE = "NOVA";
 
     private final ReplyingKafkaTemplate<String, byte[], byte[]> replyingKafkaTemplate;
     private final ObjectMapper objectMapper;
@@ -73,7 +88,7 @@ public class FcbKafkaClient {
     }
 
     public Result<FcbKafkaBaseResponse> sendAndReceive(FcbKafkaBaseRequest request, Duration timeout) {
-        request.setProducerCode("NOVA");
+        request.setProducerCode(PRODUCER_CODE);
         request.setEventUid(UUID.randomUUID().toString());
         request.setDateTime(Date.from(ZonedDateTime.now().toInstant()));
         request.setVersion(1);
@@ -143,18 +158,30 @@ public class FcbKafkaClient {
         OAuth2TokenResponse token = tokenClientService.delegateToken();
         String bearerValue = buildBearerHeader(token);
 
+        long timestampMs = System.currentTimeMillis();
+        long deadlineMs = timestampMs + timeout.toMillis();
+
         ProducerRecord<String, byte[]> record =
                 new ProducerRecord<>(properties.requestTopic(), request.getEventUid(), requestBytes);
 
         record.headers()
-                .add(new RecordHeader("X-Operation-Type", operationType.getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader("eventUid", request.getEventUid().getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader("Idempotency-Key", request.getEventUid().getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader(HEADER_OPERATION_TYPE, operationType.getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader(HEADER_EVENT_UID, request.getEventUid().getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(
-                        "X-Request-DateTime",
+                        HEADER_IDEMPOTENCY_KEY, request.getEventUid().getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader(
+                        HEADER_REQUEST_DATETIME,
                         request.getDateTime().toInstant().toString().getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader("Authorization", bearerValue.getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader("Accept-Language", "fa".getBytes(StandardCharsets.UTF_8)));
+                .add(new RecordHeader(HEADER_AUTHORIZATION, bearerValue.getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader(HEADER_ACCEPT_LANGUAGE, ACCEPT_LANGUAGE_FA.getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader(
+                        HEADER_REQUEST_TIMESTAMP_EPOCH_MS,
+                        Long.toString(timestampMs).getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader(
+                        HEADER_REQUEST_DEADLINE_EPOCH_MS,
+                        Long.toString(deadlineMs).getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader(
+                        HEADER_HOST, HostResolver.resolveHostName().getBytes(StandardCharsets.UTF_8)));
 
         addTracingHeaders(record);
 
@@ -216,9 +243,9 @@ public class FcbKafkaClient {
         if (tracer == null || tracer.currentSpan() == null) {
             return;
         }
-        io.micrometer.tracing.TraceContext ctx = tracer.currentSpan().context();
+        TraceContext ctx = tracer.currentSpan().context();
         String sampledFlag = Boolean.TRUE.equals(ctx.sampled()) ? "01" : "00";
         String traceparent = "00-" + ctx.traceId() + "-" + ctx.spanId() + "-" + sampledFlag;
-        record.headers().add(new RecordHeader("traceparent", traceparent.getBytes(StandardCharsets.UTF_8)));
+        record.headers().add(new RecordHeader(HEADER_TRACEPARENT, traceparent.getBytes(StandardCharsets.UTF_8)));
     }
 }
