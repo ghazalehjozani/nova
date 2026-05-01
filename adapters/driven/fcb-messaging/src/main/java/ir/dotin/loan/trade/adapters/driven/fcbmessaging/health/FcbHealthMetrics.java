@@ -1,7 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.health;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.stereotype.Component;
 
@@ -9,13 +8,6 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 
-/**
- * Micrometer instruments for the health subsystem. All names are prefixed with {@code fcb.kafka.} so they can be carved
- * out in Grafana dashboards and Prometheus alert rules.
- *
- * <p>Note: we deliberately DO NOT compute a histogram in-process of the gate hot path — the gate call is
- * sub-microsecond and an extra {@code Timer.record} would dominate the cost. Only probe latency is histogrammed.
- */
 @Component
 public class FcbHealthMetrics {
 
@@ -23,7 +15,6 @@ public class FcbHealthMetrics {
     private final Counter probeSuccess;
     private final Counter probeFailure;
     private final Counter gateRejections;
-    private final AtomicInteger statusOrdinalGauge = new AtomicInteger(FcbHealthStatus.UNKNOWN.ordinal());
 
     public FcbHealthMetrics(MeterRegistry registry, FcbHealthState state) {
         this.probeLatency = Timer.builder("fcb.kafka.probe.latency")

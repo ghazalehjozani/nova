@@ -166,8 +166,13 @@ public class FcbHealthProbe {
 
             RequestReplyFuture<String, byte[], byte[]> future =
                     replyingKafkaTemplate.sendAndReceive(record, healthProperties.probeTimeout());
-            ConsumerRecord<String, byte[]> reply =
-                    future.get(healthProperties.probeTimeout().toMillis(), TimeUnit.MILLISECONDS);
+            ConsumerRecord<String, byte[]> reply;
+            try {
+                reply = future.get(healthProperties.probeTimeout().toMillis(), TimeUnit.MILLISECONDS);
+            } catch (Exception ex) {
+                future.cancel(true);
+                throw ex;
+            }
 
             long elapsed = System.nanoTime() - start;
             validateAndCaptureRemote(reply);

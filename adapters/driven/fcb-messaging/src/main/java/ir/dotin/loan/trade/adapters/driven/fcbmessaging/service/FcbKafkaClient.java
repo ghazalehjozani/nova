@@ -95,17 +95,20 @@ public class FcbKafkaClient {
 
         String operationType = request.getOperationName();
 
-        Result<FcbKafkaBaseResponse> gateDecision = healthGate.checkPermitted(operationType);
-        if (gateDecision != null) {
+        Result<Void> gateDecision = healthGate.checkPermitted(operationType);
+        if (gateDecision != null && gateDecision.isFailure()) {
             healthMetrics.recordGateRejection();
             log.warn("FCB gate rejected call: operation={}, eventUid={}", operationType, request.getEventUid());
-            return gateDecision;
+            return Result.failure(gateDecision.notification());
         }
 
         log.debug("Sending Kafka request: operation={}, eventUid={}", operationType, request.getEventUid());
 
+        OAuth2TokenResponse token = tokenClientService.delegateToken();
+        String bearerValue = buildBearerHeader(token);
+
         try {
-            return retryTemplate.execute(() -> executeRequest(request, operationType, timeout));
+            return retryTemplate.execute(() -> executeRequest(request, operationType, timeout, bearerValue));
         } catch (RetryException e) {
             return mapRetryException(e, operationType, timeout);
         }
@@ -146,7 +149,7 @@ public class FcbKafkaClient {
     }
 
     private Result<FcbKafkaBaseResponse> executeRequest(
-            FcbKafkaBaseRequest request, String operationType, Duration timeout) throws Exception {
+            FcbKafkaBaseRequest request, String operationType, Duration timeout, String bearerValue) throws Exception {
 
         byte[] requestBytes;
         try {
@@ -154,9 +157,6 @@ public class FcbKafkaClient {
         } catch (tools.jackson.core.JacksonException e) {
             throw new FcbSerializationException("Failed to serialize request: " + e.getMessage());
         }
-
-        OAuth2TokenResponse token = tokenClientService.delegateToken();
-        String bearerValue = buildBearerHeader(token);
 
         long timestampMs = System.currentTimeMillis();
         long deadlineMs = timestampMs + timeout.toMillis();
@@ -190,7 +190,16 @@ public class FcbKafkaClient {
                         KafkaHeaders.REPLY_TOPIC, properties.replyTopic().getBytes(StandardCharsets.UTF_8)));
 
         RequestReplyFuture<String, byte[], byte[]> future = replyingKafkaTemplate.sendAndReceive(record, timeout);
-        ConsumerRecord<String, byte[]> replyRecord = future.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
+        ConsumerRecord<String, byte[]> replyRecord;
+        try {
+            replyRecord = future.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            future.cancel(true);
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+            throw e;
+        }
 
         if (replyRecord.value() == null || replyRecord.value().length == 0) {
             log.warn("Empty Kafka reply for operation={}", operationType);
