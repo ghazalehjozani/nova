@@ -1,6 +1,8 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.health;
 
 import java.time.Duration;
+import java.util.List;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
@@ -16,12 +18,14 @@ public record FcbHealthProperties(
         @DefaultValue("1s") @NotNull Duration recoveryProbeInterval,
         @DefaultValue("2s") @NotNull Duration probeTimeout,
         @DefaultValue("500ms") @NotNull Duration degradedLatencyThreshold,
-        @DefaultValue("3") @Min(1) int consecutiveFailuresToOpen,
-        @DefaultValue("3") @Min(1) int consecutiveSuccessesToClose,
+        @DefaultValue("10") @Min(2) @Max(64) int probeWindowSize,
+        @DefaultValue("5") @Min(1) int failuresInWindowToOpen,
+        @DefaultValue("7") @Min(1) int successesInWindowToClose,
         @DefaultValue("15s") @NotNull Duration initialDelay,
         @DefaultValue("true") boolean failOpenOnUnknown,
         @DefaultValue("heartbeat") String heartbeatOperationName,
-        @DefaultValue("NOVA") String producerCode) {
+        @DefaultValue("NOVA") String producerCode,
+        @DefaultValue({"core.loan.nova.fcb-integration.v1"}) List<String> legacyConsumerGroupIds) {
 
     public static final String PREFIX = "nova.fcb.kafka.health";
 }

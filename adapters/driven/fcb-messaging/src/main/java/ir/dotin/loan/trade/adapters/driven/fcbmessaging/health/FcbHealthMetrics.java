@@ -15,43 +15,42 @@ public class FcbHealthMetrics {
     private final Counter probeSuccess;
     private final Counter probeFailure;
     private final Counter gateRejections;
+    private final Counter transitionsToHealthy;
+    private final Counter transitionsToUnhealthy;
 
-    public FcbHealthMetrics(MeterRegistry registry, FcbHealthState state) {
+    public FcbHealthMetrics(MeterRegistry registry) {
         this.probeLatency = Timer.builder("fcb.kafka.probe.latency")
                 .description("FCB Kafka heartbeat probe round-trip latency")
                 .publishPercentiles(0.5, 0.95, 0.99)
                 .publishPercentileHistogram()
                 .register(registry);
 
-        this.probeSuccess = Counter.builder("fcb.kafka.probe.success")
-                .description("FCB Kafka heartbeat probes that succeeded")
+        this.probeSuccess = Counter.builder("fcb.kafka.probe.success").register(registry);
+        this.probeFailure = Counter.builder("fcb.kafka.probe.failure").register(registry);
+        this.gateRejections = Counter.builder("fcb.kafka.gate.rejections").register(registry);
+        this.transitionsToHealthy = Counter.builder("fcb.kafka.partition.transitions")
+                .tag("to", "healthy")
                 .register(registry);
-
-        this.probeFailure = Counter.builder("fcb.kafka.probe.failure")
-                .description("FCB Kafka heartbeat probes that failed")
+        this.transitionsToUnhealthy = Counter.builder("fcb.kafka.partition.transitions")
+                .tag("to", "unhealthy")
                 .register(registry);
-
-        this.gateRejections = Counter.builder("fcb.kafka.gate.rejections")
-                .description("User requests rejected by the health gate without dispatching to Kafka")
-                .register(registry);
-
-        registry.gauge("fcb.kafka.health.status", state, s -> s.status().ordinal());
-        registry.gauge("fcb.kafka.health.consecutive_failures", state, s ->
-                (double) s.snapshot().consecutiveFailures());
-        registry.gauge("fcb.kafka.health.consecutive_successes", state, s ->
-                (double) s.snapshot().consecutiveSuccesses());
     }
 
-    void recordProbeSuccess(long latencyNanos) {
+    public void recordProbeSuccess(long latencyNanos) {
         probeLatency.record(latencyNanos, TimeUnit.NANOSECONDS);
         probeSuccess.increment();
     }
 
-    void recordProbeFailure() {
+    public void recordProbeFailure() {
         probeFailure.increment();
     }
 
     public void recordGateRejection() {
         gateRejections.increment();
+    }
+
+    public void recordStateTransition(boolean nowHealthy) {
+        if (nowHealthy) transitionsToHealthy.increment();
+        else transitionsToUnhealthy.increment();
     }
 }

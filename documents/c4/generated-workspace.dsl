@@ -256,6 +256,10 @@ workspace "Trade Loan Service" {
         }
 
         styles {
+            element "Monitoring" {
+                background #27ae60
+                shape WebBrowser
+            }
             element "Service" {
                 background #29b6f6
                 color #ffffff
@@ -348,10 +352,6 @@ workspace "Trade Loan Service" {
             element "Client" {
                 background #ec407a
                 color #ffffff
-            }
-            element "Monitoring" {
-                background #27ae60
-                shape WebBrowser
             }
         }
     }

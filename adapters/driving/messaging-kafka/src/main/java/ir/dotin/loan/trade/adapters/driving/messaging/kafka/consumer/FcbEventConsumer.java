@@ -44,10 +44,10 @@ public class FcbEventConsumer {
                             headers =
                                     @AsyncOperation.Headers(
                                             schemaName = MessagingHeaderNames.SCHEMA_EVENT_HANDLER_HEADERS)))
-    @KafkaListener(
-            topics = "corridor.core.loan.nova.installment-operation.request.queue.v1",
-            groupId = "${platform.messaging.kafka.consumer-group-id}",
-            containerFactory = "byteArrayKafkaListenerContainerFactory")
+//    @KafkaListener(
+//            topics = "corridor.core.loan.nova.installment-operation.request.queue.v1",
+//            groupId = "${platform.messaging.kafka.consumer-group-id}",
+//            containerFactory = "byteArrayKafkaListenerContainerFactory")
     public void consume(ConsumerRecord<String, byte[]> consumerRecord) {
         InboundMessage inboundMessage = converter.convert(consumerRecord);
         String operationType;

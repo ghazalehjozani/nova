@@ -5,14 +5,18 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.atomic.AtomicLong;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import org.springframework.kafka.requestreply.RequestReplyFuture;
@@ -21,7 +25,6 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.HeartbeatRequest;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.HeartbeatKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.util.HostResolver;
 
 import io.micrometer.tracing.TraceContext;
@@ -42,19 +45,19 @@ public class FcbHealthProbe {
     private static final String HEADER_TRACEPARENT = "traceparent";
     private static final String HEADER_IDEMPOTENCY_KEY = "Idempotency-Key";
     private static final String HEADER_REQUEST_DATETIME = "X-Request-DateTime";
-    private static final String UNKNOWN_NODE = "unknown";
 
     private final ReplyingKafkaTemplate<String, byte[], byte[]> replyingKafkaTemplate;
     private final ObjectMapper objectMapper;
     private final FcbKafkaProperties kafkaProperties;
     private final FcbHealthProperties healthProperties;
-    private final FcbHealthState state;
-    private final FcbRemoteHealthState remoteState;
+    private final FcbPartitionHealthRegistry partitionRegistry;
     private final FcbHealthMetrics metrics;
     private final Tracer tracer;
     private final Clock clock;
 
+    private final AtomicLong lastSuccessfulCycleMs = new AtomicLong();
     private volatile Thread probeThread;
+    private volatile ExecutorService probeExecutor;
     private volatile boolean stopped;
 
     public FcbHealthProbe(
@@ -62,8 +65,7 @@ public class FcbHealthProbe {
             ObjectMapper objectMapper,
             FcbKafkaProperties kafkaProperties,
             FcbHealthProperties healthProperties,
-            FcbHealthState state,
-            FcbRemoteHealthState remoteState,
+            FcbPartitionHealthRegistry partitionRegistry,
             FcbHealthMetrics metrics,
             Tracer tracer,
             Clock clock) {
@@ -71,8 +73,7 @@ public class FcbHealthProbe {
         this.objectMapper = objectMapper;
         this.kafkaProperties = kafkaProperties;
         this.healthProperties = healthProperties;
-        this.state = state;
-        this.remoteState = remoteState;
+        this.partitionRegistry = partitionRegistry;
         this.metrics = metrics;
         this.tracer = tracer;
         this.clock = clock;
@@ -80,16 +81,10 @@ public class FcbHealthProbe {
 
     @PostConstruct
     public void start() {
-        if (!healthProperties.enabled()) {
-            log.info("FCB Kafka health probe disabled by configuration.");
-            return;
-        }
+        if (!healthProperties.enabled()) return;
+        this.probeExecutor = Executors.newThreadPerTaskExecutor(
+                Thread.ofVirtual().name("fcb-probe-worker-", 0).factory());
         this.probeThread = Thread.ofVirtual().name("fcb-kafka-health-probe").start(this::loop);
-        log.info(
-                "FCB Kafka health probe started: interval={} recovery={} timeout={}",
-                healthProperties.probeInterval(),
-                healthProperties.recoveryProbeInterval(),
-                healthProperties.probeTimeout());
     }
 
     @PreDestroy
@@ -104,68 +99,105 @@ public class FcbHealthProbe {
                 Thread.currentThread().interrupt();
             }
         }
+        if (probeExecutor != null) {
+            probeExecutor.shutdownNow();
+            try {
+                if (!probeExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+                    log.warn("FCB-PROBE: Executor did not terminate cleanly");
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     private void loop() {
         sleepQuietly(healthProperties.initialDelay());
         while (!stopped && !Thread.currentThread().isInterrupted()) {
             try {
-                probeOnce();
+                runCycle();
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                return;
             } catch (Throwable t) {
-                log.error("Uncaught error in health probe loop", t);
-                state.recordProbeFailure(t.getClass().getSimpleName() + ": " + t.getMessage());
+                log.warn("FCB-PROBE: cycle failed", t);
                 metrics.recordProbeFailure();
             }
-            Duration sleep = state.status() == FcbHealthStatus.DOWN
+            checkWatchdog();
+            Duration sleep = partitionRegistry.getHealthyPartitions().isEmpty()
                     ? healthProperties.recoveryProbeInterval()
                     : healthProperties.probeInterval();
             sleepQuietly(sleep);
         }
     }
 
-    private void probeOnce() {
+    private void runCycle() throws InterruptedException {
+        List<PartitionInfo> partitions = replyingKafkaTemplate.partitionsFor(kafkaProperties.requestTopic());
+        if (partitions == null || partitions.isEmpty()) return;
+
+        var futures = partitions.stream()
+                .map(p -> probeExecutor.submit(() -> probePartitionOnce(p.partition())))
+                .toList();
+
+        long deadlineNanos = System.nanoTime()
+                + healthProperties.probeTimeout().multipliedBy(2).toNanos();
+        for (var f : futures) {
+            long remaining = deadlineNanos - System.nanoTime();
+            if (remaining <= 0) {
+                f.cancel(true);
+                continue;
+            }
+            try {
+                f.get(remaining, TimeUnit.NANOSECONDS);
+            } catch (Exception e) {
+                f.cancel(true);
+            }
+        }
+        lastSuccessfulCycleMs.set(System.currentTimeMillis());
+    }
+
+    private void checkWatchdog() {
+        long last = lastSuccessfulCycleMs.get();
+        if (last == 0) return;
+        long staleMs = healthProperties.probeInterval().toMillis() * 2L
+                + healthProperties.probeTimeout().toMillis();
+        if (System.currentTimeMillis() - last > staleMs) {
+            log.warn("FCB-PROBE: watchdog tripped (no cycle in {}ms) - marking all unhealthy", staleMs);
+            partitionRegistry.markAllUnhealthy();
+        }
+    }
+
+    private void probePartitionOnce(int partition) {
         String eventUid = UUID.randomUUID().toString();
-        HeartbeatRequest request =
-                new HeartbeatRequest(eventUid, Instant.now(clock).toEpochMilli());
+        HeartbeatRequest request = new HeartbeatRequest(eventUid, Instant.now(clock).toEpochMilli());
         request.setProducerCode(healthProperties.producerCode());
         request.setEventUid(eventUid);
         request.setDateTime(Date.from(Instant.now(clock)));
         request.setVersion(1);
 
-        long timestampMs = System.currentTimeMillis();
+        long timestampMs = clock.millis();
         long deadlineMs = timestampMs + healthProperties.probeTimeout().toMillis();
         long start = System.nanoTime();
+
         try {
             byte[] payload = objectMapper.writeValueAsBytes(request);
+            ProducerRecord<String, byte[]> record = new ProducerRecord<>(kafkaProperties.requestTopic(), partition, eventUid, payload);
 
-            ProducerRecord<String, byte[]> record =
-                    new ProducerRecord<>(kafkaProperties.requestTopic(), eventUid, payload);
             record.headers()
-                    .add(new RecordHeader(
-                            HEADER_OPERATION_TYPE,
-                            healthProperties.heartbeatOperationName().getBytes(StandardCharsets.UTF_8)))
+                    .add(new RecordHeader(HEADER_OPERATION_TYPE, healthProperties.heartbeatOperationName().getBytes(StandardCharsets.UTF_8)))
                     .add(new RecordHeader(HEADER_EVENT_UID, eventUid.getBytes(StandardCharsets.UTF_8)))
                     .add(new RecordHeader(HEADER_HEALTH_PROBE, "true".getBytes(StandardCharsets.UTF_8)))
-                    .add(new RecordHeader(
-                            HEADER_REQUEST_TIMESTAMP_EPOCH_MS,
-                            Long.toString(timestampMs).getBytes(StandardCharsets.UTF_8)))
-                    .add(new RecordHeader(
-                            HEADER_REQUEST_DEADLINE_EPOCH_MS,
-                            Long.toString(deadlineMs).getBytes(StandardCharsets.UTF_8)))
-                    .add(new RecordHeader(
-                            HEADER_HOST, HostResolver.resolveHostName().getBytes(StandardCharsets.UTF_8)))
-                    .add(new RecordHeader(
-                            HEADER_IDEMPOTENCY_KEY, request.getEventUid().getBytes(StandardCharsets.UTF_8)))
-                    .add(new RecordHeader(
-                            HEADER_REQUEST_DATETIME,
-                            request.getDateTime().toInstant().toString().getBytes(StandardCharsets.UTF_8)))
-                    .add(new RecordHeader(
-                            KafkaHeaders.REPLY_TOPIC,
-                            kafkaProperties.replyTopic().getBytes(StandardCharsets.UTF_8)));
+                    .add(new RecordHeader(HEADER_REQUEST_TIMESTAMP_EPOCH_MS, Long.toString(timestampMs).getBytes(StandardCharsets.UTF_8)))
+                    .add(new RecordHeader(HEADER_REQUEST_DEADLINE_EPOCH_MS, Long.toString(deadlineMs).getBytes(StandardCharsets.UTF_8)))
+                    .add(new RecordHeader(HEADER_HOST, HostResolver.resolveHostName().getBytes(StandardCharsets.UTF_8)))
+                    .add(new RecordHeader(HEADER_IDEMPOTENCY_KEY, eventUid.getBytes(StandardCharsets.UTF_8)))
+                    .add(new RecordHeader(HEADER_REQUEST_DATETIME, request.getDateTime().toInstant().toString().getBytes(StandardCharsets.UTF_8)))
+                    .add(new RecordHeader(KafkaHeaders.REPLY_TOPIC, kafkaProperties.replyTopic().getBytes(StandardCharsets.UTF_8)));
+
             addTracingHeaders(record);
 
-            RequestReplyFuture<String, byte[], byte[]> future =
-                    replyingKafkaTemplate.sendAndReceive(record, healthProperties.probeTimeout());
+            RequestReplyFuture<String, byte[], byte[]> future = replyingKafkaTemplate.sendAndReceive(record, healthProperties.probeTimeout());
+
             ConsumerRecord<String, byte[]> reply;
             try {
                 reply = future.get(healthProperties.probeTimeout().toMillis(), TimeUnit.MILLISECONDS);
@@ -174,62 +206,30 @@ public class FcbHealthProbe {
                 throw ex;
             }
 
-            long elapsed = System.nanoTime() - start;
-            validateAndCaptureRemote(reply);
-            Duration latency = Duration.ofNanos(elapsed);
-            state.recordProbeSuccess(latency);
-            metrics.recordProbeSuccess(elapsed);
-            if (log.isTraceEnabled()) {
-                log.trace("FCB heartbeat probe ok: latencyMs={}", latency.toMillis());
+            if (reply == null || reply.value() == null || reply.value().length == 0) {
+                throw new IllegalStateException("empty heartbeat reply");
             }
+
+            partitionRegistry.recordSuccess(partition);
+            metrics.recordProbeSuccess(System.nanoTime() - start);
         } catch (Throwable t) {
-            String error = t.getClass().getSimpleName() + ": " + (t.getMessage() == null ? "" : t.getMessage());
-            state.recordProbeFailure(error);
+            partitionRegistry.recordFailure(partition);
             metrics.recordProbeFailure();
-            log.warn("FCB heartbeat probe failed: {}", error);
+            log.debug("FCB-PROBE: partition={} probe failed: {}", partition, t.toString());
         }
-    }
-
-    private void validateAndCaptureRemote(ConsumerRecord<String, byte[]> reply) {
-        if (reply == null || reply.value() == null || reply.value().length == 0) {
-            throw new IllegalStateException("empty heartbeat reply");
-        }
-        HeartbeatKafkaResponse resp = objectMapper.readValue(reply.value(), HeartbeatKafkaResponse.class);
-        if (resp.isError()) {
-            throw new IllegalStateException(
-                    "heartbeat reply reported error: " + resp.getErrorCode() + " " + resp.getErrorMessage());
-        }
-
-        String host = resp.getConsumerNode();
-        if (host == null || host.trim().isEmpty()) {
-            host = UNKNOWN_NODE;
-        }
-
-        remoteState.updateForHost(
-                host,
-                new FcbRemoteHealthSnapshot(
-                        host,
-                        resp.getHealthStatus(),
-                        resp.getTotalComponents(),
-                        resp.getUpComponents(),
-                        resp.getDegradedComponents(),
-                        resp.getDownComponents(),
-                        resp.getLastHealthChangeAtEpochMs(),
-                        Instant.now(clock)));
     }
 
     private void sleepQuietly(Duration d) {
-        if (d.isZero() || d.isNegative()) {
-            return;
+        if (d.isZero() || d.isNegative()) return;
+        try {
+            Thread.sleep(d);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
-        long nanos = d.toNanos();
-        LockSupport.parkNanos(nanos);
     }
 
     private void addTracingHeaders(ProducerRecord<String, byte[]> record) {
-        if (tracer == null || tracer.currentSpan() == null) {
-            return;
-        }
+        if (tracer == null || tracer.currentSpan() == null) return;
         TraceContext ctx = tracer.currentSpan().context();
         String sampledFlag = Boolean.TRUE.equals(ctx.sampled()) ? "01" : "00";
         String traceparent = "00-" + ctx.traceId() + "-" + ctx.spanId() + "-" + sampledFlag;
