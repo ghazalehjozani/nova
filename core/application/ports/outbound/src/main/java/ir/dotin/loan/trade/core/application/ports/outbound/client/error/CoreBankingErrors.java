@@ -7,18 +7,7 @@ import ir.dotin.platform.commons.core.error.PlatformErrorCategory;
 import ir.dotin.platform.commons.core.error.ProductErrorCode;
 import ir.dotin.loan.trade.core.domain.shared.error.TradeLoanErrorCategory;
 
-/*
- * Sequences per category for this file:
- *   CORE_BANKING_INTEGRATION (51): 1–30,  reserved 31–50
- *   INTEGRATION              (03): 1–10,  reserved —
- *
- * Note: 8 deprecated FCB constants (TODO:REMOVE) from original
- * FcbBusinessLocalizedMessageCodes have been removed.
- */
 public enum CoreBankingErrors implements ProductErrorCode<CoreBankingErrors> {
-
-    // ── CORE_BANKING_INTEGRATION (51) — FCB business-level errors ───────────────
-
     CUSTOMER_NOT_FOUND_IN_FCB(
             TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 1, "Customer with national code {0} not found in FCB"),
     ACCOUNT_NUMBER_NOT_FOUND(TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 2, "Account number {0} not found"),
@@ -55,8 +44,6 @@ public enum CoreBankingErrors implements ProductErrorCode<CoreBankingErrors> {
             19,
             "Either 'rollbackId' OR both 'fileNumber' and 'collateralSerial' must be provided"),
     BRANCH_NOT_COVERED(TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 24, "Branch {0} is not covered"),
-
-    // FCB Kafka business-level errors,
     KAFKA_INVALID_RESPONSE(
             TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 20, "Invalid Kafka response payload for operation {0}"),
     KAFKA_FCB_BUSINESS_ERROR(
@@ -69,22 +56,24 @@ public enum CoreBankingErrors implements ProductErrorCode<CoreBankingErrors> {
             TradeLoanErrorCategory.CORE_BANKING_INTEGRATION,
             23,
             "FCB client error via Kafka (4xx): code={0}, message={1}"),
-    SAMAT_INVALID_USE_TYPE(TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 25, "نوع مصرف با کد {0} معتبر نمی‌باشد"),
+    SAMAT_INVALID_USE_TYPE(TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 25, "Use type with code {0} is invalid"),
     SAMAT_INVALID_ISIC_ECONOMIC_SECTOR(
             TradeLoanErrorCategory.CORE_BANKING_INTEGRATION,
             26,
-            "کد بخش اقتصادی ISIC با مقدار {0} برای بخش اقتصادی انتخاب‌شده تعریف نشده است"),
+            "ISIC economic sector code with value {0} is not defined for the selected economic sector"),
     SAMAT_INVALID_ISIC_SUB_COMBINATION(
             TradeLoanErrorCategory.CORE_BANKING_INTEGRATION,
             27,
-            "زیربخش ISIC با مقدار {0} با بخش اقتصادی {1} همخوانی ندارد"),
+            "ISIC sub-sector with value {0} does not match economic sector {1}"),
     SAMAT_INVALID_EXCEPTION_CODE(
-            TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 28, "کد استثناء با مقدار {0} در سیستم تعریف نشده است"),
+            TradeLoanErrorCategory.CORE_BANKING_INTEGRATION,
+            28,
+            "Exception code with value {0} is not defined in the system"),
     SAMAT_INVALID_CONSUMPTION_PLACE_CODE(
-            TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 29, "کد محل مصرف با مقدار {0} معتبر نمی‌باشد"),
-    SAMAT_UNKNOWN_VIOLATION(TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 30, "خطای ناشناخته سامات با کد {0}: {1}"),
-
-    // ── INTEGRATION (03) — transport-level errors ───────────────────────────────
+            TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 29, "Consumption place code with value {0} is invalid"),
+    SAMAT_UNKNOWN_VIOLATION(
+            TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 30, "Unknown Samat violation with code {0}: {1}"),
+    BRANCH_CODE_MISSING(TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 31, "Branch code not found"),
 
     KAFKA_REPLY_TIMEOUT(PlatformErrorCategory.INTEGRATION, 1, "Kafka reply timed out for operation {0} after {1}ms"),
     KAFKA_COMMUNICATION_ERROR(PlatformErrorCategory.INTEGRATION, 2, "Kafka communication error: {0}"),

@@ -41,8 +41,14 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
 
     @Override
     public Result<AccountInfo> openAccount(LoanTopic loanTopic, String currencyCode) {
-        String branchCode = authenticationContextHolder.branchCode().orElseThrow();
+        var branchOpt = authenticationContextHolder.branchCode();
+        if (branchOpt.isEmpty()) {
+            return Result.failure(Notification.ofError(CoreBankingErrors.BRANCH_CODE_MISSING));
+        }
+
+        String branchCode = branchOpt.get();
         String idempotencyKey = UUID.randomUUID().toString();
+
         return sendAndMap(
                 new OpenAccountByTopicRequest(
                         loanTopic.name(), loanTopic.code(), branchCode, currencyCode, idempotencyKey),

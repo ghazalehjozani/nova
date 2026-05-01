@@ -40,6 +40,7 @@ public class KafkaTransactionMapper {
     private static final String ITEM_FORMAT_ACCOUNT = "ACCOUNT,%s,%s,%s";
     private static final String ITEM_FORMAT_DEPOSIT = "DEPOSIT,%s,%s,%s";
     private static final String ITEM_FORMAT_BOX = "BOX,%s,%s";
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static Result<PostTransactionRequest> mapToIssueDocumentRequest(
             LoanTransaction loanTransaction, UUID trackingId) {
@@ -218,38 +219,29 @@ public class KafkaTransactionMapper {
     }
 
     private static String createDocumentExtraInfoJson(LoanTransaction loanTransaction) {
-        try {
-            Map<String, Object> systemMetaData = new LinkedHashMap<>();
-            systemMetaData.put(
-                    "loanFacilityId", loanTransaction.loanFacilityId().value());
-            systemMetaData.put("createdAt", loanTransaction.createdAt().toString());
-            systemMetaData.put(
-                    "branchCode", loanTransaction.document().branchCode().value());
-            systemMetaData.put(
-                    "totalDebit", loanTransaction.getTotalDebit().value().toPlainString());
-            systemMetaData.put(
-                    "totalCredit", loanTransaction.getTotalCredit().value().toPlainString());
+        Map<String, Object> systemMetaData = new LinkedHashMap<>();
+        systemMetaData.put("loanFacilityId", loanTransaction.loanFacilityId().value());
+        systemMetaData.put("createdAt", loanTransaction.createdAt().toString());
+        systemMetaData.put("branchCode", loanTransaction.document().branchCode().value());
+        systemMetaData.put("totalDebit", loanTransaction.getTotalDebit().value().toPlainString());
+        systemMetaData.put(
+                "totalCredit", loanTransaction.getTotalCredit().value().toPlainString());
 
-            Map<String, Object> userData = new LinkedHashMap<>();
-            userData.put("transactionType", "loan-transaction");
-            userData.put("description", loanTransaction.document().description());
+        Map<String, Object> userData = new LinkedHashMap<>();
+        userData.put("transactionType", "loan-transaction");
+        userData.put("description", loanTransaction.document().description());
 
-            ExtraInfoVO extraInfo = ExtraInfoVO.builder()
-                    .type("document")
-                    .scope("loan-facility")
-                    .token(String.valueOf(loanTransaction.loanFacilityId().value()))
-                    .systemMetaData(systemMetaData)
-                    .userMetaData(List.of(userData))
-                    .build();
+        ExtraInfoVO extraInfo = ExtraInfoVO.builder()
+                .type("document")
+                .scope("loan-facility")
+                .token(String.valueOf(loanTransaction.loanFacilityId().value()))
+                .systemMetaData(systemMetaData)
+                .userMetaData(List.of(userData))
+                .build();
 
-            String json = new ObjectMapper().writeValueAsString(extraInfo);
-            log.debug("Created document extra info JSON: {}", json);
-            return json;
-
-        } catch (Exception e) {
-            log.error("Failed to create document extra info JSON", e);
-            return "{}";
-        }
+        String json = OBJECT_MAPPER.writeValueAsString(extraInfo);
+        log.debug("Created document extra info JSON: {}", json);
+        return json;
     }
 
     public Result<TrackedTransactionNumber> mapToTrackedTransactionNumber(
