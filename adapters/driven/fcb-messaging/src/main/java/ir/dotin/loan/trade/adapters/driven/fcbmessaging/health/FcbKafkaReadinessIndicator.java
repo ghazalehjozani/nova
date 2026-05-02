@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.health;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.boot.health.contributor.AbstractHealthIndicator;
 import org.springframework.boot.health.contributor.Health;
 import org.springframework.stereotype.Component;
@@ -13,7 +14,7 @@ public class FcbKafkaReadinessIndicator extends AbstractHealthIndicator {
     private final FcbPartitionHealthRegistry partitionRegistry;
 
     @Override
-    protected void doHealthCheck(Health.Builder builder) {
+    protected void doHealthCheck(Health.@NonNull Builder builder) {
         int healthyPartitionsCount = partitionRegistry.getHealthyPartitions().size();
         if (healthyPartitionsCount > 0) {
             builder.up().withDetail("healthyPartitionsCount", healthyPartitionsCount);

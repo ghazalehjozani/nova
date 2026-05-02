@@ -49,22 +49,31 @@ public class FcbEventConsumer {
             groupId = "${platform.messaging.kafka.consumer-group-id}",
             containerFactory = "byteArrayKafkaListenerContainerFactory")
     public void consume(ConsumerRecord<String, byte[]> consumerRecord) {
-        InboundMessage inboundMessage = converter.convert(consumerRecord);
-        String operationType;
-        String eventUid;
-        JsonNode rootNode = objectMapper.readTree(inboundMessage.payload());
-        operationType = resolveOperationType(rootNode, consumerRecord);
-        eventUid = resolveEventUid(rootNode, consumerRecord);
-
-        FcbEventOperationType opType;
         try {
-            opType = FcbEventOperationType.ofCode(operationType);
-        } catch (IllegalArgumentException e) {
-            LOG.warn("Unknown operationType [{}], eventUid={}, skipping.", operationType, eventUid);
-            throw e;
+            InboundMessage inboundMessage = converter.convert(consumerRecord);
+            JsonNode rootNode = objectMapper.readTree(inboundMessage.payload());
+
+            String operationType = resolveOperationType(rootNode, consumerRecord);
+            String eventUid = resolveEventUid(rootNode, consumerRecord);
+
+            FcbEventOperationType opType;
+            try {
+                opType = FcbEventOperationType.ofCode(operationType);
+            } catch (IllegalArgumentException e) {
+                LOG.warn("Unknown operationType [{}], eventUid={}, skipping.", operationType, eventUid);
+                return;
+            }
+
+            InboundMessage message = inboundMessage.withSource(opType.getCode());
+            ingestor.ingest(message);
+        } catch (Exception e) {
+            LOG.error(
+                    "Fatal error processing record. offset={}, partition={}, key={}. Skipping to save batch.",
+                    consumerRecord.offset(),
+                    consumerRecord.partition(),
+                    consumerRecord.key(),
+                    e);
         }
-        InboundMessage message = inboundMessage.withSource(opType.getCode());
-        ingestor.ingest(message);
     }
 
     private String resolveOperationType(JsonNode rootNode, ConsumerRecord<String, byte[]> record) {

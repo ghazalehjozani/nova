@@ -24,6 +24,7 @@ import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.security.api.OAuth2TokenResponse;
 import ir.dotin.platform.security.api.TokenClientService;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaConfig;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbResilienceConfig;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
@@ -67,7 +68,8 @@ public class FcbKafkaClient {
     private final Tracer tracer;
 
     public FcbKafkaClient(
-            ReplyingKafkaTemplate<String, byte[], byte[]> replyingKafkaTemplate,
+            @Qualifier(FcbKafkaConfig.FCB_INTEGRATION_REPLYING_TEMPLATE)
+                    ReplyingKafkaTemplate<String, byte[], byte[]> replyingKafkaTemplate,
             ObjectMapper objectMapper,
             FcbKafkaProperties properties,
             TokenClientService tokenClientService,
@@ -172,7 +174,6 @@ public class FcbKafkaClient {
                         HEADER_HOST, HostResolver.resolveHostName().getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(
                         KafkaHeaders.REPLY_TOPIC, properties.replyTopic().getBytes(StandardCharsets.UTF_8)));
-
         addTracingHeaders(record);
 
         RequestReplyFuture<String, byte[], byte[]> future = replyingKafkaTemplate.sendAndReceive(record, timeout);
@@ -182,7 +183,9 @@ public class FcbKafkaClient {
             replyRecord = future.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             future.cancel(true);
-            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             throw e;
         }
 

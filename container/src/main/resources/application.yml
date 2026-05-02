@@ -272,19 +272,19 @@ platform:
         retries: 3
         batch-size: 16384
         linger: 100ms
-        compression-type: snappy
+        compression-type: lz4
         request-timeout: 30s
         delivery-timeout: 2m
       consumer:
-        auto-offset-reset: earliest
+        auto-offset-reset: latest
         enable-auto-commit: false
-        max-poll-records: 100
+        max-poll-records: 500
         max-poll-interval: 5m
         session-timeout: 30s
-        heartbeat-interval: 15s
+        heartbeat-interval: 10s
       reply:
         reply-topic-pattern: ${KAFKA_REPLY_TOPIC_PATTERN:corridor\.core\.loan\.nova\..*\.response\.queue\.v\d+$}
-        default-timeout: ${KAFKA_DEFAULT_TIMEOUT:60s}
+        default-timeout: ${KAFKA_DEFAULT_TIMEOUT:30s}
     outbox:
       enabled: true
       processor-threads: 3
@@ -585,18 +585,18 @@ nova:
     kafka:
       request-topic: ${FCB_KAFKA_REQUEST_TOPIC:corridor.core.loan.nova.fcb-integration.request.queue.v1}
       reply-topic: ${FCB_KAFKA_REPLY_TOPIC:corridor.core.loan.nova.fcb-integration.response.queue.v1}
-      default-timeout: ${FCB_KAFKA_DEFAULT_TIMEOUT:45s}
+      default-timeout: ${FCB_KAFKA_DEFAULT_TIMEOUT:30s}
       transaction-timeout: ${FCB_KAFKA_TRANSACTION_TIMEOUT:45s}
       health-request-topic: ${FCB_KAFKA_HEALTH_REQUEST_TOPIC:corridor.core.loan.nova.fcb-health-check.request.queue.v1}
       health-reply-topic: ${FCB_KAFKA_HEALTH_REPLY_TOPIC:corridor.core.loan.nova.fcb-health-check.response.queue.v1}
     health:
       enabled: true
       probe-interval: 10s
-      probe-timeout: 30s
+      probe-timeout: 2s
       recovery-probe-interval: 5s
       degraded-latency-threshold: 500ms
-      consecutive-failures-to-open: 3
-      consecutive-successes-to-close: 3
+      consecutive-failures-to-open: 5
+      consecutive-successes-to-close: 7
       initial-delay: 15s
       fail-open-on-unknown: true
       heartbeat-operation-name: heartbeat
