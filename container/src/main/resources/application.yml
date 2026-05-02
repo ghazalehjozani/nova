@@ -83,7 +83,7 @@ management:
         liveness:
           include: livenessState
         readiness:
-          include: readinessState, db, tpsSso, dispatcher, saga, diskSpace, legacyConsumerGroupHealth, redis
+          include: readinessState, db, tpsSso, dispatcher, saga, diskSpace, fcbKafkaReadiness, redis
       probes:
         enabled: true
   prometheus:
@@ -587,6 +587,8 @@ nova:
       reply-topic: ${FCB_KAFKA_REPLY_TOPIC:corridor.core.loan.nova.fcb-integration.response.queue.v1}
       default-timeout: ${FCB_KAFKA_DEFAULT_TIMEOUT:45s}
       transaction-timeout: ${FCB_KAFKA_TRANSACTION_TIMEOUT:45s}
+      health-request-topic: ${FCB_KAFKA_HEALTH_REQUEST_TOPIC:corridor.core.loan.nova.fcb-health-check.request.queue.v1}
+      health-reply-topic: ${FCB_KAFKA_HEALTH_REPLY_TOPIC:corridor.core.loan.nova.fcb-health-check.response.queue.v1}
     health:
       enabled: true
       probe-interval: 10s
@@ -599,6 +601,8 @@ nova:
       fail-open-on-unknown: true
       heartbeat-operation-name: heartbeat
       producer-code: NOVA
+      legacy-consumer-group-ids:
+        - core.loan.nova.fcb-integration.v1
 
 springdoc:
   api-docs:

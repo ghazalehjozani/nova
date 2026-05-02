@@ -18,6 +18,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.header.internals.RecordHeader;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import org.springframework.kafka.requestreply.RequestReplyFuture;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -46,7 +47,7 @@ public class FcbHealthProbe {
     private static final String HEADER_IDEMPOTENCY_KEY = "Idempotency-Key";
     private static final String HEADER_REQUEST_DATETIME = "X-Request-DateTime";
 
-    private final ReplyingKafkaTemplate<String, byte[], byte[]> replyingKafkaTemplate;
+    private final ReplyingKafkaTemplate<String, byte[], byte[]> healthReplyingKafkaTemplate;
     private final ObjectMapper objectMapper;
     private final FcbKafkaProperties kafkaProperties;
     private final FcbHealthProperties healthProperties;
@@ -61,7 +62,8 @@ public class FcbHealthProbe {
     private volatile boolean stopped;
 
     public FcbHealthProbe(
-            ReplyingKafkaTemplate<String, byte[], byte[]> replyingKafkaTemplate,
+            @Qualifier("fcbHealthReplyingKafkaTemplate")
+                    ReplyingKafkaTemplate<String, byte[], byte[]> healthReplyingKafkaTemplate,
             ObjectMapper objectMapper,
             FcbKafkaProperties kafkaProperties,
             FcbHealthProperties healthProperties,
@@ -69,7 +71,7 @@ public class FcbHealthProbe {
             FcbHealthMetrics metrics,
             Tracer tracer,
             Clock clock) {
-        this.replyingKafkaTemplate = replyingKafkaTemplate;
+        this.healthReplyingKafkaTemplate = healthReplyingKafkaTemplate;
         this.objectMapper = objectMapper;
         this.kafkaProperties = kafkaProperties;
         this.healthProperties = healthProperties;
@@ -132,7 +134,8 @@ public class FcbHealthProbe {
     }
 
     private void runCycle() throws InterruptedException {
-        List<PartitionInfo> partitions = replyingKafkaTemplate.partitionsFor(kafkaProperties.requestTopic());
+        List<PartitionInfo> partitions =
+                healthReplyingKafkaTemplate.partitionsFor(kafkaProperties.healthRequestTopic());
         if (partitions == null || partitions.isEmpty()) return;
 
         var futures = partitions.stream()
@@ -169,7 +172,8 @@ public class FcbHealthProbe {
 
     private void probePartitionOnce(int partition) {
         String eventUid = UUID.randomUUID().toString();
-        HeartbeatRequest request = new HeartbeatRequest(eventUid, Instant.now(clock).toEpochMilli());
+        HeartbeatRequest request =
+                new HeartbeatRequest(eventUid, Instant.now(clock).toEpochMilli());
         request.setProducerCode(healthProperties.producerCode());
         request.setEventUid(eventUid);
         request.setDateTime(Date.from(Instant.now(clock)));
@@ -181,22 +185,36 @@ public class FcbHealthProbe {
 
         try {
             byte[] payload = objectMapper.writeValueAsBytes(request);
-            ProducerRecord<String, byte[]> record = new ProducerRecord<>(kafkaProperties.requestTopic(), partition, eventUid, payload);
+
+            ProducerRecord<String, byte[]> record =
+                    new ProducerRecord<>(kafkaProperties.healthRequestTopic(), partition, eventUid, payload);
 
             record.headers()
-                    .add(new RecordHeader(HEADER_OPERATION_TYPE, healthProperties.heartbeatOperationName().getBytes(StandardCharsets.UTF_8)))
+                    .add(new RecordHeader(
+                            HEADER_OPERATION_TYPE,
+                            healthProperties.heartbeatOperationName().getBytes(StandardCharsets.UTF_8)))
                     .add(new RecordHeader(HEADER_EVENT_UID, eventUid.getBytes(StandardCharsets.UTF_8)))
                     .add(new RecordHeader(HEADER_HEALTH_PROBE, "true".getBytes(StandardCharsets.UTF_8)))
-                    .add(new RecordHeader(HEADER_REQUEST_TIMESTAMP_EPOCH_MS, Long.toString(timestampMs).getBytes(StandardCharsets.UTF_8)))
-                    .add(new RecordHeader(HEADER_REQUEST_DEADLINE_EPOCH_MS, Long.toString(deadlineMs).getBytes(StandardCharsets.UTF_8)))
-                    .add(new RecordHeader(HEADER_HOST, HostResolver.resolveHostName().getBytes(StandardCharsets.UTF_8)))
+                    .add(new RecordHeader(
+                            HEADER_REQUEST_TIMESTAMP_EPOCH_MS,
+                            Long.toString(timestampMs).getBytes(StandardCharsets.UTF_8)))
+                    .add(new RecordHeader(
+                            HEADER_REQUEST_DEADLINE_EPOCH_MS,
+                            Long.toString(deadlineMs).getBytes(StandardCharsets.UTF_8)))
+                    .add(new RecordHeader(
+                            HEADER_HOST, HostResolver.resolveHostName().getBytes(StandardCharsets.UTF_8)))
                     .add(new RecordHeader(HEADER_IDEMPOTENCY_KEY, eventUid.getBytes(StandardCharsets.UTF_8)))
-                    .add(new RecordHeader(HEADER_REQUEST_DATETIME, request.getDateTime().toInstant().toString().getBytes(StandardCharsets.UTF_8)))
-                    .add(new RecordHeader(KafkaHeaders.REPLY_TOPIC, kafkaProperties.replyTopic().getBytes(StandardCharsets.UTF_8)));
+                    .add(new RecordHeader(
+                            HEADER_REQUEST_DATETIME,
+                            request.getDateTime().toInstant().toString().getBytes(StandardCharsets.UTF_8)))
+                    .add(new RecordHeader(
+                            KafkaHeaders.REPLY_TOPIC,
+                            kafkaProperties.healthReplyTopic().getBytes(StandardCharsets.UTF_8)));
 
             addTracingHeaders(record);
 
-            RequestReplyFuture<String, byte[], byte[]> future = replyingKafkaTemplate.sendAndReceive(record, healthProperties.probeTimeout());
+            RequestReplyFuture<String, byte[], byte[]> future =
+                    healthReplyingKafkaTemplate.sendAndReceive(record, healthProperties.probeTimeout());
 
             ConsumerRecord<String, byte[]> reply;
             try {

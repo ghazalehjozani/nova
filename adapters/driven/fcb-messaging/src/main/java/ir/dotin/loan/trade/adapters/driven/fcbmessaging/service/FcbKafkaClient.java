@@ -120,16 +120,23 @@ public class FcbKafkaClient {
                     CoreBankingErrors.KAFKA_COMMUNICATION_ERROR, "retry exhausted: " + e.getMessage()));
         }
         return switch (cause) {
-            case FcbServerException fse -> Result.failure(Notification.ofError(
-                    CoreBankingErrors.KAFKA_FCB_SERVER_ERROR, fse.getErrorCode(), fse.getErrorMessage()));
-            case java.util.concurrent.TimeoutException ignored -> Result.failure(Notification.ofError(
-                    CoreBankingErrors.KAFKA_REPLY_TIMEOUT, operationType, String.valueOf(timeout.toMillis())));
-            case org.springframework.kafka.KafkaException ke -> Result.failure(Notification.ofError(
-                    CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, ke.getMessage()));
-            case FcbSerializationException fse -> Result.failure(Notification.ofError(
-                    CoreBankingErrors.KAFKA_SERIALIZATION_ERROR, fse.getErrorMessage()));
-            default -> Result.failure(Notification.ofError(
-                    CoreBankingErrors.KAFKA_COMMUNICATION_ERROR, cause.getMessage() != null ? cause.getMessage() : cause.getClass().getSimpleName()));
+            case FcbServerException fse ->
+                Result.failure(Notification.ofError(
+                        CoreBankingErrors.KAFKA_FCB_SERVER_ERROR, fse.getErrorCode(), fse.getErrorMessage()));
+            case java.util.concurrent.TimeoutException ignored ->
+                Result.failure(Notification.ofError(
+                        CoreBankingErrors.KAFKA_REPLY_TIMEOUT, operationType, String.valueOf(timeout.toMillis())));
+            case org.springframework.kafka.KafkaException ke ->
+                Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, ke.getMessage()));
+            case FcbSerializationException fse ->
+                Result.failure(
+                        Notification.ofError(CoreBankingErrors.KAFKA_SERIALIZATION_ERROR, fse.getErrorMessage()));
+            default ->
+                Result.failure(Notification.ofError(
+                        CoreBankingErrors.KAFKA_COMMUNICATION_ERROR,
+                        cause.getMessage() != null
+                                ? cause.getMessage()
+                                : cause.getClass().getSimpleName()));
         };
     }
 
@@ -145,25 +152,36 @@ public class FcbKafkaClient {
 
         int targetPartition = partitionRegistry.choosePartition(request.getEventUid());
         if (targetPartition == -1) {
-            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, "No healthy partition available"));
+            return Result.failure(
+                    Notification.ofError(CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, "No healthy partition available"));
         }
 
         long timestampMs = System.currentTimeMillis();
         long deadlineMs = timestampMs + timeout.toMillis();
 
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>(properties.requestTopic(), targetPartition, request.getEventUid(), requestBytes);
+        ProducerRecord<String, byte[]> record =
+                new ProducerRecord<>(properties.requestTopic(), targetPartition, request.getEventUid(), requestBytes);
 
         record.headers()
                 .add(new RecordHeader(HEADER_OPERATION_TYPE, operationType.getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(HEADER_EVENT_UID, request.getEventUid().getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader(HEADER_IDEMPOTENCY_KEY, request.getEventUid().getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader(HEADER_REQUEST_DATETIME, request.getDateTime().toInstant().toString().getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader(
+                        HEADER_IDEMPOTENCY_KEY, request.getEventUid().getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader(
+                        HEADER_REQUEST_DATETIME,
+                        request.getDateTime().toInstant().toString().getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(HEADER_AUTHORIZATION, bearerValue.getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(HEADER_ACCEPT_LANGUAGE, ACCEPT_LANGUAGE_FA.getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader(HEADER_REQUEST_TIMESTAMP_EPOCH_MS, Long.toString(timestampMs).getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader(HEADER_REQUEST_DEADLINE_EPOCH_MS, Long.toString(deadlineMs).getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader(HEADER_HOST, HostResolver.resolveHostName().getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader(KafkaHeaders.REPLY_TOPIC, properties.replyTopic().getBytes(StandardCharsets.UTF_8)));
+                .add(new RecordHeader(
+                        HEADER_REQUEST_TIMESTAMP_EPOCH_MS,
+                        Long.toString(timestampMs).getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader(
+                        HEADER_REQUEST_DEADLINE_EPOCH_MS,
+                        Long.toString(deadlineMs).getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader(
+                        HEADER_HOST, HostResolver.resolveHostName().getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader(
+                        KafkaHeaders.REPLY_TOPIC, properties.replyTopic().getBytes(StandardCharsets.UTF_8)));
 
         addTracingHeaders(record);
 
@@ -196,7 +214,8 @@ public class FcbKafkaClient {
                 throw new FcbServerException(errorCode, errorMessage);
             }
             if (KafkaErrorCodeMapper.isClientError(errorCode)) {
-                return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_FCB_CLIENT_ERROR, errorCode, errorMessage));
+                return Result.failure(
+                        Notification.ofError(CoreBankingErrors.KAFKA_FCB_CLIENT_ERROR, errorCode, errorMessage));
             }
             return Result.failure(KafkaErrorCodeMapper.mapToNotification(response));
         }

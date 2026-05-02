@@ -12,6 +12,8 @@ import org.springframework.validation.annotation.Validated;
 public record FcbKafkaProperties(
         @NotBlank String requestTopic,
         @NotBlank String replyTopic,
+        @NotBlank String healthRequestTopic,
+        @NotBlank String healthReplyTopic,
         @DefaultValue("10s") Duration defaultTimeout,
         @DefaultValue("60s") Duration transactionTimeout) {
 
