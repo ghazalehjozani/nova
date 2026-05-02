@@ -32,7 +32,6 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.exception.FcbSerializati
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.exception.FcbServerException;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.health.FcbHealthGate;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.health.FcbHealthMetrics;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.health.FcbPartitionHealthRegistry;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.KafkaErrorCodeMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.util.HostResolver;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
@@ -65,7 +64,6 @@ public class FcbKafkaClient {
     private final RetryTemplate retryTemplate;
     private final FcbHealthGate healthGate;
     private final FcbHealthMetrics healthMetrics;
-    private final FcbPartitionHealthRegistry partitionRegistry;
     private final Tracer tracer;
 
     public FcbKafkaClient(
@@ -76,7 +74,6 @@ public class FcbKafkaClient {
             @Qualifier(FcbResilienceConfig.FCB_KAFKA_RETRY_TEMPLATE) RetryTemplate retryTemplate,
             FcbHealthGate healthGate,
             FcbHealthMetrics healthMetrics,
-            FcbPartitionHealthRegistry partitionRegistry,
             @Nullable Tracer tracer) {
         this.replyingKafkaTemplate = replyingKafkaTemplate;
         this.objectMapper = objectMapper;
@@ -85,7 +82,6 @@ public class FcbKafkaClient {
         this.retryTemplate = retryTemplate;
         this.healthGate = healthGate;
         this.healthMetrics = healthMetrics;
-        this.partitionRegistry = partitionRegistry;
         this.tracer = tracer;
     }
 
@@ -150,17 +146,11 @@ public class FcbKafkaClient {
             throw new FcbSerializationException("Failed to serialize request: " + e.getMessage());
         }
 
-        int targetPartition = partitionRegistry.choosePartition(request.getEventUid());
-        if (targetPartition == -1) {
-            return Result.failure(
-                    Notification.ofError(CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, "No healthy partition available"));
-        }
-
         long timestampMs = System.currentTimeMillis();
         long deadlineMs = timestampMs + timeout.toMillis();
 
         ProducerRecord<String, byte[]> record =
-                new ProducerRecord<>(properties.requestTopic(), targetPartition, request.getEventUid(), requestBytes);
+                new ProducerRecord<>(properties.requestTopic(), request.getEventUid(), requestBytes);
 
         record.headers()
                 .add(new RecordHeader(HEADER_OPERATION_TYPE, operationType.getBytes(StandardCharsets.UTF_8)))

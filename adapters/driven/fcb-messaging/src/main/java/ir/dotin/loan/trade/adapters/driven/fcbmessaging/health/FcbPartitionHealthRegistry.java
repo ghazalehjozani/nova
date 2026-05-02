@@ -114,13 +114,6 @@ public class FcbPartitionHealthRegistry {
         return healthyOrdered;
     }
 
-    public int choosePartition(String key) {
-        List<Integer> healthy = healthyOrdered;
-        if (healthy.isEmpty()) return -1;
-        int hash = key == null ? 0 : (key.hashCode() & 0x7fffffff);
-        return healthy.get(hash % healthy.size());
-    }
-
     public int healthyCount() {
         return healthyOrdered.size();
     }

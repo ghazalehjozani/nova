@@ -61,7 +61,7 @@ public class FcbEventConsumer {
             opType = FcbEventOperationType.ofCode(operationType);
         } catch (IllegalArgumentException e) {
             LOG.warn("Unknown operationType [{}], eventUid={}, skipping.", operationType, eventUid);
-            return;
+            throw e;
         }
         InboundMessage message = inboundMessage.withSource(opType.getCode());
         ingestor.ingest(message);
