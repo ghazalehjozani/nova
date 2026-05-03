@@ -42,7 +42,7 @@ RUN groupadd -g 1001 appgroup && \
 WORKDIR /app
 
 # 4. Copy Artifact
-COPY container/target/*.jar app.jar
+COPY target/*.jar app.jar
 RUN chmod 444 app.jar && chown appuser:appgroup app.jar
 
 USER appuser
