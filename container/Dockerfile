@@ -25,7 +25,8 @@ RUN update-ca-certificates && \
         echo "No certificates to import"; \
     fi
 
-COPY --chmod=444 target/*.jar app.jar
+COPY target/*.jar app.jar
+RUN chmod 444 app.jar
 
 ENV SPRING_PROFILES_ACTIVE=dev,dev-elk,kafka-fcb,elk \
     JAVA_OPTS=""
