@@ -1,4 +1,5 @@
-FROM eclipse-temurin:25-jre-alpine
+ARG NEXUS_PROXY_REGISTRY=nexus3.dotin.ir:8100
+FROM ${NEXUS_PROXY_REGISTRY}/eclipse-temurin:25-jre-alpine
 
 RUN addgroup -g 1001 -S appgroup && \
     adduser -u 1001 -S appuser -G appgroup
