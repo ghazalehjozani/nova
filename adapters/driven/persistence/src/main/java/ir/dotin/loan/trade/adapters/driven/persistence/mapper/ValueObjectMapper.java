@@ -80,6 +80,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.InstallmentPaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PenaltyPaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Active;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Attribute;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.CancellationData;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Disable;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
@@ -108,6 +109,7 @@ import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ApplicationNu
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ApplicationPartyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.AttributeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.BranchEmb;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CancellationDataEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralPolicyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralSerialEmb;
@@ -1054,4 +1056,11 @@ public abstract class ValueObjectMapper {
         }
         return embeddables.stream().map(this::toCollateral).collect(Collectors.toList());
     }
+
+    public CancellationDataEmb mapCancellationData(Optional<CancellationData> value) {
+        return value.map(this::toCancellationDataEmb).orElse(null);
+    }
+
+    @Named("toCancellationDataEmb")
+    public abstract CancellationDataEmb toCancellationDataEmb(CancellationData cancellationData);
 }

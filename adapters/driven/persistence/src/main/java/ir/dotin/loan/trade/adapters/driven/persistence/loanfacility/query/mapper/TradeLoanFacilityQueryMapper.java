@@ -7,6 +7,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ApplicationNumberEmb;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CancellationDataEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.DisbursementRecordEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ScheduledTrancheEmb;
@@ -57,6 +58,9 @@ public interface TradeLoanFacilityQueryMapper {
     @Mapping(target = "loanApplication.currency", source = "loanApplication.currency.value")
     @Mapping(target = "loanApplication.requestedAmountCurrency", source = "loanApplication.requestedAmount.currency")
     @Mapping(target = "loanApplication.requestedAmount", source = "loanApplication.requestedAmount.amount")
+    @Mapping(target = "cancellationData.cancelReason", source = "cancellationDataEmb.cancelReason")
+    @Mapping(target = "cancellationData.cancelDate", source = "cancellationDataEmb.cancelDate")
+    @Mapping(target = "cancellationData.cancelDescription", source = "cancellationDataEmb.cancelDescription")
     TradeFacilityQueryDto toQueryModel(TradeLoanFacilityEntity tradeLoanFacilityEntity);
 
     @Named("formatAppNum")
@@ -83,4 +87,9 @@ public interface TradeLoanFacilityQueryMapper {
     @Mapping(target = "usedAmount", source = "usedAmount.amount")
     @Mapping(target = "usedAmountCurrency", source = "usedAmount.currency")
     TradeFacilityQueryDto.CollateralEmbDto toCollateralDto(CollateralEmb emb);
+
+    @Mapping(target = "cancelDescription", source = "cancelDescription")
+    @Mapping(target = "cancelReason", source = "cancelReason")
+    @Mapping(target = "cancelDate", source = "cancelDate")
+    TradeFacilityQueryDto.CancellationData toCancellationDataEmbDto(CancellationDataEmb emb);
 }
