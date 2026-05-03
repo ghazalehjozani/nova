@@ -3,7 +3,7 @@
 include:
   - project: 'platform/ci-templates'
     ref: $SHARED_TEMPLATES_VERSION
-    file: '/library.gitlab-ci.yml'
+    file: '/service.gitlab-ci.yml'
 
 default:
   tags:
