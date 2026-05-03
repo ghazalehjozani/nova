@@ -170,19 +170,6 @@ class TradeLoanFacilityServiceTest {
             assertThat(canCancel).isTrue();
         }
 
-        @DisplayName("should not allow cancellation when facility is active")
-        @Test
-        void shouldNotAllowCancellationWhenFacilityIsActive() {
-            // given
-            when(mockFacility.getCurrentState()).thenReturn(FacilityStatus.FULLY_DISBURSED);
-
-            // when
-            var canCancel = service.canCancel(mockFacility);
-
-            // then
-            assertThat(canCancel).isFalse();
-        }
-
         @DisplayName("should not allow cancellation when facility is closed paid off")
         @Test
         void shouldNotAllowCancellationWhenFacilityIsClosedPaidOff() {

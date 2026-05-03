@@ -29,6 +29,7 @@ import org.hibernate.proxy.HibernateProxy;
 import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
 import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CancellationDataEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.TransactionNumberEmb;
 
@@ -84,6 +85,15 @@ public class TradeLoanFacilityEntity extends PersistentEntity {
             name = "loan_facility_disbursement_transaction_numbers",
             joinColumns = @JoinColumn(name = "loan_facility_id"))
     private List<TransactionNumberEmb> disbursementTransactionNumbers = new ArrayList<>();
+
+    @Embedded
+    private CancellationDataEmb cancellationDataEmb;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "cancel_loan_facility_transaction_numbers",
+            joinColumns = @JoinColumn(name = "loan_facility_id"))
+    private List<TransactionNumberEmb> cancelLoanTransactionNumbers = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "loan_facility_accounts", joinColumns = @JoinColumn(name = "facility_id"))

@@ -34,6 +34,8 @@ public record TradeFacilityQueryDto(
         String totalDisbursedAmountCurrency,
         List<TransactionNumberEmbDto> issueContractTransactionNumbers,
         List<TransactionNumberEmbDto> disbursementTransactionNumbers,
+        List<TransactionNumberEmbDto> cancelLoanTransactionNumbers,
+        CancellationData cancellationData,
         Map<String, String> accountInfoMap,
         LocalDate disbursementDate,
         String facilityType,
@@ -76,6 +78,9 @@ public record TradeFacilityQueryDto(
                 @Nullable BigDecimal guaranteePercentage)
                 implements Serializable {}
     }
+
+    public record CancellationData(String cancelDescription, String cancelReason, LocalDate cancelDate)
+            implements Serializable {}
 
     public record TradeSanctionedLoanEntityDto(
             UUID id,

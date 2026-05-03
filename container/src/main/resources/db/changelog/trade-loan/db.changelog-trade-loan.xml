@@ -19,6 +19,7 @@
     <include file="db/changelog/trade-loan/v2026.3.0/003-create-loan-applications.xml"/>
     <include file="db/changelog/trade-loan/v2026.3.0/004-create-sanctioned-loans.xml"/>
     <include file="db/changelog/trade-loan/v2026.3.0/005-create-loan-facilities.xml"/>
+    <include file="/db/changelog/trade-loan/v2026.5.0/001-create-cancellation-data.xml"/>
 
     <!-- Financial operations -->
     <include file="db/changelog/trade-loan/v2026.3.0/006-create-disbursement-tables.xml"/>
