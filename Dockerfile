@@ -1,7 +1,7 @@
 ARG NEXUS_PROXY_REGISTRY=nexus3.dotin.ir:8100
 FROM ${NEXUS_PROXY_REGISTRY}/eclipse-temurin:25-jre-noble
 
-ARG NEXUS_APT_REPO_URL=http://nexus3.dotin.ir/repository/ubuntu-noble-proxy
+ARG NEXUS_APT_REPO_URL=https://nexus3.dotin.ir/repository/Ubuntu
 ARG APT_SUITES="noble noble-updates noble-security"
 
 USER root
@@ -42,7 +42,7 @@ RUN groupadd -g 1001 appgroup && \
 WORKDIR /app
 
 # 4. Copy Artifact
-COPY target/*.jar app.jar
+COPY container/target/*.jar app.jar
 RUN chmod 444 app.jar && chown appuser:appgroup app.jar
 
 USER appuser
