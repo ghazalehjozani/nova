@@ -17,13 +17,3 @@ variables:
 scan-secrets:
   rules:
     - when: never
-
-.mvn-build:
-  artifacts:
-    exclude:
-      - "container/target/*.jar"
-
-.mvn-deploy-release:
-  artifacts:
-    exclude:
-      - "container/target/*.jar"
