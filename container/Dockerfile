@@ -1,4 +1,4 @@
-FROM nexus3.dotin.ir:7111/expenditures/eclipse-temurin:25-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 
 RUN addgroup -g 1001 -S appgroup && \
     adduser -u 1001 -S appuser -G appgroup
