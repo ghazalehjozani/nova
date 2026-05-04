@@ -15,8 +15,8 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.AccountInfoKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.*;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.AccountInfoKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.KafkaAccountMapper;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FindAccountByIdPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FindOrCreateAccountPort;
@@ -37,77 +37,83 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
     private final FcbKafkaProperties properties;
     private final AuthenticationContextHolder authenticationContextHolder;
 
-    // ── AccountServicePort ──
-
     @Override
     public Result<AccountInfo> openAccount(LoanTopic loanTopic, String currencyCode) {
         var branchOpt = authenticationContextHolder.branchCode();
         if (branchOpt.isEmpty()) {
             return Result.failure(Notification.ofError(CoreBankingErrors.BRANCH_CODE_MISSING));
         }
-
         String branchCode = branchOpt.get();
         String idempotencyKey = UUID.randomUUID().toString();
 
         return sendAndMap(
-                new OpenAccountByTopicRequest(
-                        loanTopic.name(), loanTopic.code(), branchCode, currencyCode, idempotencyKey),
+                OpenAccountByTopicRequest.builder()
+                        .title(loanTopic.name())
+                        .topicCode(loanTopic.code())
+                        .branchCode(branchCode)
+                        .currencyCode(currencyCode)
+                        .transactionId(idempotencyKey)
+                        .build(),
                 response -> KafkaAccountMapper.mapToAccountInfoFromOpenAccount(response, loanTopic));
     }
 
     @Override
     public Result<AccountId> openAccount(CreateAccountInfo info) {
-        var request = new OpenAccountRequest(
-                info.transactionId(),
-                info.topicCode(),
-                info.currencyType().getCode(),
-                info.branchCode().value(),
-                Boolean.TRUE.equals(info.createAccountGroup()),
-                info.newAccBranchCode().value(),
-                info.newAccAccountId().value(),
-                info.newAccTitle().value(),
-                info.newAccAmount().value(),
-                info.newAccMinAmount().value(),
-                info.newAccMaxAmount().value(),
-                info.newAccBaseCurrencyAmount().value(),
-                info.newAccDebtorAmount().value(),
-                info.newAccCreditorAmount().value());
+        var request = OpenAccountRequest.builder()
+                .transactionId(info.transactionId())
+                .topic(info.topicCode())
+                .swiftCode(info.currencyType().getCode())
+                .branchCode(info.branchCode().value())
+                .createAccountGroup(Boolean.TRUE.equals(info.createAccountGroup()))
+                .newAccBranchCode(info.newAccBranchCode().value())
+                .newAccAccountNumber(info.newAccAccountId().value())
+                .newAccTitle(info.newAccTitle().value())
+                .newAccAmount(info.newAccAmount().value())
+                .newAccMinAmount(info.newAccMinAmount().value())
+                .newAccMaxAmount(info.newAccMaxAmount().value())
+                .newAccBaseCurrencyAmount(info.newAccBaseCurrencyAmount().value())
+                .newAccDebtorAmount(info.newAccDebtorAmount().value())
+                .newAccCreditorAmount(info.newAccCreditorAmount().value())
+                .build();
+
         return sendAndMap(request, KafkaAccountMapper::mapToAccountId);
     }
 
     @Override
     public Result<AccountNumber> deleteAccount(UUID transactionId, UUID rollBackId, AccountNumber accountNumber) {
-        var request = new DeleteAccountRequest(
-                accountNumber != null ? accountNumber.accountNumber() : null,
-                transactionId.toString(),
-                rollBackId != null ? rollBackId.toString() : null);
+        var request = DeleteAccountRequest.builder()
+                .accountNumber(accountNumber != null ? accountNumber.accountNumber() : null)
+                .transactionId(transactionId.toString())
+                .rollBackId(rollBackId != null ? rollBackId.toString() : null)
+                .build();
+
         return sendAndMap(request, KafkaAccountMapper::mapToDeletedAccountNumber);
     }
 
     @Override
     public Result<AccountNumber> validateAccountNumber(String accountNumber) {
         return sendAndMap(
-                new ValidateAccountNumberRequest(accountNumber), KafkaAccountMapper::mapToValidatedAccountNumber);
+                ValidateAccountNumberRequest.builder()
+                        .accountNumber(accountNumber)
+                        .build(),
+                KafkaAccountMapper::mapToValidatedAccountNumber);
     }
-
-    // ── FindOrCreateAccountPort ──
 
     @Override
     public Result<AccountInfo> findOrCreateAccount(LoanTopic loanTopic) {
         return sendAndMap(
-                new FindOrCreateAccountRequest(loanTopic.name(), loanTopic.code()),
+                FindOrCreateAccountRequest.builder()
+                        .title(loanTopic.name())
+                        .topicCode(loanTopic.code())
+                        .build(),
                 response -> KafkaAccountMapper.mapToFindOrCreateAccountInfo(response, loanTopic));
     }
 
-    // ── FindAccountByIdPort ──
-
     @Override
     public Result<AccountInfo> findAccountById(AccountId accountId) {
-        log.debug("findAccountById called for accountId={} — not yet implemented via Kafka", accountId.value());
+        log.debug("findAccountById called for accountId={}   not yet implemented via Kafka", accountId.value());
         return Result.success();
     }
-
-    // ── Internal helpers ──
 
     private <T> Result<T> sendAndMap(
             FcbKafkaBaseRequest request,
@@ -117,11 +123,13 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
         if (result.isFailure()) {
             return Result.failure(result.notification());
         }
+
         FcbKafkaBaseResponse raw = result.orElseThrow();
         if (!(raw instanceof AccountInfoKafkaResponse response)) {
             return Result.failure(
                     Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, request.getOperationName()));
         }
+
         return responseMapper.apply(response);
     }
 }

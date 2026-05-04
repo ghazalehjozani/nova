@@ -38,6 +38,10 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ValidateDebt
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ValidateEcoSectorRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ValidateSamatRequest;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.EXISTING_PROPERTY,
@@ -77,9 +81,12 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ValidateSama
     @JsonSubTypes.Type(value = ValidateSamatRequest.class, name = "validate-samat"),
     @JsonSubTypes.Type(value = HeartbeatRequest.class, name = "heartbeat")
 })
+@SuperBuilder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public abstract class FcbKafkaBaseRequest {
 
-    private final String operationName;
+    private String operationName;
     private String producerCode;
     private String responseTopic;
     private String eventUid;

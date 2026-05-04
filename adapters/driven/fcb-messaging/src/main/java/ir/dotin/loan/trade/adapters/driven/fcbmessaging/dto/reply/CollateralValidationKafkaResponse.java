@@ -1,10 +1,10 @@
-package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response;
+package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply;
 
 import org.jspecify.annotations.Nullable;
 
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseResponse;
 
-public final class EcoSectorValidationKafkaResponse extends FcbKafkaBaseResponse {
+public final class CollateralValidationKafkaResponse extends FcbKafkaBaseResponse {
 
     private @Nullable Boolean valid;
     private @Nullable String message;

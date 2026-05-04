@@ -2,24 +2,30 @@ package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
+
+@Getter
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@SuperBuilder(toBuilder = true)
+@Jacksonized
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@AllArgsConstructor
 public final class HasDepositAllowedCurrenciesRequest extends FcbKafkaBaseRequest {
+
+    @Builder.Default
+    private String operationName = "has-deposit-allowed-currencies";
 
     private final String depositNumber;
     private final List<String> currencies;
-
-    public HasDepositAllowedCurrenciesRequest(String depositNumber, List<String> currencies) {
-        super("has-deposit-allowed-currencies");
-        this.depositNumber = depositNumber;
-        this.currencies = currencies;
-    }
-
-    public String getDepositNumber() {
-        return depositNumber;
-    }
-
-    public List<String> getCurrencies() {
-        return currencies;
-    }
 }

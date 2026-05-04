@@ -1,23 +1,29 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
+
+@Getter
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@SuperBuilder(toBuilder = true)
+@Jacksonized
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@AllArgsConstructor
 public final class ValidateEcoSectorRequest extends FcbKafkaBaseRequest {
+
+    @Builder.Default
+    private String operationName = "validate-ecoSection-loanType";
 
     private final String economicalSectionCode;
     private final String loanTypeCode;
-
-    public ValidateEcoSectorRequest(String economicalSectionCode, String loanTypeCode) {
-        super("validate-ecoSection-loanType");
-        this.economicalSectionCode = economicalSectionCode;
-        this.loanTypeCode = loanTypeCode;
-    }
-
-    public String getEconomicalSectionCode() {
-        return economicalSectionCode;
-    }
-
-    public String getLoanTypeCode() {
-        return loanTypeCode;
-    }
 }

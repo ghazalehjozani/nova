@@ -31,8 +31,8 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.*;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.*;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.*;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.KafkaValidationMapper;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FetchSanctionDetailsPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.customerservice.CustomerServicePort;
@@ -62,12 +62,12 @@ public class FcbValidationKafkaAdapter
     private final FcbKafkaClient kafkaClient;
     private final FcbKafkaProperties properties;
 
-    // ── LoanServicePort ──
-
     @Override
     public Result<EconomicSector> loadEconomicalSectorByCode(EconomicSector economicSector) {
         return sendAndMap(
-                new LoadEconomicSectorRequest(economicSector.code()),
+                LoadEconomicSectorRequest.builder()
+                        .economicalSectionCode(economicSector.code())
+                        .build(),
                 EconomicSectorKafkaResponse.class,
                 KafkaValidationMapper::mapToEconomicSector);
     }
@@ -75,7 +75,9 @@ public class FcbValidationKafkaAdapter
     @Override
     public Result<EconomicalSectorResponse> loadEconomicalSector(EconomicSector economicSector) {
         return sendAndMap(
-                new LoadEconomicSectorRequest(economicSector.code()),
+                LoadEconomicSectorRequest.builder()
+                        .economicalSectionCode(economicSector.code())
+                        .build(),
                 EconomicSectorKafkaResponse.class,
                 KafkaValidationMapper::mapToEconomicalSectorResponse);
     }
@@ -84,7 +86,10 @@ public class FcbValidationKafkaAdapter
     public Result<EconomicalSectorValidation> validateEconomicalSectorForLoanType(
             EconomicSector economicSector, LoanTypeCode loanTypeCode) {
         return sendAndMap(
-                new ValidateEcoSectorRequest(economicSector.code(), loanTypeCode.value()),
+                ValidateEcoSectorRequest.builder()
+                        .economicalSectionCode(economicSector.code())
+                        .loanTypeCode(loanTypeCode.value())
+                        .build(),
                 EcoSectorValidationKafkaResponse.class,
                 KafkaValidationMapper::mapToEcoSectorValidation);
     }
@@ -92,7 +97,9 @@ public class FcbValidationKafkaAdapter
     @Override
     public Result<ReasonType> loadReasonTypeForCreate(String reasonTypeCode) {
         return sendAndMap(
-                new LoadReasonTypeForCreateRequest(reasonTypeCode),
+                LoadReasonTypeForCreateRequest.builder()
+                        .reasonTypeCode(reasonTypeCode)
+                        .build(),
                 ReasonTypeKafkaResponse.class,
                 KafkaValidationMapper::mapToReasonType);
     }
@@ -100,7 +107,9 @@ public class FcbValidationKafkaAdapter
     @Override
     public Result<ReasonType> loadReasonTypeForRevoke(String reasonTypeCode) {
         return sendAndMap(
-                new LoadReasonTypeForRevokeRequest(reasonTypeCode),
+                LoadReasonTypeForRevokeRequest.builder()
+                        .reasonTypeCode(reasonTypeCode)
+                        .build(),
                 ReasonTypeKafkaResponse.class,
                 KafkaValidationMapper::mapToReasonType);
     }
@@ -108,7 +117,7 @@ public class FcbValidationKafkaAdapter
     @Override
     public Result<SubSource> loadResourceByCode(String subSourceCode) {
         return sendAndMap(
-                new LoadResourceRequest(subSourceCode),
+                LoadResourceRequest.builder().resourceCode(subSourceCode).build(),
                 ResourceKafkaResponse.class,
                 KafkaValidationMapper::mapToSubSource);
     }
@@ -116,7 +125,7 @@ public class FcbValidationKafkaAdapter
     @Override
     public Result<List<TopicInfo>> loadTopicByCode(List<String> topicCodes) {
         return sendAndMap(
-                new LoadTopicRequest(topicCodes),
+                LoadTopicRequest.builder().topicCodes(topicCodes).build(),
                 TopicInfoListKafkaResponse.class,
                 KafkaValidationMapper::mapToTopicInfoList);
     }
@@ -124,16 +133,23 @@ public class FcbValidationKafkaAdapter
     @Override
     public Result<List<BranchCode>> loadCoveredBranches(BranchCode branchCode) {
         return sendAndMap(
-                new LoadCoveredBranchesRequest(branchCode.value()),
+                LoadCoveredBranchesRequest.builder()
+                        .branchCode(branchCode.value())
+                        .build(),
                 BranchCodeListKafkaResponse.class,
                 KafkaValidationMapper::mapToBranchCodeList);
     }
 
     @Override
     public Result<ApplicationNumber> getApplicationNumber(Branch branch, LoanTypeCode loanTypeCode, Party party) {
-        var request =
-                new GetApplicationNumberRequest(branch.code().value(), loanTypeCode.value(), party.customerNumber());
+        var request = GetApplicationNumberRequest.builder()
+                .branchCode(branch.code().value())
+                .loanTypeCode(loanTypeCode.value())
+                .customerNumber(party.customerNumber())
+                .build();
+
         Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.defaultTimeout());
+
         if (result.isFailure()) {
             return Result.failure(result.notification());
         }
@@ -148,12 +164,10 @@ public class FcbValidationKafkaAdapter
     @Override
     public Result<BranchDetails> loadBranch(BranchCode branchCode) {
         return sendAndMap(
-                new LoadBranchRequest(branchCode.value()),
+                LoadBranchRequest.builder().branchCode(branchCode.value()).build(),
                 BranchDetailsKafkaResponse.class,
                 KafkaValidationMapper::mapToBranchDetails);
     }
-
-    // ── CustomerServicePort ──
 
     @Override
     public Result<PartyInfoResponse> loadCustomerInfo(
@@ -161,15 +175,19 @@ public class FcbValidationKafkaAdapter
             @NotNull PartyRole role,
             @Nullable BigDecimal guaranteePercentage,
             CustomerInfoLoadOptions options) {
-        var request = new LoadCustomerInfoRequest(
-                customerNumber,
-                options.sequenceCode(),
-                options.subsystem(),
-                options.includeCapability(),
-                options.includeBlackList(),
-                options.includeBaseInfo(),
-                options.includeGrayList());
+
+        var request = LoadCustomerInfoRequest.builder()
+                .customerNumber(customerNumber)
+                .sequenceCode(options.sequenceCode())
+                .subsystem(options.subsystem())
+                .includeCapability(options.includeCapability())
+                .includeBlackList(options.includeBlackList())
+                .includeBaseInfo(options.includeBaseInfo())
+                .includeGrayList(options.includeGrayList())
+                .build();
+
         Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.defaultTimeout());
+
         if (result.isFailure()) {
             return Result.failure(result.notification());
         }
@@ -183,7 +201,9 @@ public class FcbValidationKafkaAdapter
     @Override
     public Result<List<PartyInfoResponse>> findRelatedCustomers(List<String> customerNumbers) {
         return sendAndMap(
-                new FindRelatedCustomersRequest(customerNumbers),
+                FindRelatedCustomersRequest.builder()
+                        .customerNumbers(customerNumbers)
+                        .build(),
                 CustomerListKafkaResponse.class,
                 KafkaValidationMapper::mapToPartyInfoResponseList);
     }
@@ -191,17 +211,19 @@ public class FcbValidationKafkaAdapter
     @Override
     public Result<PartyBirthInfo> loadCustomerBirthInfo(String customerNumber) {
         return sendAndMap(
-                new LoadCustomerBirthInfoRequest(customerNumber),
+                LoadCustomerBirthInfoRequest.builder()
+                        .customerNumber(customerNumber)
+                        .build(),
                 CustomerBirthInfoKafkaResponse.class,
                 KafkaValidationMapper::mapToPartyBirthInfo);
     }
 
-    // ── DepositServicePort ──
-
     @Override
     public Result<DepositInfo> getDepositInfo(DepositNumber depositNumber) {
         return sendAndMap(
-                new LoadDepositInfoRequest(depositNumber.value()),
+                LoadDepositInfoRequest.builder()
+                        .depositNumber(depositNumber.value())
+                        .build(),
                 DepositInfoKafkaResponse.class,
                 KafkaValidationMapper::mapToDepositInfo);
     }
@@ -209,7 +231,10 @@ public class FcbValidationKafkaAdapter
     @Override
     public Result<DepositClosedStatus> isDepositClosed(DepositNumber depositNumber, CurrencyType currencyType) {
         return sendAndMap(
-                new IsDepositClosedRequest(depositNumber.value(), currencyType.getCode()),
+                IsDepositClosedRequest.builder()
+                        .depositNumber(depositNumber.value())
+                        .currencySwiftCode(currencyType.getCode())
+                        .build(),
                 DepositClosedKafkaResponse.class,
                 KafkaValidationMapper::mapToDepositClosedStatus);
     }
@@ -218,7 +243,10 @@ public class FcbValidationKafkaAdapter
     public Result<DebtorDepositValidation> validateDebtorDeposit(
             DepositNumber depositNumber, CurrencyType currencyType) {
         return sendAndMap(
-                new ValidateDebtorDepositRequest(depositNumber.value(), currencyType.getCode()),
+                ValidateDebtorDepositRequest.builder()
+                        .depositNumber(depositNumber.value())
+                        .currencySwiftCode(currencyType.getCode())
+                        .build(),
                 ValidationResultKafkaResponse.class,
                 KafkaValidationMapper::mapToDebtorDepositValidation);
     }
@@ -227,7 +255,11 @@ public class FcbValidationKafkaAdapter
     public Result<CreditorDepositValidation> validateCreditorDeposit(
             DepositNumber depositNumber, CurrencyType currencyType, BigDecimal amount) {
         return sendAndMap(
-                new ValidateCreditorDepositRequest(depositNumber.value(), currencyType.getCode(), amount),
+                ValidateCreditorDepositRequest.builder()
+                        .depositNumber(depositNumber.value())
+                        .currencySwiftCode(currencyType.getCode())
+                        .amount(amount)
+                        .build(),
                 ValidationResultKafkaResponse.class,
                 KafkaValidationMapper::mapToCreditorDepositValidation);
     }
@@ -238,7 +270,10 @@ public class FcbValidationKafkaAdapter
         List<String> currencies =
                 currencyTypes.stream().map(CurrencyType::getCode).collect(Collectors.toList());
         return sendAndMap(
-                new HasDepositAllowedCurrenciesRequest(depositNumber.value(), currencies),
+                HasDepositAllowedCurrenciesRequest.builder()
+                        .depositNumber(depositNumber.value())
+                        .currencies(currencies)
+                        .build(),
                 CurrencyValidationKafkaResponse.class,
                 KafkaValidationMapper::mapToCurrencyValidation);
     }
@@ -246,12 +281,12 @@ public class FcbValidationKafkaAdapter
     @Override
     public Result<List<PartyInfoResponse>> getAllDepositSignerOwnerCustomer(String depositNumber) {
         return sendAndMap(
-                new GetDepositSignerOwnerRequest(depositNumber),
+                GetDepositSignerOwnerRequest.builder()
+                        .depositNumber(depositNumber)
+                        .build(),
                 CustomerListKafkaResponse.class,
                 KafkaValidationMapper::mapToPartyInfoResponseList);
     }
-
-    // ── CollateralServicePort ──
 
     @Override
     public Result<CollateralValidation> validateAddAssuranceToFile(
@@ -260,7 +295,11 @@ public class FcbValidationKafkaAdapter
                 collateralSerials.stream().map(CollateralSerial::value).collect(Collectors.toList());
         List<String> branchCodes = Collections.nCopies(collateralSerials.size(), branchCode.value());
         return sendAndMap(
-                new ValidateAssuranceRequest(serials, usedCosts, branchCodes),
+                ValidateAssuranceRequest.builder()
+                        .assuranceSerials(serials)
+                        .usedCosts(usedCosts)
+                        .branchCodes(branchCodes)
+                        .build(),
                 CollateralValidationKafkaResponse.class,
                 KafkaValidationMapper::mapToCollateralValidation);
     }
@@ -273,12 +312,13 @@ public class FcbValidationKafkaAdapter
             Integer reserveDurationMin,
             Money usedAmount) {
         return sendAndMap(
-                new ReserveCollateralRequest(
-                        collateralSerial.value(),
-                        applicationNumber.formattedApplicationNumber(),
-                        UUID.randomUUID().toString(),
-                        reserveDurationMin,
-                        usedAmount.value()),
+                ReserveCollateralRequest.builder()
+                        .assuranceSerial(collateralSerial.value())
+                        .fileNumber(applicationNumber.formattedApplicationNumber())
+                        .transactionId(UUID.randomUUID().toString())
+                        .reserveDurationMin(reserveDurationMin)
+                        .amount(usedAmount.value())
+                        .build(),
                 CollateralSerialsKafkaResponse.class,
                 KafkaValidationMapper::mapToCollateralSerials);
     }
@@ -286,7 +326,10 @@ public class FcbValidationKafkaAdapter
     @Override
     public Result<CollateralDetails> loadCollateral(String assuranceSerial, String uniqueTrackingCode) {
         return sendAndMap(
-                new LoadCollateralRequest(assuranceSerial, uniqueTrackingCode),
+                LoadCollateralRequest.builder()
+                        .assuranceSerial(assuranceSerial)
+                        .uniqueTrackingCode(uniqueTrackingCode)
+                        .build(),
                 CollateralDetailsKafkaResponse.class,
                 KafkaValidationMapper::mapToCollateralDetails);
     }
@@ -297,11 +340,14 @@ public class FcbValidationKafkaAdapter
             ApplicationNumber applicationNumber,
             UUID transactionId,
             UUID rollBackId) {
-        var request = new UnReserveCollateralRequest(
-                collateralSerial.value(),
-                applicationNumber.formattedApplicationNumber(),
-                transactionId.toString(),
-                rollBackId.toString());
+
+        var request = UnReserveCollateralRequest.builder()
+                .assuranceSerial(collateralSerial.value())
+                .fileNumber(applicationNumber.formattedApplicationNumber())
+                .transactionId(transactionId.toString())
+                .rollBackId(rollBackId.toString())
+                .build();
+
         Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.defaultTimeout());
         if (result.isFailure()) {
             return Result.failure(result.notification());
@@ -309,12 +355,12 @@ public class FcbValidationKafkaAdapter
         return Result.success(collateralSerial);
     }
 
-    // ── FetchSanctionDetailsPort ──
-
     @Override
     public Result<SanctionDetails> fetchBySanctionSerial(String sanctionSerial) {
         return sendAndMap(
-                new FetchSanctionDetailsRequest(sanctionSerial),
+                FetchSanctionDetailsRequest.builder()
+                        .sanctionSerial(sanctionSerial)
+                        .build(),
                 SanctionDetailsKafkaResponse.class,
                 KafkaValidationMapper::mapToSanctionDetails);
     }
@@ -322,20 +368,19 @@ public class FcbValidationKafkaAdapter
     @Override
     public Result<Void> validateSamat(Samat samat, String loanTypeCode, String economicalSectionCode) {
         ValidateSamatRequest samatRequest = ValidateSamatRequest.builder()
-                .withConsumptionPlaceCode(samat.consumptionPlaceCode())
-                .withExceptionCode(samat.exceptionCode())
-                .withLoanTypeCode(loanTypeCode)
-                .withEconomicalSectionCode(economicalSectionCode)
-                .withTrackingNumber(samat.trackingNumber())
-                .withIsicEconomicSector(samat.isicEconomicSector())
-                .withSubIsicEconomicSector(samat.subIsicEconomicSector())
-                .withUseType(samat.useType())
+                .consumptionPlaceCode(samat.consumptionPlaceCode())
+                .exceptionCode(samat.exceptionCode())
+                .loanTypeCode(loanTypeCode)
+                .economicalSectionCode(economicalSectionCode)
+                .trackingNumber(samat.trackingNumber())
+                .isicEconomicSector(samat.isicEconomicSector())
+                .subIsicEconomicSector(samat.subIsicEconomicSector())
+                .useType(samat.useType())
                 .build();
+
         return sendAndMap(
                 samatRequest, ValidateSamatKafkaResponse.class, KafkaValidationMapper::mapSamatViolationToNotification);
     }
-
-    // ── Internal helpers ──
 
     private <R extends FcbKafkaBaseResponse, T> Result<T> sendAndMap(
             FcbKafkaBaseRequest request, Class<R> responseType, Function<R, Result<T>> responseMapper) {
@@ -344,11 +389,13 @@ public class FcbValidationKafkaAdapter
         if (result.isFailure()) {
             return Result.failure(result.notification());
         }
+
         FcbKafkaBaseResponse raw = result.orElseThrow();
         if (!responseType.isInstance(raw)) {
             return Result.failure(
                     Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, request.getOperationName()));
         }
+
         return responseMapper.apply(responseType.cast(raw));
     }
 }

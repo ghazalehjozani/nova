@@ -144,6 +144,7 @@ public class FcbHealthProbe {
 
         long deadlineNanos = System.nanoTime()
                 + healthProperties.probeTimeout().multipliedBy(2).toNanos();
+
         for (var f : futures) {
             long remaining = deadlineNanos - System.nanoTime();
             if (remaining <= 0) {
@@ -172,8 +173,11 @@ public class FcbHealthProbe {
 
     private void probePartitionOnce(int partition) {
         String eventUid = UUID.randomUUID().toString();
-        HeartbeatRequest request =
-                new HeartbeatRequest(eventUid, Instant.now(clock).toEpochMilli());
+        HeartbeatRequest request = HeartbeatRequest.builder()
+                .probeId(eventUid)
+                .publishedAtEpochMs(Instant.now(clock).toEpochMilli())
+                .build();
+
         request.setProducerCode(healthProperties.producerCode());
         request.setEventUid(eventUid);
         request.setDateTime(Date.from(Instant.now(clock)));
@@ -185,7 +189,6 @@ public class FcbHealthProbe {
 
         try {
             byte[] payload = objectMapper.writeValueAsBytes(request);
-
             ProducerRecord<String, byte[]> record =
                     new ProducerRecord<>(kafkaProperties.healthRequestTopic(), partition, eventUid, payload);
 
@@ -215,7 +218,6 @@ public class FcbHealthProbe {
 
             RequestReplyFuture<String, byte[], byte[]> future =
                     healthReplyingKafkaTemplate.sendAndReceive(record, healthProperties.probeTimeout());
-
             ConsumerRecord<String, byte[]> reply;
             try {
                 reply = future.get(healthProperties.probeTimeout().toMillis(), TimeUnit.MILLISECONDS);
@@ -230,6 +232,7 @@ public class FcbHealthProbe {
 
             partitionRegistry.recordSuccess(partition);
             metrics.recordProbeSuccess(System.nanoTime() - start);
+
         } catch (Throwable t) {
             partitionRegistry.recordFailure(partition);
             metrics.recordProbeFailure();

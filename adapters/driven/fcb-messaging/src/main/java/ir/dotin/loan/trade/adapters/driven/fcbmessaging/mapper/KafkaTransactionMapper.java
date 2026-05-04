@@ -2,9 +2,7 @@ package ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper;
 
 import java.time.Clock;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import ir.dotin.platform.accounting.document.api.enumeration.Direction;
@@ -24,28 +22,26 @@ import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TransactionNumber;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ExtraInfoVO;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.TransactionResultKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.DocumentItemDto;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.DocumentItemTypeDto;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ExtraInfoMetadataDto;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.PostTransactionRequest;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.TransactionResultKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.TransactionDirectionDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @UtilityClass
-public class KafkaTransactionMapper {
-
-    private static final String ITEM_FORMAT_ACCOUNT = "ACCOUNT,%s,%s,%s";
-    private static final String ITEM_FORMAT_DEPOSIT = "DEPOSIT,%s,%s,%s";
-    private static final String ITEM_FORMAT_BOX = "BOX,%s,%s";
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+public final class KafkaTransactionMapper {
 
     public static Result<PostTransactionRequest> mapToIssueDocumentRequest(
             LoanTransaction loanTransaction, UUID trackingId) {
+
         log.debug(
-                "Mapping LoanTransaction to IssueDocumentRequest - facilityId: {}",
+                "Mapping LoanTransaction to PostTransactionRequest - facilityId: {}",
                 loanTransaction.loanFacilityId().value());
 
         Notification notification = Notification.create();
@@ -53,43 +49,35 @@ public class KafkaTransactionMapper {
         Notification validationResult = loanTransaction.validate();
         if (validationResult.hasErrors()) {
             log.error("LoanTransaction validation failed: {}", validationResult.getErrorMessages());
-            notification.merge(validationResult);
-            return Result.failure(notification);
+            return Result.failure(notification.merge(validationResult));
         }
 
         Document document = loanTransaction.document();
 
         String branchCode = document.branchCode().value();
         if (branchCode.isBlank()) {
-            notification.addError(CoreCommonErrors.GENERAL_FIELD_REQUIRED, "Branch code");
-            return Result.failure(notification);
+            return Result.failure(notification.addError(CoreCommonErrors.GENERAL_FIELD_REQUIRED, "Branch code"));
         }
 
         String isoCode = extractIsoCode(loanTransaction);
         if (isoCode == null || isoCode.isBlank()) {
-            notification.addError(CoreCommonErrors.GENERAL_FIELD_REQUIRED, "ISO code (currency)");
-            return Result.failure(notification);
+            return Result.failure(
+                    notification.addError(CoreCommonErrors.GENERAL_FIELD_REQUIRED, "ISO code (currency)"));
         }
 
         String comment = document.description();
         if (comment.isBlank()) {
-            notification.addError(CoreCommonErrors.GENERAL_FIELD_REQUIRED, "Document description");
-            return Result.failure(notification);
+            return Result.failure(
+                    notification.addError(CoreCommonErrors.GENERAL_FIELD_REQUIRED, "Document description"));
         }
 
-        Result<List<String>> itemsResult = mapArticlesToItems(document.articles());
+        Result<List<DocumentItemDto>> itemsResult = mapArticles(document.articles());
         if (itemsResult.isFailure()) {
-            notification.merge(itemsResult.notification());
-            return Result.failure(notification);
+            return Result.failure(notification.merge(itemsResult.notification()));
         }
 
-        Result<List<String>> itemCommentsResult = mapArticlesToItemComments(document.articles());
-        if (itemCommentsResult.isFailure()) {
-            notification.merge(itemCommentsResult.notification());
-            return Result.failure(notification);
-        }
-
-        String documentExtraInfoJson = createDocumentExtraInfoJson(loanTransaction);
+        // TODO: Fix this
+        ExtraInfoMetadataDto documentMetadata = pickDocumentLevelMetadata(document);
 
         PostTransactionRequest request = PostTransactionRequest.builder()
                 .transactionId(String.valueOf(trackingId))
@@ -98,15 +86,115 @@ public class KafkaTransactionMapper {
                 .branchCode(branchCode)
                 .skipTransferMoneyBillNumber(false)
                 .items(itemsResult.orElseThrow())
-                .itemComments(itemCommentsResult.orElseThrow())
-                .documentExtraInfo(documentExtraInfoJson)
+                .documentMetadata(documentMetadata)
                 .build();
 
         log.info(
-                "Successfully mapped LoanTransaction to IssueDocumentRequest - items count: {}",
+                "Successfully mapped LoanTransaction to PostTransactionRequest - items count: {}",
                 request.getItems().size());
 
         return Result.success(request);
+    }
+
+    public static Result<List<DocumentItemDto>> mapArticles(List<Article> articles) {
+        Notification notification = Notification.create();
+
+        if (articles == null || articles.isEmpty()) {
+            return Result.failure(notification.addError(CoreCommonErrors.GENERAL_FIELD_REQUIRED, "Articles list"));
+        }
+
+        List<DocumentItemDto> items = new ArrayList<>(articles.size());
+        for (int i = 0; i < articles.size(); i++) {
+            Article article = articles.get(i);
+            Result<DocumentItemDto> itemResult = mapArticle(article, i);
+            if (itemResult.isFailure()) {
+                notification.merge(itemResult.notification());
+                continue;
+            }
+            items.add(itemResult.orElseThrow());
+        }
+
+        if (notification.hasErrors()) {
+            return Result.failure(notification);
+        }
+        return Result.success(items);
+    }
+
+    private static Result<DocumentItemDto> mapArticle(Article article, int index) {
+        Notification notification = Notification.create();
+
+        if (article == null) {
+            return Result.failure(
+                    notification.addError(CoreCommonErrors.GENERAL_FIELD_REQUIRED, "Article[" + index + "]"));
+        }
+
+        TargetDescriptor descriptor = describeTarget(article.target());
+        if (descriptor.type() == null) {
+            return Result.failure(notification.addError(
+                    CoreCommonErrors.GENERAL_FIELD_REQUIRED, "Unknown article target type at index " + index));
+        }
+
+        TransactionDirectionDto direction = mapDirection(article.direction());
+        ExtraInfoMetadataDto metadata = ArticleMetadataMapper.toDto(article.articleMetadata());
+
+        String title = buildTitle(descriptor, direction);
+
+        DocumentItemDto item = DocumentItemDto.builder()
+                .type(descriptor.type())
+                .identifier(descriptor.identifier())
+                .direction(direction)
+                .amount(article.amount().value())
+                .title(title)
+                .metadata(metadata)
+                .build();
+
+        log.debug(
+                "Mapped article {} -> {} {} {} {}",
+                index,
+                descriptor.type(),
+                descriptor.identifier(),
+                direction,
+                item.getAmount());
+
+        return Result.success(item);
+    }
+
+    private static TransactionDirectionDto mapDirection(Direction direction) {
+        return direction == Direction.DEBIT ? TransactionDirectionDto.DEBTOR : TransactionDirectionDto.CREDITOR;
+    }
+
+    private static TargetDescriptor describeTarget(ArticleTarget target) {
+        return switch (target) {
+            case AccountTarget(var accountId, RelationType<?> ignored) ->
+                new TargetDescriptor(DocumentItemTypeDto.ACCOUNT, accountId.value());
+            case DepositTarget(var depositNumber) ->
+                new TargetDescriptor(DocumentItemTypeDto.DEPOSIT, depositNumber.value());
+            case BoxTarget() -> new TargetDescriptor(DocumentItemTypeDto.BOX, "");
+            case AccountNumberTarget(var accountNumber) ->
+                new TargetDescriptor(DocumentItemTypeDto.ACCOUNT, accountNumber.accountNumber());
+        };
+    }
+
+    private static String buildTitle(TargetDescriptor descriptor, TransactionDirectionDto direction) {
+        String dirText = direction == TransactionDirectionDto.DEBTOR ? "بدهکاری" : "بستانکاری";
+        String typeText =
+                switch (descriptor.type()) {
+                    case ACCOUNT -> "حساب";
+                    case DEPOSIT -> "سپرده";
+                    case BOX -> "صندوق";
+                };
+        String id = descriptor.identifier() == null || descriptor.identifier().isBlank()
+                ? typeText
+                : descriptor.identifier();
+        return "بند سند " + dirText + " " + typeText + " - " + id;
+    }
+
+    private static ExtraInfoMetadataDto pickDocumentLevelMetadata(Document document) {
+        return document.articles().stream()
+                .findFirst()
+                .map(Article::articleMetadata)
+                .map(ArticleMetadataMapper::toDto)
+                .orElse(null);
     }
 
     private static String extractIsoCode(LoanTransaction loanTransaction) {
@@ -122,130 +210,9 @@ public class KafkaTransactionMapper {
         }
     }
 
-    public static Result<List<String>> mapArticlesToItems(List<Article> articles) {
-        Notification notification = Notification.create();
-        List<String> items = new ArrayList<>();
-
-        if (articles == null || articles.isEmpty()) {
-            notification.addError(CoreCommonErrors.GENERAL_FIELD_REQUIRED, "Articles list");
-            return Result.failure(notification);
-        }
-
-        for (int i = 0; i < articles.size(); i++) {
-            Article article = articles.get(i);
-            Result<String> itemResult = mapArticleToItem(article, i);
-
-            if (itemResult.isFailure()) {
-                notification.merge(itemResult.notification());
-            } else {
-                items.add(itemResult.orElseThrow());
-            }
-        }
-
-        if (notification.hasErrors()) {
-            return Result.failure(notification);
-        }
-
-        log.debug("Mapped {} articles to items", items.size());
-        return Result.success(items);
-    }
-
-    private static Result<String> mapArticleToItem(Article article, int index) {
-        ArticleTarget target = article.target();
-        boolean isDebtor = article.direction() == Direction.DEBIT;
-        String amount = article.amount().value().toPlainString();
-
-        String item =
-                switch (target) {
-                    case AccountTarget(var accountId, RelationType<?> relationType) ->
-                        String.format(ITEM_FORMAT_ACCOUNT, accountId.value(), isDebtor, amount);
-                    case DepositTarget(var depositNumber) ->
-                        String.format(ITEM_FORMAT_DEPOSIT, depositNumber.value(), isDebtor, amount);
-                    case BoxTarget() -> String.format(ITEM_FORMAT_BOX, isDebtor, amount);
-                    case AccountNumberTarget(var accountNumber) ->
-                        String.format(ITEM_FORMAT_ACCOUNT, accountNumber.accountNumber(), isDebtor, amount);
-                };
-
-        log.debug("Mapped article {} to item: {}", index, item);
-        return Result.success(item);
-    }
-
-    public static Result<List<String>> mapArticlesToItemComments(List<Article> articles) {
-        Notification notification = Notification.create();
-        List<String> itemComments = new ArrayList<>();
-
-        if (articles == null || articles.isEmpty()) {
-            notification.addError(CoreCommonErrors.GENERAL_FIELD_REQUIRED, "Articles list");
-            return Result.failure(notification);
-        }
-
-        for (Article article : articles) {
-            String comment = buildItemComment(article);
-            itemComments.add(comment);
-        }
-
-        if (notification.hasErrors()) {
-            return Result.failure(notification);
-        }
-
-        log.debug("Created {} item comments", itemComments.size());
-        return Result.success(itemComments);
-    }
-
-    private static String buildItemComment(Article article) {
-        String direction = article.direction() == Direction.DEBIT ? "بدهکاری" : "بستانکاری";
-        String targetType = getTargetTypeInPersian(article.target());
-        String identifier = extractTargetIdentifier(article.target());
-
-        return String.format("بند سند %s %s - %s", direction, targetType, identifier);
-    }
-
-    private static String getTargetTypeInPersian(ArticleTarget target) {
-        return switch (target) {
-            case AccountTarget accountTarget -> "حساب";
-            case DepositTarget depositTarget -> "سپرده";
-            case BoxTarget boxTarget -> "صندوق";
-            default -> "نامشخص";
-        };
-    }
-
-    private static String extractTargetIdentifier(ArticleTarget target) {
-        return switch (target) {
-            case AccountTarget accountTarget -> accountTarget.accountId().value();
-            case DepositTarget depositTarget -> depositTarget.depositNumber().value();
-            case BoxTarget boxTarget -> "صندوق";
-            default -> "";
-        };
-    }
-
-    private static String createDocumentExtraInfoJson(LoanTransaction loanTransaction) {
-        Map<String, Object> systemMetaData = new LinkedHashMap<>();
-        systemMetaData.put("loanFacilityId", loanTransaction.loanFacilityId().value());
-        systemMetaData.put("createdAt", loanTransaction.createdAt().toString());
-        systemMetaData.put("branchCode", loanTransaction.document().branchCode().value());
-        systemMetaData.put("totalDebit", loanTransaction.getTotalDebit().value().toPlainString());
-        systemMetaData.put(
-                "totalCredit", loanTransaction.getTotalCredit().value().toPlainString());
-
-        Map<String, Object> userData = new LinkedHashMap<>();
-        userData.put("transactionType", "loan-transaction");
-        userData.put("description", loanTransaction.document().description());
-
-        ExtraInfoVO extraInfo = ExtraInfoVO.builder()
-                .type("document")
-                .scope("loan-facility")
-                .token(String.valueOf(loanTransaction.loanFacilityId().value()))
-                .systemMetaData(systemMetaData)
-                .userMetaData(List.of(userData))
-                .build();
-
-        String json = OBJECT_MAPPER.writeValueAsString(extraInfo);
-        log.debug("Created document extra info JSON: {}", json);
-        return json;
-    }
-
-    public Result<TrackedTransactionNumber> mapToTrackedTransactionNumber(
+    public static Result<TrackedTransactionNumber> mapToTrackedTransactionNumber(
             TransactionResultKafkaResponse response, UUID trackingId, Clock clock) {
+
         if (response.getTransactionCode() == null
                 || response.getTransactionCode().isBlank()) {
             return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "postTransaction"));
@@ -257,4 +224,6 @@ public class KafkaTransactionMapper {
         return Result.success(TrackedTransactionNumber.create(
                 txnResult.orElseThrow().value(), trackingId.toString(), TransactionStatus.POSTED, clock));
     }
+
+    private record TargetDescriptor(DocumentItemTypeDto type, String identifier) {}
 }

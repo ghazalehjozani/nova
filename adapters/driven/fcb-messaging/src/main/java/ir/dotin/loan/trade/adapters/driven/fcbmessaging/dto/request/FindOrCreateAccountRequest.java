@@ -1,23 +1,29 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
+
+@Getter
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@SuperBuilder(toBuilder = true)
+@Jacksonized
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@AllArgsConstructor
 public final class FindOrCreateAccountRequest extends FcbKafkaBaseRequest {
+
+    @Builder.Default
+    private String operationName = "find-or-create-account";
 
     private final String title;
     private final String topicCode;
-
-    public FindOrCreateAccountRequest(String title, String topicCode) {
-        super("find-or-create-account");
-        this.title = title;
-        this.topicCode = topicCode;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getTopicCode() {
-        return topicCode;
-    }
 }

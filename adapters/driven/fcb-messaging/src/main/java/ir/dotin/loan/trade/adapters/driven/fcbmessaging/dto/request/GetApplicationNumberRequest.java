@@ -1,29 +1,30 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
+
+@Getter
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@SuperBuilder(toBuilder = true)
+@Jacksonized
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@AllArgsConstructor
 public final class GetApplicationNumberRequest extends FcbKafkaBaseRequest {
+
+    @Builder.Default
+    private String operationName = "get-loan-file-number";
 
     private final String branchCode;
     private final String loanTypeCode;
     private final String customerNumber;
-
-    public GetApplicationNumberRequest(String branchCode, String loanTypeCode, String customerNumber) {
-        super("get-loan-file-number");
-        this.branchCode = branchCode;
-        this.loanTypeCode = loanTypeCode;
-        this.customerNumber = customerNumber;
-    }
-
-    public String getBranchCode() {
-        return branchCode;
-    }
-
-    public String getLoanTypeCode() {
-        return loanTypeCode;
-    }
-
-    public String getCustomerNumber() {
-        return customerNumber;
-    }
 }

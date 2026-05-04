@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response;
+package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply;
 
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseResponse;
 

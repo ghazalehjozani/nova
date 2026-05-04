@@ -32,7 +32,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CustomerName;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuaranteePercentage;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuarantorParty;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.*;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.*;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.*;
 

@@ -2,9 +2,29 @@ package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
+
+@Getter
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@SuperBuilder(toBuilder = true)
+@Jacksonized
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@AllArgsConstructor
 public final class OpenAccountRequest extends FcbKafkaBaseRequest {
+
+    @Builder.Default
+    private String operationName = "nova-open-account";
 
     private final String transactionId;
     private final String topic;
@@ -20,92 +40,4 @@ public final class OpenAccountRequest extends FcbKafkaBaseRequest {
     private final BigDecimal newAccBaseCurrencyAmount;
     private final BigDecimal newAccDebtorAmount;
     private final BigDecimal newAccCreditorAmount;
-
-    public OpenAccountRequest(
-            String transactionId,
-            String topic,
-            String swiftCode,
-            String branchCode,
-            boolean createAccountGroup,
-            String newAccBranchCode,
-            String newAccAccountNumber,
-            String newAccTitle,
-            BigDecimal newAccAmount,
-            BigDecimal newAccMinAmount,
-            BigDecimal newAccMaxAmount,
-            BigDecimal newAccBaseCurrencyAmount,
-            BigDecimal newAccDebtorAmount,
-            BigDecimal newAccCreditorAmount) {
-        super("nova-open-account");
-        this.transactionId = transactionId;
-        this.topic = topic;
-        this.swiftCode = swiftCode;
-        this.branchCode = branchCode;
-        this.createAccountGroup = createAccountGroup;
-        this.newAccBranchCode = newAccBranchCode;
-        this.newAccAccountNumber = newAccAccountNumber;
-        this.newAccTitle = newAccTitle;
-        this.newAccAmount = newAccAmount;
-        this.newAccMinAmount = newAccMinAmount;
-        this.newAccMaxAmount = newAccMaxAmount;
-        this.newAccBaseCurrencyAmount = newAccBaseCurrencyAmount;
-        this.newAccDebtorAmount = newAccDebtorAmount;
-        this.newAccCreditorAmount = newAccCreditorAmount;
-    }
-
-    public String getTransactionId() {
-        return transactionId;
-    }
-
-    public String getTopic() {
-        return topic;
-    }
-
-    public String getSwiftCode() {
-        return swiftCode;
-    }
-
-    public String getBranchCode() {
-        return branchCode;
-    }
-
-    public boolean isCreateAccountGroup() {
-        return createAccountGroup;
-    }
-
-    public String getNewAccBranchCode() {
-        return newAccBranchCode;
-    }
-
-    public String getNewAccAccountNumber() {
-        return newAccAccountNumber;
-    }
-
-    public String getNewAccTitle() {
-        return newAccTitle;
-    }
-
-    public BigDecimal getNewAccAmount() {
-        return newAccAmount;
-    }
-
-    public BigDecimal getNewAccMinAmount() {
-        return newAccMinAmount;
-    }
-
-    public BigDecimal getNewAccMaxAmount() {
-        return newAccMaxAmount;
-    }
-
-    public BigDecimal getNewAccBaseCurrencyAmount() {
-        return newAccBaseCurrencyAmount;
-    }
-
-    public BigDecimal getNewAccDebtorAmount() {
-        return newAccDebtorAmount;
-    }
-
-    public BigDecimal getNewAccCreditorAmount() {
-        return newAccCreditorAmount;
-    }
 }

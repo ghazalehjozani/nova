@@ -14,9 +14,9 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.TransactionResultKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.PostTransactionRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ReverseTransactionRequest;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.response.TransactionResultKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.KafkaTransactionMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.LoanTransactionMerger;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
@@ -45,7 +45,6 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
 
         Result<PostTransactionRequest> mappingResult =
                 KafkaTransactionMapper.mapToIssueDocumentRequest(loanTransaction, trackingId);
-
         if (mappingResult.isFailure()) {
             log.error(
                     "Failed to map LoanTransaction to IssueDocumentRequest: {}",
@@ -57,12 +56,12 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
         log.debug(
                 "Successfully mapped LoanTransaction to IssueDocumentRequest - items: {}",
                 request.getItems().size());
+
         Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.transactionTimeout());
 
         if (result.isFailure()) {
             return Result.failure(result.notification());
         }
-
         FcbKafkaBaseResponse raw = result.orElseThrow();
         if (!(raw instanceof TransactionResultKafkaResponse response)) {
             return Result.failure(
@@ -98,7 +97,6 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
         if (postResult.isFailure()) {
             return Result.failure(postResult.notification());
         }
-
         return Result.success(List.of(postResult.orElseThrow()));
     }
 
@@ -106,14 +104,14 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
     public Result<Void> reverseTransaction(TrackedTransactionNumber transactionNumber) {
         log.debug("Reversing transaction via Kafka - {}", transactionNumber.value());
 
-        var request = new ReverseTransactionRequest(transactionNumber.value());
+        var request = ReverseTransactionRequest.builder()
+                .transactionNumber(transactionNumber.value())
+                .build();
 
         Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.transactionTimeout());
-
         if (result.isFailure()) {
             return Result.failure(result.notification());
         }
-
         return Result.success();
     }
 }

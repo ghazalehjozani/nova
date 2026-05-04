@@ -1,8 +1,28 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
+
+@Getter
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@SuperBuilder(toBuilder = true)
+@Jacksonized
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@AllArgsConstructor
 public final class LoadCustomerInfoRequest extends FcbKafkaBaseRequest {
+
+    @Builder.Default
+    private String operationName = "load-customer-info";
 
     private final String customerNumber;
     private final String sequenceCode;
@@ -11,50 +31,4 @@ public final class LoadCustomerInfoRequest extends FcbKafkaBaseRequest {
     private final boolean includeBlackList;
     private final boolean includeBaseInfo;
     private final boolean includeGrayList;
-
-    public LoadCustomerInfoRequest(
-            String customerNumber,
-            String sequenceCode,
-            String subsystem,
-            boolean includeCapability,
-            boolean includeBlackList,
-            boolean includeBaseInfo,
-            boolean includeGrayList) {
-        super("load-customer-info");
-        this.customerNumber = customerNumber;
-        this.sequenceCode = sequenceCode;
-        this.subsystem = subsystem;
-        this.includeCapability = includeCapability;
-        this.includeBlackList = includeBlackList;
-        this.includeBaseInfo = includeBaseInfo;
-        this.includeGrayList = includeGrayList;
-    }
-
-    public String getCustomerNumber() {
-        return customerNumber;
-    }
-
-    public String getSequenceCode() {
-        return sequenceCode;
-    }
-
-    public String getSubsystem() {
-        return subsystem;
-    }
-
-    public boolean isIncludeCapability() {
-        return includeCapability;
-    }
-
-    public boolean isIncludeBlackList() {
-        return includeBlackList;
-    }
-
-    public boolean isIncludeBaseInfo() {
-        return includeBaseInfo;
-    }
-
-    public boolean isIncludeGrayList() {
-        return includeGrayList;
-    }
 }
