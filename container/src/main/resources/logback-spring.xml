@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Spring Environment is fully initialised, so it cannot read from Consul KV.
+  This file exposes Spring properties via <springProperty> for things that
+  Consul DOES feed (e.g. Kafka bootstrap servers for the ELK appender).
+-->
 <configuration scan="true" scanPeriod="30 seconds" debug="false">
 
-    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="trade-loan-service"/>
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="nova-service"/>
     <springProperty scope="context" name="APP_VERSION" source="spring.application.version" defaultValue="unknown"/>
     <springProperty scope="context" name="ENV" source="platform.environment" defaultValue="dev"/>
     <springProperty scope="context" name="KAFKA_BOOTSTRAP" source="platform.observability.elk.kafka.bootstrap-servers" defaultValue="localhost:9092"/>
@@ -73,12 +78,10 @@
         <topic>${KAFKA_LOG_TOPIC}</topic>
         <keyingStrategy class="com.github.danielwegener.logback.kafka.keying.HostNameKeyingStrategy"/>
         <deliveryStrategy class="com.github.danielwegener.logback.kafka.delivery.AsynchronousDeliveryStrategy"/>
-
         <producerConfig>bootstrap.servers=${KAFKA_BOOTSTRAP}</producerConfig>
         <producerConfig>security.protocol=${KAFKA_SECURITY_PROTOCOL}</producerConfig>
         <producerConfig>sasl.mechanism=${KAFKA_SASL_MECHANISM}</producerConfig>
         <producerConfig>sasl.jaas.config=${KAFKA_SASL_JAAS_CONFIG}</producerConfig>
-
         <producerConfig>acks=1</producerConfig>
         <producerConfig>linger.ms=100</producerConfig>
         <producerConfig>batch.size=65536</producerConfig>
@@ -90,7 +93,6 @@
         <producerConfig>client.id=${APP_NAME}-logback</producerConfig>
         <producerConfig>reconnect.backoff.ms=1000</producerConfig>
         <producerConfig>reconnect.backoff.max.ms=10000</producerConfig>
-
         <appender-ref ref="ASYNC_APP_FALLBACK"/>
     </appender>
 
@@ -100,7 +102,6 @@
         <discardingThreshold>0</discardingThreshold>
         <neverBlock>true</neverBlock>
     </appender>
-
     <appender name="ASYNC_KAFKA" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="KAFKA"/>
         <queueSize>8192</queueSize>
@@ -109,7 +110,6 @@
         <neverBlock>true</neverBlock>
         <maxFlushTime>5000</maxFlushTime>
     </appender>
-
     <appender name="ASYNC_APP" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="APP_FILE"/>
         <queueSize>1024</queueSize>
@@ -118,7 +118,6 @@
         <neverBlock>true</neverBlock>
         <maxFlushTime>5000</maxFlushTime>
     </appender>
-
     <appender name="ASYNC_ERROR" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="ERROR_FILE"/>
         <queueSize>512</queueSize>
@@ -132,27 +131,18 @@
     <logger name="org.apache.kafka.clients" level="ERROR"/>
     <logger name="org.apache.kafka.clients.NetworkClient" level="ERROR"/>
     <logger name="com.github.danielwegener.logback.kafka" level="WARN"/>
-
     <logger name="ir.dotin.platform" level="INFO"/>
     <logger name="ir.dotin.loan" level="INFO"/>
-
     <logger name="org.springframework" level="WARN"/>
     <logger name="org.springframework.boot" level="INFO"/>
     <logger name="org.springframework.web" level="INFO"/>
     <logger name="org.springframework.security" level="INFO"/>
     <logger name="org.springframework.kafka" level="WARN"/>
-    <logger name="org.springframework.transaction" level="INFO"/>
-    <logger name="org.springframework.orm.jpa" level="INFO"/>
-
+    <logger name="org.springframework.cloud.consul" level="INFO"/>
     <logger name="org.hibernate" level="WARN"/>
     <logger name="org.hibernate.SQL" level="INFO"/>
-    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="WARN"/>
-
     <logger name="com.zaxxer.hikari" level="INFO"/>
-    <logger name="com.zaxxer.hikari.HikariConfig" level="WARN"/>
-
     <logger name="org.postgresql" level="WARN"/>
-
     <logger name="io.opentelemetry" level="INFO"/>
     <logger name="io.micrometer" level="INFO"/>
     <logger name="io.micrometer.core.instrument" level="WARN"/>
@@ -176,7 +166,6 @@
                 <totalSizeCap>10GB</totalSizeCap>
             </rollingPolicy>
         </appender>
-
         <appender name="ASYNC_ECS" class="ch.qos.logback.classic.AsyncAppender">
             <appender-ref ref="ECS_FILE"/>
             <queueSize>2048</queueSize>
@@ -185,7 +174,6 @@
             <neverBlock>true</neverBlock>
             <maxFlushTime>5000</maxFlushTime>
         </appender>
-
         <root level="INFO">
             <appender-ref ref="DEV_CONSOLE"/>
             <appender-ref ref="ASYNC_APP"/>
@@ -194,8 +182,7 @@
         </root>
         <logger name="ir.dotin" level="DEBUG"/>
         <logger name="org.springframework.security" level="DEBUG"/>
-        <logger name="org.springframework.security.oauth2" level="TRACE"/>
-        <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>
+        <logger name="org.springframework.cloud.consul" level="DEBUG"/>
     </springProfile>
 
     <springProfile name="dev-elk">
@@ -206,11 +193,9 @@
             <appender-ref ref="ASYNC_ERROR"/>
         </root>
         <logger name="ir.dotin" level="DEBUG"/>
-        <logger name="ir.dotin.platform.commons.core.Notification" level="DEBUG"/>
-        <logger name="ir.dotin.platform.commons.core.exception.BusinessRuleViolationException" level="DEBUG"/>
     </springProfile>
 
-    <springProfile name="stage,prod,k8s">
+    <springProfile name="stage,prod">
         <appender name="STDOUT_ECS" class="ch.qos.logback.core.ConsoleAppender">
             <encoder class="co.elastic.logging.logback.EcsEncoder">
                 <serviceName>${APP_NAME}</serviceName>
@@ -221,25 +206,19 @@
                 <eventDataset>${APP_NAME}.application</eventDataset>
             </encoder>
         </appender>
-
         <appender name="ASYNC_STDOUT_ECS" class="ch.qos.logback.classic.AsyncAppender">
             <appender-ref ref="STDOUT_ECS"/>
             <queueSize>2048</queueSize>
             <discardingThreshold>0</discardingThreshold>
             <neverBlock>true</neverBlock>
         </appender>
-
         <root level="INFO">
             <appender-ref ref="ASYNC_KAFKA"/>
             <appender-ref ref="ASYNC_STDOUT_ECS"/>
             <appender-ref ref="ASYNC_ERROR"/>
         </root>
-
         <logger name="ir.dotin.platform" level="INFO"/>
         <logger name="ir.dotin.loan" level="INFO"/>
-        <logger name="org.springframework.web" level="WARN"/>
-        <logger name="org.springframework.security" level="INFO"/>
-        <logger name="org.hibernate.SQL" level="WARN"/>
     </springProfile>
 
 </configuration>

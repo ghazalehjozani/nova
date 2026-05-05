@@ -2,7 +2,7 @@
 
 ## Overview
 
-The container module is the Spring Boot application entry point (`ir.dotin.loan.trade.Main`). It assembles all hexagonal architecture layers (domain, application services, adapters) into a runnable microservice. It also contains **E2E integration tests** that boot the full application with real infrastructure via Testcontainers.
+The container module is the Spring Boot application entry point (`ir.dotin.loan.trade.NovaApplication`). It assembles all hexagonal architecture layers (domain, application services, adapters) into a runnable microservice. It also contains **E2E integration tests** that boot the full application with real infrastructure via Testcontainers.
 
 ## Build Commands
 

@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.e2e;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ir.dotin.loan.trade.NovaApplication;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +11,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import ir.dotin.loan.trade.Main;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FetchSanctionDetailsPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FindAccountByIdPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FindOrCreateAccountPort;
@@ -28,7 +28,7 @@ import ir.dotin.loan.trade.e2e.orchestrator.MockPortConfigurator;
 import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator;
 
 @SpringBootTest(
-        classes = {Main.class, E2ETestConfiguration.class},
+        classes = {NovaApplication.class, E2ETestConfiguration.class},
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("e2e")
 @Import({

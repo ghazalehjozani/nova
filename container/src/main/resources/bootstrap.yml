@@ -1,28 +1,88 @@
 ---
+# =============================================================================
+# bootstrap.yml — the ONLY local configuration file in this service.
+# -----------------------------------------------------------------------------
+# Everything else (datasource, kafka, security, fcb, dispatcher, etc.) lives
+# in Consul KV, owned by the `nova-config` repository, synchronised via
+# GitLab CI (production) or git2consul-sync sidecar (dev/test).
+#
+# Secrets are NEVER stored in Consul. They are injected as environment
+# variables (${ENV_VAR}) at runtime — Spring resolves placeholders AFTER
+# pulling KV. Local dev secrets live in .env (git-ignored).
+# =============================================================================
 
 spring:
   application:
-    name: trade-loan-service
+    name: nova-service
+
   profiles:
-    active: ${SPRING_PROFILES_ACTIVE}
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
   cloud:
-    kubernetes:
+    consul:
       enabled: true
+      host: ${CONSUL_HOST:10.20.11.123}
+      port: ${CONSUL_PORT:8500}
+      scheme: ${CONSUL_SCHEME:http}
+
+#      tls:
+#        enabled: ${CONSUL_TLS_ENABLED:false}
+#        certificate-path: ${CONSUL_TLS_CERT_PATH:}
+#        key-store-instance-type: ${CONSUL_TLS_TRUSTSTORE_TYPE:JKS}
+#        key-store-password: ${CONSUL_TLS_TRUSTSTORE_PASSWORD:}
+
       discovery:
-        enabled: false
+        enabled: true
+        register: true
+        deregister: true
+        prefer-ip-address: true
+        instance-id: ${spring.application.name}:${random.uuid}
+        service-name: ${spring.application.name}
+        health-check-path: /actuator/health
+        health-check-interval: 15s
+        health-check-timeout: 5s
+        health-check-critical-timeout: 30s
+        tags:
+          - profile=${SPRING_PROFILES_ACTIVE:dev}
+          - version=@project.version@
+        metadata:
+          version: '@project.version@'
+          management.context-path: /actuator
+        acl-token: ${CONSUL_ACL_TOKEN}
+        scheme: http
+
+      # Hierarchical key/value mode — NO YAML blobs. Each property is a
+      # discrete Consul key, so changes have surgical, auditable diffs.
       config:
         enabled: true
-        name: trade-loan-service-config
-        namespace: ${KUBERNETES_NAMESPACE:default}
-        paths: /app/config
-        enable-api: false
-      secrets:
+        format: KEY_VALUE
+        prefix: config
+        default-context: application
+        profile-separator: ','
+        fail-fast: true
+        watch:
+          enabled: true
+          delay: 1000
+          wait-time: 55
+        acl-token: ${CONSUL_ACL_TOKEN}
+
+
+      retry:
         enabled: true
-        name: trade-loan-service-secrets
-        namespace: ${KUBERNETES_NAMESPACE:default}
-        enable-api: true
-      reload:
+        max-attempts: 6
+        initial-interval: 1000
+        multiplier: 1.5
+        max-interval: 10000
+
+# Actuator must be reachable for Consul's health-check before Consul-sourced
+# config is applied. Keep ONLY this minimum here; full management config lives
+# in Consul under config/application/management/...
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
         enabled: true
-        mode: event
-        strategy: refresh
-        period: 15000
