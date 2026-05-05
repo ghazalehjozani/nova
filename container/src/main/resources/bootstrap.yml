@@ -47,7 +47,7 @@ spring:
           - version=@project.version@
         metadata:
           version: '@project.version@'
-          management.context-path: /actuator
+          management-context-path: /actuator
         acl-token: ${CONSUL_ACL_TOKEN}
         scheme: http
 
@@ -81,7 +81,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,
   endpoint:
     health:
       probes:
