@@ -39,7 +39,7 @@ setup.template.enabled: false
 
 logging.level: debug
 logging.selectors: ["kafka", "publisher"]
-#logging.level: info
+# logging.level: info
 logging.to_stderr: true
 logging.metrics.enabled: false
 

@@ -21,10 +21,10 @@ spring:
   cloud:
     inetutils:
       ignored-interfaces:
-        - docker0
-        - veth.*
+        - "docker0"
+        - "veth.*"
       preferred-networks:
-        - "^10\.100\..*"
+          - '^10\.100\..*'
     consul:
       enabled: true
       host: ${CONSUL_HOST:10.20.11.123}
