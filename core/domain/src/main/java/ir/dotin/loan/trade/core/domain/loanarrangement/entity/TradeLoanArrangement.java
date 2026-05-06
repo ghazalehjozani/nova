@@ -98,7 +98,7 @@ public final class TradeLoanArrangement extends AbstractLoanArrangement {
 
         Result<Builder> prepareResult = super.prepareNewVersion(updatedBuilder, featureContext, clock);
 
-        if (prepareResult.isSuccess()) {
+        if (prepareResult.isSuccessWithValue()) {
             return Result.success(prepareResult.orElseThrow());
         } else {
             return Result.failure(prepareResult.notification());
