@@ -54,7 +54,7 @@ public class FullLoanFacilityLifecycleCommandHandler implements CommandHandler<F
                 command.confirmType());
 
         DispatchContext dispatchContext = DispatchContextHolder.current();
-        String sagaCorrelationId = dispatchContext.getHeader(StandardHeaders.X_SAGA_CORRELATION_ID);
+        String sagaCorrelationId = dispatchContext.getHeader(StandardHeaders.X_FLOW_CORRELATION_ID);
 
         SagaResult<FullLoanFacilityLifecycleSagaData> sagaResult =
                 sagaOrchestrator.executeSaga("full-loan-facility-lifecycle", input, sagaCorrelationId);

@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-import ir.dotin.platform.asyncapi.header.MessagingHeaderNames;
 import ir.dotin.platform.inbox.core.InboundEventIngestor;
+import ir.dotin.platform.messaging.api.header.MessagingHeaderNames;
 import ir.dotin.platform.messaging.api.inbound.InboundMessage;
 import ir.dotin.platform.messaging.kafka.converter.KafkaInboundMessageConverter;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.FcbEventOperationType;

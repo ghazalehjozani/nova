@@ -2,25 +2,24 @@ package ir.dotin.loan.trade.adapters.driving.messaging.activemq.consumer;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
-import jakarta.jms.JMSException;
 import jakarta.jms.Message;
+import jakarta.jms.TextMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
-import ir.dotin.platform.asyncapi.header.MessagingHeaderNames;
 import ir.dotin.platform.messaging.activemq.converter.JmsInboundMessageConverter;
-import ir.dotin.platform.messaging.activemq.support.JmsDestinationResolver;
 import ir.dotin.platform.messaging.api.command.CommandResponse;
+import ir.dotin.platform.messaging.api.header.MessagingHeaderNames;
 import ir.dotin.platform.messaging.api.inbound.InboundMessage;
+import ir.dotin.platform.messaging.api.inbound.InboundMessageHeaders;
 import ir.dotin.platform.messaging.api.outbound.spi.ResponsePublisher;
 import ir.dotin.platform.messaging.core.processor.InboundCommandProcessor;
 import ir.dotin.platform.messaging.core.serialization.CommandSerializer;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.FullLoanFacilityLifecycleMessage;
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.FullLoanFacilityLifecycleMessageMapper;
-import ir.dotin.loan.trade.adapters.driving.messaging.activemq.config.ActiveMqJmsConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLoanFacilityLifecycleCommand;
 
 import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
@@ -38,64 +37,56 @@ public class FullLifecycleJmsCommandConsumer {
     private final FullLoanFacilityLifecycleMessageMapper messageMapper;
     private final InboundCommandProcessor inboundCommandProcessor;
     private final CommandSerializer commandSerializer;
-    private final JmsInboundMessageConverter jmsConverter;
+    private final JmsInboundMessageConverter converter;
     private final ResponsePublisher jmsResponsePublisher;
 
     @AsyncListener(
             operation =
                     @AsyncOperation(
-                            channelName = ActiveMqJmsConfig.FULL_LIFECYCLE_QUEUE,
+                            channelName = "corridor.core.loan.nova.full-lifecycle.request.queue.v1",
                             description =
-                                    "Process nova loan full lifecycle command (ActiveMQ, saga-driven, request/reply).",
+                                    "Process nova loan full lifecycle commands (ActiveMQ, flow-driven, request/reply).",
                             servers = "activemq",
                             headers =
                                     @AsyncOperation.Headers(
-                                            schemaName = MessagingHeaderNames.SCHEMA_SAGA_COMMAND_HEADERS)))
+                                            schemaName = MessagingHeaderNames.SCHEMA_FLOW_COMMAND_HEADERS)))
     @JmsListener(
-            destination = ActiveMqJmsConfig.FULL_LIFECYCLE_QUEUE,
-            subscription = "${platform.messaging.kafka.consumer-group-id}",
+            destination = "corridor.core.loan.nova.full-lifecycle.request.queue.v1",
             containerFactory = "jmsListenerContainerFactory")
-    public void consume(Message jmsMessage) throws JMSException {
-        String correlationKey = JmsDestinationResolver.resolveCorrelationId(jmsMessage);
-        try {
-            InboundMessage inboundMessage = jmsConverter.convert(jmsMessage, ActiveMqJmsConfig.FULL_LIFECYCLE_QUEUE);
+    public void consume(Message message) throws Exception {
+        if (!(message instanceof TextMessage textMessage)) {
+            throw new IllegalArgumentException(
+                    "Unsupported JMS message type: " + message.getClass().getSimpleName());
+        }
 
-            FullLoanFacilityLifecycleMessage message =
-                    objectMapper.readValue(jmsMessage.getBody(String.class), FullLoanFacilityLifecycleMessage.class);
+        InboundMessage inboundMessage = converter.convert(textMessage);
+        validateRequiredHeaders(inboundMessage.headers());
 
-            FullLoanFacilityLifecycleCommand command = messageMapper.toCommand(message).toBuilder()
-                    .uid(UUID.randomUUID())
-                    .transactionMetadata(buildTransactionMetadata(jmsMessage))
-                    .build();
+        FullLoanFacilityLifecycleMessage payload =
+                objectMapper.readValue(inboundMessage.payload(), FullLoanFacilityLifecycleMessage.class);
 
-            byte[] commandBytes = commandSerializer.serialize(command).getBytes(StandardCharsets.UTF_8);
+        FullLoanFacilityLifecycleCommand command = messageMapper.toCommand(payload).toBuilder()
+                .uid(UUID.randomUUID())
+                .transactionMetadata(buildDefaultTransactionMetadata())
+                .build();
 
-            CommandResponse<?> response = inboundCommandProcessor.process(inboundMessage.withPayload(commandBytes));
+        byte[] commandBytes = commandSerializer.serialize(command).getBytes(StandardCharsets.UTF_8);
 
-            // Publish protocol-compliant response via ResponsePublisher
-            String responseDestination = inboundMessage.responseDestination();
-            if (responseDestination != null && !responseDestination.isBlank()) {
-                jmsResponsePublisher.publish(responseDestination, correlationKey, response);
-            }
+        CommandResponse<Object> response = inboundCommandProcessor.process(inboundMessage.withPayload(commandBytes));
 
-            LOG.info("JMS command processed successfully [correlationId={}]", correlationKey);
-        } catch (Exception e) {
-            LOG.error("Failed to process JMS command [correlationId={}]: {}", correlationKey, e.getMessage(), e);
-            throw new RuntimeException("JMS command processing failed [correlationId=" + correlationKey + "]", e);
-        } finally {
-            jmsMessage.acknowledge();
+        String responseDestination = inboundMessage.responseDestination();
+        if (responseDestination != null && !responseDestination.isBlank()) {
+            jmsResponsePublisher.publish(responseDestination, inboundMessage.correlationKey(), response);
         }
     }
 
-    private FullLoanFacilityLifecycleCommand.TransactionMetadataDto buildTransactionMetadata(Message message)
-            throws JMSException {
-
+    private FullLoanFacilityLifecycleCommand.TransactionMetadataDto buildDefaultTransactionMetadata() {
         return FullLoanFacilityLifecycleCommand.TransactionMetadataDto.builder()
-                .branchCode(getStringProperty(message, "branchCode", "1"))
-                .userId(getStringProperty(message, "userId", "SYSTEM"))
-                .terminalId(getStringProperty(message, "terminalId", "ACTIVEMQ"))
-                .terminalIp(getStringProperty(message, "terminalIp", "0.0.0.0"))
-                .terminalType(getStringProperty(message, "terminalType", "MESSAGING"))
+                .branchCode("1")
+                .userId("SYSTEM")
+                .terminalId("ACTIVEMQ")
+                .terminalIp("0.0.0.0")
+                .terminalType("MESSAGING")
                 .channel("ACTIVEMQ")
                 .toolSource("NOVA")
                 .productCode("TRADE_LOAN")
@@ -103,8 +94,30 @@ public class FullLifecycleJmsCommandConsumer {
                 .build();
     }
 
-    private String getStringProperty(Message message, String name, String defaultValue) throws JMSException {
-        String value = message.getStringProperty(name);
-        return (value != null && !value.isBlank()) ? value : defaultValue;
+    private void validateRequiredHeaders(InboundMessageHeaders headers) {
+        if (headers.idempotencyKey() == null) {
+            throw new IllegalArgumentException("Missing required header: " + MessagingHeaderNames.IDEMPOTENCY_KEY);
+        }
+        if (headers.requestDateTime() == null) {
+            throw new IllegalArgumentException("Missing required header: " + MessagingHeaderNames.REQUEST_DATETIME);
+        }
+        if (headers.acceptLanguage() == null) {
+            throw new IllegalArgumentException("Missing required header: " + MessagingHeaderNames.ACCEPT_LANGUAGE);
+        }
+        if (headers.authorizationToken() == null) {
+            throw new IllegalArgumentException("Missing required header: " + MessagingHeaderNames.AUTHORIZATION);
+        }
+        if (headers.traceparent() == null) {
+            throw new IllegalArgumentException("Missing required header: " + MessagingHeaderNames.TRACEPARENT);
+        }
+        if (headers.correlationId() == null) {
+            throw new IllegalArgumentException("Missing required header: " + MessagingHeaderNames.CORRELATION_ID);
+        }
+        if (headers.flowFailureMode() == null) {
+            throw new IllegalArgumentException("Missing required header: " + MessagingHeaderNames.FLOW_FAILURE_MODE);
+        }
+        if (headers.flowCorrelationId() == null) {
+            throw new IllegalArgumentException("Missing required header: " + MessagingHeaderNames.FLOW_CORRELATION_ID);
+        }
     }
 }
