@@ -30,6 +30,7 @@ import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
 import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CancellationDataEmb;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CloseFacilityPaidOffInfoEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.TransactionNumberEmb;
 
@@ -113,6 +114,9 @@ public class TradeLoanFacilityEntity extends PersistentEntity {
             joinColumns = @JoinColumn(name = "loan_facility_id"),
             indexes = @Index(name = "idx_trade_loan_facility_collaterals", columnList = "loan_facility_id"))
     private List<CollateralEmb> collaterals = new ArrayList<>();
+
+    @Embedded
+    private CloseFacilityPaidOffInfoEmb closeFacilityPaidOffInfo;
 
     @Override
     public final boolean equals(Object o) {

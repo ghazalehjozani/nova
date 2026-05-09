@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <!--
+        Adds settlement (close paid off) fields to loan_facilities table.
+        These columns store the date, transaction reference and total amount
+        recorded when a loan facility is closed as fully paid off.
+    -->
+
+    <changeSet id="tl-1.0.0-067-add-close-paid-off-fields" author="DOTIN\f.sotoodeh">
+        <comment>Add settlement columns to loan_facilities for close-paid-off tracking</comment>
+        <addColumn tableName="loan_facilities">
+            <column name="close_paid_off_at" type="DATE">
+                <constraints nullable="true"/>
+            </column>
+            <column name="close_paid_off_transaction_ref" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="total_close_paid_off_amount" type="DECIMAL(19, 4)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="total_close_paid_off_currency" type="VARCHAR(3)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="loan_facilities" columnName="close_paid_off_at"/>
+            <dropColumn tableName="loan_facilities" columnName="close_paid_off_transaction_ref"/>
+            <dropColumn tableName="loan_facilities" columnName="total_close_paid_off_amount"/>
+            <dropColumn tableName="loan_facilities" columnName="total_close_paid_off_currency"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

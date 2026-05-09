@@ -39,7 +39,8 @@ public record TradeFacilityQueryDto(
         Map<String, String> accountInfoMap,
         LocalDate disbursementDate,
         String facilityType,
-        List<CollateralEmbDto> collaterals)
+        List<CollateralEmbDto> collaterals,
+        ClosePaidOffDto closePaidOff)
         implements Serializable, QueryResult {
     /** */
     public record TradeLoanApplicationDto(
@@ -126,5 +127,12 @@ public record TradeFacilityQueryDto(
             String useType,
             String exceptionCode,
             String consumptionPlaceCode)
+            implements Serializable {}
+
+    public record ClosePaidOffDto(
+            LocalDate closePaidOffDate,
+            String closePaidOffTransactionReference,
+            BigDecimal totalClosePaidOffAmount,
+            String totalClosePaidOffAmountCurrency)
             implements Serializable {}
 }
