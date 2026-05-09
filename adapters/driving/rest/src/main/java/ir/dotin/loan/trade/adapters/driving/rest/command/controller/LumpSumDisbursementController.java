@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ir.dotin.platform.adapter.rest.controller.BaseController;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.protocol.api.response.BaseResponse;
-import ir.dotin.platform.protocol.api.response.EventStream;
 import ir.dotin.platform.security.api.AuthenticationContextHolder;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.LumpSumDisbursementRequest;
@@ -39,7 +38,7 @@ class LumpSumDisbursementController extends BaseController {
 
     @PostMapping(version = "1+")
     @Operation(summary = "پرداخت یکجا")
-    public ResponseEntity<BaseResponse<EventStream>> lumpSumDisbursement(
+    public ResponseEntity<BaseResponse<Void>> lumpSumDisbursement(
             @Parameter(
                             description = "شناسه یکتای تسهیلات",
                             example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
@@ -62,13 +61,13 @@ class LumpSumDisbursementController extends BaseController {
                 .disbursementDate(Objects.requireNonNullElse(requestBody.disbursementDate(), LocalDate.now()))
                 .userId(authenticationContextHolder.userIdOrThrow())
                 .build();
-        return ResponseEntity.ok(
-                BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(lumpSumDisbursementCommand)))));
+        dispatcher.dispatch(lumpSumDisbursementCommand);
+        return ResponseEntity.ok(BaseResponse.success());
     }
 
     @PostMapping(value = "/compensate", version = "1+")
     @Operation(summary = "جبران‌سازی مرحله پرداخت یکجا")
-    public ResponseEntity<BaseResponse<EventStream>> compensateLumpSumDisbursement(
+    public ResponseEntity<BaseResponse<Void>> compensateLumpSumDisbursement(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
             @RequestBody @Valid CompensationRequest request) {
 
@@ -78,6 +77,7 @@ class LumpSumDisbursementController extends BaseController {
                 .loanFacilityId(facilityId)
                 .build();
 
-        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
+        dispatcher.dispatch(command);
+        return ResponseEntity.ok(BaseResponse.success());
     }
 }

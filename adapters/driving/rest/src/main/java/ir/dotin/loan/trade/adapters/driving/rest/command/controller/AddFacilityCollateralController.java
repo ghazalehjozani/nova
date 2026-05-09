@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ir.dotin.platform.adapter.rest.controller.BaseController;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.protocol.api.response.BaseResponse;
-import ir.dotin.platform.protocol.api.response.EventStream;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.AddFacilityCollateralRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CompensateCollateralRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.AddFacilityCollateralRequestToCommandMapper;
@@ -35,7 +34,7 @@ class AddFacilityCollateralController extends BaseController {
 
     @PostMapping(version = "1+")
     @Operation(summary = "افزودن وثیقه")
-    public ResponseEntity<BaseResponse<EventStream>> addCollaterals(
+    public ResponseEntity<BaseResponse<Void>> addCollaterals(
             @Parameter(
                             description = "شناسه یکتای تسهیلات",
                             example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
@@ -47,12 +46,14 @@ class AddFacilityCollateralController extends BaseController {
         var command = mapper.toCommand(facilityId, request).toBuilder()
                 .uid(getIdempotencyKey())
                 .build();
-        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
+        dispatcher.dispatch(command);
+        ;
+        return ResponseEntity.ok(BaseResponse.success());
     }
 
     @PostMapping(value = "/compensate", version = "1+")
     @Operation(summary = "جبران‌سازی افزودن وثایق")
-    public ResponseEntity<BaseResponse<EventStream>> compensateAddCollaterals(
+    public ResponseEntity<BaseResponse<Void>> compensateAddCollaterals(
             @Parameter(description = "شناسه تسهیلات", required = true) @PathVariable UUID facilityId,
             @Parameter(description = "جزئیات وثایق برای جبران‌سازی", required = true) @RequestBody
                     CompensateCollateralRequest request) {
@@ -62,7 +63,8 @@ class AddFacilityCollateralController extends BaseController {
                 .loanFacilityId(facilityId)
                 .collateralSerials(request.collateralSerials())
                 .build();
-
-        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
+        dispatcher.dispatch(command);
+        ;
+        return ResponseEntity.ok(BaseResponse.success());
     }
 }

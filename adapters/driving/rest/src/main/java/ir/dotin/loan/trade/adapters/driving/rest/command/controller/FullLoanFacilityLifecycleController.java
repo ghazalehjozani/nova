@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ir.dotin.platform.adapter.rest.controller.BaseController;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.protocol.api.response.BaseResponse;
-import ir.dotin.platform.protocol.api.response.EventStream;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.FullLifecycleRevertRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLifecycleRevertCommand;
@@ -33,7 +32,7 @@ class FullLoanFacilityLifecycleController extends BaseController {
 
     @PostMapping(value = "{facilityId}/compensate", version = "1+")
     @Operation(summary = "بازگشت کامل چرخه تسهیلات")
-    public ResponseEntity<BaseResponse<EventStream>> revertFullLifecycle(
+    public ResponseEntity<BaseResponse<Void>> revertFullLifecycle(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
             @Parameter(description = "جزئیات درخواست بازگشت", required = true) @RequestBody @Valid
                     FullLifecycleRevertRequest request) {
@@ -48,6 +47,7 @@ class FullLoanFacilityLifecycleController extends BaseController {
                 .collateralSerialsToRevert(request.collateralSerialsToRevert())
                 .build();
 
-        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
+        dispatcher.dispatch(command);
+        return ResponseEntity.ok(BaseResponse.success());
     }
 }

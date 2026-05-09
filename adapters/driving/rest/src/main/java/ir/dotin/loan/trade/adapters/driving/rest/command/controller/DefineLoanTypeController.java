@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ir.dotin.platform.adapter.rest.controller.BaseController;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.protocol.api.response.BaseResponse;
-import ir.dotin.platform.protocol.api.response.EventStream;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineLoanTypeRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.DefineLoanTypeRequestToCommandMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
@@ -31,9 +30,10 @@ class DefineLoanTypeController extends BaseController {
 
     @PostMapping(version = "1+")
     @Operation(summary = "ایجاد نوع تسهیلات")
-    public ResponseEntity<BaseResponse<EventStream>> defineLoanType(@RequestBody @Valid DefineLoanTypeRequest request) {
+    public ResponseEntity<BaseResponse<Void>> defineLoanType(@RequestBody @Valid DefineLoanTypeRequest request) {
         var command =
                 mapper.toCommand(request).toBuilder().uid(getIdempotencyKey()).build();
-        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
+        dispatcher.dispatch(command);
+        return ResponseEntity.ok(BaseResponse.success());
     }
 }

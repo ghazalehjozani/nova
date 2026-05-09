@@ -52,14 +52,4 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
     CMD curl -f http://127.0.0.1:8080/actuator/health || exit 1
 
-ENTRYPOINT ["sh", "-c", "java \
-    --add-opens=org.hibernate.validator/org.hibernate.validator.internal.engine=spring.core,spring.beans,spring.context,ALL-UNNAMED \
-    --add-opens=org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv=spring.core,spring.beans,ALL-UNNAMED \
-    --add-opens=org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv.number.bound=spring.core,spring.beans,spring.context,ALL-UNNAMED \
-    --add-opens=org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv.number.sign=spring.core,spring.beans,spring.context,ALL-UNNAMED \
-    --add-opens=org.hibernate.validator/org.hibernate.validator.internal.util=spring.core,spring.beans,ALL-UNNAMED \
-    --add-opens=org.hibernate.validator/org.hibernate.validator.internal.metadata.core=spring.core,ALL-UNNAMED \
-    --add-opens=org.hibernate.validator/org.hibernate.validator.internal.metadata.provider=spring.core,ALL-UNNAMED \
-    --add-opens=org.hibernate.validator/org.hibernate.validator.internal.metadata.aggregated=spring.core,ALL-UNNAMED \
-    $JAVA_OPTS \
-    -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

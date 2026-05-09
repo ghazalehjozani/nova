@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ir.dotin.platform.adapter.rest.controller.BaseController;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.protocol.api.response.BaseResponse;
-import ir.dotin.platform.protocol.api.response.EventStream;
 import ir.dotin.platform.security.api.AuthenticationContextHolder;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest;
@@ -40,7 +39,7 @@ class OpenFacilityCaseController extends BaseController {
 
     @PostMapping(version = "1+")
     @Operation(summary = "ایجاد پرونده تسهیلات")
-    public ResponseEntity<BaseResponse<EventStream>> openFacilityCase(
+    public ResponseEntity<BaseResponse<Void>> openFacilityCase(
             @Parameter(required = true) @Valid @RequestBody OriginateLoanFacilityRequest request) {
 
         String branchCode = authenticationContextHolder.branchCode().orElse(null);
@@ -53,14 +52,13 @@ class OpenFacilityCaseController extends BaseController {
                         .branch(new OriginateLoanFacilityCommand.BranchDto(branchCode))
                         .build())
                 .build();
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(enrichedCommand)))));
+        dispatcher.dispatch(enrichedCommand);
+        return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.success());
     }
 
     @PostMapping(value = "/{facilityId}/compensate", version = "1+")
     @Operation(summary = "جبران‌سازی مرحله تشکیل پرونده")
-    public ResponseEntity<BaseResponse<EventStream>> compensateOrigination(
+    public ResponseEntity<BaseResponse<Void>> compensateOrigination(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
             @RequestBody @Valid CompensationRequest request) {
 
@@ -71,6 +69,7 @@ class OpenFacilityCaseController extends BaseController {
                 .reason(request.reason())
                 .build();
 
-        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
+        dispatcher.dispatch(command);
+        return ResponseEntity.ok(BaseResponse.success());
     }
 }

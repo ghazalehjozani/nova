@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ir.dotin.platform.adapter.rest.controller.BaseController;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.protocol.api.response.BaseResponse;
-import ir.dotin.platform.protocol.api.response.EventStream;
 import ir.dotin.platform.security.api.AuthenticationContextHolder;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.IrregularProgressiveDisbursementRequest;
@@ -38,7 +37,7 @@ class IrregularProgressiveDisbursementController extends BaseController {
 
     @PostMapping(version = "1+")
     @Operation(summary = "پرداخت نامنظم")
-    public ResponseEntity<BaseResponse<EventStream>> irregularDisbursement(
+    public ResponseEntity<BaseResponse<Void>> irregularDisbursement(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
             @Parameter(description = "جزئیات درخواست پرداخت نامنظم", required = true) @RequestBody @Valid
                     IrregularProgressiveDisbursementRequest requestBody) {
@@ -61,7 +60,8 @@ class IrregularProgressiveDisbursementController extends BaseController {
                 .disbursementDate(requestBody.disbursementDate())
                 .build();
 
-        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
+        dispatcher.dispatch(command);
+        return ResponseEntity.ok(BaseResponse.success());
     }
 
     private IrregularProgressiveDisbursementCommand.InstallmentSchedulePlanDto mapInstallmentPlan(
@@ -84,7 +84,7 @@ class IrregularProgressiveDisbursementController extends BaseController {
 
     @PostMapping(value = "/compensate", version = "1+")
     @Operation(summary = "جبران‌سازی مرحله پرداخت نامنظم")
-    public ResponseEntity<BaseResponse<EventStream>> compensateIrregularDisbursement(
+    public ResponseEntity<BaseResponse<Void>> compensateIrregularDisbursement(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
             @RequestBody @Valid CompensationRequest request) {
 
@@ -94,6 +94,7 @@ class IrregularProgressiveDisbursementController extends BaseController {
                 .loanFacilityId(facilityId)
                 .build();
 
-        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
+        dispatcher.dispatch(command);
+        return ResponseEntity.ok(BaseResponse.success());
     }
 }

@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import ir.dotin.platform.adapter.rest.controller.BaseController;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.protocol.api.response.BaseResponse;
-import ir.dotin.platform.protocol.api.response.EventStream;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CloseFacilityDefaultedRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.CloseFacilityDefaultedRequestToCommandMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
@@ -29,7 +28,7 @@ class CloseFacilityDefaultedController extends BaseController {
 
     @PostMapping(version = "1+")
     @Operation(summary = "بستن تسهیلات معوق")
-    public ResponseEntity<BaseResponse<EventStream>> closeFacilityDefaulted(
+    public ResponseEntity<BaseResponse<Void>> closeFacilityDefaulted(
             @Parameter(
                             description = "شناسه یکتای تسهیلات معوق جهت بستن",
                             example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
@@ -39,6 +38,7 @@ class CloseFacilityDefaultedController extends BaseController {
             @Parameter(description = "جزئیات عملیات بستن تسهیلات", required = true) @RequestBody
                     CloseFacilityDefaultedRequest request) {
         var command = mapper.toCommand(facilityId, request);
-        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
+        dispatcher.dispatch(command);
+        return ResponseEntity.ok(BaseResponse.success());
     }
 }

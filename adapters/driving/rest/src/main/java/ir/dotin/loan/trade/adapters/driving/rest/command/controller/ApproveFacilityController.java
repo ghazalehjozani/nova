@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ir.dotin.platform.adapter.rest.controller.BaseController;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.protocol.api.response.BaseResponse;
-import ir.dotin.platform.protocol.api.response.EventStream;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.ApproveFacilityRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.ApproveFacilityRequestToCommandMapper;
@@ -37,7 +36,7 @@ class ApproveFacilityController extends BaseController {
 
     @PostMapping(version = "1+")
     @Operation(summary = "تصویب خودکار مصوبه")
-    public ResponseEntity<BaseResponse<EventStream>> autoApproveFacility(
+    public ResponseEntity<BaseResponse<Void>> autoApproveFacility(
             @Parameter(
                             description = "شناسه یکتای تسهیلات",
                             example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
@@ -50,12 +49,13 @@ class ApproveFacilityController extends BaseController {
         var command = mapper.toCommand(facilityId, null, request).toBuilder()
                 .uid(getIdempotencyKey())
                 .build();
-        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
+        dispatcher.dispatch(command);
+        return ResponseEntity.ok(BaseResponse.success());
     }
 
     @PostMapping(value = "/{sanctionSerial}", version = "1+")
     @Operation(summary = "تصویب مصوبه با شماره سریال")
-    public ResponseEntity<BaseResponse<EventStream>> approveFacilityWithSerial(
+    public ResponseEntity<BaseResponse<Void>> approveFacilityWithSerial(
             @Parameter(
                             description = "شناسه یکتای تسهیلات",
                             example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
@@ -68,14 +68,14 @@ class ApproveFacilityController extends BaseController {
                     String sanctionSerial,
             @Parameter(description = "جزئیات تصویب مصوبه", required = true) @RequestBody
                     ApproveFacilityRequest request) {
-
         var command = mapper.toCommand(facilityId, sanctionSerial, request);
-        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
+        dispatcher.dispatch(command);
+        return ResponseEntity.ok(BaseResponse.success());
     }
 
     @PostMapping(value = "/compensate", version = "1+")
     @Operation(summary = "جبران‌سازی مرحله تصویب")
-    public ResponseEntity<BaseResponse<EventStream>> compensateApproval(
+    public ResponseEntity<BaseResponse<Void>> compensateApproval(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
             @RequestBody @Valid CompensationRequest request) {
 
@@ -84,7 +84,7 @@ class ApproveFacilityController extends BaseController {
                 .version(request.version())
                 .loanFacilityId(facilityId)
                 .build();
-
-        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
+        dispatcher.dispatch(command);
+        return ResponseEntity.ok(BaseResponse.success());
     }
 }

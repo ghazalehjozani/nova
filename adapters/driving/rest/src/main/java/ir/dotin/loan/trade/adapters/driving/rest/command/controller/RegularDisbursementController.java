@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import ir.dotin.platform.adapter.rest.controller.BaseController;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.protocol.api.response.BaseResponse;
-import ir.dotin.platform.protocol.api.response.EventStream;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.RegularDisbursementRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
@@ -29,7 +28,7 @@ class RegularDisbursementController extends BaseController {
 
     @PostMapping(version = "1+")
     @Operation(summary = "پرداخت عادی")
-    public ResponseEntity<BaseResponse<EventStream>> regularDisbursement(
+    public ResponseEntity<BaseResponse<Void>> regularDisbursement(
             @Parameter(
                             description = "شناسه یکتای تسهیلات",
                             example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",

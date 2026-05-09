@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ir.dotin.platform.adapter.rest.controller.BaseController;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.protocol.api.response.BaseResponse;
-import ir.dotin.platform.protocol.api.response.EventStream;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.SubmitFacilityForApprovalRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.SubmitFacilityForApprovalRequestToCommandMapper;
@@ -36,17 +35,18 @@ class SubmitFacilityForApprovalController extends BaseController {
 
     @PostMapping(version = "1+")
     @Operation(summary = "ثبت درخواست تصویب تسهیلات")
-    public ResponseEntity<BaseResponse<EventStream>> submitFacilityForApproval(
+    public ResponseEntity<BaseResponse<Void>> submitFacilityForApproval(
             @PathVariable UUID facilityId,
             @Parameter(description = "جزئیات ثبت درخواست تصویب مصوبه", required = true) @RequestBody @Valid
                     SubmitFacilityForApprovalRequest request) {
         var command = mapper.toCommand(facilityId, request);
-        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
+        dispatcher.dispatch(command);
+        return ResponseEntity.ok(BaseResponse.success());
     }
 
     @PostMapping(value = "/compensate", version = "1+")
     @Operation(summary = "جبران‌سازی مرحله ثبت درخواست تصویب")
-    public ResponseEntity<BaseResponse<EventStream>> compensateApprovalSubmission(
+    public ResponseEntity<BaseResponse<Void>> compensateApprovalSubmission(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
             @RequestBody @Valid CompensationRequest request) {
 
@@ -56,6 +56,7 @@ class SubmitFacilityForApprovalController extends BaseController {
                 .loanFacilityId(facilityId)
                 .build();
 
-        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
+        dispatcher.dispatch(command);
+        return ResponseEntity.ok(BaseResponse.success());
     }
 }

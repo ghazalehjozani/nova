@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import ir.dotin.platform.adapter.rest.controller.BaseController;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.protocol.api.response.BaseResponse;
-import ir.dotin.platform.protocol.api.response.EventStream;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CloseFacilityPaidOffRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.CloseFacilityPaidOffRequestToCommandMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
@@ -29,7 +28,7 @@ class CloseFacilityPaidOffController extends BaseController {
 
     @PostMapping(version = "1+")
     @Operation(summary = "بستن تسهیلات پرداخت شده")
-    public ResponseEntity<BaseResponse<EventStream>> closeFacilityPaidOff(
+    public ResponseEntity<BaseResponse<Void>> closeFacilityPaidOff(
             @Parameter(
                             description = "شناسه یکتای تسهیلات پرداخت شده جهت بستن",
                             example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
@@ -39,6 +38,7 @@ class CloseFacilityPaidOffController extends BaseController {
             @Parameter(description = "جزئیات بستن تسهیلات پرداخت شده", required = true) @RequestBody
                     CloseFacilityPaidOffRequest request) {
         var command = mapper.toCommand(facilityId, request);
-        return ResponseEntity.ok(BaseResponse.success(EventStream.of(unwrap(dispatcher.dispatch(command)))));
+        dispatcher.dispatch(command);
+        return ResponseEntity.ok(BaseResponse.success());
     }
 }
