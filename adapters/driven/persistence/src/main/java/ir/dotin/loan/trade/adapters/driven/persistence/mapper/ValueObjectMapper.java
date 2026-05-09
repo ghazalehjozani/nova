@@ -57,6 +57,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestination
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.AccountDisburseDestination;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CloseFacilityPaidOffInfo;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CredibilityRank;
@@ -110,6 +111,7 @@ import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ApplicationPa
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.AttributeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.BranchEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CancellationDataEmb;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CloseFacilityPaidOffInfoEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralPolicyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralSerialEmb;
@@ -1063,4 +1065,41 @@ public abstract class ValueObjectMapper {
 
     @Named("toCancellationDataEmb")
     public abstract CancellationDataEmb toCancellationDataEmb(CancellationData cancellationData);
+
+    @Named("toCloseFacilityPaidOffInfoEmb")
+    public CloseFacilityPaidOffInfoEmb toCloseFacilityPaidOffInfoEmb(CloseFacilityPaidOffInfo info) {
+        if (info == null) {
+            return null;
+        }
+        MoneyEmb moneyEmb = null;
+        if (info.totalClosePaidOffAmount() != null) {
+            moneyEmb = toMoneyEmb(info.totalClosePaidOffAmount());
+        }
+        return CloseFacilityPaidOffInfoEmb.builder()
+                .closePaidOffDate(info.closePaidOffDate())
+                .closePaidOffTransactionReference(info.closePaidOffTransactionReference())
+                .totalClosePaidOffAmount(moneyEmb)
+                .build();
+    }
+
+    @Named("fromCloseFacilityPaidOffInfoEmb")
+    public CloseFacilityPaidOffInfo fromCloseFacilityPaidOffInfoEmb(CloseFacilityPaidOffInfoEmb emb) {
+        if (emb == null || emb.getClosePaidOffDate() == null) {
+            return null;
+        }
+        Money totalAmount = null;
+        if (emb.getTotalClosePaidOffAmount() != null
+                && emb.getTotalClosePaidOffAmount().getAmount() != null
+                && emb.getTotalClosePaidOffAmount().getCurrency() != null) {
+            CurrencyType currency = CurrencyType.valueOf(
+                            emb.getTotalClosePaidOffAmount().getCurrency())
+                    .orElseThrow(() -> new IllegalStateException("Unknown currency in CloseFacilityPaidOffInfoEmb: "
+                            + emb.getTotalClosePaidOffAmount().getCurrency()));
+            totalAmount = Money.valueOf(emb.getTotalClosePaidOffAmount().getAmount(), currency)
+                    .orElseThrow(() ->
+                            new IllegalStateException("Failed to reconstruct Money from CloseFacilityPaidOffInfoEmb"));
+        }
+        return new CloseFacilityPaidOffInfo(
+                emb.getClosePaidOffDate(), emb.getClosePaidOffTransactionReference(), totalAmount);
+    }
 }

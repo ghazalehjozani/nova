@@ -8,7 +8,8 @@ import java.util.stream.Collectors;
 public enum FcbEventOperationType {
     INSTALLMENT_COLLECTION("installment.collection"),
     INSTALLMENT_COLLECTION_COMPENSATE("installment.collection.compensate"),
-    CANCEL_LOAN_FACILITY("loanFacility.cancel");
+    CANCEL_LOAN_FACILITY("loanFacility.cancel"),
+    CLOSE_PAID_OFF("facility.close.paid.off");
 
     private final String code;
 

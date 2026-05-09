@@ -8,6 +8,7 @@ import org.mapstruct.Named;
 
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ApplicationNumberEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CancellationDataEmb;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CloseFacilityPaidOffInfoEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.DisbursementRecordEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ScheduledTrancheEmb;
@@ -61,6 +62,7 @@ public interface TradeLoanFacilityQueryMapper {
     @Mapping(target = "cancellationData.cancelReason", source = "cancellationDataEmb.cancelReason")
     @Mapping(target = "cancellationData.cancelDate", source = "cancellationDataEmb.cancelDate")
     @Mapping(target = "cancellationData.cancelDescription", source = "cancellationDataEmb.cancelDescription")
+    @Mapping(target = "closePaidOff", source = "closeFacilityPaidOffInfo", qualifiedByName = "toClosePaidOffDto")
     TradeFacilityQueryDto toQueryModel(TradeLoanFacilityEntity tradeLoanFacilityEntity);
 
     @Named("formatAppNum")
@@ -92,4 +94,11 @@ public interface TradeLoanFacilityQueryMapper {
     @Mapping(target = "cancelReason", source = "cancelReason")
     @Mapping(target = "cancelDate", source = "cancelDate")
     TradeFacilityQueryDto.CancellationData toCancellationDataEmbDto(CancellationDataEmb emb);
+
+    @Named("toClosePaidOffDto")
+    @Mapping(target = "closePaidOffDate", source = "closePaidOffDate")
+    @Mapping(target = "closePaidOffTransactionReference", source = "closePaidOffTransactionReference")
+    @Mapping(target = "totalClosePaidOffAmount", source = "totalClosePaidOffAmount.amount")
+    @Mapping(target = "totalClosePaidOffAmountCurrency", source = "totalClosePaidOffAmount.currency")
+    TradeFacilityQueryDto.ClosePaidOffDto toClosePaidOffDto(CloseFacilityPaidOffInfoEmb emb);
 }
