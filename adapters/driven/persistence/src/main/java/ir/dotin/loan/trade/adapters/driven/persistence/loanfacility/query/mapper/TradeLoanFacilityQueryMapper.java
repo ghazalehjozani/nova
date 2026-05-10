@@ -97,7 +97,6 @@ public interface TradeLoanFacilityQueryMapper {
 
     @Named("toClosePaidOffDto")
     @Mapping(target = "closePaidOffDate", source = "closePaidOffDate")
-    @Mapping(target = "closePaidOffTransactionReference", source = "closePaidOffTransactionReference")
     @Mapping(target = "totalClosePaidOffAmount", source = "totalClosePaidOffAmount.amount")
     @Mapping(target = "totalClosePaidOffAmountCurrency", source = "totalClosePaidOffAmount.currency")
     TradeFacilityQueryDto.ClosePaidOffDto toClosePaidOffDto(CloseFacilityPaidOffInfoEmb emb);

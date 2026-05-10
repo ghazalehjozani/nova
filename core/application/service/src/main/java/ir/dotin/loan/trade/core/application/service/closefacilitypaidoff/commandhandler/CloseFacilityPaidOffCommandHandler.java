@@ -96,10 +96,9 @@ public class CloseFacilityPaidOffCommandHandler implements CommandHandler<CloseF
     private Result<TradeLoanFacility> closeFacility(TradeLoanFacility facility, CloseFacilityPaidOffCommand command) {
         return CloseFacilityPaidOffInfo.of(
                         LocalDate.now(clock),
-                        command.transactionReference(),
                         calculateTotalClosePaidOffAmount(
                                 command, facility.getLoanApplication().getCurrency()))
-                .flatMap(info -> domainService.closePaidOff(info, facility))
+                .flatMap(info -> domainService.closePaidOff(info, command.transactionReference(), facility))
                 .map(v -> facility);
     }
 

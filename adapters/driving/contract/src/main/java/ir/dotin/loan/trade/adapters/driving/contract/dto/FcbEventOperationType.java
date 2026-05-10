@@ -9,7 +9,8 @@ public enum FcbEventOperationType {
     INSTALLMENT_COLLECTION("installment.collection"),
     INSTALLMENT_COLLECTION_COMPENSATE("installment.collection.compensate"),
     CANCEL_LOAN_FACILITY("loanFacility.cancel"),
-    CLOSE_PAID_OFF("facility.close.paid.off");
+    CLOSE_PAID_OFF("facility.close.paid.off"),
+    CANCEL_CLOSE_PAID_OFF("facility.cancel.close.paid.off");
 
     private final String code;
 

@@ -25,9 +25,6 @@ public class CloseFacilityPaidOffInfoEmb implements Serializable {
     @Column(name = "close_paid_off_at", nullable = true)
     private LocalDate closePaidOffDate;
 
-    @Column(name = "close_paid_off_transaction_ref", length = 50)
-    private String closePaidOffTransactionReference;
-
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(

@@ -1077,7 +1077,6 @@ public abstract class ValueObjectMapper {
         }
         return CloseFacilityPaidOffInfoEmb.builder()
                 .closePaidOffDate(info.closePaidOffDate())
-                .closePaidOffTransactionReference(info.closePaidOffTransactionReference())
                 .totalClosePaidOffAmount(moneyEmb)
                 .build();
     }
@@ -1099,7 +1098,6 @@ public abstract class ValueObjectMapper {
                     .orElseThrow(() ->
                             new IllegalStateException("Failed to reconstruct Money from CloseFacilityPaidOffInfoEmb"));
         }
-        return new CloseFacilityPaidOffInfo(
-                emb.getClosePaidOffDate(), emb.getClosePaidOffTransactionReference(), totalAmount);
+        return new CloseFacilityPaidOffInfo(emb.getClosePaidOffDate(), totalAmount);
     }
 }

@@ -35,6 +35,7 @@ public record TradeFacilityQueryDto(
         List<TransactionNumberEmbDto> issueContractTransactionNumbers,
         List<TransactionNumberEmbDto> disbursementTransactionNumbers,
         List<TransactionNumberEmbDto> cancelLoanTransactionNumbers,
+        List<TransactionNumberEmbDto> closePaidOffTransactionNumbers,
         CancellationData cancellationData,
         Map<String, String> accountInfoMap,
         LocalDate disbursementDate,
@@ -130,9 +131,6 @@ public record TradeFacilityQueryDto(
             implements Serializable {}
 
     public record ClosePaidOffDto(
-            LocalDate closePaidOffDate,
-            String closePaidOffTransactionReference,
-            BigDecimal totalClosePaidOffAmount,
-            String totalClosePaidOffAmountCurrency)
+            LocalDate closePaidOffDate, BigDecimal totalClosePaidOffAmount, String totalClosePaidOffAmountCurrency)
             implements Serializable {}
 }
