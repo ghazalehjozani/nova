@@ -97,6 +97,12 @@ public class TradeLoanFacilityEntity extends PersistentEntity {
     private List<TransactionNumberEmb> cancelLoanTransactionNumbers = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "loan_facility_close_paid_off_transaction_numbers",
+            joinColumns = @JoinColumn(name = "loan_facility_id"))
+    private List<TransactionNumberEmb> closePaidOffTransactionNumbers = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "loan_facility_accounts", joinColumns = @JoinColumn(name = "facility_id"))
     @MapKeyColumn(name = "relation_type")
     @Column(name = "account_id")

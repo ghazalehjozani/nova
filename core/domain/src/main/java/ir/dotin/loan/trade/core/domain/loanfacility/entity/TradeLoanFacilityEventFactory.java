@@ -181,4 +181,10 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
             LoanFacilityId facilityId, Clock clock) {
         return TradeLoanFacilityAddCollateralReverted.of(facilityId, clock);
     }
+
+    @Override
+    public TradeLoanFacilityClosePaidOffReverted createClosedPaidOffRevertedEvent(
+            LoanFacilityId facilityId, Clock clock) {
+        return TradeLoanFacilityClosePaidOffReverted.of(facilityId, clock);
+    }
 }
