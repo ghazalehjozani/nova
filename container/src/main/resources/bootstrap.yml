@@ -25,6 +25,7 @@ spring:
         - "veth.*"
       preferred-networks:
         - '^10\.100\..*'
+        - '^10\.20\..*'
     consul:
       enabled: true
       host: ${CONSUL_HOST:10.20.11.123}
@@ -42,12 +43,12 @@ spring:
         register: true
         deregister: true
         prefer-ip-address: true
-        instance-id: ${spring.application.name}:${random.uuid}
+        instance-id: ${spring.application.name}-${spring.cloud.client.ip-address}-${server.port}
         service-name: ${spring.application.name}
         health-check-path: /actuator/health
         health-check-interval: 15s
         health-check-timeout: 5s
-        health-check-critical-timeout: 3m
+        health-check-critical-timeout: 180s
         tags:
           - profile=${SPRING_PROFILES_ACTIVE:dev}
           - version=@project.version@
