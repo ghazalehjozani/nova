@@ -6,26 +6,49 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.validation.annotation.Validated;
 
+@Data
 @Validated
 @ConfigurationProperties(prefix = FcbHealthProperties.PREFIX)
-public record FcbHealthProperties(
-        @DefaultValue("true") boolean enabled,
-        @DefaultValue("5s") @NotNull Duration probeInterval,
-        @DefaultValue("1s") @NotNull Duration recoveryProbeInterval,
-        @DefaultValue("2s") @NotNull Duration probeTimeout,
-        @DefaultValue("500ms") @NotNull Duration degradedLatencyThreshold,
-        @DefaultValue("10") @Min(2) @Max(64) int probeWindowSize,
-        @DefaultValue("5") @Min(1) int failuresInWindowToOpen,
-        @DefaultValue("7") @Min(1) int successesInWindowToClose,
-        @DefaultValue("15s") @NotNull Duration initialDelay,
-        @DefaultValue("true") boolean failOpenOnUnknown,
-        @DefaultValue("heartbeat") String heartbeatOperationName,
-        @DefaultValue("NOVA") String producerCode,
-        @DefaultValue({"core.loan.nova.fcb-integration.v1"}) List<String> legacyConsumerGroupIds) {
+public class FcbHealthProperties {
 
     public static final String PREFIX = "nova.fcb.kafka.health";
+
+    private boolean enabled = true;
+
+    @NotNull
+    private Duration probeInterval = Duration.ofSeconds(5);
+
+    @NotNull
+    private Duration recoveryProbeInterval = Duration.ofSeconds(1);
+
+    @NotNull
+    private Duration probeTimeout;
+
+    @NotNull
+    private Duration degradedLatencyThreshold = Duration.ofMillis(500);
+
+    @Min(2)
+    @Max(64)
+    private int probeWindowSize = 10;
+
+    @Min(1)
+    private int failuresInWindowToOpen = 5;
+
+    @Min(1)
+    private int successesInWindowToClose = 7;
+
+    @NotNull
+    private Duration initialDelay = Duration.ofSeconds(15);
+
+    private boolean failOpenOnUnknown = true;
+
+    private String heartbeatOperationName = "heartbeat";
+
+    private String producerCode = "NOVA";
+
+    private List<String> legacyConsumerGroupIds = List.of("core.loan.nova.fcb-integration.v1");
 }
