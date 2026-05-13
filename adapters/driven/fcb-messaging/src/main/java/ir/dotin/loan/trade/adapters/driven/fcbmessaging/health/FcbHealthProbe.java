@@ -11,14 +11,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import org.springframework.kafka.requestreply.RequestReplyFuture;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -35,7 +34,7 @@ import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Component
-public class FcbHealthProbe {
+public class FcbHealthProbe implements SmartLifecycle {
 
     private static final String HEADER_OPERATION_TYPE = "X-Operation-Type";
     private static final String HEADER_EVENT_UID = "eventUid";
@@ -81,15 +80,22 @@ public class FcbHealthProbe {
         this.clock = clock;
     }
 
-    @PostConstruct
+    @Override
     public void start() {
         if (!healthProperties.isEnabled()) return;
+        log.info("FCB-PROBE: Starting health probe loop...");
         this.probeExecutor = Executors.newThreadPerTaskExecutor(
                 Thread.ofVirtual().name("fcb-probe-worker-", 0).factory());
         this.probeThread = Thread.ofVirtual().name("fcb-kafka-health-probe").start(this::loop);
+        this.stopped = false;
     }
 
-    @PreDestroy
+    @Override
+    public int getPhase() {
+        return Integer.MAX_VALUE;
+    }
+
+    @Override
     public void stop() {
         stopped = true;
         Thread t = this.probeThread;
@@ -111,6 +117,11 @@ public class FcbHealthProbe {
                 Thread.currentThread().interrupt();
             }
         }
+    }
+
+    @Override
+    public boolean isRunning() {
+        return !this.stopped;
     }
 
     private void loop() {
