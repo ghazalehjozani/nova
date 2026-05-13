@@ -9,6 +9,7 @@
         Trade Loan module changelog: INCLUDES ONLY.
         Contains all domain tables for trade loan origination, sanctioning,
         disbursement, installment scheduling, and event outboxes.
+        !!!! FILES EXECUTED WITH ORDERS !!!!
     -->
 
     <!-- Core reference data -->
@@ -20,7 +21,6 @@
     <include file="db/changelog/trade-loan/v2026.3.0/004-create-sanctioned-loans.xml"/>
     <include file="db/changelog/trade-loan/v2026.3.0/005-create-loan-facilities.xml"/>
     <include file="/db/changelog/trade-loan/v2026.5.0/001-create-cancellation-data.xml"/>
-    <include file="/db/changelog/trade-loan/2026.5.32/002-update-close-paid-off-data.xml"/>
 
     <!-- Financial operations -->
     <include file="db/changelog/trade-loan/v2026.3.0/006-create-disbursement-tables.xml"/>
@@ -29,5 +29,8 @@
     <!-- Event-driven outbox -->
     <include file="db/changelog/trade-loan/v2026.3.0/008-create-outbox-events.xml"/>
     <include file="db/changelog/trade-loan/v2026.3.0/009-add-close-paid-off-fields.xml"/>
+
+    <!-- Updates/Patches -->
+    <include file="/db/changelog/trade-loan/v2026.5.32/002-update-close-paid-off-data.xml"/>
 
 </databaseChangeLog>
