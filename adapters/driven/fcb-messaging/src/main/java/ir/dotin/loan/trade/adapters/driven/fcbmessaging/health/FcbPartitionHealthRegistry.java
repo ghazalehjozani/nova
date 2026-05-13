@@ -59,9 +59,9 @@ public class FcbPartitionHealthRegistry {
 
     private void applyOutcome(int partition, boolean success) {
         long now = clock.millis();
-        int windowSize = properties.probeWindowSize();
-        int failuresToOpen = properties.failuresInWindowToOpen();
-        int successesToClose = properties.successesInWindowToClose();
+        int windowSize = properties.getProbeWindowSize();
+        int failuresToOpen = properties.getFailuresInWindowToOpen();
+        int successesToClose = properties.getSuccessesInWindowToClose();
 
         var updated = partitions.compute(partition, (k, prev) -> {
             HealthState prevState = prev == null ? HealthState.UNHEALTHY : prev.state();
@@ -123,7 +123,7 @@ public class FcbPartitionHealthRegistry {
     }
 
     public boolean anyPartitionStillWarming() {
-        int needed = properties.successesInWindowToClose();
+        int needed = properties.getSuccessesInWindowToClose();
         for (PartitionState s : partitions.values()) {
             if (s.sampleCount() < needed) return true;
         }

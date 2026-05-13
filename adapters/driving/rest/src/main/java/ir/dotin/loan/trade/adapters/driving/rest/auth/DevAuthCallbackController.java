@@ -40,13 +40,13 @@ public class DevAuthCallbackController {
             @RequestParam(name = "client_id") String clientId,
             @RequestParam(name = "client_secret") String clientSecrete) {
 
-        var devConfig = securityProperties.devAuth();
-        var oauth2Config = securityProperties.oauth2Client();
+        var devConfig = securityProperties.getDevAuth();
+        var oauth2Config = securityProperties.getOauth2Client();
 
         log.info("Token exchange - code={} redirect_uri={}", maskCode(code), redirectUri);
 
         try {
-            Map<String, Object> customClaims = Map.of("branch_code", devConfig.branchCode());
+            Map<String, Object> customClaims = Map.of("branch_code", devConfig.getBranchCode());
             String claimsJson = objectMapper.writeValueAsString(customClaims);
 
             MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
@@ -62,7 +62,7 @@ public class DevAuthCallbackController {
 
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<Map> response =
-                    restTemplate.postForEntity(oauth2Config.tokenUri(), new HttpEntity<>(body, headers), Map.class);
+                    restTemplate.postForEntity(oauth2Config.getTokenUri(), new HttpEntity<>(body, headers), Map.class);
 
             log.info("Token exchange successful");
             return ResponseEntity.ok(response.getBody());

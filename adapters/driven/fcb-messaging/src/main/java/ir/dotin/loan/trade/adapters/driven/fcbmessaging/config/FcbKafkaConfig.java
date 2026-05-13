@@ -54,7 +54,7 @@ public class FcbKafkaConfig {
         Map<String, Object> configs = new HashMap<>();
         configs.put(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                messagingProperties.kafka().bootstrapServers());
+                messagingProperties.getKafka().getBootstrapServers());
         configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
         configs.put(ProducerConfig.ACKS_CONFIG, "all");
@@ -75,7 +75,7 @@ public class FcbKafkaConfig {
         Map<String, Object> configs = new HashMap<>();
         configs.put(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                messagingProperties.kafka().bootstrapServers());
+                messagingProperties.getKafka().getBootstrapServers());
         configs.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         configs.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class);
         configs.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
@@ -99,7 +99,7 @@ public class FcbKafkaConfig {
         String uniqueReplyGroupId =
                 baseGroupId + ".fcb-integration-reply." + KafkaMessagingAutoConfiguration.INSTANCE_ID;
 
-        ContainerProperties containerProps = new ContainerProperties(properties.replyTopic());
+        ContainerProperties containerProps = new ContainerProperties(properties.getReplyTopic());
         containerProps.setGroupId(uniqueReplyGroupId);
         containerProps.setAckMode(ContainerProperties.AckMode.BATCH);
 
@@ -118,7 +118,7 @@ public class FcbKafkaConfig {
 
         String uniqueReplyGroupId = baseGroupId + ".fcb-health-reply." + KafkaMessagingAutoConfiguration.INSTANCE_ID;
 
-        ContainerProperties containerProps = new ContainerProperties(properties.healthReplyTopic());
+        ContainerProperties containerProps = new ContainerProperties(properties.getHealthReplyTopic());
         containerProps.setGroupId(uniqueReplyGroupId);
         containerProps.setAckMode(ContainerProperties.AckMode.BATCH);
 
@@ -139,7 +139,7 @@ public class FcbKafkaConfig {
                 new ReplyingKafkaTemplate<>(fcbProducerFactory, fcbIntegrationRepliesContainer);
         template.setSharedReplyTopic(true);
         template.setBinaryCorrelation(false);
-        template.setDefaultReplyTimeout(properties.defaultTimeout());
+        template.setDefaultReplyTimeout(properties.getDefaultTimeout());
         return template;
     }
 
@@ -156,12 +156,12 @@ public class FcbKafkaConfig {
     }
 
     private static void applySecurity(Map<String, Object> configs, MessagingProperties messagingProperties) {
-        var security = messagingProperties.kafka().security();
-        if (security == null || security.protocol() == null) {
+        var security = messagingProperties.getKafka().getSecurity();
+        if (security == null || security.getProtocol() == null) {
             return;
         }
-        configs.put("security.protocol", security.protocol());
-        configs.put("sasl.mechanism", security.saslMechanism());
-        configs.put("sasl.jaas.config", security.saslJaasConfig());
+        configs.put("security.protocol", security.getProtocol());
+        configs.put("sasl.mechanism", security.getSaslMechanism());
+        configs.put("sasl.jaas.config", security.getSaslJaasConfig());
     }
 }

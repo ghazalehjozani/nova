@@ -119,7 +119,7 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
             FcbKafkaBaseRequest request,
             java.util.function.Function<AccountInfoKafkaResponse, Result<T>> responseMapper) {
 
-        Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.defaultTimeout());
+        Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.getDefaultTimeout());
         if (result.isFailure()) {
             return Result.failure(result.notification());
         }

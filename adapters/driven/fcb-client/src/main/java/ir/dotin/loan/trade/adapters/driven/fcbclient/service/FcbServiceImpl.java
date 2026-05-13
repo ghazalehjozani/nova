@@ -43,8 +43,8 @@ public class FcbServiceImpl implements FcbService {
 
             ResponseEntity<@NonNull String> response = fcbHttpClient.executeUseCase(
                     usecaseListXML,
-                    fcbConfiguration.integration().showExceptions(),
-                    fcbConfiguration.integration().sameSession(),
+                    fcbConfiguration.getIntegration().isShowExceptions(),
+                    fcbConfiguration.getIntegration().isSameSession(),
                     true);
 
             return processResponse(response, responseClass, context);

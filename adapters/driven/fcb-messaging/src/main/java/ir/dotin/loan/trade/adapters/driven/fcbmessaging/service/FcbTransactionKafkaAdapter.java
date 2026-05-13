@@ -57,7 +57,7 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
                 "Successfully mapped LoanTransaction to IssueDocumentRequest - items: {}",
                 request.getItems().size());
 
-        Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.transactionTimeout());
+        Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.getTransactionTimeout());
 
         if (result.isFailure()) {
             return Result.failure(result.notification());
@@ -108,7 +108,7 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
                 .transactionNumber(transactionNumber.value())
                 .build();
 
-        Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.transactionTimeout());
+        Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.getTransactionTimeout());
         if (result.isFailure()) {
             return Result.failure(result.notification());
         }

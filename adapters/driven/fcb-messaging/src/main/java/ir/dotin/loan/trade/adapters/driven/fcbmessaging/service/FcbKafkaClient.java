@@ -152,7 +152,7 @@ public class FcbKafkaClient {
         long deadlineMs = timestampMs + timeout.toMillis();
 
         ProducerRecord<String, byte[]> record =
-                new ProducerRecord<>(properties.requestTopic(), request.getEventUid(), requestBytes);
+                new ProducerRecord<>(properties.getRequestTopic(), request.getEventUid(), requestBytes);
 
         record.headers()
                 .add(new RecordHeader(HEADER_OPERATION_TYPE, operationType.getBytes(StandardCharsets.UTF_8)))
@@ -173,7 +173,7 @@ public class FcbKafkaClient {
                 .add(new RecordHeader(
                         HEADER_HOST, HostResolver.resolveHostName().getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(
-                        KafkaHeaders.REPLY_TOPIC, properties.replyTopic().getBytes(StandardCharsets.UTF_8)));
+                        KafkaHeaders.REPLY_TOPIC, properties.getReplyTopic().getBytes(StandardCharsets.UTF_8)));
         addTracingHeaders(record);
 
         RequestReplyFuture<String, byte[], byte[]> future = replyingKafkaTemplate.sendAndReceive(record, timeout);

@@ -4,41 +4,78 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.validation.annotation.Validated;
 
+import lombok.Data;
+
+@Data
 @Validated
 @ConfigurationProperties(prefix = FcbConfiguration.BASE)
-public record FcbConfiguration(
-        @NotNull Integration integration, @NotNull Health health) {
+public class FcbConfiguration {
 
     public static final String BASE = "fcb";
 
-    public record Integration(
-            @NotBlank String baseUrl,
-            @NotBlank String appName,
-            @NotBlank String servicePath,
-            @NotNull Integer connectionTimeout,
-            @NotNull Integer readTimeout,
-            @NotNull Credentials credentials,
-            @DefaultValue("UTF-8") String encoding,
-            @DefaultValue("true") boolean showExceptions,
-            @DefaultValue("false") boolean sameSession) {
+    @NotNull
+    private Integration integration;
+
+    @NotNull
+    private Health health;
+
+    @Data
+    public static class Integration {
+        @NotBlank
+        private String baseUrl;
+
+        @NotBlank
+        private String appName;
+
+        @NotBlank
+        private String servicePath;
+
+        @NotNull
+        private Integer connectionTimeout;
+
+        @NotNull
+        private Integer readTimeout;
+
+        @NotNull
+        private Credentials credentials;
+
+        private String encoding = "UTF-8";
+
+        private boolean showExceptions = true;
+
+        private boolean sameSession = false;
 
         public String getFullServiceUrl() {
             return String.format("%s/%s/%s", baseUrl, appName, servicePath);
         }
     }
 
-    public record Health(
-            @DefaultValue("true") boolean enabled,
-            @DefaultValue("system-health-check") @NotBlank String testUsecase,
-            @DefaultValue("10") int timeoutSeconds,
-            @DefaultValue("30") int cacheDurationSeconds,
-            @DefaultValue("3") int failureThreshold,
-            @DefaultValue("true") boolean showDetails,
-            @DefaultValue("true") boolean metricsEnabled) {}
+    @Data
+    public static class Health {
+        private boolean enabled = true;
 
-    public record Credentials(
-            @NotBlank String username, @NotBlank String password) {}
+        @NotBlank
+        private String testUsecase = "system-health-check";
+
+        private int timeoutSeconds = 10;
+
+        private int cacheDurationSeconds = 30;
+
+        private int failureThreshold = 3;
+
+        private boolean showDetails = true;
+
+        private boolean metricsEnabled = true;
+    }
+
+    @Data
+    public static class Credentials {
+        @NotBlank
+        private String username;
+
+        @NotBlank
+        private String password;
+    }
 }

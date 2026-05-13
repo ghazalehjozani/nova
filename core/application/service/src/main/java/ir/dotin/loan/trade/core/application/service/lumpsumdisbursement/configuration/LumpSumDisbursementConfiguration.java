@@ -1,11 +1,12 @@
 package ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 
+import lombok.Data;
+
+@Data
 @ConfigurationProperties(prefix = "loan.trade.lump-sum-disbursement")
-public record LumpSumDisbursementConfiguration(
-        @DefaultValue("Lump Sum Disbursement - Facility: %s")
-        String postTitleTemplate,
-
-        @DefaultValue("Lump Sum Disbursement") String fcbMergedDocumentTitle) {}
+public class LumpSumDisbursementConfiguration {
+    private String postTitleTemplate = "Lump Sum Disbursement - Facility: %s";
+    private String fcbMergedDocumentTitle = "Lump Sum Disbursement";
+}

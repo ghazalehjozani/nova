@@ -37,7 +37,7 @@ public class HttpClientConfiguration {
     @Bean
     public FcbHttpClient fcbHttpClient(ClientHttpRequestFactory requestFactory) {
         RestClient restClient = RestClient.builder()
-                .baseUrl(fcbConfiguration.integration().baseUrl())
+                .baseUrl(fcbConfiguration.getIntegration().getBaseUrl())
                 .requestFactory(requestFactory)
                 .configureMessageConverters(builder -> builder.addCustomConverter(new FormHttpMessageConverter())
                         .addCustomConverter(new StringHttpMessageConverter(StandardCharsets.UTF_8)))
@@ -76,8 +76,9 @@ public class HttpClientConfiguration {
                     HttpClients.custom().setConnectionManager(connectionManager).build();
 
             HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
-            factory.setConnectionRequestTimeout(fcbConfiguration.integration().connectionTimeout());
-            factory.setReadTimeout(fcbConfiguration.integration().readTimeout());
+            factory.setConnectionRequestTimeout(
+                    fcbConfiguration.getIntegration().getConnectionTimeout());
+            factory.setReadTimeout(fcbConfiguration.getIntegration().getReadTimeout());
 
             return factory;
         } catch (Exception e) {
@@ -90,8 +91,8 @@ public class HttpClientConfiguration {
     public ClientHttpRequestFactory secureRequestFactory() {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
-        factory.setConnectionRequestTimeout(fcbConfiguration.integration().connectionTimeout());
-        factory.setReadTimeout(fcbConfiguration.integration().readTimeout());
+        factory.setConnectionRequestTimeout(fcbConfiguration.getIntegration().getConnectionTimeout());
+        factory.setReadTimeout(fcbConfiguration.getIntegration().getReadTimeout());
         return factory;
     }
 }

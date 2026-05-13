@@ -27,8 +27,8 @@ public class FcbBaseRequestBuilder {
                 Usecase.builder().name(usecaseName).parameters(parameters).build();
 
         return Usecases.builder()
-                .username(fcbConfiguration.integration().credentials().username())
-                .password(fcbConfiguration.integration().credentials().password())
+                .username(fcbConfiguration.getIntegration().getCredentials().getUsername())
+                .password(fcbConfiguration.getIntegration().getCredentials().getPassword())
                 .ip(contextResolver.resolveIpAddress())
                 .currentBranch(contextResolver.resolveCurrentBranch())
                 .usecaseList(Collections.singletonList(usecase))

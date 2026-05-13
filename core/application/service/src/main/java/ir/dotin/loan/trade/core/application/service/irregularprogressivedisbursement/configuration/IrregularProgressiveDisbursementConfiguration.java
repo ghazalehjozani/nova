@@ -1,11 +1,12 @@
 package ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 
+import lombok.Data;
+
+@Data
 @ConfigurationProperties(prefix = "loan.trade.irregular-disbursement")
-public record IrregularProgressiveDisbursementConfiguration(
-        @DefaultValue("Irregular Disbursement - Facility: %s - Tranche: %d")
-        String postTitleTemplate,
-
-        @DefaultValue("Irregular Tranche Disbursement") String fcbMergedDocumentTitle) {}
+public class IrregularProgressiveDisbursementConfiguration {
+    private String postTitleTemplate = "Irregular Disbursement - Facility: %s - Tranche: %d";
+    private String fcbMergedDocumentTitle = "Irregular Tranche Disbursement";
+}

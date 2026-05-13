@@ -295,7 +295,7 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
 
     private Result<PostTitle> createPostTitle(TradeLoanFacility facility) {
         return PostTitle.of(
-                configuration.postTitleTemplate().formatted(facility.getId().value()));
+                configuration.getPostTitleTemplate().formatted(facility.getId().value()));
     }
 
     private Result<LoanTransaction> createTransaction(

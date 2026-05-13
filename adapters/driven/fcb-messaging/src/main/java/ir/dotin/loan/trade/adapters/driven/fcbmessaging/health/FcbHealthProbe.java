@@ -83,7 +83,7 @@ public class FcbHealthProbe {
 
     @PostConstruct
     public void start() {
-        if (!healthProperties.enabled()) return;
+        if (!healthProperties.isEnabled()) return;
         this.probeExecutor = Executors.newThreadPerTaskExecutor(
                 Thread.ofVirtual().name("fcb-probe-worker-", 0).factory());
         this.probeThread = Thread.ofVirtual().name("fcb-kafka-health-probe").start(this::loop);
@@ -114,7 +114,7 @@ public class FcbHealthProbe {
     }
 
     private void loop() {
-        sleepQuietly(healthProperties.initialDelay());
+        sleepQuietly(healthProperties.getInitialDelay());
         while (!stopped && !Thread.currentThread().isInterrupted()) {
             try {
                 runCycle();
@@ -127,15 +127,15 @@ public class FcbHealthProbe {
             }
             checkWatchdog();
             Duration sleep = partitionRegistry.getHealthyPartitions().isEmpty()
-                    ? healthProperties.recoveryProbeInterval()
-                    : healthProperties.probeInterval();
+                    ? healthProperties.getRecoveryProbeInterval()
+                    : healthProperties.getProbeInterval();
             sleepQuietly(sleep);
         }
     }
 
     private void runCycle() throws InterruptedException {
         List<PartitionInfo> partitions =
-                healthReplyingKafkaTemplate.partitionsFor(kafkaProperties.healthRequestTopic());
+                healthReplyingKafkaTemplate.partitionsFor(kafkaProperties.getHealthRequestTopic());
         if (partitions == null || partitions.isEmpty()) return;
 
         var futures = partitions.stream()
@@ -143,7 +143,7 @@ public class FcbHealthProbe {
                 .toList();
 
         long deadlineNanos = System.nanoTime()
-                + healthProperties.probeTimeout().multipliedBy(2).toNanos();
+                + healthProperties.getProbeTimeout().multipliedBy(2).toNanos();
 
         for (var f : futures) {
             long remaining = deadlineNanos - System.nanoTime();
@@ -163,8 +163,8 @@ public class FcbHealthProbe {
     private void checkWatchdog() {
         long last = lastSuccessfulCycleMs.get();
         if (last == 0) return;
-        long staleMs = healthProperties.probeInterval().toMillis() * 2L
-                + healthProperties.probeTimeout().toMillis();
+        long staleMs = healthProperties.getProbeInterval().toMillis() * 2L
+                + healthProperties.getProbeTimeout().toMillis();
         if (System.currentTimeMillis() - last > staleMs) {
             log.warn("FCB-PROBE: watchdog tripped (no cycle in {}ms) - marking all unhealthy", staleMs);
             partitionRegistry.markAllUnhealthy();
@@ -178,24 +178,24 @@ public class FcbHealthProbe {
                 .publishedAtEpochMs(Instant.now(clock).toEpochMilli())
                 .build();
 
-        request.setProducerCode(healthProperties.producerCode());
+        request.setProducerCode(healthProperties.getProducerCode());
         request.setEventUid(eventUid);
         request.setDateTime(Date.from(Instant.now(clock)));
         request.setVersion(1);
 
         long timestampMs = clock.millis();
-        long deadlineMs = timestampMs + healthProperties.probeTimeout().toMillis();
+        long deadlineMs = timestampMs + healthProperties.getProbeTimeout().toMillis();
         long start = System.nanoTime();
 
         try {
             byte[] payload = objectMapper.writeValueAsBytes(request);
             ProducerRecord<String, byte[]> record =
-                    new ProducerRecord<>(kafkaProperties.healthRequestTopic(), partition, eventUid, payload);
+                    new ProducerRecord<>(kafkaProperties.getHealthRequestTopic(), partition, eventUid, payload);
 
             record.headers()
                     .add(new RecordHeader(
                             HEADER_OPERATION_TYPE,
-                            healthProperties.heartbeatOperationName().getBytes(StandardCharsets.UTF_8)))
+                            healthProperties.getHeartbeatOperationName().getBytes(StandardCharsets.UTF_8)))
                     .add(new RecordHeader(HEADER_EVENT_UID, eventUid.getBytes(StandardCharsets.UTF_8)))
                     .add(new RecordHeader(HEADER_HEALTH_PROBE, "true".getBytes(StandardCharsets.UTF_8)))
                     .add(new RecordHeader(
@@ -212,15 +212,15 @@ public class FcbHealthProbe {
                             request.getDateTime().toInstant().toString().getBytes(StandardCharsets.UTF_8)))
                     .add(new RecordHeader(
                             KafkaHeaders.REPLY_TOPIC,
-                            kafkaProperties.healthReplyTopic().getBytes(StandardCharsets.UTF_8)));
+                            kafkaProperties.getHealthReplyTopic().getBytes(StandardCharsets.UTF_8)));
 
             addTracingHeaders(record);
 
             RequestReplyFuture<String, byte[], byte[]> future =
-                    healthReplyingKafkaTemplate.sendAndReceive(record, healthProperties.probeTimeout());
+                    healthReplyingKafkaTemplate.sendAndReceive(record, healthProperties.getProbeTimeout());
             ConsumerRecord<String, byte[]> reply;
             try {
-                reply = future.get(healthProperties.probeTimeout().toMillis(), TimeUnit.MILLISECONDS);
+                reply = future.get(healthProperties.getProbeTimeout().toMillis(), TimeUnit.MILLISECONDS);
             } catch (Exception ex) {
                 future.cancel(true);
                 throw ex;

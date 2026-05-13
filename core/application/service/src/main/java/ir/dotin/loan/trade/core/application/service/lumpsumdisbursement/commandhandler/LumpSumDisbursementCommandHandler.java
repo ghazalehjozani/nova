@@ -169,7 +169,7 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
 
     private Result<PostTitle> createPostTitle(TradeLoanFacility facility) {
         return PostTitle.of(
-                configuration.postTitleTemplate().formatted(facility.getId().value()));
+                configuration.getPostTitleTemplate().formatted(facility.getId().value()));
     }
 
     private Result<Void> validateDisbursement(TradeLoanFacility facility, ProcessingContext context) {
@@ -238,7 +238,7 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
     private Result<List<TrackedTransactionNumber>> postTransactionsInBatch(
             LoanFacilityId facilityId, List<LoanTransaction> transactions) {
         return transactionPostingPort.postTransactions(
-                facilityId, configuration.fcbMergedDocumentTitle(), transactions);
+                facilityId, configuration.getFcbMergedDocumentTitle(), transactions);
     }
 
     private Result<DisbursementOperationResult> performDisbursementOperations(

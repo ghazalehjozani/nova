@@ -222,7 +222,7 @@ public class IrregularProgressiveDisbursementCommandHandler
     private Result<PostTitle> createPostTitle(TradeLoanFacility facility) {
         int trancheNumber = facility.getSanctionedLoan().orElseThrow().getDisbursementCount() + 1;
         String title =
-                configuration.postTitleTemplate().formatted(facility.getId().value(), trancheNumber);
+                configuration.getPostTitleTemplate().formatted(facility.getId().value(), trancheNumber);
         return PostTitle.of(title);
     }
 
@@ -310,7 +310,7 @@ public class IrregularProgressiveDisbursementCommandHandler
     private Result<List<TransactionResult>> postTransactionsInBatch(
             LoanFacilityId facilityId, List<LoanTransaction> transactions) {
         return transactionPostingPort
-                .postTransactions(facilityId, configuration.fcbMergedDocumentTitle(), transactions)
+                .postTransactions(facilityId, configuration.getFcbMergedDocumentTitle(), transactions)
                 .map(trackedNumbers -> {
                     Map<RelationType<?>, AccountId> allAccountIds = new LinkedHashMap<>();
                     transactions.stream()

@@ -28,7 +28,7 @@ public class ApplicationNumberStrategySelector {
     }
 
     public ApplicationNumberGenerationStrategy selectStrategy() {
-        ApplicationNumberGenerationType type = configuration.generationType();
+        ApplicationNumberGenerationType type = configuration.getGenerationType();
 
         ApplicationNumberGenerationStrategy strategy = strategies.get(type);
 

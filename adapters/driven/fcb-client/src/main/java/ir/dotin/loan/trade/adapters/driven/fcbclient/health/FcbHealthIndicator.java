@@ -48,11 +48,11 @@ public class FcbHealthIndicator implements HealthIndicator {
 
     @Override
     public Health health() {
-        if (!fcbConfiguration.health().enabled()) {
+        if (!fcbConfiguration.getHealth().isEnabled()) {
             return Health.up().withDetail("status", "Disabled by config").build();
         }
 
-        String targetUrl = fcbConfiguration.integration().baseUrl();
+        String targetUrl = fcbConfiguration.getIntegration().getBaseUrl();
         return checkReachability(targetUrl);
     }
 

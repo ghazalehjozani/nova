@@ -148,7 +148,7 @@ public class FcbValidationKafkaAdapter
                 .customerNumber(party.customerNumber())
                 .build();
 
-        Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.defaultTimeout());
+        Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.getDefaultTimeout());
 
         if (result.isFailure()) {
             return Result.failure(result.notification());
@@ -186,7 +186,7 @@ public class FcbValidationKafkaAdapter
                 .includeGrayList(options.includeGrayList())
                 .build();
 
-        Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.defaultTimeout());
+        Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.getDefaultTimeout());
 
         if (result.isFailure()) {
             return Result.failure(result.notification());
@@ -348,7 +348,7 @@ public class FcbValidationKafkaAdapter
                 .rollBackId(rollBackId.toString())
                 .build();
 
-        Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.defaultTimeout());
+        Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.getDefaultTimeout());
         if (result.isFailure()) {
             return Result.failure(result.notification());
         }
@@ -385,7 +385,7 @@ public class FcbValidationKafkaAdapter
     private <R extends FcbKafkaBaseResponse, T> Result<T> sendAndMap(
             FcbKafkaBaseRequest request, Class<R> responseType, Function<R, Result<T>> responseMapper) {
 
-        Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.defaultTimeout());
+        Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.getDefaultTimeout());
         if (result.isFailure()) {
             return Result.failure(result.notification());
         }

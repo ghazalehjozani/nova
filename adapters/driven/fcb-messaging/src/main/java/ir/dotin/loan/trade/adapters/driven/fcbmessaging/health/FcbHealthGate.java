@@ -21,7 +21,7 @@ public class FcbHealthGate {
         if (partitionRegistry.healthyCount() > 0) {
             return Result.success();
         }
-        if (properties.failOpenOnUnknown()) {
+        if (properties.isFailOpenOnUnknown()) {
             if (partitionRegistry.totalKnown() == 0) {
                 log.debug("FCB-GATE: no probe data yet, fail-open op={}", operationName);
                 return Result.success();
