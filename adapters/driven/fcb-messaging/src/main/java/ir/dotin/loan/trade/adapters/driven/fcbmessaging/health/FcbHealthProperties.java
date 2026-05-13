@@ -16,16 +16,16 @@ public record FcbHealthProperties(
         @DefaultValue("true") boolean enabled,
         @DefaultValue("5s") @NotNull Duration probeInterval,
         @DefaultValue("1s") @NotNull Duration recoveryProbeInterval,
-        @DefaultValue("10s") @NotNull Duration probeTimeout,
+        @NotNull Duration probeTimeout,
         @DefaultValue("500ms") @NotNull Duration degradedLatencyThreshold,
-        @DefaultValue("10") @Min(2) @Max(64) int probeWindowSize,
+        @Min(2) @Max(64) int probeWindowSize,
         @DefaultValue("5") @Min(1) int failuresInWindowToOpen,
         @DefaultValue("7") @Min(1) int successesInWindowToClose,
         @DefaultValue("15s") @NotNull Duration initialDelay,
         @DefaultValue("true") boolean failOpenOnUnknown,
         @DefaultValue("heartbeat") String heartbeatOperationName,
         @DefaultValue("NOVA") String producerCode,
-        @DefaultValue({"core.loan.nova.fcb-integration.v1"}) List<String> legacyConsumerGroupIds) {
+        List<String> legacyConsumerGroupIds) {
 
     public static final String PREFIX = "nova.fcb.kafka.health";
 }
