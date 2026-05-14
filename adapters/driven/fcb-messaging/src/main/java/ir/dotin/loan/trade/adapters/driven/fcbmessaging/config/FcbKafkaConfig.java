@@ -11,7 +11,6 @@ import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +24,7 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 
 import ir.dotin.platform.messaging.autoconfigure.MessagingProperties;
-import ir.dotin.platform.messaging.kafka.autoconfigure.KafkaMessagingAutoConfiguration;
+import ir.dotin.platform.messaging.kafka.spi.KafkaListenerContainerFactoryProvider;
 
 @Configuration
 @Profile("kafka-fcb")
@@ -86,6 +85,12 @@ public class FcbKafkaConfig {
         configs.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, REPLY_FETCH_MAX_WAIT_MS);
         configs.put(ConsumerConfig.GROUP_PROTOCOL_CONFIG, "classic");
         configs.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, CooperativeStickyAssignor.class.getName());
+        configs.put(ConsumerConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, (int)
+                messagingProperties.getKafka().getConsumer().getDefaultApiTimeout().toMillis());
+        configs.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, (int)
+                messagingProperties.getKafka().getConsumer().getRequestTimeout().toMillis());
+        configs.put(ConsumerConfig.METADATA_MAX_AGE_CONFIG, (int)
+                messagingProperties.getKafka().getConsumer().getMetadataMaxAge().toMillis());
         applySecurity(configs, messagingProperties);
         return new DefaultKafkaConsumerFactory<>(configs);
     }
@@ -94,19 +99,13 @@ public class FcbKafkaConfig {
     public ConcurrentMessageListenerContainer<String, byte[]> fcbIntegrationRepliesContainer(
             @Qualifier(FCB_REPLY_CONSUMER_FACTORY) ConsumerFactory<String, byte[]> fcbReplyConsumerFactory,
             FcbKafkaProperties properties,
-            @Value("${platform.messaging.kafka.consumer-group-id}") String baseGroupId) {
-
-        String uniqueReplyGroupId =
-                baseGroupId + ".fcb-integration-reply." + KafkaMessagingAutoConfiguration.INSTANCE_ID;
-
-        ContainerProperties containerProps = new ContainerProperties(properties.getReplyTopic());
-        containerProps.setGroupId(uniqueReplyGroupId);
-        containerProps.setAckMode(ContainerProperties.AckMode.BATCH);
+            KafkaListenerContainerFactoryProvider provider) {
 
         ConcurrentMessageListenerContainer<String, byte[]> container =
-                new ConcurrentMessageListenerContainer<>(fcbReplyConsumerFactory, containerProps);
-        container.setConcurrency(Math.max(1, CORES));
-        container.setAutoStartup(true);
+                provider.containerFor(
+                        fcbReplyConsumerFactory,
+                        FcbKafkaTopicBindings.integrationReply(properties, Math.max(1, CORES)));
+        container.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
         return container;
     }
 
@@ -114,18 +113,13 @@ public class FcbKafkaConfig {
     public ConcurrentMessageListenerContainer<String, byte[]> fcbHealthRepliesContainer(
             @Qualifier(FCB_REPLY_CONSUMER_FACTORY) ConsumerFactory<String, byte[]> fcbReplyConsumerFactory,
             FcbKafkaProperties properties,
-            @Value("${platform.messaging.kafka.consumer-group-id}") String baseGroupId) {
-
-        String uniqueReplyGroupId = baseGroupId + ".fcb-health-reply." + KafkaMessagingAutoConfiguration.INSTANCE_ID;
-
-        ContainerProperties containerProps = new ContainerProperties(properties.getHealthReplyTopic());
-        containerProps.setGroupId(uniqueReplyGroupId);
-        containerProps.setAckMode(ContainerProperties.AckMode.BATCH);
+            KafkaListenerContainerFactoryProvider provider) {
 
         ConcurrentMessageListenerContainer<String, byte[]> container =
-                new ConcurrentMessageListenerContainer<>(fcbReplyConsumerFactory, containerProps);
-        container.setConcurrency(1);
-        container.setAutoStartup(true);
+                provider.containerFor(
+                        fcbReplyConsumerFactory,
+                        FcbKafkaTopicBindings.healthReply(properties));
+        container.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
         return container;
     }
 
