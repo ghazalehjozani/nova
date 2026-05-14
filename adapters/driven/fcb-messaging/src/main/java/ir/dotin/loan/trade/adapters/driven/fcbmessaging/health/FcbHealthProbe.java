@@ -23,6 +23,16 @@ import org.springframework.kafka.requestreply.RequestReplyFuture;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.stereotype.Component;
 
+import ir.dotin.platform.envelope.api.ActorEnvelope;
+import ir.dotin.platform.envelope.api.ActorEnvelopeCodec;
+import ir.dotin.platform.envelope.api.ActorEnvelopeFactory;
+import ir.dotin.platform.envelope.api.ActorEnvelopeSigner;
+import ir.dotin.platform.envelope.api.ExecutionMode;
+import ir.dotin.platform.envelope.api.ExecutionTrigger;
+import ir.dotin.platform.envelope.api.InitiatorType;
+import ir.dotin.platform.security.api.OAuth2TokenResponse;
+import ir.dotin.platform.security.api.ServiceTokenProvider;
+import ir.dotin.platform.security.api.ServiceTokenRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.HeartbeatRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.util.HostResolver;
@@ -45,6 +55,8 @@ public class FcbHealthProbe implements SmartLifecycle {
     private static final String HEADER_TRACEPARENT = "traceparent";
     private static final String HEADER_IDEMPOTENCY_KEY = "Idempotency-Key";
     private static final String HEADER_REQUEST_DATETIME = "X-Request-DateTime";
+    private static final String HEADER_AUTHORIZATION = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
 
     private final ReplyingKafkaTemplate<String, byte[], byte[]> healthReplyingKafkaTemplate;
     private final ObjectMapper objectMapper;
@@ -54,6 +66,11 @@ public class FcbHealthProbe implements SmartLifecycle {
     private final FcbHealthMetrics metrics;
     private final Tracer tracer;
     private final Clock clock;
+    private final ServiceTokenProvider serviceTokenProvider;
+    private final ActorEnvelopeFactory envelopeFactory;
+    private final ActorEnvelopeSigner envelopeSigner;
+    private final ActorEnvelopeCodec envelopeCodec;
+    private final HealthActorProperties actorProperties;
 
     private final AtomicLong lastSuccessfulCycleMs = new AtomicLong();
     private volatile Thread probeThread;
@@ -69,7 +86,12 @@ public class FcbHealthProbe implements SmartLifecycle {
             FcbPartitionHealthRegistry partitionRegistry,
             FcbHealthMetrics metrics,
             Tracer tracer,
-            Clock clock) {
+            Clock clock,
+            ServiceTokenProvider serviceTokenProvider,
+            ActorEnvelopeFactory envelopeFactory,
+            ActorEnvelopeSigner envelopeSigner,
+            ActorEnvelopeCodec envelopeCodec,
+            HealthActorProperties actorProperties) {
         this.healthReplyingKafkaTemplate = healthReplyingKafkaTemplate;
         this.objectMapper = objectMapper;
         this.kafkaProperties = kafkaProperties;
@@ -78,6 +100,11 @@ public class FcbHealthProbe implements SmartLifecycle {
         this.metrics = metrics;
         this.tracer = tracer;
         this.clock = clock;
+        this.serviceTokenProvider = serviceTokenProvider;
+        this.envelopeFactory = envelopeFactory;
+        this.envelopeSigner = envelopeSigner;
+        this.envelopeCodec = envelopeCodec;
+        this.actorProperties = actorProperties;
     }
 
     @Override
@@ -225,6 +252,7 @@ public class FcbHealthProbe implements SmartLifecycle {
                             KafkaHeaders.REPLY_TOPIC,
                             kafkaProperties.getHealthReplyTopic().getBytes(StandardCharsets.UTF_8)));
 
+            attachAuthAndEnvelope(record);
             addTracingHeaders(record);
 
             RequestReplyFuture<String, byte[], byte[]> future =
@@ -266,5 +294,23 @@ public class FcbHealthProbe implements SmartLifecycle {
         String sampledFlag = Boolean.TRUE.equals(ctx.sampled()) ? "01" : "00";
         String traceparent = "00-" + ctx.traceId() + "-" + ctx.spanId() + "-" + sampledFlag;
         record.headers().add(new RecordHeader(HEADER_TRACEPARENT, traceparent.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    private void attachAuthAndEnvelope(ProducerRecord<String, byte[]> record) {
+        OAuth2TokenResponse token = serviceTokenProvider.getServiceToken(ServiceTokenRequest.async());
+        record.headers()
+                .add(new RecordHeader(
+                        HEADER_AUTHORIZATION, (BEARER_PREFIX + token.accessToken()).getBytes(StandardCharsets.UTF_8)));
+
+        ActorEnvelope envelope = envelopeFactory.fromConfigDefault(
+                InitiatorType.SYSTEM_HEALTH_PROBE,
+                actorProperties.sub(),
+                actorProperties.branchCode(),
+                ExecutionTrigger.HEALTH_PROBE,
+                ExecutionMode.ASYNC);
+        String signedEnvelope = envelopeSigner.sign(envelope);
+        envelopeCodec.write(
+                (name, value) -> record.headers().add(new RecordHeader(name, value.getBytes(StandardCharsets.UTF_8))),
+                signedEnvelope);
     }
 }

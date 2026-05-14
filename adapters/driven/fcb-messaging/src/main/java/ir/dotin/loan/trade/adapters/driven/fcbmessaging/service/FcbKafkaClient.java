@@ -22,8 +22,20 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.envelope.api.AccountabilityIdentity;
+import ir.dotin.platform.envelope.api.AccountabilityType;
+import ir.dotin.platform.envelope.api.ActorEnvelope;
+import ir.dotin.platform.envelope.api.ActorEnvelopeCodec;
+import ir.dotin.platform.envelope.api.ActorEnvelopeFactory;
+import ir.dotin.platform.envelope.api.ActorEnvelopeSigner;
+import ir.dotin.platform.envelope.api.ExecutionMode;
+import ir.dotin.platform.envelope.api.ExecutionTrigger;
+import ir.dotin.platform.envelope.api.InitiatorIdentity;
+import ir.dotin.platform.envelope.api.InitiatorSource;
+import ir.dotin.platform.envelope.api.InitiatorType;
+import ir.dotin.platform.security.api.AuthenticationContextHolder;
 import ir.dotin.platform.security.api.OAuth2TokenResponse;
-import ir.dotin.platform.security.api.TokenClientService;
+import ir.dotin.platform.security.api.ServiceTokenProvider;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaConfig;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbResilienceConfig;
@@ -61,7 +73,11 @@ public class FcbKafkaClient {
     private final ReplyingKafkaTemplate<String, byte[], byte[]> replyingKafkaTemplate;
     private final ObjectMapper objectMapper;
     private final FcbKafkaProperties properties;
-    private final TokenClientService tokenClientService;
+    private final ServiceTokenProvider serviceTokenProvider;
+    private final AuthenticationContextHolder authenticationContextHolder;
+    private final ActorEnvelopeFactory envelopeFactory;
+    private final ActorEnvelopeSigner envelopeSigner;
+    private final ActorEnvelopeCodec envelopeCodec;
     private final RetryTemplate retryTemplate;
     private final FcbHealthGate healthGate;
     private final FcbHealthMetrics healthMetrics;
@@ -72,7 +88,11 @@ public class FcbKafkaClient {
                     ReplyingKafkaTemplate<String, byte[], byte[]> replyingKafkaTemplate,
             ObjectMapper objectMapper,
             FcbKafkaProperties properties,
-            TokenClientService tokenClientService,
+            ServiceTokenProvider serviceTokenProvider,
+            AuthenticationContextHolder authenticationContextHolder,
+            ActorEnvelopeFactory envelopeFactory,
+            ActorEnvelopeSigner envelopeSigner,
+            ActorEnvelopeCodec envelopeCodec,
             @Qualifier(FcbResilienceConfig.FCB_KAFKA_RETRY_TEMPLATE) RetryTemplate retryTemplate,
             FcbHealthGate healthGate,
             FcbHealthMetrics healthMetrics,
@@ -80,7 +100,11 @@ public class FcbKafkaClient {
         this.replyingKafkaTemplate = replyingKafkaTemplate;
         this.objectMapper = objectMapper;
         this.properties = properties;
-        this.tokenClientService = tokenClientService;
+        this.serviceTokenProvider = serviceTokenProvider;
+        this.authenticationContextHolder = authenticationContextHolder;
+        this.envelopeFactory = envelopeFactory;
+        this.envelopeSigner = envelopeSigner;
+        this.envelopeCodec = envelopeCodec;
         this.retryTemplate = retryTemplate;
         this.healthGate = healthGate;
         this.healthMetrics = healthMetrics;
@@ -102,9 +126,11 @@ public class FcbKafkaClient {
 
         try {
             return retryTemplate.execute(() -> {
-                OAuth2TokenResponse token = tokenClientService.delegateToken();
+                OAuth2TokenResponse token = serviceTokenProvider.getServiceToken();
                 String bearerValue = buildBearerHeader(token);
-                return executeRequest(request, operationType, timeout, bearerValue);
+                ActorEnvelope envelope = buildEnvelope();
+                String signedEnvelope = envelopeSigner.sign(envelope);
+                return executeRequest(request, operationType, timeout, bearerValue, signedEnvelope);
             });
         } catch (RetryException e) {
             return mapRetryException(e, operationType, timeout);
@@ -139,7 +165,12 @@ public class FcbKafkaClient {
     }
 
     private Result<FcbKafkaBaseResponse> executeRequest(
-            FcbKafkaBaseRequest request, String operationType, Duration timeout, String bearerValue) throws Exception {
+            FcbKafkaBaseRequest request,
+            String operationType,
+            Duration timeout,
+            String bearerValue,
+            String signedEnvelope)
+            throws Exception {
 
         byte[] requestBytes;
         try {
@@ -174,6 +205,9 @@ public class FcbKafkaClient {
                         HEADER_HOST, HostResolver.resolveHostName().getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(
                         KafkaHeaders.REPLY_TOPIC, properties.getReplyTopic().getBytes(StandardCharsets.UTF_8)));
+        envelopeCodec.write(
+                (name, value) -> record.headers().add(new RecordHeader(name, value.getBytes(StandardCharsets.UTF_8))),
+                signedEnvelope);
         addTracingHeaders(record);
 
         RequestReplyFuture<String, byte[], byte[]> future = replyingKafkaTemplate.sendAndReceive(record, timeout);
@@ -235,5 +269,19 @@ public class FcbKafkaClient {
         String sampledFlag = Boolean.TRUE.equals(ctx.sampled()) ? "01" : "00";
         String traceparent = "00-" + ctx.traceId() + "-" + ctx.spanId() + "-" + sampledFlag;
         record.headers().add(new RecordHeader(HEADER_TRACEPARENT, traceparent.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    private ActorEnvelope buildEnvelope() {
+        String userId = authenticationContextHolder.userId().orElse(null);
+        if (userId != null) {
+            String branchCode = authenticationContextHolder.branchCode().orElse(null);
+            InitiatorIdentity initiator = new InitiatorIdentity(
+                    userId, InitiatorType.HUMAN_USER, branchCode, InitiatorSource.SECURITY_CONTEXT);
+            AccountabilityIdentity accountability = new AccountabilityIdentity(userId, AccountabilityType.HUMAN_USER);
+            return envelopeFactory.fromExplicit(
+                    initiator, accountability, ExecutionTrigger.REST_REQUEST, ExecutionMode.SYNC);
+        }
+        return envelopeFactory.fromConfigDefault(
+                InitiatorType.SYSTEM_RECOVERY, "system", null, ExecutionTrigger.RECOVERY, ExecutionMode.SYNC);
     }
 }

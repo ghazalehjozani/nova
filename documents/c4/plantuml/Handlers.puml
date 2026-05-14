@@ -61,6 +61,12 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.CompensateApprovalSub
   BorderColor #a73a38
   shadowing false
 }
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.CompensateCloseFacilityPaidOffCommandHandler>> {
+  BackgroundColor #ef5350
+  FontColor #ffffff
+  BorderColor #a73a38
+  shadowing false
+}
 skinparam rectangle<<TradeLoanService.TradeLoanApplication.CompensateCollateralCommandHandler>> {
   BackgroundColor #ef5350
   FontColor #ffffff
@@ -151,12 +157,6 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.IssueFacilityContract
   BorderColor #2e73ab
   shadowing false
 }
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.LoanTypeArrangementFilterQueryHandler>> {
-  BackgroundColor #42a5f5
-  FontColor #ffffff
-  BorderColor #2e73ab
-  shadowing false
-}
 skinparam rectangle<<TradeLoanService.TradeLoanApplication.LumpSumDisbursementCommandHandler>> {
   BackgroundColor #42a5f5
   FontColor #ffffff
@@ -201,7 +201,6 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
 
 rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>" <<TradeLoanService.TradeLoanApplication>> {
   rectangle "==GetLoanArrangementByIdQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles get loan arrangement by id queries" <<TradeLoanService.TradeLoanApplication.GetLoanArrangementByIdQueryHandler>> as TradeLoanService.TradeLoanApplication.GetLoanArrangementByIdQueryHandler
-  rectangle "==LoanTypeArrangementFilterQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles loan type arrangement filter queries" <<TradeLoanService.TradeLoanApplication.LoanTypeArrangementFilterQueryHandler>> as TradeLoanService.TradeLoanApplication.LoanTypeArrangementFilterQueryHandler
   rectangle "==AddFacilityCollateralCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles add facility collateral" <<TradeLoanService.TradeLoanApplication.AddFacilityCollateralCommandHandler>> as TradeLoanService.TradeLoanApplication.AddFacilityCollateralCommandHandler
   rectangle "==CompensateCollateralCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles compensate collateral" <<TradeLoanService.TradeLoanApplication.CompensateCollateralCommandHandler>> as TradeLoanService.TradeLoanApplication.CompensateCollateralCommandHandler
   rectangle "==ApproveFacilityCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles approve facility" <<TradeLoanService.TradeLoanApplication.ApproveFacilityCommandHandler>> as TradeLoanService.TradeLoanApplication.ApproveFacilityCommandHandler
@@ -209,6 +208,7 @@ rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]<
   rectangle "==CancelFacilityCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles cancel facility" <<TradeLoanService.TradeLoanApplication.CancelFacilityCommandHandler>> as TradeLoanService.TradeLoanApplication.CancelFacilityCommandHandler
   rectangle "==CloseFacilityDefaultedCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles close facility defaulted" <<TradeLoanService.TradeLoanApplication.CloseFacilityDefaultedCommandHandler>> as TradeLoanService.TradeLoanApplication.CloseFacilityDefaultedCommandHandler
   rectangle "==CloseFacilityPaidOffCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles close facility paid off" <<TradeLoanService.TradeLoanApplication.CloseFacilityPaidOffCommandHandler>> as TradeLoanService.TradeLoanApplication.CloseFacilityPaidOffCommandHandler
+  rectangle "==CompensateCloseFacilityPaidOffCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles compensate close facility paid off" <<TradeLoanService.TradeLoanApplication.CompensateCloseFacilityPaidOffCommandHandler>> as TradeLoanService.TradeLoanApplication.CompensateCloseFacilityPaidOffCommandHandler
   rectangle "==CollectInstallmentCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles collect installment" <<TradeLoanService.TradeLoanApplication.CollectInstallmentCommandHandler>> as TradeLoanService.TradeLoanApplication.CollectInstallmentCommandHandler
   rectangle "==CompensateCollectInstallmentCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles compensate collect installment" <<TradeLoanService.TradeLoanApplication.CompensateCollectInstallmentCommandHandler>> as TradeLoanService.TradeLoanApplication.CompensateCollectInstallmentCommandHandler
   rectangle "==DefineTradeLoanArrangementCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles define trade loan arrangement" <<TradeLoanService.TradeLoanApplication.DefineTradeLoanArrangementCommandHandler>> as TradeLoanService.TradeLoanApplication.DefineTradeLoanArrangementCommandHandler

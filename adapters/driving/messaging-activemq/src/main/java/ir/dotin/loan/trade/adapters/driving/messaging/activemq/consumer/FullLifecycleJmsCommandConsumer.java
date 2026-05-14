@@ -53,7 +53,7 @@ public class FullLifecycleJmsCommandConsumer {
     @JmsListener(
             destination = "corridor.core.loan.nova.full-lifecycle.request.queue.v1",
             containerFactory = "jmsListenerContainerFactory")
-    public void consume(Message message) throws Exception {
+    public void consume(Message message) {
         if (!(message instanceof TextMessage textMessage)) {
             throw new IllegalArgumentException(
                     "Unsupported JMS message type: " + message.getClass().getSimpleName());
