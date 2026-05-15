@@ -22,6 +22,7 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
+import org.springframework.kafka.support.TopicPartitionOffset;
 
 import ir.dotin.platform.messaging.autoconfigure.MessagingProperties;
 import ir.dotin.platform.messaging.kafka.spi.KafkaListenerContainerFactoryProvider;
@@ -37,8 +38,10 @@ public class FcbKafkaConfig {
     public static final String FCB_HEALTH_REPLIES_CONTAINER = "fcbHealthRepliesContainer";
     public static final String FCB_INTEGRATION_REPLYING_TEMPLATE = "fcbIntegrationReplyingKafkaTemplate";
     public static final String FCB_HEALTH_REPLYING_TEMPLATE = "fcbHealthReplyingKafkaTemplate";
+    public static final String FCB_INTEGRATION_REPLY_PARTITION = "fcbIntegrationReplyPartition";
+    public static final String FCB_HEALTH_REPLY_PARTITION = "fcbHealthReplyPartition";
+    public static final String GENERAL_REPLIES_CONTAINER = "generalRepliesContainer";
 
-    private static final int CORES = Runtime.getRuntime().availableProcessors();
     private static final int PRODUCER_BATCH_SIZE_BYTES = 131_072;
     private static final long PRODUCER_LINGER_MS = 100L;
     private static final int REPLY_MAX_POLL_RECORDS = 500;
@@ -85,8 +88,11 @@ public class FcbKafkaConfig {
         configs.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, REPLY_FETCH_MAX_WAIT_MS);
         configs.put(ConsumerConfig.GROUP_PROTOCOL_CONFIG, "classic");
         configs.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, CooperativeStickyAssignor.class.getName());
-        configs.put(ConsumerConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, (int)
-                messagingProperties.getKafka().getConsumer().getDefaultApiTimeout().toMillis());
+        configs.put(ConsumerConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, (int) messagingProperties
+                .getKafka()
+                .getConsumer()
+                .getDefaultApiTimeout()
+                .toMillis());
         configs.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, (int)
                 messagingProperties.getKafka().getConsumer().getRequestTimeout().toMillis());
         configs.put(ConsumerConfig.METADATA_MAX_AGE_CONFIG, (int)
@@ -95,31 +101,53 @@ public class FcbKafkaConfig {
         return new DefaultKafkaConsumerFactory<>(configs);
     }
 
+    @Bean(FCB_INTEGRATION_REPLY_PARTITION)
+    public int fcbIntegrationReplyPartition(FcbKafkaProperties properties, MessagingProperties messagingProperties) {
+        return FcbReplyPartitionResolver.resolve(
+                messagingProperties.getKafka().getInstanceId(), properties.getReplyTopicPartitions());
+    }
+
+    @Bean(FCB_HEALTH_REPLY_PARTITION)
+    public int fcbHealthReplyPartition(FcbKafkaProperties properties, MessagingProperties messagingProperties) {
+        return FcbReplyPartitionResolver.resolve(
+                messagingProperties.getKafka().getInstanceId(), properties.getHealthReplyTopicPartitions());
+    }
+
     @Bean(FCB_INTEGRATION_REPLIES_CONTAINER)
     public ConcurrentMessageListenerContainer<String, byte[]> fcbIntegrationRepliesContainer(
             @Qualifier(FCB_REPLY_CONSUMER_FACTORY) ConsumerFactory<String, byte[]> fcbReplyConsumerFactory,
             FcbKafkaProperties properties,
+            @Qualifier(FCB_INTEGRATION_REPLY_PARTITION) int partition,
             KafkaListenerContainerFactoryProvider provider) {
-
-        ConcurrentMessageListenerContainer<String, byte[]> container =
-                provider.containerFor(
-                        fcbReplyConsumerFactory,
-                        FcbKafkaTopicBindings.integrationReply(properties, Math.max(1, CORES)));
-        container.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
-        return container;
+        return manualAssignContainer(
+                fcbReplyConsumerFactory,
+                provider.groupIdFor("core.loan.nova.fcb-integration-reply"),
+                properties.getReplyTopic(),
+                partition);
     }
 
     @Bean(FCB_HEALTH_REPLIES_CONTAINER)
     public ConcurrentMessageListenerContainer<String, byte[]> fcbHealthRepliesContainer(
             @Qualifier(FCB_REPLY_CONSUMER_FACTORY) ConsumerFactory<String, byte[]> fcbReplyConsumerFactory,
             FcbKafkaProperties properties,
+            @Qualifier(FCB_HEALTH_REPLY_PARTITION) int partition,
             KafkaListenerContainerFactoryProvider provider) {
+        return manualAssignContainer(
+                fcbReplyConsumerFactory,
+                provider.groupIdFor("core.loan.nova.fcb-health-reply"),
+                properties.getHealthReplyTopic(),
+                partition);
+    }
 
+    private static ConcurrentMessageListenerContainer<String, byte[]> manualAssignContainer(
+            ConsumerFactory<String, byte[]> consumerFactory, String groupId, String topic, int partition) {
+        ContainerProperties props = new ContainerProperties(new TopicPartitionOffset(topic, partition));
+        props.setGroupId(groupId);
+        props.setAckMode(ContainerProperties.AckMode.BATCH);
         ConcurrentMessageListenerContainer<String, byte[]> container =
-                provider.containerFor(
-                        fcbReplyConsumerFactory,
-                        FcbKafkaTopicBindings.healthReply(properties));
-        container.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
+                new ConcurrentMessageListenerContainer<>(consumerFactory, props);
+        container.setConcurrency(1);
+        container.setAutoStartup(true);
         return container;
     }
 
@@ -146,6 +174,37 @@ public class FcbKafkaConfig {
                 new ReplyingKafkaTemplate<>(fcbProducerFactory, fcbHealthRepliesContainer);
         template.setSharedReplyTopic(true);
         template.setBinaryCorrelation(false);
+        return template;
+    }
+
+    @Bean(GENERAL_REPLIES_CONTAINER)
+    public ConcurrentMessageListenerContainer<String, byte[]> generalRepliesContainer(
+            @Qualifier(FCB_REPLY_CONSUMER_FACTORY) ConsumerFactory<String, byte[]> fcbReplyConsumerFactory,
+            FcbKafkaProperties properties,
+            KafkaListenerContainerFactoryProvider provider) {
+
+        ContainerProperties props = new ContainerProperties(properties.getReplyTopic());
+        props.setGroupId(provider.groupIdFor("core.loan.nova.general-reply"));
+        props.setAckMode(ContainerProperties.AckMode.BATCH);
+
+        ConcurrentMessageListenerContainer<String, byte[]> container =
+                new ConcurrentMessageListenerContainer<>(fcbReplyConsumerFactory, props);
+        container.setConcurrency(1);
+        container.setAutoStartup(true);
+        return container;
+    }
+
+    @Bean("replyingKafkaTemplate")
+    public ReplyingKafkaTemplate<String, byte[], byte[]> replyingKafkaTemplate(
+            @Qualifier(FCB_PRODUCER_FACTORY) ProducerFactory<String, byte[]> fcbProducerFactory,
+            @Qualifier(GENERAL_REPLIES_CONTAINER) ConcurrentMessageListenerContainer<String, byte[]> generalRepliesContainer,
+            FcbKafkaProperties properties) {
+
+        ReplyingKafkaTemplate<String, byte[], byte[]> template =
+                new ReplyingKafkaTemplate<>(fcbProducerFactory, generalRepliesContainer);
+        template.setSharedReplyTopic(true);
+        template.setBinaryCorrelation(false);
+        template.setDefaultReplyTimeout(properties.getDefaultTimeout());
         return template;
     }
 

@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.health;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
@@ -11,18 +12,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-
+import jakarta.annotation.PreDestroy;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.SmartLifecycle;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import org.springframework.kafka.requestreply.RequestReplyFuture;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.stereotype.Component;
-
 import ir.dotin.platform.envelope.api.ActorEnvelope;
 import ir.dotin.platform.envelope.api.ActorEnvelopeCodec;
 import ir.dotin.platform.envelope.api.ActorEnvelopeFactory;
@@ -33,10 +34,10 @@ import ir.dotin.platform.envelope.api.InitiatorType;
 import ir.dotin.platform.security.api.OAuth2TokenResponse;
 import ir.dotin.platform.security.api.ServiceTokenProvider;
 import ir.dotin.platform.security.api.ServiceTokenRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaConfig;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.HeartbeatRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.util.HostResolver;
-
 import io.micrometer.tracing.TraceContext;
 import io.micrometer.tracing.Tracer;
 import lombok.extern.slf4j.Slf4j;
@@ -44,8 +45,7 @@ import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Component
-public class FcbHealthProbe implements SmartLifecycle {
-
+public class FcbHealthProbe {
     private static final String HEADER_OPERATION_TYPE = "X-Operation-Type";
     private static final String HEADER_EVENT_UID = "eventUid";
     private static final String HEADER_HEALTH_PROBE = "X-Health-Probe";
@@ -71,6 +71,7 @@ public class FcbHealthProbe implements SmartLifecycle {
     private final ActorEnvelopeSigner envelopeSigner;
     private final ActorEnvelopeCodec envelopeCodec;
     private final HealthActorProperties actorProperties;
+    private final int healthReplyPartition;
 
     private final AtomicLong lastSuccessfulCycleMs = new AtomicLong();
     private volatile Thread probeThread;
@@ -79,7 +80,7 @@ public class FcbHealthProbe implements SmartLifecycle {
 
     public FcbHealthProbe(
             @Qualifier("fcbHealthReplyingKafkaTemplate")
-                    ReplyingKafkaTemplate<String, byte[], byte[]> healthReplyingKafkaTemplate,
+            ReplyingKafkaTemplate<String, byte[], byte[]> healthReplyingKafkaTemplate,
             ObjectMapper objectMapper,
             FcbKafkaProperties kafkaProperties,
             FcbHealthProperties healthProperties,
@@ -91,7 +92,8 @@ public class FcbHealthProbe implements SmartLifecycle {
             ActorEnvelopeFactory envelopeFactory,
             ActorEnvelopeSigner envelopeSigner,
             ActorEnvelopeCodec envelopeCodec,
-            HealthActorProperties actorProperties) {
+            HealthActorProperties actorProperties,
+            @Qualifier(FcbKafkaConfig.FCB_HEALTH_REPLY_PARTITION) int healthReplyPartition) {
         this.healthReplyingKafkaTemplate = healthReplyingKafkaTemplate;
         this.objectMapper = objectMapper;
         this.kafkaProperties = kafkaProperties;
@@ -105,9 +107,10 @@ public class FcbHealthProbe implements SmartLifecycle {
         this.envelopeSigner = envelopeSigner;
         this.envelopeCodec = envelopeCodec;
         this.actorProperties = actorProperties;
+        this.healthReplyPartition = healthReplyPartition;
     }
 
-    @Override
+    @EventListener(ApplicationReadyEvent.class)
     public void start() {
         if (!healthProperties.isEnabled()) return;
         log.info("FCB-PROBE: Starting health probe loop...");
@@ -117,12 +120,7 @@ public class FcbHealthProbe implements SmartLifecycle {
         this.stopped = false;
     }
 
-    @Override
-    public int getPhase() {
-        return Integer.MAX_VALUE;
-    }
-
-    @Override
+    @PreDestroy
     public void stop() {
         stopped = true;
         Thread t = this.probeThread;
@@ -146,7 +144,6 @@ public class FcbHealthProbe implements SmartLifecycle {
         }
     }
 
-    @Override
     public boolean isRunning() {
         return !this.stopped;
     }
@@ -250,7 +247,12 @@ public class FcbHealthProbe implements SmartLifecycle {
                             request.getDateTime().toInstant().toString().getBytes(StandardCharsets.UTF_8)))
                     .add(new RecordHeader(
                             KafkaHeaders.REPLY_TOPIC,
-                            kafkaProperties.getHealthReplyTopic().getBytes(StandardCharsets.UTF_8)));
+                            kafkaProperties.getHealthReplyTopic().getBytes(StandardCharsets.UTF_8)))
+                    .add(new RecordHeader(
+                            KafkaHeaders.REPLY_PARTITION,
+                            ByteBuffer.allocate(Integer.BYTES)
+                                    .putInt(healthReplyPartition)
+                                    .array()));
 
             attachAuthAndEnvelope(record);
             addTracingHeaders(record);

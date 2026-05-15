@@ -1,11 +1,13 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.service;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -46,6 +48,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.exception.FcbServerExcep
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.health.FcbHealthGate;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.health.FcbHealthMetrics;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.KafkaErrorCodeMapper;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.metrics.FcbRequestReplyMetrics;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.util.HostResolver;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 
@@ -81,7 +84,9 @@ public class FcbKafkaClient {
     private final RetryTemplate retryTemplate;
     private final FcbHealthGate healthGate;
     private final FcbHealthMetrics healthMetrics;
+    private final FcbRequestReplyMetrics requestReplyMetrics;
     private final Tracer tracer;
+    private final int replyPartition;
 
     public FcbKafkaClient(
             @Qualifier(FcbKafkaConfig.FCB_INTEGRATION_REPLYING_TEMPLATE)
@@ -96,6 +101,8 @@ public class FcbKafkaClient {
             @Qualifier(FcbResilienceConfig.FCB_KAFKA_RETRY_TEMPLATE) RetryTemplate retryTemplate,
             FcbHealthGate healthGate,
             FcbHealthMetrics healthMetrics,
+            FcbRequestReplyMetrics requestReplyMetrics,
+            @Qualifier(FcbKafkaConfig.FCB_INTEGRATION_REPLY_PARTITION) int replyPartition,
             @Nullable Tracer tracer) {
         this.replyingKafkaTemplate = replyingKafkaTemplate;
         this.objectMapper = objectMapper;
@@ -108,6 +115,8 @@ public class FcbKafkaClient {
         this.retryTemplate = retryTemplate;
         this.healthGate = healthGate;
         this.healthMetrics = healthMetrics;
+        this.requestReplyMetrics = requestReplyMetrics;
+        this.replyPartition = replyPartition;
         this.tracer = tracer;
     }
 
@@ -140,31 +149,65 @@ public class FcbKafkaClient {
     private Result<FcbKafkaBaseResponse> mapRetryException(RetryException e, String operationType, Duration timeout) {
         Throwable cause = e.getCause();
         if (cause == null) {
+            requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_OTHER);
             return Result.failure(Notification.ofError(
                     CoreBankingErrors.KAFKA_COMMUNICATION_ERROR, "retry exhausted: " + e.getMessage()));
         }
         return switch (cause) {
-            case FcbServerException fse ->
-                Result.failure(Notification.ofError(
+            case FcbServerException fse -> {
+                requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_SERVER);
+                yield Result.failure(Notification.ofError(
                         CoreBankingErrors.KAFKA_FCB_SERVER_ERROR, fse.getErrorCode(), fse.getErrorMessage()));
-            case java.util.concurrent.TimeoutException ignored ->
-                Result.failure(Notification.ofError(
+            }
+            case TimeoutException ignored -> {
+                requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_TIMEOUT);
+                requestReplyMetrics.recordDiscarded(operationType);
+                yield Result.failure(Notification.ofError(
                         CoreBankingErrors.KAFKA_REPLY_TIMEOUT, operationType, String.valueOf(timeout.toMillis())));
-            case org.springframework.kafka.KafkaException ke ->
-                Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, ke.getMessage()));
-            case FcbSerializationException fse ->
-                Result.failure(
+            }
+            case org.springframework.kafka.KafkaException ke -> {
+                requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_BROKER);
+                yield Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, ke.getMessage()));
+            }
+            case FcbSerializationException fse -> {
+                requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_SERIALIZATION);
+                yield Result.failure(
                         Notification.ofError(CoreBankingErrors.KAFKA_SERIALIZATION_ERROR, fse.getErrorMessage()));
-            default ->
-                Result.failure(Notification.ofError(
+            }
+            default -> {
+                requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_OTHER);
+                yield Result.failure(Notification.ofError(
                         CoreBankingErrors.KAFKA_COMMUNICATION_ERROR,
                         cause.getMessage() != null
                                 ? cause.getMessage()
                                 : cause.getClass().getSimpleName()));
+            }
         };
     }
 
     private Result<FcbKafkaBaseResponse> executeRequest(
+            FcbKafkaBaseRequest request,
+            String operationType,
+            Duration timeout,
+            String bearerValue,
+            String signedEnvelope)
+            throws Exception {
+
+        long startNanos = System.nanoTime();
+        boolean success = false;
+        try {
+            Result<FcbKafkaBaseResponse> result =
+                    doExecuteRequest(request, operationType, timeout, bearerValue, signedEnvelope);
+            success = result.isSuccess();
+            return result;
+        } finally {
+            String outcome = success ? FcbRequestReplyMetrics.OUTCOME_SUCCESS : FcbRequestReplyMetrics.OUTCOME_FAILURE;
+            requestReplyMetrics.recordMatchDuration(
+                    operationType, Duration.ofNanos(System.nanoTime() - startNanos), outcome);
+        }
+    }
+
+    private Result<FcbKafkaBaseResponse> doExecuteRequest(
             FcbKafkaBaseRequest request,
             String operationType,
             Duration timeout,
@@ -204,7 +247,12 @@ public class FcbKafkaClient {
                 .add(new RecordHeader(
                         HEADER_HOST, HostResolver.resolveHostName().getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(
-                        KafkaHeaders.REPLY_TOPIC, properties.getReplyTopic().getBytes(StandardCharsets.UTF_8)));
+                        KafkaHeaders.REPLY_TOPIC, properties.getReplyTopic().getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader(
+                        KafkaHeaders.REPLY_PARTITION,
+                        ByteBuffer.allocate(Integer.BYTES)
+                                .putInt(replyPartition)
+                                .array()));
         envelopeCodec.write(
                 (name, value) -> record.headers().add(new RecordHeader(name, value.getBytes(StandardCharsets.UTF_8))),
                 signedEnvelope);
