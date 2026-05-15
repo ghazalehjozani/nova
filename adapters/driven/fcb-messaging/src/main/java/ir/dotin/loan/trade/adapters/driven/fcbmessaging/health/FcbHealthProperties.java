@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.adapters.driven.fcbmessaging.health;
 
 import java.time.Duration;
 import java.util.List;
+import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -27,20 +28,20 @@ public class FcbHealthProperties {
     private Duration recoveryProbeInterval = Duration.ofSeconds(1);
 
     @NotNull
-    private Duration probeTimeout;
+    private Duration probeTimeout = Duration.ofSeconds(5);
 
     @NotNull
     private Duration degradedLatencyThreshold = Duration.ofMillis(500);
 
     @Min(2)
     @Max(64)
-    private int probeWindowSize;
+    private int probeWindowSize = 5;
 
     @Min(1)
-    private int failuresInWindowToOpen = 5;
+    private int failuresInWindowToOpen = 3;
 
     @Min(1)
-    private int successesInWindowToClose = 7;
+    private int successesInWindowToClose = 1;
 
     @NotNull
     private Duration initialDelay = Duration.ofSeconds(15);
@@ -52,4 +53,18 @@ public class FcbHealthProperties {
     private String producerCode = "NOVA";
 
     private List<String> legacyConsumerGroupIds;
+
+    @PostConstruct
+    void validateThresholds() {
+        if (successesInWindowToClose > probeWindowSize) {
+            throw new IllegalStateException(
+                    "nova.fcb.kafka.health.successes-in-window-to-close (" + successesInWindowToClose
+                            + ") must be <= probe-window-size (" + probeWindowSize + ")");
+        }
+        if (failuresInWindowToOpen > probeWindowSize) {
+            throw new IllegalStateException(
+                    "nova.fcb.kafka.health.failures-in-window-to-open (" + failuresInWindowToOpen
+                            + ") must be <= probe-window-size (" + probeWindowSize + ")");
+        }
+    }
 }

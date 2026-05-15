@@ -277,7 +277,9 @@ public class FcbHealthProbe {
         } catch (Throwable t) {
             partitionRegistry.recordFailure(partition);
             metrics.recordProbeFailure();
-            log.debug("FCB-PROBE: partition={} probe failed: {}", partition, t.toString());
+            log.warn("FCB-PROBE: partition={} probe failed cause={} msg={}",
+                    partition, t.getClass().getSimpleName(), t.getMessage());
+            log.debug("FCB-PROBE: partition={} probe failure stack", partition, t);
         }
     }
 
