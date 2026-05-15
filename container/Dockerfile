@@ -43,6 +43,7 @@ WORKDIR /app
 
 # 4. Copy Artifact
 COPY target/*.jar app.jar
+COPY keystore.p12 keystore.p12
 RUN chmod 444 app.jar && chown appuser:appgroup app.jar
 
 USER appuser
