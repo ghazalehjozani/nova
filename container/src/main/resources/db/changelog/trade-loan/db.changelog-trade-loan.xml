@@ -33,4 +33,7 @@
     <!-- Updates/Patches -->
     <include file="/db/changelog/trade-loan/v2026.5.32/002-update-close-paid-off-data.xml"/>
 
+    <!-- Actor envelope columns on outbox tables (ADR-0003) -->
+    <include file="db/changelog/trade-loan/v2026.5.0/002-add-actor-envelope-columns.xml"/>
+
 </databaseChangeLog>

@@ -22,7 +22,6 @@ workspace "Trade Loan Service" {
                 devauthcallbackcontroller = component "DevAuthCallbackController" "REST API: /api/{version}/dev/auth" "Spring REST Controller"
                 addfacilitycollateralcontroller = component "AddFacilityCollateralController" "REST API: /api/{version}/facilities/{facilityId}/collaterals" "Spring REST Controller"
                 approvefacilitycontroller = component "ApproveFacilityController" "REST API: /api/{version}/facilities/{facilityId}/approve" "Spring REST Controller"
-                cancelfacilitycontroller = component "CancelFacilityController" "REST API: /api/{version}/facilities/{facilityId}/cancel" "Spring REST Controller"
                 closefacilitydefaultedcontroller = component "CloseFacilityDefaultedController" "REST API: /api/{version}/facilities/{facilityId}/close-defaulted" "Spring REST Controller"
                 closefacilitypaidoffcontroller = component "CloseFacilityPaidOffController" "REST API: /api/{version}/facilities/{facilityId}/close-paid-off" "Spring REST Controller"
                 defineloanarrangementcontroller = component "DefineLoanArrangementController" "REST API: /api/{version}/loan-arrangements/define" "Spring REST Controller"
@@ -48,6 +47,7 @@ workspace "Trade Loan Service" {
                 cancelfacilitycommandhandler = component "CancelFacilityCommandHandler" "Handles cancel facility" "Command Handler"
                 closefacilitydefaultedcommandhandler = component "CloseFacilityDefaultedCommandHandler" "Handles close facility defaulted" "Command Handler"
                 closefacilitypaidoffcommandhandler = component "CloseFacilityPaidOffCommandHandler" "Handles close facility paid off" "Command Handler"
+                compensateclosefacilitypaidoffcommandhandler = component "CompensateCloseFacilityPaidOffCommandHandler" "Handles compensate close facility paid off" "Command Handler"
                 collectinstallmentcommandhandler = component "CollectInstallmentCommandHandler" "Handles collect installment" "Command Handler"
                 compensatecollectinstallmentcommandhandler = component "CompensateCollectInstallmentCommandHandler" "Handles compensate collect installment" "Command Handler"
                 definetradeloanarrangementcommandhandler = component "DefineTradeLoanArrangementCommandHandler" "Handles define trade loan arrangement" "Command Handler"
@@ -256,102 +256,102 @@ workspace "Trade Loan Service" {
         }
 
         styles {
-            element "Monitoring" {
-                background #27ae60
-                shape WebBrowser
-            }
-            element "Service" {
-                background #29b6f6
+            element "Saga" {
+                background #ab47bc
                 color #ffffff
+                shape Diamond
             }
-            element "Domain" {
-                background #ffa726
-                color #000000
-            }
-            element "External System" {
-                background #999999
-            }
-            element "Internal User" {
-                background #08427b
-            }
-            element "Database" {
-                shape Cylinder
-            }
-            element "Handler" {
-                background #42a5f5
+            element "Compensation" {
+                background #ef5350
                 color #ffffff
-            }
-            element "Software System" {
-                background #1168bd
-                color #ffffff
-            }
-            element "Consumer" {
-                background #ff7043
-                color #ffffff
-                shape Hexagon
-            }
-            element "Person" {
-                background #08427b
-                color #ffffff
-                shape Person
-            }
-            element "Entity" {
-                background #ffb74d
-                color #000000
-            }
-            element "Aggregate" {
-                background #ff9800
-                color #000000
-            }
-            element "Cache" {
-                background #e74c3c
-                shape Cylinder
-            }
-            element "Container" {
-                background #438dd5
-                color #ffffff
-            }
-            element "External User" {
-                background #666666
-            }
-            element "Admin" {
-                background #5c3d6e
-            }
-            element "Outbox" {
-                background #66bb6a
-                color #000000
-                shape Hexagon
             }
             element "Repository" {
                 background #5c6bc0
                 color #ffffff
                 shape Cylinder
             }
-            element "Compensation" {
-                background #ef5350
+            element "Outbox" {
+                background #66bb6a
+                color #000000
+                shape Hexagon
+            }
+            element "Admin" {
+                background #5c3d6e
+            }
+            element "External User" {
+                background #666666
+            }
+            element "Container" {
+                background #438dd5
                 color #ffffff
             }
-            element "Saga" {
-                background #ab47bc
+            element "Cache" {
+                background #e74c3c
+                shape Cylinder
+            }
+            element "Aggregate" {
+                background #ff9800
+                color #000000
+            }
+            element "Entity" {
+                background #ffb74d
+                color #000000
+            }
+            element "Person" {
+                background #08427b
                 color #ffffff
-                shape Diamond
+                shape Person
             }
-            element "Message Broker" {
-                background #f5a623
-                color #000000
-                shape Pipe
+            element "Consumer" {
+                background #ff7043
+                color #ffffff
+                shape Hexagon
             }
-            element "Component" {
-                background #85bbf0
+            element "Software System" {
+                background #1168bd
+                color #ffffff
+            }
+            element "Handler" {
+                background #42a5f5
+                color #ffffff
+            }
+            element "Database" {
+                shape Cylinder
+            }
+            element "Internal User" {
+                background #08427b
+            }
+            element "External System" {
+                background #999999
+            }
+            element "Domain" {
+                background #ffa726
                 color #000000
+            }
+            element "Service" {
+                background #29b6f6
+                color #ffffff
+            }
+            element "Monitoring" {
+                background #27ae60
+                shape WebBrowser
+            }
+            element "Client" {
+                background #ec407a
+                color #ffffff
             }
             element "Controller" {
                 background #7cb342
                 color #ffffff
             }
-            element "Client" {
-                background #ec407a
-                color #ffffff
+            element "Component" {
+                background #85bbf0
+                color #000000
+            }
+            element "Message Broker" {
+                background #f5a623
+                color #000000
+                shape Pipe
             }
         }
     }

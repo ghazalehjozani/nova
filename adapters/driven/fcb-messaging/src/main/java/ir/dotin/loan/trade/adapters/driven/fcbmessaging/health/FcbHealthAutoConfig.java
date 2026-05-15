@@ -14,7 +14,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 
 @Configuration
 @Profile("kafka-fcb")
-@EnableConfigurationProperties(FcbHealthProperties.class)
+@EnableConfigurationProperties({FcbHealthProperties.class, HealthActorProperties.class})
 @ConditionalOnProperty(
         prefix = FcbHealthProperties.PREFIX,
         name = "enabled",

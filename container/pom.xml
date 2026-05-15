@@ -190,6 +190,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-http-client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform</groupId>
+            <artifactId>platform-envelope-impl-jws</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

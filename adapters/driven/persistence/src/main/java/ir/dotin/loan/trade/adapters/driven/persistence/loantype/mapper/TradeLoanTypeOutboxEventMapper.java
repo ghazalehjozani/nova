@@ -1,7 +1,7 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loantype.mapper;
 
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import ir.dotin.platform.adapter.messaging.persistence.mapper.BaseOutboxEventMapper;
@@ -14,13 +14,11 @@ import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 public interface TradeLoanTypeOutboxEventMapper extends BaseOutboxEventMapper<TradeLoanTypeOutboxEventEntity> {
 
     @Override
-    @Mapping(target = "aggregateType", source = "aggregateType", qualifiedByName = "classToString")
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "modifiedBy", ignore = true)
+    @InheritConfiguration
     TradeLoanTypeOutboxEventEntity toEntity(OutboxEvent domain);
 
     @Override
-    @Mapping(target = "aggregateType", source = "aggregateType", qualifiedByName = "stringToClass")
+    @InheritConfiguration
     OutboxEvent toDomain(TradeLoanTypeOutboxEventEntity entity);
 
     @Named("classToString")

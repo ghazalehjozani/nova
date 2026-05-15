@@ -34,6 +34,10 @@
             <artifactId>platform-security-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>ir.dotin.platform</groupId>
+            <artifactId>platform-envelope-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>

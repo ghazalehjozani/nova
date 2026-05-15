@@ -1,7 +1,7 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.installmentschedule.mapper;
 
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import ir.dotin.platform.adapter.messaging.persistence.mapper.BaseOutboxEventMapper;
@@ -15,13 +15,11 @@ public interface InstallmentScheduleOutboxEventMapper
         extends BaseOutboxEventMapper<InstallmentScheduleOutboxEventEntity> {
 
     @Override
-    @Mapping(target = "aggregateType", source = "aggregateType", qualifiedByName = "classToString")
-    @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "modifiedBy", ignore = true)
+    @InheritConfiguration
     InstallmentScheduleOutboxEventEntity toEntity(OutboxEvent domain);
 
     @Override
-    @Mapping(target = "aggregateType", source = "aggregateType", qualifiedByName = "stringToClass")
+    @InheritConfiguration
     OutboxEvent toDomain(InstallmentScheduleOutboxEventEntity entity);
 
     @Named("classToString")
