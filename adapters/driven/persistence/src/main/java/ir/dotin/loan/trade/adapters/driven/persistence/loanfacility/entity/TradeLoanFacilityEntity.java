@@ -98,6 +98,14 @@ public class TradeLoanFacilityEntity extends PersistentEntity {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
+            name = "loan_facility_restructuring_transaction_numbers",
+            joinColumns = @JoinColumn(name = "loan_facility_id"),
+            indexes = @Index(name = "idx_trade_loan_facility_restructuring", columnList = "loan_facility_id"))
+    @Column(name = "restructuringـtransaction_number")
+    private List<String> restructuringTransactionNumbers = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
             name = "loan_facility_close_paid_off_transaction_numbers",
             joinColumns = @JoinColumn(name = "loan_facility_id"))
     private List<TransactionNumberEmb> closePaidOffTransactionNumbers = new ArrayList<>();

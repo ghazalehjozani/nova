@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.repository.TradeLoanFacilityJpaRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.query.ApplicationNumberResolver;
 
@@ -22,5 +23,12 @@ public class JpaApplicationNumberResolver implements ApplicationNumberResolver {
         return facilityRepository
                 .findByApplicationNumber(applicationNumber)
                 .map(entity -> new LoanIdentifiers(entity.getId(), entity.getInstallmentScheduleId()));
+    }
+
+    @Override
+    public Optional<LoanFacilityId> resolveLoanFacilityIdByApplicationNumber(String applicationNumber) {
+        return facilityRepository
+                .findByApplicationNumber(applicationNumber)
+                .map(entity -> new LoanFacilityId(entity.getId()));
     }
 }

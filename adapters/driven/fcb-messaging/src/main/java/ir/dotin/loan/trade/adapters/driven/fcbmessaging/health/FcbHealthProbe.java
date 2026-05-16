@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import jakarta.annotation.PreDestroy;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.PartitionInfo;
@@ -24,6 +25,7 @@ import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import org.springframework.kafka.requestreply.RequestReplyFuture;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.stereotype.Component;
+
 import ir.dotin.platform.envelope.api.ActorEnvelope;
 import ir.dotin.platform.envelope.api.ActorEnvelopeCodec;
 import ir.dotin.platform.envelope.api.ActorEnvelopeFactory;
@@ -38,6 +40,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaConfig;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.HeartbeatRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.util.HostResolver;
+
 import io.micrometer.tracing.TraceContext;
 import io.micrometer.tracing.Tracer;
 import lombok.extern.slf4j.Slf4j;
@@ -80,7 +83,7 @@ public class FcbHealthProbe {
 
     public FcbHealthProbe(
             @Qualifier("fcbHealthReplyingKafkaTemplate")
-            ReplyingKafkaTemplate<String, byte[], byte[]> healthReplyingKafkaTemplate,
+                    ReplyingKafkaTemplate<String, byte[], byte[]> healthReplyingKafkaTemplate,
             ObjectMapper objectMapper,
             FcbKafkaProperties kafkaProperties,
             FcbHealthProperties healthProperties,
@@ -277,8 +280,11 @@ public class FcbHealthProbe {
         } catch (Throwable t) {
             partitionRegistry.recordFailure(partition);
             metrics.recordProbeFailure();
-            log.warn("FCB-PROBE: partition={} probe failed cause={} msg={}",
-                    partition, t.getClass().getSimpleName(), t.getMessage());
+            log.warn(
+                    "FCB-PROBE: partition={} probe failed cause={} msg={}",
+                    partition,
+                    t.getClass().getSimpleName(),
+                    t.getMessage());
             log.debug("FCB-PROBE: partition={} probe failure stack", partition, t);
         }
     }

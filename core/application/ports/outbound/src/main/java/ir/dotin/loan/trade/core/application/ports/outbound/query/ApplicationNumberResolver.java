@@ -3,6 +3,8 @@ package ir.dotin.loan.trade.core.application.ports.outbound.query;
 import java.util.Optional;
 import java.util.UUID;
 
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
+
 /**
  * Resolves application numbers to domain aggregate identifiers.
  *
@@ -14,4 +16,6 @@ public interface ApplicationNumberResolver {
     record LoanIdentifiers(UUID loanFacilityId, UUID installmentScheduleId) {}
 
     Optional<LoanIdentifiers> resolveByApplicationNumber(String applicationNumber);
+
+    Optional<LoanFacilityId> resolveLoanFacilityIdByApplicationNumber(String applicationNumber);
 }
