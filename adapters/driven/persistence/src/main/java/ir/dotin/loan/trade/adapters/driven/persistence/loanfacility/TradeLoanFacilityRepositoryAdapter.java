@@ -69,4 +69,10 @@ public class TradeLoanFacilityRepositoryAdapter implements TradeLoanFacilityRepo
                 applicationNumber.party().customerNumber(),
                 applicationNumber.derivedValue());
     }
+
+    @Override
+    public Optional<TradeLoanFacility> findByApplicationNumber(String applicationNumber) {
+        requireNonNull(applicationNumber, "ApplicationNumber cannot be null");
+        return jpaRepository.findByApplicationNumber(applicationNumber).map(mapper::map);
+    }
 }

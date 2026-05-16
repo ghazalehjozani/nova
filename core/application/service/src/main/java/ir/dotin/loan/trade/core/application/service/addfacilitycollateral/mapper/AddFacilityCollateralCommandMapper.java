@@ -11,6 +11,7 @@ import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.AddFacilityCollateralCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.UpdateCollateralCommand;
 import ir.dotin.loan.trade.core.application.service.BaseMapperConfig;
 
 @Mapper(config = BaseMapperConfig.class)
@@ -48,5 +49,15 @@ public interface AddFacilityCollateralCommandMapper {
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid currency code: " + currencyCode);
         }
+    }
+
+    default Collateral toCollateral(UpdateCollateralCommand.CollateralItem item, CurrencyType currencyType) {
+        if (item == null) return null;
+
+        CollateralSerial serial = CollateralSerial.of(item.collateralSerial()).orElseThrow();
+        Result<Money> usedAmount = Money.valueOf(item.usedAmount(), currencyType);
+
+        return Collateral.valueOf(null, null, null, serial, usedAmount.getValue())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid collateral data"));
     }
 }

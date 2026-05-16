@@ -11,7 +11,8 @@ public enum FcbEventOperationType {
     CANCEL_LOAN_FACILITY("loanFacility.cancel"),
     CLOSE_PAID_OFF("facility.close.paid.off"),
     CANCEL_CLOSE_PAID_OFF("facility.cancel.close.paid.off"),
-    LOAN_FACILITY_RESTRUCTURING("loanFacility.restructuring");
+    LOAN_FACILITY_RESTRUCTURING("loanFacility.restructuring"),
+    COLLATERAL_UPDATE("collateral.update");
 
     private final String code;
 
