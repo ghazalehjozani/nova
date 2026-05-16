@@ -13,29 +13,12 @@
     <conversionRule conversionWord="wEx" class="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
 
     <property name="CONSOLE_PATTERN"
-              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%-5p){bold,highlight} %clr([trace=%X{trace_id:-},span=%X{span_id:-}]){cyan} %clr([corr=%X{correlationId:-},user=%X{userId:-},tenant=%X{tenantId:-}]){magenta} %clr(%-40.40logger{39}){blue} : %m%n%clr(%wEx){red}"/>
+              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%-5p){bold,highlight} %clr([trace=%X{traceId:-},span=%X{spanId:-}]){cyan} %clr([corr=%X{correlationId:-},user=%X{userId:-},tenant=%X{tenantId:-}]){magenta} %clr(%-40.40logger{39}){blue} : %m%n%clr(%wEx){red}"/>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>${CONSOLE_PATTERN}</pattern>
             <charset>UTF-8</charset>
-        </encoder>
-    </appender>
-
-    <appender name="STDOUT_JSON" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <includeMdcKeyName>trace_id</includeMdcKeyName>
-            <includeMdcKeyName>span_id</includeMdcKeyName>
-            <includeMdcKeyName>trace_flags</includeMdcKeyName>
-            <includeMdcKeyName>correlationId</includeMdcKeyName>
-            <includeMdcKeyName>requestId</includeMdcKeyName>
-            <includeMdcKeyName>userId</includeMdcKeyName>
-            <includeMdcKeyName>tenantId</includeMdcKeyName>
-            <includeMdcKeyName>idempotencyKey</includeMdcKeyName>
-            <includeMdcKeyName>messageType</includeMdcKeyName>
-            <includeMdcKeyName>transport</includeMdcKeyName>
-            <includeMdcKeyName>flow</includeMdcKeyName>
-            <customFields>{"service.name":"${APP_NAME}","service.version":"${APP_VERSION}","deployment.environment":"${ENV}","host.name":"${HOSTNAME}"}</customFields>
         </encoder>
     </appender>
 
@@ -67,13 +50,6 @@
         <discardingThreshold>0</discardingThreshold>
         <neverBlock>true</neverBlock>
         <maxFlushTime>5000</maxFlushTime>
-    </appender>
-
-    <appender name="ASYNC_STDOUT_JSON" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="STDOUT_JSON"/>
-        <queueSize>2048</queueSize>
-        <discardingThreshold>0</discardingThreshold>
-        <neverBlock>true</neverBlock>
     </appender>
 
     <appender name="ASYNC_ERROR" class="ch.qos.logback.classic.AsyncAppender">
@@ -115,6 +91,28 @@
     </springProfile>
 
     <springProfile name="stage,prod">
+        <appender name="STDOUT_JSON" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <includeMdcKeyName>traceId</includeMdcKeyName>
+                <includeMdcKeyName>spanId</includeMdcKeyName>
+                <includeMdcKeyName>traceFlags</includeMdcKeyName>
+                <includeMdcKeyName>correlationId</includeMdcKeyName>
+                <includeMdcKeyName>requestId</includeMdcKeyName>
+                <includeMdcKeyName>userId</includeMdcKeyName>
+                <includeMdcKeyName>tenantId</includeMdcKeyName>
+                <includeMdcKeyName>idempotencyKey</includeMdcKeyName>
+                <includeMdcKeyName>messageType</includeMdcKeyName>
+                <includeMdcKeyName>transport</includeMdcKeyName>
+                <includeMdcKeyName>flow</includeMdcKeyName>
+                <customFields>{"service.name":"${APP_NAME}","service.version":"${APP_VERSION}","deployment.environment":"${ENV}","host.name":"${HOSTNAME}"}</customFields>
+            </encoder>
+        </appender>
+        <appender name="ASYNC_STDOUT_JSON" class="ch.qos.logback.classic.AsyncAppender">
+            <appender-ref ref="STDOUT_JSON"/>
+            <queueSize>2048</queueSize>
+            <discardingThreshold>0</discardingThreshold>
+            <neverBlock>true</neverBlock>
+        </appender>
         <root level="INFO">
             <appender-ref ref="ASYNC_STDOUT_JSON"/>
             <appender-ref ref="ASYNC_OTEL"/>
