@@ -79,15 +79,16 @@
     <logger name="io.micrometer" level="INFO"/>
     <logger name="io.micrometer.core.instrument" level="WARN"/>
 
-    <springProfile name="dev-local">
+    <springProfile name="dev">
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="ASYNC_OTEL"/>
             <appender-ref ref="ASYNC_ERROR"/>
         </root>
         <logger name="ir.dotin" level="DEBUG"/>
-        <logger name="org.springframework.security" level="DEBUG"/>
-        <logger name="org.springframework.cloud.consul" level="DEBUG"/>
+        <logger name="org.springframework.security" level="INFO"/>
+        <logger name="org.springframework.security.web.FilterChainProxy" level="WARN"/>
+        <logger name="org.springframework.cloud.consul" level="INFO"/>
     </springProfile>
 
     <springProfile name="stage,prod">
@@ -120,7 +121,7 @@
         </root>
     </springProfile>
 
-    <springProfile name="!dev-local &amp; !stage &amp; !prod">
+    <springProfile name="!dev &amp; !stage &amp; !prod">
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="ASYNC_OTEL"/>
