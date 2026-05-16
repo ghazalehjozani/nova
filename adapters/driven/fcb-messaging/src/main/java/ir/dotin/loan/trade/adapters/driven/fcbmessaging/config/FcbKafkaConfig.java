@@ -197,7 +197,8 @@ public class FcbKafkaConfig {
     @Bean("replyingKafkaTemplate")
     public ReplyingKafkaTemplate<String, byte[], byte[]> replyingKafkaTemplate(
             @Qualifier(FCB_PRODUCER_FACTORY) ProducerFactory<String, byte[]> fcbProducerFactory,
-            @Qualifier(GENERAL_REPLIES_CONTAINER) ConcurrentMessageListenerContainer<String, byte[]> generalRepliesContainer,
+            @Qualifier(GENERAL_REPLIES_CONTAINER)
+                    ConcurrentMessageListenerContainer<String, byte[]> generalRepliesContainer,
             FcbKafkaProperties properties) {
 
         ReplyingKafkaTemplate<String, byte[], byte[]> template =

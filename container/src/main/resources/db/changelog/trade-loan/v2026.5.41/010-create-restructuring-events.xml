@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+
+    <changeSet id="tl-1.0.0-037-create-facility-restructuring-txns" author="DOTIN\pouya.shamsi">
+        <comment>Transaction numbers generated during facility restructuring</comment>
+        <createTable tableName="loan_facility_restructuring_transaction_numbers">
+            <column name="loan_facility_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="restructuringـtransaction_number" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="loan_facility_restructuring_transaction_numbers"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-1.0.0-038-fk-facility-restructuring-txns" author="DOTIN\pouya.shamsi">
+        <addForeignKeyConstraint baseColumnNames="loan_facility_id"
+                                 baseTableName="loan_facility_restructuring_transaction_numbers"
+                                 constraintName="fk_facility_restructuring_txns_on_facilities"
+                                 referencedColumnNames="id"
+                                 referencedTableName="loan_facilities"/>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="loan_facility_restructuring_transaction_numbers"
+                                      constraintName="fk_facility_restructuring_txns_on_facilities"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

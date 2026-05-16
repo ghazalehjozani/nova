@@ -57,14 +57,12 @@ public class FcbHealthProperties {
     @PostConstruct
     void validateThresholds() {
         if (successesInWindowToClose > probeWindowSize) {
-            throw new IllegalStateException(
-                    "nova.fcb.kafka.health.successes-in-window-to-close (" + successesInWindowToClose
-                            + ") must be <= probe-window-size (" + probeWindowSize + ")");
+            throw new IllegalStateException("nova.fcb.kafka.health.successes-in-window-to-close ("
+                    + successesInWindowToClose + ") must be <= probe-window-size (" + probeWindowSize + ")");
         }
         if (failuresInWindowToOpen > probeWindowSize) {
-            throw new IllegalStateException(
-                    "nova.fcb.kafka.health.failures-in-window-to-open (" + failuresInWindowToOpen
-                            + ") must be <= probe-window-size (" + probeWindowSize + ")");
+            throw new IllegalStateException("nova.fcb.kafka.health.failures-in-window-to-open ("
+                    + failuresInWindowToOpen + ") must be <= probe-window-size (" + probeWindowSize + ")");
         }
     }
 }
