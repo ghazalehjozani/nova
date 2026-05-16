@@ -56,33 +56,10 @@ services:
       - activemq-data:/opt/activemq/data
     restart: unless-stopped
 
-  metricbeat:
-    image: elastic/metricbeat:8.15.3
-    container_name: metricbeat
-    restart: unless-stopped
-    user: root
-    command: ["--strict.perms=false", "-e"]
-    environment:
-      APP_HOST: ${APP_HOST:-host.docker.internal}
-      APP_PORT: ${APP_PORT:-8080}
-      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
-      KAFKA_USER: ${KAFKA_USER}
-      KAFKA_PASSWORD: ${KAFKA_PASSWORD}
-      DEV_NAME: ${DEV_NAME:-${USER:-unknown}}
-    volumes:
-      - ./metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
-      - ./metricbeat/modules.d:/usr/share/metricbeat/modules.d:ro
-      - metricbeat-data:/usr/share/metricbeat/data
-    networks:
-      - app-network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
 volumes:
   postgres-data:
   redis-data:
   activemq-data:
-  metricbeat-data:
 
 networks:
   app-network:

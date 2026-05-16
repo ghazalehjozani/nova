@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  *
  * <ol>
  *   <li>Configured {@code platform.messaging.kafka.instance-id}
- *   <li>{@code POD_NAME} env (K8s StatefulSet)
+ *   <li>{@code KUBERNETES_POD_NAME} env (K8s StatefulSet)
  *   <li>{@code HOSTNAME} env
  *   <li>Random fallback (dev only)
  * </ol>
@@ -59,7 +59,7 @@ public final class FcbReplyPartitionResolver {
         if (configuredInstanceId != null && !configuredInstanceId.isBlank()) {
             return configuredInstanceId;
         }
-        String pod = System.getenv("POD_NAME");
+        String pod = System.getenv("KUBERNETES_POD_NAME");
         if (pod != null && !pod.isBlank()) {
             return pod;
         }
@@ -67,7 +67,7 @@ public final class FcbReplyPartitionResolver {
         if (host != null && !host.isBlank()) {
             return host;
         }
-        LOG.warn("FCB-REPLY-PARTITION: no POD_NAME/HOSTNAME/instance-id available; using random fallback (dev only)");
+        LOG.warn("FCB-REPLY-PARTITION: no KUBERNETES_POD_NAME/HOSTNAME/instance-id available; using random fallback (dev only)");
         return "fallback-" + System.nanoTime();
     }
 

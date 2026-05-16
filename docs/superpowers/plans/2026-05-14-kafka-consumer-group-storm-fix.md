@@ -676,7 +676,7 @@ Replace with:
 - [ ] **Step 2: Add `instance-id` under `platform.messaging.kafka` (insert after `client-id` line 73)**
 
 ```yaml
-      instance-id: "${POD_NAME:${HOSTNAME:}}"
+      instance-id: "${KUBERNETES_POD_NAME:${HOSTNAME:}}"
 ```
 
 - [ ] **Step 3: Add staging consumer timeouts** (extend `consumer` block at lines 86–92):
