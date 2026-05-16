@@ -1,19 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Spring Environment is fully initialised, so it cannot read from Consul KV.
-  This file exposes Spring properties via <springProperty> for things that
-  Consul DOES feed (e.g. Kafka bootstrap servers for the ELK appender).
--->
 <configuration scan="true" scanPeriod="30 seconds" debug="false">
 
     <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="nova-service"/>
     <springProperty scope="context" name="APP_VERSION" source="spring.application.version" defaultValue="unknown"/>
     <springProperty scope="context" name="ENV" source="platform.environment" defaultValue="dev"/>
-    <springProperty scope="context" name="KAFKA_BOOTSTRAP" source="platform.observability.elk.kafka.bootstrap-servers" defaultValue="localhost:9092"/>
-    <springProperty scope="context" name="KAFKA_LOG_TOPIC" source="platform.observability.elk.kafka.log-topic" defaultValue="corridor.obs.nova.logs.v1"/>
-    <springProperty scope="context" name="KAFKA_SECURITY_PROTOCOL" source="platform.observability.elk.kafka.security-protocol" defaultValue="PLAINTEXT"/>
-    <springProperty scope="context" name="KAFKA_SASL_MECHANISM" source="platform.observability.elk.kafka.sasl-mechanism" defaultValue=""/>
-    <springProperty scope="context" name="KAFKA_SASL_JAAS_CONFIG" source="platform.observability.elk.kafka.sasl-jaas-config" defaultValue=""/>
 
     <property name="LOG_PATH" value="${LOG_PATH:-./logs}"/>
     <property name="HOSTNAME" value="${HOSTNAME:-localhost}"/>
@@ -22,115 +12,78 @@
     <conversionRule conversionWord="wex" class="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
     <conversionRule conversionWord="wEx" class="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
 
-    <property name="DEV_CONSOLE_PATTERN"
-              value="%clr(%d{HH:mm:ss.SSS}){faint} %clr(%-5p){bold,highlight} %clr([%X{traceId:--},%X{spanId:--}]){cyan} %clr(%-40.40logger{39}){blue} %clr(:){faint} %m%n%clr(%wEx){red}"/>
-    <property name="FILE_PATTERN"
-              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [trace=%X{traceId:-},span=%X{spanId:-},user=%X{userId:-},corr=%X{correlationId:-},tenant=%X{tenantId:-}] %logger{40} - %msg%n%ex"/>
+    <property name="CONSOLE_PATTERN"
+              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%-5p){bold,highlight} %clr([trace=%X{trace_id:-},span=%X{span_id:-}]){cyan} %clr([corr=%X{correlationId:-},user=%X{userId:-},tenant=%X{tenantId:-}]){magenta} %clr(%-40.40logger{39}){blue} : %m%n%clr(%wEx){red}"/>
 
-    <appender name="DEV_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>${DEV_CONSOLE_PATTERN}</pattern>
+            <pattern>${CONSOLE_PATTERN}</pattern>
             <charset>UTF-8</charset>
         </encoder>
     </appender>
 
-    <appender name="APP_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/${APP_NAME}.log</file>
-        <encoder>
-            <pattern>${FILE_PATTERN}</pattern>
-            <charset>UTF-8</charset>
+    <appender name="STDOUT_JSON" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeMdcKeyName>trace_id</includeMdcKeyName>
+            <includeMdcKeyName>span_id</includeMdcKeyName>
+            <includeMdcKeyName>trace_flags</includeMdcKeyName>
+            <includeMdcKeyName>correlationId</includeMdcKeyName>
+            <includeMdcKeyName>requestId</includeMdcKeyName>
+            <includeMdcKeyName>userId</includeMdcKeyName>
+            <includeMdcKeyName>tenantId</includeMdcKeyName>
+            <includeMdcKeyName>idempotencyKey</includeMdcKeyName>
+            <includeMdcKeyName>messageType</includeMdcKeyName>
+            <includeMdcKeyName>transport</includeMdcKeyName>
+            <includeMdcKeyName>flow</includeMdcKeyName>
+            <customFields>{"service.name":"${APP_NAME}","service.version":"${APP_VERSION}","deployment.environment":"${ENV}","host.name":"${HOSTNAME}"}</customFields>
         </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/archive/${APP_NAME}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
-            <maxFileSize>200MB</maxFileSize>
-            <maxHistory>30</maxHistory>
-            <totalSizeCap>20GB</totalSizeCap>
-        </rollingPolicy>
+    </appender>
+
+    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+        <captureExperimentalAttributes>true</captureExperimentalAttributes>
+        <captureCodeAttributes>true</captureCodeAttributes>
+        <captureMarkerAttribute>true</captureMarkerAttribute>
+        <captureKeyValuePairAttributes>true</captureKeyValuePairAttributes>
+        <captureMdcAttributes>*</captureMdcAttributes>
     </appender>
 
     <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/${APP_NAME}-error.log</file>
-        <encoder>
-            <pattern>${FILE_PATTERN}</pattern>
-            <charset>UTF-8</charset>
-        </encoder>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>ERROR</level>
         </filter>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOG_PATH}/archive/${APP_NAME}-error-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <maxFileSize>100MB</maxFileSize>
-            <maxHistory>90</maxHistory>
+            <maxHistory>30</maxHistory>
             <totalSizeCap>10GB</totalSizeCap>
         </rollingPolicy>
     </appender>
 
-    <appender name="KAFKA" class="com.github.danielwegener.logback.kafka.KafkaAppender">
-        <encoder class="co.elastic.logging.logback.EcsEncoder">
-            <serviceName>${APP_NAME}</serviceName>
-            <serviceVersion>${APP_VERSION}</serviceVersion>
-            <serviceEnvironment>${ENV}</serviceEnvironment>
-            <serviceNodeName>${HOSTNAME}</serviceNodeName>
-            <includeMarkers>true</includeMarkers>
-            <includeOrigin>false</includeOrigin>
-            <eventDataset>${APP_NAME}.application</eventDataset>
-        </encoder>
-        <topic>${KAFKA_LOG_TOPIC}</topic>
-        <keyingStrategy class="com.github.danielwegener.logback.kafka.keying.HostNameKeyingStrategy"/>
-        <deliveryStrategy class="com.github.danielwegener.logback.kafka.delivery.AsynchronousDeliveryStrategy"/>
-        <producerConfig>bootstrap.servers=${KAFKA_BOOTSTRAP}</producerConfig>
-        <producerConfig>security.protocol=${KAFKA_SECURITY_PROTOCOL}</producerConfig>
-        <producerConfig>sasl.mechanism=${KAFKA_SASL_MECHANISM}</producerConfig>
-        <producerConfig>sasl.jaas.config=${KAFKA_SASL_JAAS_CONFIG}</producerConfig>
-        <producerConfig>acks=1</producerConfig>
-        <producerConfig>linger.ms=100</producerConfig>
-        <producerConfig>batch.size=65536</producerConfig>
-        <producerConfig>compression.type=lz4</producerConfig>
-        <producerConfig>max.block.ms=2000</producerConfig>
-        <producerConfig>buffer.memory=67108864</producerConfig>
-        <producerConfig>request.timeout.ms=10000</producerConfig>
-        <producerConfig>delivery.timeout.ms=15000</producerConfig>
-        <producerConfig>client.id=${APP_NAME}-logback</producerConfig>
-        <producerConfig>reconnect.backoff.ms=1000</producerConfig>
-        <producerConfig>reconnect.backoff.max.ms=10000</producerConfig>
-        <appender-ref ref="ASYNC_APP_FALLBACK"/>
-    </appender>
-
-    <appender name="ASYNC_APP_FALLBACK" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="APP_FILE"/>
-        <queueSize>1024</queueSize>
-        <discardingThreshold>0</discardingThreshold>
-        <neverBlock>true</neverBlock>
-    </appender>
-    <appender name="ASYNC_KAFKA" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="KAFKA"/>
+    <appender name="ASYNC_OTEL" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="OTEL"/>
         <queueSize>8192</queueSize>
         <discardingThreshold>0</discardingThreshold>
-        <includeCallerData>false</includeCallerData>
         <neverBlock>true</neverBlock>
         <maxFlushTime>5000</maxFlushTime>
     </appender>
-    <appender name="ASYNC_APP" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="APP_FILE"/>
-        <queueSize>1024</queueSize>
+
+    <appender name="ASYNC_STDOUT_JSON" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="STDOUT_JSON"/>
+        <queueSize>2048</queueSize>
         <discardingThreshold>0</discardingThreshold>
-        <includeCallerData>false</includeCallerData>
         <neverBlock>true</neverBlock>
-        <maxFlushTime>5000</maxFlushTime>
     </appender>
+
     <appender name="ASYNC_ERROR" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="ERROR_FILE"/>
         <queueSize>512</queueSize>
         <discardingThreshold>0</discardingThreshold>
-        <includeCallerData>true</includeCallerData>
         <neverBlock>false</neverBlock>
         <maxFlushTime>10000</maxFlushTime>
     </appender>
 
-    <logger name="org.apache.kafka" level="WARN"/>
-    <logger name="org.apache.kafka.clients" level="ERROR"/>
-    <logger name="org.apache.kafka.clients.NetworkClient" level="ERROR"/>
-    <logger name="com.github.danielwegener.logback.kafka" level="WARN"/>
     <logger name="ir.dotin.platform" level="INFO"/>
     <logger name="ir.dotin.loan" level="INFO"/>
     <logger name="org.springframework" level="WARN"/>
@@ -139,6 +92,9 @@
     <logger name="org.springframework.security" level="INFO"/>
     <logger name="org.springframework.kafka" level="WARN"/>
     <logger name="org.springframework.cloud.consul" level="INFO"/>
+    <logger name="org.apache.kafka" level="WARN"/>
+    <logger name="org.apache.kafka.clients" level="ERROR"/>
+    <logger name="org.apache.kafka.clients.NetworkClient" level="ERROR"/>
     <logger name="org.hibernate" level="WARN"/>
     <logger name="org.hibernate.SQL" level="INFO"/>
     <logger name="com.zaxxer.hikari" level="INFO"/>
@@ -148,77 +104,29 @@
     <logger name="io.micrometer.core.instrument" level="WARN"/>
 
     <springProfile name="dev-local">
-        <appender name="ECS_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <file>${LOG_PATH}/${APP_NAME}-ecs.log</file>
-            <encoder class="co.elastic.logging.logback.EcsEncoder">
-                <serviceName>${APP_NAME}</serviceName>
-                <serviceVersion>${APP_VERSION}</serviceVersion>
-                <serviceEnvironment>${ENV}</serviceEnvironment>
-                <serviceNodeName>${HOSTNAME}</serviceNodeName>
-                <includeMarkers>true</includeMarkers>
-                <includeOrigin>false</includeOrigin>
-                <eventDataset>${APP_NAME}.application</eventDataset>
-            </encoder>
-            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-                <fileNamePattern>${LOG_PATH}/archive/${APP_NAME}-ecs-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
-                <maxFileSize>200MB</maxFileSize>
-                <maxHistory>7</maxHistory>
-                <totalSizeCap>10GB</totalSizeCap>
-            </rollingPolicy>
-        </appender>
-        <appender name="ASYNC_ECS" class="ch.qos.logback.classic.AsyncAppender">
-            <appender-ref ref="ECS_FILE"/>
-            <queueSize>2048</queueSize>
-            <discardingThreshold>0</discardingThreshold>
-            <includeCallerData>false</includeCallerData>
-            <neverBlock>true</neverBlock>
-            <maxFlushTime>5000</maxFlushTime>
-        </appender>
         <root level="INFO">
-            <appender-ref ref="DEV_CONSOLE"/>
-            <appender-ref ref="ASYNC_APP"/>
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_OTEL"/>
             <appender-ref ref="ASYNC_ERROR"/>
-            <appender-ref ref="ASYNC_ECS"/>
         </root>
         <logger name="ir.dotin" level="DEBUG"/>
         <logger name="org.springframework.security" level="DEBUG"/>
         <logger name="org.springframework.cloud.consul" level="DEBUG"/>
     </springProfile>
 
-    <springProfile name="dev-elk">
+    <springProfile name="stage,prod">
         <root level="INFO">
-            <appender-ref ref="DEV_CONSOLE"/>
-            <appender-ref ref="ASYNC_KAFKA"/>
-            <appender-ref ref="ASYNC_APP"/>
+            <appender-ref ref="ASYNC_STDOUT_JSON"/>
+            <appender-ref ref="ASYNC_OTEL"/>
             <appender-ref ref="ASYNC_ERROR"/>
         </root>
-        <logger name="ir.dotin" level="DEBUG"/>
     </springProfile>
 
-    <springProfile name="stage,prod">
-        <appender name="STDOUT_ECS" class="ch.qos.logback.core.ConsoleAppender">
-            <encoder class="co.elastic.logging.logback.EcsEncoder">
-                <serviceName>${APP_NAME}</serviceName>
-                <serviceVersion>${APP_VERSION}</serviceVersion>
-                <serviceEnvironment>${ENV}</serviceEnvironment>
-                <serviceNodeName>${HOSTNAME}</serviceNodeName>
-                <includeMarkers>true</includeMarkers>
-                <eventDataset>${APP_NAME}.application</eventDataset>
-            </encoder>
-        </appender>
-        <appender name="ASYNC_STDOUT_ECS" class="ch.qos.logback.classic.AsyncAppender">
-            <appender-ref ref="STDOUT_ECS"/>
-            <queueSize>2048</queueSize>
-            <discardingThreshold>0</discardingThreshold>
-            <neverBlock>true</neverBlock>
-        </appender>
+    <springProfile name="!dev-local &amp; !stage &amp; !prod">
         <root level="INFO">
-            <appender-ref ref="ASYNC_KAFKA"/>
-            <appender-ref ref="ASYNC_STDOUT_ECS"/>
-            <appender-ref ref="ASYNC_ERROR"/>
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_OTEL"/>
         </root>
-        <logger name="ir.dotin.platform" level="INFO"/>
-        <logger name="ir.dotin.loan" level="INFO"/>
     </springProfile>
 
 </configuration>
