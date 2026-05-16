@@ -22,4 +22,6 @@ public interface TradeLoanFacilityRepository {
             BranchCode branchCode, LoanTypeCode loanTypeCode, String customerNumber);
 
     boolean existsByApplicationNumber(ApplicationNumber applicationNumber);
+
+    Optional<TradeLoanFacility> findByApplicationNumber(String applicationNumber);
 }
