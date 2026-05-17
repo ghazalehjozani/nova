@@ -60,10 +60,28 @@ spring:
 
       # Hierarchical key/value mode — NO YAML blobs. Each property is a
       # discrete Consul key, so changes have surgical, auditable diffs.
+      #
+      # Multi-prefix layout (Spring Cloud Consul 'prefixes' list — Spring Boot 4
+      # / Spring Cloud 2026.x). Precedence: FIRST prefix wins on key collision.
+      #
+      #   core/loan/nova    ← nova-service-only config (overrides)
+      #   core/loan         ← loan-platform shared defaults (fallback)
+      #
+      # Resulting load order (highest first):
+      #   1. core/loan/nova/nova-service/<profile>
+      #   2. core/loan/nova/nova-service/
+      #   3. core/loan/nova/application/<profile>
+      #   4. core/loan/nova/application/
+      #   5. core/loan/application/<profile>
+      #   6. core/loan/application/
+      #
+      # Feature flags follow the same hierarchy under features/core/loan/...
       config:
         enabled: true
         format: KEY_VALUE
-        prefix: config
+        prefixes:
+          - core/loan/nova
+          - core/loan
         default-context: application
         profile-separator: ','
         fail-fast: true
@@ -71,6 +89,7 @@ spring:
           enabled: true
           delay: 1000
           wait-time: 55
+          timeout: 60s
         acl-token: ${CONSUL_ACL_TOKEN}
 
 
