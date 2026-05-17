@@ -22,10 +22,6 @@
         <artifactId>spring-boot-starter-data-redis</artifactId>
     </dependency>
     <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-pool2</artifactId>
-    </dependency>
-    <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-cache</artifactId>
     </dependency>
@@ -57,6 +53,12 @@
     <dependency>
         <groupId>ir.dotin.platform</groupId>
         <artifactId>platform-envelope-api</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-pool2</artifactId>
+        <version>2.13.0</version>
+        <scope>compile</scope>
     </dependency>
   </dependencies>
 

@@ -28,6 +28,8 @@ services:
     image: redis:8.6-alpine
     container_name: redis-master
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command: >
       redis-server /etc/redis/redis.conf
       --requirepass ${REDIS_PASSWORD}
@@ -38,7 +40,7 @@ services:
     networks:
       - app-network
     ports:
-      - "6379:6379"
+      - "${REDIS_MASTER_PORT:-6379}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 5s
@@ -49,6 +51,8 @@ services:
     image: redis:8.6-alpine
     container_name: redis-replica-1
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       redis-master:
         condition: service_healthy
@@ -67,14 +71,14 @@ services:
       - --tcp-keepalive
       - "60"
       - --replicaof
-      - redis-master
-      - "6379"
+      - ${REDIS_MASTER_MONITOR_HOST:-redis-master}
+      - "${REDIS_MASTER_MONITOR_PORT:-6379}"
       - --replica-read-only
       - "yes"
       - --replica-announce-ip
-      - redis-replica-1
+      - ${REDIS_REPLICA_1_ANNOUNCE_HOST:-redis-replica-1}
       - --replica-announce-port
-      - "6379"
+      - "${REDIS_REPLICA_1_ANNOUNCE_PORT:-6379}"
       - --requirepass
       - ${REDIS_PASSWORD}
       - --masterauth
@@ -83,6 +87,8 @@ services:
       - redis-replica-1-data:/data
     networks:
       - app-network
+    ports:
+      - "${REDIS_REPLICA_1_PORT:-6380}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 5s
@@ -93,6 +99,8 @@ services:
     image: redis:8.6-alpine
     container_name: redis-replica-2
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       redis-master:
         condition: service_healthy
@@ -111,14 +119,14 @@ services:
       - --tcp-keepalive
       - "60"
       - --replicaof
-      - redis-master
-      - "6379"
+      - ${REDIS_MASTER_MONITOR_HOST:-redis-master}
+      - "${REDIS_MASTER_MONITOR_PORT:-6379}"
       - --replica-read-only
       - "yes"
       - --replica-announce-ip
-      - redis-replica-2
+      - ${REDIS_REPLICA_2_ANNOUNCE_HOST:-redis-replica-2}
       - --replica-announce-port
-      - "6379"
+      - "${REDIS_REPLICA_2_ANNOUNCE_PORT:-6379}"
       - --requirepass
       - ${REDIS_PASSWORD}
       - --masterauth
@@ -127,16 +135,20 @@ services:
       - redis-replica-2-data:/data
     networks:
       - app-network
+    ports:
+      - "${REDIS_REPLICA_2_PORT:-6381}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 5s
       timeout: 3s
       retries: 10
 
-  redis-sentinel-1: &sentinel
+  redis-sentinel-1:
     image: redis:8.6-alpine
     container_name: redis-sentinel-1
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       redis-master:
         condition: service_healthy
@@ -144,25 +156,13 @@ services:
         condition: service_healthy
       redis-replica-2:
         condition: service_healthy
-    environment:
-      ANNOUNCE_IP: redis-sentinel-1
-      REDIS_MASTER_NAME: ${REDIS_MASTER_NAME}
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-    command:
-      - sh
-      - -c
-      - |
-        sed -e "s|@@ANNOUNCE_IP@@|$$ANNOUNCE_IP|g" \
-            -e "s|@@REDIS_MASTER_NAME@@|$$REDIS_MASTER_NAME|g" \
-            -e "s|@@REDIS_PASSWORD@@|$$REDIS_PASSWORD|g" \
-            /etc/redis/sentinel.conf.tmpl > /tmp/sentinel.conf
-        exec redis-sentinel /tmp/sentinel.conf
+    command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
     volumes:
-      - ./redis/sentinel.conf.tmpl:/etc/redis/sentinel.conf.tmpl:ro
+      - ./redis/sentinel-1.conf:/etc/redis/sentinel.conf
     networks:
       - app-network
     ports:
-      - "26379:26379"
+      - "${REDIS_SENTINEL_1_PORT:-26379}:26379"
     healthcheck:
       test: ["CMD", "redis-cli", "-p", "26379", "ping"]
       interval: 5s
@@ -170,24 +170,56 @@ services:
       retries: 10
 
   redis-sentinel-2:
-    <<: *sentinel
+    image: redis:8.6-alpine
     container_name: redis-sentinel-2
-    environment:
-      ANNOUNCE_IP: redis-sentinel-2
-      REDIS_MASTER_NAME: ${REDIS_MASTER_NAME}
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      redis-master:
+        condition: service_healthy
+      redis-replica-1:
+        condition: service_healthy
+      redis-replica-2:
+        condition: service_healthy
+    command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
+    volumes:
+      - ./redis/sentinel-2.conf:/etc/redis/sentinel.conf
+    networks:
+      - app-network
     ports:
-      - "26380:26379"
+      - "${REDIS_SENTINEL_2_PORT:-26380}:26379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "26379", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   redis-sentinel-3:
-    <<: *sentinel
+    image: redis:8.6-alpine
     container_name: redis-sentinel-3
-    environment:
-      ANNOUNCE_IP: redis-sentinel-3
-      REDIS_MASTER_NAME: ${REDIS_MASTER_NAME}
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      redis-master:
+        condition: service_healthy
+      redis-replica-1:
+        condition: service_healthy
+      redis-replica-2:
+        condition: service_healthy
+    command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
+    volumes:
+      - ./redis/sentinel-3.conf:/etc/redis/sentinel.conf
+    networks:
+      - app-network
     ports:
-      - "26381:26379"
+      - "${REDIS_SENTINEL_3_PORT:-26381}:26379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "26379", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   activemq:
     image: rmohr/activemq

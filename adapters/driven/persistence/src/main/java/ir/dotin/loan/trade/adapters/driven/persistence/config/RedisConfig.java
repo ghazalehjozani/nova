@@ -32,6 +32,7 @@ import io.lettuce.core.ReadFrom;
 import io.lettuce.core.SocketOptions;
 import io.lettuce.core.SslOptions;
 import io.lettuce.core.TimeoutOptions;
+import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.protocol.ProtocolVersion;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
@@ -80,9 +81,8 @@ public class RedisConfig implements CachingConfigurer {
             sentinelConfig.addSentinel(new RedisNode(hp[0], Integer.parseInt(hp[1])));
         }
 
-        Duration commandTimeout = redisProperties.getTimeout() != null
-                ? redisProperties.getTimeout()
-                : Duration.ofMillis(3000);
+        Duration commandTimeout =
+                redisProperties.getTimeout() != null ? redisProperties.getTimeout() : Duration.ofMillis(3000);
 
         SocketOptions socketOptions = SocketOptions.builder()
                 .connectTimeout(Duration.ofMillis(2000))
@@ -98,10 +98,11 @@ public class RedisConfig implements CachingConfigurer {
                 .timeoutOptions(TimeoutOptions.enabled(commandTimeout));
 
         if (tlsEnabled) {
-            clientOptionsBuilder.sslOptions(SslOptions.builder().jdkSslProvider().build());
+            clientOptionsBuilder.sslOptions(
+                    SslOptions.builder().jdkSslProvider().build());
         }
 
-        GenericObjectPoolConfig<Object> poolConfig = new GenericObjectPoolConfig<>();
+        GenericObjectPoolConfig<StatefulConnection<?, ?>> poolConfig = new GenericObjectPoolConfig<>();
         poolConfig.setMaxTotal(32);
         poolConfig.setMaxIdle(16);
         poolConfig.setMinIdle(4);

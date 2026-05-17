@@ -67,7 +67,8 @@ public final class FcbReplyPartitionResolver {
         if (host != null && !host.isBlank()) {
             return host;
         }
-        LOG.warn("FCB-REPLY-PARTITION: no KUBERNETES_POD_NAME/HOSTNAME/instance-id available; using random fallback (dev only)");
+        LOG.warn(
+                "FCB-REPLY-PARTITION: no KUBERNETES_POD_NAME/HOSTNAME/instance-id available; using random fallback (dev only)");
         return "fallback-" + System.nanoTime();
     }
 
