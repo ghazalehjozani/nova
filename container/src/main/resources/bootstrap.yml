@@ -19,6 +19,8 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
   cloud:
+    client:
+      ip-address: ${HOST_IP}
     inetutils:
       ignored-interfaces:
         - "docker0"
@@ -89,7 +91,6 @@ spring:
           enabled: true
           delay: 1000
           wait-time: 55
-          timeout: 60s
         acl-token: ${CONSUL_ACL_TOKEN}
 
 
