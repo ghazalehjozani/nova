@@ -52,17 +52,34 @@ services:
     depends_on:
       redis-master:
         condition: service_healthy
-    environment:
-      ANNOUNCE_IP: redis-replica-1
-    command: >
-      sh -c "apk add --no-cache gettext >/dev/null &&
-             envsubst < /etc/redis/redis.conf > /tmp/redis.conf &&
-             exec redis-server /tmp/redis.conf
-             --replicaof redis-master 6379
-             --requirepass ${REDIS_PASSWORD}
-             --masterauth ${REDIS_PASSWORD}"
+    command:
+      - redis-server
+      - --bind
+      - 0.0.0.0
+      - --port
+      - "6379"
+      - --appendonly
+      - "yes"
+      - --appendfsync
+      - everysec
+      - --maxmemory-policy
+      - allkeys-lru
+      - --tcp-keepalive
+      - "60"
+      - --replicaof
+      - redis-master
+      - "6379"
+      - --replica-read-only
+      - "yes"
+      - --replica-announce-ip
+      - redis-replica-1
+      - --replica-announce-port
+      - "6379"
+      - --requirepass
+      - ${REDIS_PASSWORD}
+      - --masterauth
+      - ${REDIS_PASSWORD}
     volumes:
-      - ./redis/redis-replica.conf:/etc/redis/redis.conf:ro
       - redis-replica-1-data:/data
     networks:
       - app-network
@@ -79,17 +96,34 @@ services:
     depends_on:
       redis-master:
         condition: service_healthy
-    environment:
-      ANNOUNCE_IP: redis-replica-2
-    command: >
-      sh -c "apk add --no-cache gettext >/dev/null &&
-             envsubst < /etc/redis/redis.conf > /tmp/redis.conf &&
-             exec redis-server /tmp/redis.conf
-             --replicaof redis-master 6379
-             --requirepass ${REDIS_PASSWORD}
-             --masterauth ${REDIS_PASSWORD}"
+    command:
+      - redis-server
+      - --bind
+      - 0.0.0.0
+      - --port
+      - "6379"
+      - --appendonly
+      - "yes"
+      - --appendfsync
+      - everysec
+      - --maxmemory-policy
+      - allkeys-lru
+      - --tcp-keepalive
+      - "60"
+      - --replicaof
+      - redis-master
+      - "6379"
+      - --replica-read-only
+      - "yes"
+      - --replica-announce-ip
+      - redis-replica-2
+      - --replica-announce-port
+      - "6379"
+      - --requirepass
+      - ${REDIS_PASSWORD}
+      - --masterauth
+      - ${REDIS_PASSWORD}
     volumes:
-      - ./redis/redis-replica.conf:/etc/redis/redis.conf:ro
       - redis-replica-2-data:/data
     networks:
       - app-network
@@ -114,10 +148,15 @@ services:
       ANNOUNCE_IP: redis-sentinel-1
       REDIS_MASTER_NAME: ${REDIS_MASTER_NAME}
       REDIS_PASSWORD: ${REDIS_PASSWORD}
-    command: >
-      sh -c "apk add --no-cache gettext >/dev/null &&
-             envsubst < /etc/redis/sentinel.conf.tmpl > /tmp/sentinel.conf &&
-             exec redis-sentinel /tmp/sentinel.conf"
+    command:
+      - sh
+      - -c
+      - |
+        sed -e "s|\${ANNOUNCE_IP}|$$ANNOUNCE_IP|g" \
+            -e "s|\${REDIS_MASTER_NAME}|$$REDIS_MASTER_NAME|g" \
+            -e "s|\${REDIS_PASSWORD}|$$REDIS_PASSWORD|g" \
+            /etc/redis/sentinel.conf.tmpl > /tmp/sentinel.conf
+        exec redis-sentinel /tmp/sentinel.conf
     volumes:
       - ./redis/sentinel.conf.tmpl:/etc/redis/sentinel.conf.tmpl:ro
     networks:
