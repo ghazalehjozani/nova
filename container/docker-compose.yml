@@ -24,24 +24,131 @@ services:
       timeout: 5s
       retries: 5
 
-  redis:
-    image: redis:8.2.2-alpine
-    container_name: redis
+  redis-master:
+    image: redis:8.6-alpine
+    container_name: redis-master
     restart: unless-stopped
-    command: redis-server --requirepass ${REDIS_PASSWORD}
-    ports:
-      - "6379:6379"
+    command: >
+      redis-server /etc/redis/redis.conf
+      --requirepass ${REDIS_PASSWORD}
+      --masterauth ${REDIS_PASSWORD}
     volumes:
-      - redis-data:/data
+      - ./redis/redis-master.conf:/etc/redis/redis.conf:ro
+      - redis-master-data:/data
     networks:
       - app-network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    ports:
+      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
-      interval: 10s
+      interval: 5s
       timeout: 3s
-      retries: 5
+      retries: 10
+
+  redis-replica-1:
+    image: redis:8.6-alpine
+    container_name: redis-replica-1
+    restart: unless-stopped
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    environment:
+      ANNOUNCE_IP: redis-replica-1
+    command: >
+      sh -c "apk add --no-cache gettext >/dev/null &&
+             envsubst < /etc/redis/redis.conf > /tmp/redis.conf &&
+             exec redis-server /tmp/redis.conf
+             --replicaof redis-master 6379
+             --requirepass ${REDIS_PASSWORD}
+             --masterauth ${REDIS_PASSWORD}"
+    volumes:
+      - ./redis/redis-replica.conf:/etc/redis/redis.conf:ro
+      - redis-replica-1-data:/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis-replica-2:
+    image: redis:8.6-alpine
+    container_name: redis-replica-2
+    restart: unless-stopped
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    environment:
+      ANNOUNCE_IP: redis-replica-2
+    command: >
+      sh -c "apk add --no-cache gettext >/dev/null &&
+             envsubst < /etc/redis/redis.conf > /tmp/redis.conf &&
+             exec redis-server /tmp/redis.conf
+             --replicaof redis-master 6379
+             --requirepass ${REDIS_PASSWORD}
+             --masterauth ${REDIS_PASSWORD}"
+    volumes:
+      - ./redis/redis-replica.conf:/etc/redis/redis.conf:ro
+      - redis-replica-2-data:/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis-sentinel-1: &sentinel
+    image: redis:8.6-alpine
+    container_name: redis-sentinel-1
+    restart: unless-stopped
+    depends_on:
+      redis-master:
+        condition: service_healthy
+      redis-replica-1:
+        condition: service_healthy
+      redis-replica-2:
+        condition: service_healthy
+    environment:
+      ANNOUNCE_IP: redis-sentinel-1
+      REDIS_MASTER_NAME: ${REDIS_MASTER_NAME}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    command: >
+      sh -c "apk add --no-cache gettext >/dev/null &&
+             envsubst < /etc/redis/sentinel.conf.tmpl > /tmp/sentinel.conf &&
+             exec redis-sentinel /tmp/sentinel.conf"
+    volumes:
+      - ./redis/sentinel.conf.tmpl:/etc/redis/sentinel.conf.tmpl:ro
+    networks:
+      - app-network
+    ports:
+      - "26379:26379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "26379", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis-sentinel-2:
+    <<: *sentinel
+    container_name: redis-sentinel-2
+    environment:
+      ANNOUNCE_IP: redis-sentinel-2
+      REDIS_MASTER_NAME: ${REDIS_MASTER_NAME}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    ports:
+      - "26380:26379"
+
+  redis-sentinel-3:
+    <<: *sentinel
+    container_name: redis-sentinel-3
+    environment:
+      ANNOUNCE_IP: redis-sentinel-3
+      REDIS_MASTER_NAME: ${REDIS_MASTER_NAME}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    ports:
+      - "26381:26379"
 
   activemq:
     image: rmohr/activemq
@@ -58,7 +165,9 @@ services:
 
 volumes:
   postgres-data:
-  redis-data:
+  redis-master-data:
+  redis-replica-1-data:
+  redis-replica-2-data:
   activemq-data:
 
 networks:

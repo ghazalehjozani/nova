@@ -22,11 +22,12 @@ spring:
       - jwt-jwks
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
       password: ${REDIS_PASSWORD:e2e_redis_pass}
       timeout: 3000ms
       database: 0
       client-type: lettuce
+      sentinel:
+        enabled: false
   threads:
     virtual:
       enabled: true

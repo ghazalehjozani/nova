@@ -5,6 +5,11 @@ import java.time.Duration;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.connection.RedisPassword;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.test.context.DynamicPropertyRegistrar;
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -19,10 +24,8 @@ public class E2ETestConfiguration {
     private static final int KAFKA_SASL_PORT = 9094;
     private static final String REDIS_SERVICE = "redis";
     private static final int REDIS_PORT = 6379;
+    private static final String REDIS_PASSWORD = "e2e_redis_pass";
 
-    // Static singleton: shared across all Spring contexts in the same JVM,
-    // preventing multiple Docker Compose startups when REST and messaging tests
-    // use different context configurations.
     private static final ComposeContainer SHARED_CONTAINER = createContainer();
 
     private static ComposeContainer createContainer() {
@@ -48,6 +51,22 @@ public class E2ETestConfiguration {
     }
 
     @Bean
+    @Primary
+    LettuceConnectionFactory e2eRedisConnectionFactory(ComposeContainer container) {
+        String host = container.getServiceHost(REDIS_SERVICE, REDIS_PORT);
+        int port = container.getServicePort(REDIS_SERVICE, REDIS_PORT);
+        RedisStandaloneConfiguration cfg = new RedisStandaloneConfiguration(host, port);
+        cfg.setPassword(RedisPassword.of(REDIS_PASSWORD));
+        LettuceClientConfiguration clientCfg = LettuceClientConfiguration.builder()
+                .commandTimeout(Duration.ofSeconds(3))
+                .shutdownTimeout(Duration.ofMillis(100))
+                .build();
+        LettuceConnectionFactory factory = new LettuceConnectionFactory(cfg, clientCfg);
+        factory.afterPropertiesSet();
+        return factory;
+    }
+
+    @Bean
     DynamicPropertyRegistrar dynamicPropertyRegistrar(ComposeContainer container) {
         return registry -> {
             String pgHost = container.getServiceHost(POSTGRES_SERVICE, POSTGRES_PORT);
@@ -58,23 +77,17 @@ public class E2ETestConfiguration {
             registry.add("spring.datasource.username", () -> "e2e_user");
             registry.add("spring.datasource.password", () -> "e2e_password");
 
-            // Kafka uses fixed port mapping (9094:9094) with SASL_PLAINTEXT.
-            // Advertised listener is host.docker.internal:9094 so clients can resolve broker metadata.
-            // This works from devcontainers where localhost doesn't reach Docker host ports.
             String kafkaBootstrap = "host.docker.internal:" + KAFKA_SASL_PORT;
-
             registry.add("spring.kafka.bootstrap-servers", () -> kafkaBootstrap);
             registry.add("platform.messaging.kafka.bootstrap-servers", () -> kafkaBootstrap);
             registry.add("KAFKA_BOOTSTRAP_SERVERS", () -> kafkaBootstrap);
 
-            String redisHost = container.getServiceHost(REDIS_SERVICE, REDIS_PORT);
-            int redisPort = container.getServicePort(REDIS_SERVICE, REDIS_PORT);
-
-            registry.add("spring.data.redis.host", () -> redisHost);
-            registry.add("spring.data.redis.port", () -> String.valueOf(redisPort));
-            registry.add("spring.data.redis.password", () -> "e2e_redis_pass");
-            registry.add("REDIS_HOST", () -> redisHost);
-            registry.add("REDIS_PASSWORD", () -> "e2e_redis_pass");
+            registry.add("spring.data.redis.sentinel.enabled", () -> "false");
+            registry.add("spring.data.redis.password", () -> REDIS_PASSWORD);
+            registry.add("REDIS_PASSWORD", () -> REDIS_PASSWORD);
+            registry.add("REDIS_MASTER_NAME", () -> "nova-master");
+            registry.add("REDIS_SENTINEL_NODES", () -> "127.0.0.1:26379");
+            registry.add("REDIS_TLS_ENABLED", () -> "false");
         };
     }
 }

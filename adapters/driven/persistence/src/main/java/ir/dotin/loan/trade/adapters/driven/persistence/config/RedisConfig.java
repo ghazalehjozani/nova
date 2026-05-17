@@ -6,6 +6,9 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.data.redis.autoconfigure.DataRedisProperties;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.interceptor.CacheErrorHandler;
@@ -15,16 +18,23 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisNode;
 import org.springframework.data.redis.connection.RedisPassword;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
+import org.springframework.data.redis.connection.RedisSentinelConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
 import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import io.lettuce.core.ClientOptions;
+import io.lettuce.core.ReadFrom;
+import io.lettuce.core.SocketOptions;
+import io.lettuce.core.SslOptions;
+import io.lettuce.core.TimeoutOptions;
 import io.lettuce.core.protocol.ProtocolVersion;
+import io.lettuce.core.resource.ClientResources;
+import io.lettuce.core.resource.DefaultClientResources;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.core.StreamReadFeature;
 import tools.jackson.databind.DefaultTyping;
@@ -39,25 +49,83 @@ import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 @Configuration
 public class RedisConfig implements CachingConfigurer {
 
-    @Bean
-    public LettuceConnectionFactory redisConnectionFactory(DataRedisProperties redisProperties) {
-        RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration();
-        redisConfig.setHostName(redisProperties.getHost());
-        redisConfig.setPort(redisProperties.getPort());
-        redisConfig.setDatabase(redisProperties.getDatabase());
-        if (redisProperties.getPassword() != null) {
-            redisConfig.setPassword(RedisPassword.of(redisProperties.getPassword()));
-        }
-        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
-                .commandTimeout(Duration.ofMillis(redisProperties.getTimeout().toMillis()))
-                .shutdownTimeout(Duration.ofMillis(100))
-                .clientOptions(ClientOptions.builder()
-                        .protocolVersion(ProtocolVersion.RESP2)
-                        .disconnectedBehavior(ClientOptions.DisconnectedBehavior.REJECT_COMMANDS)
-                        .autoReconnect(true)
-                        .build())
+    @Bean(destroyMethod = "shutdown")
+    public ClientResources lettuceClientResources() {
+        int threads = Math.max(4, Runtime.getRuntime().availableProcessors());
+        return DefaultClientResources.builder()
+                .ioThreadPoolSize(threads)
+                .computationThreadPoolSize(threads)
                 .build();
-        return new LettuceConnectionFactory(redisConfig, clientConfig);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "spring.data.redis.sentinel.enabled", havingValue = "true", matchIfMissing = true)
+    public LettuceConnectionFactory redisConnectionFactory(
+            DataRedisProperties redisProperties,
+            ClientResources clientResources,
+            @Value("${spring.data.redis.sentinel.master}") String masterName,
+            @Value("${spring.data.redis.sentinel.nodes}") String sentinelNodesCsv,
+            @Value("${spring.data.redis.ssl.enabled:false}") boolean tlsEnabled) {
+
+        RedisSentinelConfiguration sentinelConfig = new RedisSentinelConfiguration();
+        sentinelConfig.setMaster(masterName);
+        sentinelConfig.setDatabase(redisProperties.getDatabase());
+        if (redisProperties.getPassword() != null) {
+            RedisPassword pw = RedisPassword.of(redisProperties.getPassword());
+            sentinelConfig.setPassword(pw);
+            sentinelConfig.setSentinelPassword(pw);
+        }
+        for (String node : sentinelNodesCsv.split(",")) {
+            String[] hp = node.trim().split(":");
+            sentinelConfig.addSentinel(new RedisNode(hp[0], Integer.parseInt(hp[1])));
+        }
+
+        Duration commandTimeout = redisProperties.getTimeout() != null
+                ? redisProperties.getTimeout()
+                : Duration.ofMillis(3000);
+
+        SocketOptions socketOptions = SocketOptions.builder()
+                .connectTimeout(Duration.ofMillis(2000))
+                .keepAlive(true)
+                .tcpNoDelay(true)
+                .build();
+
+        ClientOptions.Builder clientOptionsBuilder = ClientOptions.builder()
+                .protocolVersion(ProtocolVersion.RESP3)
+                .disconnectedBehavior(ClientOptions.DisconnectedBehavior.REJECT_COMMANDS)
+                .autoReconnect(true)
+                .socketOptions(socketOptions)
+                .timeoutOptions(TimeoutOptions.enabled(commandTimeout));
+
+        if (tlsEnabled) {
+            clientOptionsBuilder.sslOptions(SslOptions.builder().jdkSslProvider().build());
+        }
+
+        GenericObjectPoolConfig<Object> poolConfig = new GenericObjectPoolConfig<>();
+        poolConfig.setMaxTotal(32);
+        poolConfig.setMaxIdle(16);
+        poolConfig.setMinIdle(4);
+        poolConfig.setMaxWait(Duration.ofMillis(2000));
+        poolConfig.setTestOnBorrow(true);
+        poolConfig.setTestWhileIdle(true);
+
+        LettucePoolingClientConfiguration.LettucePoolingClientConfigurationBuilder clientCfg =
+                LettucePoolingClientConfiguration.builder()
+                        .clientResources(clientResources)
+                        .commandTimeout(commandTimeout)
+                        .shutdownTimeout(Duration.ofMillis(200))
+                        .readFrom(ReadFrom.REPLICA_PREFERRED)
+                        .clientOptions(clientOptionsBuilder.build())
+                        .poolConfig(poolConfig);
+
+        if (tlsEnabled) {
+            clientCfg.useSsl();
+        }
+
+        LettuceConnectionFactory factory = new LettuceConnectionFactory(sentinelConfig, clientCfg.build());
+        factory.setShareNativeConnection(true);
+        factory.setValidateConnection(false);
+        return factory;
     }
 
     @Bean

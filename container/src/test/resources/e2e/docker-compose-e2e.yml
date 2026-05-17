@@ -55,7 +55,7 @@ services:
       start_period: 15s
 
   redis:
-    image: redis:8.2.2-alpine
+    image: redis:8.6-alpine
     command: redis-server --requirepass e2e_redis_pass
     ports:
       - "6379"

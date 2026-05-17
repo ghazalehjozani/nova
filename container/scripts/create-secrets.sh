@@ -14,15 +14,18 @@ DOCKER_HOST_IP=$(minikube ssh "ip route show default" | awk '/default/ {print $3
 
 DB_URL="jdbc:postgresql://${DOCKER_HOST_IP}:${DB_PORT}/${DB_NAME}"
 KAFKA_SERVERS="10.100.8.81:9093,10.100.8.82:9093,10.100.8.83:9093"
-REDIS_HOST="${DOCKER_HOST_IP}"
+REDIS_MASTER_NAME="${REDIS_MASTER_NAME:-nova-master}"
+REDIS_SENTINEL_NODES="${REDIS_SENTINEL_NODES:?must be set: csv host:port list of sentinels}"
+REDIS_TLS_ENABLED="${REDIS_TLS_ENABLED:-false}"
 
 kubectl create secret generic trade-loan-service-secrets \
   --from-literal=spring.datasource.url="$DB_URL" \
   --from-literal=spring.datasource.username="$DB_USERNAME" \
   --from-literal=spring.datasource.password="$DB_PASSWORD" \
-  --from-literal=spring.data.redis.host="$REDIS_HOST" \
-  --from-literal=spring.data.redis.port="$REDIS_PORT" \
-  --from-literal=redis.password="$REDIS_PASSWORD" \
+  --from-literal=spring.data.redis.sentinel.master="$REDIS_MASTER_NAME" \
+  --from-literal=spring.data.redis.sentinel.nodes="$REDIS_SENTINEL_NODES" \
+  --from-literal=spring.data.redis.password="$REDIS_PASSWORD" \
+  --from-literal=spring.data.redis.ssl.enabled="$REDIS_TLS_ENABLED" \
   --from-literal=kafka.bootstrap.servers="$KAFKA_SERVERS" \
   --from-literal=kafka.consumer.group="$KAFKA_CONSUMER_GROUP" \
   --from-literal=kafka.user="$KAFKA_USER" \
