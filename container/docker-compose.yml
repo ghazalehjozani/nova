@@ -152,9 +152,9 @@ services:
       - sh
       - -c
       - |
-        sed -e "s|\${ANNOUNCE_IP}|$$ANNOUNCE_IP|g" \
-            -e "s|\${REDIS_MASTER_NAME}|$$REDIS_MASTER_NAME|g" \
-            -e "s|\${REDIS_PASSWORD}|$$REDIS_PASSWORD|g" \
+        sed -e "s|@@ANNOUNCE_IP@@|$$ANNOUNCE_IP|g" \
+            -e "s|@@REDIS_MASTER_NAME@@|$$REDIS_MASTER_NAME|g" \
+            -e "s|@@REDIS_PASSWORD@@|$$REDIS_PASSWORD|g" \
             /etc/redis/sentinel.conf.tmpl > /tmp/sentinel.conf
         exec redis-sentinel /tmp/sentinel.conf
     volumes:
