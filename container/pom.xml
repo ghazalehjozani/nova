@@ -236,6 +236,47 @@
                     <skipTranslationForEnglish>true</skipTranslationForEnglish>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>ir.dotin.platform</groupId>
+                <artifactId>spring-config-schema-maven-plugin</artifactId>
+                <version>2026.5.15-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <id>gen-schema</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <appName>nova</appName>
+                            <output>${project.build.directory}/nova.schema.json</output>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-schema</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>${project.build.directory}/nova.schema.json</file>
+                                    <type>json</type>
+                                    <classifier>schema</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
