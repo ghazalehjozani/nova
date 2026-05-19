@@ -18,23 +18,23 @@ If you skip these, stop and restart the turn with them.
 
 ## Module map (each has its own CLAUDE.md — read it before working there)
 
-| Path | Role | Start-here doc |
-| --- | --- | --- |
-| `core/domain` | Trade-specific aggregates, VOs, strategies | [link](core/domain/CLAUDE.md) |
-| `core/application/ports/inbound` | Command + query contracts | [link](core/application/ports/inbound/CLAUDE.md) |
-| `core/application/ports/outbound` | Repo/client SPIs (`Result<T>` pattern) | [link](core/application/ports/outbound/CLAUDE.md) |
-| `core/application/query` | Read-side handlers (REST + service consumers) | [link](core/application/query/CLAUDE.md) |
-| `core/application/service` | Command handlers, sagas, use-case orchestration | [link](core/application/service/CLAUDE.md) |
-| `adapters/driving/contract` | DTOs + mappers (anti-corruption layer) | [link](adapters/driving/contract/CLAUDE.md) |
-| `adapters/driving/rest` | REST controllers, OpenAPI | [link](adapters/driving/rest/CLAUDE.md) |
-| `adapters/driving/messaging-kafka` | Kafka consumers, idempotent inbox | [link](adapters/driving/messaging-kafka/CLAUDE.md) |
-| `adapters/driving/messaging-activemq` | ActiveMQ request/reply | [link](adapters/driving/messaging-activemq/CLAUDE.md) |
-| `adapters/driven/persistence` | JPA + outbox + Redis | [link](adapters/driven/persistence/CLAUDE.md) |
-| `adapters/driven/fcb-messaging` | FCB outbound integration | [link](adapters/driven/fcb-messaging/CLAUDE.md) |
-| `container` | Spring Boot main, wiring, Liquibase, profiles | [link](container/CLAUDE.md) |
-| `architecture-tests` | ArchUnit enforcement | [link](architecture-tests/CLAUDE.md) |
-| `documents/c4/java` | C4 model scanner | [link](documents/c4/java/CLAUDE.md) |
-| `documents/` | Architecture standards (SAW_102), ADRs, OpenAPI/AsyncAPI | [link](documents/CLAUDE.md) |
+| Path                                  | Role                                                     | Start-here doc                                        |
+|---------------------------------------|----------------------------------------------------------|-------------------------------------------------------|
+| `core/domain`                         | Trade-specific aggregates, VOs, strategies               | [link](core/domain/CLAUDE.md)                         |
+| `core/application/ports/inbound`      | Command + query contracts                                | [link](core/application/ports/inbound/CLAUDE.md)      |
+| `core/application/ports/outbound`     | Repo/client SPIs (`Result<T>` pattern)                   | [link](core/application/ports/outbound/CLAUDE.md)     |
+| `core/application/query`              | Read-side handlers (REST + service consumers)            | [link](core/application/query/CLAUDE.md)              |
+| `core/application/service`            | Command handlers, sagas, use-case orchestration          | [link](core/application/service/CLAUDE.md)            |
+| `adapters/driving/contract`           | DTOs + mappers (anti-corruption layer)                   | [link](adapters/driving/contract/CLAUDE.md)           |
+| `adapters/driving/rest`               | REST controllers, OpenAPI                                | [link](adapters/driving/rest/CLAUDE.md)               |
+| `adapters/driving/messaging-kafka`    | Kafka consumers, idempotent inbox                        | [link](adapters/driving/messaging-kafka/CLAUDE.md)    |
+| `adapters/driving/messaging-activemq` | ActiveMQ request/reply                                   | [link](adapters/driving/messaging-activemq/CLAUDE.md) |
+| `adapters/driven/persistence`         | JPA + outbox + Redis                                     | [link](adapters/driven/persistence/CLAUDE.md)         |
+| `adapters/driven/fcb-messaging`       | FCB outbound integration                                 | [link](adapters/driven/fcb-messaging/CLAUDE.md)       |
+| `container`                           | Spring Boot main, wiring, Liquibase, profiles            | [link](container/CLAUDE.md)                           |
+| `architecture-tests`                  | ArchUnit enforcement                                     | [link](architecture-tests/CLAUDE.md)                  |
+| `documents/c4/java`                   | C4 model scanner                                         | [link](documents/c4/java/CLAUDE.md)                   |
+| `documents/`                          | Architecture standards (SAW_102), ADRs, OpenAPI/AsyncAPI | [link](documents/CLAUDE.md)                           |
 
 ## Build & Test (single source of truth)
 
@@ -80,7 +80,6 @@ contract (DTOs) ↔ rest / messaging-* (consumed) ↔ service (commands target)
 
 - `.gitlab-ci.yml` — GitLab CI pipeline.
 - `checkstyle.xml` + `checkstyle-suppressions.xml` — style rules.
-- `configure-project-hooks.sh` — installs commit-msg / pre-commit / pre-push.
 - `documents/adr/` — Architecture Decision Records.
 
 ## External dependencies (high-signal)
