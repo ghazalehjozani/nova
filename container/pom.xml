@@ -239,7 +239,7 @@
             <plugin>
                 <groupId>ir.dotin.platform</groupId>
                 <artifactId>spring-config-schema-maven-plugin</artifactId>
-                <version>2026.5.15-SNAPSHOT</version>
+                <version>2026.5.17-SNAPSHOT</version>
                 <executions>
                     <execution>
                         <id>gen-schema</id>
