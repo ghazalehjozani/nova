@@ -1,189 +1,130 @@
-# Trade Loan :: Container Module
+# CLAUDE.md
 
-## Overview
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-The container module is the Spring Boot application entry point (`ir.dotin.loan.trade.NovaApplication`). It assembles all hexagonal architecture layers (domain, application services, adapters) into a runnable microservice. It also contains **E2E integration tests** that boot the full application with real infrastructure via Testcontainers.
+## Module: trade-loan-container
 
-## Build Commands
+Spring Boot **application entry point** for the trade-loan service. Assembles every hexagonal layer (domain, application services, driving + driven adapters) into one runnable microservice and ships the only configuration the JVM reads at startup. Also hosts the **E2E test suite** that boots the full context against real PostgreSQL, Kafka, and Redis via Testcontainers.
 
-e2e tests only run in docker and devcontainer
+Main class: `ir.dotin.loan.trade.NovaApplication`. Maven artifact: `ir.dotin.loan:trade-loan-container`, packaging `jar`. Builds an executable Spring Boot jar via the `spring-boot-application` profile and a container image via `Dockerfile`.
+
+## Build / Test
+
+Generic commands: see root [CLAUDE.md → Build & Test](../CLAUDE.md#build--test-single-source-of-truth). Container-specific:
 
 ```bash
-# Build with unit tests only
-cd /workspace/trade-loan && mvn clean verify -P!dev -DskipITs=true
+# build executable jar + run locally (.env must exist; see README-SETUP.md)
+mvn clean package -Pk8s,spring-boot-application -pl :trade-loan-container -am
 
-# Run E2E tests (requires Docker)
-cd /workspace/trade-loan && mvn verify -Pe2e -P!dev
-cd /workspace/trade-loan && mvn verify -Pe2e -P\!dev -rf :trade-loan-container
+# E2E (requires Docker daemon). Resumable form for re-runs:
+mvn verify -Pe2e -P!dev
+mvn verify -Pe2e -P\!dev -rf :trade-loan-container
 
-# Run E2E tests with auth token
-cd /workspace/trade-loan && mvn verify -Pe2e -P!dev -De2e.auth.token="Bearer eyJ..."
+# E2E with auth token override (REST tests)
+mvn verify -Pe2e -P!dev -De2e.auth.token="Bearer eyJ..."
+
+# single E2E test
+mvn -pl :trade-loan-container -Pe2e -P!dev -Dit.test=FullLoanFacilityLifecycleE2ETest verify
 ```
+
+Failsafe pattern for E2E: `**/e2e/**/*E2E.java`, `**/e2e/**/*E2ETest.java`. Without the `e2e` profile they are skipped.
+
+## Layout
+
+```
+container/
+├── src/main/java/ir/dotin/loan/trade/
+│   ├── NovaApplication.java                     # @SpringBootApplication entry point
+│   ├── config/
+│   │   ├── DomainConfig.java                    # base-loan domain ComponentScan re-export
+│   │   ├── ApplicationReadyListener.java        # startup banner / readiness log
+│   │   └── serialization/{JacksonConfiguration,RelationTypeKeyDeserializer}.java
+│   └── error/                                   # ErrorCodeContributor SPIs (BaseLoan, Saga, RestAdapter, TradeLoan)
+├── src/main/resources/
+│   ├── bootstrap.yml                            # the ONLY local config file
+│   ├── logback-spring.xml, banner.txt
+│   ├── i18n/messages_{en,fa}.properties
+│   ├── swagger/*.json                           # static OpenAPI exports
+│   └── db/changelog/                            # Liquibase master + per-release changelogs
+├── src/test/java/ir/dotin/loan/trade/e2e/       # E2E suite (see below)
+├── src/test/resources/
+│   ├── application-e2e.yml                      # e2e profile overrides
+│   └── e2e/docker-compose-e2e.yml               # Testcontainers compose file
+├── redis/                                       # sentinel templates + render script
+├── scripts/                                     # secret/config sync + k8s helpers
+├── Dockerfile, docker-compose.yml, .env(.example)
+└── pom.xml
+```
+
+`NovaApplication` does a **filtered ComponentScan** over `ir.dotin.loan.baseloan.core.domain` that picks up only `@DomainComponent`, `@DomainService`, `@DomainFactory`. Do not broaden the scan — base-loan domain types must remain pure POJOs to the application context.
+
+## Configuration Model (critical)
+
+- `bootstrap.yml` is the **only** local configuration file. It contains Consul connection details and the service identity (`spring.application.name=nova-service`); nothing else.
+- All runtime config (datasource, kafka, fcb, dispatcher, security, …) lives in **HashiCorp Consul KV**, owned by the separate `nova-config` repo and synchronised by GitLab CI (prod) or the `git2consul-sync` sidecar (dev/test).
+- Secrets are **never** in Consul. They are injected as env vars (`${ENV_VAR}`) at runtime and resolved by Spring **after** the KV pull. Local-dev secrets live in `.env` (git-ignored). `.env.example` is the template.
+- Active profile is selected with `SPRING_PROFILES_ACTIVE` (defaults to `dev`). The `e2e` profile is reserved for the Testcontainers suite — do not enable it in real deployments.
+
+When something doesn't take effect, check Consul KV first; only fall back to looking inside this module if the key is genuinely absent from `nova-config`.
 
 ## E2E Test Infrastructure
 
-### How It Works
+`E2ETestConfiguration` starts a `ComposeContainer` (Testcontainers, Docker Compose v2 — **not** the deprecated `DockerComposeContainer`) from `src/test/resources/e2e/docker-compose-e2e.yml`, exposing:
 
-E2E tests use **Testcontainers with Docker Compose** to spin up real infrastructure:
-- **PostgreSQL** (database)
-- **Kafka** (KRaft mode, PLAINTEXT)
-- **Redis** (password-protected)
+- **PostgreSQL 18.0** (alpine) — dynamic port, wired in via `@DynamicPropertySource`
+- **Kafka** (cp-kafka 7.9.4, KRaft) — fixed host port `9094:9094`, **SASL_PLAINTEXT / SCRAM-SHA-256** to match prod
+- **Redis 8.2.2** (alpine) — password-protected
 
-Tests boot the full Spring Boot context (`@SpringBootTest`) with `@ActiveProfiles("e2e")` and send real Kafka messages, verifying outcomes in the database and on Kafka response topics.
+Test class hierarchy:
 
-### Key Files
-
-| File                                                            | Purpose                                                                                          |
-|-----------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
-| `src/test/java/.../e2e/E2ETestConfiguration.java`               | Test config: DockerCompose container, dynamic properties                                         |
-| `src/test/java/.../e2e/AbstractMessagingE2E.java`               | Base class: KafkaTemplate, ObjectMapper, auth token, send helpers, **@MockitoBean declarations** |
-| `src/test/java/.../e2e/fixture/KafkaTestHelper.java`            | Kafka utilities: build records with headers, create consumers                                    |
-| `src/test/java/.../e2e/fixture/LoanArrangementTestFixture.java` | Creates loan arrangements in DB                                                                  |
-| `src/test/java/.../e2e/fixture/LoanTypeTestFixture.java`        | Creates loan types in DB                                                                         |
-| `src/test/java/.../e2e/fixture/LoanFacilityTestFixture.java`    | Creates disbursed facilities with installment schedules                                          |
-| `src/test/resources/application-e2e.yml`                        | E2E Spring profile config                                                                        |
-| `src/test/resources/e2e/docker-compose-e2e.yml`                 | Docker Compose for Testcontainers                                                                |
-
-### Test Classes
-
-- **`FullLoanFacilityLifecycleE2ETest`** - Tests full lifecycle saga (create + disburse via Kafka message)
-- **`InstallmentCollectionE2ETest`** - Tests installment collection with request/reply pattern
-
-### Adding New E2E Tests
-
-1. Extend `AbstractMessagingE2E`
-2. Use `@Import` to bring in needed fixtures
-3. Use `@BeforeAll` with `@TestInstance(PER_CLASS)` for fixture setup
-4. Mock ports are inherited from `AbstractMessagingE2E` (`@MockitoBean` on the base class)
-5. Send messages via `sendAndWait(record)` or `buildRecord()` + `sendAndWait()`
-6. Assert with Awaitility for async outcomes
-
-### Test Profile Activation
-
-E2E tests only run with the `e2e` Maven profile (defined in `platform-parent`):
-```bash
-mvn verify -Pe2e
 ```
-Pattern: `**/e2e/**/*E2E.java` and `**/e2e/**/*E2ETest.java` (Maven Failsafe)
+AbstractE2E              # @SpringBootTest(classes=NovaApplication), @ActiveProfiles("e2e")
+├── AbstractMessagingE2E # KafkaTemplate, send/await helpers, @MockitoBean outbound ports
+└── AbstractRestE2E      # REST client + auth-token plumbing
+```
 
-## Embeddable Entity Field Names (Gotchas)
+Fixtures (`e2e/fixture/`) seed the DB with loan types, arrangements, and disbursed facilities; helpers (`KafkaTestHelper`, `BaseResponseAssertions`, `PrerequisiteOrchestrator`, `MockPortConfigurator`) are the surface the test bodies should use.
 
-When writing test fixtures that create JPA entities directly, use the correct setter names for `@Embeddable` types:
+### Adding an E2E test
 
-| Embeddable Class                | Field                                                                                                                                                                                                                        | Setter                                                      |
-|---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
-| `TitleEmb`                      | `value`                                                                                                                                                                                                                      | `setValue()` (NOT `setFaTitle`/`setEnTitle`)                |
-| `CurrencyTypeEmb`               | `value`                                                                                                                                                                                                                      | `setValue()` (NOT `setCurrencyType`)                        |
-| `InstallmentCountEmb`           | `value`                                                                                                                                                                                                                      | `setValue()` (NOT `setCount`)                               |
-| `LoanTypeCodeEmb`               | `value`                                                                                                                                                                                                                      | `setValue()`                                                |
-| `InterestPolicyEmb`             | `baseInterestRate`, `preferentialMinRate`, `preferentialMaxRate`, `dailyInterest`                                                                                                                                            | Direct setters                                              |
-| `PenaltyPolicyEmb`              | `penaltyRate`, `deferralInterestRate`                                                                                                                                                                                        | Direct setters                                              |
-| `InstallmentPolicyEmb`          | `installmentPeriodDays`                                                                                                                                                                                                      | `setInstallmentPeriodDays()`                                |
-| `GracePeriodPolicyEmb`          | `minGracePeriodDays`, `maxGracePeriodDays`                                                                                                                                                                                   | Direct setters                                              |
-| `PeriodRangeEmb`                | `minPeriod`, `maxPeriod`                                                                                                                                                                                                     | `setMinPeriod(PeriodEmb)`, `setMaxPeriod(PeriodEmb)`        |
-| `AmountRangeEmb`                | `minAmount`, `maxAmount`, `currency`                                                                                                                                                                                         | Direct setters                                              |
-| `GracePeriodEmb`                | `days`, `months`, `years`                                                                                                                                                                                                    | Direct setters                                              |
-| `MoneyEmb`                      | `amount`, `currency`                                                                                                                                                                                                         | `setAmount(BigDecimal)`, `setCurrency(String)`              |
-| `PeriodEmb`                     | `years`, `months`, `days`                                                                                                                                                                                                    | Direct setters                                              |
-| `RepaymentPriorityPolicyEmb`    | `installmentMainAmountPriority`, `installmentInterestAmountPriority`, `installmentPenaltyAmountPriority`, `installmentIncomeAmountPriority`, `insuranceAmountPriority`, `insurancePenaltyAmountPriority`, `hasEqualPriority` | Direct setters (NOT `principalPriority`/`interestPriority`) |
-| `RegulatoryCompliancePolicyEmb` | `overDuePeriod`, `deferralPeriod`, `suspiciousPeriod`                                                                                                                                                                        | Direct setters (NOT `overDuePeriodMonths`)                  |
-| `CollateralPolicyEmb`           | `totalPercent`, `collateralTypes`, `collateralCalculationType`                                                                                                                                                               | Direct setters. **`collateralCalculationType` is NOT NULL** |
-| `ConfirmTypeEmb`                | `personCode`                                                                                                                                                                                                                 | `setPersonCode(String)` (NOT a raw String list)             |
+1. Extend `AbstractMessagingE2E` (Kafka flows) or `AbstractRestE2E` (HTTP flows).
+2. `@Import` only the fixtures you actually need.
+3. Use `@TestInstance(PER_CLASS)` + `@BeforeAll` for fixture setup.
+4. Outbound-port mocks are **declared on `AbstractMessagingE2E`** (not on a `@TestConfiguration`). Override per-test with `when(...).thenReturn(...)`.
+5. Assert async outcomes with Awaitility.
 
-## Important Enum Values (Gotchas)
+### Kafka SASL gotchas (production-parity)
 
-Common enum values that differ from what you might expect:
+- Host port mapping **must** be fixed `9094:9094`; `KAFKA_ADVERTISED_LISTENERS` for the SASL listener **must** use `localhost`, otherwise host-side clients receive unreachable broker metadata.
+- SCRAM credentials are bootstrapped via `kafka-storage format --add-scram` in the compose `command:` block (user `admin` / pass `abcd1234`).
+- Inter-broker listener: PLAINTEXT on `9092` (used for healthcheck only). Client listener: SASL_PLAINTEXT on `9094`.
+- `E2ETestConfiguration` connects to `localhost:9094` directly — **do not** read the ambassador port from `ComposeContainer` for this listener.
+- `KafkaTestHelper.createResponseConsumer()` carries the SASL props for manually-built consumers.
 
-| Enum                        | Correct Values                                                                                   | NOT This                                                   |
-|-----------------------------|--------------------------------------------------------------------------------------------------|------------------------------------------------------------|
-| `ApplicantChannel`          | `INTERNET_BANK`, `DIGITAL_BANK`                                                                  | ~~BRANCH~~                                                 |
-| `GatewayType`               | `CARD`, `DIGITAL_BANK`, `LOAN`, `GUARANTEE`, `CHEQUE`, `LETTER_OF_CREDIT`, `COLLATERAL`, `STAFF` | ~~API_GATEWAY~~                                            |
-| `FacilityStatus`            | `FULLY_DISBURSED`, `PARTIALLY_DISBURSED`                                                         | ~~DISBURSED~~                                              |
-| `InstallmentScheduleType`   | `EQUAL_INSTALLMENTS`, `GRADUAL_INSTALLMENTS`                                                     | ~~EQUAL~~                                                  |
-| `InstallmentStatus`         | `SCHEDULED`, `PAID`, `PARTIALLY_PAID`, `OVERDUE`, `CANCELLED`                                    | ~~PENDING~~                                                |
-| `CollateralCalculationType` | `BASED_ON_PRINCIPAL`, `BASED_ON_PRINCIPAL_AND_TOTAL_INTEREST`                                    | (no NONE value)                                            |
-| `DisbursementType`          | `LUMP_SUM`, `PROGRESSIVE`                                                                        | (arrangement-level, controls allowed `DisbursementMethod`) |
-| `DisbursementMethod`        | `LUMP_SUM`, `REGULAR_PROGRESSIVE`, `IRREGULAR_PROGRESSIVE`                                       | (facility-level)                                           |
-| `LoanSecondaryType`         | `GENERAL`, `SPECIFIC`, `GENERAL_AND_SPECIFIC`, `NONE`                                            |                                                            |
-| `SectionType`               | `FIXED`, `CURRENT`, `FIXED_AND_CURRENT`, `NONE`                                                  |                                                            |
+### Mocked outbound ports (defaults return `Result.success()`)
 
-## Important Enum Locations
+`LoanServicePort`, `AccountServicePort`, `TransactionPostingPort`, `CollateralServicePort`, `DepositServicePort`, `CustomerServicePort`, `FindOrCreateAccountPort`, `FindAccountByIdPort`, `FetchSanctionDetailsPort`.
 
-| Enum                                             | Package                                                               |
-|--------------------------------------------------|-----------------------------------------------------------------------|
-| `GatewayType`                                    | `ir.dotin.loan.baseloan.core.domain.shared.enums` (NOT in trade-loan) |
-| `FacilityStatus`                                 | `ir.dotin.loan.baseloan.core.domain.loanfacility.enums`               |
-| `PartyRole`, `PartyType`                         | `ir.dotin.loan.baseloan.core.domain.shared.enums`                     |
-| `ApplicantChannel`, `DisbursementMethod`         | `ir.dotin.loan.baseloan.core.domain.loanfacility.enums`               |
-| `InstallmentStatus`, `InstallmentScheduleStatus` | `ir.dotin.loan.baseloan.core.domain.installmentschedule.enums`        |
-| `CollateralCalculationType`                      | `ir.dotin.loan.baseloan.core.domain.shared.enums`                     |
-| `DisbursementType`                               | `ir.dotin.loan.baseloan.core.domain.loanarrangement.enums`            |
+Use `Result.success()` (no-arg); `Result.success(null)` throws NPE.
 
-## External Service Mocking
+## Liquibase
 
-All outbound ports to external services are mocked via `@MockitoBean` in `AbstractMessagingE2E` (the base test class):
+Master: `src/main/resources/db/changelog/db.changelog-master.xml` → includes `framework/db.changelog-framework.xml` and `trade-loan/db.changelog-trade-loan.xml`. **Every** new changelog file must be referenced from the appropriate `db.changelog-*.xml`; orphaned files compile but produce `column does not exist` failures at runtime. Per-release directories follow `trade-loan/vYYYY.M.N/NNN-description.xml`.
 
-| Port                       | Purpose                                                 |
-|----------------------------|---------------------------------------------------------|
-| `LoanServicePort`          | Economic sectors, topics, application numbers, branches |
-| `AccountServicePort`       | Account validation, account opening                     |
-| `TransactionPostingPort`   | Transaction posting                                     |
-| `CollateralServicePort`    | Collateral/assurance validation                         |
-| `DepositServicePort`       | Deposit info, debtor deposit validation                 |
-| `CustomerServicePort`      | Customer info, related customers                        |
-| `FindOrCreateAccountPort`  | Account resolution                                      |
-| `FindAccountByIdPort`      | Account lookup                                          |
-| `FetchSanctionDetailsPort` | Sanction checks                                         |
+## Spring Boot 4.x / Test stack notes
 
-Default stubs return `Result.success()`. Override in individual tests with `when(...).thenReturn(...)`.
+- `@MockBean` and `@SpyBean` are **removed**. Use `@MockitoBean` / `@MockitoSpyBean` from `org.springframework.test.context.bean.override.mockito`.
+- `@MockitoBean` must sit on the test class (or a superclass), **not** on a `@TestConfiguration`. We place them on `AbstractMessagingE2E`.
+- Null annotations: use `org.jspecify` (`@Nullable`, `@NonNull`). Do **not** introduce `org.jetbrains:annotations`.
+- Testcontainers Docker Compose v2 → `ComposeContainer`, not `DockerComposeContainer`.
 
-**IMPORTANT**: Use `Result.success()` (no-arg), NOT `Result.success(null)`. The `Result.success(T)` method throws NPE for null values.
+## Operational scripts
 
-## Docker Requirements
+- `scripts/sync-configs.sh` — push `nova-config` KV to a target Consul environment.
+- `scripts/{create,update,get}-secret.sh` — manage k8s secrets that back `${ENV_VAR}` placeholders.
+- `scripts/cleanup.sh` — remove stale local containers/volumes between runs.
+- `redis/render-sentinel-conf.sh` — renders `sentinel.conf.tmpl` into env-specific Sentinel configs at container start.
 
-E2E tests require Docker to be running. The Docker Compose file starts:
-- **PostgreSQL 18.0** (alpine) on dynamic port
-- **Kafka** (cp-kafka:7.9.4, KRaft mode, **SASL_PLAINTEXT** on fixed port 9094, SCRAM-SHA-256)
-- **Redis 8.2.2** (alpine) with password protection
+## Do-not-commit
 
-### Kafka SASL Configuration (Production-Like)
-
-Kafka uses SASL_PLAINTEXT with SCRAM-SHA-256 to match production. Key points:
-- **Fixed port mapping** `9094:9094` (NOT dynamic) so `KAFKA_ADVERTISED_LISTENERS` uses `localhost:9094`
-- **SCRAM credentials** bootstrapped via `kafka-storage format --add-scram` in custom command
-- **Credentials**: username=`admin`, password=`abcd1234`
-- **Inter-broker listener**: PLAINTEXT on port 9092 (internal only, also used for healthcheck)
-- **Client listener**: SASL_PLAINTEXT on port 9094 (external, used by tests and Spring Boot app)
-- **E2ETestConfiguration** uses `localhost:9094` directly (NOT ComposeContainer ambassador port)
-- **`KAFKA_ADVERTISED_LISTENERS`** MUST use `localhost` (not container hostname) for the SASL_PLAINTEXT listener, otherwise Kafka metadata returns unreachable addresses to host-side clients
-- **KafkaTestHelper.createResponseConsumer()** includes SASL properties for the manual consumer
-
-## Spring Boot 4.x Notes
-
-- **`@MockBean` is removed.** Use `@MockitoBean` from `org.springframework.test.context.bean.override.mockito` instead.
-- **`@MockitoBean` must be on test class or its superclass**, NOT on `@TestConfiguration` classes. Place them in `AbstractMessagingE2E`.
-- **`@SpyBean` is removed.** Use `@MockitoSpyBean` from the same package.
-- **Null annotations:** This project uses `org.jspecify:jspecify` (`@Nullable`, `@NonNull`), NOT `org.jetbrains:annotations`.
-- **Testcontainers**: Use `ComposeContainer` (NOT deprecated `DockerComposeContainer`) for Docker Compose v2 support.
-
-## Liquibase Changelog Notes
-
-When adding new JPA entity fields that map to DB columns, **always add the corresponding Liquibase changelog AND include it in `db.changelog-master.xml`**. Missing includes cause "column does not exist" errors at runtime but compile fine.
-
-Master changelog: `src/main/resources/db/changelog/db.changelog-master.xml`
-
-## Dependency Notes
-
-Test dependencies for E2E are managed in this module's POM. If adding new testcontainers modules, verify they are available in the corporate Nexus mirror (`mirrorOf=*` in Maven settings). Older artifact naming conventions may be required (e.g., `testcontainers-kafka` vs `kafka`).
-
-## E2E Test Data (Reference)
-
-Realistic test data values (from Postman collection):
-- Economic sector code: `"2-1"`
-- Party type: `REAL`
-- Gateway type: `DIGITAL_BANK`
-- Applicant channel: `DIGITAL_BANK`
-- Disbursement method: `IRREGULAR_PROGRESSIVE`
-- Branch code: `"1"`
-- Currency: `IRR`
-- Confirm types: `["1", "2", "3"]`
+`.env`, `application-dev.yml`, `k8s/**/secret*.yml`, anything containing real credentials. The `.gitignore` covers the common cases; double-check before staging.

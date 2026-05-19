@@ -73,10 +73,6 @@
         </dependency>
         <dependency>
             <groupId>ir.dotin.loan</groupId>
-            <artifactId>trade-loan-adapters-driven-fcb-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ir.dotin.loan</groupId>
             <artifactId>trade-loan-adapters-driven-fcb-messaging</artifactId>
         </dependency>
         <dependency>

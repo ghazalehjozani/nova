@@ -2,180 +2,89 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Repository Overview
+## ⚠️ MANDATORY skills (invoke before any other action)
 
-This is a multi-module Java microservices repository implementing a loan management system using Domain-Driven Design (DDD) and Hexagonal Architecture. The repository contains two main services:
+- Skill `superpowers:using-superpowers` — at conversation start.
+- Skill `claude-md-management:revise-claude-md` — whenever editing or auditing any `CLAUDE.md` in this repo.
 
-1. **base-loan**: Shared kernel containing common domain models and business logic for all loan types
-2. **trade-loan**: Specialized service implementing Morabehe (Trade) loans that extends base-loan functionality
+If you skip these, stop and restart the turn with them.
 
-## Build & Development Commands
+## Repo at a glance
 
-### Maven Commands
+- `ir.dotin.loan:trade-loan` — Morabehe (Trade) loan microservice.
+- Parent: `ir.dotin.platform:platform-parent` (Java + Spring Boot, `${revision}` versioning).
+- Depends on `ir.dotin.loan:base-loan-*` (separate repo, consumed as Maven artifacts — NOT in this tree).
+- Hexagonal + DDD + CQRS. Strict driving/driven port split.
+
+## Module map (each has its own CLAUDE.md — read it before working there)
+
+| Path | Role | Start-here doc |
+| --- | --- | --- |
+| `core/domain` | Trade-specific aggregates, VOs, strategies | [link](core/domain/CLAUDE.md) |
+| `core/application/ports/inbound` | Command + query contracts | [link](core/application/ports/inbound/CLAUDE.md) |
+| `core/application/ports/outbound` | Repo/client SPIs (`Result<T>` pattern) | [link](core/application/ports/outbound/CLAUDE.md) |
+| `core/application/query` | Read-side handlers (REST + service consumers) | [link](core/application/query/CLAUDE.md) |
+| `core/application/service` | Command handlers, sagas, use-case orchestration | [link](core/application/service/CLAUDE.md) |
+| `adapters/driving/contract` | DTOs + mappers (anti-corruption layer) | [link](adapters/driving/contract/CLAUDE.md) |
+| `adapters/driving/rest` | REST controllers, OpenAPI | [link](adapters/driving/rest/CLAUDE.md) |
+| `adapters/driving/messaging-kafka` | Kafka consumers, idempotent inbox | [link](adapters/driving/messaging-kafka/CLAUDE.md) |
+| `adapters/driving/messaging-activemq` | ActiveMQ request/reply | [link](adapters/driving/messaging-activemq/CLAUDE.md) |
+| `adapters/driven/persistence` | JPA + outbox + Redis | [link](adapters/driven/persistence/CLAUDE.md) |
+| `adapters/driven/fcb-messaging` | FCB outbound integration | [link](adapters/driven/fcb-messaging/CLAUDE.md) |
+| `container` | Spring Boot main, wiring, Liquibase, profiles | [link](container/CLAUDE.md) |
+| `architecture-tests` | ArchUnit enforcement | [link](architecture-tests/CLAUDE.md) |
+| `documents/c4/java` | C4 model scanner | [link](documents/c4/java/CLAUDE.md) |
+| `documents/` | Architecture standards (SAW_102), ADRs, OpenAPI/AsyncAPI | [link](documents/CLAUDE.md) |
+
+## Build & Test (single source of truth)
+
 ```bash
-# Build and run unit tests (exclude integration tests)
-mvn clean verify -P!dev -DskipITs=true
-
-# Build with all tests (including integration tests)
-mvn clean verify
-
-# Run architecture tests only (enabled by default in CI)
-mvn test -Dtest=**/*ArchitectureTest*
-
-# Run specific module tests
-cd trade-loan && mvn clean test
-cd base-loan && mvn clean test
-
-# Run with SpotBugs static analysis (optional in CI)
-mvn clean verify -Pspotbugs
-
-# Run OWASP security scanning (optional in CI)
-mvn clean verify -Psecurity
+mvn clean verify -P!dev -DskipITs=true        # full build, unit only (CI default)
+mvn clean verify                              # full build incl. integration tests
+mvn clean install                             # install to local repo
+mvn -pl <module-path> -am test                # single module + deps
+mvn -pl <module-path> -am verify -DskipITs=true
+mvn test -Dtest=**/*ArchitectureTest*         # ArchUnit only
+mvn clean verify -Pspotbugs                   # optional: SpotBugs
+mvn clean verify -Psecurity                   # optional: OWASP dep check
+./configure-project-hooks.sh                  # one-time hook setup
 ```
 
-### Development Setup
-```bash
-# Configure project hooks (commit-msg, pre-commit, pre-push)
-./configure-project-hooks.sh
+Module files no longer repeat these — they link back here.
 
-# Build all modules
-mvn clean install
+## Architecture rules (authoritative, enforced by ArchUnit)
 
-# Run tests for trade-loan service
-cd trade-loan && mvn clean test
-```
+1. **Driving adapters MUST NOT depend on outbound ports.** Use inbound ports (commands) or `core/application/query` for read access.
+2. **Adapters are thin.** ID resolution, validation against domain state, and orchestration belong in the application service. Adapters deserialize, map, and delegate — nothing else.
+3. **Anti-corruption layer.** Legacy terms (e.g. `fileNumber`) translate to domain terms (e.g. `applicationNumber`) at the adapter boundary — see [`adapters/driving/contract`](adapters/driving/contract/CLAUDE.md). Commands, handlers, outbound ports, and domain code use domain terms only.
+4. **Domain layer has zero framework/adapter deps.** Pure Java + JSR-310 + base-loan shared kernel.
+5. **Immutable VOs, aggregate-root invariants, factories for complex construction** (`DocumentFactory`, `ArticleSpecFactory`).
 
-## Architecture & Project Structure
-
-### Hexagonal Architecture Pattern
-The project follows strict hexagonal (ports & adapters) architecture:
-
-- **Core Layer**: Domain entities, value objects, and business logic
-- **Application Layer**: Use cases, application services, and ports (interfaces)
-- **Adapter Layer**: Implementation of ports (REST controllers, persistence, messaging)
-- **Container Layer**: Spring Boot application entry point
-
-### Base Loan Module Structure
-```
-base-loan/
-├── domain/                      # Domain layer (DDD entities, VOs, aggregates)
-│   ├── loanarrangement/         # Loan facility and arrangement domain
-│   ├── loantype/                # Loan type definitions and rules
-│   └── shared/                  # Shared domain components
-├── architecture-tests/          # ArchUnit tests enforcing domain rules
-└── pom.xml
-```
-
-### Trade Loan Module Structure
-```
-trade-loan/
-├── core/
-│   ├── domain/                  # Trade-specific domain models
-│   └── application/
-│       ├── ports/               # Application interfaces
-│       │   ├── driving/         # Inbound interfaces (REST, messaging)
-│       │   └── driven/          # Outbound interfaces (persistence, clients)
-│       └── service/             # Application services (use cases)
-├── adapters/
-│   ├── driving/                 # Inbound adapters
-│   │   ├── rest/               # REST controllers
-│   │   └── messaging/          # Message consumers
-│   └── driven/                  # Outbound adapters
-│       ├── persistence/         # JPA repositories
-│       ├── client/             # External service clients
-│       └── messaging/          # Message producers
-├── container/                   # Spring Boot main application
-└── architecture-tests/          # Architecture compliance tests
-```
-
-## Key Domain Concepts
-
-### Core Domain Entities (from base-loan)
-- **BaseLoanFacility**: Loan request/facility with customer details, amount, duration
-- **BaseLoanType**: Configurable loan product type with parameters and rules
-- **BaseLoanRule**: Immutable loan rules covering interest, penalties, repayment policies
-- **BaseLoanArrangement**: Specific loan agreement instance
-
-### Value Objects & Policies
-- **InterestPolicy**: Base/preferred interest rates and formulas
-- **PenaltyPolicy**: Penalty rates and payment types
-- **RepaymentPriorityPolicy**: Repayment order (principal, interest, penalty)
-- **RegulatoryCompliancePolicy**: Overdue classification rules
-- **Money**: Immutable monetary value with currency handling
-
-### Trade Loan Extensions
-- **MorabeheLoanType**: Trade-specific loan type with merchandise document flags
-- **Trade-specific domain logic**: Extends base-loan with trade business rules
-
-## Important Development Guidelines
-
-### Code Quality & Architecture Compliance
-- **Architecture Tests**: Use ArchUnit to enforce hexagonal architecture rules
-- **Checkstyle**: Code style enforcement (checkstyle.xml configuration in both modules)
-- **No cross-layer dependencies**: Domain layer must not depend on application or adapter layers
-- **Immutable Value Objects**: All domain VOs should be immutable
-- **Factory Pattern**: Use factories for complex domain object creation (DocumentFactory, ArticleSpecFactory)
-
-### Domain-Driven Design Principles
-- **Aggregate Roots**: Protect domain invariants through aggregate roots
-- **Domain Events**: Use for communication between bounded contexts
-- **Repository Pattern**: Abstract persistence behind domain interfaces
-- **Strategy Pattern**: For configurable business rules (DocumentCalculationStrategy)
-
-### Testing Approach
-- **Unit Tests**: Test domain logic in isolation
-- **Architecture Tests**: Enforce structural rules using ArchUnit
-- **Integration Tests**: Test adapter implementations (optional via CI parameter)
-- **Test Coverage**: Maintain high coverage for domain logic
-
-### Document & Transaction Flow
-The system uses a sophisticated document and transaction creation pattern:
-1. **Application Service**: Orchestrates transaction creation
-2. **DocumentFactory**: Manages document and transaction lifecycle
-3. **DocumentCalculationStrategy**: Implements business rules for article generation
-4. **ArticleSpecFactory**: Creates article specifications
-5. **Value Objects**: Ensure data integrity (Document, Article, LoanTransaction)
-
-## Configuration Files
-- **Jenkinsfile**: CI/CD pipeline with quality gates and deployment options
-- **checkstyle.xml**: Code style and quality rules
-- **checkstyle-suppressions.xml**: Checkstyle rule exceptions
-- **configure-project-hooks.sh**: Git hooks setup for commit validation
-
-## Dependencies & Platform
-- **Parent**: ir.dotin.platform:platform-parent (1.0.0-SNAPSHOT)
-- **Framework**: Spring Boot with Java
-- **Build**: Maven with multi-module structure
-- **Testing**: JUnit 5, AssertJ, Mockito
-- **Architecture**: ArchUnit for structural testing
-- **Documentation**: ADR (Architecture Decision Records) in doc/adr/
-
-## Hexagonal Architecture Design Rules
-
-### Dependency Rules (Critical)
-
-1. **Driving adapters must NEVER depend on outbound ports module.**
-   Driving adapters (REST, messaging) only depend on **inbound ports** (commands, queries). If a driving adapter needs to resolve data (e.g., looking up a domain ID from a legacy identifier), that resolution must happen in the **application service** (command handler), NOT in the adapter. If a driving adapter needs read access to data, use the **application query module** which is accessible from driving adapters.
-
-2. **Application service responsibilities must NOT be placed in adapters.**
-   Business logic such as ID resolution, validation against domain state, or orchestration belongs in the **application service layer** (command/query handlers). Adapters are thin translation layers: they deserialize, map to commands/queries, and delegate. If an adapter is doing more than mapping and delegating, the design is wrong.
-
-3. **Anti-Corruption Layer: Legacy terms must only appear in adapter layer.**
-   When integrating with legacy systems, legacy terminology (e.g., `fileNumber`) must be translated to domain terminology (e.g., `applicationNumber`) at the adapter boundary. Commands, handlers, outbound ports, and domain code must use **domain terms only**. The adapter's mapper serves as the anti-corruption layer and should document the term translations explicitly.
-
-### Module Dependency Summary
+### Module dependency cheat sheet
 
 ```
-driving adapters → inbound ports (commands/queries)
-driving adapters → application query module (for read access)
-driving adapters ✗ outbound ports (FORBIDDEN)
-application services → outbound ports
-driven adapters → outbound ports (implements them)
+driving adapters → inbound ports (commands) | application/query (reads)
+driving adapters ✗ outbound ports                               (FORBIDDEN)
+application/service → outbound ports → driven adapters (impl)
+driven adapters → outbound ports (implements)
+contract (DTOs) ↔ rest / messaging-* (consumed) ↔ service (commands target)
 ```
 
-## Key External Dependencies
-- **ir.dotin.platform**: Platform-specific libraries (commons, dispatcher-api)
-- **Spring Ecosystem**: Web, Data JPA, Security, Validation
-- **MapStruct**: For object mapping
-- **SpringDoc**: OpenAPI documentation
-- **Spring Kafka**: For messaging adapters
+## When editing CLAUDE.md files
+
+- Always invoke `claude-md-management:revise-claude-md` first.
+- Root owns: build commands, architecture rules, module index, mandatory skills, cross-cutting links.
+- Module files own: their own purpose, package roots, key types, in-repo deps, sibling links. They MUST NOT duplicate the build stanza — link back here.
+
+## CI / Tooling pointers
+
+- `.gitlab-ci.yml` — GitLab CI pipeline.
+- `checkstyle.xml` + `checkstyle-suppressions.xml` — style rules.
+- `configure-project-hooks.sh` — installs commit-msg / pre-commit / pre-push.
+- `documents/adr/` — Architecture Decision Records.
+
+## External dependencies (high-signal)
+
+- `ir.dotin.platform:*` — platform commons + dispatcher.
+- `ir.dotin.loan:base-loan-*` — shared loan kernel (separate repo).
+- Spring Boot (Web, Data JPA, Kafka, Security, Validation), MapStruct, SpringDoc, ArchUnit, JUnit 5 + AssertJ + Mockito.

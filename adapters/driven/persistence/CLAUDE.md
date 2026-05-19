@@ -1,370 +1,81 @@
-# Updated CLAUDE.md - Query Persistence Adapter Section
+# CLAUDE.md
 
-## Query Implementation in Persistence Layer
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-### Query Pattern Architecture
+## Module: trade-loan-adapters-driven-persistence
 
-The system implements CQRS with Query Models defined in the application layer. **Query adapters reuse existing JPA
-entities and map them to Query Models.**
+JPA persistence adapter for the trade-loan service. Implements outbound command repositories and query repositories defined in `core/application/ports/outbound` and `core/application/query`. Also hosts Redis cache config and outbox event handlers wired into the platform `OutboxHandler` SPI.
 
-#### Query Flow
-```
-Controller → QueryHandler → QueryPort → QueryAdapter → JPA Entity → QueryModel → DTO
-↑                           ↓
-(app layer)                  (persistence adapter)
-Mapper: Entity→QueryModel
-```
+Maven artifact: `ir.dotin.loan:trade-loan-adapters-driven-persistence`.
 
-### Query Model Location
+## See also
 
-Query Models are defined in the **application layer**, not persistence:
+- Outbound ports implemented: [`core/application/ports/outbound`](../../../core/application/ports/outbound/CLAUDE.md)
+- Query handlers consuming repos: [`core/application/query`](../../../core/application/query/CLAUDE.md)
 
-```java
-// Location: core/application/query/loanfacility/model/
-package ir.dotin.loan.trade.core.application.query.loanfacility.model;
+## Build / Test
 
-public class FacilityQueryModel {
-    private UUID id;
-    private String facilityCode;
-    private BigDecimal requestedAmount;
-    private String currency;
-    private String facilityStatus;
-    // Flattened customer data
-    private UUID customerId;
-    private String customerName;
-    private String customerNationalId;
-    // Flattened arrangement data
-    private UUID arrangementId;
-    private String arrangementCode;
-    // Audit fields
-    private Instant createdAt;
-    private String createdBy;
-    // Getters, setters, builder
-}
-```
+See root [CLAUDE.md → Build & Test](../../../CLAUDE.md#build--test-single-source-of-truth). Maven path: `adapters/driven/persistence`. Single test example: `mvn -pl adapters/driven/persistence -am test -Dtest=TradeLoanFacilityRepositoryAdapterTest`.
 
-### Query Repository Port
+No `src/main/resources` in this module — Liquibase changesets and `application*.yml` live in the `container` module. `@EnableJpaRepositories` / `@EntityScan` are anchored on `ir.dotin.loan.trade.adapters.driven.persistence` via `config/LoanPersistenceConfiguration`.
 
-Ports return Query Models from application layer:
-
-```java
-// Location: core/application/ports/driven/query/loanfacility/
-package ir.dotin.loan.trade.core.application.ports.inbound.query.loanfacility;
-
-public interface FacilityQueryRepository {
-    Optional<FacilityQueryModel> findById(UUID facilityId);
-    
-    FacilitySearchQueryModel searchByCriteria(
-        FacilitySearchCriteria criteria,
-        PageRequest pageRequest
-    );
-    
-    Optional<OutstandingBalanceQueryModel> calculateOutstanding(
-        UUID facilityId,
-        LocalDate asOfDate
-    );
-}
-```
-
-### Query Adapter Implementation
-
-#### Structure
-```
-adapters/driven/persistence/loanfacility/query/
-├── JpaFacilityQueryAdapter.java              # Implements QueryPort
-├── SpringDataFacilityQueryRepository.java    # Spring Data JPA
-├── mapper/
-│   └── FacilityQueryModelMapper.java         # Entity → QueryModel (app layer)
-└── specification/
-    └── FacilitySpecification.java
-```
-
-#### Query Adapter Pattern
-
-Adapter **reuses existing entities** and maps to application Query Models:
-
-```java
-// Location: adapters/driven/persistence/loanfacility/query/
-package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query;
-
-@Repository
-@Transactional(readOnly = true)
-public class JpaFacilityQueryAdapter implements FacilityQueryRepository {
-    
-    // Reuse existing JPA repository
-    private final TradeLoanFacilityJpaRepository jpaRepository;
-    private final InstallmentJpaRepository installmentRepository;
-    
-    // Mapper: Entity → QueryModel (from application layer)
-    private final FacilityQueryModelMapper queryModelMapper;
-    
-    @Override
-    public Optional<FacilityQueryModel> findById(UUID facilityId) {
-        return jpaRepository.findById(facilityId)
-            .map(queryModelMapper::toQueryModel);  // Entity → QueryModel
-    }
-    
-    @Override
-    public FacilitySearchQueryModel searchByCriteria(
-        FacilitySearchCriteria criteria,
-        PageRequest pageRequest
-    ) {
-        Specification<TradeLoanFacilityEntity> spec = 
-            FacilitySpecification.fromCriteria(criteria);
-        
-        Pageable pageable = toSpringPageable(pageRequest);
-        Page<TradeLoanFacilityEntity> page = jpaRepository.findAll(spec, pageable);
-        
-        // Map existing entities to query models
-        List<FacilityQueryModel> models = page.getContent()
-            .stream()
-            .map(queryModelMapper::toQueryModel)
-            .toList();
-        
-        return new FacilitySearchQueryModel(
-            models,
-            page.getTotalElements(),
-            page.getTotalPages(),
-            page.getNumber()
-        );
-    }
-    
-    @Override
-    public Optional<OutstandingBalanceQueryModel> calculateOutstanding(
-        UUID facilityId,
-        LocalDate asOfDate
-    ) {
-        Optional<TradeLoanFacilityEntity> facilityOpt = 
-            jpaRepository.findById(facilityId);
-        
-        if (facilityOpt.isEmpty()) return Optional.empty();
-        
-        TradeLoanFacilityEntity facility = facilityOpt.get();
-        
-        // Use existing installment repository
-        List<InstallmentEntity> installments = 
-            installmentRepository.findByFacilityIdAndDueDateBefore(
-                facilityId, asOfDate
-            );
-        
-        // Calculate using entities
-        BigDecimal principal = installments.stream()
-            .filter(i -> !"PAID".equals(i.getStatus()))
-            .map(InstallmentEntity::getPrincipalAmount)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
-        BigDecimal interest = installments.stream()
-            .filter(i -> !"PAID".equals(i.getStatus()))
-            .map(InstallmentEntity::getInterestAmount)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
-        // Build query model
-        OutstandingBalanceQueryModel model = new OutstandingBalanceQueryModel();
-        model.setFacilityId(facilityId);
-        model.setPrincipalOutstanding(principal);
-        model.setInterestOutstanding(interest);
-        model.setTotalOutstanding(principal.add(interest));
-        model.setCurrency(facility.getCurrency());
-        model.setCalculationDate(asOfDate);
-        
-        return Optional.of(model);
-    }
-    
-    private Pageable toSpringPageable(PageRequest pageRequest) {
-        Sort sort = Sort.unsorted();
-        if (pageRequest.sortBy() != null) {
-            sort = "DESC".equalsIgnoreCase(pageRequest.direction()) 
-                ? Sort.by(pageRequest.sortBy()).descending()
-                : Sort.by(pageRequest.sortBy()).ascending();
-        }
-        return org.springframework.data.domain.PageRequest.of(
-            pageRequest.page(), 
-            pageRequest.size(), 
-            sort
-        );
-    }
-}
-```
-
-### Mapping Strategy
-
-#### Entity → QueryModel Mapper (in persistence adapter)
-
-Maps existing JPA entities to application Query Models:
-
-```java
-// Location: adapters/driven/persistence/loanfacility/query/mapper/
-package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query.mapper;
-
-@Mapper(componentModel = "spring")
-public interface FacilityQueryModelMapper {
-    
-    // Map entity to QueryModel (from application layer)
-    FacilityQueryModel toQueryModel(TradeLoanFacilityEntity entity);
-    
-    List<FacilityQueryModel> toQueryModels(List<TradeLoanFacilityEntity> entities);
-}
-```
-
-#### QueryModel → DTO Mapper (in application layer)
-
-```java
-// Location: core/application/query/loanfacility/mapper/
-package ir.dotin.loan.trade.core.application.query.loanfacility.mapper;
-
-@Mapper(componentModel = "spring")
-public interface FacilityDTOMapper {
-    
-    @Mapping(target = "customer", source = ".")
-    @Mapping(target = "requestedAmount", source = ".")
-    @Mapping(target = "arrangement", source = ".")
-    TradeFacilityDTO toDTO(FacilityQueryModel model);
-    
-    default CustomerDTO toCustomerDTO(FacilityQueryModel model) {
-        return new CustomerDTO(
-            model.getCustomerId(),
-            model.getCustomerName(),
-            model.getCustomerNationalId()
-        );
-    }
-    
-    default MoneyDTO toMoneyDTO(FacilityQueryModel model) {
-        return new MoneyDTO(
-            model.getRequestedAmount(),
-            model.getCurrency()
-        );
-    }
-}
-```
-
-### Key Principles
-
-1. **Reuse existing entities**: No duplicate read models in persistence layer
-2. **Query Models in application**: Defined once in core/application/query
-3. **Adapter responsibility**: Map Entity → QueryModel using existing entities
-4. **Handler responsibility**: Map QueryModel → DTO in application layer
-5. **No domain entities in queries**: Entities stay in persistence adapter
-
-### JPA Specifications for Complex Queries
-
-```java
-// Location: adapters/driven/persistence/loanfacility/query/specification/
-package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query.specification;
-
-public class FacilitySpecification {
-    
-    public static Specification<TradeLoanFacilityEntity> fromCriteria(
-        FacilitySearchCriteria criteria
-    ) {
-        return (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            
-            Optional.ofNullable(criteria.facilityCode())
-                .ifPresent(code -> predicates.add(
-                    cb.like(cb.lower(root.get("facilityCode")), 
-                        "%" + code.toLowerCase() + "%")
-                ));
-            
-            Optional.ofNullable(criteria.customerNationalId())
-                .ifPresent(nid -> predicates.add(
-                    cb.equal(root.get("customer").get("nationalId"), nid)
-                ));
-            
-            Optional.ofNullable(criteria.status())
-                .ifPresent(status -> predicates.add(
-                    cb.equal(root.get("status"), status)
-                ));
-            
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-    }
-}
-```
-
-### Query Optimization
-
-#### Custom JPQL with Existing Entities
-
-```java
-// Add to existing Spring Data repository
-public interface TradeLoanFacilityJpaRepository 
-    extends JpaRepository<TradeLoanFacilityEntity, UUID>,
-            JpaSpecificationExecutor<TradeLoanFacilityEntity> {
-    
-    // Query methods for query adapter
-    @Query("""
-        SELECT f FROM TradeLoanFacilityEntity f
-        LEFT JOIN FETCH f.arrangement
-        LEFT JOIN FETCH f.customer
-        WHERE f.id = :facilityId
-    """)
-    Optional<TradeLoanFacilityEntity> findByIdWithDetails(
-        @Param("facilityId") UUID facilityId
-    );
-    
-    @Query("""
-        SELECT f FROM TradeLoanFacilityEntity f
-        WHERE f.status = 'ACTIVE'
-        AND EXISTS (
-            SELECT 1 FROM InstallmentEntity i
-            WHERE i.facilityId = f.id
-            AND i.dueDate < :asOfDate
-            AND i.status != 'PAID'
-        )
-    """)
-    List<TradeLoanFacilityEntity> findOverdueFacilities(
-        @Param("asOfDate") LocalDate asOfDate
-    );
-}
-```
-
-#### Caching in Adapter
-
-```java
-@Repository
-@Transactional(readOnly = true)
-public class JpaFacilityQueryAdapter implements FacilityQueryRepository {
-    
-    @Override
-    @Cacheable(value = "facilityById", key = "#facilityId")
-    public Optional<FacilityQueryModel> findById(UUID facilityId) {
-        return jpaRepository.findByIdWithDetails(facilityId)
-            .map(queryModelMapper::toQueryModel);
-    }
-}
-```
-
-### Complete Package Structure
+## Package Layout (by aggregate)
 
 ```
-core/application/query/loanfacility/
-├── GetFacilityByIdQuery.java
-├── GetFacilityByIdQueryHandler.java
-├── model/                                    # Query Models (application layer)
-│   ├── FacilityQueryModel.java
-│   ├── FacilitySearchQueryModel.java
-│   └── OutstandingBalanceQueryModel.java
-├── mapper/                                   # QueryModel → DTO
-│   └── FacilityDTOMapper.java
-└── dto/
-    └── TradeFacilityDTO.java
-
-adapters/driven/persistence/loanfacility/query/
-├── JpaFacilityQueryAdapter.java              # Implements port
-├── mapper/
-│   └── FacilityQueryModelMapper.java         # Entity → QueryModel
-└── specification/
-    └── FacilitySpecification.java
-
-adapters/driven/persistence/loanfacility/      # Reuse existing
-├── TradeLoanFacilityJpaRepository.java       # Add query methods
-└── entity/
-    └── TradeLoanFacilityEntity.java          # Existing entity
+ir.dotin.loan.trade.adapters.driven.persistence
+├── config/                  # LoanPersistenceConfiguration, RedisConfig, ResilientCacheErrorHandler
+├── embdeddable/             # JPA @Embeddable VOs (note: typo'd dir name — keep as-is)
+├── mapper/                  # BaseMapperConfig, ValueObjectMapper (shared MapStruct config)
+├── shared/query/            # AbstractCursorPagingAdapter, SortBuilder (cursor pagination kit)
+├── loanfacility/            # TradeLoanFacility aggregate
+│   ├── entity/              # JPA entities (+ TradeLoanFacilityOutboxEventEntity)
+│   ├── mapper/              # Entity ↔ domain, outbox event mapper
+│   ├── repository/          # Spring Data JpaRepository + outbox repo
+│   ├── query/               # JpaFacilityQueryAdapter + JpaApplicationNumberResolver
+│   ├── TradeLoanFacilityRepositoryAdapter.java   # implements outbound command port
+│   └── TradeLoanFacilityOutboxHandler.java       # platform OutboxHandler<E, M>
+├── loanarrangement/         # same layout (+ projection/)
+├── loantype/                # same layout (+ projection/)
+└── installmentschedule/     # same layout
 ```
 
-**Key Benefits:**
-- Single source of entities (no duplication)
-- Query Models centralized in application layer
-- Clear separation: adapter maps Entity→QueryModel, handler maps QueryModel→DTO
-- Existing repositories extended for query needs
+Per-aggregate convention is mandatory: each aggregate gets its own `entity/ mapper/ repository/ query/` plus a top-level `*RepositoryAdapter` and `*OutboxHandler`. Do not flatten or share packages across aggregates.
 
+## Adapter Patterns
+
+**Command repository adapter** — implements outbound port from `core/application/ports/outbound/command/repository/`:
+- `@Repository @Transactional(readOnly = true)` at class level; override with `@Transactional` on mutating methods (`save`, `delete`).
+- `@RequiredArgsConstructor` + `final` deps (Lombok).
+- Returns domain types only (e.g. `TradeLoanFacility`). Map entity ↔ domain via a MapStruct mapper using `BaseMapperConfig`.
+- `requireNonNull(arg, "...")` guards on every public method.
+- Some methods return `ir.dotin.platform.commons.core.Result<T>` — preserve that signature; do not change to `Optional` or raw throws.
+
+**Query adapter** — implements query port from `core/application/query/.../port/`:
+- Reuses the same JPA entities as the command side (single source of truth — no separate read entities).
+- Maps `Entity → QueryModel` (query models live in the application-query module).
+- Cursor pagination → extend `shared/query/AbstractCursorPagingAdapter`; sort spec → `SortBuilder`.
+- Use projections (`*/projection/`) for narrow lookups (e.g. `TradeLoanTypeIdProjection`) to avoid loading full graphs.
+
+**Outbox handler** — implements `ir.dotin.platform.adapter.messaging.persistence.handler.OutboxHandler<E, M>`:
+- One per aggregate; `aggregateType()` returns the aggregate-root class.
+- Owns its own `*OutboxEventEntity` + `*OutboxRepository` + `*OutboxEventMapper`.
+- Backed by `platform-outbox-data-jpa`. Do not write your own polling/dispatch.
+
+**Embeddables** — all value objects of an aggregate are persisted as `@Embeddable` types in `embdeddable/` (sic — keep the spelling, renaming would churn imports across the repo). Naming: `<DomainName>Emb.java`.
+
+## Caching (Redis)
+
+`config/RedisConfig` builds a Lettuce + Sentinel `RedisConnectionFactory` and `RedisCacheManager` gated by `@ConditionalOnProperty`. `ResilientCacheErrorHandler` swallows Redis errors so a cache outage does not break command paths — keep that behavior; do not propagate cache exceptions to the domain.
+
+Add `@Cacheable` only on query adapters (read-only). Never cache aggregate writes.
+
+## Dependency Rules (this module)
+
+- Implements ports from: `core/application/ports/outbound`, `core/application/query`.
+- May depend on: `core/domain`, `base-loan` domain VOs (e.g. `LoanFacilityId`, `ApplicationNumber`), platform libs (`platform-spring-boot-starter-persistence-jpa`, `platform-outbox-data-jpa`, `platform-envelope-api`, `expression-kit-infrastructure`).
+- Must NOT depend on: any driving adapter, `container`, `core/application/service` implementations, `core/application/ports/inbound`.
+- Architecture compliance is enforced by ArchUnit in the root `architecture-tests` module — run those before pushing structural changes.
+
+## Anti-Corruption Boundary
+
+Legacy/external terms (e.g. `fileNumber`) must not appear here. Domain terms only (`applicationNumber`). If a query needs to resolve a legacy identifier, do it in a dedicated resolver in `query/` (see `JpaApplicationNumberResolver`) and expose only the domain ID upstream.

@@ -49,6 +49,32 @@ Read its `CLAUDE.md` before touching any wire contract.
 | Topic names (string-for-string match)  | Consul keys `nova.fcb.kafka.*`                                                          | ZooKeeper `OperationCategory.NOVA_*`                                                  |
 | Nova-owned event publish (outbox)      | NOT here — table only, in container Liquibase                                           | `outbox/NovaOutboxPoller`                                                             |
 
+## Package layout
+
+Base package `ir.dotin.loan.trade.adapters.driven.fcbmessaging`:
+
+- `service/` — port implementations + the Kafka client. Entry points:
+  `FcbKafkaClient` (request/reply), `FcbAccountKafkaAdapter`,
+  `FcbTransactionKafkaAdapter`, `FcbValidationKafkaAdapter` (each `implements`
+  an outbound port).
+- `config/` — Spring config + `@ConfigurationProperties`: `FcbKafkaConfig`
+  (templates + manual-assign reply container), `FcbKafkaProperties`,
+  `FcbKafkaTopicBindings`, `FcbReplyPartitionResolver`, `FcbResilienceConfig`.
+- `health/` — active probe stack: `FcbHealthProbe`, `FcbHealthGate`,
+  `FcbPartitionHealthRegistry`, `FcbKafkaReadinessIndicator`,
+  `FcbHealthAutoConfig`, `FcbHealthMetrics`, `FcbHealthProperties`,
+  `HealthActorProperties`.
+- `metrics/` — `FcbRequestReplyMetrics` (Micrometer).
+- `dto/` — wire DTOs. `FcbKafkaBaseRequest` (the `@JsonSubTypes` registry) and
+  `FcbKafkaBaseResponse` sit at the root; concrete payloads under
+  `dto/request/` and `dto/reply/`.
+- `mapper/` — translate domain ⇄ wire DTO: `KafkaTransactionMapper`,
+  `KafkaAccountMapper`, `KafkaValidationMapper`, `KafkaErrorCodeMapper`,
+  `ArticleMetadataMapper`, `LoanTransactionMerger`, `DocumentMerger`.
+- `exception/` — `FcbKafkaException`, `FcbClientException`,
+  `FcbServerException`, `FcbSerializationException`.
+- `util/` — `HostResolver` (stamps `X-Host`).
+
 ## Build, test, run
 
 - Maven multi-module. This module's POM only depends on `platform-spring-boot-starter-messaging-kafka`,
@@ -60,6 +86,9 @@ Read its `CLAUDE.md` before touching any wire contract.
   ```bash
   mvn -pl adapters/driven/fcb-messaging -am test -Dtest=FcbKafkaClientTest#shouldFoo
   ```
+  Note: `src/test` is currently empty in this module — the command above is the
+  form to use once tests are added; new tests belong under
+  `src/test/java/ir/dotin/loan/trade/adapters/driven/fcbmessaging/...`.
 - The Spring profile `kafka-fcb` must be active for any of this module's beans to
   materialise.
 
