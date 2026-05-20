@@ -53,4 +53,10 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
     CMD curl -f http://127.0.0.1:8080/actuator/health || exit 1
 
+# Default JVM tuning for Java 25 — perf baseline for the trade-loan full-lifecycle saga.
+# Generational ZGC + huge pages + pre-touch + slim stacks (virtual-thread-friendly).
+# Override JAVA_OPTS at runtime to extend or replace; keep flags conservative — anything
+# experimental for the chosen JDK build needs `-XX:+UnlockExperimentalVMOptions` first.
+ENV JAVA_OPTS="-XX:+UseZGC -XX:+ZGenerational -XX:+UseTransparentHugePages -XX:+AlwaysPreTouch -XX:MaxRAMPercentage=75 -Xss512k -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/heapdump.hprof"
+
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS --enable-native-access=ALL-UNNAMED -jar app.jar"]
