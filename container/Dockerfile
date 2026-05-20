@@ -54,9 +54,14 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
     CMD curl -f http://127.0.0.1:8080/actuator/health || exit 1
 
 # Default JVM tuning for Java 25 — perf baseline for the trade-loan full-lifecycle saga.
-# Generational ZGC + huge pages + pre-touch + slim stacks (virtual-thread-friendly).
-# Override JAVA_OPTS at runtime to extend or replace; keep flags conservative — anything
-# experimental for the chosen JDK build needs `-XX:+UnlockExperimentalVMOptions` first.
-ENV JAVA_OPTS="-XX:+UseZGC -XX:+ZGenerational -XX:+UseTransparentHugePages -XX:+AlwaysPreTouch -XX:MaxRAMPercentage=75 -Xss512k -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/heapdump.hprof"
+# Profile: ~100k loan applications/day with high short-lived object churn.
+# Generational ZGC is the GC of choice (young-gen collects business-transaction garbage
+# cheaply; old-gen handles caches + JIT artifacts). Transparent huge pages + AlwaysPreTouch
+# keep page-fault tail-latency out of the request path. UseStringDeduplication trims the
+# heap for repeated JSON/Jira-style strings flowing through the saga. -Xss512k matches the
+# virtual-thread default and keeps thread-stack memory bounded under high concurrency.
+# Heap sizing is left to container resources.limits.memory — no MaxRAMPercentage cap.
+# Override JAVA_OPTS at runtime to extend or replace.
+ENV JAVA_OPTS="-XX:+UseZGC -XX:+ZGenerational -XX:+UseTransparentHugePages -XX:+AlwaysPreTouch -XX:+UseStringDeduplication -Xss512k -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/heapdump.hprof"
 
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS --enable-native-access=ALL-UNNAMED -jar app.jar"]
