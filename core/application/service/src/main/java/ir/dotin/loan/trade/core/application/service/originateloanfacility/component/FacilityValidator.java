@@ -31,6 +31,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.response.*;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.samat.ValidateSamatPort;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
 
+import io.opentelemetry.context.Context;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,7 +45,8 @@ public class FacilityValidator {
     private final AccountServicePort accountServicePort;
     private final ValidateSamatPort validateSamatPort;
 
-    private static final ExecutorService VIRTUAL_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
+    private static final ExecutorService VIRTUAL_EXECUTOR =
+            Context.taskWrapping(Executors.newVirtualThreadPerTaskExecutor());
 
     public Result<Void> callAndValidateServices(OriginateLoanFacilityCommand command) {
         log.debug("Call and validate services for facility origination");

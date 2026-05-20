@@ -40,7 +40,11 @@ public class FcbKafkaReadinessIndicator implements HealthIndicator {
                         .build();
             }
 
-            Health.Builder builder = Health.down();
+            // During warm-up the indicator returns UNKNOWN (Spring maps to HTTP 200) so that
+            // external HTTP probes hitting the default /actuator/health do not flip to 503
+            // while FCB Kafka partitions are still settling. The readiness group still
+            // reflects the not-yet-UP state via the same indicator.
+            Health.Builder builder = Health.unknown();
             if (!hasAssignment) {
                 builder.withDetail("reason", "Awaiting Kafka metadata/assignment");
             } else {

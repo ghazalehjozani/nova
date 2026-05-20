@@ -14,6 +14,7 @@
     <include file="db/changelog/framework/v2026.3.0/001-create-shedlock.xml"/>
     <include file="db/changelog/framework/v2026.3.0/002-create-dead-letter-tables.xml"/>
     <include file="db/changelog/framework/v2026.3.0/003-create-saga-tables.xml"/>
+    <include file="db/changelog/framework/v2026.3.0/004-create-saga-idempotency-table.xml"/>
     <include file="db/changelog/framework/v2026.3.0/004-create-command-audit.xml"/>
     <include file="db/changelog/changes/001-create-formula-definitions.xml"/>
     <include file="db/changelog/db.changelog-inbox.xml"/>

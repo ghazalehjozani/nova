@@ -29,6 +29,7 @@ import ir.dotin.loan.trade.core.application.service.originateloanfacility.strate
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 
+import io.opentelemetry.context.Context;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,7 +42,8 @@ public class DependencyLoader {
     private final TradeLoanTypeRepository tradeLoanTypeRepository;
     private final CustomerServicePort customerServicePort;
 
-    private static final ExecutorService VIRTUAL_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
+    private static final ExecutorService VIRTUAL_EXECUTOR =
+            Context.taskWrapping(Executors.newVirtualThreadPerTaskExecutor());
 
     public Result<FacilityOriginationContext> loadDependencies(OriginateLoanFacilityCommand command) {
         log.debug("Loading dependencies for facility origination");
