@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import jakarta.validation.constraints.NotNull;
 
 import org.jspecify.annotations.Nullable;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -63,6 +64,7 @@ public class FcbValidationKafkaAdapter
     private final FcbKafkaProperties properties;
 
     @Override
+    @Cacheable(value = "fcb.economical-sector-by-code", unless = "#result.hasErrors()")
     public Result<EconomicSector> loadEconomicalSectorByCode(EconomicSector economicSector) {
         return sendAndMap(
                 LoadEconomicSectorRequest.builder()
@@ -73,6 +75,7 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @Cacheable(value = "fcb.economical-sector", unless = "#result.hasErrors()")
     public Result<EconomicalSectorResponse> loadEconomicalSector(EconomicSector economicSector) {
         return sendAndMap(
                 LoadEconomicSectorRequest.builder()
@@ -83,6 +86,7 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @Cacheable(value = "fcb.sector-for-loan-type", unless = "#result.hasErrors()")
     public Result<EconomicalSectorValidation> validateEconomicalSectorForLoanType(
             EconomicSector economicSector, LoanTypeCode loanTypeCode) {
         return sendAndMap(
@@ -95,6 +99,7 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @Cacheable(value = "fcb.reason-type", unless = "#result.hasErrors()")
     public Result<ReasonType> loadReasonTypeForCreate(String reasonTypeCode) {
         return sendAndMap(
                 LoadReasonTypeForCreateRequest.builder()
@@ -115,6 +120,7 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @Cacheable(value = "fcb.resource", unless = "#result.hasErrors()")
     public Result<SubSource> loadResourceByCode(String subSourceCode) {
         return sendAndMap(
                 LoadResourceRequest.builder().resourceCode(subSourceCode).build(),
