@@ -62,6 +62,6 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
 # virtual-thread default and keeps thread-stack memory bounded under high concurrency.
 # Heap sizing is left to container resources.limits.memory — no MaxRAMPercentage cap.
 # Override JAVA_OPTS at runtime to extend or replace.
-ENV JAVA_OPTS="-XX:+UseZGC -XX:+ZGenerational -XX:+UseTransparentHugePages -XX:+AlwaysPreTouch -XX:+UseStringDeduplication -Xss512k -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/heapdump.hprof"
+ENV JAVA_OPTS="-XX:+UseZGC -XX:+UseTransparentHugePages -XX:+AlwaysPreTouch -XX:+UseStringDeduplication -Xss512k -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/heapdump.hprof"
 
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS --enable-native-access=ALL-UNNAMED -jar app.jar"]

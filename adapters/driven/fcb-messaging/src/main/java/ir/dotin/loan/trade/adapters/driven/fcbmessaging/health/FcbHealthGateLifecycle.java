@@ -3,11 +3,9 @@ package ir.dotin.loan.trade.adapters.driven.fcbmessaging.health;
 import org.springframework.context.SmartLifecycle;
 
 /**
- * Drives Spring Boot's readiness state: not "running" until the FCB partition health
- * probe has reported at least one successful cycle. Combined with
- * {@link FcbHealthGate}'s fail-closed startup mode, this prevents requests from being
- * admitted (and the readiness probe from flipping to UP) before the broker is known
- * reachable.
+ * Drives Spring Boot's readiness state: not "running" until the FCB partition health probe has reported at least one
+ * successful cycle. Combined with {@link FcbHealthGate}'s fail-closed startup mode, this prevents requests from being
+ * admitted (and the readiness probe from flipping to UP) before the broker is known reachable.
  */
 public final class FcbHealthGateLifecycle implements SmartLifecycle {
 

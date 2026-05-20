@@ -83,11 +83,6 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
     }
 
     @Override
-    public boolean allowBreakpoints() {
-        return true;
-    }
-
-    @Override
     public ExecutionStrategy executionStrategy() {
         return ExecutionStrategy.STOP_ON_STEP;
     }

@@ -1,7 +1,5 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.health;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.time.Clock;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class FcbHealthGateModeTest {
 
