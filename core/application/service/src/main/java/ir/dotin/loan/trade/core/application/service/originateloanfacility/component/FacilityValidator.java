@@ -2,9 +2,6 @@ package ir.dotin.loan.trade.core.application.service.originateloanfacility.compo
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -14,6 +11,7 @@ import ir.dotin.platform.accounting.document.api.model.AccountNumber;
 import ir.dotin.platform.accounting.document.api.model.DepositNumber;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.concurrent.ParallelFanout;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Samat;
@@ -31,7 +29,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.response.*;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.samat.ValidateSamatPort;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
 
-import io.opentelemetry.context.Context;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,37 +43,24 @@ public class FacilityValidator {
     private final AccountServicePort accountServicePort;
     private final ValidateSamatPort validateSamatPort;
 
-    private static final ExecutorService VIRTUAL_EXECUTOR =
-            Context.taskWrapping(Executors.newVirtualThreadPerTaskExecutor());
-
+    @WithSpan("facility.validate.fanout")
     public Result<Void> callAndValidateServices(OriginateLoanFacilityCommand command) {
         log.debug("Call and validate services for facility origination");
 
-        var futures = List.of(
-                runAsync(() -> validateDeposit(command)),
-                runAsync(() -> validateAccountNumber(command)),
-                runAsync(() -> isDepositClosed(command)),
-                runAsync(() -> validateEconomicalSector(command)),
-                runAsync(() -> validateEconomicalSectionForLoanType(command)),
-                runAsync(() -> validateDebtorDeposit(command)),
-                runAsync(() -> validateCreditorDeposit(command)),
-                runAsync(() -> validateSubSource(command)),
-                runAsync(() -> validateDepositCurrency(command)),
-                runAsync(() -> validateSamat(command)),
-                runAsync(() -> validateRequestReason(command)));
+        List<Supplier<Result<Void>>> tasks = List.of(
+                () -> validateDeposit(command),
+                () -> validateAccountNumber(command),
+                () -> isDepositClosed(command),
+                () -> validateEconomicalSector(command),
+                () -> validateEconomicalSectionForLoanType(command),
+                () -> validateDebtorDeposit(command),
+                () -> validateCreditorDeposit(command),
+                () -> validateSubSource(command),
+                () -> validateDepositCurrency(command),
+                () -> validateSamat(command),
+                () -> validateRequestReason(command));
 
-        CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
-
-        Notification aggregatedNotification = Notification.create();
-        for (var future : futures) {
-            aggregatedNotification.merge(future.join().notification());
-        }
-
-        return aggregatedNotification.hasErrors() ? Result.failure(aggregatedNotification) : Result.success();
-    }
-
-    private CompletableFuture<Result<Void>> runAsync(Supplier<Result<Void>> supplier) {
-        return CompletableFuture.supplyAsync(supplier, VIRTUAL_EXECUTOR);
+        return ParallelFanout.allVoid(tasks);
     }
 
     private Result<Void> validateDeposit(OriginateLoanFacilityCommand command) {

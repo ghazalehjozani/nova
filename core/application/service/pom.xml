@@ -34,6 +34,14 @@
       <groupId>ir.dotin.platform</groupId>
       <artifactId>expression-kit-service</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-context</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry.instrumentation</groupId>
+      <artifactId>opentelemetry-instrumentation-annotations</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.springframework</groupId>
