@@ -48,11 +48,19 @@ public class FcbHealthProperties {
 
     private boolean failOpenOnUnknown = true;
 
+    @NotNull
+    private StartupMode startupMode = StartupMode.FAIL_CLOSED;
+
     private String heartbeatOperationName = "heartbeat";
 
     private String producerCode = "NOVA";
 
     private List<String> legacyConsumerGroupIds;
+
+    public enum StartupMode {
+        FAIL_OPEN,
+        FAIL_CLOSED
+    }
 
     @PostConstruct
     void validateThresholds() {

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.stereotype.Component;
 
@@ -48,9 +49,11 @@ public class FcbPartitionHealthRegistry {
     private final ConcurrentMap<Integer, PartitionState> partitions = new ConcurrentHashMap<>();
     private volatile Set<Integer> healthySet = Set.of();
     private volatile List<Integer> healthyOrdered = List.of();
+    private final AtomicBoolean firstSuccessfulCycle = new AtomicBoolean(false);
 
     public void recordSuccess(int partition) {
         applyOutcome(partition, true);
+        firstSuccessfulCycle.compareAndSet(false, true);
     }
 
     public void recordFailure(int partition) {
@@ -120,6 +123,10 @@ public class FcbPartitionHealthRegistry {
 
     public int totalKnown() {
         return partitions.size();
+    }
+
+    public boolean hasReachedFirstSuccessfulCycle() {
+        return firstSuccessfulCycle.get();
     }
 
     public boolean anyPartitionStillWarming() {

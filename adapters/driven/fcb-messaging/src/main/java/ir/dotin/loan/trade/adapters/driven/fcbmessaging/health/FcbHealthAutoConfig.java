@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 
@@ -40,5 +41,17 @@ public class FcbHealthAutoConfig {
         return Gauge.builder("fcb.kafka.partitions.known", partitions, FcbPartitionHealthRegistry::totalKnown)
                 .description("Total partitions tracked by FCB health probe")
                 .register(registry);
+    }
+
+    @Bean
+    public Counter fcbHealthGateDeniedCounter(MeterRegistry registry) {
+        return Counter.builder("nova.fcb.health_gate.denied_total")
+                .description("Requests denied by FcbHealthGate (closed or warming-up fail-closed)")
+                .register(registry);
+    }
+
+    @Bean
+    public FcbHealthGateLifecycle fcbHealthGateLifecycle(FcbPartitionHealthRegistry registry) {
+        return new FcbHealthGateLifecycle(registry);
     }
 }
