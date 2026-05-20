@@ -26,6 +26,10 @@
         <artifactId>spring-boot-starter-cache</artifactId>
     </dependency>
     <dependency>
+        <groupId>com.github.ben-manes.caffeine</groupId>
+        <artifactId>caffeine</artifactId>
+    </dependency>
+    <dependency>
         <artifactId>trade-loan-core-application-query</artifactId>
         <groupId>ir.dotin.loan</groupId>
     </dependency>
