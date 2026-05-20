@@ -267,6 +267,11 @@ grep-verified across both repos:
 Grep both repos for the symbol before editing. When working across both repos, start
 from `/home/m.amirabdollahi/workspaces` so relative paths line up.
 
+**Breaking wire change ⇒ new `.vN+1` topic** on both sides (see pangaea
+`documents/adr/ADR-0021.kafka-topic-versioning-policy.md`). Do not gate on
+per-message version headers; topic-versioning is the only sanctioned
+mechanism.
+
 ## Commit message convention
 
 Format observed on this branch (`git log --oneline -30`):
