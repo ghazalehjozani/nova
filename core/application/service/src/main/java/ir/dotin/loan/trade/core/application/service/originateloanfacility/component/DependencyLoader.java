@@ -3,10 +3,10 @@ package ir.dotin.loan.trade.core.application.service.originateloanfacility.compo
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Stream;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.function.Supplier;
 import jakarta.validation.constraints.NotNull;
 
 import org.jspecify.annotations.Nullable;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.concurrent.ParallelFanout;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
@@ -29,7 +30,7 @@ import ir.dotin.loan.trade.core.application.service.originateloanfacility.strate
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 
-import io.opentelemetry.context.Context;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,49 +43,74 @@ public class DependencyLoader {
     private final TradeLoanTypeRepository tradeLoanTypeRepository;
     private final CustomerServicePort customerServicePort;
 
-    private static final ExecutorService VIRTUAL_EXECUTOR =
-            Context.taskWrapping(Executors.newVirtualThreadPerTaskExecutor());
-
+    @WithSpan("facility.dependencies.fanout")
     public Result<FacilityOriginationContext> loadDependencies(OriginateLoanFacilityCommand command) {
         log.debug("Loading dependencies for facility origination");
 
-        var arrangementFuture = CompletableFuture.supplyAsync(
-                () -> safeLoadArrangement(command.loanArrangementCode()), VIRTUAL_EXECUTOR);
+        AtomicReference<TradeLoanArrangement> arrangementRef = new AtomicReference<>();
+        AtomicReference<TradeLoanType> loanTypeRef = new AtomicReference<>();
 
-        var loanTypeFuture =
-                CompletableFuture.supplyAsync(() -> safeLoadLoanType(command.loanTypeCode()), VIRTUAL_EXECUTOR);
+        Set<PartyDto> partySet = command.loanApplication().parties();
+        List<PartyDto> parties = new ArrayList<>(partySet);
+        int partyCount = parties.size();
+        AtomicReferenceArray<PartyInfoResponse> partyRefs = new AtomicReferenceArray<>(partyCount);
 
-        var partyFutures = command.loanApplication().parties().stream()
-                .map(partyDto -> CompletableFuture.supplyAsync(
-                        () -> {
-                            BigDecimal percentage = partyDto instanceof PartyDto.GuarantorDto guarantor
-                                    ? guarantor.guaranteePercentage()
-                                    : null;
-                            return loadCustomerInfo(partyDto.customerNumber(), partyDto.role(), percentage);
-                        },
-                        VIRTUAL_EXECUTOR))
-                .toList();
+        List<Supplier<Result<Void>>> tasks = new ArrayList<>(partyCount + 2);
 
-        CompletableFuture.allOf(Stream.concat(Stream.of(arrangementFuture, loanTypeFuture), partyFutures.stream())
-                        .toArray(CompletableFuture[]::new))
-                .join();
+        tasks.add(() -> {
+            Result<TradeLoanArrangement> r = safeLoadArrangement(command.loanArrangementCode());
+            if (r.hasErrors()) {
+                return Result.failure(r.notification());
+            }
+            if (r.hasValue()) {
+                arrangementRef.set(r.value());
+            }
+            return Result.success();
+        });
 
-        var arrangementResult = arrangementFuture.join();
-        var loanTypeResult = loanTypeFuture.join();
-        var partiesResult = aggregatePartyResults(partyFutures);
+        tasks.add(() -> {
+            Result<TradeLoanType> r = safeLoadLoanType(command.loanTypeCode());
+            if (r.hasErrors()) {
+                return Result.failure(r.notification());
+            }
+            if (r.hasValue()) {
+                loanTypeRef.set(r.value());
+            }
+            return Result.success();
+        });
 
-        var notification = Notification.create()
-                .merge(arrangementResult.notification())
-                .merge(loanTypeResult.notification())
-                .merge(partiesResult.notification());
+        for (int i = 0; i < partyCount; i++) {
+            final int idx = i;
+            final PartyDto partyDto = parties.get(i);
+            tasks.add(() -> {
+                BigDecimal percentage =
+                        partyDto instanceof PartyDto.GuarantorDto guarantor ? guarantor.guaranteePercentage() : null;
+                Result<PartyInfoResponse> r = loadCustomerInfo(partyDto.customerNumber(), partyDto.role(), percentage);
+                if (r.hasErrors()) {
+                    return Result.failure(r.notification());
+                }
+                if (r.hasValue()) {
+                    partyRefs.set(idx, r.value());
+                }
+                return Result.success();
+            });
+        }
 
-        if (notification.hasErrors()) {
-            return Result.failure(notification);
+        Result<Void> fanout = ParallelFanout.allVoid(tasks);
+        if (fanout.hasErrors()) {
+            return Result.failure(fanout.notification());
+        }
+
+        List<PartyInfoResponse> partiesValue = new ArrayList<>(partyCount);
+        for (int i = 0; i < partyCount; i++) {
+            PartyInfoResponse p = partyRefs.get(i);
+            if (p != null) {
+                partiesValue.add(p);
+            }
         }
 
         log.debug("Successfully loaded all dependencies");
-        return Result.success(new FacilityOriginationContext(
-                arrangementResult.value(), loanTypeResult.value(), partiesResult.value()));
+        return Result.success(new FacilityOriginationContext(arrangementRef.get(), loanTypeRef.get(), partiesValue));
     }
 
     private Result<TradeLoanArrangement> safeLoadArrangement(String code) {
@@ -112,21 +138,5 @@ public class DependencyLoader {
             String customerNumber, @NotNull PartyRole role, @Nullable BigDecimal guaranteePercentage) {
         return customerServicePort.loadCustomerInfo(
                 customerNumber, role, guaranteePercentage, CustomerInfoLoadOptions.baseInfoOnly());
-    }
-
-    private Result<List<PartyInfoResponse>> aggregatePartyResults(
-            List<CompletableFuture<Result<PartyInfoResponse>>> futures) {
-        var parties = new ArrayList<PartyInfoResponse>(futures.size());
-        var notification = Notification.create();
-
-        for (var future : futures) {
-            var result = future.join();
-            notification.merge(result.notification());
-            if (result.hasValue()) {
-                parties.add(result.value());
-            }
-        }
-
-        return notification.hasErrors() ? Result.failure(notification) : Result.success(parties);
     }
 }
