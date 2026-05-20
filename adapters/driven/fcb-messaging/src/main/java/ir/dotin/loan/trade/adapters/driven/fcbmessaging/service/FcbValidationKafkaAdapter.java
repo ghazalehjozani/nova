@@ -45,6 +45,8 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.request.Custom
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.*;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.samat.ValidateSamatPort;
 
+import io.micrometer.core.annotation.Timed;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -65,6 +67,10 @@ public class FcbValidationKafkaAdapter
 
     @Override
     @Cacheable(value = "fcb.economical-sector-by-code", unless = "#result.hasErrors()")
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "loadEconomicalSectorByCode"})
     public Result<EconomicSector> loadEconomicalSectorByCode(EconomicSector economicSector) {
         return sendAndMap(
                 LoadEconomicSectorRequest.builder()
@@ -76,6 +82,10 @@ public class FcbValidationKafkaAdapter
 
     @Override
     @Cacheable(value = "fcb.economical-sector", unless = "#result.hasErrors()")
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "loadEconomicalSector"})
     public Result<EconomicalSectorResponse> loadEconomicalSector(EconomicSector economicSector) {
         return sendAndMap(
                 LoadEconomicSectorRequest.builder()
@@ -87,6 +97,10 @@ public class FcbValidationKafkaAdapter
 
     @Override
     @Cacheable(value = "fcb.sector-for-loan-type", unless = "#result.hasErrors()")
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "validateEconomicalSectorForLoanType"})
     public Result<EconomicalSectorValidation> validateEconomicalSectorForLoanType(
             EconomicSector economicSector, LoanTypeCode loanTypeCode) {
         return sendAndMap(
@@ -100,6 +114,10 @@ public class FcbValidationKafkaAdapter
 
     @Override
     @Cacheable(value = "fcb.reason-type", unless = "#result.hasErrors()")
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "loadReasonTypeForCreate"})
     public Result<ReasonType> loadReasonTypeForCreate(String reasonTypeCode) {
         return sendAndMap(
                 LoadReasonTypeForCreateRequest.builder()
@@ -110,6 +128,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "loadReasonTypeForRevoke"})
     public Result<ReasonType> loadReasonTypeForRevoke(String reasonTypeCode) {
         return sendAndMap(
                 LoadReasonTypeForRevokeRequest.builder()
@@ -121,6 +143,10 @@ public class FcbValidationKafkaAdapter
 
     @Override
     @Cacheable(value = "fcb.resource", unless = "#result.hasErrors()")
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "loadResourceByCode"})
     public Result<SubSource> loadResourceByCode(String subSourceCode) {
         return sendAndMap(
                 LoadResourceRequest.builder().resourceCode(subSourceCode).build(),
@@ -129,6 +155,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "loadTopicByCode"})
     public Result<List<TopicInfo>> loadTopicByCode(List<String> topicCodes) {
         return sendAndMap(
                 LoadTopicRequest.builder().topicCodes(topicCodes).build(),
@@ -137,6 +167,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "loadCoveredBranches"})
     public Result<List<BranchCode>> loadCoveredBranches(BranchCode branchCode) {
         return sendAndMap(
                 LoadCoveredBranchesRequest.builder()
@@ -147,6 +181,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "getApplicationNumber"})
     public Result<ApplicationNumber> getApplicationNumber(Branch branch, LoanTypeCode loanTypeCode, Party party) {
         var request = GetApplicationNumberRequest.builder()
                 .branchCode(branch.code().value())
@@ -168,6 +206,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "loadBranch"})
     public Result<BranchDetails> loadBranch(BranchCode branchCode) {
         return sendAndMap(
                 LoadBranchRequest.builder().branchCode(branchCode.value()).build(),
@@ -176,6 +218,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "loadCustomerInfo"})
     public Result<PartyInfoResponse> loadCustomerInfo(
             String customerNumber,
             @NotNull PartyRole role,
@@ -205,6 +251,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "findRelatedCustomers"})
     public Result<List<PartyInfoResponse>> findRelatedCustomers(List<String> customerNumbers) {
         return sendAndMap(
                 FindRelatedCustomersRequest.builder()
@@ -215,6 +265,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "loadCustomerBirthInfo"})
     public Result<PartyBirthInfo> loadCustomerBirthInfo(String customerNumber) {
         return sendAndMap(
                 LoadCustomerBirthInfoRequest.builder()
@@ -225,6 +279,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "getDepositInfo"})
     public Result<DepositInfo> getDepositInfo(DepositNumber depositNumber) {
         return sendAndMap(
                 LoadDepositInfoRequest.builder()
@@ -235,6 +293,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "isDepositClosed"})
     public Result<DepositClosedStatus> isDepositClosed(DepositNumber depositNumber, CurrencyType currencyType) {
         return sendAndMap(
                 IsDepositClosedRequest.builder()
@@ -246,6 +308,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "validateDebtorDeposit"})
     public Result<DebtorDepositValidation> validateDebtorDeposit(
             DepositNumber depositNumber, CurrencyType currencyType) {
         return sendAndMap(
@@ -258,6 +324,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "validateCreditorDeposit"})
     public Result<CreditorDepositValidation> validateCreditorDeposit(
             DepositNumber depositNumber, CurrencyType currencyType, BigDecimal amount) {
         return sendAndMap(
@@ -271,6 +341,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "hasDepositAllowedCurrencies"})
     public Result<CurrencyValidation> hasDepositAllowedCurrencies(
             DepositNumber depositNumber, List<CurrencyType> currencyTypes) {
         List<String> currencies =
@@ -285,6 +359,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "getAllDepositSignerOwnerCustomer"})
     public Result<List<PartyInfoResponse>> getAllDepositSignerOwnerCustomer(String depositNumber) {
         return sendAndMap(
                 GetDepositSignerOwnerRequest.builder()
@@ -295,6 +373,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "validateAddAssuranceToFile"})
     public Result<CollateralValidation> validateAddAssuranceToFile(
             List<CollateralSerial> collateralSerials, List<Long> usedCosts, BranchCode branchCode) {
         List<String> serials =
@@ -311,6 +393,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "reserveCollateral"})
     public Result<List<CollateralSerial>> reserveCollateral(
             CollateralSerial collateralSerial,
             ApplicationNumber applicationNumber,
@@ -330,6 +416,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "loadCollateral"})
     public Result<CollateralDetails> loadCollateral(String assuranceSerial, String uniqueTrackingCode) {
         return sendAndMap(
                 LoadCollateralRequest.builder()
@@ -341,6 +431,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "unReserveCollateral"})
     public Result<CollateralSerial> unReserveCollateral(
             CollateralSerial collateralSerial,
             ApplicationNumber applicationNumber,
@@ -362,6 +456,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "fetchBySanctionSerial"})
     public Result<SanctionDetails> fetchBySanctionSerial(String sanctionSerial) {
         return sendAndMap(
                 FetchSanctionDetailsRequest.builder()
@@ -372,6 +470,10 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "validateSamat"})
     public Result<Void> validateSamat(Samat samat, String loanTypeCode, String economicalSectionCode) {
         ValidateSamatRequest samatRequest = ValidateSamatRequest.builder()
                 .consumptionPlaceCode(samat.consumptionPlaceCode())

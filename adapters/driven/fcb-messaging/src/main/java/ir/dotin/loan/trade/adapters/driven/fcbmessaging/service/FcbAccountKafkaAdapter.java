@@ -24,6 +24,8 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CreateAccountInfo;
 
+import io.micrometer.core.annotation.Timed;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,6 +40,10 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
     private final AuthenticationContextHolder authenticationContextHolder;
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "openAccount"})
     public Result<AccountInfo> openAccount(LoanTopic loanTopic, String currencyCode) {
         var branchOpt = authenticationContextHolder.branchCode();
         if (branchOpt.isEmpty()) {
@@ -58,6 +64,10 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "openAccount"})
     public Result<AccountId> openAccount(CreateAccountInfo info) {
         var request = OpenAccountRequest.builder()
                 .transactionId(info.transactionId())
@@ -80,6 +90,10 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "deleteAccount"})
     public Result<AccountNumber> deleteAccount(UUID transactionId, UUID rollBackId, AccountNumber accountNumber) {
         var request = DeleteAccountRequest.builder()
                 .accountNumber(accountNumber != null ? accountNumber.accountNumber() : null)
@@ -91,6 +105,10 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "validateAccountNumber"})
     public Result<AccountNumber> validateAccountNumber(String accountNumber) {
         return sendAndMap(
                 ValidateAccountNumberRequest.builder()
@@ -100,6 +118,10 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "findOrCreateAccount"})
     public Result<AccountInfo> findOrCreateAccount(LoanTopic loanTopic) {
         return sendAndMap(
                 FindOrCreateAccountRequest.builder()
@@ -110,6 +132,10 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "findAccountById"})
     public Result<AccountInfo> findAccountById(AccountId accountId) {
         log.debug("findAccountById called for accountId={}   not yet implemented via Kafka", accountId.value());
         return Result.success();

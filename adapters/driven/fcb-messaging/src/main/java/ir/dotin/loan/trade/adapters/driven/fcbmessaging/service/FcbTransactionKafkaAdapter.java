@@ -22,6 +22,8 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.LoanTransactionMe
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 
+import io.micrometer.core.annotation.Timed;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,6 +38,10 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
     private final Clock clock;
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "postTransaction"})
     public Result<TrackedTransactionNumber> postTransaction(LoanTransaction loanTransaction) {
         UUID trackingId = UUID.randomUUID();
         log.info(
@@ -72,6 +78,10 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "postTransactions"})
     public Result<List<TrackedTransactionNumber>> postTransactions(
             LoanFacilityId facilityId, String documentComment, List<LoanTransaction> transactionsToPost) {
         if (transactionsToPost == null || transactionsToPost.isEmpty()) {
@@ -101,6 +111,10 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
     }
 
     @Override
+    @WithSpan
+    @Timed(
+            value = "fcb.outbound",
+            extraTags = {"op", "reverseTransaction"})
     public Result<Void> reverseTransaction(TrackedTransactionNumber transactionNumber) {
         log.debug("Reversing transaction via Kafka - {}", transactionNumber.value());
 
