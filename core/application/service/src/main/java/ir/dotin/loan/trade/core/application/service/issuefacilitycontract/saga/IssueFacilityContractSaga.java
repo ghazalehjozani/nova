@@ -86,11 +86,6 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
     }
 
     @Override
-    public long timeoutMillis() {
-        return SagaDefinition.super.timeoutMillis();
-    }
-
-    @Override
     public List<SagaStep<IssueFacilityContractSagaData, ?>> steps() {
         return List.of(
                 SagaSteps.readOnlyStep(IssueFacilityContractStep.VALIDATE_FACILITY, this::validateFacility)

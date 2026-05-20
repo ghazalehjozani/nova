@@ -92,9 +92,14 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
         return ExecutionStrategy.STOP_ON_STEP;
     }
 
+    /**
+     * Long-running multi-phase saga (originate → submit → approve → collateral → contract → disbursements). 30-minute
+     * cap is 6× the framework default; revisit after Week 1 baseline. Overrun triggers compensation and persists
+     * terminal state {@code TIMED_OUT}.
+     */
     @Override
-    public long timeoutMillis() {
-        return SagaDefinition.super.timeoutMillis();
+    public Optional<Duration> sagaTimeoutDuration() {
+        return Optional.of(Duration.ofMinutes(30));
     }
 
     @Override
