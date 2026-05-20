@@ -24,6 +24,11 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.messaging.api.header.MessagingHeaderNames;
+import ir.dotin.platform.messaging.api.version.ContractVersion;
+import ir.dotin.platform.messaging.api.version.ContractVersionEnforcer;
+import ir.dotin.platform.messaging.api.version.ContractVersionRegistry;
+import ir.dotin.platform.messaging.api.version.VersionSkewDecision;
 import ir.dotin.platform.envelope.api.AccountabilityIdentity;
 import ir.dotin.platform.envelope.api.AccountabilityType;
 import ir.dotin.platform.envelope.api.ActorEnvelope;
@@ -228,6 +233,8 @@ public class FcbKafkaClient {
         ProducerRecord<String, byte[]> record =
                 new ProducerRecord<>(properties.getRequestTopic(), request.getEventUid(), requestBytes);
 
+        ContractVersion requestVersion = ContractVersionRegistry.requireAnnotation(request.getClass());
+
         record.headers()
                 .add(new RecordHeader(HEADER_OPERATION_TYPE, operationType.getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(HEADER_EVENT_UID, request.getEventUid().getBytes(StandardCharsets.UTF_8)))
@@ -246,6 +253,12 @@ public class FcbKafkaClient {
                         Long.toString(deadlineMs).getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(
                         HEADER_HOST, HostResolver.resolveHostName().getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader(
+                        MessagingHeaderNames.CONTRACT_VERSION,
+                        Integer.toString(requestVersion.value()).getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader(
+                        MessagingHeaderNames.MIN_CONSUMER_VERSION,
+                        Integer.toString(requestVersion.minConsumerVersion()).getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(
                         KafkaHeaders.REPLY_TOPIC, properties.getReplyTopic().getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(
@@ -282,6 +295,11 @@ public class FcbKafkaClient {
             throw new FcbSerializationException("Failed to deserialize response: " + e.getMessage());
         }
 
+        Result<FcbKafkaBaseResponse> versionCheck = verifyReplyContractVersion(replyRecord, response, operationType);
+        if (versionCheck != null) {
+            return versionCheck;
+        }
+
         if (response.isError()) {
             String errorCode = response.getErrorCode() != null ? response.getErrorCode() : "UNKNOWN";
             String errorMessage = response.getErrorMessage() != null ? response.getErrorMessage() : "No error message";
@@ -296,6 +314,47 @@ public class FcbKafkaClient {
         }
 
         return Result.success(response);
+    }
+
+    private Result<FcbKafkaBaseResponse> verifyReplyContractVersion(
+            ConsumerRecord<String, byte[]> replyRecord, FcbKafkaBaseResponse response, String operationType) {
+
+        ContractVersion responseVersion = ContractVersionRegistry.requireAnnotation(response.getClass());
+        Integer producerVersion = readIntHeader(replyRecord, MessagingHeaderNames.CONTRACT_VERSION);
+        Integer minConsumerVersion = readIntHeader(replyRecord, MessagingHeaderNames.MIN_CONSUMER_VERSION);
+
+        VersionSkewDecision decision = ContractVersionEnforcer.decide(
+                producerVersion,
+                minConsumerVersion,
+                responseVersion.value(),
+                responseVersion.minProducerVersion());
+
+        if (decision == VersionSkewDecision.ACCEPT) {
+            return null;
+        }
+
+        requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_OTHER);
+        return Result.failure(Notification.ofError(
+                CoreBankingErrors.KAFKA_FCB_VERSION_MISMATCH,
+                decision.name(),
+                operationType,
+                producerVersion == null ? "null" : producerVersion.toString()));
+    }
+
+    private static Integer readIntHeader(ConsumerRecord<String, byte[]> record, String name) {
+        var header = record.headers().lastHeader(name);
+        if (header == null || header.value() == null) {
+            return null;
+        }
+        String value = new String(header.value(), StandardCharsets.UTF_8).trim();
+        if (value.isEmpty()) {
+            return null;
+        }
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private String buildBearerHeader(OAuth2TokenResponse token) {

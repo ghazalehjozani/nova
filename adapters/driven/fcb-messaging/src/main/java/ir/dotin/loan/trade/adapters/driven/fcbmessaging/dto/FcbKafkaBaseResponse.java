@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import ir.dotin.platform.messaging.api.version.ContractVersion;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.AccountInfoKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ApplicationNumberKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.BranchCodeListKafkaResponse;
@@ -67,6 +68,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ValidationResu
     @JsonSubTypes.Type(value = SimpleSuccessKafkaResponse.class, name = "cancel-transfer-money-loan"),
     @JsonSubTypes.Type(value = HeartbeatKafkaResponse.class, name = "heartbeat")
 })
+@ContractVersion(1)
 public abstract class FcbKafkaBaseResponse {
 
     private String correlationId;

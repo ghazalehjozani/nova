@@ -79,7 +79,11 @@ public enum CoreBankingErrors implements ProductErrorCode<CoreBankingErrors> {
     KAFKA_COMMUNICATION_ERROR(PlatformErrorCategory.INTEGRATION, 2, "Kafka communication error: {0}"),
     KAFKA_BROKER_UNAVAILABLE(PlatformErrorCategory.INTEGRATION, 3, "Kafka broker is unavailable: {0}"),
     KAFKA_SERIALIZATION_ERROR(
-            PlatformErrorCategory.INTEGRATION, 4, "Failed to serialize/deserialize Kafka message: {0}");
+            PlatformErrorCategory.INTEGRATION, 4, "Failed to serialize/deserialize Kafka message: {0}"),
+    KAFKA_FCB_VERSION_MISMATCH(
+            PlatformErrorCategory.INTEGRATION,
+            5,
+            "FCB reply contract version is incompatible with consumer. reason={0}, operation={1}, producerVersion={2}");
 
     private final ErrorCategory category;
     private final int sequence;
