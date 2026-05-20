@@ -24,11 +24,6 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.messaging.api.header.MessagingHeaderNames;
-import ir.dotin.platform.messaging.api.version.ContractVersion;
-import ir.dotin.platform.messaging.api.version.ContractVersionEnforcer;
-import ir.dotin.platform.messaging.api.version.ContractVersionRegistry;
-import ir.dotin.platform.messaging.api.version.VersionSkewDecision;
 import ir.dotin.platform.envelope.api.AccountabilityIdentity;
 import ir.dotin.platform.envelope.api.AccountabilityType;
 import ir.dotin.platform.envelope.api.ActorEnvelope;
@@ -40,6 +35,11 @@ import ir.dotin.platform.envelope.api.ExecutionTrigger;
 import ir.dotin.platform.envelope.api.InitiatorIdentity;
 import ir.dotin.platform.envelope.api.InitiatorSource;
 import ir.dotin.platform.envelope.api.InitiatorType;
+import ir.dotin.platform.messaging.api.header.MessagingHeaderNames;
+import ir.dotin.platform.messaging.api.version.ContractVersion;
+import ir.dotin.platform.messaging.api.version.ContractVersionEnforcer;
+import ir.dotin.platform.messaging.api.version.ContractVersionRegistry;
+import ir.dotin.platform.messaging.api.version.VersionSkewDecision;
 import ir.dotin.platform.security.api.AuthenticationContextHolder;
 import ir.dotin.platform.security.api.OAuth2TokenResponse;
 import ir.dotin.platform.security.api.ServiceTokenProvider;
@@ -198,6 +198,19 @@ public class FcbKafkaClient {
             String signedEnvelope)
             throws Exception {
 
+        io.micrometer.tracing.Span hop = null;
+        Tracer.SpanInScope hopScope = null;
+        if (tracer != null) {
+            hop = tracer.spanBuilder()
+                    .name("fcb-legacy " + operationType)
+                    .kind(io.micrometer.tracing.Span.Kind.CLIENT)
+                    .tag("peer.service", "fcb-legacy")
+                    .tag("messaging.system", "kafka")
+                    .tag("messaging.operation", "request_reply")
+                    .tag("messaging.destination.name", properties.getRequestTopic())
+                    .start();
+            hopScope = tracer.withSpan(hop);
+        }
         long startNanos = System.nanoTime();
         boolean success = false;
         try {
@@ -205,10 +218,21 @@ public class FcbKafkaClient {
                     doExecuteRequest(request, operationType, timeout, bearerValue, signedEnvelope);
             success = result.isSuccess();
             return result;
+        } catch (Exception t) {
+            if (hop != null) {
+                hop.error(t);
+            }
+            throw t;
         } finally {
             String outcome = success ? FcbRequestReplyMetrics.OUTCOME_SUCCESS : FcbRequestReplyMetrics.OUTCOME_FAILURE;
             requestReplyMetrics.recordMatchDuration(
                     operationType, Duration.ofNanos(System.nanoTime() - startNanos), outcome);
+            if (hopScope != null) {
+                hopScope.close();
+            }
+            if (hop != null) {
+                hop.end();
+            }
         }
     }
 
@@ -324,10 +348,7 @@ public class FcbKafkaClient {
         Integer minConsumerVersion = readIntHeader(replyRecord, MessagingHeaderNames.MIN_CONSUMER_VERSION);
 
         VersionSkewDecision decision = ContractVersionEnforcer.decide(
-                producerVersion,
-                minConsumerVersion,
-                responseVersion.value(),
-                responseVersion.minProducerVersion());
+                producerVersion, minConsumerVersion, responseVersion.value(), responseVersion.minProducerVersion());
 
         if (decision == VersionSkewDecision.ACCEPT) {
             return null;

@@ -67,6 +67,12 @@
         <artifactId>lombok</artifactId>
         <scope>provided</scope>
     </dependency>
+
+    <!-- Tracing API for FCB-legacy attribute tagging on inbound server spans -->
+    <dependency>
+        <groupId>io.micrometer</groupId>
+        <artifactId>micrometer-tracing</artifactId>
+    </dependency>
   </dependencies>
 
 </project>
