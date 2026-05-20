@@ -5,9 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.function.Supplier;
 
 import org.springframework.stereotype.Service;
 
@@ -15,11 +13,13 @@ import ir.dotin.platform.accounting.document.api.enumeration.RelationType;
 import ir.dotin.platform.accounting.document.api.model.AccountId;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.concurrent.ParallelFanout;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ResolvedAccounts;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.AccountServicePort;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,8 +30,7 @@ public class AccountResolutionService {
 
     private final AccountServicePort accountServicePort;
 
-    private final Executor executor = Executors.newVirtualThreadPerTaskExecutor();
-
+    @WithSpan("account.resolve.fanout")
     public Result<ResolvedAccounts> resolveAccounts(
             Set<LoanTopic> requiredTopics, Map<RelationType<?>, AccountId> existingAccounts, String currencyCode) {
 
@@ -56,20 +55,21 @@ public class AccountResolutionService {
             return Result.success(new ResolvedAccounts(resolved));
         }
 
-        List<CompletableFuture<TopicResult>> futures = topicsToProcess.stream()
-                .map(topic -> CompletableFuture.supplyAsync(
-                        () -> new TopicResult(
-                                topic,
-                                accountServicePort
-                                        .openAccount(topic, currencyCode)
-                                        .map(AccountInfo::id)),
-                        executor))
+        List<Supplier<Result<TopicResult>>> tasks = topicsToProcess.stream()
+                .map(topic -> (Supplier<Result<TopicResult>>) () -> {
+                    Result<AccountId> inner =
+                            accountServicePort.openAccount(topic, currencyCode).map(AccountInfo::id);
+                    return Result.success(new TopicResult(topic, inner));
+                })
                 .toList();
 
-        Notification notification = Notification.create();
+        Result<List<TopicResult>> fan = ParallelFanout.allOf(tasks);
+        if (fan.hasErrors()) {
+            return Result.failure(fan.notification());
+        }
 
-        for (var future : futures) {
-            TopicResult tr = future.join();
+        Notification notification = Notification.create();
+        for (TopicResult tr : fan.value()) {
             if (tr.result().hasErrors()) {
                 notification.merge(tr.result().notification());
             } else {
