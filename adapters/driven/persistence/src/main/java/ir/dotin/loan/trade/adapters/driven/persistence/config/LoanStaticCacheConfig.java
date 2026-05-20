@@ -35,7 +35,10 @@ public class LoanStaticCacheConfig {
     @Bean
     public CaffeineCacheManager caffeineLoanCacheManager() {
         CaffeineCacheManager mgr = new CaffeineCacheManager(STATIC_CACHE_NAMES.toArray(String[]::new));
-        mgr.setCaffeine(Caffeine.newBuilder().maximumSize(10_000).expireAfterWrite(Duration.ofSeconds(30)));
+        mgr.setCaffeine(Caffeine.newBuilder()
+                .maximumSize(10_000)
+                .expireAfterWrite(Duration.ofSeconds(30))
+                .recordStats());
         return mgr;
     }
 
