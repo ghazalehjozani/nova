@@ -8,14 +8,12 @@ import java.util.Map;
 import java.util.Set;
 
 import ir.dotin.platform.messaging.api.command.CommandPayload;
-import ir.dotin.platform.messaging.api.version.ContractVersion;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 
 import lombok.Builder;
 
 @Builder(toBuilder = true)
-@ContractVersion(1)
 public record FullLoanFacilityLifecycleMessage(
         Long version,
         String loanTypeCode,

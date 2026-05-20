@@ -6,9 +6,7 @@ import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.messaging.api.command.CommandPayload;
-import ir.dotin.platform.messaging.api.version.ContractVersion;
 
-@ContractVersion(1)
 public record ClosePaidOffCompensateMessage(
         String producerCode,
         String eventUid,

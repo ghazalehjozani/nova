@@ -5,7 +5,6 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import ir.dotin.platform.messaging.api.version.ContractVersion;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.DeleteAccountRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.FetchSanctionDetailsRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.FindOrCreateAccountRequest;
@@ -85,7 +84,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@ContractVersion(1)
 public abstract class FcbKafkaBaseRequest {
 
     private String operationName;
