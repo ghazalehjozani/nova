@@ -12,6 +12,8 @@ import java.util.concurrent.TimeoutException;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.retry.RetryException;
@@ -64,6 +66,8 @@ import tools.jackson.databind.ObjectMapper;
 @Component
 @Profile("kafka-fcb")
 public class FcbKafkaClient {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FcbKafkaClient.class);
 
     private static final String HEADER_OPERATION_TYPE = "X-Operation-Type";
     private static final String HEADER_EVENT_UID = "eventUid";
@@ -351,6 +355,18 @@ public class FcbKafkaClient {
                 producerVersion, minConsumerVersion, responseVersion.value(), responseVersion.minProducerVersion());
 
         if (decision == VersionSkewDecision.ACCEPT) {
+            return null;
+        }
+
+        // Rolling-deploy tolerance: a legacy FCB instance that has not yet been redeployed
+        // emits replies without Contract-Version headers. Treat MISSING_VERSION_HEADER as
+        // ACCEPT so we don't break in-flight sagas during a Nova-ahead-of-FCB upgrade
+        // window. STALE_PRODUCER / STALE_CONSUMER stay strict — those require the header
+        // to be present, so they only fire after FCB starts stamping it.
+        if (decision == VersionSkewDecision.MISSING_VERSION_HEADER) {
+            LOG.warn(
+                    "FCB reply missing Contract-Version header — accepting (assumed legacy peer). operation={}",
+                    operationType);
             return null;
         }
 
