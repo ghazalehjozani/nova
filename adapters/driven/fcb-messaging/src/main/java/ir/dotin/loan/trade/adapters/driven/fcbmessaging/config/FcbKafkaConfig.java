@@ -10,6 +10,8 @@ import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +33,8 @@ import ir.dotin.platform.messaging.kafka.spi.KafkaListenerContainerFactoryProvid
 @Profile("kafka-fcb")
 @EnableConfigurationProperties(FcbKafkaProperties.class)
 public class FcbKafkaConfig {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FcbKafkaConfig.class);
 
     public static final String FCB_PRODUCER_FACTORY = "fcbProducerFactory";
     public static final String FCB_REPLY_CONSUMER_FACTORY = "fcbReplyConsumerFactory";
@@ -103,8 +107,29 @@ public class FcbKafkaConfig {
 
     @Bean(FCB_INTEGRATION_REPLY_PARTITION)
     public int fcbIntegrationReplyPartition(FcbKafkaProperties properties, MessagingProperties messagingProperties) {
+        warnIfPartitionsTooFewForExpectedInstances(
+                properties.getReplyTopicPartitions(), properties.getExpectedMaxInstances());
         return FcbReplyPartitionResolver.resolve(
                 messagingProperties.getKafka().getInstanceId(), properties.getReplyTopicPartitions());
+    }
+
+    /**
+     * Emits a startup WARN when the reply topic has fewer partitions than the expected pod count, since
+     * partition-per-instance routing then forces two pods onto one partition (correctness preserved by the correlation
+     * header; throughput on the shared partition degrades). No-op unless {@code expectedMaxInstances > 0}, so the check
+     * is disabled by default and existing behaviour is unchanged when the hint is unset.
+     */
+    private static void warnIfPartitionsTooFewForExpectedInstances(int partitionCount, int expectedMaxInstances) {
+        if (expectedMaxInstances > 0 && partitionCount < expectedMaxInstances) {
+            LOG.warn(
+                    "FCB-REPLY-PARTITION: reply-topic-partitions={} is smaller than expected-max-instances={}; "
+                            + "with partition-per-instance routing, pods beyond partition {} will collide on a shared "
+                            + "reply partition. Provision reply-topic-partitions >= expected-max-instances on the broker "
+                            + "(and match FCB's OperationCategory.NOVA_* config).",
+                    partitionCount,
+                    expectedMaxInstances,
+                    partitionCount - 1);
+        }
     }
 
     @Bean(FCB_HEALTH_REPLY_PARTITION)
@@ -177,6 +202,12 @@ public class FcbKafkaConfig {
         return template;
     }
 
+    /**
+     * General whole-reply-topic container backing {@link #replyingKafkaTemplate}. Subscribes the entire integration
+     * reply topic (no partition pin), in a per-instance consumer group, so the actor-envelope JWKS-over-Kafka
+     * request/reply can receive its reply regardless of partition. Replies are correlation-id matched, so multiple
+     * instances each receiving a copy is correct (just mildly redundant) — JWKS fetches are infrequent.
+     */
     @Bean(GENERAL_REPLIES_CONTAINER)
     public ConcurrentMessageListenerContainer<String, byte[]> generalRepliesContainer(
             @Qualifier(FCB_REPLY_CONSUMER_FACTORY) ConsumerFactory<String, byte[]> fcbReplyConsumerFactory,
@@ -194,6 +225,15 @@ public class FcbKafkaConfig {
         return container;
     }
 
+    /**
+     * DO NOT REMOVE / DO NOT RENAME. Although the FCB request/reply client uses
+     * {@link #FCB_INTEGRATION_REPLYING_TEMPLATE} and the probe uses {@link #FCB_HEALTH_REPLYING_TEMPLATE}, this third
+     * {@code ReplyingKafkaTemplate} is consumed cross-repo by pangaea's
+     * {@code ActorEnvelopeAutoConfiguration.envelopeKafkaJwksFetcher}, which injects it BY PARAMETER NAME
+     * ({@code replyingKafkaTemplate}) for the actor-envelope JWKS-over-Kafka fetch. Removing it leaves two
+     * {@code ReplyingKafkaTemplate} candidates and the by-name injection can no longer disambiguate → context fails to
+     * start ("required a single bean, but 2 were found"). A repo-local grep does not reveal this consumer.
+     */
     @Bean("replyingKafkaTemplate")
     public ReplyingKafkaTemplate<String, byte[], byte[]> replyingKafkaTemplate(
             @Qualifier(FCB_PRODUCER_FACTORY) ProducerFactory<String, byte[]> fcbProducerFactory,

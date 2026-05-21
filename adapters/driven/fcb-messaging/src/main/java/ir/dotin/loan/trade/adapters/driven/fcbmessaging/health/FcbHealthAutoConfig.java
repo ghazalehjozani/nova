@@ -50,8 +50,8 @@ public class FcbHealthAutoConfig {
                 .register(registry);
     }
 
-    @Bean
-    public FcbHealthGateLifecycle fcbHealthGateLifecycle(FcbPartitionHealthRegistry registry) {
-        return new FcbHealthGateLifecycle(registry);
-    }
+    // FcbHealthGateLifecycle removed: pod readiness/liveness are intentionally DECOUPLED from FCB reachability.
+    // FCB-dependent requests still fail fast via FcbHealthGate.checkPermitted (call-time), and FCB Kafka health
+    // remains observable via the fcbKafkaReadiness indicator (informational `deps` group only, not the orchestrator
+    // probe groups) plus the fcb.kafka.partitions.* gauges. An FCB outage must never deregister the Nova fleet.
 }

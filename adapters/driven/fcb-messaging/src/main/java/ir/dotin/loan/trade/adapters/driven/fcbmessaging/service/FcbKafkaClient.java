@@ -71,6 +71,13 @@ public class FcbKafkaClient {
     private static final String ACCEPT_LANGUAGE_FA = "fa";
     private static final String PRODUCER_CODE = "NOVA";
 
+    /**
+     * Floor for a per-attempt reply timeout. If less than this remains in the total wall-time budget, the attempt is
+     * not started (sending with a sub-100ms reply window would almost certainly time out anyway and just waste a round
+     * trip to the broker).
+     */
+    private static final Duration MIN_ATTEMPT_TIMEOUT = Duration.ofMillis(100);
+
     private final ReplyingKafkaTemplate<String, byte[], byte[]> replyingKafkaTemplate;
     private final ObjectMapper objectMapper;
     private final FcbKafkaProperties properties;
@@ -120,6 +127,8 @@ public class FcbKafkaClient {
 
     public Result<FcbKafkaBaseResponse> sendAndReceive(FcbKafkaBaseRequest request, Duration timeout) {
         request.setProducerCode(PRODUCER_CODE);
+        // eventUid is generated ONCE here and reused as request key + eventUid header + Idempotency-Key on every retry
+        // attempt, so retries are idempotent on the FCB side. Do not move this into the retry body.
         request.setEventUid(UUID.randomUUID().toString());
         request.setDateTime(Date.from(ZonedDateTime.now().toInstant()));
         request.setVersion(1);
@@ -131,17 +140,57 @@ public class FcbKafkaClient {
             return Result.failure(gateDecision.notification());
         }
 
+        // Bound the TOTAL wall-clock time of this request/reply call (initial attempt + all retries + backoff). The
+        // RetryTemplate would otherwise re-pay the full per-call reply timeout on every attempt (~3x worst case). We
+        // compute a single deadline up front and shrink each retry's reply timeout to the remaining budget below.
+        long startNanos = System.nanoTime();
+        long budgetNanos = computeBudgetNanos(timeout);
+
         try {
             return retryTemplate.execute(() -> {
                 OAuth2TokenResponse token = serviceTokenProvider.getServiceToken();
                 String bearerValue = buildBearerHeader(token);
                 ActorEnvelope envelope = buildEnvelope();
                 String signedEnvelope = envelopeSigner.sign(envelope);
-                return executeRequest(request, operationType, timeout, bearerValue, signedEnvelope);
+                Duration attemptTimeout = remainingAttemptTimeout(timeout, startNanos, budgetNanos);
+                return executeRequest(request, operationType, attemptTimeout, bearerValue, signedEnvelope);
             });
         } catch (RetryException e) {
             return mapRetryException(e, operationType, timeout);
         }
+    }
+
+    /**
+     * Total wall-time budget for the whole call. Defaults to {@code perCallTimeout x retryBudgetMultiplier} (so retries
+     * add at most "one extra attempt"); an explicit positive {@code retryMaxElapsed} caps it further (whichever is
+     * smaller wins). The budget never drops below a single per-call timeout, so the initial attempt always gets its
+     * full timeout.
+     */
+    private long computeBudgetNanos(Duration timeout) {
+        long perCallNanos = timeout.toNanos();
+        long derivedNanos = (long) (perCallNanos * properties.getRetryBudgetMultiplier());
+        long budgetNanos = derivedNanos;
+        Duration cap = properties.getRetryMaxElapsed();
+        if (cap != null && !cap.isZero() && !cap.isNegative()) {
+            budgetNanos = Math.min(budgetNanos, cap.toNanos());
+        }
+        return Math.max(budgetNanos, perCallNanos);
+    }
+
+    /**
+     * Reply timeout for the current attempt: the smaller of the per-call timeout and the wall-time remaining in the
+     * budget. Throws {@link TimeoutException} (retryable, but the next budget check will also fail) when the budget is
+     * already spent, so a doomed attempt is never started — that is what prevents a retried timeout from re-paying
+     * another full per-call timeout.
+     */
+    private Duration remainingAttemptTimeout(Duration timeout, long startNanos, long budgetNanos)
+            throws TimeoutException {
+        long remainingNanos = budgetNanos - (System.nanoTime() - startNanos);
+        if (remainingNanos < MIN_ATTEMPT_TIMEOUT.toNanos()) {
+            throw new TimeoutException("FCB request/reply wall-time budget exhausted before next attempt");
+        }
+        long attemptNanos = Math.min(timeout.toNanos(), remainingNanos);
+        return Duration.ofNanos(attemptNanos);
     }
 
     private Result<FcbKafkaBaseResponse> mapRetryException(RetryException e, String operationType, Duration timeout) {

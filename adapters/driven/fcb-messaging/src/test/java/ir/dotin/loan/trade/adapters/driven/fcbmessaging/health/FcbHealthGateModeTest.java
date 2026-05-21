@@ -68,15 +68,4 @@ class FcbHealthGateModeTest {
         assertThat(gate.checkPermitted("op").isSuccess()).isTrue();
         assertThat(deniedCounter.count()).isEqualTo(0.0);
     }
-
-    @Test
-    void lifecycleReportsRunningOnlyAfterFirstSuccess() {
-        FcbHealthGateLifecycle lifecycle = new FcbHealthGateLifecycle(registry);
-
-        assertThat(lifecycle.isRunning()).isFalse();
-
-        registry.recordSuccess(0);
-
-        assertThat(lifecycle.isRunning()).isTrue();
-    }
 }

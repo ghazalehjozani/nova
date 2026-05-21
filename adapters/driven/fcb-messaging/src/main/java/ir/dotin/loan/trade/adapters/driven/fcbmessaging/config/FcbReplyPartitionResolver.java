@@ -52,6 +52,13 @@ public final class FcbReplyPartitionResolver {
                     source,
                     partitionCount);
         }
+        // Bounds invariant: floorMod(x, n) is always in [0, n) for n > 0. Assert it at startup so any future change to
+        // the derivation that breaks the invariant fails fast at bean creation instead of producing an out-of-range
+        // KafkaHeaders.REPLY_PARTITION the broker would reject at send time.
+        if (partition < 0 || partition >= partitionCount) {
+            throw new IllegalStateException("FCB-REPLY-PARTITION: resolved partition=" + partition + " out of range [0,"
+                    + partitionCount + ") for source='" + source + "'");
+        }
         return partition;
     }
 
