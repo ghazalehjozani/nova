@@ -41,8 +41,6 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaPropertie
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.HeartbeatRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.util.HostResolver;
 
-import io.micrometer.tracing.TraceContext;
-import io.micrometer.tracing.Tracer;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.ObjectMapper;
 
@@ -55,7 +53,6 @@ public class FcbHealthProbe {
     private static final String HEADER_REQUEST_TIMESTAMP_EPOCH_MS = "X-Request-Timestamp-Epoch-Ms";
     private static final String HEADER_REQUEST_DEADLINE_EPOCH_MS = "X-Request-Deadline-Epoch-Ms";
     private static final String HEADER_HOST = "X-Host";
-    private static final String HEADER_TRACEPARENT = "traceparent";
     private static final String HEADER_IDEMPOTENCY_KEY = "Idempotency-Key";
     private static final String HEADER_REQUEST_DATETIME = "X-Request-DateTime";
     private static final String HEADER_AUTHORIZATION = "Authorization";
@@ -67,7 +64,6 @@ public class FcbHealthProbe {
     private final FcbHealthProperties healthProperties;
     private final FcbPartitionHealthRegistry partitionRegistry;
     private final FcbHealthMetrics metrics;
-    private final Tracer tracer;
     private final Clock clock;
     private final ServiceTokenProvider serviceTokenProvider;
     private final ActorEnvelopeFactory envelopeFactory;
@@ -89,7 +85,6 @@ public class FcbHealthProbe {
             FcbHealthProperties healthProperties,
             FcbPartitionHealthRegistry partitionRegistry,
             FcbHealthMetrics metrics,
-            Tracer tracer,
             Clock clock,
             ServiceTokenProvider serviceTokenProvider,
             ActorEnvelopeFactory envelopeFactory,
@@ -103,7 +98,6 @@ public class FcbHealthProbe {
         this.healthProperties = healthProperties;
         this.partitionRegistry = partitionRegistry;
         this.metrics = metrics;
-        this.tracer = tracer;
         this.clock = clock;
         this.serviceTokenProvider = serviceTokenProvider;
         this.envelopeFactory = envelopeFactory;
@@ -258,7 +252,6 @@ public class FcbHealthProbe {
                                     .array()));
 
             attachAuthAndEnvelope(record);
-            addTracingHeaders(record);
 
             RequestReplyFuture<String, byte[], byte[]> future =
                     healthReplyingKafkaTemplate.sendAndReceive(record, healthProperties.getProbeTimeout());
@@ -296,14 +289,6 @@ public class FcbHealthProbe {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-    }
-
-    private void addTracingHeaders(ProducerRecord<String, byte[]> record) {
-        if (tracer == null || tracer.currentSpan() == null) return;
-        TraceContext ctx = tracer.currentSpan().context();
-        String sampledFlag = Boolean.TRUE.equals(ctx.sampled()) ? "01" : "00";
-        String traceparent = "00-" + ctx.traceId() + "-" + ctx.spanId() + "-" + sampledFlag;
-        record.headers().add(new RecordHeader(HEADER_TRACEPARENT, traceparent.getBytes(StandardCharsets.UTF_8)));
     }
 
     private void attachAuthAndEnvelope(ProducerRecord<String, byte[]> record) {

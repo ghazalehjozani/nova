@@ -88,7 +88,6 @@ public abstract class FcbKafkaBaseRequest {
 
     private String operationName;
     private String producerCode;
-    private String responseTopic;
     private String eventUid;
     private String[] tags;
     private Date dateTime;
@@ -132,14 +131,6 @@ public abstract class FcbKafkaBaseRequest {
 
     public void setVersion(int version) {
         this.version = version;
-    }
-
-    public String getResponseTopic() {
-        return responseTopic;
-    }
-
-    public void setResponseTopic(String responseTopic) {
-        this.responseTopic = responseTopic;
     }
 
     public String[] getTags() {
