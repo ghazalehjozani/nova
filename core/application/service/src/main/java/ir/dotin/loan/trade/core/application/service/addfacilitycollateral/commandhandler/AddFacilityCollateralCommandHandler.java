@@ -1,9 +1,7 @@
 package ir.dotin.loan.trade.core.application.service.addfacilitycollateral.commandhandler;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,24 +12,34 @@ import ir.dotin.platform.commons.core.Result;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.service.validator.AbstractCollateralValidationService;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
+import ir.dotin.platform.saga.api.error.SagaErrors;
+import ir.dotin.platform.saga.api.exception.SagaSuspendedException;
+import ir.dotin.platform.saga.api.model.SagaResult;
+import ir.dotin.platform.saga.api.model.StepError;
+import ir.dotin.platform.saga.api.orchestration.SagaOrchestrator;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.AddFacilityCollateralCommand;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.CollateralServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralDetails;
-import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.component.AddFacilityCollateralDependencyLoader;
 import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.component.CollateralValidationContext;
 import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.mapper.AddFacilityCollateralCommandMapper;
+import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.saga.AddFacilityCollateralInput;
+import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.saga.AddFacilityCollateralSagaData;
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
-import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
-import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilityService;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCollateralAdded;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Command handler for add-facility-collateral (LN-59321).
+ *
+ * <p>Performs the read-only pre-saga work — dependency loading, per-collateral adequacy and total-value checks — then
+ * delegates the distributed reserve + add sequence to {@code AddFacilityCollateralSaga} via the
+ * {@link SagaOrchestrator}. The {@code AddFacilityCollateralCommand} contract is unchanged, so the full-lifecycle saga
+ * and REST controller keep dispatching it as before; this handler now triggers an internal sub-saga (mirrors
+ * {@code IssueFacilityContractCommandHandler}).
+ */
 @Service
 @RequiredArgsConstructor
 public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFacilityCollateralCommand> {
@@ -39,13 +47,8 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
     private static final Logger log = LoggerFactory.getLogger(AddFacilityCollateralCommandHandler.class);
 
     private final AddFacilityCollateralCommandMapper mapper;
-    private final TradeLoanFacilityRepository repository;
-    private final TradeLoanFacilityService domainService;
     private final AddFacilityCollateralDependencyLoader dependencyLoader;
-    private final AbstractCollateralValidationService collateralValidationService;
-    private final CollateralServicePort collateralServicePort;
-
-    private static final Integer RESERVE_DURATION_MINUTES = 1440;
+    private final SagaOrchestrator<AddFacilityCollateralSagaData> sagaOrchestrator;
 
     @Override
     public Result<List<DomainEvent<?>>> handle(AddFacilityCollateralCommand command) {
@@ -55,33 +58,15 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
 
         Result<CollateralValidationContext> contextResult =
                 dependencyLoader.loadAndCalculate(loanFacilityId, collaterals);
-
         if (contextResult.isFailure()) {
             return Result.failure(contextResult.notification());
         }
         CollateralValidationContext context = contextResult.value();
         Money requiredAmount = Objects.requireNonNull(context).requiredCollateralAmount();
 
-        for (Collateral collateral : collaterals) {
-            CollateralDetails details = context.collateralDetailsMap().get(collateral.collateralSerial());
-            if (details == null) {
-                return Result.failure(Notification.ofError(
-                        TradeLoanApplicationServiceErrors.COLLATERAL_DETAILS_NOT_FOUND,
-                        collateral.collateralSerial().value()));
-            }
-
-            Money collateralUsedAmount = collateral.usedAmount();
-            Money realCollateralPrice = Money.valueOf(
-                            details.price(), context.arrangement().getCurrencyType())
-                    .orElseThrow();
-
-            Result<Void> adequacyResult = validateCollateralAdequacy(collateralUsedAmount, realCollateralPrice);
-            if (adequacyResult.isFailure()) {
-                log.warn(
-                        "Collateral adequacy validation failed for serial {}",
-                        collateral.collateralSerial().value());
-                return Result.failure(adequacyResult.notification());
-            }
+        Result<Void> adequacyResult = validateCollateralAdequacy(collaterals, context);
+        if (adequacyResult.isFailure()) {
+            return Result.failure(adequacyResult.notification());
         }
 
         Money totalNewCollateralAmount = collaterals.stream()
@@ -94,38 +79,77 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
             return Result.failure(valueValidationResult.notification());
         }
 
-        TradeLoanFacility facility = context.facility();
+        return runSaga(command);
+    }
 
-        Result<Void> reservationResult = reserveCollaterals(collaterals, facility, command.uid());
-        if (reservationResult.isFailure()) {
-            return Result.failure(reservationResult.notification());
+    private Result<List<DomainEvent<?>>> runSaga(AddFacilityCollateralCommand command) {
+        var input = AddFacilityCollateralInput.of(command.loanFacilityId(), command.uid(), command.collaterals());
+
+        SagaResult<AddFacilityCollateralSagaData> sagaResult = sagaOrchestrator.executeSaga(
+                "add-facility-collateral", input, command.uid().toString());
+
+        log.info("Saga completed: sagaId={}, success={}", sagaResult.sagaId(), sagaResult.isSuccess());
+
+        if (sagaResult.isSuspended()) {
+            var suspended = (SagaResult.Suspended<AddFacilityCollateralSagaData>) sagaResult;
+            throw new SagaSuspendedException(sagaResult.sagaId(), extractReason(sagaResult), suspended.reason());
         }
 
-        try {
-            return domainService
-                    .addCollateral(facility, collaterals)
-                    .map(v -> facility)
-                    .flatMap(f -> {
-                        var validation =
-                                collateralValidationService.validateFacilityCollaterals(f, context.arrangement());
-                        return validation.isFailure() ? Result.failure(validation.notification()) : Result.success(f);
-                    })
-                    .peekValue(f -> {
-                        repository.save(f);
-                        log.info(
-                                "{} collaterals added and reserved for facility: {}",
-                                collaterals.size(),
-                                command.loanFacilityId());
-                    })
-                    .mapNonNull(TradeLoanFacility::domainEvents);
-        } catch (Exception e) {
-            rollbackReservations(
-                    collaterals,
-                    facility.getLoanApplication().getApplicationNumber().orElseThrow(),
-                    command.uid());
-            return Result.failure(
-                    Notification.ofError(TradeLoanApplicationServiceErrors.ADD_COLLATERAL_PROCESS_COULD_NOT_COMPLETE));
+        if (sagaResult.isSuccess()) {
+            return Result.success(buildDomainEvents(sagaResult.dataOrNull()));
         }
+
+        return sagaResult
+                .error()
+                .map(this::toResult)
+                .orElseGet(
+                        () -> Result.failure(Notification.ofError(SagaErrors.COMPENSATED, extractReason(sagaResult))));
+    }
+
+    private List<DomainEvent<?>> buildDomainEvents(AddFacilityCollateralSagaData data) {
+        if (data == null
+                || data.capturedEvents() == null
+                || data.capturedEvents().isEmpty()) {
+            return List.of();
+        }
+
+        //noinspection unchecked
+        return (List<DomainEvent<?>>) (List<?>) data.capturedEvents().stream()
+                .map(eventData -> (DomainEvent<?>) new TradeLoanFacilityCollateralAdded(
+                        eventData.eventId(),
+                        eventData.aggregateId(),
+                        eventData.eventType(),
+                        eventData.sanctionedLoanId(),
+                        eventData.collateralSerials(),
+                        eventData.createdAt()))
+                .toList();
+    }
+
+    private Result<Void> validateCollateralAdequacy(List<Collateral> collaterals, CollateralValidationContext context) {
+        for (Collateral collateral : collaterals) {
+            CollateralDetails details = context.collateralDetailsMap().get(collateral.collateralSerial());
+            if (details == null) {
+                return Result.failure(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.COLLATERAL_DETAILS_NOT_FOUND,
+                        collateral.collateralSerial().value()));
+            }
+
+            Money realCollateralPrice = Money.valueOf(
+                            details.price(), context.arrangement().getCurrencyType())
+                    .orElseThrow();
+
+            if (Boolean.TRUE.equals(
+                    collateral.usedAmount().isGreaterThan(realCollateralPrice).value())) {
+                log.warn(
+                        "Collateral adequacy validation failed for serial {}",
+                        collateral.collateralSerial().value());
+                return Result.failure(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.INSUFFICIENT_COLLATERAL_VALUE,
+                        realCollateralPrice,
+                        collateral.usedAmount()));
+            }
+        }
+        return Result.success();
     }
 
     private Result<Void> validateTotalCollateralValue(Money totalValue, Money requiredAmount) {
@@ -137,46 +161,30 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
         return Result.success();
     }
 
-    private Result<Void> validateCollateralAdequacy(Money usedAmount, Money realCollateralPrice) {
-        if (Boolean.TRUE.equals(usedAmount.isGreaterThan(realCollateralPrice).value())) {
-            return Result.failure(Notification.ofError(
-                    TradeLoanApplicationServiceErrors.INSUFFICIENT_COLLATERAL_VALUE, realCollateralPrice, usedAmount));
+    private String extractReason(SagaResult<AddFacilityCollateralSagaData> sagaResult) {
+        if (sagaResult instanceof SagaResult.Compensated<AddFacilityCollateralSagaData> c) {
+            return c.reason();
         }
-        return Result.success();
+        if (sagaResult instanceof SagaResult.Failed<AddFacilityCollateralSagaData> f) {
+            return f.reason();
+        }
+        if (sagaResult instanceof SagaResult.Suspended<AddFacilityCollateralSagaData> s) {
+            return s.reason();
+        }
+        return "Unknown error";
     }
 
-    private Result<Void> reserveCollaterals(List<Collateral> collaterals, TradeLoanFacility facility, UUID requestId) {
-        List<Collateral> successfulReservations = new ArrayList<>();
-
-        if (facility.getLoanApplication().getApplicationNumber().isEmpty()) {
-            return Result.failure(Notification.ofError(TradeLoanApplicationServiceErrors.APPLICATION_NUMBER_MISSING));
-        }
-        ApplicationNumber appNumber =
-                facility.getLoanApplication().getApplicationNumber().get();
-
-        for (Collateral collateral : collaterals) {
-            Result<List<CollateralSerial>> result = collateralServicePort.reserveCollateral(
-                    collateral.collateralSerial(),
-                    appNumber,
-                    requestId,
-                    RESERVE_DURATION_MINUTES,
-                    collateral.usedAmount());
-
-            if (result.isSuccess()) {
-                successfulReservations.add(collateral);
-            } else {
-                rollbackReservations(successfulReservations, appNumber, requestId);
-                return Result.failure(result.notification());
-            }
-        }
-        return Result.success();
-    }
-
-    private void rollbackReservations(
-            List<Collateral> collateralsToRollback, ApplicationNumber appNumber, UUID requestId) {
-        for (Collateral collateral : collateralsToRollback) {
-            collateralServicePort.unReserveCollateral(
-                    collateral.collateralSerial(), appNumber, UUID.randomUUID(), requestId);
-        }
+    private Result<List<DomainEvent<?>>> toResult(StepError stepError) {
+        return switch (stepError) {
+            case StepError.BusinessRuleError bre -> Result.failure(bre.notification());
+            case StepError.ValidationError ve ->
+                Result.failure(Notification.ofError(SagaErrors.VALIDATION_FAILED, ve.message()));
+            case StepError.BusinessError be ->
+                Result.failure(Notification.ofError(SagaErrors.STEP_FAILED, be.message()));
+            case StepError.TechnicalError te ->
+                Result.failure(Notification.ofError(SagaErrors.TECHNICAL_ERROR, te.message()));
+            case StepError.TimeoutError toe ->
+                Result.failure(Notification.ofError(SagaErrors.TIMEOUT, toe.timeoutMillis()));
+        };
     }
 }
