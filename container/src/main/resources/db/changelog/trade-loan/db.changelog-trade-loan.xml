@@ -37,4 +37,7 @@
     <!-- Actor envelope columns on outbox tables (ADR-0003) -->
     <include file="db/changelog/trade-loan/v2026.5.0/002-add-actor-envelope-columns.xml"/>
 
+    <!-- Originating W3C trace context (traceparent/tracestate) on outbox tables -->
+    <include file="db/changelog/trade-loan/v2026.5.0/003-add-outbox-traceparent-columns.xml"/>
+
 </databaseChangeLog>

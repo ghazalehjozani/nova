@@ -46,7 +46,6 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.response.*;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.samat.ValidateSamatPort;
 
 import io.micrometer.core.annotation.Timed;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -67,7 +66,6 @@ public class FcbValidationKafkaAdapter
 
     @Override
     @Cacheable(value = "fcb.economical-sector-by-code", unless = "#result.hasErrors()")
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "loadEconomicalSectorByCode"})
@@ -82,7 +80,6 @@ public class FcbValidationKafkaAdapter
 
     @Override
     @Cacheable(value = "fcb.economical-sector", unless = "#result.hasErrors()")
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "loadEconomicalSector"})
@@ -97,7 +94,6 @@ public class FcbValidationKafkaAdapter
 
     @Override
     @Cacheable(value = "fcb.sector-for-loan-type", unless = "#result.hasErrors()")
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "validateEconomicalSectorForLoanType"})
@@ -114,7 +110,6 @@ public class FcbValidationKafkaAdapter
 
     @Override
     @Cacheable(value = "fcb.reason-type", unless = "#result.hasErrors()")
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "loadReasonTypeForCreate"})
@@ -128,7 +123,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "loadReasonTypeForRevoke"})
@@ -143,7 +137,6 @@ public class FcbValidationKafkaAdapter
 
     @Override
     @Cacheable(value = "fcb.resource", unless = "#result.hasErrors()")
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "loadResourceByCode"})
@@ -155,7 +148,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "loadTopicByCode"})
@@ -167,7 +159,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "loadCoveredBranches"})
@@ -181,7 +172,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "getApplicationNumber"})
@@ -206,7 +196,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "loadBranch"})
@@ -218,7 +207,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "loadCustomerInfo"})
@@ -251,7 +239,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "findRelatedCustomers"})
@@ -265,7 +252,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "loadCustomerBirthInfo"})
@@ -279,7 +265,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "getDepositInfo"})
@@ -293,7 +278,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "isDepositClosed"})
@@ -308,7 +292,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "validateDebtorDeposit"})
@@ -324,7 +307,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "validateCreditorDeposit"})
@@ -341,7 +323,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "hasDepositAllowedCurrencies"})
@@ -359,7 +340,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "getAllDepositSignerOwnerCustomer"})
@@ -373,7 +353,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "validateAddAssuranceToFile"})
@@ -393,7 +372,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "reserveCollateral"})
@@ -416,7 +394,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "loadCollateral"})
@@ -431,7 +408,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "unReserveCollateral"})
@@ -456,7 +432,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "fetchBySanctionSerial"})
@@ -470,7 +445,6 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "validateSamat"})

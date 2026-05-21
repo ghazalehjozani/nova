@@ -137,9 +137,13 @@ Pipeline (in order):
 
 `X-Operation-Type`, `eventUid`, `Idempotency-Key`, `X-Request-DateTime`,
 `Authorization`, `Accept-Language: fa`, `X-Request-Timestamp-Epoch-Ms`,
-`X-Request-Deadline-Epoch-Ms`, `X-Host`, `traceparent` (W3C, only when a span is
-active), plus the envelope codec's headers. Renaming or removing any of these is a
-contract change on **both** sides.
+`X-Request-Deadline-Epoch-Ms`, `X-Host`, `traceparent` (W3C), plus the envelope
+codec's headers. Renaming or removing any of these is a contract change on **both**
+sides. **`traceparent` is no longer hand-injected** — the `ReplyingKafkaTemplate` has
+Micrometer observation enabled (`KafkaObservationBeanPostProcessor` in the platform
+kafka starter), so Spring Kafka stamps it from the active span (same header name/format).
+`FcbKafkaClient` still opens one per-op `fcb-legacy <op>` CLIENT span; do not re-add a
+manual `addTracingHeaders`.
 
 ### Operation-name registry
 

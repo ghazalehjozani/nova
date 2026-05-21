@@ -65,7 +65,7 @@ Per-aggregate convention is mandatory: each aggregate gets its own `entity/ mapp
 
 ## Caching (Redis)
 
-`config/RedisConfig` builds a Lettuce + Sentinel `RedisConnectionFactory` and `RedisCacheManager` gated by `@ConditionalOnProperty`. `ResilientCacheErrorHandler` swallows Redis errors so a cache outage does not break command paths — keep that behavior; do not propagate cache exceptions to the domain.
+`config/RedisConfig` builds a Lettuce + Sentinel `RedisConnectionFactory` and `RedisCacheManager` gated by `@ConditionalOnProperty`. `ResilientCacheErrorHandler` swallows Redis errors so a cache outage does not break command paths — keep that behavior; do not propagate cache exceptions to the domain. Because the `ClientResources`/`ConnectionFactory` are custom, Spring Boot's Lettuce observation auto-config backs off — `lettuceClientResources` wires `MicrometerTracing` explicitly so Redis CLIENT spans (`db.system=redis`) appear in APM. Keep `includeCommandArgsInSpanTags=false` (don't leak keys/args into spans).
 
 Add `@Cacheable` only on query adapters (read-only). Never cache aggregate writes.
 

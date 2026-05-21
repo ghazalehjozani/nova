@@ -23,7 +23,6 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 
 import io.micrometer.core.annotation.Timed;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,7 +37,6 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
     private final Clock clock;
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "postTransaction"})
@@ -78,7 +76,6 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "postTransactions"})
@@ -111,7 +108,6 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "reverseTransaction"})

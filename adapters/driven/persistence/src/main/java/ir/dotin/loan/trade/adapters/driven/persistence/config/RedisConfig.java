@@ -35,6 +35,8 @@ import io.lettuce.core.api.StatefulConnection;
 import io.lettuce.core.protocol.ProtocolVersion;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
+import io.lettuce.core.tracing.MicrometerTracing;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.core.StreamReadFeature;
 import tools.jackson.databind.DefaultTyping;
@@ -50,11 +52,16 @@ import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 public class RedisConfig implements CachingConfigurer {
 
     @Bean(destroyMethod = "shutdown")
-    public ClientResources lettuceClientResources() {
+    public ClientResources lettuceClientResources(ObservationRegistry observationRegistry) {
         int threads = Math.max(4, Runtime.getRuntime().availableProcessors());
+        // Lettuce emits Redis CLIENT spans through Micrometer Observation → the OTel bridge turns them into spans
+        // (db.system=redis), restoring the Redis dependency node in APM. The Spring Boot Lettuce observation
+        // auto-config backs off because this is a custom ClientResources/ConnectionFactory, so wire it explicitly.
+        MicrometerTracing tracing = new MicrometerTracing(observationRegistry, "redis", false);
         return DefaultClientResources.builder()
                 .ioThreadPoolSize(threads)
                 .computationThreadPoolSize(threads)
+                .tracing(tracing)
                 .build();
     }
 

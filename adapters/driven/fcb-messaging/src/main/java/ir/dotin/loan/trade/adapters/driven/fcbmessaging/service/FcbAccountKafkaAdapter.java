@@ -25,7 +25,6 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBank
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CreateAccountInfo;
 
 import io.micrometer.core.annotation.Timed;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,7 +39,6 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
     private final AuthenticationContextHolder authenticationContextHolder;
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "openAccount"})
@@ -64,7 +62,6 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "openAccount"})
@@ -90,7 +87,6 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "deleteAccount"})
@@ -105,7 +101,6 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "validateAccountNumber"})
@@ -118,7 +113,6 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "findOrCreateAccount"})
@@ -132,7 +126,6 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
     }
 
     @Override
-    @WithSpan
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "findAccountById"})

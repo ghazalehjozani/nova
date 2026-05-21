@@ -52,7 +52,6 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.metrics.FcbRequestReplyM
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.util.HostResolver;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 
-import io.micrometer.tracing.TraceContext;
 import io.micrometer.tracing.Tracer;
 import tools.jackson.databind.ObjectMapper;
 
@@ -66,7 +65,6 @@ public class FcbKafkaClient {
     private static final String HEADER_REQUEST_DATETIME = "X-Request-DateTime";
     private static final String HEADER_AUTHORIZATION = "Authorization";
     private static final String HEADER_ACCEPT_LANGUAGE = "Accept-Language";
-    private static final String HEADER_TRACEPARENT = "traceparent";
     private static final String HEADER_REQUEST_TIMESTAMP_EPOCH_MS = "X-Request-Timestamp-Epoch-Ms";
     private static final String HEADER_REQUEST_DEADLINE_EPOCH_MS = "X-Request-Deadline-Epoch-Ms";
     private static final String HEADER_HOST = "X-Host";
@@ -280,7 +278,9 @@ public class FcbKafkaClient {
         envelopeCodec.write(
                 (name, value) -> record.headers().add(new RecordHeader(name, value.getBytes(StandardCharsets.UTF_8))),
                 signedEnvelope);
-        addTracingHeaders(record);
+        // No manual traceparent injection: the ReplyingKafkaTemplate now has Micrometer observation enabled
+        // (KafkaObservationBeanPostProcessor in the platform kafka starter), so Spring Kafka stamps the W3C
+        // traceparent from the active span — the same header name and format FCB expects.
 
         RequestReplyFuture<String, byte[], byte[]> future = replyingKafkaTemplate.sendAndReceive(record, timeout);
 
@@ -331,16 +331,6 @@ public class FcbKafkaClient {
             throw new IllegalStateException("OAuth2TokenResponse contains blank accessToken");
         }
         return "Bearer " + accessToken;
-    }
-
-    private void addTracingHeaders(ProducerRecord<String, byte[]> record) {
-        if (tracer == null || tracer.currentSpan() == null) {
-            return;
-        }
-        TraceContext ctx = tracer.currentSpan().context();
-        String sampledFlag = Boolean.TRUE.equals(ctx.sampled()) ? "01" : "00";
-        String traceparent = "00-" + ctx.traceId() + "-" + ctx.spanId() + "-" + sampledFlag;
-        record.headers().add(new RecordHeader(HEADER_TRACEPARENT, traceparent.getBytes(StandardCharsets.UTF_8)));
     }
 
     private ActorEnvelope buildEnvelope() {
