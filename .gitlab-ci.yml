@@ -17,3 +17,7 @@ variables:
 scan-secrets:
   rules:
     - when: never
+
+publish-release:
+  rules:
+    - when: never

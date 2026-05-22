@@ -23,5 +23,12 @@ public interface TradeLoanFacilityRepository {
 
     boolean existsByApplicationNumber(ApplicationNumber applicationNumber);
 
+    /**
+     * Whether a facility with this application number exists in a non-terminal (active) state. Used to
+     * tell a true duplicate (active facility + live FCB loan file) apart from a ghost/stale allocation
+     * (facility reverted to a terminal state, FCB loan file never materialised or already cancelled).
+     */
+    boolean existsActiveByApplicationNumber(ApplicationNumber applicationNumber);
+
     Optional<TradeLoanFacility> findByApplicationNumber(String applicationNumber);
 }
