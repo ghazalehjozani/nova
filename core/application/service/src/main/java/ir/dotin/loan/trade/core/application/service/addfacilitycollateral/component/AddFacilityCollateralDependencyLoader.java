@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import ir.dotin.platform.accounting.document.api.model.BranchCode;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.service.CollateralCalculationService;
@@ -51,11 +52,12 @@ public class AddFacilityCollateralDependencyLoader {
 
         Result<TradeLoanFacility> facilityResult = Result.fromOptional(
                 facilityRepository.findById(loanFacilityId),
-                Notification.ofError(TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, loanFacilityId));
+                () -> FailureCause.businessRule(
+                        Notification.ofError(TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, loanFacilityId)));
         if (facilityResult.isFailure()) {
-            return Result.failure(facilityResult.notification());
+            return Result.failure(facilityResult.err().orElseThrow());
         }
-        TradeLoanFacility facility = facilityResult.value();
+        TradeLoanFacility facility = facilityResult.unwrap();
 
         CompletableFuture<Result<TradeLoanArrangement>> arrangementFuture =
                 CompletableFuture.supplyAsync(() -> loadArrangement(facility), VIRTUAL_EXECUTOR);
@@ -76,15 +78,18 @@ public class AddFacilityCollateralDependencyLoader {
         Result<Optional<InstallmentSchedule>> scheduleResult = scheduleFuture.join();
 
         Notification aggregatedNotification = Notification.create();
-        aggregatedNotification.merge(arrangementResult.notification());
-        aggregatedNotification.merge(scheduleResult.notification());
+        if (arrangementResult.isFailure())
+            aggregatedNotification.merge(arrangementResult.err().orElseThrow().notification());
+        if (scheduleResult.isFailure())
+            aggregatedNotification.merge(scheduleResult.err().orElseThrow().notification());
 
         Map<CollateralSerial, CollateralDetails> detailsMap = new java.util.HashMap<>();
         for (int i = 0; i < collaterals.size(); i++) {
             Result<CollateralDetails> res = collateralFutures.get(i).join();
-            aggregatedNotification.merge(res.notification());
-            if (res.hasValue()) {
-                detailsMap.put(collaterals.get(i).collateralSerial(), res.value());
+            if (res.isFailure()) {
+                aggregatedNotification.merge(res.err().orElseThrow().notification());
+            } else {
+                detailsMap.put(collaterals.get(i).collateralSerial(), res.unwrap());
             }
         }
 
@@ -93,15 +98,16 @@ public class AddFacilityCollateralDependencyLoader {
         }
 
         Result<Money> requiredAmountResult = collateralCalculationService.calculateNeededCollateral(
-                facility, arrangementResult.value(), scheduleResult.value().orElse(null));
-        if (requiredAmountResult.isFailure()) return Result.failure(requiredAmountResult.notification());
+                facility, arrangementResult.unwrap(), scheduleResult.unwrap().orElse(null));
+        if (requiredAmountResult.isFailure())
+            return Result.failure(requiredAmountResult.err().orElseThrow());
 
-        Result<Void> domainCollateralValidationResult = collateralValidationService.validateIndividualCollaterals(
-                facility, arrangementResult.value(), collaterals);
+        Result<?> domainCollateralValidationResult = collateralValidationService.validateIndividualCollaterals(
+                facility, arrangementResult.unwrap(), collaterals);
         if (domainCollateralValidationResult.isFailure())
-            return Result.failure(domainCollateralValidationResult.notification());
+            return Result.failure(domainCollateralValidationResult.err().orElseThrow());
 
-        Money calculatedRequiredAmount = requiredAmountResult.value();
+        Money calculatedRequiredAmount = requiredAmountResult.unwrap();
 
         List<CollateralSerial> serials =
                 collaterals.stream().map(Collateral::collateralSerial).toList();
@@ -113,19 +119,18 @@ public class AddFacilityCollateralDependencyLoader {
                 serials, usedCosts, facility.getLoanApplication().getBranch().code());
 
         if (validationRes.isFailure()) {
-            return Result.failure(validationRes.notification());
+            return Result.failure(validationRes.err().orElseThrow());
         }
 
-        CollateralValidation validation = validationRes.value();
+        CollateralValidation validation = validationRes.unwrap();
         if (!validation.isValid()) {
-            return Result.failure(Notification.ofError(
-                    TradeLoanApplicationServiceErrors.COLLATERAL_VALIDATION_FAILED, validation.message()));
+            return Result.failure(TradeLoanApplicationServiceErrors.COLLATERAL_VALIDATION_FAILED, validation.message());
         }
 
         return Result.success(new CollateralValidationContext(
                 facility,
-                arrangementResult.value(),
-                scheduleResult.value(),
+                arrangementResult.unwrap(),
+                scheduleResult.unwrap(),
                 calculatedRequiredAmount,
                 detailsMap,
                 new CollateralValidation(true, "")));
@@ -134,8 +139,9 @@ public class AddFacilityCollateralDependencyLoader {
     private Result<TradeLoanArrangement> loadArrangement(TradeLoanFacility facility) {
         return Result.fromOptional(
                 arrangementRepository.findById(facility.getLoanArrangementId()),
-                Notification.ofError(
-                        TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND, facility.getLoanArrangementId()));
+                () -> FailureCause.businessRule(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND,
+                        facility.getLoanArrangementId())));
     }
 
     private Result<Optional<InstallmentSchedule>> loadSchedule(TradeLoanFacility facility) {

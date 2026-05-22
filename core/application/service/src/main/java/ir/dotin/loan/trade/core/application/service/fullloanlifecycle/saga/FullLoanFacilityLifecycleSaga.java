@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
 import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.Command;
 import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
@@ -23,7 +24,6 @@ import ir.dotin.platform.saga.api.definition.SagaStep;
 import ir.dotin.platform.saga.api.definition.SagaSteps;
 import ir.dotin.platform.saga.api.model.CompensationMode;
 import ir.dotin.platform.saga.api.model.ExecutionStrategy;
-import ir.dotin.platform.saga.api.model.StepError;
 import ir.dotin.platform.saga.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
@@ -169,23 +169,23 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
         var data = ctx.getSagaData();
 
         if (data.disbursementMethod() == DisbursementMethod.REGULAR_PROGRESSIVE) {
-            return new StepResult.Failure<>(new StepError.BusinessError(
-                    "UNSUPPORTED_DISBURSEMENT_METHOD", "REGULAR_PROGRESSIVE not supported"));
+            return new StepResult.Failure<>(FailureCause.businessRule(Notification.ofError(
+                    TradeLoanApplicationServiceErrors.LOAN_TYPE_NOT_FOUND, "REGULAR_PROGRESSIVE not supported")));
         }
 
         var command = data.originationCommand();
         if (loanTypeRepository
-                .findByCode(LoanTypeCode.of(command.loanTypeCode()).getValue())
+                .findByCode(LoanTypeCode.of(command.loanTypeCode()).unwrap())
                 .isEmpty()) {
-            return new StepResult.Failure<>(new StepError.BusinessRuleError(Notification.ofError(
+            return new StepResult.Failure<>(FailureCause.businessRule(Notification.ofError(
                     TradeLoanApplicationServiceErrors.LOAN_TYPE_NOT_FOUND, command.loanTypeCode())));
         }
 
         if (arrangementRepository
                 .findByCode(LoanArrangementCode.valueOf(command.loanArrangementCode())
-                        .getValue())
+                        .unwrap())
                 .isEmpty()) {
-            return new StepResult.Failure<>(new StepError.BusinessRuleError(Notification.ofError(
+            return new StepResult.Failure<>(FailureCause.businessRule(Notification.ofError(
                     TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND, command.loanArrangementCode())));
         }
 
@@ -213,7 +213,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 yield new StepResult.Success<>(null);
             }
             case ExecutionResult.BusinessFailure<List<DomainEvent<?>>> failure ->
-                new StepResult.Failure<>(new StepError.BusinessRuleError(failure.notification()));
+                new StepResult.Failure<>(FailureCause.businessRule(failure.notification()));
         };
     }
 
@@ -247,7 +247,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 yield new StepResult.Success<>(null);
             }
             case ExecutionResult.BusinessFailure<List<DomainEvent<?>>> failure ->
-                new StepResult.Failure<>(new StepError.BusinessRuleError(failure.notification()));
+                new StepResult.Failure<>(FailureCause.businessRule(failure.notification()));
         };
     }
 
@@ -290,7 +290,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 yield new StepResult.Success<>(null);
             }
             case ExecutionResult.BusinessFailure<List<DomainEvent<?>>> failure ->
-                new StepResult.Failure<>(new StepError.BusinessRuleError(failure.notification()));
+                new StepResult.Failure<>(FailureCause.businessRule(failure.notification()));
         };
     }
 
@@ -339,7 +339,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 yield new StepResult.Success<>(null);
             }
             case ExecutionResult.BusinessFailure<List<DomainEvent<?>>> failure ->
-                new StepResult.Failure<>(new StepError.BusinessRuleError(failure.notification()));
+                new StepResult.Failure<>(FailureCause.businessRule(failure.notification()));
         };
     }
 
@@ -365,8 +365,8 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
             case LUMP_SUM -> executeLumpSumDisbursement(ctx);
             case IRREGULAR_PROGRESSIVE -> executeIrregularDisbursement(ctx);
             case REGULAR_PROGRESSIVE ->
-                new StepResult.Failure<>(
-                        new StepError.BusinessError("UNSUPPORTED", "REGULAR_PROGRESSIVE not supported"));
+                new StepResult.Failure<>(FailureCause.businessRule(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.LOAN_TYPE_NOT_FOUND, "REGULAR_PROGRESSIVE not supported")));
         };
     }
 
@@ -405,7 +405,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 yield new StepResult.Success<>(null);
             }
             case ExecutionResult.BusinessFailure<List<DomainEvent<?>>> failure ->
-                new StepResult.Failure<>(new StepError.BusinessRuleError(failure.notification()));
+                new StepResult.Failure<>(FailureCause.businessRule(failure.notification()));
         };
     }
 
@@ -446,7 +446,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 yield new StepResult.Success<>(null);
             }
             case ExecutionResult.BusinessFailure<List<DomainEvent<?>>> failure ->
-                new StepResult.Failure<>(new StepError.BusinessRuleError(failure.notification()));
+                new StepResult.Failure<>(FailureCause.businessRule(failure.notification()));
         };
     }
 
@@ -513,7 +513,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
             case ExecutionResult.Fresh<?> ignored -> new StepResult.Success<>(null);
             case ExecutionResult.Replayed<?> ignored -> new StepResult.Success<>(null);
             case ExecutionResult.BusinessFailure<?> failure ->
-                new StepResult.Failure<>(new StepError.BusinessRuleError(failure.notification()));
+                new StepResult.Failure<>(FailureCause.businessRule(failure.notification()));
         };
     }
 
@@ -600,7 +600,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
             }
             case ExecutionResult.BusinessFailure<List<DomainEvent<?>>> failure -> {
                 log.warn("Failed to add collaterals: {}", failure.notification());
-                yield new StepResult.Failure<>(new StepError.BusinessRuleError(failure.notification()));
+                yield new StepResult.Failure<>(FailureCause.businessRule(failure.notification()));
             }
         };
     }

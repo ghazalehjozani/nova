@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.accounting.document.api.model.BranchCode;
 import ir.dotin.platform.accounting.document.api.model.DepositNumber;
-import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Unit;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
@@ -65,7 +65,7 @@ public class FcbValidationKafkaAdapter
     private final FcbKafkaProperties properties;
 
     @Override
-    @Cacheable(value = "fcb.economical-sector-by-code", unless = "#result.hasErrors()")
+    @Cacheable(value = "fcb.economical-sector-by-code", unless = "#result.isFailure()")
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "loadEconomicalSectorByCode"})
@@ -79,7 +79,7 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @Cacheable(value = "fcb.economical-sector", unless = "#result.hasErrors()")
+    @Cacheable(value = "fcb.economical-sector", unless = "#result.isFailure()")
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "loadEconomicalSector"})
@@ -93,7 +93,7 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @Cacheable(value = "fcb.sector-for-loan-type", unless = "#result.hasErrors()")
+    @Cacheable(value = "fcb.sector-for-loan-type", unless = "#result.isFailure()")
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "validateEconomicalSectorForLoanType"})
@@ -109,7 +109,7 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @Cacheable(value = "fcb.reason-type", unless = "#result.hasErrors()")
+    @Cacheable(value = "fcb.reason-type", unless = "#result.isFailure()")
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "loadReasonTypeForCreate"})
@@ -136,7 +136,7 @@ public class FcbValidationKafkaAdapter
     }
 
     @Override
-    @Cacheable(value = "fcb.resource", unless = "#result.hasErrors()")
+    @Cacheable(value = "fcb.resource", unless = "#result.isFailure()")
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "loadResourceByCode"})
@@ -185,12 +185,11 @@ public class FcbValidationKafkaAdapter
         Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.getDefaultTimeout());
 
         if (result.isFailure()) {
-            return Result.failure(result.notification());
+            return Result.failure(result.err().orElseThrow());
         }
-        FcbKafkaBaseResponse raw = result.orElseThrow();
+        FcbKafkaBaseResponse raw = result.unwrap();
         if (!(raw instanceof ApplicationNumberKafkaResponse response)) {
-            return Result.failure(
-                    Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "getApplicationNumber"));
+            return Result.failure(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "getApplicationNumber");
         }
         return KafkaValidationMapper.mapToApplicationNumber(response, branch, loanTypeCode, party);
     }
@@ -229,11 +228,11 @@ public class FcbValidationKafkaAdapter
         Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.getDefaultTimeout());
 
         if (result.isFailure()) {
-            return Result.failure(result.notification());
+            return Result.failure(result.err().orElseThrow());
         }
-        FcbKafkaBaseResponse raw = result.orElseThrow();
+        FcbKafkaBaseResponse raw = result.unwrap();
         if (!(raw instanceof CustomerInfoKafkaResponse response)) {
-            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "loadCustomerInfo"));
+            return Result.failure(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "loadCustomerInfo");
         }
         return KafkaValidationMapper.mapToPartyInfoResponse(response, role, guaranteePercentage);
     }
@@ -426,7 +425,7 @@ public class FcbValidationKafkaAdapter
 
         Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.getDefaultTimeout());
         if (result.isFailure()) {
-            return Result.failure(result.notification());
+            return Result.failure(result.err().orElseThrow());
         }
         return Result.success(collateralSerial);
     }
@@ -448,7 +447,7 @@ public class FcbValidationKafkaAdapter
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "validateSamat"})
-    public Result<Void> validateSamat(Samat samat, String loanTypeCode, String economicalSectionCode) {
+    public Result<Unit> validateSamat(Samat samat, String loanTypeCode, String economicalSectionCode) {
         ValidateSamatRequest samatRequest = ValidateSamatRequest.builder()
                 .consumptionPlaceCode(samat.consumptionPlaceCode())
                 .exceptionCode(samat.exceptionCode())
@@ -469,13 +468,12 @@ public class FcbValidationKafkaAdapter
 
         Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.getDefaultTimeout());
         if (result.isFailure()) {
-            return Result.failure(result.notification());
+            return Result.failure(result.err().orElseThrow());
         }
 
-        FcbKafkaBaseResponse raw = result.orElseThrow();
+        FcbKafkaBaseResponse raw = result.unwrap();
         if (!responseType.isInstance(raw)) {
-            return Result.failure(
-                    Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, request.getOperationName()));
+            return Result.failure(CoreBankingErrors.KAFKA_INVALID_RESPONSE, request.getOperationName());
         }
 
         return responseMapper.apply(responseType.cast(raw));

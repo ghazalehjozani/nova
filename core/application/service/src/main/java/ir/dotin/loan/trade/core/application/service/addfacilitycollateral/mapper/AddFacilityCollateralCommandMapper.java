@@ -22,12 +22,12 @@ public interface AddFacilityCollateralCommandMapper {
     default Collateral toCollateral(AddFacilityCollateralCommand.CollateralDto dto) {
         if (dto == null) return null;
 
-        CollateralSerial serial = CollateralSerial.of(dto.collateralSerial()).orElseThrow();
+        CollateralSerial serial = CollateralSerial.of(dto.collateralSerial()).unwrap();
         CollateralType type = CollateralType.valueOf(dto.collateralTypeCode().name());
         Money usedAmount = toMoney(dto.usedAmount());
 
         return Collateral.valueOf(type, dto.percent(), dto.description(), serial, usedAmount)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid collateral data"));
+                .unwrapOrThrow(c -> new IllegalArgumentException("Invalid collateral data"));
     }
 
     default Money toMoney(AddFacilityCollateralCommand.MoneyDto dto) {
@@ -36,8 +36,8 @@ public interface AddFacilityCollateralCommandMapper {
         }
         CurrencyType currency = mapCurrency(dto.currency());
         Result<Money> moneyResult = Money.valueOf(dto.value(), currency);
-        return moneyResult.orElseThrow(() -> new IllegalArgumentException(
-                "Invalid money value: " + moneyResult.notification().errors()));
+        return moneyResult.unwrapOrThrow(c -> new IllegalArgumentException(
+                "Invalid money value: " + c.notification().errors()));
     }
 
     default CurrencyType mapCurrency(String currencyCode) {
@@ -45,7 +45,7 @@ public interface AddFacilityCollateralCommandMapper {
             throw new IllegalArgumentException("Currency code is required in MoneyDto");
         }
         try {
-            return CurrencyType.valueOf(currencyCode.toUpperCase()).orElseThrow();
+            return CurrencyType.valueOf(currencyCode.toUpperCase()).unwrap();
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid currency code: " + currencyCode);
         }
@@ -54,10 +54,10 @@ public interface AddFacilityCollateralCommandMapper {
     default Collateral toCollateral(UpdateCollateralCommand.CollateralItem item, CurrencyType currencyType) {
         if (item == null) return null;
 
-        CollateralSerial serial = CollateralSerial.of(item.collateralSerial()).orElseThrow();
+        CollateralSerial serial = CollateralSerial.of(item.collateralSerial()).unwrap();
         Result<Money> usedAmount = Money.valueOf(item.usedAmount(), currencyType);
 
-        return Collateral.valueOf(null, null, null, serial, usedAmount.getValue())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid collateral data"));
+        return Collateral.valueOf(null, null, null, serial, usedAmount.unwrap())
+                .unwrapOrThrow(c -> new IllegalArgumentException("Invalid collateral data"));
     }
 }

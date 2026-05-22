@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Unit;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
@@ -50,7 +52,7 @@ public class LoanFacilityRestructuringCommandHandler implements CommandHandler<L
                 .flatMap(context -> validateAll(facility, context)
                         .flatMap(ignored -> processRestructuring(context))
                         .flatMap(this::persistAndCollectEvents)
-                        .peekValue(schedule -> log.info(
+                        .onSuccess(schedule -> log.info(
                                 "Loan facility restructuring completed: applicationNumber={}, ref={}",
                                 command.applicationNumber(),
                                 command.transactionReference()))
@@ -73,15 +75,15 @@ public class LoanFacilityRestructuringCommandHandler implements CommandHandler<L
     private Result<LoanFacilityId> resolveIdentifier(LoanFacilityRestructuringCommand command) {
         return Result.fromOptional(
                 applicationNumberResolver.resolveLoanFacilityIdByApplicationNumber(command.applicationNumber()),
-                Notification.ofError(
-                        TradeLoanApplicationServiceErrors.APPLICATION_NUMBER_MISSING, command.applicationNumber()));
+                () -> FailureCause.businessRule(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.APPLICATION_NUMBER_MISSING, command.applicationNumber())));
     }
 
     private Result<TradeLoanFacility> loadFacility(LoanFacilityId loanFacilityId) {
         return Result.fromOptional(
                 tradeLoanFacilityRepository.findById(loanFacilityId),
-                () -> Notification.ofError(
-                        TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, loanFacilityId.value()));
+                () -> FailureCause.businessRule(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, loanFacilityId.value())));
     }
 
     private Result<ProcessingContext> loadDependencies(
@@ -107,15 +109,15 @@ public class LoanFacilityRestructuringCommandHandler implements CommandHandler<L
         return facility.getInstallmentScheduleId()
                 .map(scheduleId -> Result.fromOptional(
                         installmentScheduleRepository.findById(scheduleId),
-                        () -> Notification.ofError(
+                        () -> FailureCause.businessRule(Notification.ofError(
                                 TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
-                                facility.getId().value())))
+                                facility.getId().value()))))
                 .orElseGet(() -> Result.failure(Notification.ofError(
                         TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
                         facility.getId().value())));
     }
 
-    private Result<Void> validateAll(TradeLoanFacility facility, ProcessingContext context) {
+    private Result<Unit> validateAll(TradeLoanFacility facility, ProcessingContext context) {
         return Result.success();
     }
 

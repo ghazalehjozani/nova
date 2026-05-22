@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
@@ -35,8 +36,8 @@ public class CompensateCollateralCommandHandler implements CommandHandler<Compen
     public Result<List<DomainEvent<?>>> handle(CompensateCollateralCommand command) {
         return Result.fromOptional(
                         repository.findById(LoanFacilityId.of(command.loanFacilityId())),
-                        () -> Notification.ofError(
-                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId()))
+                        () -> FailureCause.businessRule(Notification.ofError(
+                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())))
                 .flatMap(facility -> revertCollaterals(facility, command));
     }
 
@@ -57,7 +58,7 @@ public class CompensateCollateralCommandHandler implements CommandHandler<Compen
                     facility.getLoanApplication().getApplicationNumber().get();
 
             for (String serialValue : serialsToRevert) {
-                CollateralSerial serial = CollateralSerial.of(serialValue).orElseThrow();
+                CollateralSerial serial = CollateralSerial.of(serialValue).unwrap();
 
                 collateralServicePort.unReserveCollateral(serial, appNumber, UUID.randomUUID(), command.uid());
             }
@@ -65,19 +66,19 @@ public class CompensateCollateralCommandHandler implements CommandHandler<Compen
 
         return facility.revertAddCollateral(serialsToRevert, clock)
                 .map(v -> facility)
-                .peekValue(f -> {
+                .onSuccess(f -> {
                     repository.save(f);
                     log.info(
                             "Successfully reverted {} collaterals locally for facility: {}",
                             serialsToRevert.size(),
                             f.getId().value());
                 })
-                .peekError(notification -> {
+                .onFailure(cause -> {
                     log.error(
                             "Failed to revert collaterals in domain for facility {}: {}",
                             facility.getId().value(),
-                            notification);
+                            cause.notification());
                 })
-                .mapNonNull(TradeLoanFacility::domainEvents);
+                .map(TradeLoanFacility::domainEvents);
     }
 }

@@ -81,7 +81,7 @@ class TradeLoanFacilityServiceTest {
             var result = service.validateTransactionNumbers(mockFacility, validTradeTransactionNumbers);
 
             // then
-            assertThat(result.isSuccessWithValue()).isTrue();
+            assertThat(result.isSuccess()).isTrue();
         }
 
         @DisplayName("should fail when transaction numbers are null")
@@ -92,7 +92,7 @@ class TradeLoanFacilityServiceTest {
 
             // then
             assertThat(result.isFailure()).isTrue();
-            assertThat(result.notification().hasErrors()).isTrue();
+            assertThat(result.err().orElseThrow().notification().hasErrors()).isTrue();
         }
     }
 
@@ -208,7 +208,7 @@ class TradeLoanFacilityServiceTest {
             var result = service.verifyZeroBalance(mockFacility);
 
             // then
-            assertThat(result.isSuccessWithoutValue()).isTrue();
+            assertThat(result.isSuccess()).isTrue();
         }
     }
 
@@ -223,7 +223,7 @@ class TradeLoanFacilityServiceTest {
             var result = service.verifyDefaultConditions(mockFacility);
 
             // then
-            assertThat(result.isSuccessWithoutValue()).isTrue();
+            assertThat(result.isSuccess()).isTrue();
         }
     }
 
@@ -237,11 +237,11 @@ class TradeLoanFacilityServiceTest {
         void shouldCreateValidTradeSanctionedLoanBuilder() {
             // given
             var requestedAmount =
-                    Money.valueOf(new BigDecimal("1000.00"), CurrencyType.USD).orElseThrow();
+                    Money.valueOf(new BigDecimal("1000.00"), CurrencyType.USD).unwrap();
             var currency = CurrencyType.USD;
-            var gracePeriod = GracePeriod.of(Period.ofDays(30)).orElseThrow();
-            var installmentCount = InstallmentCount.of(12).orElseThrow();
-            var loanDuration = LoanDuration.of(Period.ofDays(365)).orElseThrow();
+            var gracePeriod = GracePeriod.of(Period.ofDays(30)).unwrap();
+            var installmentCount = InstallmentCount.of(12).unwrap();
+            var loanDuration = LoanDuration.of(Period.ofDays(365)).unwrap();
 
             when(mockLoanApplication.getRequestedAmount()).thenReturn(requestedAmount);
             when(mockLoanApplication.getCurrency()).thenReturn(currency);
@@ -255,9 +255,9 @@ class TradeLoanFacilityServiceTest {
                     service.createSanctionedLoanFromApplication(mockLoanApplication, mockConfirmType);
 
             // then
-            assertThat(result.isSuccessWithValue()).isTrue();
+            assertThat(result.isSuccess()).isTrue();
 
-            var builder = result.orElseThrow();
+            var builder = result.unwrap();
             assertThat(builder).isInstanceOf(TradeSanctionedLoan.Builder.class);
 
             // Build and verify the sanctioned loan

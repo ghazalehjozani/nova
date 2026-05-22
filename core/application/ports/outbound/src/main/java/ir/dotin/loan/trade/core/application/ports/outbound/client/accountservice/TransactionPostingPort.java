@@ -4,6 +4,7 @@ import java.util.List;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Unit;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
@@ -21,14 +22,14 @@ public interface TransactionPostingPort {
     Result<List<TrackedTransactionNumber>> postTransactions(
             LoanFacilityId facilityId, String documentComment, List<LoanTransaction> transactionsToPost);
 
-    Result<Void> reverseTransaction(TrackedTransactionNumber transactionNumber);
+    Result<Unit> reverseTransaction(TrackedTransactionNumber transactionNumber);
 
-    default Result<Void> reverseTransactions(List<TrackedTransactionNumber> transactionNumbers) {
+    default Result<Unit> reverseTransactions(List<TrackedTransactionNumber> transactionNumbers) {
         Notification notification = Notification.create();
         transactionNumbers.parallelStream().forEach(transactionNumber -> {
-            Result<Void> result = reverseTransaction(transactionNumber);
-            if (result.hasErrors()) {
-                notification.merge(result.notification());
+            Result<Unit> result = reverseTransaction(transactionNumber);
+            if (result.isFailure()) {
+                notification.merge(result.err().orElseThrow().notification());
             }
         });
         return notification.hasErrors() ? Result.failure(notification) : Result.success();

@@ -52,6 +52,6 @@ public class IssueContractBankCommitmentArticleSpecFactory
 
     private static TransactionInfo createTransactionInfo() {
         return TransactionInfo.of(TRANSACTION_TYPE, TRANSACTION_CAUSE)
-                .orElseThrow(() -> new IllegalStateException("Failed to create transaction info"));
+                .unwrapOrThrow(c -> new IllegalStateException("Failed to create transaction info"));
     }
 }

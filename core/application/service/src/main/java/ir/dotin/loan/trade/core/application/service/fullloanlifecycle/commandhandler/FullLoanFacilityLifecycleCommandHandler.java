@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.platform.dispatcher.api.context.DispatchContext;
@@ -14,7 +14,6 @@ import ir.dotin.platform.dispatcher.api.context.StandardHeaders;
 import ir.dotin.platform.saga.api.error.SagaErrors;
 import ir.dotin.platform.saga.api.exception.SagaSuspendedException;
 import ir.dotin.platform.saga.api.model.SagaResult;
-import ir.dotin.platform.saga.api.model.StepError;
 import ir.dotin.platform.saga.api.orchestration.SagaOrchestrator;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLoanFacilityLifecycleCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
@@ -75,22 +74,11 @@ public class FullLoanFacilityLifecycleCommandHandler implements CommandHandler<F
         return sagaResult
                 .error()
                 .map(this::toResult)
-                .orElseGet(
-                        () -> Result.failure(Notification.ofError(SagaErrors.COMPENSATED, extractReason(sagaResult))));
+                .orElseGet(() -> Result.failure(SagaErrors.COMPENSATED, extractReason(sagaResult)));
     }
 
-    private Result<List<DomainEvent<?>>> toResult(StepError stepError) {
-        return switch (stepError) {
-            case StepError.BusinessRuleError bre -> Result.failure(bre.notification());
-            case StepError.ValidationError ve ->
-                Result.failure(Notification.ofError(SagaErrors.VALIDATION_FAILED, ve.message()));
-            case StepError.BusinessError be ->
-                Result.failure(Notification.ofError(SagaErrors.STEP_FAILED, be.message()));
-            case StepError.TechnicalError te ->
-                Result.failure(Notification.ofError(SagaErrors.TECHNICAL_ERROR, te.message()));
-            case StepError.TimeoutError toe ->
-                Result.failure(Notification.ofError(SagaErrors.TIMEOUT, toe.timeoutMillis()));
-        };
+    private Result<List<DomainEvent<?>>> toResult(FailureCause failureCause) {
+        return Result.failure(failureCause);
     }
 
     private String extractReason(SagaResult<FullLoanFacilityLifecycleSagaData> sagaResult) {

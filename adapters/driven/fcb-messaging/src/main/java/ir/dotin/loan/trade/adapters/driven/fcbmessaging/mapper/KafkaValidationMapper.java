@@ -12,6 +12,7 @@ import ir.dotin.platform.accounting.document.api.model.DepositNumber;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.NotificationError;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Unit;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.NationalCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
@@ -64,15 +65,14 @@ public class KafkaValidationMapper {
 
     public Result<EconomicalSectorValidation> mapToEcoSectorValidation(EcoSectorValidationKafkaResponse response) {
         if (response.getValid() == null) {
-            return Result.failure(Notification.ofError(
-                    CoreBankingErrors.KAFKA_INVALID_RESPONSE, "validateEconomicalSectorForLoanType"));
+            return Result.failure(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "validateEconomicalSectorForLoanType");
         }
         return Result.success(new EconomicalSectorValidation(response.getValid(), response.getMessage()));
     }
 
     public Result<ReasonType> mapToReasonType(ReasonTypeKafkaResponse response) {
         if (response.getCode() == null || response.getDescription() == null) {
-            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "loadReasonType"));
+            return Result.failure(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "loadReasonType");
         }
         return ReasonType.of(
                 response.getCode(),
@@ -85,14 +85,14 @@ public class KafkaValidationMapper {
 
     public Result<SubSource> mapToSubSource(ResourceKafkaResponse response) {
         if (response.getCode() == null) {
-            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "loadResourceByCode"));
+            return Result.failure(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "loadResourceByCode");
         }
         return SubSource.of(response.getCode());
     }
 
     public Result<List<TopicInfo>> mapToTopicInfoList(TopicInfoListKafkaResponse response) {
         if (response.getTopics() == null) {
-            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "loadTopicByCode"));
+            return Result.failure(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "loadTopicByCode");
         }
         List<TopicInfo> result = new ArrayList<>();
         for (TopicInfoDto dto : response.getTopics()) {
@@ -106,8 +106,8 @@ public class KafkaValidationMapper {
                     dto.hasOppositeAccount(),
                     dto.numOfOpenableAccounts(),
                     dto.isPermanent());
-            if (topicResult.isSuccessWithValue()) {
-                result.add(topicResult.orElseThrow());
+            if (topicResult.isSuccess()) {
+                result.add(topicResult.unwrap());
             }
         }
         return Result.success(result);
@@ -146,7 +146,7 @@ public class KafkaValidationMapper {
 
     public Result<BranchDetails> mapToBranchDetails(BranchDetailsKafkaResponse response) {
         if (response.getCode() == null) {
-            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "loadBranch"));
+            return Result.failure(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "loadBranch");
         }
         return BranchDetails.of(
                 response.getCode(),
@@ -166,7 +166,7 @@ public class KafkaValidationMapper {
     public Result<PartyInfoResponse> mapToPartyInfoResponse(
             CustomerInfoKafkaResponse response, PartyRole role, @Nullable BigDecimal guaranteePercentage) {
         if (response.getCustomerNumber() == null || response.getCustomerNumber().isBlank()) {
-            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "loadCustomerInfo"));
+            return Result.failure(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "loadCustomerInfo");
         }
         CustomerName customerName =
                 new CustomerName(response.getFirstName(), response.getLastName(), response.getTitle());
@@ -184,17 +184,17 @@ public class KafkaValidationMapper {
                                         guaranteePercentage != null
                                                 ? GuaranteePercentage.of(guaranteePercentage)
                                                 : null)
-                                .orElseThrow();
+                                .unwrap();
                 };
 
         Result<NationalCode> nationalCodeResult = NationalCode.valueOf(response.getNationalCode());
         if (nationalCodeResult.isFailure()) {
-            return Result.failure(nationalCodeResult.notification());
+            return Result.failure(nationalCodeResult.err().orElseThrow());
         }
 
         return Result.success(new PartyInfoResponse(
                 party,
-                nationalCodeResult.orElseThrow(),
+                nationalCodeResult.unwrap(),
                 Boolean.TRUE.equals(response.getIsInBlackList()),
                 Boolean.TRUE.equals(response.getIsIncapable()),
                 Boolean.TRUE.equals(response.getIsInGrayList())));
@@ -217,7 +217,7 @@ public class KafkaValidationMapper {
             }
             result.add(new PartyInfoResponse(
                     party,
-                    nationalCodeResult.orElseThrow(),
+                    nationalCodeResult.unwrap(),
                     Boolean.TRUE.equals(dto.isInBlackList()),
                     Boolean.TRUE.equals(dto.isIncapable()),
                     Boolean.TRUE.equals(dto.isInGrayList())));
@@ -239,23 +239,23 @@ public class KafkaValidationMapper {
 
     public Result<DepositInfo> mapToDepositInfo(DepositInfoKafkaResponse response) {
         if (response.getNumber() == null || response.getNumber().isBlank()) {
-            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "getDepositInfo"));
+            return Result.failure(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "getDepositInfo");
         }
         Result<DepositNumber> numberResult = DepositNumber.valueOf(response.getNumber());
         if (numberResult.isFailure()) {
-            return Result.failure(numberResult.notification());
+            return Result.failure(numberResult.err().orElseThrow());
         }
 
         CurrencyType currencyType = null;
         if (response.getCurrency() != null) {
             Result<CurrencyType> currencyResult = CurrencyType.valueOf(response.getCurrency());
-            if (currencyResult.isSuccessWithValue()) {
-                currencyType = currencyResult.orElseThrow();
+            if (currencyResult.isSuccess()) {
+                currencyType = currencyResult.unwrap();
             }
         }
 
         return DepositInfo.of(
-                numberResult.orElseThrow(),
+                numberResult.unwrap(),
                 response.getTitle(),
                 response.getType(),
                 currencyType,
@@ -267,7 +267,7 @@ public class KafkaValidationMapper {
 
     public Result<DepositClosedStatus> mapToDepositClosedStatus(DepositClosedKafkaResponse response) {
         if (response.getClosed() == null || response.getCurrencyTypeCode() == null) {
-            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "isDepositClosed"));
+            return Result.failure(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "isDepositClosed");
         }
         return Result.success(new DepositClosedStatus(response.getClosed(), response.getCurrencyTypeCode()));
     }
@@ -308,7 +308,7 @@ public class KafkaValidationMapper {
 
     public Result<List<CollateralSerial>> mapToCollateralSerials(CollateralSerialsKafkaResponse response) {
         if (response.getSerials() == null) {
-            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "reserveCollateral"));
+            return Result.failure(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "reserveCollateral");
         }
         List<CollateralSerial> result = new ArrayList<>();
         for (String serial : response.getSerials()) {
@@ -359,8 +359,8 @@ public class KafkaValidationMapper {
         CurrencyType currency = null;
         if (response.getCurrency() != null) {
             Result<CurrencyType> currencyResult = CurrencyType.valueOf(response.getCurrency());
-            if (currencyResult.isSuccessWithValue()) {
-                currency = currencyResult.orElseThrow();
+            if (currencyResult.isSuccess()) {
+                currency = currencyResult.unwrap();
             }
         }
 
@@ -378,8 +378,8 @@ public class KafkaValidationMapper {
         ConfirmType confirmType = null;
         if (response.getConfirmType() != null) {
             Result<ConfirmType> ctResult = ConfirmType.of(response.getConfirmType());
-            if (ctResult.isSuccessWithValue()) {
-                confirmType = ctResult.orElseThrow();
+            if (ctResult.isSuccess()) {
+                confirmType = ctResult.unwrap();
             }
         }
 
@@ -414,9 +414,9 @@ public class KafkaValidationMapper {
         return null;
     }
 
-    public static Result<Void> mapSamatViolationToNotification(ValidateSamatKafkaResponse validateSamatKafkaResponse) {
+    public static Result<Unit> mapSamatViolationToNotification(ValidateSamatKafkaResponse validateSamatKafkaResponse) {
         if (validateSamatKafkaResponse == null || validateSamatKafkaResponse.getViolations() == null) {
-            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "validateSamat"));
+            return Result.failure(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "validateSamat");
         }
 
         List<SamatViolationDto> violations = validateSamatKafkaResponse.getViolations();

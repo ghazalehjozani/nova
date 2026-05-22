@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
@@ -23,6 +24,7 @@ public class LoanFacilityProviderService implements LoanFacilityProvider {
     public Result<TradeLoanFacility> findLoanFacilityById(@NonNull LoanFacilityId id) {
         return Result.fromOptional(
                 tradeLoanFacilityRepository.findById(id),
-                Notification.ofError(TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, id));
+                () -> FailureCause.businessRule(
+                        Notification.ofError(TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, id)));
     }
 }

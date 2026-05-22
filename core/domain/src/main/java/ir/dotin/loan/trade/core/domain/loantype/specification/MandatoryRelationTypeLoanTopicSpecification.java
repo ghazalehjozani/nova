@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Verdict;
 import ir.dotin.platform.commons.domain.validation.Specification;
 import ir.dotin.loan.baseloan.core.domain.loantype.entity.AbstractLoanType;
 import ir.dotin.loan.baseloan.core.domain.loantype.error.LoanTypeErrors;
@@ -25,7 +25,7 @@ public class MandatoryRelationTypeLoanTopicSpecification implements Specificatio
     }
 
     @Override
-    public Result<Boolean> isSatisfiedBy(AbstractLoanType candidate) {
+    public Verdict isSatisfiedBy(AbstractLoanType candidate) {
         Set<TradeRelationType> providedRelationTypes = candidate.getRelationTypeLoanTopics().keySet().stream()
                 .map(rt -> (TradeRelationType) rt)
                 .collect(Collectors.toSet());
@@ -35,11 +35,11 @@ public class MandatoryRelationTypeLoanTopicSpecification implements Specificatio
 
         if (!missing.isEmpty()) {
             String missingTypes = missing.stream().map(TradeRelationType::name).collect(Collectors.joining(", "));
-            return Result.failure(
+            return Verdict.notSatisfied(
                     Notification.ofError(LoanTypeErrors.MISSING_MANDATORY_RELATION_TYPE_TOPICS, missingTypes));
         }
 
-        return Result.success(true);
+        return Verdict.satisfied();
     }
 
     private static Set<TradeRelationType> getDefaultMandatoryRelationTypes() {

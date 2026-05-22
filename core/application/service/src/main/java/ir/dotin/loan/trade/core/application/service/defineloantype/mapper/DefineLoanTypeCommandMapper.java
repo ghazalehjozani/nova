@@ -77,7 +77,7 @@ public interface DefineLoanTypeCommandMapper {
         for (var dto : dtos) {
             LoanTopic loanTopic = LoanTopic.of(
                             dto.topicName(), dto.topicCode(), dto.relationType(), map(dto.economicSectors()))
-                    .orElseThrow();
+                    .unwrap();
 
             multimap.put(dto.relationType(), loanTopic);
         }

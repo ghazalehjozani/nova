@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
@@ -42,25 +43,26 @@ public class PlanEqualInstallmentScheduleCommandHandler implements CommandHandle
     public Result<List<DomainEvent<?>>> handle(PlanEqualInstallmentScheduleCommand command) {
         return loadDependencies(command)
                 .flatMap(this::planSchedule)
-                .peekValue(installmentScheduleRepository::save)
-                .peekValue(installmentSchedule ->
+                .onSuccess(installmentScheduleRepository::save)
+                .onSuccess(installmentSchedule ->
                         log.info("Equal installment schedule created: {}", installmentSchedule.getId()))
-                .mapNonNull(AbstractAggregateRoot::domainEvents);
+                .map(AbstractAggregateRoot::domainEvents);
     }
 
     private Result<ScheduleCreationDependencies> loadDependencies(PlanEqualInstallmentScheduleCommand command) {
         Result<TradeLoanFacility> facility = Result.fromOptional(
                 tradeLoanFacilityRepository.findById(LoanFacilityId.of(command.loanFacilityId())),
-                Notification.ofError(TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId()));
+                FailureCause.businessRule(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())));
 
         return facility.flatMap(f -> {
             Result<TradeLoanArrangement> arrangement = Result.fromOptional(
                     tradeLoanArrangementRepository.findById(f.getLoanArrangementId()),
-                    Notification.ofError(
+                    FailureCause.businessRule(Notification.ofError(
                             TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND,
-                            f.getLoanArrangementId().value()));
+                            f.getLoanArrangementId().value())));
 
-            return arrangement.mapNonNull(a -> new ScheduleCreationDependencies(f, a));
+            return arrangement.map(a -> new ScheduleCreationDependencies(f, a));
         });
     }
 

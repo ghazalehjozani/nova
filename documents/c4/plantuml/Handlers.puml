@@ -115,12 +115,6 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.DefineTradeLoanArrang
   BorderColor #2e73ab
   shadowing false
 }
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.FindAllLoanArrangementsQueryHandler>> {
-  BackgroundColor #42a5f5
-  FontColor #ffffff
-  BorderColor #2e73ab
-  shadowing false
-}
 skinparam rectangle<<TradeLoanService.TradeLoanApplication.FullLifecycleRevertCommandHandler>> {
   BackgroundColor #42a5f5
   FontColor #ffffff
@@ -139,12 +133,6 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.GetInstallmentSchedul
   BorderColor #2e73ab
   shadowing false
 }
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.GetLoanArrangementByIdQueryHandler>> {
-  BackgroundColor #42a5f5
-  FontColor #ffffff
-  BorderColor #2e73ab
-  shadowing false
-}
 skinparam rectangle<<TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementCommandHandler>> {
   BackgroundColor #42a5f5
   FontColor #ffffff
@@ -152,6 +140,12 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.IrregularProgressiveD
   shadowing false
 }
 skinparam rectangle<<TradeLoanService.TradeLoanApplication.IssueFacilityContractCommandHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.LoanFacilityRestructuringCommandHandler>> {
   BackgroundColor #42a5f5
   FontColor #ffffff
   BorderColor #2e73ab
@@ -193,6 +187,12 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.SubmitFacilityForAppr
   BorderColor #2e73ab
   shadowing false
 }
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.UpdateCollateralCommandHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
 skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
   BorderColor #2e6295
   FontColor #2e6295
@@ -200,7 +200,7 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
 }
 
 rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>" <<TradeLoanService.TradeLoanApplication>> {
-  rectangle "==GetLoanArrangementByIdQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles get loan arrangement by id queries" <<TradeLoanService.TradeLoanApplication.GetLoanArrangementByIdQueryHandler>> as TradeLoanService.TradeLoanApplication.GetLoanArrangementByIdQueryHandler
+  rectangle "==GetInstallmentScheduleByIdQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles get installment schedule by id queries" <<TradeLoanService.TradeLoanApplication.GetInstallmentScheduleByIdQueryHandler>> as TradeLoanService.TradeLoanApplication.GetInstallmentScheduleByIdQueryHandler
   rectangle "==AddFacilityCollateralCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles add facility collateral" <<TradeLoanService.TradeLoanApplication.AddFacilityCollateralCommandHandler>> as TradeLoanService.TradeLoanApplication.AddFacilityCollateralCommandHandler
   rectangle "==CompensateCollateralCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles compensate collateral" <<TradeLoanService.TradeLoanApplication.CompensateCollateralCommandHandler>> as TradeLoanService.TradeLoanApplication.CompensateCollateralCommandHandler
   rectangle "==ApproveFacilityCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles approve facility" <<TradeLoanService.TradeLoanApplication.ApproveFacilityCommandHandler>> as TradeLoanService.TradeLoanApplication.ApproveFacilityCommandHandler
@@ -226,10 +226,10 @@ rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]<
   rectangle "==PlanEqualInstallmentScheduleCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles plan equal installment schedule" <<TradeLoanService.TradeLoanApplication.PlanEqualInstallmentScheduleCommandHandler>> as TradeLoanService.TradeLoanApplication.PlanEqualInstallmentScheduleCommandHandler
   rectangle "==RegularDisbursementCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles regular disbursement" <<TradeLoanService.TradeLoanApplication.RegularDisbursementCommandHandler>> as TradeLoanService.TradeLoanApplication.RegularDisbursementCommandHandler
   rectangle "==RejectFacilityCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles reject facility" <<TradeLoanService.TradeLoanApplication.RejectFacilityCommandHandler>> as TradeLoanService.TradeLoanApplication.RejectFacilityCommandHandler
+  rectangle "==LoanFacilityRestructuringCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles loan facility restructuring" <<TradeLoanService.TradeLoanApplication.LoanFacilityRestructuringCommandHandler>> as TradeLoanService.TradeLoanApplication.LoanFacilityRestructuringCommandHandler
   rectangle "==SubmitFacilityForApprovalCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles submit facility for approval" <<TradeLoanService.TradeLoanApplication.SubmitFacilityForApprovalCommandHandler>> as TradeLoanService.TradeLoanApplication.SubmitFacilityForApprovalCommandHandler
   rectangle "==CompensateApprovalSubmissionCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles compensate approval submission" <<TradeLoanService.TradeLoanApplication.CompensateApprovalSubmissionCommandHandler>> as TradeLoanService.TradeLoanApplication.CompensateApprovalSubmissionCommandHandler
-  rectangle "==GetInstallmentScheduleByIdQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles get installment schedule by id queries" <<TradeLoanService.TradeLoanApplication.GetInstallmentScheduleByIdQueryHandler>> as TradeLoanService.TradeLoanApplication.GetInstallmentScheduleByIdQueryHandler
-  rectangle "==FindAllLoanArrangementsQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles find all loan arrangements queries" <<TradeLoanService.TradeLoanApplication.FindAllLoanArrangementsQueryHandler>> as TradeLoanService.TradeLoanApplication.FindAllLoanArrangementsQueryHandler
+  rectangle "==UpdateCollateralCommandHandler\n<size:10>[Component: Command Handler]</size>\n\nHandles update collateral" <<TradeLoanService.TradeLoanApplication.UpdateCollateralCommandHandler>> as TradeLoanService.TradeLoanApplication.UpdateCollateralCommandHandler
 }
 
 @enduml

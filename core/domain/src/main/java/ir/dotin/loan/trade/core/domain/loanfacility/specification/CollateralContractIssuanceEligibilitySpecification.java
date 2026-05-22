@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.NotificationError;
-import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Verdict;
 import ir.dotin.platform.commons.domain.validation.Specification;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.error.LoanFacilityErrors;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
@@ -21,7 +21,7 @@ public final class CollateralContractIssuanceEligibilitySpecification implements
     }
 
     @Override
-    public Result<Boolean> isSatisfiedBy(TradeLoanFacility facility) {
+    public Verdict isSatisfiedBy(TradeLoanFacility facility) {
         Objects.requireNonNull(facility, "facility cannot be null");
 
         if (arrangement.getCollateralPolicy().totalPercent() > 0) {
@@ -29,10 +29,10 @@ public final class CollateralContractIssuanceEligibilitySpecification implements
 
             if (facilityCollaterals == null || facilityCollaterals.isEmpty()) {
                 NotificationError error = NotificationError.of(LoanFacilityErrors.COLLATERAL_REQUIRED);
-                return Result.of(false, Notification.ofError(error));
+                return Verdict.notSatisfied(Notification.ofError(error));
             }
         }
 
-        return Result.success(true);
+        return Verdict.satisfied();
     }
 }

@@ -294,8 +294,8 @@ public abstract class ValueObjectMapper {
         Money addedPrincipal = Money.valueOf(
                         emb.getRestructuringAmount(),
                         CurrencyType.valueOf(emb.getRestructuringAmountCurrency())
-                                .orElseThrow())
-                .orElseThrow();
+                                .unwrap())
+                .unwrap();
 
         return new RestructuringRecord(
                 emb.getReason(),
@@ -347,12 +347,12 @@ public abstract class ValueObjectMapper {
         return switch (emb.getType()) {
             case DEPOSIT ->
                 DepositDisburseDestination.of(
-                                DepositNumber.valueOf(emb.getDepositNumber()).orElseThrow())
-                        .orElseThrow();
+                                DepositNumber.valueOf(emb.getDepositNumber()).unwrap())
+                        .unwrap();
             case ACCOUNT ->
                 AccountDisburseDestination.of(
-                                AccountNumber.of(emb.getAccountNumber()).orElseThrow())
-                        .orElseThrow();
+                                AccountNumber.of(emb.getAccountNumber()).unwrap())
+                        .unwrap();
         };
     }
 
@@ -462,7 +462,7 @@ public abstract class ValueObjectMapper {
                                 emb.getGuaranteePercentage() != null
                                         ? GuaranteePercentage.of(emb.getGuaranteePercentage())
                                         : null)
-                        .orElseThrow();
+                        .unwrap();
         };
     }
 
@@ -580,18 +580,18 @@ public abstract class ValueObjectMapper {
         if (emb == null || emb.getMinAmount() == null || emb.getMaxAmount() == null || emb.getCurrency() == null) {
             return null;
         }
-        CurrencyType currency = CurrencyType.valueOf(emb.getCurrency()).orElseThrow();
-        Money min = Money.valueOf(emb.getMinAmount(), currency).orElseThrow();
-        Money max = Money.valueOf(emb.getMaxAmount(), currency).orElseThrow();
+        CurrencyType currency = CurrencyType.valueOf(emb.getCurrency()).unwrap();
+        Money min = Money.valueOf(emb.getMinAmount(), currency).unwrap();
+        Money max = Money.valueOf(emb.getMaxAmount(), currency).unwrap();
         return Range.closed(min, max);
     }
 
     @Named("mapInterestPolicyEmbToPolicy")
     public InterestPolicy mapInterestPolicyEmbToPolicy(InterestPolicyEmb emb) {
         if (emb == null) return null;
-        Rate baseRate = Rate.valueOf(emb.getBaseInterestRate()).orElseThrow();
-        Rate minRate = Rate.valueOf(emb.getPreferentialMinRate()).orElseThrow();
-        Rate maxRate = Rate.valueOf(emb.getPreferentialMaxRate()).orElseThrow();
+        Rate baseRate = Rate.valueOf(emb.getBaseInterestRate()).unwrap();
+        Rate minRate = Rate.valueOf(emb.getPreferentialMinRate()).unwrap();
+        Rate maxRate = Rate.valueOf(emb.getPreferentialMaxRate()).unwrap();
         Range<Rate> preferentialRange = Range.closed(minRate, maxRate);
         return InterestPolicy.of(
                         baseRate,
@@ -599,20 +599,20 @@ public abstract class ValueObjectMapper {
                         toFormulaId(emb.getInterestFormula()),
                         toFormulaId(emb.getRefundInterestFormula()),
                         emb.getDailyInterest())
-                .orElseThrow();
+                .unwrap();
     }
 
     @Named("mapInstallmentPolicyEmbToPolicy")
     public InstallmentPolicy mapInstallmentPolicyEmbToPolicy(InstallmentPolicyEmb emb) {
         if (emb == null) return null;
         InstallmentPeriod installmentPeriod = InstallmentPeriod.of(Period.ofDays(emb.getInstallmentPeriodDays()))
-                .orElseThrow();
+                .unwrap();
         return InstallmentPolicy.of(
                         installmentPeriod,
                         toFormulaId(emb.getInstallmentFormula()),
                         toFormulaId(emb.getInterestComponentFormula()),
                         InstallmentPaymentType.valueOf(emb.getInstallmentPaymentType()))
-                .orElseThrow();
+                .unwrap();
     }
 
     @Named("mapGracePeriodPolicyEmbToPolicy")
@@ -622,17 +622,17 @@ public abstract class ValueObjectMapper {
                         Period.ofDays(emb.getMinGracePeriodDays()),
                         Period.ofDays(emb.getMaxGracePeriodDays()),
                         toFormulaId(emb.getGracePeriodFormula()))
-                .orElseThrow();
+                .unwrap();
     }
 
     @Named("mapPenaltyPolicyEmbToPolicy")
     public PenaltyPolicy mapPenaltyPolicyEmbToPolicy(PenaltyPolicyEmb emb) {
         if (emb == null) return null;
-        Rate penaltyRate = Rate.valueOf(emb.getPenaltyRate()).orElseThrow();
-        Rate deferralRate = Rate.valueOf(emb.getDeferralInterestRate()).orElseThrow();
+        Rate penaltyRate = Rate.valueOf(emb.getPenaltyRate()).unwrap();
+        Rate deferralRate = Rate.valueOf(emb.getDeferralInterestRate()).unwrap();
         PenaltyPaymentType paymentType = PenaltyPaymentType.valueOf(emb.getPenaltyPaymentType());
         return PenaltyPolicy.of(penaltyRate, deferralRate, toFormulaId(emb.getPenaltyFormula()), paymentType)
-                .orElseThrow();
+                .unwrap();
     }
 
     @Named("mapCollateralPolicyEmbToPolicy")
@@ -642,7 +642,7 @@ public abstract class ValueObjectMapper {
                         new ArrayList<>(emb.getCollateralTypes()),
                         emb.getTotalPercent(),
                         emb.getCollateralCalculationType())
-                .orElseThrow();
+                .unwrap();
     }
 
     @Named("toTransactionNumberEmbList")
@@ -693,11 +693,11 @@ public abstract class ValueObjectMapper {
         if (currencyCode == null || currencyCode.isBlank()) {
             return CurrencyType.IRR;
         }
-        return CurrencyType.valueOf(currencyCode).orElse(CurrencyType.IRR);
+        return CurrencyType.valueOf(currencyCode).unwrapOr(CurrencyType.IRR);
     }
 
     public CurrencyType currencyTypeEmbToCurrencyType(CurrencyTypeEmb currencyTypeEmb) {
-        return CurrencyType.valueOf(currencyTypeEmb.getValue()).orElse(CurrencyType.IRR);
+        return CurrencyType.valueOf(currencyTypeEmb.getValue()).unwrapOr(CurrencyType.IRR);
     }
 
     @Named("embToTrackedTransactionNumber")
@@ -742,7 +742,7 @@ public abstract class ValueObjectMapper {
     }
 
     public Active mapToActive(Boolean value) {
-        return value != null ? Active.of(value).orElseThrow() : null;
+        return value != null ? Active.of(value).unwrap() : null;
     }
 
     public Boolean map(Disable value) {
@@ -750,7 +750,7 @@ public abstract class ValueObjectMapper {
     }
 
     public Disable mapToDisable(Boolean value) {
-        return value != null ? Disable.of(value).orElseThrow() : null;
+        return value != null ? Disable.of(value).unwrap() : null;
     }
 
     public BigDecimal mapRateValue(Rate rate) {
@@ -758,7 +758,7 @@ public abstract class ValueObjectMapper {
     }
 
     public Rate mapToRateFromBigDecimal(BigDecimal value) {
-        return value != null ? Rate.valueOf(value).orElseThrow() : null;
+        return value != null ? Rate.valueOf(value).unwrap() : null;
     }
 
     public Long mapDurationToDays(Duration duration) {
@@ -778,7 +778,7 @@ public abstract class ValueObjectMapper {
     public Set<CurrencyType> mapStringsToCurrencies(Set<String> currencies) {
         return currencies != null
                 ? currencies.stream()
-                        .map(currencyCode -> CurrencyType.valueOf(currencyCode).orElseThrow())
+                        .map(currencyCode -> CurrencyType.valueOf(currencyCode).unwrap())
                         .collect(Collectors.toSet())
                 : null;
     }
@@ -810,7 +810,7 @@ public abstract class ValueObjectMapper {
                 emb.getYears() != null ? emb.getYears() : 0,
                 emb.getMonths() != null ? emb.getMonths() : 0,
                 emb.getDays() != null ? emb.getDays() : 0);
-        return LoanDuration.of(period).orElseThrow();
+        return LoanDuration.of(period).unwrap();
     }
 
     public PeriodEmb mapLoanDurationToPeriodEmb(LoanDuration loanDuration) {
@@ -846,7 +846,7 @@ public abstract class ValueObjectMapper {
     }
 
     public IncomeId mapToIncomeId(UUID value) {
-        return value != null ? IncomeId.of(value).orElseThrow() : null;
+        return value != null ? IncomeId.of(value).unwrap() : null;
     }
 
     public UUID map(LoanTypeGroupId value) {
@@ -854,7 +854,7 @@ public abstract class ValueObjectMapper {
     }
 
     public LoanTypeGroupId mapToLoanTypeGroupId(UUID value) {
-        return value != null ? LoanTypeGroupId.of(value).orElseThrow() : null;
+        return value != null ? LoanTypeGroupId.of(value).unwrap() : null;
     }
 
     public Set<UUID> mapIncomeIdsToUUIDs(Set<IncomeId> value) {
@@ -934,7 +934,7 @@ public abstract class ValueObjectMapper {
                             emb.getTopicCode(),
                             emb.getTradeRelationType(),
                             toEconomicSector(emb.getEconomicSectors()))
-                    .orElseThrow();
+                    .unwrap();
 
             builder.put(emb.getTradeRelationType(), loanTopic);
         }
@@ -956,7 +956,7 @@ public abstract class ValueObjectMapper {
         Map<RelationType<?>, AccountId> result = new HashMap<>();
         entityMap.forEach((rtStr, aidStr) -> {
             TradeRelationType trt = TradeRelationType.valueOf(rtStr);
-            result.put(trt, AccountId.valueOf(aidStr).orElseThrow());
+            result.put(trt, AccountId.valueOf(aidStr).unwrap());
         });
         return result;
     }
@@ -973,7 +973,7 @@ public abstract class ValueObjectMapper {
                 .filter(Objects::nonNull)
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
-                .map(code -> EconomicSector.of(code).getValue())
+                .map(code -> EconomicSector.of(code).unwrap())
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
@@ -1092,10 +1092,10 @@ public abstract class ValueObjectMapper {
                 && emb.getTotalClosePaidOffAmount().getCurrency() != null) {
             CurrencyType currency = CurrencyType.valueOf(
                             emb.getTotalClosePaidOffAmount().getCurrency())
-                    .orElseThrow(() -> new IllegalStateException("Unknown currency in CloseFacilityPaidOffInfoEmb: "
+                    .unwrapOrThrow(c -> new IllegalStateException("Unknown currency in CloseFacilityPaidOffInfoEmb: "
                             + emb.getTotalClosePaidOffAmount().getCurrency()));
             totalAmount = Money.valueOf(emb.getTotalClosePaidOffAmount().getAmount(), currency)
-                    .orElseThrow(() ->
+                    .unwrapOrThrow(c ->
                             new IllegalStateException("Failed to reconstruct Money from CloseFacilityPaidOffInfoEmb"));
         }
         return new CloseFacilityPaidOffInfo(emb.getClosePaidOffDate(), totalAmount);

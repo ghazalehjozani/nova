@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Unit;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentScheduleCreationContext;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentSpec;
@@ -50,9 +52,9 @@ public class GradualScheduleStrategy implements InstallmentScheduleStrategy {
 
         return planInstallmentSchedule(command.installmentSchedulePlan(), application, context, facilityId)
                 .flatMap(schedule -> {
-                    Result<Void> validationResult = installmentAmountValidator.validate(application, schedule);
+                    Result<?> validationResult = installmentAmountValidator.validate(application, schedule);
                     if (validationResult.isFailure()) {
-                        return Result.failure(validationResult.notification());
+                        return Result.failure(validationResult.err().orElseThrow());
                     }
                     return Result.success(Optional.of(schedule));
                 });
@@ -60,11 +62,11 @@ public class GradualScheduleStrategy implements InstallmentScheduleStrategy {
 
     @Override
     @NonNull
-    public Result<Void> validateCommand(@NonNull OriginateLoanFacilityCommand command) {
+    public Result<Unit> validateCommand(@NonNull OriginateLoanFacilityCommand command) {
         return Result.requireTrue(
                 command.installmentSchedulePlan() != null,
-                () -> Notification.ofError(
-                        OriginateLoanFacilityErrorCodes.INSTALLMENT_SCHEDULE_IS_MANDATORY_IN_GRADUAL));
+                () -> FailureCause.businessRule(Notification.ofError(
+                        OriginateLoanFacilityErrorCodes.INSTALLMENT_SCHEDULE_IS_MANDATORY_IN_GRADUAL)));
     }
 
     private Result<InstallmentSchedule> planInstallmentSchedule(
@@ -89,7 +91,7 @@ public class GradualScheduleStrategy implements InstallmentScheduleStrategy {
 
         return schedulingService
                 .planGradualInstallmentSchedule(scheduleContext, installmentSpecs)
-                .peekValue(schedule -> log.debug(
+                .onSuccess(schedule -> log.debug(
                         "Installment schedule planned for GRADUAL: {}",
                         schedule.getId().value()));
     }

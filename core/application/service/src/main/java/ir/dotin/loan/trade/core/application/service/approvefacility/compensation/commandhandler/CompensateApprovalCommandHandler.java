@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -31,10 +32,10 @@ class CompensateApprovalCommandHandler implements CommandHandler<CompensateAppro
         log.warn("Compensating approval for facility: {}", command.loanFacilityId());
         return Result.fromOptional(
                         repository.findById(LoanFacilityId.of(command.loanFacilityId())),
-                        () -> Notification.ofError(
-                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId()))
+                        () -> FailureCause.businessRule(Notification.ofError(
+                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())))
                 .flatMap(facility -> facility.revertApproval(clock).map(v -> facility))
-                .peekValue(repository::save)
-                .mapNonNull(TradeLoanFacility::domainEvents);
+                .onSuccess(repository::save)
+                .map(TradeLoanFacility::domainEvents);
     }
 }

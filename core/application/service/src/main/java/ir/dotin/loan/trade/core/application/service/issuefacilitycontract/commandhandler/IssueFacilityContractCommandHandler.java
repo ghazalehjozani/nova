@@ -8,14 +8,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
-import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.platform.saga.api.error.SagaErrors;
 import ir.dotin.platform.saga.api.exception.SagaSuspendedException;
 import ir.dotin.platform.saga.api.model.SagaResult;
-import ir.dotin.platform.saga.api.model.StepError;
 import ir.dotin.platform.saga.api.orchestration.SagaOrchestrator;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.IssueFacilityContractCommand;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.component.FacilityContractDependencyLoader;
@@ -49,15 +48,15 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
     private Result<List<DomainEvent<?>>> executeContractIssuanceWorkflow(
             IssueFacilityContractCommand command, FacilityContractContext context) {
 
-        Result<Void> validationResult = facilityValidator.callAndValidateServices(command, context);
+        Result<?> validationResult = facilityValidator.callAndValidateServices(command, context);
         if (validationResult.isFailure()) {
-            return Result.failure(validationResult.notification());
+            return Result.failure(validationResult.err().orElseThrow());
         }
 
         Result<Boolean> eligibilityValidation =
                 facilityContractValidation.validateForContractIssuance(context.facility(), context.arrangement());
         if (eligibilityValidation.isFailure()) {
-            return Result.failure(eligibilityValidation.notification());
+            return Result.failure(eligibilityValidation.err().orElseThrow());
         }
 
         TransactionConfig transactionConfig = TransactionConfig.builder()
@@ -92,8 +91,7 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
         return sagaResult
                 .error()
                 .map(this::toResult)
-                .orElseGet(
-                        () -> Result.failure(Notification.ofError(SagaErrors.COMPENSATED, extractReason(sagaResult))));
+                .orElseGet(() -> Result.failure(SagaErrors.COMPENSATED, extractReason(sagaResult)));
     }
 
     private List<DomainEvent<?>> buildDomainEvents(IssueFacilityContractSagaData data) {
@@ -134,17 +132,7 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
         return "unknown";
     }
 
-    private Result<List<DomainEvent<?>>> toResult(StepError stepError) {
-        return switch (stepError) {
-            case StepError.BusinessRuleError bre -> Result.failure(bre.notification());
-            case StepError.ValidationError ve ->
-                Result.failure(Notification.ofError(SagaErrors.VALIDATION_FAILED, ve.message()));
-            case StepError.BusinessError be ->
-                Result.failure(Notification.ofError(SagaErrors.STEP_FAILED, be.message()));
-            case StepError.TechnicalError te ->
-                Result.failure(Notification.ofError(SagaErrors.TECHNICAL_ERROR, te.message()));
-            case StepError.TimeoutError toe ->
-                Result.failure(Notification.ofError(SagaErrors.TIMEOUT, toe.timeoutMillis()));
-        };
+    private Result<List<DomainEvent<?>>> toResult(FailureCause failureCause) {
+        return Result.failure(failureCause);
     }
 }

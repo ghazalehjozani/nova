@@ -65,9 +65,9 @@ final class TradeLoanApplicationTest {
         mockGuarantor = new GuarantorParty("67890", PartyType.REAL, guarantorName, GuaranteePercentage.of(25.0));
 
         validAmount =
-                Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR).value();
+                Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR).unwrap();
         validCurrency = CurrencyType.IRR;
-        validDuration = LoanDuration.of(Period.ofDays(12)).value();
+        validDuration = LoanDuration.of(Period.ofDays(12)).unwrap();
     }
 
     @Mock
@@ -105,8 +105,8 @@ final class TradeLoanApplicationTest {
             var result = TradeLoanApplication.create(builder);
 
             // then
-            assertThat(result.isSuccessWithValue()).isTrue();
-            var application = result.value();
+            assertThat(result.isSuccess()).isTrue();
+            var application = result.unwrap();
             assertThat(application).isNotNull();
             assertThat(application.getId()).isNotNull();
             assertThat(application.getId()).isInstanceOf(LoanApplicationId.class);
@@ -150,7 +150,7 @@ final class TradeLoanApplicationTest {
 
             // then - since all required constructor fields are provided, creation should succeed
             // The test was expecting failure but with proper required fields it should pass
-            assertThat(result.isSuccessWithValue()).isTrue();
+            assertThat(result.isSuccess()).isTrue();
         }
     }
 
@@ -169,8 +169,8 @@ final class TradeLoanApplicationTest {
             var result = TradeLoanApplication.reconstitute(builder);
 
             // then
-            assertThat(result.isSuccessWithValue()).isTrue();
-            var application = result.value();
+            assertThat(result.isSuccess()).isTrue();
+            var application = result.unwrap();
             assertThat(application).isNotNull();
             assertThat(application.getId()).isEqualTo(existingId);
             assertThat(application.getApplicationNumber()).hasValue(mockApplicationNumber);
@@ -254,8 +254,8 @@ final class TradeLoanApplicationTest {
             var builder2 = createValidBuilder().id(id);
 
             // when
-            var application1 = TradeLoanApplication.reconstitute(builder1).value();
-            var application2 = TradeLoanApplication.reconstitute(builder2).value();
+            var application1 = TradeLoanApplication.reconstitute(builder1).unwrap();
+            var application2 = TradeLoanApplication.reconstitute(builder2).unwrap();
 
             // then
             assertThat(application1).isEqualTo(application2);
@@ -270,8 +270,8 @@ final class TradeLoanApplicationTest {
             var builder2 = createValidBuilder();
 
             // when
-            var application1 = TradeLoanApplication.create(builder1).value();
-            var application2 = TradeLoanApplication.create(builder2).value();
+            var application1 = TradeLoanApplication.create(builder1).unwrap();
+            var application2 = TradeLoanApplication.create(builder2).unwrap();
 
             // then
             assertThat(application1.getId()).isNotEqualTo(application2.getId());
@@ -293,8 +293,8 @@ final class TradeLoanApplicationTest {
             var result = TradeLoanApplication.create(builder);
 
             // then
-            assertThat(result.isSuccessWithValue()).isTrue();
-            var application = result.value();
+            assertThat(result.isSuccess()).isTrue();
+            var application = result.unwrap();
 
             // Verify inheritance behavior
             assertThat(application.getApplicationNumber()).hasValue(mockApplicationNumber);
@@ -314,8 +314,8 @@ final class TradeLoanApplicationTest {
             var result = TradeLoanApplication.create(builder);
 
             // then
-            assertThat(result.isSuccessWithValue()).isTrue();
-            var application = result.value();
+            assertThat(result.isSuccess()).isTrue();
+            var application = result.unwrap();
 
             // Verify basic entity capabilities are inherited
             assertThat(application.getId()).isNotNull();
@@ -323,13 +323,13 @@ final class TradeLoanApplicationTest {
     }
 
     private DisburseDestination createDepositDisburseDestination() {
-        DepositNumber depositNumber = DepositNumber.valueOf("123-456-789").orElseThrow();
-        return DepositDisburseDestination.of(depositNumber).orElseThrow();
+        DepositNumber depositNumber = DepositNumber.valueOf("123-456-789").unwrap();
+        return DepositDisburseDestination.of(depositNumber).unwrap();
     }
 
     private DisburseDestination createAccountDisburseDestination() {
-        AccountNumber accountNumber = AccountNumber.of("987-654-321").orElseThrow();
-        return AccountDisburseDestination.of(accountNumber).orElseThrow();
+        AccountNumber accountNumber = AccountNumber.of("987-654-321").unwrap();
+        return AccountDisburseDestination.of(accountNumber).unwrap();
     }
 
     private TradeLoanApplication.Builder createValidBuilder() {

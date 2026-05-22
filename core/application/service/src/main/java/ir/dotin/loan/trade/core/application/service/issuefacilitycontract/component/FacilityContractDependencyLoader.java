@@ -7,7 +7,6 @@ import java.util.concurrent.Executors;
 
 import org.springframework.stereotype.Component;
 
-import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -39,17 +38,18 @@ public class FacilityContractDependencyLoader {
         return facilityFuture
                 .thenCompose(facilityResult -> {
                     if (facilityResult.isFailure()) {
-                        return CompletableFuture.completedFuture(
-                                Result.<FacilityContractContext>failure(facilityResult.notification()));
+                        return CompletableFuture.completedFuture(Result.<FacilityContractContext>failure(
+                                facilityResult.err().orElseThrow()));
                     }
-                    var facility = facilityResult.getValue();
+                    var facility = facilityResult.unwrap();
                     var arrangementFuture = CompletableFuture.supplyAsync(
                             () -> safeLoadArrangement(facility.getLoanArrangementId()), VIRTUAL_EXECUTOR);
-                    return arrangementFuture.thenApply(arrangementResult -> {
+                    return arrangementFuture.thenApply((Result<TradeLoanArrangement> arrangementResult) -> {
                         if (arrangementResult.isFailure()) {
-                            return Result.<FacilityContractContext>failure(arrangementResult.notification());
+                            return Result.<FacilityContractContext>failure(
+                                    arrangementResult.err().orElseThrow());
                         }
-                        var context = new FacilityContractContext(facility, arrangementResult.getValue());
+                        var context = new FacilityContractContext(facility, arrangementResult.unwrap());
                         return Result.success(context);
                     });
                 })
@@ -60,15 +60,15 @@ public class FacilityContractDependencyLoader {
         return facilityRepository
                 .findById(LoanFacilityId.of(facilityId))
                 .map(Result::success)
-                .orElseGet(() -> Result.failure(Notification.ofError(
-                        TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, facilityId.toString())));
+                .orElseGet(() ->
+                        Result.failure(TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, facilityId.toString()));
     }
 
     private Result<TradeLoanArrangement> safeLoadArrangement(LoanArrangementId arrangementId) {
         return loanArrangementRepository
                 .findById(arrangementId)
                 .map(Result::success)
-                .orElseGet(() -> Result.failure(Notification.ofError(
-                        TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND, arrangementId)));
+                .orElseGet(() ->
+                        Result.failure(TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND, arrangementId));
     }
 }

@@ -240,13 +240,13 @@ public class IrregularProgressiveDisbursementTransactionService {
                 sumInterestAmount(currentSchedule.getInstallments(), currentSchedule.getCurrency());
         Money incrementalInterest = newTotalInterest
                 .subtract(currentTotalInterest)
-                .orElseThrow(() -> new IllegalStateException("Interest calculation failed"));
+                .unwrapOrThrow(c -> new IllegalStateException("Interest calculation failed"));
 
         if (incrementalInterest.isNegative()) {
-            return Result.failure(Notification.ofError(
+            return Result.failure(
                     TradeLoanFacilityErrors.INCREMENTAL_INTEREST_CANNOT_BE_NEGATIVE,
                     newTotalInterest,
-                    currentTotalInterest));
+                    currentTotalInterest);
         }
         return Result.success(incrementalInterest);
     }
@@ -254,7 +254,7 @@ public class IrregularProgressiveDisbursementTransactionService {
     private Money sumInterestAmount(List<Installment> installments, CurrencyType currency) {
         return installments.stream()
                 .map(installment -> installment.getScheduledAmount().interestAmount())
-                .reduce(Money.zero(currency).orElseThrow(), (sum, next) -> sum.add(next)
-                        .orElseThrow());
+                .reduce(Money.zero(currency).unwrap(), (sum, next) -> sum.add(next)
+                        .unwrap());
     }
 }

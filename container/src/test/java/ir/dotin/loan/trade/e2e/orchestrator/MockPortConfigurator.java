@@ -107,7 +107,7 @@ public class MockPortConfigurator {
                         new Branch(new BranchCode("1")),
                         new LoanTypeCode("LC001"),
                         ApplicantParty.of("CUST123", PartyType.REAL, new CustomerName("Mahdi", "Abdollahi", "Test"))
-                                .getValue(),
+                                .unwrap(),
                         "1"));
         when(loanServicePort.loadBranch(any()))
                 .thenReturn(Result.success(new BranchDetails(
@@ -119,10 +119,17 @@ public class MockPortConfigurator {
             LoanTopic topic = invocation.getArgument(0);
             return Result.success(new AccountInfo(new AccountId("ACC-" + topic.code()), topic));
         });
-        when(accountServicePort.openAccount(any(CreateAccountInfo.class))).thenReturn(Result.success());
+        when(accountServicePort.openAccount(any(CreateAccountInfo.class)))
+                .thenReturn(Result.success(new AccountId("ACC-E2E-001")));
         when(accountServicePort.validateAccountNumber(any()))
                 .thenReturn(Result.success(new AccountNumber("1.10.1357.60")));
-        when(findAccountByIdPort.findAccountById(any())).thenReturn(Result.success());
+        when(findAccountByIdPort.findAccountById(any())).thenAnswer(invocation -> {
+            AccountId id = invocation.getArgument(0);
+            return Result.failure(ir.dotin.platform.commons.core.Notification.ofError(
+                    ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors
+                            .KAFKA_INVALID_RESPONSE,
+                    "findAccountById-stub"));
+        });
     }
 
     private void configureTransactionPostingDefaults() {
@@ -138,17 +145,42 @@ public class MockPortConfigurator {
             }
             return Result.success(results);
         });
-        when(transactionPostingPort.reverseTransaction(any())).thenReturn(Result.success());
+        when(transactionPostingPort.reverseTransaction(any()))
+                .thenReturn(Result.<ir.dotin.platform.commons.core.Unit>success());
     }
 
     private void configureCollateralServiceDefaults() {
         when(collateralServicePort.validateAddAssuranceToFile(any(), any(), any()))
-                .thenReturn(Result.success());
+                .thenReturn(Result.success(
+                        new ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralValidation(
+                                true, null)));
         when(collateralServicePort.reserveCollateral(any(), any(), any(), any(), any()))
                 .thenReturn(Result.success(List.of()));
-        when(collateralServicePort.loadCollateral(any(), any())).thenReturn(Result.success());
+        when(collateralServicePort.loadCollateral(any(), any()))
+                .thenReturn(Result.success(
+                        new ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralDetails(
+                                "E2E-SERIAL",
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                false,
+                                false,
+                                false,
+                                false,
+                                null)));
         when(collateralServicePort.unReserveCollateral(any(), any(), any(), any()))
-                .thenReturn(Result.success());
+                .thenReturn(Result.success(
+                        new ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial("E2E-SERIAL")));
     }
 
     private void configureDepositServiceDefaults() {
@@ -185,10 +217,16 @@ public class MockPortConfigurator {
     }
 
     private void configureFindOrCreateAccountDefaults() {
-        when(findOrCreateAccountPort.findOrCreateAccount(any())).thenReturn(Result.success());
+        when(findOrCreateAccountPort.findOrCreateAccount(any())).thenAnswer(invocation -> {
+            LoanTopic topic = invocation.getArgument(0);
+            return Result.success(new AccountInfo(new AccountId("ACC-E2E-" + topic.code()), topic));
+        });
     }
 
     private void configureFetchSanctionDefaults() {
-        when(fetchSanctionDetailsPort.fetchBySanctionSerial(any())).thenReturn(Result.success());
+        when(fetchSanctionDetailsPort.fetchBySanctionSerial(any()))
+                .thenReturn(Result.success(
+                        new ir.dotin.loan.trade.core.application.ports.outbound.client.response.SanctionDetails(
+                                "E2E-SANCTION", null, null, null, null, null, null, null, null, null, null, null)));
     }
 }

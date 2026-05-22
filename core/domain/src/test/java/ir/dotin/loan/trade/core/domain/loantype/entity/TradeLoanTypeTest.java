@@ -79,8 +79,8 @@ final class TradeLoanTypeTest {
             var result = TradeLoanType.create(builder, testClock);
 
             // then
-            assertThat(result.isSuccessWithValue()).isTrue();
-            var loanType = result.value();
+            assertThat(result.isSuccess()).isTrue();
+            var loanType = result.unwrap();
             assertThat(loanType).isNotNull();
             assertThat(loanType.getId()).isNotNull();
             assertThat(loanType.getId()).isInstanceOf(LoanTypeId.class);
@@ -122,7 +122,7 @@ final class TradeLoanTypeTest {
             var result = TradeLoanType.create(builder, testClock);
 
             // then
-            assertThat(result.isSuccessWithValue()).isTrue();
+            assertThat(result.isSuccess()).isTrue();
         }
     }
 
@@ -172,8 +172,8 @@ final class TradeLoanTypeTest {
             var result = loanType.activate(testClock);
 
             // then
-            assertThat(result.isSuccessWithValue()).isTrue();
-            var activatedLoanType = result.orElseThrow();
+            assertThat(result.isSuccess()).isTrue();
+            var activatedLoanType = result.unwrap();
             assertThat(activatedLoanType.getActive().isActive()).isTrue();
         }
 
@@ -188,8 +188,8 @@ final class TradeLoanTypeTest {
             var result = loanType.deactivate(testClock);
 
             // then
-            assertThat(result.isSuccessWithValue()).isTrue();
-            var deactivatedLoanType = result.orElseThrow();
+            assertThat(result.isSuccess()).isTrue();
+            var deactivatedLoanType = result.unwrap();
             assertThat(deactivatedLoanType.getActive().isActive()).isFalse();
         }
     }

@@ -19,6 +19,8 @@ import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
 import ir.dotin.platform.accounting.document.api.model.metadata.ArticleMetadata;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Unit;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
@@ -91,7 +93,7 @@ public class IrregularProgressiveDisbursementCommandHandler
                                 .flatMap(ignored -> resolveAccounts(facility, context))
                                 .flatMap(resolvedAccounts -> processDisbursement(context, resolvedAccounts))))
                 .flatMap(this::persistAndCollectEvents)
-                .peekValue(result ->
+                .onSuccess(result ->
                         log.info("Irregular disbursement completed for facility: {}", command.loanFacilityId()))
                 .map(DisbursementResult::events);
     }
@@ -125,8 +127,8 @@ public class IrregularProgressiveDisbursementCommandHandler
     private Result<TradeLoanFacility> loadFacility(LoanFacilityId loanFacilityId) {
         return Result.fromOptional(
                 tradeLoanFacilityRepository.findById(loanFacilityId),
-                () -> Notification.ofError(
-                        TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, loanFacilityId.value()));
+                () -> FailureCause.businessRule(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, loanFacilityId.value())));
     }
 
     private Result<TradeLoanFacility> validateDisbursementMethod(TradeLoanFacility facility) {
@@ -144,7 +146,7 @@ public class IrregularProgressiveDisbursementCommandHandler
             TradeLoanFacility facility, IrregularProgressiveDisbursementCommand command) {
         CurrencyType currencyType = facility.getSanctionedLoan().orElseThrow().getCurrency();
         Money trancheAmount = Money.valueOf(command.trancheAmount(), requireNonNull(currencyType))
-                .getValue();
+                .unwrap();
 
         List<InstallmentSpec> customPlan = null;
         if (command.installmentSchedulePlan() != null) {
@@ -173,28 +175,28 @@ public class IrregularProgressiveDisbursementCommandHandler
     private Result<TradeLoanType> loadLoanType(TradeLoanFacility facility) {
         return Result.fromOptional(
                 tradeLoanTypeRepository.findById(facility.getLoanTypeId()),
-                () -> Notification.ofError(
+                () -> FailureCause.businessRule(Notification.ofError(
                         TradeLoanApplicationServiceErrors.LOAN_TYPE_NOT_FOUND,
                         facility.getLoanTypeId(),
-                        facility.getId().value()));
+                        facility.getId().value())));
     }
 
     private Result<TradeLoanArrangement> loadLoanArrangement(TradeLoanFacility facility) {
         return Result.fromOptional(
                 tradeLoanArrangementRepository.findById(facility.getLoanArrangementId()),
-                () -> Notification.ofError(
+                () -> FailureCause.businessRule(Notification.ofError(
                         TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND,
                         facility.getLoanArrangementId(),
-                        facility.getId().value()));
+                        facility.getId().value())));
     }
 
     private Result<InstallmentSchedule> loadInstallmentSchedule(TradeLoanFacility facility) {
         return facility.getInstallmentScheduleId()
                 .map(scheduleId -> Result.fromOptional(
                         installmentScheduleRepository.findById(scheduleId),
-                        () -> Notification.ofError(
+                        () -> FailureCause.businessRule(Notification.ofError(
                                 TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
-                                facility.getId().value())))
+                                facility.getId().value()))))
                 .orElseGet(() -> Result.failure(Notification.ofError(
                         TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
                         facility.getId().value())));
@@ -202,8 +204,7 @@ public class IrregularProgressiveDisbursementCommandHandler
 
     private Result<BranchCode> createBranchCode(IrregularProgressiveDisbursementCommand command) {
         return BranchCode.of(command.branchCode())
-                .recoverWith(() -> Result.failure(Notification.ofError(
-                        TradeLoanApplicationServiceErrors.INVALID_BRANCH_CODE, command.branchCode())));
+                .or(Result.failure(TradeLoanApplicationServiceErrors.INVALID_BRANCH_CODE, command.branchCode()));
     }
 
     private Result<TransactionConfig> createTransactionConfig(IrregularProgressiveDisbursementCommand command) {
@@ -226,7 +227,7 @@ public class IrregularProgressiveDisbursementCommandHandler
         return PostTitle.of(title);
     }
 
-    private Result<Void> validateAll(TradeLoanFacility facility, ProcessingContext context) {
+    private Result<Unit> validateAll(TradeLoanFacility facility, ProcessingContext context) {
         return validateScheduleStatus(context)
                 .flatMap(ignored -> facility.validateDisbursementDate(
                         context.disbursementDate(),
@@ -234,21 +235,21 @@ public class IrregularProgressiveDisbursementCommandHandler
                 .flatMap(ignored -> facility.validateIrregularTrancheDisbursement(context.trancheAmount()));
     }
 
-    private Result<Void> validateScheduleStatus(ProcessingContext context) {
+    private Result<Unit> validateScheduleStatus(ProcessingContext context) {
         boolean isFirstDisbursement = context.schedule().getScheduleHistory().count() == 0;
         InstallmentScheduleStatus currentStatus = context.schedule().getStatus();
 
         if (isFirstDisbursement) {
             if (currentStatus != InstallmentScheduleStatus.DRAFT) {
-                return Result.failure(Notification.ofError(
+                return Result.failure(
                         TradeLoanApplicationServiceErrors.INVALID_SCHEDULE_STATUS_FOR_FIRST_DISBURSEMENT,
-                        currentStatus));
+                        currentStatus);
             }
         } else {
             if (currentStatus != InstallmentScheduleStatus.ACTIVE) {
-                return Result.failure(Notification.ofError(
+                return Result.failure(
                         TradeLoanApplicationServiceErrors.INVALID_SCHEDULE_STATUS_FOR_SUBSEQUENT_DISBURSEMENT,
-                        currentStatus));
+                        currentStatus);
             }
         }
 
@@ -269,7 +270,7 @@ public class IrregularProgressiveDisbursementCommandHandler
                 trancheNumber, context.trancheAmount().value());
         Money totalTranche = facility.getTotalDisbursedAmount()
                 .add(context.trancheAmount())
-                .orElseThrow(() -> new IllegalStateException("Creating zero Money failed unexpectedly."));
+                .unwrapOrThrow(c -> new IllegalStateException("Creating zero Money failed unexpectedly."));
 
         return context.schedule()
                 .restructureSchedule(

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.saga.api.annotation.SagaHandler;
 import ir.dotin.platform.saga.api.context.SagaContext;
 import ir.dotin.platform.saga.api.definition.SagaDefinition;
@@ -19,7 +20,6 @@ import ir.dotin.platform.saga.api.definition.SagaInput;
 import ir.dotin.platform.saga.api.definition.SagaStep;
 import ir.dotin.platform.saga.api.definition.SagaSteps;
 import ir.dotin.platform.saga.api.model.ResultStepAdapter;
-import ir.dotin.platform.saga.api.model.StepError;
 import ir.dotin.platform.saga.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.service.validator.AbstractCollateralValidationService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
@@ -104,13 +104,13 @@ public class AddFacilityCollateralSaga implements SagaDefinition<AddFacilityColl
         var data = ctx.getSagaData();
 
         var facilityResult = loadFacility(LoanFacilityId.of(data.facilityId()));
-        if (facilityResult.hasErrors()) {
-            return new StepResult.Failure<>(new StepError.BusinessRuleError(facilityResult.notification()));
+        if (facilityResult.isFailure()) {
+            return new StepResult.Failure<>(facilityResult.err().orElseThrow());
         }
-        var facility = facilityResult.orElseThrow();
+        var facility = facilityResult.unwrap();
 
         if (facility.getLoanApplication().getApplicationNumber().isEmpty()) {
-            return new StepResult.Failure<>(new StepError.BusinessRuleError(
+            return new StepResult.Failure<>(FailureCause.businessRule(
                     Notification.ofError(TradeLoanApplicationServiceErrors.APPLICATION_NUMBER_MISSING)));
         }
         ApplicationNumber appNumber =
@@ -130,7 +130,7 @@ public class AddFacilityCollateralSaga implements SagaDefinition<AddFacilityColl
             if (result.isFailure()) {
                 // partial reservation within this step is not compensated by the framework — clean up here.
                 unReserve(appNumber, reserved, data.requestId());
-                return new StepResult.Failure<>(new StepError.BusinessRuleError(result.notification()));
+                return new StepResult.Failure<>(result.err().orElseThrow());
             }
             reserved.add(collateral.collateralSerial().value());
         }
@@ -145,10 +145,10 @@ public class AddFacilityCollateralSaga implements SagaDefinition<AddFacilityColl
         var data = ctx.getSagaData();
 
         var facilityResult = loadFacility(LoanFacilityId.of(data.facilityId()));
-        if (facilityResult.hasErrors()) {
+        if (facilityResult.isFailure()) {
             return ResultStepAdapter.toStepResultVoid(facilityResult);
         }
-        var facility = facilityResult.orElseThrow();
+        var facility = facilityResult.unwrap();
 
         if (facility.getLoanApplication().getApplicationNumber().isEmpty()) {
             log.warn("No application number for facility {}; skipping un-reserve", data.facilityId());
@@ -166,27 +166,27 @@ public class AddFacilityCollateralSaga implements SagaDefinition<AddFacilityColl
         var data = ctx.getSagaData();
 
         var facilityResult = loadFacility(LoanFacilityId.of(data.facilityId()));
-        if (facilityResult.hasErrors()) {
+        if (facilityResult.isFailure()) {
             return ResultStepAdapter.toStepResultVoid(facilityResult);
         }
-        var facility = facilityResult.orElseThrow();
+        var facility = facilityResult.unwrap();
 
         var arrangementResult = loadArrangement(facility);
-        if (arrangementResult.hasErrors()) {
+        if (arrangementResult.isFailure()) {
             return ResultStepAdapter.toStepResultVoid(arrangementResult);
         }
-        var arrangement = arrangementResult.orElseThrow();
+        var arrangement = arrangementResult.unwrap();
 
         List<Collateral> collaterals = mapper.toCollaterals(data.collaterals());
 
         var addResult = domainService.addCollateral(facility, collaterals);
-        if (addResult.hasErrors()) {
+        if (addResult.isFailure()) {
             return ResultStepAdapter.toStepResultVoid(addResult);
         }
 
         var validation = collateralValidationService.validateFacilityCollaterals(facility, arrangement);
         if (validation.isFailure()) {
-            return new StepResult.Failure<>(new StepError.BusinessRuleError(validation.notification()));
+            return ResultStepAdapter.toStepResultVoid(validation);
         }
 
         List<AddFacilityCollateralSagaData.CapturedEventData> captured = facility.domainEvents().stream()
@@ -211,17 +211,17 @@ public class AddFacilityCollateralSaga implements SagaDefinition<AddFacilityColl
         var data = ctx.getSagaData();
 
         var facilityResult = loadFacility(LoanFacilityId.of(data.facilityId()));
-        if (facilityResult.hasErrors()) {
+        if (facilityResult.isFailure()) {
             return ResultStepAdapter.toStepResultVoid(facilityResult);
         }
-        var facility = facilityResult.orElseThrow();
+        var facility = facilityResult.unwrap();
 
         List<String> serials = data.collaterals().stream()
                 .map(AddFacilityCollateralCommand.CollateralDto::collateralSerial)
                 .toList();
 
         var revertResult = facility.revertAddCollateral(serials, clock);
-        if (revertResult.hasErrors()) {
+        if (revertResult.isFailure()) {
             return ResultStepAdapter.toStepResultVoid(revertResult);
         }
 
@@ -233,23 +233,23 @@ public class AddFacilityCollateralSaga implements SagaDefinition<AddFacilityColl
     private void unReserve(ApplicationNumber appNumber, List<String> serials, UUID requestId) {
         for (String serial : serials) {
             collateralServicePort.unReserveCollateral(
-                    CollateralSerial.of(serial).orElseThrow(), appNumber, UUID.randomUUID(), requestId);
+                    CollateralSerial.of(serial).unwrap(), appNumber, UUID.randomUUID(), requestId);
         }
     }
 
     private Result<TradeLoanFacility> loadFacility(LoanFacilityId loanFacilityId) {
         return Result.fromOptional(
                 facilityRepository.findById(loanFacilityId),
-                () -> Notification.ofError(
-                        TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, loanFacilityId.value()));
+                () -> FailureCause.businessRule(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, loanFacilityId.value())));
     }
 
     private Result<TradeLoanArrangement> loadArrangement(TradeLoanFacility facility) {
         return Result.fromOptional(
                 arrangementRepository.findById(facility.getLoanArrangementId()),
-                () -> Notification.ofError(
+                () -> FailureCause.businessRule(Notification.ofError(
                         TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND,
                         facility.getLoanArrangementId(),
-                        facility.getId().value()));
+                        facility.getId().value())));
     }
 }

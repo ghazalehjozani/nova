@@ -46,10 +46,10 @@ final class TradeSanctionedLoanTest {
     @BeforeEach
     void setUp() {
         validAmount =
-                Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR).value();
-        validDuration = LoanDuration.of(Period.ofDays(365)).orElseThrow();
-        validGracePeriod = GracePeriod.of(Period.ofDays(3)).orElseThrow();
-        validInstallmentCount = InstallmentCount.of(12).value();
+                Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR).unwrap();
+        validDuration = LoanDuration.of(Period.ofDays(365)).unwrap();
+        validGracePeriod = GracePeriod.of(Period.ofDays(3)).unwrap();
+        validInstallmentCount = InstallmentCount.of(12).unwrap();
     }
 
     @Nested

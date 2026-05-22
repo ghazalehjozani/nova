@@ -19,10 +19,12 @@ public final class ResultAssert {
      */
     public static <T> void assertSuccess(Result<T> result) {
         assertThat(result).isNotNull();
-        assertThat(result.notification().hasErrors())
+        assertThat(result.isFailure())
                 .withFailMessage(
-                        "Expected Result notification to have no errors on success, but found: %s",
-                        result.notification().getErrorMessages())
+                        "Expected Result to have no errors on success, but it was a failure: %s",
+                        result.err()
+                                .map(fc -> fc.notification().getErrorMessages())
+                                .orElse(null))
                 .isFalse();
     }
 
@@ -32,10 +34,11 @@ public final class ResultAssert {
         assertThat(result.isFailure())
                 .withFailMessage("Expected Result to be failure but was success.")
                 .isTrue();
-        assertThat(result.notification().hasErrors())
+        Notification notification = result.err().orElseThrow().notification();
+        assertThat(notification.hasErrors())
                 .withFailMessage("Expected Result notification to have errors on failure.")
                 .isTrue();
-        assertThatNotificationContainsError(result.notification(), expectedErrorCode, expectedArgs);
+        assertThatNotificationContainsError(notification, expectedErrorCode, expectedArgs);
     }
 
     /**
@@ -47,7 +50,7 @@ public final class ResultAssert {
         assertThat(result.isFailure())
                 .withFailMessage("Expected Result to be failure but was success.")
                 .isTrue();
-        assertThat(result.notification().hasErrors())
+        assertThat(result.err().orElseThrow().notification().hasErrors())
                 .withFailMessage("Expected Result notification to have errors on failure.")
                 .isTrue();
     }

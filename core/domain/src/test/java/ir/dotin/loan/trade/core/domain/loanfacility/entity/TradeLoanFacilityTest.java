@@ -50,7 +50,7 @@ class TradeLoanFacilityTest {
     void setUp() {
         testClock = Clock.fixed(Instant.parse("2023-12-01T10:00:00Z"), UTC);
         loanArrangementId = LoanArrangementId.of(randomUUID());
-        installmentScheduleId = InstallmentScheduleId.of(randomUUID()).value();
+        installmentScheduleId = InstallmentScheduleId.of(randomUUID()).unwrap();
     }
 
     @DisplayName("when creating new trade loan facility")
@@ -375,13 +375,13 @@ class TradeLoanFacilityTest {
     }
 
     private DisburseDestination createDepositDisburseDestination() {
-        DepositNumber depositNumber = DepositNumber.valueOf("123-456-789").orElseThrow();
-        return DepositDisburseDestination.of(depositNumber).orElseThrow();
+        DepositNumber depositNumber = DepositNumber.valueOf("123-456-789").unwrap();
+        return DepositDisburseDestination.of(depositNumber).unwrap();
     }
 
     private DisburseDestination createAccountDisburseDestination() {
-        AccountNumber accountNumber = AccountNumber.of("987-654-321").orElseThrow();
-        return AccountDisburseDestination.of(accountNumber).orElseThrow();
+        AccountNumber accountNumber = AccountNumber.of("987-654-321").unwrap();
+        return AccountDisburseDestination.of(accountNumber).unwrap();
     }
 
     private TradeLoanApplication.Builder createValidLoanApplicationBuilder(
@@ -406,9 +406,9 @@ class TradeLoanFacilityTest {
                 .requestDate(testClock.instant())
                 .parties(Set.of(customer, guarantor))
                 .requestedAmount(Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR)
-                        .orElseThrow())
+                        .unwrap())
                 .currency(CurrencyType.IRR)
-                .requestedLoanDuration(LoanDuration.of(Period.ofDays(365)).orElseThrow())
+                .requestedLoanDuration(LoanDuration.of(Period.ofDays(365)).unwrap())
                 .applicantChannel(ApplicantChannel.INTERNET_BANK)
                 .installmentCount(installmentCount)
                 .economicSector(economicSector)

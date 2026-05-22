@@ -45,7 +45,7 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
     public Result<AccountInfo> openAccount(LoanTopic loanTopic, String currencyCode) {
         var branchOpt = authenticationContextHolder.branchCode();
         if (branchOpt.isEmpty()) {
-            return Result.failure(Notification.ofError(CoreBankingErrors.BRANCH_CODE_MISSING));
+            return Result.failure(CoreBankingErrors.BRANCH_CODE_MISSING);
         }
         String branchCode = branchOpt.get();
         String idempotencyKey = UUID.randomUUID().toString();
@@ -131,7 +131,8 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
             extraTags = {"op", "findAccountById"})
     public Result<AccountInfo> findAccountById(AccountId accountId) {
         log.debug("findAccountById called for accountId={}   not yet implemented via Kafka", accountId.value());
-        return Result.success();
+        return Result.failure(ir.dotin.platform.commons.core.Notification.ofError(
+                CoreBankingErrors.KAFKA_INVALID_RESPONSE, "findAccountById-not-implemented"));
     }
 
     private <T> Result<T> sendAndMap(
@@ -140,10 +141,10 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
 
         Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.getDefaultTimeout());
         if (result.isFailure()) {
-            return Result.failure(result.notification());
+            return Result.failure(result.err().orElseThrow());
         }
 
-        FcbKafkaBaseResponse raw = result.orElseThrow();
+        FcbKafkaBaseResponse raw = result.unwrap();
         if (!(raw instanceof AccountInfoKafkaResponse response)) {
             return Result.failure(
                     Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, request.getOperationName()));

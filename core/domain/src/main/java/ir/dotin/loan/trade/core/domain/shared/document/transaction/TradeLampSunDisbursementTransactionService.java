@@ -235,7 +235,7 @@ public class TradeLampSunDisbursementTransactionService {
         if (paymentType == InstallmentPaymentType.GRADUAL) {
             return installmentSchedule.getInstallments().stream()
                     .map(installment -> installment.getScheduledAmount().interestAmount())
-                    .reduce((money, other) -> money.add(other).getValue())
+                    .reduce((money, other) -> money.add(other).unwrap())
                     .orElseThrow(() ->
                             new IllegalStateException("No installments found in schedule for GRADUAL payment type"));
         } else {

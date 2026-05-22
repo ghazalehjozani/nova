@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -33,13 +34,13 @@ public class SubmitFacilityForApprovalCommandHandler implements CommandHandler<S
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
         return Result.fromOptional(
                         repository.findById(loanFacilityId),
-                        () -> Notification.ofError(
-                                SubmitFacilityForApprovalErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId()))
+                        () -> FailureCause.businessRule(Notification.ofError(
+                                SubmitFacilityForApprovalErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId())))
                 .flatMap(facility -> domainService.submitForApproval(facility).map(v -> facility))
-                .peekValue(facility -> {
+                .onSuccess(facility -> {
                     repository.save(facility);
                     log.info("Facility submitted for approval: {}", command.loanFacilityId());
                 })
-                .mapNonNull(TradeLoanFacility::domainEvents);
+                .map(TradeLoanFacility::domainEvents);
     }
 }

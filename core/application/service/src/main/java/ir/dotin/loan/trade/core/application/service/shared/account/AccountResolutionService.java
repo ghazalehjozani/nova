@@ -64,16 +64,16 @@ public class AccountResolutionService {
                 .toList();
 
         Result<List<TopicResult>> fan = ParallelFanout.allOf(tasks);
-        if (fan.hasErrors()) {
-            return Result.failure(fan.notification());
+        if (fan.isFailure()) {
+            return Result.failure(fan.err().orElseThrow());
         }
 
         Notification notification = Notification.create();
-        for (TopicResult tr : fan.value()) {
-            if (tr.result().hasErrors()) {
-                notification.merge(tr.result().notification());
+        for (TopicResult tr : fan.unwrap()) {
+            if (tr.result().isFailure()) {
+                notification.merge(tr.result().err().orElseThrow().notification());
             } else {
-                AccountId accountId = tr.result().orElseThrow();
+                AccountId accountId = tr.result().unwrap();
                 resolved.put(tr.topic().relationType(), accountId);
                 log.info(
                         "Opened account {} for {}",

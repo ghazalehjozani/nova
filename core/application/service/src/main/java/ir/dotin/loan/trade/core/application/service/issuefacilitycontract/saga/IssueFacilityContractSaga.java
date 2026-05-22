@@ -20,6 +20,7 @@ import ir.dotin.platform.accounting.document.api.model.metadata.OperationalInfo;
 import ir.dotin.platform.accounting.document.core.factory.DocumentMetadataFactory;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.saga.api.annotation.SagaHandler;
 import ir.dotin.platform.saga.api.context.SagaContext;
 import ir.dotin.platform.saga.api.definition.SagaDefinition;
@@ -27,7 +28,6 @@ import ir.dotin.platform.saga.api.definition.SagaInput;
 import ir.dotin.platform.saga.api.definition.SagaStep;
 import ir.dotin.platform.saga.api.definition.SagaSteps;
 import ir.dotin.platform.saga.api.model.ResultStepAdapter;
-import ir.dotin.platform.saga.api.model.StepError;
 import ir.dotin.platform.saga.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
@@ -112,11 +112,11 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         var data = ctx.getSagaData();
 
         var facilityResult = loadFacility(LoanFacilityId.of(data.facilityId()));
-        if (facilityResult.hasErrors()) {
+        if (facilityResult.isFailure()) {
             return ResultStepAdapter.toStepResultVoid(facilityResult);
         }
 
-        var facility = facilityResult.orElseThrow();
+        var facility = facilityResult.unwrap();
         var validationResult = facility.validateIssueContract();
 
         return ResultStepAdapter.toStepResultVoid(validationResult);
@@ -139,11 +139,11 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
                             arrangement.getCurrencyType().getCode());
                 })));
 
-        if (result.hasErrors()) {
-            return new StepResult.Failure<>(new StepError.BusinessRuleError(result.notification()));
+        if (result.isFailure()) {
+            return new StepResult.Failure<>(result.err().orElseThrow());
         }
 
-        ResolvedAccounts resolved = result.orElseThrow();
+        ResolvedAccounts resolved = result.unwrap();
         Map<String, String> serializedAccounts = resolved.accountsByRelationType().entrySet().stream()
                 .collect(Collectors.toMap(
                         e -> e.getKey().name(), e -> e.getValue().value()));
@@ -169,18 +169,18 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
                         .flatMap(postTitle -> createTransaction(
                                 facility, loanType, postTitle, data.transactionConfig(), resolvedAccounts))));
 
-        if (transactionResult.hasErrors()) {
-            return new StepResult.Failure<>(new StepError.BusinessRuleError(transactionResult.notification()));
+        if (transactionResult.isFailure()) {
+            return new StepResult.Failure<>(transactionResult.err().orElseThrow());
         }
 
-        var transaction = transactionResult.orElseThrow();
+        var transaction = transactionResult.unwrap();
         var result = transactionPostingPort.postTransaction(transaction);
 
-        if (result.hasErrors()) {
-            return new StepResult.Failure<>(new StepError.BusinessRuleError(result.notification()));
+        if (result.isFailure()) {
+            return new StepResult.Failure<>(result.err().orElseThrow());
         }
 
-        var trackedNumber = result.orElseThrow();
+        var trackedNumber = result.unwrap();
         ctx.updateSagaData(d -> d.withPostedTransaction(
                 trackedNumber.value(), trackedNumber.trackingId(), trackedNumber.status(), trackedNumber.createdAt()));
 
@@ -203,18 +203,18 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         var data = ctx.getSagaData();
 
         var facilityResult = loadFacility(LoanFacilityId.of(data.facilityId()));
-        if (facilityResult.hasErrors()) {
+        if (facilityResult.isFailure()) {
             return ResultStepAdapter.toStepResultVoid(facilityResult);
         }
 
-        var facility = facilityResult.orElseThrow();
+        var facility = facilityResult.unwrap();
 
         var trackedNumber = TrackedTransactionNumber.create(
                 data.postedTransactionNumber(), data.postedTrackingId(), data.transactionStatus(), clock);
 
         var issueResult = facility.issueContract(trackedNumber, data.getAccountIdsByRelationType(), clock);
 
-        if (issueResult.hasErrors()) {
+        if (issueResult.isFailure()) {
             return ResultStepAdapter.toStepResultVoid(issueResult);
         }
 
@@ -241,14 +241,14 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         var data = ctx.getSagaData();
 
         var facilityResult = loadFacility(LoanFacilityId.of(data.facilityId()));
-        if (facilityResult.hasErrors()) {
+        if (facilityResult.isFailure()) {
             return ResultStepAdapter.toStepResultVoid(facilityResult);
         }
 
-        var facility = facilityResult.orElseThrow();
+        var facility = facilityResult.unwrap();
         var revertResult = facility.revertContractIssuance(clock);
 
-        if (revertResult.hasErrors()) {
+        if (revertResult.isFailure()) {
             return ResultStepAdapter.toStepResultVoid(revertResult);
         }
 
@@ -261,26 +261,26 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
     private Result<TradeLoanFacility> loadFacility(LoanFacilityId loanFacilityId) {
         return Result.fromOptional(
                 facilityRepository.findById(loanFacilityId),
-                () -> Notification.ofError(
-                        TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, loanFacilityId.value()));
+                () -> FailureCause.businessRule(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, loanFacilityId.value())));
     }
 
     private Result<TradeLoanArrangement> loadLoanArrangement(TradeLoanFacility facility) {
         return Result.fromOptional(
                 loanArrangementRepository.findById(facility.getLoanArrangementId()),
-                () -> Notification.ofError(
+                () -> FailureCause.businessRule(Notification.ofError(
                         TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND,
                         facility.getLoanArrangementId(),
-                        facility.getId().value()));
+                        facility.getId().value())));
     }
 
     private Result<TradeLoanType> loadLoanType(TradeLoanFacility facility) {
         return Result.fromOptional(
                 loanTypeRepository.findById(facility.getLoanTypeId()),
-                () -> Notification.ofError(
+                () -> FailureCause.businessRule(Notification.ofError(
                         TradeLoanApplicationServiceErrors.LOAN_TYPE_NOT_FOUND,
                         facility.getLoanTypeId(),
-                        facility.getId().value()));
+                        facility.getId().value())));
     }
 
     private Result<PostTitle> createPostTitle(TradeLoanFacility facility) {
@@ -316,7 +316,7 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
                 .flatMap(metadata -> transactionService.createIssueContractTransaction(
                         facility,
                         loanType,
-                        BranchCode.of(config.branchCode()).getValue(),
+                        BranchCode.of(config.branchCode()).unwrap(),
                         postTitle,
                         metadata,
                         resolvedAccounts));

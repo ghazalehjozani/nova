@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
@@ -37,8 +38,8 @@ public class UpdateCollateralCommandHandler implements CommandHandler<UpdateColl
     public Result<List<DomainEvent<?>>> handle(UpdateCollateralCommand command) {
         return loadFacility(command)
                 .flatMap(tradeLoanFacility -> updateCollateral(tradeLoanFacility, command))
-                .peekValue(tradeLoanFacilityRepository::save)
-                .peekValue(_ -> log.debug(
+                .onSuccess(tradeLoanFacilityRepository::save)
+                .onSuccess(_ -> log.debug(
                         "update  collateral completed: applicationNumber={}, collateral={} ",
                         command.applicationNumber(),
                         command.collaterals().size()))
@@ -48,8 +49,8 @@ public class UpdateCollateralCommandHandler implements CommandHandler<UpdateColl
     private Result<TradeLoanFacility> loadFacility(UpdateCollateralCommand command) {
         return Result.fromOptional(
                 tradeLoanFacilityRepository.findByApplicationNumber(command.applicationNumber()),
-                Notification.ofError(
-                        TradeLoanApplicationServiceErrors.APPLICATION_NUMBER_MISSING, command.applicationNumber()));
+                FailureCause.businessRule(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.APPLICATION_NUMBER_MISSING, command.applicationNumber())));
     }
 
     private List<Collateral> buildCollateral(

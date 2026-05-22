@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.core.domain.loanfacility.service.validator;
 
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Verdict;
 import ir.dotin.platform.commons.domain.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.service.validator.SanctionValidationService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.specification.*;
@@ -17,10 +18,11 @@ public final class TradeSanctionValidationService
     public Result<Boolean> validateSanction(
             TradeLoanFacility loanFacility, TradeLoanArrangement loanArrangement, Sanction sanction) {
 
-        return new SanctionAmountSpecification(loanFacility)
+        Verdict verdict = new SanctionAmountSpecification(loanFacility)
                 .and(new SanctionDurationSpecification(loanFacility))
                 .and(new SanctionGracePeriodSpecification(loanArrangement))
                 .and(new SanctionPreferentialRateSpecification(loanArrangement))
                 .isSatisfiedBy(sanction);
+        return verdict.isSatisfied() ? Result.success(true) : Result.failure(verdict.reasons());
     }
 }

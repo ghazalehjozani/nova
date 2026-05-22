@@ -32,10 +32,10 @@ public class ExternalApplicationNumberGenerationStrategy implements ApplicationN
                 loanServicePort.getApplicationNumber(branch, loanTypeCode, primaryApplicant);
 
         if (fcbResult.isFailure()) {
-            return Result.failure(fcbResult.notification());
+            return Result.failure(fcbResult.err().orElseThrow());
         }
 
-        ApplicationNumber fcbApplicationNumber = fcbResult.value();
+        ApplicationNumber fcbApplicationNumber = fcbResult.unwrap();
 
         if (fcbApplicationNumber == null) {
             return Result.failure(
@@ -45,9 +45,9 @@ public class ExternalApplicationNumberGenerationStrategy implements ApplicationN
         boolean exists = facilityRepository.existsByApplicationNumber(fcbApplicationNumber);
 
         if (exists) {
-            return Result.failure(Notification.ofError(
+            return Result.failure(
                     OriginateLoanFacilityErrorCodes.DUPLICATE_APPLICATION_NUMBER,
-                    fcbApplicationNumber.formattedApplicationNumber()));
+                    fcbApplicationNumber.formattedApplicationNumber());
         }
 
         return Result.success(fcbApplicationNumber);

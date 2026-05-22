@@ -11,6 +11,7 @@ import ir.dotin.platform.accounting.document.api.model.AccountNumber;
 import ir.dotin.platform.accounting.document.api.model.DepositNumber;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Unit;
 import ir.dotin.platform.commons.core.concurrent.ParallelFanout;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
@@ -44,10 +45,10 @@ public class FacilityValidator {
     private final ValidateSamatPort validateSamatPort;
 
     @WithSpan("facility.validate.fanout")
-    public Result<Void> callAndValidateServices(OriginateLoanFacilityCommand command) {
+    public Result<Unit> callAndValidateServices(OriginateLoanFacilityCommand command) {
         log.debug("Call and validate services for facility origination");
 
-        List<Supplier<Result<Void>>> tasks = List.of(
+        List<Supplier<Result<Unit>>> tasks = List.of(
                 () -> validateDeposit(command),
                 () -> validateAccountNumber(command),
                 () -> isDepositClosed(command),
@@ -63,34 +64,34 @@ public class FacilityValidator {
         return ParallelFanout.allVoid(tasks);
     }
 
-    private Result<Void> validateDeposit(OriginateLoanFacilityCommand command) {
+    private Result<Unit> validateDeposit(OriginateLoanFacilityCommand command) {
         DisburseDestinationDto disburseDestination = command.loanApplication().disburseDestination();
         return switch (disburseDestination) {
             case DisburseDestinationDto.AccountDestinationDto(var accountNumber) -> Result.success();
             case DisburseDestinationDto.DepositDestinationDto(var depositNumber) -> {
                 Result<DepositInfo> result = getDepositInfo(depositNumber);
                 if (result.isFailure()) {
-                    yield Result.failure(result.notification());
+                    yield Result.failure(result.err().orElseThrow());
                 }
                 yield Result.success();
             }
         };
     }
 
-    private Result<Void> validateSamat(OriginateLoanFacilityCommand command) {
+    private Result<Unit> validateSamat(OriginateLoanFacilityCommand command) {
         SamatDto samatDto = command.loanApplication().samat();
         EconomicSectorDto economicSectorDto = command.loanApplication().economicSector();
         Samat samat = samatDtoToSamat(samatDto);
         return validateSamatPort.validateSamat(samat, command.loanTypeCode(), economicSectorDto.code());
     }
 
-    private Result<Void> validateEconomicalSector(OriginateLoanFacilityCommand command) {
+    private Result<Unit> validateEconomicalSector(OriginateLoanFacilityCommand command) {
         String code = command.loanApplication().economicSector().code();
 
         return loadEconomicalSectorByCode(code).flatMap(this::validateNotParent);
     }
 
-    private Result<Void> validateNotParent(EconomicalSectorResponse sector) {
+    private Result<Unit> validateNotParent(EconomicalSectorResponse sector) {
         if (Boolean.TRUE.equals(sector.hasChild())) {
             return Result.failure(
                     Notification.ofError(OriginateLoanFacilityErrorCodes.ECONOMIC_SECTOR_IS_PARENT, sector.code()));
@@ -98,10 +99,10 @@ public class FacilityValidator {
         return Result.success();
     }
 
-    private Result<Void> validateEconomicalSectionForLoanType(OriginateLoanFacilityCommand command) {
+    private Result<Unit> validateEconomicalSectionForLoanType(OriginateLoanFacilityCommand command) {
         String sectorCode = command.loanApplication().economicSector().code();
         String typeCodeRaw = command.loanTypeCode();
-        LoanTypeCode loanTypeCode = LoanTypeCode.of(typeCodeRaw).getValue();
+        LoanTypeCode loanTypeCode = LoanTypeCode.of(typeCodeRaw).unwrap();
 
         Result<EconomicalSectorValidation> result = validateEconomicalSectorForLoanType(sectorCode, loanTypeCode);
 
@@ -114,7 +115,7 @@ public class FacilityValidator {
                         loanTypeCode));
     }
 
-    private Result<Void> isDepositClosed(OriginateLoanFacilityCommand command) {
+    private Result<Unit> isDepositClosed(OriginateLoanFacilityCommand command) {
         DisburseDestinationDto destination = command.loanApplication().disburseDestination();
 
         return switch (destination) {
@@ -132,7 +133,7 @@ public class FacilityValidator {
         };
     }
 
-    private Result<Void> validateDebtorDeposit(OriginateLoanFacilityCommand command) {
+    private Result<Unit> validateDebtorDeposit(OriginateLoanFacilityCommand command) {
         DisburseDestinationDto destination = command.loanApplication().disburseDestination();
 
         return switch (destination) {
@@ -150,7 +151,7 @@ public class FacilityValidator {
         };
     }
 
-    private Result<Void> validateCreditorDeposit(OriginateLoanFacilityCommand command) {
+    private Result<Unit> validateCreditorDeposit(OriginateLoanFacilityCommand command) {
         DisburseDestinationDto destination = command.loanApplication().disburseDestination();
 
         return switch (destination) {
@@ -169,7 +170,7 @@ public class FacilityValidator {
         };
     }
 
-    private Result<Void> validateDepositCurrency(OriginateLoanFacilityCommand command) {
+    private Result<Unit> validateDepositCurrency(OriginateLoanFacilityCommand command) {
         DisburseDestinationDto destination = command.loanApplication().disburseDestination();
 
         return switch (destination) {
@@ -187,34 +188,34 @@ public class FacilityValidator {
         };
     }
 
-    private Result<Void> validateSubSource(OriginateLoanFacilityCommand command) {
+    private Result<Unit> validateSubSource(OriginateLoanFacilityCommand command) {
         String code = command.loanApplication().subSource().code();
         Result<SubSource> result = loadResourceByCode(code);
 
         if (result.isFailure()) {
-            return Result.failure(result.notification());
+            return Result.failure(result.err().orElseThrow());
         }
         return Result.success();
     }
 
-    private Result<Void> validateRequestReason(OriginateLoanFacilityCommand command) {
+    private Result<Unit> validateRequestReason(OriginateLoanFacilityCommand command) {
         String code = command.loanApplication().requestReason().code();
         Result<ReasonType> result = loadRequestReasonByCode(code);
 
         if (result.isFailure()) {
-            return Result.failure(result.notification());
+            return Result.failure(result.err().orElseThrow());
         }
         return Result.success();
     }
 
-    private <T> Result<Void> validateBusinessRule(
+    private <T> Result<Unit> validateBusinessRule(
             Result<T> result, Predicate<T> isValid, Supplier<Notification> errorSupplier) {
 
         if (result.isFailure()) {
-            return Result.failure(result.notification());
+            return Result.failure(result.err().orElseThrow());
         }
 
-        if (!isValid.test(result.value())) {
+        if (!isValid.test(result.unwrap())) {
             return Result.failure(errorSupplier.get());
         }
 
@@ -223,27 +224,27 @@ public class FacilityValidator {
 
     private Result<DepositInfo> getDepositInfo(String depositNumber) {
         return depositServicePort.getDepositInfo(
-                DepositNumber.valueOf(depositNumber).getValue());
+                DepositNumber.valueOf(depositNumber).unwrap());
     }
 
     private Result<CurrencyValidation> hasDepositAllowedCurrencies(String depositNumber, String currencyCode) {
         return depositServicePort.hasDepositAllowedCurrencies(
-                DepositNumber.valueOf(depositNumber).getValue(),
+                DepositNumber.valueOf(depositNumber).unwrap(),
                 List.of(Objects.requireNonNull(
-                        CurrencyType.valueOf(currencyCode).value())));
+                        CurrencyType.valueOf(currencyCode).unwrap())));
     }
 
     private Result<DebtorDepositValidation> validateDebtorDeposit(String depositNumber, String currencyCode) {
         return depositServicePort.validateDebtorDeposit(
-                DepositNumber.valueOf(depositNumber).getValue(),
-                CurrencyType.valueOf(currencyCode).getValue());
+                DepositNumber.valueOf(depositNumber).unwrap(),
+                CurrencyType.valueOf(currencyCode).unwrap());
     }
 
     private Result<CreditorDepositValidation> validateCreditorDeposit(
             String depositNumber, String currencyCode, BigDecimal amount) {
         return depositServicePort.validateCreditorDeposit(
-                DepositNumber.valueOf(depositNumber).getValue(),
-                CurrencyType.valueOf(currencyCode).getValue(),
+                DepositNumber.valueOf(depositNumber).unwrap(),
+                CurrencyType.valueOf(currencyCode).unwrap(),
                 amount);
     }
 
@@ -257,22 +258,22 @@ public class FacilityValidator {
 
     private Result<DepositClosedStatus> isDepositClosed(String depositNumber, String currencyCode) {
         return depositServicePort.isDepositClosed(
-                DepositNumber.valueOf(depositNumber).getValue(),
-                CurrencyType.valueOf(currencyCode).getValue());
+                DepositNumber.valueOf(depositNumber).unwrap(),
+                CurrencyType.valueOf(currencyCode).unwrap());
     }
 
     private Result<EconomicalSectorResponse> loadEconomicalSectorByCode(String economicSectorCode) {
         return loanServicePort.loadEconomicalSector(
-                EconomicSector.of(economicSectorCode).getValue());
+                EconomicSector.of(economicSectorCode).unwrap());
     }
 
     private Result<EconomicalSectorValidation> validateEconomicalSectorForLoanType(
             String economicSectorCode, LoanTypeCode loanTypeCode) {
         return loanServicePort.validateEconomicalSectorForLoanType(
-                EconomicSector.of(economicSectorCode).getValue(), loanTypeCode);
+                EconomicSector.of(economicSectorCode).unwrap(), loanTypeCode);
     }
 
-    private Result<Void> validateAccountNumber(OriginateLoanFacilityCommand command) {
+    private Result<Unit> validateAccountNumber(OriginateLoanFacilityCommand command) {
         DisburseDestinationDto disburseDestination = command.loanApplication().disburseDestination();
 
         return switch (disburseDestination) {
@@ -280,8 +281,7 @@ public class FacilityValidator {
                 Result<AccountNumber> result = accountServicePort.validateAccountNumber(accountNumber);
 
                 if (result.isFailure()) {
-                    yield Result.failure(Notification.ofError(
-                            OriginateLoanFacilityErrorCodes.INVALID_ACCOUNT_NUMBER, accountNumber));
+                    yield Result.failure(OriginateLoanFacilityErrorCodes.INVALID_ACCOUNT_NUMBER, accountNumber);
                 }
                 yield Result.success();
             }

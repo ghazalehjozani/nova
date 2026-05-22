@@ -41,10 +41,10 @@ public final class LoanTransactionMerger {
 
         Result<Document> mergedDocResult = DocumentMerger.merge(description, branchCode, isoCode, documents);
         if (mergedDocResult.isFailure()) {
-            return Result.failure(mergedDocResult.notification());
+            return Result.failure(mergedDocResult.err().orElseThrow());
         }
 
-        return LoanTransaction.ofWithDetails(createdAt, loanFacilityId, mergedDocResult.orElseThrow());
+        return LoanTransaction.ofWithDetails(createdAt, loanFacilityId, mergedDocResult.unwrap());
     }
 
     public static Result<LoanTransaction> merge(

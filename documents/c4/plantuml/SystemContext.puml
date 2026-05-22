@@ -113,7 +113,6 @@ rectangle "==Collateral Service\n<size:10>[Software System]</size>\n\nCollateral
 rectangle "==Loan Service\n<size:10>[Software System]</size>\n\nCross-loan operations" <<LoanService>> as LoanService
 rectangle "==Formula Evaluator Service\n<size:10>[Software System]</size>\n\nFormula calculation" <<FormulaEvaluatorService>> as FormulaEvaluatorService
 
-TradeLoanService .[#707070,thickness=2].> FCBCoreBanking : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
 TradeLoanService .[#707070,thickness=2].> TPSSSO : "<color:#707070>Authenticates\n<color:#707070><size:8>[OAuth2/OIDC]</size>"
 TradeLoanService .[#707070,thickness=2].> FCBCoreBanking : "<color:#707070>Core banking\n<color:#707070><size:8>[HTTP/REST]</size>"
 TradeLoanService .[#707070,thickness=2].> OpenTelemetryCollector : "<color:#707070>Telemetry\n<color:#707070><size:8>[OTLP/gRPC]</size>"

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
@@ -38,18 +39,18 @@ public class CompensateCollectInstallmentCommandHandler implements CommandHandle
                     compensationOperations.revertCollectInstallment(command.transactionNumbers(), clock);
                     return Result.success((InstallmentSchedule) compensationOperations);
                 })
-                .peekValue(installmentScheduleRepository::save)
-                .peekValue(schedule -> log.info(
+                .onSuccess(installmentScheduleRepository::save)
+                .onSuccess(schedule -> log.info(
                         "Revert Installment collection completed: applicationNumber={}", command.applicationNumber()))
-                .mapNonNull(AbstractAggregateRoot::domainEvents);
+                .map(AbstractAggregateRoot::domainEvents);
     }
 
     private Result<ApplicationNumberResolver.LoanIdentifiers> resolveIdentifiers(
             CompensateCollectInstallmentCommand command) {
         return Result.fromOptional(
                 applicationNumberResolver.resolveByApplicationNumber(command.applicationNumber()),
-                Notification.ofError(
-                        TradeLoanApplicationServiceErrors.APPLICATION_NUMBER_MISSING, command.applicationNumber()));
+                () -> FailureCause.businessRule(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.APPLICATION_NUMBER_MISSING, command.applicationNumber())));
     }
 
     private Result<InstallmentScheduleCompensationOperations> loadSchedule(
@@ -57,9 +58,10 @@ public class CompensateCollectInstallmentCommandHandler implements CommandHandle
         return Result.fromOptional(
                 installmentScheduleRepository
                         .findById(InstallmentScheduleId.of(ids.installmentScheduleId())
-                                .getValue())
+                                .unwrap())
                         .map(installmentSchedule -> (InstallmentScheduleCompensationOperations) installmentSchedule),
-                Notification.ofError(
-                        TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND, ids.installmentScheduleId()));
+                () -> FailureCause.businessRule(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
+                        ids.installmentScheduleId())));
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Unit;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.ApproveFacilityCommand;
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
@@ -24,16 +25,15 @@ public class AutoApprovalStrategy implements ApprovalStrategy {
     private final TradeLoanFacilityService domainService;
 
     @Override
-    public Result<Void> validate(
+    public Result<Unit> validate(
             ApproveFacilityCommand command, TradeLoanFacility facility, TradeLoanArrangement arrangement) {
 
         if (command.sanctionSerial() != null) {
-            return Result.failure(Notification.ofError(
-                    TradeLoanApplicationServiceErrors.SANCTION_SERIAL_NOT_ALLOWED_FOR_AUTO_APPROVAL));
+            return Result.failure(TradeLoanApplicationServiceErrors.SANCTION_SERIAL_NOT_ALLOWED_FOR_AUTO_APPROVAL);
         }
         boolean isAutoApproval = facility.getLoanApplication().getApplicantChannel() == DIGITAL_BANK;
 
-        ConfirmType requestConfirmType = ConfirmType.of(command.confirmType()).value();
+        ConfirmType requestConfirmType = ConfirmType.of(command.confirmType()).unwrap();
         List<ConfirmType> allowedConfirmTypes = arrangement.getConfirmTypes();
 
         if (allowedConfirmTypes == null || !allowedConfirmTypes.contains(requestConfirmType)) {
@@ -53,7 +53,7 @@ public class AutoApprovalStrategy implements ApprovalStrategy {
     }
 
     @Override
-    public Result<Void> approve(TradeLoanFacility facility, TradeLoanArrangement arrangement, ConfirmType confirmType) {
+    public Result<Unit> approve(TradeLoanFacility facility, TradeLoanArrangement arrangement, ConfirmType confirmType) {
         return domainService.approve(facility, null, true, confirmType);
     }
 }

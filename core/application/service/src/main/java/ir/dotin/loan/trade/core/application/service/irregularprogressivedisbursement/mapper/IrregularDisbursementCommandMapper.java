@@ -13,6 +13,6 @@ public interface IrregularDisbursementCommandMapper {
     Money toMoney(MoneyDto dto);
 
     default CurrencyType map(String currencyCode) {
-        return CurrencyType.valueOf(currencyCode.toUpperCase()).orElseThrow();
+        return CurrencyType.valueOf(currencyCode.toUpperCase()).unwrap();
     }
 }

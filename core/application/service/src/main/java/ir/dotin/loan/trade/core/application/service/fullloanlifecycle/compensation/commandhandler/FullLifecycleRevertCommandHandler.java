@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import ir.dotin.platform.accounting.document.api.enumeration.TransactionStatus;
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.platform.saga.api.error.SagaErrors;
@@ -48,7 +49,8 @@ public class FullLifecycleRevertCommandHandler implements CommandHandler<FullLif
     private Result<TradeLoanFacility> loadFacility(java.util.UUID facilityId) {
         return Result.fromOptional(
                 repository.findById(LoanFacilityId.of(facilityId)),
-                Notification.ofError(TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, facilityId));
+                () -> FailureCause.businessRule(
+                        Notification.ofError(TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, facilityId)));
     }
 
     private Result<List<DomainEvent<?>>> executeLifoRevert(
@@ -89,7 +91,7 @@ public class FullLifecycleRevertCommandHandler implements CommandHandler<FullLif
         }
 
         return facility.revertLumpSumDisbursement(clock)
-                .peekValue(v -> {
+                .onSuccess(v -> {
                     repository.save(facility);
                     events.addAll(facility.domainEvents());
                     facility.clearDomainEvents();
@@ -109,7 +111,7 @@ public class FullLifecycleRevertCommandHandler implements CommandHandler<FullLif
         }
 
         return facility.revertIrregularTrancheDisbursement(clock)
-                .peekValue(v -> {
+                .onSuccess(v -> {
                     repository.save(facility);
                     events.addAll(facility.domainEvents());
                     facility.clearDomainEvents();
@@ -135,7 +137,7 @@ public class FullLifecycleRevertCommandHandler implements CommandHandler<FullLif
         }
 
         return facility.revertContractIssuance(clock)
-                .peekValue(v -> {
+                .onSuccess(v -> {
                     repository.save(facility);
                     events.addAll(facility.domainEvents());
                     facility.clearDomainEvents();
@@ -153,7 +155,7 @@ public class FullLifecycleRevertCommandHandler implements CommandHandler<FullLif
         }
 
         return facility.revertApproval(clock)
-                .peekValue(v -> {
+                .onSuccess(v -> {
                     repository.save(facility);
                     events.addAll(facility.domainEvents());
                     facility.clearDomainEvents();
@@ -169,7 +171,7 @@ public class FullLifecycleRevertCommandHandler implements CommandHandler<FullLif
                 facility.getId().value());
 
         return facility.revertApprovalSubmission(clock)
-                .peekValue(v -> {
+                .onSuccess(v -> {
                     repository.save(facility);
                     events.addAll(facility.domainEvents());
                     facility.clearDomainEvents();
@@ -185,7 +187,7 @@ public class FullLifecycleRevertCommandHandler implements CommandHandler<FullLif
         String reason = command.reason() != null ? command.reason() : "Full lifecycle revert";
 
         return facility.revertOrigination(clock, reason)
-                .peekValue(v -> {
+                .onSuccess(v -> {
                     repository.save(facility);
                     events.addAll(facility.domainEvents());
                 })
@@ -230,14 +232,14 @@ public class FullLifecycleRevertCommandHandler implements CommandHandler<FullLif
                 .toList();
 
         facility.revertAddCollateral(serialsToRevertInDomain, clock)
-                .peekValue(v -> {
+                .onSuccess(v -> {
                     repository.save(facility);
                     events.addAll(facility.domainEvents());
                     facility.clearDomainEvents();
                     log.info("Successfully reverted {} collaterals in domain", serialsToRevertInDomain.size());
                 })
-                .peekError(notification -> {
-                    log.error("Failed to revert collaterals in domain: {}", notification);
+                .onFailure(failure -> {
+                    log.error("Failed to revert collaterals in domain: {}", failure.notification());
                 });
     }
 
@@ -264,8 +266,11 @@ public class FullLifecycleRevertCommandHandler implements CommandHandler<FullLif
         log.info("Reversing transaction: {}", transactionNumber);
         var trackedNumber = TrackedTransactionNumber.create(transactionNumber, null, TransactionStatus.POSTED, clock);
         var result = transactionPostingPort.reverseTransaction(trackedNumber);
-        if (result.hasErrors()) {
-            log.warn("Failed to reverse transaction {}: {}", transactionNumber, result.notification());
+        if (result.isFailure()) {
+            log.warn(
+                    "Failed to reverse transaction {}: {}",
+                    transactionNumber,
+                    result.err().orElseThrow().notification());
         }
     }
 }

@@ -42,9 +42,9 @@ public class FacilityOriginationOrchestrator {
     public Result<List<DomainEvent<?>>> originate(OriginateLoanFacilityCommand command) {
         log.info("Starting facility origination process for LoanType: {}", command.loanTypeCode());
 
-        Result<Void> validationResult = facilityValidator.callAndValidateServices(command);
+        var validationResult = facilityValidator.callAndValidateServices(command);
         if (validationResult.isFailure()) {
-            return Result.failure(validationResult.notification());
+            return Result.failure(validationResult.err().orElseThrow());
         }
 
         return dependencyLoader
@@ -73,10 +73,10 @@ public class FacilityOriginationOrchestrator {
 
         Result<TradeLoanApplication> draftAppResult = facilityBuilder.buildApplication(command, context);
         if (draftAppResult.isFailure()) {
-            return Result.failure(draftAppResult.notification());
+            return Result.failure(draftAppResult.err().orElseThrow());
         }
 
-        return strategy.planSchedule(command, draftAppResult.getValue(), context, facilityId);
+        return strategy.planSchedule(command, draftAppResult.unwrap(), context, facilityId);
     }
 
     private Result<FacilityAggregation> assembleFacility(
@@ -87,13 +87,13 @@ public class FacilityOriginationOrchestrator {
 
         InstallmentScheduleId scheduleId = scheduleOpt
                 .map(InstallmentSchedule::getId)
-                .orElse(InstallmentScheduleId.generate().getValue());
+                .orElse(InstallmentScheduleId.generate().unwrap());
 
         return facilityBuilder
                 .buildFacility(command, context, scheduleId, facilityId)
                 .flatMap(facility -> validationService
                         .validateForCreation(facility, context.arrangement(), context.loanType())
-                        .mapNonNull(valid -> new FacilityAggregation(facility, scheduleOpt)));
+                        .map(valid -> new FacilityAggregation(facility, scheduleOpt)));
     }
 
     private Result<List<DomainEvent<?>>> persistResult(FacilityAggregation aggregation) {

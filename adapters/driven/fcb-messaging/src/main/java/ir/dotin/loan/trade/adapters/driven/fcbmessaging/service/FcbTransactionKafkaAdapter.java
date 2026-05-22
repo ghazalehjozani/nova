@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Unit;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
@@ -52,11 +53,11 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
         if (mappingResult.isFailure()) {
             log.error(
                     "Failed to map LoanTransaction to IssueDocumentRequest: {}",
-                    mappingResult.notification().getErrorMessages());
-            return Result.failure(mappingResult.notification());
+                    mappingResult.err().orElseThrow().notification().getErrorMessages());
+            return Result.failure(mappingResult.err().orElseThrow());
         }
 
-        PostTransactionRequest request = mappingResult.orElseThrow();
+        PostTransactionRequest request = mappingResult.unwrap();
         log.debug(
                 "Successfully mapped LoanTransaction to IssueDocumentRequest - items: {}",
                 request.getItems().size());
@@ -64,9 +65,9 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
         Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.getTransactionTimeout());
 
         if (result.isFailure()) {
-            return Result.failure(result.notification());
+            return Result.failure(result.err().orElseThrow());
         }
-        FcbKafkaBaseResponse raw = result.orElseThrow();
+        FcbKafkaBaseResponse raw = result.unwrap();
         if (!(raw instanceof TransactionResultKafkaResponse response)) {
             return Result.failure(
                     Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "issue-general-document"));
@@ -96,22 +97,22 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
         if (mergedTransactionResult.isFailure()) {
             log.error(
                     "Failed to merge transactions: {}",
-                    mergedTransactionResult.notification().getErrorMessages());
-            return Result.failure(mergedTransactionResult.notification());
+                    mergedTransactionResult.err().orElseThrow().notification().getErrorMessages());
+            return Result.failure(mergedTransactionResult.err().orElseThrow());
         }
 
-        Result<TrackedTransactionNumber> postResult = postTransaction(mergedTransactionResult.orElseThrow());
+        Result<TrackedTransactionNumber> postResult = postTransaction(mergedTransactionResult.unwrap());
         if (postResult.isFailure()) {
-            return Result.failure(postResult.notification());
+            return Result.failure(postResult.err().orElseThrow());
         }
-        return Result.success(List.of(postResult.orElseThrow()));
+        return Result.success(List.of(postResult.unwrap()));
     }
 
     @Override
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "reverseTransaction"})
-    public Result<Void> reverseTransaction(TrackedTransactionNumber transactionNumber) {
+    public Result<Unit> reverseTransaction(TrackedTransactionNumber transactionNumber) {
         log.debug("Reversing transaction via Kafka - {}", transactionNumber.value());
 
         var request = ReverseTransactionRequest.builder()
@@ -120,7 +121,7 @@ public class FcbTransactionKafkaAdapter implements TransactionPostingPort {
 
         Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.getTransactionTimeout());
         if (result.isFailure()) {
-            return Result.failure(result.notification());
+            return Result.failure(result.err().orElseThrow());
         }
         return Result.success();
     }

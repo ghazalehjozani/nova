@@ -9,8 +9,8 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.accounting.document.api.model.BranchCode;
-import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Unit;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
@@ -69,22 +69,22 @@ public class FacilityBuilder {
         // 1. Validate Branch Code
         String rawBranchCode = command.loanApplication().branch().code();
         if (rawBranchCode == null) {
-            return Result.failure(Notification.ofError(OriginateLoanFacilityErrorCodes.BRANCH_CODE_REQUIRED));
+            return Result.failure(OriginateLoanFacilityErrorCodes.BRANCH_CODE_REQUIRED);
         }
 
         Result<Branch> branchResult = BranchCode.of(rawBranchCode).flatMap(Branch::of);
         if (branchResult.isFailure()) {
-            return Result.failure(branchResult.notification());
+            return Result.failure(branchResult.err().orElseThrow());
         }
-        Branch branch = branchResult.getValue();
+        Branch branch = branchResult.unwrap();
 
         // 2. Validate Loan Type Code
         Result<LoanTypeCode> loanTypeCodeResult =
                 LoanTypeCode.of(requireNonNull(context.loanType().getCode()).value());
         if (loanTypeCodeResult.isFailure()) {
-            return Result.failure(loanTypeCodeResult.notification());
+            return Result.failure(loanTypeCodeResult.err().orElseThrow());
         }
-        LoanTypeCode loanTypeCode = loanTypeCodeResult.getValue();
+        LoanTypeCode loanTypeCode = loanTypeCodeResult.unwrap();
 
         // 3. Prepare Parties
         Party primaryApplicant = context.primaryApplicant().party();
@@ -98,19 +98,19 @@ public class FacilityBuilder {
                 strategy.generateApplicationNumber(branch, loanTypeCode, primaryApplicant);
 
         if (appNumberResult.isFailure()) {
-            return Result.failure(appNumberResult.notification());
+            return Result.failure(appNumberResult.err().orElseThrow());
         }
 
-        Result<Void> matchResult = validateApplicationNumberMatch(command, appNumberResult);
+        Result<Unit> matchResult = validateApplicationNumberMatch(command, appNumberResult);
         if (matchResult.isFailure()) {
-            return Result.failure(matchResult.notification());
+            return Result.failure(matchResult.err().orElseThrow());
         }
 
         // 4. Build Application
         TradeLoanApplication.Builder builder = applicationMapper
                 .map(command.loanApplication())
                 .parties(enrichedParties)
-                .applicationNumber(appNumberResult.getValue())
+                .applicationNumber(appNumberResult.unwrap())
                 .branch(branch);
         fillInstallmentCount(builder, command);
 
@@ -131,26 +131,26 @@ public class FacilityBuilder {
                     exceptionCode,
                     consumptionPlaceCode);
             if (samatResult.isFailure()) {
-                return Result.failure(samatResult.notification());
+                return Result.failure(samatResult.err().orElseThrow());
             }
-            builder.samat(samatResult.getValue());
+            builder.samat(samatResult.unwrap());
         }
 
         return TradeLoanApplication.create(builder);
     }
 
-    private Result<Void> validateApplicationNumberMatch(
+    private Result<Unit> validateApplicationNumberMatch(
             OriginateLoanFacilityCommand command, Result<ApplicationNumber> appNumberResult) {
         String commandAppNumber = command.loanApplication().applicationNumber();
 
         if (commandAppNumber != null) {
-            String generatedAppNumber = appNumberResult.getValue().formattedApplicationNumber();
+            String generatedAppNumber = appNumberResult.unwrap().formattedApplicationNumber();
 
             if (!generatedAppNumber.equals(commandAppNumber)) {
-                return Result.failure(Notification.ofError(
+                return Result.failure(
                         OriginateLoanFacilityErrorCodes.APPLICATION_NUMBER_MISMATCH,
                         commandAppNumber,
-                        generatedAppNumber));
+                        generatedAppNumber);
             }
         }
         return Result.success();
@@ -160,7 +160,7 @@ public class FacilityBuilder {
         if (command.installmentSchedulePlan() != null) {
             builder.installmentCount(InstallmentCount.of(
                             command.installmentSchedulePlan().installments().size())
-                    .orElseThrow());
+                    .unwrap());
         } else {
             Integer value = null;
             if (command.loanApplication().installmentCount() != null) {

@@ -46,11 +46,11 @@ public interface OriginateLoanFacilityApplicationMapper {
         return switch (dto) {
             case DisburseDestinationDto.DepositDestinationDto(var depositNumber) ->
                 DepositDisburseDestination.of(
-                                DepositNumber.valueOf(depositNumber).orElseThrow())
-                        .orElseThrow();
+                                DepositNumber.valueOf(depositNumber).unwrap())
+                        .unwrap();
             case DisburseDestinationDto.AccountDestinationDto(var accountNumber) ->
-                AccountDisburseDestination.of(AccountNumber.of(accountNumber).orElseThrow())
-                        .orElseThrow();
+                AccountDisburseDestination.of(AccountNumber.of(accountNumber).unwrap())
+                        .unwrap();
         };
     }
 
@@ -74,7 +74,7 @@ public interface OriginateLoanFacilityApplicationMapper {
 
     default Optional<RespiteSerial> mapRespiteSerial(@Nullable String respiteSerial) {
         return respiteSerial != null
-                ? Optional.of(RespiteSerial.of(respiteSerial).getValue())
+                ? Optional.of(RespiteSerial.of(respiteSerial).unwrap())
                 : Optional.empty();
     }
 

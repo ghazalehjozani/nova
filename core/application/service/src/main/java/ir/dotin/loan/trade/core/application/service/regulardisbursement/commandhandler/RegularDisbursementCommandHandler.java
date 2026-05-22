@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
@@ -38,15 +39,15 @@ public class RegularDisbursementCommandHandler implements CommandHandler<Regular
 
         return Result.fromOptional(
                         repository.findById(loanFacilityId),
-                        () -> Notification.ofError(
-                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId()))
+                        () -> FailureCause.businessRule(Notification.ofError(
+                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())))
                 .flatMap(this::validateDisbursementMethod)
                 //                .flatMap(facility -> {
                 //                    Money trancheAmount = mapper.toMoney(command.trancheAmount());
                 //                    return facility.disbursement(trancheAmount, trackedNumbers, accountIds,
                 // clock).map(ignored -> facility);
                 //                })
-                .peekValue(facility -> {
+                .onSuccess(facility -> {
                     repository.save(facility);
                     log.info(
                             "Regular disbursement tranche {} completed for facility: {}. Amount: {}, Total: {}",
@@ -55,7 +56,7 @@ public class RegularDisbursementCommandHandler implements CommandHandler<Regular
                             command.trancheAmount(),
                             facility.getTotalDisbursedAmount());
                 })
-                .mapNonNull(AbstractAggregateRoot::domainEvents);
+                .map(AbstractAggregateRoot::domainEvents);
     }
 
     private Result<TradeLoanFacility> validateDisbursementMethod(TradeLoanFacility facility) {

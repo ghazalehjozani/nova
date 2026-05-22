@@ -3,8 +3,8 @@ package ir.dotin.loan.trade.core.domain.loanfacility.service;
 import java.time.Clock;
 import java.util.List;
 
-import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Unit;
 import ir.dotin.platform.commons.domain.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractSanctionedLoan;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
@@ -28,13 +28,13 @@ public class TradeLoanFacilityService
     }
 
     @Override
-    protected Result<Void> validateTransactionNumbers(
+    protected Result<Unit> validateTransactionNumbers(
             TradeLoanFacility facility, TrackedTransactionNumber transactionNumbers) {
 
         if (transactionNumbers == null) {
-            return Result.failure(Notification.ofError(
+            return Result.failure(
                     TradeLoanFacilityErrors.BUILDER_VALIDATION_FAILED,
-                    "Transaction numbers cannot be null for trade loans"));
+                    "Transaction numbers cannot be null for trade loans");
         }
 
         return Result.success();
@@ -58,21 +58,21 @@ public class TradeLoanFacilityService
     }
 
     @Override
-    protected Result<Void> verifyZeroBalance(TradeLoanFacility facility) {
+    protected Result<Unit> verifyZeroBalance(TradeLoanFacility facility) {
         // Trade-specific balance verification
         // For now, return success as a placeholder
         return Result.success();
     }
 
     @Override
-    protected Result<Void> verifyDefaultConditions(TradeLoanFacility facility) {
+    protected Result<Unit> verifyDefaultConditions(TradeLoanFacility facility) {
         // Trade-specific default condition verification
         // For now, return success as a placeholder
         return Result.success();
     }
 
     @Override
-    protected Result<Void> performPreApprovalChecks(
+    protected Result<Unit> performPreApprovalChecks(
             TradeLoanFacility facility, AbstractSanctionedLoan.AbstractSanctionedLoanBuilder<?, ?> builder) {
         return Result.success();
     }
@@ -85,7 +85,7 @@ public class TradeLoanFacilityService
         // Create a TradeSanctionedLoan.Builder from the loan application data
         var builder = TradeSanctionedLoan.builder()
                 .sanctionSerial(SanctionSerial.of("AUTO_GENERATED-" + System.currentTimeMillis(), SanctionType.GENERAL)
-                        .orElseThrow())
+                        .unwrap())
                 .approvedAmount(loanApplication.getRequestedAmount())
                 .gracePeriod(loanApplication.getGracePeriod())
                 .installmentCount(loanApplication.getInstallmentCount())

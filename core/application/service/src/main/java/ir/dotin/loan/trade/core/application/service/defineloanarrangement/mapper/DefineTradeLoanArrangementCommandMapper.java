@@ -56,9 +56,9 @@ public abstract class DefineTradeLoanArrangementCommandMapper {
         CurrencyType currency = map(command.currencyType());
         if (Objects.nonNull(command.amountRange())) {
             Money min =
-                    Money.valueOf(command.amountRange().min().value(), currency).getValue();
+                    Money.valueOf(command.amountRange().min().value(), currency).unwrap();
             Money max =
-                    Money.valueOf(command.amountRange().max().value(), currency).getValue();
+                    Money.valueOf(command.amountRange().max().value(), currency).unwrap();
             builder.amountRange(Range.closed(min, max));
         }
     }
@@ -68,41 +68,41 @@ public abstract class DefineTradeLoanArrangementCommandMapper {
     }
 
     LoanDuration map(Period period) {
-        return LoanDuration.of(period).getValue();
+        return LoanDuration.of(period).unwrap();
     }
 
     InterestPolicy mapInterestPolicy(DefineTradeLoanArrangementCommand.InterestPolicyDto dto) {
 
-        Rate minRate = Rate.valueOf(dto.minPreferentialRate()).orElseThrow();
-        Rate maxRate = Rate.valueOf(dto.maxPreferentialRate()).orElseThrow();
+        Rate minRate = Rate.valueOf(dto.minPreferentialRate()).unwrap();
+        Rate maxRate = Rate.valueOf(dto.maxPreferentialRate()).unwrap();
         FormulaId interestFormula = FormulaId.of(dto.interestFormula());
         FormulaId refundFormula = FormulaId.of(dto.refundFormula());
         Range<@NonNull Rate> preferentialRange = Range.closed(minRate, maxRate);
         return InterestPolicy.of(
-                        Rate.valueOf(dto.rate()).orElseThrow(),
+                        Rate.valueOf(dto.rate()).unwrap(),
                         preferentialRange,
                         interestFormula,
                         refundFormula,
                         dto.dailyInterest())
-                .orElseThrow();
+                .unwrap();
     }
 
     PenaltyPolicy mapPenaltyPolicy(DefineTradeLoanArrangementCommand.PenaltyPolicyDto dto) {
-        Rate penaltyRate = Rate.valueOf(dto.penaltyRate()).orElseThrow();
-        Rate deferralRate = Rate.valueOf(dto.deferralInterestRate()).orElseThrow();
+        Rate penaltyRate = Rate.valueOf(dto.penaltyRate()).unwrap();
+        Rate deferralRate = Rate.valueOf(dto.deferralInterestRate()).unwrap();
         FormulaId formula = FormulaId.of(dto.formula());
 
         return PenaltyPolicy.of(penaltyRate, deferralRate, formula, dto.paymentType())
-                .orElseThrow();
+                .unwrap();
     }
 
     InstallmentPolicy mapInstallmentPolicy(DefineTradeLoanArrangementCommand.InstallmentPolicyDto dto) {
-        InstallmentPeriod period = InstallmentPeriod.of(dto.installmentPeriod()).orElseThrow();
+        InstallmentPeriod period = InstallmentPeriod.of(dto.installmentPeriod()).unwrap();
         FormulaId installmentFormula = FormulaId.of(dto.installmentFormula());
         FormulaId interestComponentFormula = FormulaId.of(dto.interestComponentFormula());
 
         return InstallmentPolicy.of(period, installmentFormula, interestComponentFormula, dto.paymentType())
-                .orElseThrow();
+                .unwrap();
     }
 
     GracePeriodPolicy mapGracePeriodPolicy(DefineTradeLoanArrangementCommand.GracePeriodPolicyDto dto) {
@@ -110,7 +110,7 @@ public abstract class DefineTradeLoanArrangementCommandMapper {
         Period maxPeriod = Period.ofDays(dto.maxGracePeriodDays());
         FormulaId formula = FormulaId.of(dto.formula());
 
-        return GracePeriodPolicy.of(minPeriod, maxPeriod, formula).orElseThrow();
+        return GracePeriodPolicy.of(minPeriod, maxPeriod, formula).unwrap();
     }
 
     RepaymentPriorityPolicy mapRepaymentPriorityPolicy(
@@ -123,13 +123,13 @@ public abstract class DefineTradeLoanArrangementCommandMapper {
                         dto.insurancePriority(),
                         dto.insurancePenaltyPriority(),
                         dto.hasEqualPriority())
-                .orElseThrow();
+                .unwrap();
     }
 
     RegulatoryCompliancePolicy mapRegulatoryCompliancePolicy(
             DefineTradeLoanArrangementCommand.RegulatoryCompliancePolicyDto dto) {
         return RegulatoryCompliancePolicy.of(dto.overDuePeriod(), dto.deferralPeriod(), dto.suspiciousPeriod())
-                .orElseThrow();
+                .unwrap();
     }
 
     CollateralPolicy mapCollateralPolicy(DefineTradeLoanArrangementCommand.CollateralPolicyDto dto) {
@@ -137,7 +137,7 @@ public abstract class DefineTradeLoanArrangementCommandMapper {
                 .map(ct -> CollateralType.valueOf(ct.type().name()))
                 .toList();
         return CollateralPolicy.of(types, dto.totalPercent(), dto.collateralCalculationType())
-                .orElseThrow();
+                .unwrap();
     }
 
     public abstract EconomicSector map(EconomicSectorDto dto);

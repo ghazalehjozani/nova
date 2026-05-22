@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Unit;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -34,12 +36,13 @@ class CompensateApprovalSubmissionCommandHandler implements CommandHandler<Compe
     }
 
     private Result<List<DomainEvent<?>>> loadAndProcess(
-            java.util.UUID facilityId, java.util.function.Function<TradeLoanFacility, Result<Void>> operation) {
+            java.util.UUID facilityId, java.util.function.Function<TradeLoanFacility, Result<Unit>> operation) {
         return Result.fromOptional(
                         repository.findById(LoanFacilityId.of(facilityId)),
-                        () -> Notification.ofError(SubmitFacilityForApprovalErrorCodes.FACILITY_NOT_FOUND, facilityId))
+                        () -> FailureCause.businessRule(Notification.ofError(
+                                SubmitFacilityForApprovalErrorCodes.FACILITY_NOT_FOUND, facilityId)))
                 .flatMap(facility -> operation.apply(facility).map(v -> facility))
-                .peekValue(repository::save)
-                .mapNonNull(TradeLoanFacility::domainEvents);
+                .onSuccess(repository::save)
+                .map(TradeLoanFacility::domainEvents);
     }
 }

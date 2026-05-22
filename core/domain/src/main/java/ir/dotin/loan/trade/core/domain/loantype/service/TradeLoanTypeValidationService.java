@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.core.domain.loantype.service;
 
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Verdict;
 import ir.dotin.platform.commons.domain.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.loantype.service.LoanTypeValidationService;
 import ir.dotin.loan.baseloan.core.domain.loantype.specification.LoanTypeApplicationAllowedSpecification;
@@ -14,13 +15,15 @@ public class TradeLoanTypeValidationService implements LoanTypeValidationService
 
     @Override
     public Result<Boolean> validateLoanType(TradeLoanType loanType, TradeLoanArrangement loanArrangement) {
-        return new LoanTypeLoanArrangementExistenceSpecification(loanArrangement.getId())
+        Verdict verdict = new LoanTypeLoanArrangementExistenceSpecification(loanArrangement.getId())
                 .and(new LoanTypeApplicationAllowedSpecification())
                 .and(new MandatoryRelationTypeLoanTopicSpecification())
                 .isSatisfiedBy(loanType);
+        return verdict.isSatisfied() ? Result.success(true) : Result.failure(verdict.reasons());
     }
 
     public Result<Boolean> validateMandatoryRelationTypeLoanTopics(TradeLoanType loanType) {
-        return new MandatoryRelationTypeLoanTopicSpecification().isSatisfiedBy(loanType);
+        Verdict verdict = new MandatoryRelationTypeLoanTopicSpecification().isSatisfiedBy(loanType);
+        return verdict.isSatisfied() ? Result.success(true) : Result.failure(verdict.reasons());
     }
 }

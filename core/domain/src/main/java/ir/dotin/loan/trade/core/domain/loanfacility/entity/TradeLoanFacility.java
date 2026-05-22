@@ -76,20 +76,18 @@ public final class TradeLoanFacility
 
     public Money getCommissionAmount() {
         return getSanctionedLoan()
-                .map(sanctioned -> Money.zero(sanctioned.getCurrency()).orElseThrow())
-                .orElseGet(
-                        () -> Money.zero(getLoanApplication().getCurrency()).orElseThrow()); // Default implementation
+                .map(sanctioned -> Money.zero(sanctioned.getCurrency()).unwrap())
+                .orElseGet(() -> Money.zero(getLoanApplication().getCurrency()).unwrap()); // Default implementation
     }
 
     public Money getShipmentValue() {
         return getSanctionedLoan()
-                .map(sanctioned -> Money.zero(sanctioned.getCurrency()).orElseThrow())
-                .orElseGet(
-                        () -> Money.zero(getLoanApplication().getCurrency()).orElseThrow()); // Default implementation
+                .map(sanctioned -> Money.zero(sanctioned.getCurrency()).unwrap())
+                .orElseGet(() -> Money.zero(getLoanApplication().getCurrency()).unwrap()); // Default implementation
     }
 
     public Rate getInsuranceRate() {
-        return Rate.valueOf(0.0).orElseThrow(); // Default implementation - should be overridden by business logic
+        return Rate.valueOf(0.0).unwrap(); // Default implementation - should be overridden by business logic
     }
 
     public static final class Builder

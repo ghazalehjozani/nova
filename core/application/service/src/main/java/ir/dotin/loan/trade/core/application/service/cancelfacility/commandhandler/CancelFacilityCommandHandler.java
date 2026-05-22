@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
@@ -75,9 +76,9 @@ public class CancelFacilityCommandHandler implements CommandHandler<CancelFacili
 
         return Result.fromOptional(
                         scheduleRepository.findById(scheduleId.orElse(null)),
-                        () -> Notification.ofError(
+                        () -> FailureCause.businessRule(Notification.ofError(
                                 TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
-                                command.loanFacilityId()))
+                                command.loanFacilityId())))
                 .flatMap(schedule -> schedule.cancelSchedule(command.cancelReason(), clock)
                         .map(v -> {
                             scheduleRepository.save(schedule);
@@ -89,14 +90,14 @@ public class CancelFacilityCommandHandler implements CommandHandler<CancelFacili
     private Result<ApplicationNumberResolver.LoanIdentifiers> resolveIdentifiers(CancelFacilityCommand command) {
         return Result.fromOptional(
                 applicationNumberResolver.resolveByApplicationNumber(command.applicationNumber()),
-                () -> Notification.ofError(
-                        TradeLoanApplicationServiceErrors.APPLICATION_NUMBER_MISSING, command.applicationNumber()));
+                () -> FailureCause.businessRule(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.APPLICATION_NUMBER_MISSING, command.applicationNumber())));
     }
 
     private Result<TradeLoanFacility> loadTradeLoanFacility(ApplicationNumberResolver.LoanIdentifiers ids) {
         return Result.fromOptional(
                 facilityRepository.findById(LoanFacilityId.of(ids.loanFacilityId())),
-                () -> Notification.ofError(
-                        TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND, ids.loanFacilityId()));
+                () -> FailureCause.businessRule(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND, ids.loanFacilityId())));
     }
 }

@@ -9,13 +9,14 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Unit;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.platform.saga.api.error.SagaErrors;
 import ir.dotin.platform.saga.api.exception.SagaSuspendedException;
 import ir.dotin.platform.saga.api.model.SagaResult;
-import ir.dotin.platform.saga.api.model.StepError;
 import ir.dotin.platform.saga.api.orchestration.SagaOrchestrator;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -59,24 +60,24 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
         Result<CollateralValidationContext> contextResult =
                 dependencyLoader.loadAndCalculate(loanFacilityId, collaterals);
         if (contextResult.isFailure()) {
-            return Result.failure(contextResult.notification());
+            return Result.failure(contextResult.err().orElseThrow());
         }
-        CollateralValidationContext context = contextResult.value();
+        CollateralValidationContext context = contextResult.unwrap();
         Money requiredAmount = Objects.requireNonNull(context).requiredCollateralAmount();
 
-        Result<Void> adequacyResult = validateCollateralAdequacy(collaterals, context);
+        Result<Unit> adequacyResult = validateCollateralAdequacy(collaterals, context);
         if (adequacyResult.isFailure()) {
-            return Result.failure(adequacyResult.notification());
+            return Result.failure(adequacyResult.err().orElseThrow());
         }
 
         Money totalNewCollateralAmount = collaterals.stream()
                 .map(Collateral::usedAmount)
-                .reduce(Money.zero(context.arrangement().getCurrencyType()).orElseThrow(), (a, b) -> a.add(b)
-                        .orElseThrow());
+                .reduce(Money.zero(context.arrangement().getCurrencyType()).unwrap(), (a, b) -> a.add(b)
+                        .unwrap());
 
-        Result<Void> valueValidationResult = validateTotalCollateralValue(totalNewCollateralAmount, requiredAmount);
+        Result<Unit> valueValidationResult = validateTotalCollateralValue(totalNewCollateralAmount, requiredAmount);
         if (valueValidationResult.isFailure()) {
-            return Result.failure(valueValidationResult.notification());
+            return Result.failure(valueValidationResult.err().orElseThrow());
         }
 
         return runSaga(command);
@@ -102,8 +103,7 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
         return sagaResult
                 .error()
                 .map(this::toResult)
-                .orElseGet(
-                        () -> Result.failure(Notification.ofError(SagaErrors.COMPENSATED, extractReason(sagaResult))));
+                .orElseGet(() -> Result.failure(SagaErrors.COMPENSATED, extractReason(sagaResult)));
     }
 
     private List<DomainEvent<?>> buildDomainEvents(AddFacilityCollateralSagaData data) {
@@ -125,7 +125,7 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
                 .toList();
     }
 
-    private Result<Void> validateCollateralAdequacy(List<Collateral> collaterals, CollateralValidationContext context) {
+    private Result<Unit> validateCollateralAdequacy(List<Collateral> collaterals, CollateralValidationContext context) {
         for (Collateral collateral : collaterals) {
             CollateralDetails details = context.collateralDetailsMap().get(collateral.collateralSerial());
             if (details == null) {
@@ -136,27 +136,26 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
 
             Money realCollateralPrice = Money.valueOf(
                             details.price(), context.arrangement().getCurrencyType())
-                    .orElseThrow();
+                    .unwrap();
 
-            if (Boolean.TRUE.equals(
-                    collateral.usedAmount().isGreaterThan(realCollateralPrice).value())) {
+            if (collateral.usedAmount().isGreaterThan(realCollateralPrice).unwrap()) {
                 log.warn(
                         "Collateral adequacy validation failed for serial {}",
                         collateral.collateralSerial().value());
-                return Result.failure(Notification.ofError(
+                return Result.failure(
                         TradeLoanApplicationServiceErrors.INSUFFICIENT_COLLATERAL_VALUE,
                         realCollateralPrice,
-                        collateral.usedAmount()));
+                        collateral.usedAmount());
             }
         }
         return Result.success();
     }
 
-    private Result<Void> validateTotalCollateralValue(Money totalValue, Money requiredAmount) {
-        if (Boolean.TRUE.equals(totalValue.isLessThan(requiredAmount).value())) {
+    private Result<Unit> validateTotalCollateralValue(Money totalValue, Money requiredAmount) {
+        if (totalValue.isLessThan(requiredAmount).unwrap()) {
             log.warn("Total new collateral value {} is less than required amount {}", totalValue, requiredAmount);
-            return Result.failure(Notification.ofError(
-                    TradeLoanApplicationServiceErrors.INSUFFICIENT_COLLATERAL_VALUE, totalValue, requiredAmount));
+            return Result.failure(
+                    TradeLoanApplicationServiceErrors.INSUFFICIENT_COLLATERAL_VALUE, totalValue, requiredAmount);
         }
         return Result.success();
     }
@@ -174,17 +173,7 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
         return "Unknown error";
     }
 
-    private Result<List<DomainEvent<?>>> toResult(StepError stepError) {
-        return switch (stepError) {
-            case StepError.BusinessRuleError bre -> Result.failure(bre.notification());
-            case StepError.ValidationError ve ->
-                Result.failure(Notification.ofError(SagaErrors.VALIDATION_FAILED, ve.message()));
-            case StepError.BusinessError be ->
-                Result.failure(Notification.ofError(SagaErrors.STEP_FAILED, be.message()));
-            case StepError.TechnicalError te ->
-                Result.failure(Notification.ofError(SagaErrors.TECHNICAL_ERROR, te.message()));
-            case StepError.TimeoutError toe ->
-                Result.failure(Notification.ofError(SagaErrors.TIMEOUT, toe.timeoutMillis()));
-        };
+    private Result<List<DomainEvent<?>>> toResult(FailureCause failureCause) {
+        return Result.failure(failureCause);
     }
 }

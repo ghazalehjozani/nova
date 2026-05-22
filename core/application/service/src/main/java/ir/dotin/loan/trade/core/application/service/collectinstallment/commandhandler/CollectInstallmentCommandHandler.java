@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
@@ -41,28 +42,29 @@ public class CollectInstallmentCommandHandler implements CommandHandler<CollectI
         return resolveIdentifiers(command)
                 .flatMap(ids -> loadSchedule(ids, command))
                 .flatMap(schedule -> collectAllPayments(schedule, command))
-                .peekValue(installmentScheduleRepository::save)
-                .peekValue(schedule -> log.info(
+                .onSuccess(installmentScheduleRepository::save)
+                .onSuccess(schedule -> log.info(
                         "Installment collection completed: applicationNumber={}, payments={}, ref={}",
                         command.applicationNumber(),
                         command.payments().size(),
                         command.transactionReference()))
-                .mapNonNull(AbstractAggregateRoot::domainEvents);
+                .map(AbstractAggregateRoot::domainEvents);
     }
 
     private Result<LoanIdentifiers> resolveIdentifiers(CollectInstallmentCommand command) {
         return Result.fromOptional(
                 applicationNumberResolver.resolveByApplicationNumber(command.applicationNumber()),
-                Notification.ofError(
-                        TradeLoanApplicationServiceErrors.APPLICATION_NUMBER_MISSING, command.applicationNumber()));
+                () -> FailureCause.businessRule(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.APPLICATION_NUMBER_MISSING, command.applicationNumber())));
     }
 
     private Result<InstallmentSchedule> loadSchedule(LoanIdentifiers ids, CollectInstallmentCommand command) {
         return Result.fromOptional(
                 installmentScheduleRepository.findById(
-                        InstallmentScheduleId.of(ids.installmentScheduleId()).getValue()),
-                Notification.ofError(
-                        TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND, ids.installmentScheduleId()));
+                        InstallmentScheduleId.of(ids.installmentScheduleId()).unwrap()),
+                () -> FailureCause.businessRule(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
+                        ids.installmentScheduleId())));
     }
 
     private Result<InstallmentSchedule> collectAllPayments(
@@ -71,12 +73,12 @@ public class CollectInstallmentCommandHandler implements CommandHandler<CollectI
         for (InstallmentPaymentItem item : command.payments()) {
             Result<InstallmentPaymentRecord> recordResult = buildPaymentRecord(item, command, schedule);
             if (recordResult.isFailure()) {
-                return Result.failure(recordResult.notification());
+                return Result.failure(recordResult.err().orElseThrow());
             }
 
-            Result<Void> collectResult = schedule.collectInstallment(recordResult.orElseThrow(), clock);
+            Result<?> collectResult = schedule.collectInstallment(recordResult.unwrap(), clock);
             if (collectResult.isFailure()) {
-                return Result.failure(collectResult.notification());
+                return Result.failure(collectResult.err().orElseThrow());
             }
         }
 
@@ -89,20 +91,22 @@ public class CollectInstallmentCommandHandler implements CommandHandler<CollectI
         CurrencyType currency = schedule.getCurrency();
 
         Result<Money> principalResult = Money.valueOf(item.principalAmount(), currency);
-        if (principalResult.isFailure()) return Result.failure(principalResult.notification());
+        if (principalResult.isFailure())
+            return Result.failure(principalResult.err().orElseThrow());
 
         Result<Money> interestResult = Money.valueOf(item.interestAmount(), currency);
-        if (interestResult.isFailure()) return Result.failure(interestResult.notification());
+        if (interestResult.isFailure())
+            return Result.failure(interestResult.err().orElseThrow());
 
         Result<Money> totalResult = Money.valueOf(item.totalPaidAmount(), currency);
-        if (totalResult.isFailure()) return Result.failure(totalResult.notification());
+        if (totalResult.isFailure()) return Result.failure(totalResult.err().orElseThrow());
 
         InstallmentPaymentRecord record = InstallmentPaymentRecord.builder()
                 .paymentReference(command.transactionReference())
                 .installmentSequenceNumber(item.installmentSequenceNumber())
-                .principalAmount(principalResult.orElseThrow())
-                .interestAmount(interestResult.orElseThrow())
-                .totalPaidAmount(totalResult.orElseThrow())
+                .principalAmount(principalResult.unwrap())
+                .interestAmount(interestResult.unwrap())
+                .totalPaidAmount(totalResult.unwrap())
                 .valueDate(item.valueDate())
                 .paymentDate(item.paymentDate())
                 .channel(command.channel())

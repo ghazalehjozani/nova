@@ -70,17 +70,17 @@ public class TradeArticleComponentBuilder {
 
         Result<ArticleComponent> debitResult = resolveComponent(debitType, amount, destination, resolvedAccounts);
         if (debitResult.isFailure()) {
-            return Result.failure(debitResult.notification());
+            return Result.failure(debitResult.err().orElseThrow());
         }
 
         Result<ArticleComponent> creditResult = resolveComponent(creditType, amount, destination, resolvedAccounts);
         if (creditResult.isFailure()) {
-            return Result.failure(creditResult.notification());
+            return Result.failure(creditResult.err().orElseThrow());
         }
 
         Map<K, ArticleComponent> components = new HashMap<>();
-        components.put(debitType, debitResult.getValue());
-        components.put(creditType, creditResult.getValue());
+        components.put(debitType, debitResult.unwrap());
+        components.put(creditType, creditResult.unwrap());
         return Result.success(components);
     }
 
@@ -112,7 +112,7 @@ public class TradeArticleComponentBuilder {
         RelationType<TradeRelationType> relationType = articleType.getRelationType();
         AccountId accountId = resolvedAccounts.getAccount(relationType);
         if (accountId == null) {
-            return Result.failure(Notification.ofError(DocumentErrors.CONTEXT_ACCOUNT_NOT_RESOLVED, relationType));
+            return Result.failure(DocumentErrors.CONTEXT_ACCOUNT_NOT_RESOLVED, relationType);
         }
 
         Optional<LoanTopic> loanTopicOpt = relationTopics.get(relationType).stream()
@@ -125,9 +125,9 @@ public class TradeArticleComponentBuilder {
                     return AccountArticleComponent.of(amount, postingTopic, accountId)
                             .map(c -> (ArticleComponent) c);
                 })
-                .orElseGet(() -> Result.failure(Notification.ofError(
+                .orElseGet(() -> Result.failure(
                         DocumentErrors.ARTICLE_COMPONENT_TOPIC_REQUIRED,
-                        "No topic for relation=" + articleType + ", sector=" + economicSector)));
+                        "No topic for relation=" + articleType + ", sector=" + economicSector));
     }
 
     /** Resolves a contextual component from the disbursement destination. */

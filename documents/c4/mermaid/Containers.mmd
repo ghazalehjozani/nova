@@ -47,9 +47,8 @@ graph TB
     end
 
     11-. "<div>Consumes from</div><div style='font-size: 70%'>[Kafka Protocol]</div>" .->13
-    11-. "<div>Reads/Writes</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->12
-    11-. "<div>Calls</div><div style='font-size: 70%'>[HTTP/REST]</div>" .->2
     11-. "<div>Publishes events</div><div style='font-size: 70%'>[Kafka Protocol]</div>" .->13
+    11-. "<div>Reads/Writes</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->12
     11-. "<div>Publishes/Consumes</div><div style='font-size: 70%'>[Kafka Protocol]</div>" .->13
     11-. "<div>Caches data</div><div style='font-size: 70%'>[Redis Protocol]</div>" .->14
     11-. "<div>Authenticates</div><div style='font-size: 70%'>[OAuth2/OIDC]</div>" .->1

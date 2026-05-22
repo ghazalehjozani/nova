@@ -23,9 +23,9 @@ public class LoanFacilityRestructuringInstallmentSchedulePlanMapper {
                 .sequenceNumber(dto.sequenceNumber())
                 .dueDate(dto.dueDate())
                 .principalAmount(
-                        Money.valueOf(dto.principalAmount().value(), currency).value())
+                        Money.valueOf(dto.principalAmount().value(), currency).unwrap())
                 .interestAmount(
-                        Money.valueOf(dto.interestAmount().value(), currency).value())
+                        Money.valueOf(dto.interestAmount().value(), currency).unwrap())
                 .build();
     }
 }

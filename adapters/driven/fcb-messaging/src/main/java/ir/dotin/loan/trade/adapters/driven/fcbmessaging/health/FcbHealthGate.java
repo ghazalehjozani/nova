@@ -3,8 +3,8 @@ package ir.dotin.loan.trade.adapters.driven.fcbmessaging.health;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Unit;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 
 import io.micrometer.core.instrument.Counter;
@@ -27,7 +27,7 @@ public class FcbHealthGate {
         this.deniedCounter = deniedCounter;
     }
 
-    public Result<Void> checkPermitted(String operationName) {
+    public Result<Unit> checkPermitted(String operationName) {
         if (partitionRegistry.healthyCount() > 0) {
             return Result.success();
         }
@@ -37,9 +37,9 @@ public class FcbHealthGate {
         if (warmingUp && failClosed) {
             deniedCounter.increment();
             log.debug("FCB-GATE: warmup fail-closed (no successful probe yet) op={}", operationName);
-            return Result.failure(Notification.ofError(
+            return Result.failure(
                     CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE,
-                    "FCB Kafka gate CLOSED (warming up, fail-closed): operation=" + operationName));
+                    "FCB Kafka gate CLOSED (warming up, fail-closed): operation=" + operationName);
         }
 
         if (properties.isFailOpenOnUnknown()) {
@@ -54,8 +54,8 @@ public class FcbHealthGate {
         }
 
         deniedCounter.increment();
-        return Result.failure(Notification.ofError(
+        return Result.failure(
                 CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE,
-                "FCB Kafka gate CLOSED (no healthy partitions): operation=" + operationName));
+                "FCB Kafka gate CLOSED (no healthy partitions): operation=" + operationName);
     }
 }

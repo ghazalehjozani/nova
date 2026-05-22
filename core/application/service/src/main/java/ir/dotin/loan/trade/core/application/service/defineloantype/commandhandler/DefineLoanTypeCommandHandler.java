@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Unit;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode;
@@ -53,10 +55,10 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
         return joinAsync(gatherPrerequisitesAsync(command))
                 .flatMap(prereqs -> buildLoanType(command, prereqs))
                 .flatMap(this::validateBusinessRules)
-                .peekValue(loanTypeRepository::save)
-                .peekValue(loanType -> log.debug(
+                .onSuccess(loanTypeRepository::save)
+                .onSuccess(loanType -> log.debug(
                         "Loan type defined successfully: {}", loanType.getId().value()))
-                .mapNonNull(TradeLoanType::domainEvents);
+                .map(TradeLoanType::domainEvents);
     }
 
     private CompletableFuture<Result<Prerequisites>> gatherPrerequisitesAsync(DefineLoanTypeCommand command) {
@@ -65,7 +67,7 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
         var uniquenessFuture =
                 CompletableFuture.supplyAsync(() -> checkLoanTypeDoesNotExist(codeValue), VIRTUAL_EXECUTOR);
 
-        var sectorValidationFuture = validateEconomicSectorsAsync(command, codeValue);
+        CompletableFuture<Result<Unit>> sectorValidationFuture = validateEconomicSectorsAsync(command, codeValue);
 
         var arrangementIdsFuture = resolveArrangementIdsAsync(command.loanArrangementCodes());
 
@@ -73,23 +75,25 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
 
         return CompletableFuture.allOf(uniquenessFuture, sectorValidationFuture, arrangementIdsFuture, topicInfoFuture)
                 .thenApply(ignored -> {
-                    Result<Void> uniqueCheck = uniquenessFuture.join();
-                    Result<Void> sectorsCheck = sectorValidationFuture.join();
+                    Result<Unit> uniqueCheck = uniquenessFuture.join();
+                    Result<Unit> sectorsCheck = sectorValidationFuture.join();
                     Result<Set<LoanArrangementId>> idsResult = arrangementIdsFuture.join();
                     Result<List<TopicInfo>> topicsResult = topicInfoFuture.join();
 
-                    Result<Void> validations = Result.combine(uniqueCheck, sectorsCheck, (a, b) -> null);
+                    Result<Unit> validations = Result.combine(uniqueCheck, sectorsCheck, (a, b) -> Unit.INSTANCE);
 
                     return Result.combine(validations, idsResult, (v, ids) -> ids)
                             .flatMap(ids -> Result.combine(Result.success(ids), topicsResult, Prerequisites::new));
                 });
     }
 
-    private Result<Void> checkLoanTypeDoesNotExist(String codeValue) {
+    private Result<Unit> checkLoanTypeDoesNotExist(String codeValue) {
         boolean exists =
-                loanTypeRepository.existsByCode(LoanTypeCode.of(codeValue).getValue());
+                loanTypeRepository.existsByCode(LoanTypeCode.of(codeValue).unwrap());
         return Result.requireFalse(
-                exists, Notification.ofError(TradeLoanApplicationServiceErrors.DUPLICATE_LOAN_TYPE, codeValue));
+                exists,
+                FailureCause.businessRule(
+                        Notification.ofError(TradeLoanApplicationServiceErrors.DUPLICATE_LOAN_TYPE, codeValue)));
     }
 
     private CompletableFuture<Result<Set<LoanArrangementId>>> resolveArrangementIdsAsync(
@@ -97,7 +101,7 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
         List<CompletableFuture<Result<LoanArrangementId>>> futures = dtos.stream()
                 .map(LoanArrangementCodeDto::value)
                 .map(LoanArrangementCode::valueOf)
-                .map(code -> CompletableFuture.supplyAsync(() -> findArrangementId(code.getValue()), VIRTUAL_EXECUTOR))
+                .map(code -> CompletableFuture.supplyAsync(() -> findArrangementId(code.unwrap()), VIRTUAL_EXECUTOR))
                 .toList();
 
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new))
@@ -108,17 +112,18 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
     private Result<LoanArrangementId> findArrangementId(LoanArrangementCode code) {
         return Result.fromOptional(
                 loanArrangementRepository.getIdByCode(code).map(LoanArrangementId::of),
-                () -> Notification.ofError(TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND, code.value()));
+                () -> FailureCause.businessRule(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND, code.value())));
     }
 
-    private CompletableFuture<Result<Void>> validateEconomicSectorsAsync(
+    private CompletableFuture<Result<Unit>> validateEconomicSectorsAsync(
             DefineLoanTypeCommand command, String loanTypeCode) {
         List<CompletableFuture<Result<EconomicalSectorValidation>>> futures =
                 command.economicSectorCurrencies().stream()
                         .map(sectorCurrency -> CompletableFuture.supplyAsync(
                                 () -> loanServicePort.validateEconomicalSectorForLoanType(
                                         mapper.map(sectorCurrency.economicSector()),
-                                        LoanTypeCode.of(loanTypeCode).getValue()),
+                                        LoanTypeCode.of(loanTypeCode).unwrap()),
                                 VIRTUAL_EXECUTOR))
                         .toList();
 
@@ -126,15 +131,16 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
                 .thenApply(v -> collectSectorValidations(futures));
     }
 
-    private Result<Void> collectSectorValidations(List<CompletableFuture<Result<EconomicalSectorValidation>>> futures) {
+    private Result<Unit> collectSectorValidations(List<CompletableFuture<Result<EconomicalSectorValidation>>> futures) {
         Notification aggregatedNotification = Notification.create();
         for (var future : futures) {
             Result<EconomicalSectorValidation> result = future.join();
-            aggregatedNotification.merge(result.notification());
-            if (result.hasValue() && !result.getValue().isValid()) {
+            if (result.isFailure()) {
+                aggregatedNotification.merge(result.err().orElseThrow().notification());
+            } else if (!result.unwrap().isValid()) {
                 aggregatedNotification.addError(
                         TradeLoanApplicationServiceErrors.INVALID_ECONOMIC_SECTOR_FOR_LOAN_TYPE,
-                        result.getValue().message());
+                        result.unwrap().message());
             }
         }
         return aggregatedNotification.hasErrors() ? Result.failure(aggregatedNotification) : Result.success();
@@ -144,7 +150,7 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
         List<String> topicCodes = command.relationTypeLoanTopics().stream()
                 .map(DefineLoanTypeCommand.RelationTypeLoanTopicDto::topicCode)
                 .toList();
-        return loanServicePort.loadTopicByCode(topicCodes).peekValue(info -> log.debug("Topic info loaded: {}", info));
+        return loanServicePort.loadTopicByCode(topicCodes).onSuccess(info -> log.debug("Topic info loaded: {}", info));
     }
 
     private Result<TradeLoanType> buildLoanType(DefineLoanTypeCommand command, Prerequisites prereqs) {

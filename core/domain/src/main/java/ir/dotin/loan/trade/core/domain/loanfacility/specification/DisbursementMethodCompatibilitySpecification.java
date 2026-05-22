@@ -2,7 +2,7 @@ package ir.dotin.loan.trade.core.domain.loanfacility.specification;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.NotificationError;
-import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Verdict;
 import ir.dotin.platform.commons.domain.validation.Specification;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractLoanFacility;
@@ -22,7 +22,7 @@ public final class DisbursementMethodCompatibilitySpecification
     }
 
     @Override
-    public Result<Boolean> isSatisfiedBy(AbstractLoanFacility<?, ?, ?> facility) {
+    public Verdict isSatisfiedBy(AbstractLoanFacility<?, ?, ?> facility) {
         requireNonNull(facility, "facility cannot be null");
         DisbursementType arrangementDisbursementType = tradeLoanArrangement.getDisbursementType();
         DisbursementMethod applicationDisbursementMethod =
@@ -32,8 +32,8 @@ public final class DisbursementMethodCompatibilitySpecification
                     LoanFacilityErrors.DISBURSEMENT_METHOD_MISMATCH,
                     applicationDisbursementMethod,
                     arrangementDisbursementType);
-            return Result.of(false, Notification.ofError(error));
+            return Verdict.notSatisfied(Notification.ofError(error));
         }
-        return Result.success(true);
+        return Verdict.satisfied();
     }
 }

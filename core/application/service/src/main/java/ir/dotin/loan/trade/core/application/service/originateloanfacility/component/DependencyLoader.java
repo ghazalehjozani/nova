@@ -14,7 +14,9 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Unit;
 import ir.dotin.platform.commons.core.concurrent.ParallelFanout;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
@@ -55,27 +57,23 @@ public class DependencyLoader {
         int partyCount = parties.size();
         AtomicReferenceArray<PartyInfoResponse> partyRefs = new AtomicReferenceArray<>(partyCount);
 
-        List<Supplier<Result<Void>>> tasks = new ArrayList<>(partyCount + 2);
+        List<Supplier<Result<Unit>>> tasks = new ArrayList<>(partyCount + 2);
 
         tasks.add(() -> {
             Result<TradeLoanArrangement> r = safeLoadArrangement(command.loanArrangementCode());
-            if (r.hasErrors()) {
-                return Result.failure(r.notification());
+            if (r.isFailure()) {
+                return Result.failure(r.err().orElseThrow());
             }
-            if (r.hasValue()) {
-                arrangementRef.set(r.value());
-            }
+            arrangementRef.set(r.unwrap());
             return Result.success();
         });
 
         tasks.add(() -> {
             Result<TradeLoanType> r = safeLoadLoanType(command.loanTypeCode());
-            if (r.hasErrors()) {
-                return Result.failure(r.notification());
+            if (r.isFailure()) {
+                return Result.failure(r.err().orElseThrow());
             }
-            if (r.hasValue()) {
-                loanTypeRef.set(r.value());
-            }
+            loanTypeRef.set(r.unwrap());
             return Result.success();
         });
 
@@ -86,19 +84,17 @@ public class DependencyLoader {
                 BigDecimal percentage =
                         partyDto instanceof PartyDto.GuarantorDto guarantor ? guarantor.guaranteePercentage() : null;
                 Result<PartyInfoResponse> r = loadCustomerInfo(partyDto.customerNumber(), partyDto.role(), percentage);
-                if (r.hasErrors()) {
-                    return Result.failure(r.notification());
+                if (r.isFailure()) {
+                    return Result.failure(r.err().orElseThrow());
                 }
-                if (r.hasValue()) {
-                    partyRefs.set(idx, r.value());
-                }
+                partyRefs.set(idx, r.unwrap());
                 return Result.success();
             });
         }
 
-        Result<Void> fanout = ParallelFanout.allVoid(tasks);
-        if (fanout.hasErrors()) {
-            return Result.failure(fanout.notification());
+        Result<Unit> fanout = ParallelFanout.allVoid(tasks);
+        if (fanout.isFailure()) {
+            return Result.failure(fanout.err().orElseThrow());
         }
 
         List<PartyInfoResponse> partiesValue = new ArrayList<>(partyCount);
@@ -117,20 +113,22 @@ public class DependencyLoader {
         try {
             return Result.fromOptional(
                     loanArrangementRepository.findByCode(
-                            LoanArrangementCode.valueOf(code).getValue()),
-                    () -> Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_LOAN_ARRANGEMENT, code));
+                            LoanArrangementCode.valueOf(code).unwrap()),
+                    () -> FailureCause.businessRule(
+                            Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_LOAN_ARRANGEMENT, code)));
         } catch (IllegalArgumentException | NullPointerException e) {
-            return Result.failure(Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_LOAN_ARRANGEMENT, code));
+            return Result.failure(OriginateLoanFacilityErrorCodes.INVALID_LOAN_ARRANGEMENT, code);
         }
     }
 
     private Result<TradeLoanType> safeLoadLoanType(String code) {
         try {
             return Result.fromOptional(
-                    tradeLoanTypeRepository.findByCode(LoanTypeCode.of(code).getValue()),
-                    () -> Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_LOAN_TYPE, code));
+                    tradeLoanTypeRepository.findByCode(LoanTypeCode.of(code).unwrap()),
+                    () -> FailureCause.businessRule(
+                            Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_LOAN_TYPE, code)));
         } catch (IllegalArgumentException | NullPointerException e) {
-            return Result.failure(Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_LOAN_TYPE, code));
+            return Result.failure(OriginateLoanFacilityErrorCodes.INVALID_LOAN_TYPE, code);
         }
     }
 

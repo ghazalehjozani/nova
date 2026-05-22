@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.commons.domain.vo.Money;
@@ -49,48 +50,50 @@ public class CloseFacilityPaidOffCommandHandler implements CommandHandler<CloseF
         return resolveIdentifiers(command)
                 .flatMap(ids -> loadSchedule(ids, command)
                         .flatMap(schedule -> applyClosePaidOffPayments(schedule, command))
-                        .peekValue(schedule -> {
+                        .onSuccess(schedule -> {
                             allEvents.addAll(schedule.domainEvents());
                         })
-                        .peekValue(installmentScheduleRepository::save)
-                        .peekValue(schedule -> log.info(
+                        .onSuccess(installmentScheduleRepository::save)
+                        .onSuccess(schedule -> log.info(
                                 "Installment collection completed: applicationNumber={}, payments={}, ref={}",
                                 command.applicationNumber(),
                                 command.payments().size(),
                                 command.transactionReference()))
                         .flatMap(__ -> loadFacility(ids, command))
                         .flatMap(facility -> closeFacility(facility, command))
-                        .peekValue(facility -> {
+                        .onSuccess(facility -> {
                             allEvents.addAll(facility.domainEvents());
                         })
-                        .peekValue(facility -> {
+                        .onSuccess(facility -> {
                             repository.save(facility);
                             log.debug("Facility closed as paid off: {}", command.applicationNumber());
                         }))
-                .mapNonNull(__ -> allEvents);
+                .map(__ -> allEvents);
     }
 
     private Result<TradeLoanFacility> loadFacility(
             ApplicationNumberResolver.LoanIdentifiers ids, CloseFacilityPaidOffCommand command) {
         return Result.fromOptional(
                 repository.findById(LoanFacilityId.of(ids.loanFacilityId())),
-                () -> Notification.ofError(TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, ids.loanFacilityId()));
+                () -> FailureCause.businessRule(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, ids.loanFacilityId())));
     }
 
     private Result<ApplicationNumberResolver.LoanIdentifiers> resolveIdentifiers(CloseFacilityPaidOffCommand command) {
         return Result.fromOptional(
                 applicationNumberResolver.resolveByApplicationNumber(command.applicationNumber()),
-                () -> Notification.ofError(
-                        TradeLoanApplicationServiceErrors.APPLICATION_NUMBER_MISSING, command.applicationNumber()));
+                () -> FailureCause.businessRule(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.APPLICATION_NUMBER_MISSING, command.applicationNumber())));
     }
 
     private Result<InstallmentSchedule> loadSchedule(
             ApplicationNumberResolver.LoanIdentifiers ids, CloseFacilityPaidOffCommand command) {
         return Result.fromOptional(
                 installmentScheduleRepository.findById(
-                        InstallmentScheduleId.of(ids.installmentScheduleId()).getValue()),
-                () -> Notification.ofError(
-                        TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND, ids.installmentScheduleId()));
+                        InstallmentScheduleId.of(ids.installmentScheduleId()).unwrap()),
+                () -> FailureCause.businessRule(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
+                        ids.installmentScheduleId())));
     }
 
     private Result<TradeLoanFacility> closeFacility(TradeLoanFacility facility, CloseFacilityPaidOffCommand command) {
@@ -114,10 +117,10 @@ public class CloseFacilityPaidOffCommandHandler implements CommandHandler<CloseF
                     buildCloseInstallmentSchedulePaidOffItem(item, command, currency);
 
             if (itemResult.isFailure()) {
-                return Result.failure(itemResult.notification());
+                return Result.failure(itemResult.err().orElseThrow());
             }
 
-            closeInstallmentSchedulePaidOffItems.add(itemResult.orElseThrow());
+            closeInstallmentSchedulePaidOffItems.add(itemResult.unwrap());
         }
 
         CloseInstallmentSchedulePaidOff closePaidOff = new CloseInstallmentSchedulePaidOff(
@@ -140,7 +143,7 @@ public class CloseFacilityPaidOffCommandHandler implements CommandHandler<CloseF
 
         Result<Money> penaltyResult = Money.zero(currency);
         if (penaltyResult.isFailure()) {
-            return Result.failure(penaltyResult.notification());
+            return Result.failure(penaltyResult.err().orElseThrow());
         }
 
         LocalDate valueDate = item.valueDate() != null ? item.valueDate() : item.paymentDate();
@@ -148,10 +151,10 @@ public class CloseFacilityPaidOffCommandHandler implements CommandHandler<CloseF
         CloseInstallmentSchedulePaidOff.CloseInstallmentSchedulePaidOffItem closeInstallmentSchedulePaidOffItem =
                 new CloseInstallmentSchedulePaidOff.CloseInstallmentSchedulePaidOffItem(
                         item.installmentSequenceNumber(),
-                        principalResult.orElseThrow(),
-                        interestResult.orElseThrow(),
-                        penaltyResult.orElseThrow(),
-                        totalResult.orElseThrow(),
+                        principalResult.unwrap(),
+                        interestResult.unwrap(),
+                        penaltyResult.unwrap(),
+                        totalResult.unwrap(),
                         valueDate);
 
         return Result.success(closeInstallmentSchedulePaidOffItem);
@@ -159,7 +162,7 @@ public class CloseFacilityPaidOffCommandHandler implements CommandHandler<CloseF
 
     private Money calculateTotalClosePaidOffAmount(CloseFacilityPaidOffCommand command, CurrencyType currency) {
         return command.payments().stream()
-                .map(item -> Money.valueOf(item.totalPaidAmount(), currency).orElseThrow())
-                .reduce(Money.zero(currency).orElseThrow(), (a, b) -> a.add(b).orElseThrow());
+                .map(item -> Money.valueOf(item.totalPaidAmount(), currency).unwrap())
+                .reduce(Money.zero(currency).unwrap(), (a, b) -> a.add(b).unwrap());
     }
 }

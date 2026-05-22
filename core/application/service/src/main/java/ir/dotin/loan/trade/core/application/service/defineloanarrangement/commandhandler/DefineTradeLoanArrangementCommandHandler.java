@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Unit;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.platform.formula.service.query.FormulaQueryService;
@@ -53,7 +55,7 @@ public class DefineTradeLoanArrangementCommandHandler implements CommandHandler<
                 .filter(Objects::nonNull)
                 .toList();
 
-        List<CompletableFuture<Result<Void>>> validationFutures = formulasToValidate.stream()
+        List<CompletableFuture<Result<Unit>>> validationFutures = formulasToValidate.stream()
                 .map(formulaId ->
                         CompletableFuture.supplyAsync(() -> checkFormulaExistence(formulaId), VIRTUAL_EXECUTOR))
                 .toList();
@@ -75,30 +77,31 @@ public class DefineTradeLoanArrangementCommandHandler implements CommandHandler<
                                 (voids, sector) -> sector),
                         VIRTUAL_EXECUTOR);
 
-        Result<Void> duplicateCodeResult = Result.requireFalse(
+        Result<Unit> duplicateCodeResult = Result.requireFalse(
                 repository.existsByCode(
-                        LoanArrangementCode.valueOf(command.code().value()).getValue()),
-                Notification.ofError(
+                        LoanArrangementCode.valueOf(command.code().value()).unwrap()),
+                FailureCause.businessRule(Notification.ofError(
                         TradeLoanApplicationServiceErrors.DUPLICATE_CODE,
-                        command.code().value()));
+                        command.code().value())));
 
         return Result.combine(duplicateCodeResult, combinedValidationFuture.join(), (ignored, sector) -> sector)
                 .flatMap(validatedSector -> Result.success(mapper.toBuilder(command))
                         .flatMap(builder -> TradeLoanArrangement.create(builder, clock)))
-                .peekValue(arrangement -> {
+                .onSuccess(arrangement -> {
                     repository.save(arrangement);
                     log.info("Successfully established trade loan arrangement with ID: {}", arrangement.getId());
                 })
-                .mapNonNull(TradeLoanArrangement::domainEvents);
+                .map(TradeLoanArrangement::domainEvents);
     }
 
     private Result<EconomicSector> loadEconomicSector(EconomicSector economicSector) {
         return loanServicePort.loadEconomicalSectorByCode(economicSector);
     }
 
-    private Result<Void> checkFormulaExistence(String formulaId) {
+    private Result<Unit> checkFormulaExistence(String formulaId) {
         return Result.requireTrue(
                 formulaQueryService.exists(formulaId),
-                Notification.ofError(TradeLoanApplicationServiceErrors.FORMULA_NOT_EXIST, formulaId));
+                FailureCause.businessRule(
+                        Notification.ofError(TradeLoanApplicationServiceErrors.FORMULA_NOT_EXIST, formulaId)));
     }
 }

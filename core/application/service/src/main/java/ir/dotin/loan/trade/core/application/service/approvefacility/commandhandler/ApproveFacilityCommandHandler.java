@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
@@ -34,17 +35,17 @@ public class ApproveFacilityCommandHandler implements CommandHandler<ApproveFaci
     @Override
     public Result<List<DomainEvent<?>>> handle(ApproveFacilityCommand command) {
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
-        ConfirmType confirmType = ConfirmType.of(command.confirmType()).value();
+        ConfirmType confirmType = ConfirmType.of(command.confirmType()).unwrap();
 
         return Result.fromOptional(
                         loanFacilityRepository.findById(loanFacilityId),
-                        () -> Notification.ofError(
-                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId()))
+                        () -> FailureCause.businessRule(Notification.ofError(
+                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())))
                 .flatMap(facility -> Result.fromOptional(
                                 loanArrangementRepository.findById(facility.getLoanArrangementId()),
-                                () -> Notification.ofError(
+                                () -> FailureCause.businessRule(Notification.ofError(
                                         TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND,
-                                        facility.getLoanArrangementId()))
+                                        facility.getLoanArrangementId())))
                         .flatMap(arrangement -> {
                             ApprovalStrategy strategy = strategyFactory.getStrategy(command);
                             return strategy.validate(command, facility, arrangement)

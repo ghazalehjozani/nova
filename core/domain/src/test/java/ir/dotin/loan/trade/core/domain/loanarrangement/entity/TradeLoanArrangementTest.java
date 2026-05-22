@@ -90,8 +90,8 @@ class TradeLoanArrangementTest {
             var result = TradeLoanArrangement.create(validBuilder, testClock);
 
             // then
-            assertThat(result.isSuccessWithValue()).isTrue();
-            var arrangement = result.value();
+            assertThat(result.isSuccess()).isTrue();
+            var arrangement = result.unwrap();
             assertThat(arrangement).isNotNull();
             assertThat(arrangement.getId()).isNotNull();
             assertThat(arrangement.getPreviousVersion()).isNull();
@@ -189,12 +189,12 @@ class TradeLoanArrangementTest {
                 .currencyType(CurrencyType.IRR)
                 .amountRange(Range.closed(
                         Money.valueOf(BigDecimal.valueOf(1000), CurrencyType.IRR)
-                                .orElseThrow(),
+                                .unwrap(),
                         Money.valueOf(BigDecimal.valueOf(100000), CurrencyType.IRR)
-                                .orElseThrow()))
+                                .unwrap()))
                 .durationRange(Range.closed(
-                        LoanDuration.of(Period.ofDays(30)).orElseThrow(),
-                        LoanDuration.of(Period.ofDays(365)).orElseThrow()))
+                        LoanDuration.of(Period.ofDays(30)).unwrap(),
+                        LoanDuration.of(Period.ofDays(365)).unwrap()))
                 .guarantorCount(1)
                 .partyType(PartyType.LEGAL)
                 .hasInstallmentCard(false)

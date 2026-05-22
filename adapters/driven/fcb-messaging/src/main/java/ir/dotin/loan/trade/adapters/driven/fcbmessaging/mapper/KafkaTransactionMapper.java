@@ -73,7 +73,8 @@ public final class KafkaTransactionMapper {
 
         Result<List<DocumentItemDto>> itemsResult = mapArticles(document.articles());
         if (itemsResult.isFailure()) {
-            return Result.failure(notification.merge(itemsResult.notification()));
+            return Result.failure(
+                    notification.merge(itemsResult.err().orElseThrow().notification()));
         }
 
         // TODO: Fix this
@@ -85,7 +86,7 @@ public final class KafkaTransactionMapper {
                 .isoCode(isoCode)
                 .branchCode(branchCode)
                 .skipTransferMoneyBillNumber(false)
-                .items(itemsResult.orElseThrow())
+                .items(itemsResult.unwrap())
                 .documentMetadata(documentMetadata)
                 .build();
 
@@ -108,10 +109,10 @@ public final class KafkaTransactionMapper {
             Article article = articles.get(i);
             Result<DocumentItemDto> itemResult = mapArticle(article, i);
             if (itemResult.isFailure()) {
-                notification.merge(itemResult.notification());
+                notification.merge(itemResult.err().orElseThrow().notification());
                 continue;
             }
-            items.add(itemResult.orElseThrow());
+            items.add(itemResult.unwrap());
         }
 
         if (notification.hasErrors()) {
@@ -215,14 +216,14 @@ public final class KafkaTransactionMapper {
 
         if (response.getTransactionCode() == null
                 || response.getTransactionCode().isBlank()) {
-            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "postTransaction"));
+            return Result.failure(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "postTransaction");
         }
         Result<TransactionNumber> txnResult = TransactionNumber.of(response.getTransactionCode());
         if (txnResult.isFailure()) {
-            return Result.failure(txnResult.notification());
+            return Result.failure(txnResult.err().orElseThrow());
         }
         return Result.success(TrackedTransactionNumber.create(
-                txnResult.orElseThrow().value(), trackingId.toString(), TransactionStatus.POSTED, clock));
+                txnResult.unwrap().value(), trackingId.toString(), TransactionStatus.POSTED, clock));
     }
 
     private record TargetDescriptor(DocumentItemTypeDto type, String identifier) {}

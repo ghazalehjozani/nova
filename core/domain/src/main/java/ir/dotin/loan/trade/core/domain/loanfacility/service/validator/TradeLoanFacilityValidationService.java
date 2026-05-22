@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.core.domain.loanfacility.service.validator;
 
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Verdict;
 import ir.dotin.platform.commons.domain.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.service.validator.LoanFacilityCreationValidator;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.specification.*;
@@ -29,7 +30,7 @@ public final class TradeLoanFacilityValidationService
                 ? baseSpecification.and(new LoanApplicationGuarantorCountSpecification(tradeRules.getGuarantorCount()))
                 : baseSpecification;
 
-        return specificationWithGuarantor
+        Verdict verdict = specificationWithGuarantor
                 .and(new LoanApplicationInstallmentCountSpecification(
                         tradeRules.getInstallmentPolicy().installmentPaymentType()))
                 .and(new DisbursementMethodCompatibilitySpecification(tradeRules))
@@ -37,5 +38,6 @@ public final class TradeLoanFacilityValidationService
                 // LoanApplicationEconomicSectorSpecification(tradeLoanType.getEconomicSectorCurrencies())) TODO:
                 //                .and(new LoanApplicationCurrencySpecification(tradeRules.getCurrencyType()))
                 .isSatisfiedBy(candidateFacility);
+        return verdict.isSatisfied() ? Result.success(true) : Result.failure(verdict.reasons());
     }
 }

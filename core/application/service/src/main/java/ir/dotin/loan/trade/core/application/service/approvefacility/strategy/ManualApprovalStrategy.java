@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.Unit;
 import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
@@ -34,12 +35,11 @@ public class ManualApprovalStrategy implements ApprovalStrategy {
     private final FetchSanctionDetailsPort fetchSanctionDetailsPort;
 
     @Override
-    public Result<Void> validate(
+    public Result<Unit> validate(
             ApproveFacilityCommand command, TradeLoanFacility facility, TradeLoanArrangement arrangement) {
 
         if (command.sanctionSerial() == null) {
-            return Result.failure(Notification.ofError(
-                    TradeLoanApplicationServiceErrors.SANCTION_SERIAL_REQUIRED_FOR_MANUAL_APPROVAL));
+            return Result.failure(TradeLoanApplicationServiceErrors.SANCTION_SERIAL_REQUIRED_FOR_MANUAL_APPROVAL);
         }
         boolean isAutoApproval = facility.getLoanApplication().getApplicantChannel() == DIGITAL_BANK;
 
@@ -52,7 +52,7 @@ public class ManualApprovalStrategy implements ApprovalStrategy {
     }
 
     @Override
-    public Result<Void> approve(TradeLoanFacility facility, TradeLoanArrangement arrangement, ConfirmType confirmType) {
+    public Result<Unit> approve(TradeLoanFacility facility, TradeLoanArrangement arrangement, ConfirmType confirmType) {
         return fetchSanctionDetailsPort
                 .fetchBySanctionSerial(facility.getId().value().toString())
                 .flatMap(this::buildSanctionedLoanBuilder)
@@ -64,23 +64,23 @@ public class ManualApprovalStrategy implements ApprovalStrategy {
             TradeSanctionedLoan.Builder builder = TradeSanctionedLoan.builder()
                     .id(SanctionedLoanId.generate())
                     .sanctionSerial(SanctionSerial.of(details.sanctionSerialValue(), details.sanctionType())
-                            .getValue())
+                            .unwrap())
                     .approvedAmount(new Money(details.approvedAmount(), details.currency()))
-                    .gracePeriod(GracePeriod.of(details.gracePeriod()).getValue())
+                    .gracePeriod(GracePeriod.of(details.gracePeriod()).unwrap())
                     .installmentCount(
-                            InstallmentCount.of(details.installmentCount()).getValue())
-                    .loanDuration(LoanDuration.of(details.loanDuration()).getValue())
+                            InstallmentCount.of(details.installmentCount()).unwrap())
+                    .loanDuration(LoanDuration.of(details.loanDuration()).unwrap())
                     .disbursementMethod(details.disbursementMethod())
                     .confirmType(details.confirmType());
 
             if (details.lifeInsuranceId() != null) {
                 builder.lifeInsuranceId(
-                        LifeInsuranceId.of(details.lifeInsuranceId()).getValue());
+                        LifeInsuranceId.of(details.lifeInsuranceId()).unwrap());
             }
 
             if (details.revocationReason() != null) {
                 builder.revocationReason(
-                        RevocationReason.of(details.revocationReason()).getValue());
+                        RevocationReason.of(details.revocationReason()).unwrap());
             }
 
             return Result.success(builder);

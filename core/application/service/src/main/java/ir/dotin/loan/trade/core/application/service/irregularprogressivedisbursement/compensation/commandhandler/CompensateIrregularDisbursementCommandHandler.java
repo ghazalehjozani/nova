@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.commons.core.error.FailureCause;
 import ir.dotin.platform.commons.domain.event.DomainEvent;
 import ir.dotin.platform.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
@@ -42,8 +43,8 @@ class CompensateIrregularDisbursementCommandHandler implements CommandHandler<Co
 
         return Result.fromOptional(
                         facilityRepository.findById(LoanFacilityId.of(command.loanFacilityId())),
-                        () -> Notification.ofError(
-                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId()))
+                        () -> FailureCause.businessRule(Notification.ofError(
+                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())))
                 .flatMap(facility -> revertDisbursementAndSchedules(facility, command));
     }
 
@@ -70,7 +71,7 @@ class CompensateIrregularDisbursementCommandHandler implements CommandHandler<Co
         }
 
         Optional<InstallmentSchedule> currentScheduleOpt = scheduleRepository.findById(
-                InstallmentScheduleId.of(installmentScheduleId).getValue());
+                InstallmentScheduleId.of(installmentScheduleId).unwrap());
 
         if (currentScheduleOpt.isEmpty()) {
             log.warn("Current InstallmentSchedule not found: {}", installmentScheduleId);
@@ -170,11 +171,11 @@ class CompensateIrregularDisbursementCommandHandler implements CommandHandler<Co
     private void reverseTransaction(TrackedTransactionNumber trackedNumber) {
         log.info("Reversing irregular disbursement transaction: {}", trackedNumber.value());
         var reverseResult = transactionPostingPort.reverseTransaction(trackedNumber);
-        if (reverseResult.hasErrors()) {
+        if (reverseResult.isFailure()) {
             log.error(
                     "Failed to reverse irregular disbursement transaction: {}. Errors: {}",
                     trackedNumber.value(),
-                    reverseResult.notification());
+                    reverseResult.err().orElseThrow().notification());
         }
     }
 }

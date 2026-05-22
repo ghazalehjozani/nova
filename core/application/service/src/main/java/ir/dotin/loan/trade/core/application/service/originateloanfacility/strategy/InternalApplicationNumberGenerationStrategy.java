@@ -4,7 +4,6 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.accounting.document.api.model.BranchCode;
-import ir.dotin.platform.commons.core.Notification;
 import ir.dotin.platform.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
@@ -35,9 +34,9 @@ public class InternalApplicationNumberGenerationStrategy implements ApplicationN
         boolean exists = facilityRepository.existsByApplicationNumber(applicationNumber);
 
         if (exists) {
-            return Result.failure(Notification.ofError(
+            return Result.failure(
                     OriginateLoanFacilityErrorCodes.DUPLICATE_APPLICATION_NUMBER,
-                    applicationNumber.formattedApplicationNumber()));
+                    applicationNumber.formattedApplicationNumber());
         }
         return Result.success(applicationNumber);
     }

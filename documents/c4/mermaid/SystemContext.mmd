@@ -33,7 +33,6 @@ graph TB
     9["<div style='font-weight: bold'>Formula Evaluator Service</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Formula calculation</div>"]
     style 9 fill:#999999,stroke:#6b6b6b,color:#ffffff
 
-    10-. "<div>Calls</div><div style='font-size: 70%'>[HTTP/REST]</div>" .->2
     10-. "<div>Authenticates</div><div style='font-size: 70%'>[OAuth2/OIDC]</div>" .->1
     10-. "<div>Core banking</div><div style='font-size: 70%'>[HTTP/REST]</div>" .->2
     10-. "<div>Telemetry</div><div style='font-size: 70%'>[OTLP/gRPC]</div>" .->3

@@ -134,10 +134,10 @@ public class FcbKafkaClient {
         request.setVersion(1);
 
         String operationType = request.getOperationName();
-        Result<Void> gateDecision = healthGate.checkPermitted(operationType);
+        Result<?> gateDecision = healthGate.checkPermitted(operationType);
         if (gateDecision != null && gateDecision.isFailure()) {
             healthMetrics.recordGateRejection();
-            return Result.failure(gateDecision.notification());
+            return Result.failure(gateDecision.err().orElseThrow());
         }
 
         // Bound the TOTAL wall-clock time of this request/reply call (initial attempt + all retries + backoff). The
@@ -197,24 +197,23 @@ public class FcbKafkaClient {
         Throwable cause = e.getCause();
         if (cause == null) {
             requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_OTHER);
-            return Result.failure(Notification.ofError(
-                    CoreBankingErrors.KAFKA_COMMUNICATION_ERROR, "retry exhausted: " + e.getMessage()));
+            return Result.failure(CoreBankingErrors.KAFKA_COMMUNICATION_ERROR, "retry exhausted: " + e.getMessage());
         }
         return switch (cause) {
             case FcbServerException fse -> {
                 requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_SERVER);
-                yield Result.failure(Notification.ofError(
-                        CoreBankingErrors.KAFKA_FCB_SERVER_ERROR, fse.getErrorCode(), fse.getErrorMessage()));
+                yield Result.failure(
+                        CoreBankingErrors.KAFKA_FCB_SERVER_ERROR, fse.getErrorCode(), fse.getErrorMessage());
             }
             case TimeoutException ignored -> {
                 requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_TIMEOUT);
                 requestReplyMetrics.recordDiscarded(operationType);
-                yield Result.failure(Notification.ofError(
-                        CoreBankingErrors.KAFKA_REPLY_TIMEOUT, operationType, String.valueOf(timeout.toMillis())));
+                yield Result.failure(
+                        CoreBankingErrors.KAFKA_REPLY_TIMEOUT, operationType, String.valueOf(timeout.toMillis()));
             }
             case org.springframework.kafka.KafkaException ke -> {
                 requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_BROKER);
-                yield Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, ke.getMessage()));
+                yield Result.failure(CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, ke.getMessage());
             }
             case FcbSerializationException fse -> {
                 requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_SERIALIZATION);
@@ -345,7 +344,7 @@ public class FcbKafkaClient {
         }
 
         if (replyRecord.value() == null || replyRecord.value().length == 0) {
-            return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, operationType));
+            return Result.failure(CoreBankingErrors.KAFKA_INVALID_RESPONSE, operationType);
         }
 
         FcbKafkaBaseResponse response;
