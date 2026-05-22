@@ -14,7 +14,7 @@ import jakarta.persistence.Table;
 
 import org.hibernate.proxy.HibernateProxy;
 
-import ir.dotin.platform.pangaea.adapter.messaging.persistence.entity.AbstractOutboxEventEntity;
+import ir.dotin.platform.pangaea.messaging.persistence.entity.AbstractOutboxEventEntity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

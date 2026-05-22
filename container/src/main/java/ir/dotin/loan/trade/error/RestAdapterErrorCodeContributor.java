@@ -7,9 +7,9 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import ir.dotin.platform.pangaea.adapter.rest.error.ExceptionMessageCodes;
 import ir.dotin.platform.pangaea.commons.core.error.CodedMessage;
 import ir.dotin.platform.pangaea.protocol.api.error.ErrorCodeContributor;
+import ir.dotin.platform.pangaea.protocol.rest.error.ExceptionMessageCodes;
 
 /**
  * Contributes REST adapter error codes (HTTP request, security, idempotency).

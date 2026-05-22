@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import ir.dotin.platform.pangaea.adapter.security.oauth2.core.config.PlatformSecurityProperties;
+import ir.dotin.platform.pangaea.security.oauth2.core.config.PlatformSecurityProperties;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
