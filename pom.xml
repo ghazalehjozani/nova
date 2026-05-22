@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>ir.dotin.platform</groupId>
-        <artifactId>platform-parent</artifactId>
-        <version>2026.5.24-SNAPSHOT</version>
+        <groupId>ir.dotin.platform.pangaea</groupId>
+        <artifactId>parent</artifactId>
+        <version>2026.5.25-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -37,6 +37,7 @@
         <loan.trade-loan.version>${project.version}</loan.trade-loan.version>
         <sonar.projectVersion>${project.version}</sonar.projectVersion>
         <platform.accounting.document.version>2026.4.1-SNAPSHOT</platform.accounting.document.version>
+        <platform.formula.version>2026.5.0-SNAPSHOT</platform.formula.version>
     </properties>
 
     <dependencyManagement>
@@ -119,6 +120,39 @@
                 <version>${loan.trade-loan.version}</version>
                 <scope>compile</scope>
             </dependency>
+
+            <!--region expression-kit -->
+            <dependency>
+                <groupId>ir.dotin.platform</groupId>
+                <artifactId>expression-kit-api</artifactId>
+                <version>${platform.formula.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ir.dotin.platform</groupId>
+                <artifactId>expression-kit-core</artifactId>
+                <version>${platform.formula.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ir.dotin.platform</groupId>
+                <artifactId>expression-kit-service</artifactId>
+                <version>${platform.formula.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ir.dotin.platform</groupId>
+                <artifactId>expression-kit-infrastructure</artifactId>
+                <version>${platform.formula.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ir.dotin.platform</groupId>
+                <artifactId>expression-kit-rest</artifactId>
+                <version>${platform.formula.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ir.dotin.platform</groupId>
+                <artifactId>expression-kit-spring-boot-starter</artifactId>
+                <version>${platform.formula.version}</version>
+            </dependency>
+            <!--endregion-->
 
             <dependency>
                 <groupId>ir.dotin.platform</groupId>

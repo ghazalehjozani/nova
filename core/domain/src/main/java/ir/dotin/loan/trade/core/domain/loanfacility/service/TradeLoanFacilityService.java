@@ -3,9 +3,9 @@ package ir.dotin.loan.trade.core.domain.loanfacility.service;
 import java.time.Clock;
 import java.util.List;
 
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.core.Unit;
-import ir.dotin.platform.commons.domain.annotation.DomainService;
+import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Unit;
+import ir.dotin.platform.pangaea.commons.domain.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractSanctionedLoan;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;

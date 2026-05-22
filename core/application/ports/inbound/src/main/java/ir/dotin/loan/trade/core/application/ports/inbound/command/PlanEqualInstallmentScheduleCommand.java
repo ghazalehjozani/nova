@@ -7,7 +7,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import ir.dotin.platform.dispatcher.api.command.Command;
+import ir.dotin.platform.pangaea.dispatcher.api.command.Command;
 
 public record PlanEqualInstallmentScheduleCommand(
         @NotNull UUID uid,

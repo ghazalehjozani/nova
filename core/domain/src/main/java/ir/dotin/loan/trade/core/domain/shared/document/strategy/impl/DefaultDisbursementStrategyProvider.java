@@ -4,7 +4,7 @@ import java.util.List;
 
 import ir.dotin.platform.accounting.document.api.model.ArticleType;
 import ir.dotin.platform.accounting.document.api.strategy.DocumentCalculationStrategy;
-import ir.dotin.platform.commons.domain.annotation.DomainComponent;
+import ir.dotin.platform.pangaea.commons.domain.annotation.DomainComponent;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 import ir.dotin.loan.trade.core.domain.shared.document.strategy.DisbursementStrategyProvider;

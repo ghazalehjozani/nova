@@ -2,7 +2,7 @@ package ir.dotin.loan.trade.adapters.driven.persistence.installmentschedule.repo
 
 import org.springframework.stereotype.Repository;
 
-import ir.dotin.platform.adapter.messaging.persistence.repository.BaseOutboxRepository;
+import ir.dotin.platform.pangaea.adapter.messaging.persistence.repository.BaseOutboxRepository;
 import ir.dotin.loan.trade.adapters.driven.persistence.installmentschedule.entity.InstallmentScheduleOutboxEventEntity;
 
 @Repository

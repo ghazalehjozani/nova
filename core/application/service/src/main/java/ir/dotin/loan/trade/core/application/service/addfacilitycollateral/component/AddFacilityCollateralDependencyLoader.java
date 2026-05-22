@@ -10,10 +10,10 @@ import java.util.concurrent.Executors;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.accounting.document.api.model.BranchCode;
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.core.error.FailureCause;
-import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.platform.pangaea.commons.core.Notification;
+import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
+import ir.dotin.platform.pangaea.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.service.CollateralCalculationService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.service.validator.AbstractCollateralValidationService;

@@ -17,8 +17,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>ir.dotin.platform</groupId>
-            <artifactId>platform-messaging-api</artifactId>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>messaging-api</artifactId>
         </dependency>
         <dependency>
             <groupId>net.time4j</groupId>

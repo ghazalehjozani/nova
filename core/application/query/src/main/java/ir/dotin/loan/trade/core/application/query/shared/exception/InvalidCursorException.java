@@ -1,6 +1,6 @@
 package ir.dotin.loan.trade.core.application.query.shared.exception;
 
-import ir.dotin.platform.commons.core.exception.OperationalException;
+import ir.dotin.platform.pangaea.commons.core.exception.OperationalException;
 
 public class InvalidCursorException extends OperationalException {
     public InvalidCursorException(String message) {

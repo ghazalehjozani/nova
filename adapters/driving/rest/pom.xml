@@ -18,8 +18,8 @@
 
   <dependencies>
       <dependency>
-          <groupId>ir.dotin.platform</groupId>
-          <artifactId>platform-spring-boot-starter-protocol-rest</artifactId>
+          <groupId>ir.dotin.platform.pangaea</groupId>
+          <artifactId>spring-boot-starter-protocol-rest</artifactId>
       </dependency>
       <dependency>
           <groupId>ir.dotin.loan</groupId>
@@ -46,16 +46,16 @@
           <artifactId>spring-boot-starter-restclient</artifactId>
       </dependency>
       <dependency>
-          <groupId>ir.dotin.platform</groupId>
-          <artifactId>platform-dispatcher-starter</artifactId>
+          <groupId>ir.dotin.platform.pangaea</groupId>
+          <artifactId>dispatcher-starter</artifactId>
       </dependency>
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
     </dependency>
     <dependency>
-        <groupId>ir.dotin.platform</groupId>
-        <artifactId>platform-spring-boot-starter-security-oauth2</artifactId>
+        <groupId>ir.dotin.platform.pangaea</groupId>
+        <artifactId>spring-boot-starter-security-oauth2</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>

@@ -2,10 +2,10 @@ package ir.dotin.loan.trade.core.application.service.approvefacility.strategy;
 
 import org.springframework.stereotype.Component;
 
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.core.Unit;
-import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.platform.pangaea.commons.core.Notification;
+import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Unit;
+import ir.dotin.platform.pangaea.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;

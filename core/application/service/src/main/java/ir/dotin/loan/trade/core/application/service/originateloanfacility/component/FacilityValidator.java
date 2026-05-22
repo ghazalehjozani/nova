@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.accounting.document.api.model.AccountNumber;
 import ir.dotin.platform.accounting.document.api.model.DepositNumber;
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.core.Unit;
-import ir.dotin.platform.commons.core.concurrent.ParallelFanout;
-import ir.dotin.platform.commons.domain.vo.CurrencyType;
+import ir.dotin.platform.pangaea.commons.core.Notification;
+import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Unit;
+import ir.dotin.platform.pangaea.commons.core.concurrent.ParallelFanout;
+import ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Samat;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;

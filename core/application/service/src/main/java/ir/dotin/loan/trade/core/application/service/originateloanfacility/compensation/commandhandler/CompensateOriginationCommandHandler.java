@@ -6,11 +6,11 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.core.error.FailureCause;
-import ir.dotin.platform.commons.domain.event.DomainEvent;
-import ir.dotin.platform.dispatcher.api.command.CommandHandler;
+import ir.dotin.platform.pangaea.commons.core.Notification;
+import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
+import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
+import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;

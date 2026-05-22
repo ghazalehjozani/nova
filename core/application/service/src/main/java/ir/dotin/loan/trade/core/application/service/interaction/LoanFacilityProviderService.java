@@ -3,9 +3,9 @@ package ir.dotin.loan.trade.core.application.service.interaction;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.core.error.FailureCause;
+import ir.dotin.platform.pangaea.commons.core.Notification;
+import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;

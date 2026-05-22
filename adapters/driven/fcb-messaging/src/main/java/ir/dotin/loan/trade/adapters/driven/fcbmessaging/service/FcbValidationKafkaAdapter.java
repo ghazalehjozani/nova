@@ -15,10 +15,10 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.accounting.document.api.model.BranchCode;
 import ir.dotin.platform.accounting.document.api.model.DepositNumber;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.core.Unit;
-import ir.dotin.platform.commons.domain.vo.CurrencyType;
-import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Unit;
+import ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType;
+import ir.dotin.platform.pangaea.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;

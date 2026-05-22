@@ -4,9 +4,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Verdict;
-import ir.dotin.platform.commons.domain.validation.Specification;
+import ir.dotin.platform.pangaea.commons.core.Notification;
+import ir.dotin.platform.pangaea.commons.core.Verdict;
+import ir.dotin.platform.pangaea.commons.domain.validation.Specification;
 import ir.dotin.loan.baseloan.core.domain.loantype.entity.AbstractLoanType;
 import ir.dotin.loan.baseloan.core.domain.loantype.error.LoanTypeErrors;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;

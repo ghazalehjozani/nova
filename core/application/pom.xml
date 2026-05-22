@@ -28,8 +28,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>ir.dotin.platform</groupId>
-      <artifactId>platform-dispatcher-api</artifactId>
+      <groupId>ir.dotin.platform.pangaea</groupId>
+      <artifactId>dispatcher-api</artifactId>
     </dependency>
     <dependency>
       <groupId>ir.dotin.loan</groupId>

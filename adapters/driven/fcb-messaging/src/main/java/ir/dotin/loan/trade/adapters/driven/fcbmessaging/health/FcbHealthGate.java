@@ -3,8 +3,8 @@ package ir.dotin.loan.trade.adapters.driven.fcbmessaging.health;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.core.Unit;
+import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 
 import io.micrometer.core.instrument.Counter;

@@ -5,7 +5,7 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-import ir.dotin.platform.dispatcher.api.query.Query;
+import ir.dotin.platform.pangaea.dispatcher.api.query.Query;
 import ir.dotin.loan.trade.core.application.query.loantype.dto.LoanTypeQueryResult;
 import ir.dotin.loan.trade.core.application.query.shared.pagination.OffsetPageRequest;
 

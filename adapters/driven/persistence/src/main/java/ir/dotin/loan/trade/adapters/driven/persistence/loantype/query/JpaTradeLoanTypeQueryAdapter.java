@@ -14,8 +14,8 @@ import org.springframework.data.domain.Window;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
-import ir.dotin.platform.adapter.persistence.query.QueryCriteria;
-import ir.dotin.platform.adapter.persistence.repository.PersistentRepository;
+import ir.dotin.platform.pangaea.persistence.jpa.query.QueryCriteria;
+import ir.dotin.platform.pangaea.persistence.jpa.repository.PersistentRepository;
 import ir.dotin.loan.trade.adapters.driven.persistence.loantype.entity.TradeLoanTypeEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.loantype.query.mapper.TradeLoanTypeQueryModelMapper;
 import ir.dotin.loan.trade.adapters.driven.persistence.loantype.repository.TradeLoanTypeJpaRepository;

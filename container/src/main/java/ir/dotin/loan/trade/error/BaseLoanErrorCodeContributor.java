@@ -7,8 +7,8 @@ import java.util.Collections;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import ir.dotin.platform.commons.core.error.CodedMessage;
-import ir.dotin.platform.protocol.api.error.ErrorCodeContributor;
+import ir.dotin.platform.pangaea.commons.core.error.CodedMessage;
+import ir.dotin.platform.pangaea.protocol.api.error.ErrorCodeContributor;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.error.InstallmentScheduleErrors;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.error.LoanArrangementErrors;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.error.LoanFacilityErrors;

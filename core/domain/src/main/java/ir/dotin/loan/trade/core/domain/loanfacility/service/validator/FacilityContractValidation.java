@@ -1,8 +1,8 @@
 package ir.dotin.loan.trade.core.domain.loanfacility.service.validator;
 
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.core.Verdict;
-import ir.dotin.platform.commons.domain.annotation.DomainService;
+import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Verdict;
+import ir.dotin.platform.pangaea.commons.domain.annotation.DomainService;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.specification.CollateralContractIssuanceEligibilitySpecification;

@@ -1,8 +1,8 @@
 package ir.dotin.loan.trade.core.domain.loanfacility.entity;
 
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.core.Unit;
+import ir.dotin.platform.pangaea.commons.core.Notification;
+import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractSanctionedLoan;
 
 public final class TradeSanctionedLoan extends AbstractSanctionedLoan<TradeSanctionedLoan.Builder> {

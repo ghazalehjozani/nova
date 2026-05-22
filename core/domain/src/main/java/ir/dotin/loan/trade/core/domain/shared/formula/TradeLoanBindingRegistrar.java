@@ -6,9 +6,9 @@ import java.util.Map;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import ir.dotin.platform.commons.domain.annotation.DomainComponent;
 import ir.dotin.platform.formula.api.binding.FieldBinding;
 import ir.dotin.platform.formula.api.spi.BindingRegistrar;
+import ir.dotin.platform.pangaea.commons.domain.annotation.DomainComponent;
 
 /**
  * SPI implementation to register Trade Loan parameters with the formula engine. Replaces the legacy static

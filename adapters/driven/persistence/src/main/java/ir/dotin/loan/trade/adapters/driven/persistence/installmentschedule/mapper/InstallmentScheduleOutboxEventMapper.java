@@ -4,9 +4,9 @@ import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
 
-import ir.dotin.platform.adapter.messaging.persistence.mapper.BaseOutboxEventMapper;
-import ir.dotin.platform.commons.domain.entity.AbstractAggregateRoot;
-import ir.dotin.platform.outbox.api.OutboxEvent;
+import ir.dotin.platform.pangaea.adapter.messaging.persistence.mapper.BaseOutboxEventMapper;
+import ir.dotin.platform.pangaea.commons.domain.entity.AbstractAggregateRoot;
+import ir.dotin.platform.pangaea.outbox.api.OutboxEvent;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.trade.adapters.driven.persistence.installmentschedule.entity.InstallmentScheduleOutboxEventEntity;
 

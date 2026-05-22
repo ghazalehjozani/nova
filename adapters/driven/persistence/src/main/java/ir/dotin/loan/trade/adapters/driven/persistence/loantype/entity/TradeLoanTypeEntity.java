@@ -19,7 +19,7 @@ import jakarta.persistence.UniqueConstraint;
 
 import org.hibernate.proxy.HibernateProxy;
 
-import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
+import ir.dotin.platform.pangaea.persistence.jpa.entity.PersistentEntity;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.EconomicSectorCurrencyEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.EditReasonEmb;

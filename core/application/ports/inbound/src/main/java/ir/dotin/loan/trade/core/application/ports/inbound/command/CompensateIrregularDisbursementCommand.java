@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import org.jspecify.annotations.NonNull;
 
-import ir.dotin.platform.dispatcher.api.command.Command;
+import ir.dotin.platform.pangaea.dispatcher.api.command.Command;
 
 import lombok.Builder;
 

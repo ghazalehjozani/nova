@@ -6,7 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import ir.dotin.platform.commons.domain.entity.Identity;
+import ir.dotin.platform.pangaea.commons.domain.entity.Identity;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 
 import static com.google.common.collect.ImmutableSet.toImmutableSet;

@@ -26,8 +26,8 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import org.springframework.kafka.support.TopicPartitionOffset;
 
-import ir.dotin.platform.messaging.autoconfigure.MessagingProperties;
-import ir.dotin.platform.messaging.kafka.spi.KafkaListenerContainerFactoryProvider;
+import ir.dotin.platform.pangaea.messaging.autoconfigure.MessagingProperties;
+import ir.dotin.platform.pangaea.messaging.kafka.spi.KafkaListenerContainerFactoryProvider;
 
 @Configuration
 @Profile("kafka-fcb")

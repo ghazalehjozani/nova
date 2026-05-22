@@ -18,20 +18,20 @@
     <dependencies>
         <!-- Platform -->
         <dependency>
-            <groupId>ir.dotin.platform</groupId>
-            <artifactId>platform-messaging-api</artifactId>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>messaging-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ir.dotin.platform</groupId>
-            <artifactId>platform-messaging-core</artifactId>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>messaging-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>ir.dotin.platform</groupId>
-            <artifactId>platform-inbox-core</artifactId>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>inbox-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>ir.dotin.platform</groupId>
-            <artifactId>platform-spring-boot-starter-messaging-kafka</artifactId>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>spring-boot-starter-messaging-kafka</artifactId>
         </dependency>
 
 
@@ -43,8 +43,8 @@
 
         <!-- AsyncAPI documentation -->
         <dependency>
-            <groupId>ir.dotin.platform</groupId>
-            <artifactId>platform-spring-boot-starter-asyncapi</artifactId>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>spring-boot-starter-asyncapi</artifactId>
         </dependency>
         <dependency>
             <groupId>io.github.springwolf</groupId>

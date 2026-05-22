@@ -12,11 +12,11 @@ import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.core.Unit;
-import ir.dotin.platform.commons.core.concurrent.ParallelFanout;
-import ir.dotin.platform.commons.core.error.FailureCause;
+import ir.dotin.platform.pangaea.commons.core.Notification;
+import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Unit;
+import ir.dotin.platform.pangaea.commons.core.concurrent.ParallelFanout;
+import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;

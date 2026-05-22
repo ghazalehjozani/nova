@@ -1,6 +1,6 @@
 package ir.dotin.loan.trade.core.application.service.submitfacilityforapproval.i18n;
 
-import ir.dotin.platform.commons.core.i18n.LocalizedMessage;
+import ir.dotin.platform.pangaea.commons.core.i18n.LocalizedMessage;
 
 import lombok.AccessLevel;
 import lombok.Getter;

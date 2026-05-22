@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import org.jspecify.annotations.Nullable;
 
-import ir.dotin.platform.dispatcher.api.command.Command;
+import ir.dotin.platform.pangaea.dispatcher.api.command.Command;
 
 public record CloseFacilityPaidOffCommand(
         UUID uid,

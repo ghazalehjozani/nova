@@ -2,8 +2,8 @@ package ir.dotin.loan.trade.core.domain.shared.formula;
 
 import java.math.BigDecimal;
 
-import ir.dotin.platform.commons.domain.vo.Money;
 import ir.dotin.platform.formula.api.binding.FieldBinding;
+import ir.dotin.platform.pangaea.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.formula.BaseLoanBindings;
 
 /** Trade loan field bindings. Includes base + trade-specific bindings. */

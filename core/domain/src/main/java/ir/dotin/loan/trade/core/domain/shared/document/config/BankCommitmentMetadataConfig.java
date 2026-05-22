@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 
 import ir.dotin.platform.accounting.document.api.enumeration.MetadataSection;
 import ir.dotin.platform.accounting.document.api.strategy.config.MetadataConfig;
-import ir.dotin.platform.commons.domain.annotation.DomainComponent;
+import ir.dotin.platform.pangaea.commons.domain.annotation.DomainComponent;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 import ir.dotin.loan.trade.core.domain.shared.document.enums.DisburseBankCommitmentArticleType;
 

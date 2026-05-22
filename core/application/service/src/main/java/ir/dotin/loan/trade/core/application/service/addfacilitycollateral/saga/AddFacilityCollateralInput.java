@@ -3,7 +3,7 @@ package ir.dotin.loan.trade.core.application.service.addfacilitycollateral.saga;
 import java.util.List;
 import java.util.UUID;
 
-import ir.dotin.platform.saga.api.definition.SagaInput;
+import ir.dotin.platform.pangaea.saga.api.definition.SagaInput;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.AddFacilityCollateralCommand;
 
 /**

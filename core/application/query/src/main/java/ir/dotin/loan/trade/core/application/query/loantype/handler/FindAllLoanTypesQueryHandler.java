@@ -2,7 +2,7 @@ package ir.dotin.loan.trade.core.application.query.loantype.handler;
 
 import org.springframework.stereotype.Component;
 
-import ir.dotin.platform.dispatcher.api.query.QueryHandler;
+import ir.dotin.platform.pangaea.dispatcher.api.query.QueryHandler;
 import ir.dotin.loan.trade.core.application.query.loantype.dto.LoanTypeQueryResult;
 import ir.dotin.loan.trade.core.application.query.loantype.dto.TradeLoanTypeQueryDto;
 import ir.dotin.loan.trade.core.application.query.loantype.repository.TradeLoanTypeQueryRepository;

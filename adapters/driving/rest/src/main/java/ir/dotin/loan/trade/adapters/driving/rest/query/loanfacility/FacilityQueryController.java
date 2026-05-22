@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import ir.dotin.platform.adapter.rest.controller.BaseController;
-import ir.dotin.platform.adapter.rest.pagination.CursorPaginationHelper;
-import ir.dotin.platform.dispatcher.api.dispatcher.QueryDispatcher;
-import ir.dotin.platform.protocol.api.response.BaseResponse;
-import ir.dotin.platform.protocol.api.util.PagedResponseUtils;
+import ir.dotin.platform.pangaea.adapter.rest.controller.BaseController;
+import ir.dotin.platform.pangaea.adapter.rest.pagination.CursorPaginationHelper;
+import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.QueryDispatcher;
+import ir.dotin.platform.pangaea.protocol.api.response.BaseResponse;
+import ir.dotin.platform.pangaea.protocol.api.util.PagedResponseUtils;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.query.loanfacility.dto.LoanFacilityQueryResult;

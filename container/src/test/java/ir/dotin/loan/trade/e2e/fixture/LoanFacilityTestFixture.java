@@ -11,8 +11,8 @@ import java.util.UUID;
 
 import org.springframework.boot.test.context.TestComponent;
 
-import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
-import ir.dotin.platform.adapter.persistence.embeddable.PeriodEmb;
+import ir.dotin.platform.pangaea.persistence.jpa.embeddable.MoneyEmb;
+import ir.dotin.platform.pangaea.persistence.jpa.embeddable.PeriodEmb;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleStatus;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleType;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentStatus;

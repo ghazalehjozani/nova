@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
-import ir.dotin.platform.messaging.api.command.CommandPayload;
+import ir.dotin.platform.pangaea.messaging.api.command.CommandPayload;
 
 public record ClosePaidOffCompensateMessage(
         String producerCode,

@@ -2,9 +2,9 @@ package ir.dotin.loan.trade.core.application.query.loanfacility.handler;
 
 import org.springframework.stereotype.Service;
 
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.exception.BusinessRuleViolationException;
-import ir.dotin.platform.dispatcher.api.query.QueryHandler;
+import ir.dotin.platform.pangaea.commons.core.Notification;
+import ir.dotin.platform.pangaea.commons.core.exception.BusinessRuleViolationException;
+import ir.dotin.platform.pangaea.dispatcher.api.query.QueryHandler;
 import ir.dotin.loan.trade.core.application.query.loanfacility.dto.TradeFacilityQueryDto;
 import ir.dotin.loan.trade.core.application.query.loanfacility.i18n.LoanFacilityQueryErrorCodes;
 import ir.dotin.loan.trade.core.application.query.loanfacility.repository.TradeLoanFacilityQueryRepository;

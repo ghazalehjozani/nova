@@ -7,7 +7,7 @@ import java.util.concurrent.Executors;
 
 import org.springframework.stereotype.Component;
 
-import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.IssueFacilityContractCommand;

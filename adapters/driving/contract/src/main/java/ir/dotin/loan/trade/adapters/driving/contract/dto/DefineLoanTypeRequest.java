@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ir.dotin.platform.protocol.api.request.BaseRequest;
+import ir.dotin.platform.pangaea.protocol.api.request.BaseRequest;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 

@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
-import ir.dotin.platform.dispatcher.api.query.QueryResult;
+import ir.dotin.platform.pangaea.dispatcher.api.query.QueryResult;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 

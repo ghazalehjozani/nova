@@ -2,7 +2,7 @@ package ir.dotin.loan.trade.core.application.ports.inbound.command;
 
 import java.util.UUID;
 
-import ir.dotin.platform.dispatcher.api.command.Command;
+import ir.dotin.platform.pangaea.dispatcher.api.command.Command;
 
 import lombok.Builder;
 

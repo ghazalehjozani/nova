@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-import ir.dotin.platform.dispatcher.api.query.Query;
+import ir.dotin.platform.pangaea.dispatcher.api.query.Query;
 import ir.dotin.loan.trade.core.application.query.loanarrangement.dto.LoanArrangementQueryResult;
 
 import lombok.Builder;

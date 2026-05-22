@@ -2,7 +2,7 @@ package ir.dotin.loan.trade.core.domain.loantype.enums;
 
 import ir.dotin.platform.accounting.document.api.enumeration.Direction;
 import ir.dotin.platform.accounting.document.api.enumeration.RelationType;
-import ir.dotin.platform.commons.core.i18n.LocalizedEnum;
+import ir.dotin.platform.pangaea.commons.core.i18n.LocalizedEnum;
 
 @SuppressWarnings("CheckStyle")
 public enum TradeRelationType implements RelationType<TradeRelationType>, LocalizedEnum<TradeRelationType> {

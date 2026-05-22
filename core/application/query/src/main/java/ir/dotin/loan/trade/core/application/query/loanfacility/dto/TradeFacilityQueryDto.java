@@ -12,7 +12,7 @@ import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.accounting.document.api.enumeration.TransactionStatus;
-import ir.dotin.platform.dispatcher.api.query.QueryResult;
+import ir.dotin.platform.pangaea.dispatcher.api.query.QueryResult;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;

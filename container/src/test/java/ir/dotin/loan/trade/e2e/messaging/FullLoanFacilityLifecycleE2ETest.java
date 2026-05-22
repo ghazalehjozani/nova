@@ -21,7 +21,7 @@ import ir.dotin.platform.accounting.document.api.model.AccountId;
 import ir.dotin.platform.accounting.document.api.model.AccountNumber;
 import ir.dotin.platform.accounting.document.api.model.BranchCode;
 import ir.dotin.platform.accounting.document.api.model.DepositNumber;
-import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
@@ -130,7 +130,7 @@ class FullLoanFacilityLifecycleE2ETest extends AbstractMessagingE2E {
         when(accountServicePort.validateAccountNumber(any()))
                 .thenReturn(Result.success(new AccountNumber("1.10.1357.60")));
         when(findAccountByIdPort.findAccountById(any()))
-                .thenAnswer(invocation -> Result.failure(ir.dotin.platform.commons.core.Notification.ofError(
+                .thenAnswer(invocation -> Result.failure(ir.dotin.platform.pangaea.commons.core.Notification.ofError(
                         ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors
                                 .KAFKA_INVALID_RESPONSE,
                         "findAccountById-stub")));
@@ -149,7 +149,7 @@ class FullLoanFacilityLifecycleE2ETest extends AbstractMessagingE2E {
             return Result.success(results);
         });
         when(transactionPostingPort.reverseTransaction(any()))
-                .thenReturn(Result.<ir.dotin.platform.commons.core.Unit>success());
+                .thenReturn(Result.<ir.dotin.platform.pangaea.commons.core.Unit>success());
 
         // CollateralServicePort
         when(collateralServicePort.validateAddAssuranceToFile(any(), any(), any()))
@@ -190,7 +190,8 @@ class FullLoanFacilityLifecycleE2ETest extends AbstractMessagingE2E {
                         new DepositNumber("1.10.1357.60"),
                         "E2E Test Deposit",
                         "CURRENT",
-                        new ir.dotin.platform.commons.domain.vo.CurrencyType(java.util.Currency.getInstance("IRR")),
+                        new ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType(
+                                java.util.Currency.getInstance("IRR")),
                         "ACTIVE",
                         false,
                         "1",
@@ -212,7 +213,7 @@ class FullLoanFacilityLifecycleE2ETest extends AbstractMessagingE2E {
                                 "12345678",
                                 ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType.REAL,
                                 new CustomerName("Test", "User", null)),
-                        new ir.dotin.platform.commons.domain.vo.NationalCode("1234567890"),
+                        new ir.dotin.platform.pangaea.commons.domain.vo.NationalCode("1234567890"),
                         false,
                         false,
                         false)));

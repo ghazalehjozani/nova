@@ -5,11 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
-import ir.dotin.platform.dispatcher.api.execution.ExecutionResult;
-import ir.dotin.platform.inbox.api.HandlerResult;
-import ir.dotin.platform.inbox.api.InboxMessageHandler;
-import ir.dotin.platform.messaging.api.inbound.InboundMessage;
+import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
+import ir.dotin.platform.pangaea.dispatcher.api.execution.ExecutionResult;
+import ir.dotin.platform.pangaea.inbox.api.HandlerResult;
+import ir.dotin.platform.pangaea.inbox.api.InboxMessageHandler;
+import ir.dotin.platform.pangaea.messaging.api.inbound.InboundMessage;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CancelFacilityRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.FcbEventOperationType;
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.CancelFacilityRequestToCommandMapper;

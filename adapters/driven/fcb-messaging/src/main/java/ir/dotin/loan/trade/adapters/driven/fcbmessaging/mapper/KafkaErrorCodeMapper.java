@@ -1,6 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper;
 
-import ir.dotin.platform.commons.core.Notification;
+import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseResponse;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 

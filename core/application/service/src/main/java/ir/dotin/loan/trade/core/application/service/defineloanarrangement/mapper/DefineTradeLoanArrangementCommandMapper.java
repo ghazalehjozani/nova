@@ -8,10 +8,10 @@ import com.google.common.collect.Range;
 import org.jspecify.annotations.NonNull;
 import org.mapstruct.*;
 
-import ir.dotin.platform.commons.domain.vo.CurrencyType;
-import ir.dotin.platform.commons.domain.vo.Money;
-import ir.dotin.platform.commons.domain.vo.Rate;
 import ir.dotin.platform.formula.api.FormulaId;
+import ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType;
+import ir.dotin.platform.pangaea.commons.domain.vo.Money;
+import ir.dotin.platform.pangaea.commons.domain.vo.Rate;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.CollateralPolicy;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.GracePeriodPolicy;

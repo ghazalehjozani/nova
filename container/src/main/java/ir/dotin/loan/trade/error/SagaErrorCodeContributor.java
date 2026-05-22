@@ -7,9 +7,9 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import ir.dotin.platform.commons.core.error.CodedMessage;
-import ir.dotin.platform.protocol.api.error.ErrorCodeContributor;
-import ir.dotin.platform.saga.api.error.SagaErrors;
+import ir.dotin.platform.pangaea.commons.core.error.CodedMessage;
+import ir.dotin.platform.pangaea.protocol.api.error.ErrorCodeContributor;
+import ir.dotin.platform.pangaea.saga.api.error.SagaErrors;
 
 /**
  * Contributes platform saga error codes (execution and coordination errors).

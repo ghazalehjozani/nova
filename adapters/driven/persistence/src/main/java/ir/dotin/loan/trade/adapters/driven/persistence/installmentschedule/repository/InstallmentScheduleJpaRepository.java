@@ -2,7 +2,7 @@ package ir.dotin.loan.trade.adapters.driven.persistence.installmentschedule.repo
 
 import org.springframework.stereotype.Repository;
 
-import ir.dotin.platform.adapter.persistence.repository.PersistentRepository;
+import ir.dotin.platform.pangaea.persistence.jpa.repository.PersistentRepository;
 import ir.dotin.loan.trade.adapters.driven.persistence.installmentschedule.entity.InstallmentScheduleEntity;
 
 @Repository

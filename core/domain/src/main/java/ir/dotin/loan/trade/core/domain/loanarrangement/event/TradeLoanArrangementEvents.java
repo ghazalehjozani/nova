@@ -1,6 +1,6 @@
 package ir.dotin.loan.trade.core.domain.loanarrangement.event;
 
-import ir.dotin.platform.commons.domain.event.DomainEvent;
+import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 
 public sealed interface TradeLoanArrangementEvents<T extends Record & TradeLoanArrangementEvents<T>>

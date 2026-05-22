@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
-import ir.dotin.platform.dispatcher.api.command.Command;
+import ir.dotin.platform.pangaea.dispatcher.api.command.Command;
 
 public record UpdateCollateralCommand(
         UUID uid, Long version, String applicationNumber, List<CollateralItem> collaterals) implements Command {

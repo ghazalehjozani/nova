@@ -16,8 +16,8 @@ import jakarta.persistence.Table;
 
 import org.hibernate.proxy.HibernateProxy;
 
-import ir.dotin.platform.adapter.persistence.embeddable.AmountRangeEmb;
-import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
+import ir.dotin.platform.pangaea.persistence.jpa.embeddable.AmountRangeEmb;
+import ir.dotin.platform.pangaea.persistence.jpa.entity.PersistentEntity;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LifeInsurancePaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LoanSecondaryType;

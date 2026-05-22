@@ -2,9 +2,9 @@ package ir.dotin.loan.trade.core.domain.loanfacility.error;
 
 import org.jspecify.annotations.NonNull;
 
-import ir.dotin.platform.commons.core.error.ErrorCategory;
-import ir.dotin.platform.commons.core.error.PlatformErrorCategory;
-import ir.dotin.platform.commons.core.error.ProductErrorCode;
+import ir.dotin.platform.pangaea.commons.core.error.ErrorCategory;
+import ir.dotin.platform.pangaea.commons.core.error.PlatformErrorCategory;
+import ir.dotin.platform.pangaea.commons.core.error.ProductErrorCode;
 import ir.dotin.loan.baseloan.core.domain.shared.error.LoanErrorCategory;
 import ir.dotin.loan.trade.core.domain.shared.error.TradeLoanErrorCategory;
 

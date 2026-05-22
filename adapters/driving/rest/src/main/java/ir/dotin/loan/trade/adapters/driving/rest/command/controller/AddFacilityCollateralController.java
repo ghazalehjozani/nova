@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ir.dotin.platform.adapter.rest.controller.BaseController;
-import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
-import ir.dotin.platform.protocol.api.response.BaseResponse;
+import ir.dotin.platform.pangaea.adapter.rest.controller.BaseController;
+import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
+import ir.dotin.platform.pangaea.protocol.api.response.BaseResponse;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.AddFacilityCollateralRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CompensateCollateralRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.AddFacilityCollateralRequestToCommandMapper;

@@ -8,7 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 
-import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
+import ir.dotin.platform.pangaea.persistence.jpa.embeddable.MoneyEmb;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

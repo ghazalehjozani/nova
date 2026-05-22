@@ -1,6 +1,6 @@
 package ir.dotin.loan.trade.core.application.service.fullloanlifecycle.saga;
 
-import ir.dotin.platform.saga.api.model.SagaStepId;
+import ir.dotin.platform.pangaea.saga.api.model.SagaStepId;
 
 public enum FullLoanFacilityLifecycleStep implements SagaStepId {
     VALIDATE_INPUT("validate-input"),

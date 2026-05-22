@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ir.dotin.platform.adapter.rest.controller.BaseController;
-import ir.dotin.platform.dispatcher.api.dispatcher.CommandDispatcher;
-import ir.dotin.platform.protocol.api.response.BaseResponse;
+import ir.dotin.platform.pangaea.adapter.rest.controller.BaseController;
+import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
+import ir.dotin.platform.pangaea.protocol.api.response.BaseResponse;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.FullLifecycleRevertRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLifecycleRevertCommand;

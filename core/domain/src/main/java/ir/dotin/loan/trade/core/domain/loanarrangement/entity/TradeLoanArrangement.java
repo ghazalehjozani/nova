@@ -2,9 +2,9 @@ package ir.dotin.loan.trade.core.domain.loanarrangement.entity;
 
 import java.time.Clock;
 
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.core.Unit;
-import ir.dotin.platform.commons.domain.event.DomainEvent;
+import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Unit;
+import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.entity.AbstractLoanArrangement;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.ArrangementFeatureContext;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Active;

@@ -1,6 +1,6 @@
 package ir.dotin.loan.trade.core.domain.shared.error;
 
-import ir.dotin.platform.commons.core.error.ErrorCategory;
+import ir.dotin.platform.pangaea.commons.core.error.ErrorCategory;
 
 /*
  * ════════════════════════════════════════════════════════════════════════════════
@@ -72,7 +72,7 @@ import ir.dotin.platform.commons.core.error.ErrorCategory;
  *
  * @since 2.0
  * @see ir.dotin.loan.baseloan.core.domain.shared.error.LoanErrorCategory
- * @see ir.dotin.platform.commons.core.error.PlatformErrorCategory
+ * @see ir.dotin.platform.pangaea.commons.core.error.PlatformErrorCategory
  */
 public enum TradeLoanErrorCategory implements ErrorCategory {
 

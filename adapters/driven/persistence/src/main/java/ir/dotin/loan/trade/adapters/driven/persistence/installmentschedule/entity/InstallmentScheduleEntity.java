@@ -21,8 +21,8 @@ import jakarta.persistence.Table;
 
 import org.hibernate.proxy.HibernateProxy;
 
-import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
-import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
+import ir.dotin.platform.pangaea.persistence.jpa.embeddable.MoneyEmb;
+import ir.dotin.platform.pangaea.persistence.jpa.entity.PersistentEntity;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleStatus;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleType;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CurrencyTypeEmb;

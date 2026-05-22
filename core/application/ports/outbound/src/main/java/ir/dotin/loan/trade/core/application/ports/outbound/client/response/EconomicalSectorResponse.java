@@ -1,8 +1,8 @@
 package ir.dotin.loan.trade.core.application.ports.outbound.client.response;
 
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.domain.vo.ValueObject;
+import ir.dotin.platform.pangaea.commons.core.Notification;
+import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.domain.vo.ValueObject;
 
 public record EconomicalSectorResponse(String code, String name, Boolean hasChild, String parentCode)
         implements ValueObject<EconomicalSectorResponse> {

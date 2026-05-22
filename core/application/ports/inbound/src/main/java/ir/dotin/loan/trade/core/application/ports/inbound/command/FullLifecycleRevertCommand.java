@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import jakarta.validation.constraints.NotNull;
 
-import ir.dotin.platform.dispatcher.api.command.Command;
+import ir.dotin.platform.pangaea.dispatcher.api.command.Command;
 
 import lombok.Builder;
 

@@ -5,7 +5,7 @@ import java.util.Map;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import ir.dotin.platform.commons.core.feature.FeatureConfig;
+import ir.dotin.platform.pangaea.commons.core.feature.FeatureConfig;
 
 @ConfigurationProperties(prefix = "trade.features")
 public record TradeFeatureProperties(Map<String, Boolean> features) {

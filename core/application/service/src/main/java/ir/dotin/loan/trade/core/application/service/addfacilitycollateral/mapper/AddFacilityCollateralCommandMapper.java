@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.mapstruct.Mapper;
 
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.domain.vo.CurrencyType;
-import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType;
+import ir.dotin.platform.pangaea.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;

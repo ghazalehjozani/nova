@@ -14,9 +14,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import ir.dotin.platform.commons.core.feature.FeatureConfig;
-import ir.dotin.platform.commons.domain.vo.CurrencyType;
-import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.platform.pangaea.commons.core.feature.FeatureConfig;
+import ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType;
+import ir.dotin.platform.pangaea.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementType;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.CollateralPolicy;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.GracePeriodPolicy;

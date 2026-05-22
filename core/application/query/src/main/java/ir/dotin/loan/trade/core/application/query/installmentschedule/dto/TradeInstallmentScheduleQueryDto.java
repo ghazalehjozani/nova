@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import ir.dotin.platform.dispatcher.api.query.QueryResult;
+import ir.dotin.platform.pangaea.dispatcher.api.query.QueryResult;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleStatus;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleType;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentStatus;

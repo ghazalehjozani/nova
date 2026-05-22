@@ -9,7 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
 import org.springframework.stereotype.Repository;
 
-import ir.dotin.platform.adapter.persistence.repository.PersistentRepository;
+import ir.dotin.platform.pangaea.persistence.jpa.repository.PersistentRepository;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.entity.TradeLoanArrangementEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.projection.TradeLoanArrangementIdProjection;
 

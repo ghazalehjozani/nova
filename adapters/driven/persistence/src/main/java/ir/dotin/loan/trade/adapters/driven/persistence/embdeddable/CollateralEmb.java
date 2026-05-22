@@ -8,7 +8,7 @@ import jakarta.persistence.Embedded;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
-import ir.dotin.platform.adapter.persistence.embeddable.MoneyEmb;
+import ir.dotin.platform.pangaea.persistence.jpa.embeddable.MoneyEmb;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 
 import lombok.AllArgsConstructor;

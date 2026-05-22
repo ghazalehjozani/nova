@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.accounting.document.api.model.AccountId;
 import ir.dotin.platform.accounting.document.api.model.AccountNumber;
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.security.api.AuthenticationContextHolder;
+import ir.dotin.platform.pangaea.commons.core.Notification;
+import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.security.api.AuthenticationContextHolder;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaProperties;
@@ -131,7 +131,7 @@ public class FcbAccountKafkaAdapter implements AccountServicePort, FindOrCreateA
             extraTags = {"op", "findAccountById"})
     public Result<AccountInfo> findAccountById(AccountId accountId) {
         log.debug("findAccountById called for accountId={}   not yet implemented via Kafka", accountId.value());
-        return Result.failure(ir.dotin.platform.commons.core.Notification.ofError(
+        return Result.failure(ir.dotin.platform.pangaea.commons.core.Notification.ofError(
                 CoreBankingErrors.KAFKA_INVALID_RESPONSE, "findAccountById-not-implemented"));
     }
 

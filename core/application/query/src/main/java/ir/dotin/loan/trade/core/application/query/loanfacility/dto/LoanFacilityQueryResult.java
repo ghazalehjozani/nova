@@ -2,7 +2,7 @@ package ir.dotin.loan.trade.core.application.query.loanfacility.dto;
 
 import java.util.List;
 
-import ir.dotin.platform.dispatcher.api.query.QueryResult;
+import ir.dotin.platform.pangaea.dispatcher.api.query.QueryResult;
 
 import lombok.Builder;
 

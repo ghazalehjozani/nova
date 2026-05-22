@@ -2,9 +2,9 @@ package ir.dotin.loan.trade.core.application.ports.outbound.client.response;
 
 import org.jspecify.annotations.NonNull;
 
-import ir.dotin.platform.commons.core.Notification;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.domain.vo.ValueObject;
+import ir.dotin.platform.pangaea.commons.core.Notification;
+import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.domain.vo.ValueObject;
 
 import static java.util.Objects.requireNonNull;
 

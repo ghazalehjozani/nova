@@ -2,7 +2,7 @@ package ir.dotin.loan.trade.core.application.service.originateloanfacility.strat
 
 import org.jspecify.annotations.NonNull;
 
-import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;

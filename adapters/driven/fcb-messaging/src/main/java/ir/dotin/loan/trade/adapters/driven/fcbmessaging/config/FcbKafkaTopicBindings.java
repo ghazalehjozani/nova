@@ -1,6 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.config;
 
-import ir.dotin.platform.messaging.kafka.spi.TopicBinding;
+import ir.dotin.platform.pangaea.messaging.kafka.spi.TopicBinding;
 
 /**
  * Single source of truth for FCB Kafka topic → groupSuffix → concurrency wiring. Each binding produces an isolated

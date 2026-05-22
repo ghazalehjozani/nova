@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.UUID;
 import jakarta.validation.constraints.NotNull;
 
-import ir.dotin.platform.protocol.api.request.BaseRequest;
+import ir.dotin.platform.pangaea.protocol.api.request.BaseRequest;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.MoneyDto;
 
 import io.swagger.v3.oas.annotations.media.Schema;

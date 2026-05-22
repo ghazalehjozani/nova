@@ -6,7 +6,7 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
-import ir.dotin.platform.commons.domain.vo.ValueType;
+import ir.dotin.platform.pangaea.commons.domain.vo.ValueType;
 
 import lombok.Data;
 

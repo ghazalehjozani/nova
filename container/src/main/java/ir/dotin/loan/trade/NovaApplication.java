@@ -9,9 +9,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import ir.dotin.platform.commons.domain.annotation.DomainComponent;
-import ir.dotin.platform.commons.domain.annotation.DomainFactory;
-import ir.dotin.platform.commons.domain.annotation.DomainService;
+import ir.dotin.platform.pangaea.commons.domain.annotation.DomainComponent;
+import ir.dotin.platform.pangaea.commons.domain.annotation.DomainFactory;
+import ir.dotin.platform.pangaea.commons.domain.annotation.DomainService;
 
 /**
  * Nova service entry point.

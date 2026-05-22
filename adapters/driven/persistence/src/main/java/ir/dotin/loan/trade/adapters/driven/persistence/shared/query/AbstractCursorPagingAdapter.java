@@ -11,8 +11,8 @@ import org.springframework.data.domain.Window;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
-import ir.dotin.platform.adapter.persistence.entity.PersistentEntity;
-import ir.dotin.platform.adapter.persistence.repository.PersistentRepository;
+import ir.dotin.platform.pangaea.persistence.jpa.entity.PersistentEntity;
+import ir.dotin.platform.pangaea.persistence.jpa.repository.PersistentRepository;
 import ir.dotin.loan.trade.core.application.query.shared.exception.InvalidCursorException;
 import ir.dotin.loan.trade.core.application.query.shared.pagination.CursorEncoder;
 import ir.dotin.loan.trade.core.application.query.shared.pagination.CursorPage;

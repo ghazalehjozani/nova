@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import ir.dotin.platform.commons.domain.vo.CurrencyType;
-import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType;
+import ir.dotin.platform.pangaea.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentSpec;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand.InstallmentSpecDto;
 

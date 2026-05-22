@@ -7,7 +7,7 @@ import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
 import ir.dotin.platform.accounting.document.api.model.metadata.ArticleMetadata;
 import ir.dotin.platform.accounting.document.api.model.metadata.OperationalInfo;
 import ir.dotin.platform.accounting.document.core.factory.DocumentMetadataFactory;
-import ir.dotin.platform.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 

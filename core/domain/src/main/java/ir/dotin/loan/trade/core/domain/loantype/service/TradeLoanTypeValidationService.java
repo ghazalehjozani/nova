@@ -1,8 +1,8 @@
 package ir.dotin.loan.trade.core.domain.loantype.service;
 
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.core.Verdict;
-import ir.dotin.platform.commons.domain.annotation.DomainService;
+import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Verdict;
+import ir.dotin.platform.pangaea.commons.domain.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.loantype.service.LoanTypeValidationService;
 import ir.dotin.loan.baseloan.core.domain.loantype.specification.LoanTypeApplicationAllowedSpecification;
 import ir.dotin.loan.baseloan.core.domain.loantype.specification.LoanTypeLoanArrangementExistenceSpecification;

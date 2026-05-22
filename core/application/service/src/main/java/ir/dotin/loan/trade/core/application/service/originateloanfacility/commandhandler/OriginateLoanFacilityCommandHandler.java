@@ -5,9 +5,9 @@ import java.util.List;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.domain.event.DomainEvent;
-import ir.dotin.platform.dispatcher.api.command.CommandHandler;
+import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
+import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.orchestrator.FacilityOriginationOrchestrator;
 

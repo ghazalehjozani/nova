@@ -9,8 +9,8 @@ import java.util.List;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import ir.dotin.platform.commons.domain.annotation.DomainFactory;
-import ir.dotin.platform.commons.domain.event.DomainEvent;
+import ir.dotin.platform.pangaea.commons.domain.annotation.DomainFactory;
+import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleStatus;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentStatus;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.event.InstallmentScheduleEventFactory;

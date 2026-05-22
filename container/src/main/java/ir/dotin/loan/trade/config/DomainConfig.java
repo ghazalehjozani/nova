@@ -5,7 +5,7 @@ import java.util.Map;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import ir.dotin.platform.commons.core.feature.FeatureConfig;
+import ir.dotin.platform.pangaea.commons.core.feature.FeatureConfig;
 
 @Configuration
 public class DomainConfig {

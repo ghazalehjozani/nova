@@ -16,8 +16,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>ir.dotin.platform</groupId>
-            <artifactId>platform-test-archunit</artifactId>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>test-archunit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

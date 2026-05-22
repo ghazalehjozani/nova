@@ -3,7 +3,7 @@ package ir.dotin.loan.trade.core.application.service.addfacilitycollateral.compo
 import java.util.Map;
 import java.util.Optional;
 
-import ir.dotin.platform.commons.domain.vo.Money;
+import ir.dotin.platform.pangaea.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralDetails;

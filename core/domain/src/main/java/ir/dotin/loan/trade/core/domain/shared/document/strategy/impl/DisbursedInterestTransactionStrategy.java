@@ -7,8 +7,8 @@ import ir.dotin.platform.accounting.document.api.strategy.AbstractMultiArticleCa
 import ir.dotin.platform.accounting.document.api.strategy.CalculationContext;
 import ir.dotin.platform.accounting.document.api.strategy.spec.DebitCreditArticleSpecFactory;
 import ir.dotin.platform.accounting.document.api.validation.ArticleBalanceValidator;
-import ir.dotin.platform.commons.core.Result;
-import ir.dotin.platform.commons.domain.annotation.DomainComponent;
+import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.domain.annotation.DomainComponent;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 import ir.dotin.loan.trade.core.domain.shared.document.enums.DisbursedInterestArticleType;

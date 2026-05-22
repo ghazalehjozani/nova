@@ -10,7 +10,7 @@ import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
-import ir.dotin.platform.commons.domain.event.DomainEvent;
+import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLoanFacilityLifecycleCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
