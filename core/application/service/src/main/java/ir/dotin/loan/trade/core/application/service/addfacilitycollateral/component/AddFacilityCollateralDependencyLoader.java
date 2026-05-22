@@ -1,17 +1,21 @@
 package ir.dotin.loan.trade.core.application.service.addfacilitycollateral.component;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Supplier;
 
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.accounting.document.api.model.BranchCode;
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.concurrent.ParallelFanout;
+import ir.dotin.platform.pangaea.commons.core.context.ContextSnapshot;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
@@ -59,42 +63,42 @@ public class AddFacilityCollateralDependencyLoader {
         }
         TradeLoanFacility facility = facilityResult.unwrap();
 
+        // Heterogeneous singles (arrangement, schedule) run as wrapped branches; the homogeneous per-collateral loads
+        // fan out via ParallelFanout (run on its own branch to stay concurrent with the singles).
         CompletableFuture<Result<TradeLoanArrangement>> arrangementFuture =
-                CompletableFuture.supplyAsync(() -> loadArrangement(facility), VIRTUAL_EXECUTOR);
+                CompletableFuture.supplyAsync(() -> loadArrangement(facility), ContextSnapshot.wrap(VIRTUAL_EXECUTOR));
 
         CompletableFuture<Result<Optional<InstallmentSchedule>>> scheduleFuture =
-                CompletableFuture.supplyAsync(() -> loadSchedule(facility), VIRTUAL_EXECUTOR);
+                CompletableFuture.supplyAsync(() -> loadSchedule(facility), ContextSnapshot.wrap(VIRTUAL_EXECUTOR));
 
-        List<CompletableFuture<Result<CollateralDetails>>> collateralFutures = collaterals.stream()
-                .map(c -> CompletableFuture.supplyAsync(
-                        () -> loadCollateralDetails(c.collateralSerial(), facility), VIRTUAL_EXECUTOR))
+        List<Supplier<Result<CollateralDetails>>> collateralTasks = collaterals.stream()
+                .map(c -> (Supplier<Result<CollateralDetails>>)
+                        () -> loadCollateralDetails(c.collateralSerial(), facility))
                 .toList();
-
-        CompletableFuture.allOf(arrangementFuture, scheduleFuture).join();
-        CompletableFuture.allOf(collateralFutures.toArray(new CompletableFuture[0]))
-                .join();
+        CompletableFuture<Result<List<CollateralDetails>>> collateralDetailsFuture = CompletableFuture.supplyAsync(
+                () -> ParallelFanout.allOf(collateralTasks), ContextSnapshot.wrap(VIRTUAL_EXECUTOR));
 
         Result<TradeLoanArrangement> arrangementResult = arrangementFuture.join();
         Result<Optional<InstallmentSchedule>> scheduleResult = scheduleFuture.join();
+        Result<List<CollateralDetails>> collateralDetailsResult = collateralDetailsFuture.join();
 
         Notification aggregatedNotification = Notification.create();
         if (arrangementResult.isFailure())
             aggregatedNotification.merge(arrangementResult.err().orElseThrow().notification());
         if (scheduleResult.isFailure())
             aggregatedNotification.merge(scheduleResult.err().orElseThrow().notification());
-
-        Map<CollateralSerial, CollateralDetails> detailsMap = new java.util.HashMap<>();
-        for (int i = 0; i < collaterals.size(); i++) {
-            Result<CollateralDetails> res = collateralFutures.get(i).join();
-            if (res.isFailure()) {
-                aggregatedNotification.merge(res.err().orElseThrow().notification());
-            } else {
-                detailsMap.put(collaterals.get(i).collateralSerial(), res.unwrap());
-            }
-        }
+        if (collateralDetailsResult.isFailure())
+            aggregatedNotification.merge(
+                    collateralDetailsResult.err().orElseThrow().notification());
 
         if (aggregatedNotification.hasErrors()) {
             return Result.failure(aggregatedNotification);
+        }
+
+        List<CollateralDetails> collateralDetails = collateralDetailsResult.unwrap();
+        Map<CollateralSerial, CollateralDetails> detailsMap = new HashMap<>();
+        for (int i = 0; i < collaterals.size(); i++) {
+            detailsMap.put(collaterals.get(i).collateralSerial(), collateralDetails.get(i));
         }
 
         Result<Money> requiredAmountResult = collateralCalculationService.calculateNeededCollateral(

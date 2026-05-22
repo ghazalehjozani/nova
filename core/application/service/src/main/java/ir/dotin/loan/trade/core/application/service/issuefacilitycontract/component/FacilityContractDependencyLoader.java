@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.context.ContextSnapshot;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.IssueFacilityContractCommand;
@@ -33,8 +34,8 @@ public class FacilityContractDependencyLoader {
 
     public Result<FacilityContractContext> loadDependencies(IssueFacilityContractCommand command) {
         log.debug("Loading dependencies for facility contract issuance: {}", command.loanFacilityId());
-        var facilityFuture =
-                CompletableFuture.supplyAsync(() -> safeLoadFacility(command.loanFacilityId()), VIRTUAL_EXECUTOR);
+        var facilityFuture = CompletableFuture.supplyAsync(
+                () -> safeLoadFacility(command.loanFacilityId()), ContextSnapshot.wrap(VIRTUAL_EXECUTOR));
         return facilityFuture
                 .thenCompose(facilityResult -> {
                     if (facilityResult.isFailure()) {
@@ -43,7 +44,8 @@ public class FacilityContractDependencyLoader {
                     }
                     var facility = facilityResult.unwrap();
                     var arrangementFuture = CompletableFuture.supplyAsync(
-                            () -> safeLoadArrangement(facility.getLoanArrangementId()), VIRTUAL_EXECUTOR);
+                            () -> safeLoadArrangement(facility.getLoanArrangementId()),
+                            ContextSnapshot.wrap(VIRTUAL_EXECUTOR));
                     return arrangementFuture.thenApply((Result<TradeLoanArrangement> arrangementResult) -> {
                         if (arrangementResult.isFailure()) {
                             return Result.<FacilityContractContext>failure(

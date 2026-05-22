@@ -5,12 +5,10 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.context.InvocationContextHolder;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
-import ir.dotin.platform.pangaea.dispatcher.api.context.DispatchContext;
-import ir.dotin.platform.pangaea.dispatcher.api.context.DispatchContextHolder;
-import ir.dotin.platform.pangaea.dispatcher.api.context.StandardHeaders;
 import ir.dotin.platform.pangaea.saga.api.error.SagaErrors;
 import ir.dotin.platform.pangaea.saga.api.exception.SagaSuspendedException;
 import ir.dotin.platform.pangaea.saga.api.model.SagaResult;
@@ -52,8 +50,7 @@ public class FullLoanFacilityLifecycleCommandHandler implements CommandHandler<F
                 command.uid(),
                 command.confirmType());
 
-        DispatchContext dispatchContext = DispatchContextHolder.current();
-        String sagaCorrelationId = dispatchContext.getHeader(StandardHeaders.X_FLOW_CORRELATION_ID);
+        String sagaCorrelationId = InvocationContextHolder.current().flow().flowCorrelationId();
 
         SagaResult<FullLoanFacilityLifecycleSagaData> sagaResult =
                 sagaOrchestrator.executeSaga("full-loan-facility-lifecycle", input, sagaCorrelationId);

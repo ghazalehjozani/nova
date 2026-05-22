@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
+import ir.dotin.platform.pangaea.commons.core.concurrent.ParallelFanout;
+import ir.dotin.platform.pangaea.commons.core.context.ContextSnapshot;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
@@ -64,14 +67,20 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
     private CompletableFuture<Result<Prerequisites>> gatherPrerequisitesAsync(DefineLoanTypeCommand command) {
         var codeValue = command.code().value();
 
-        var uniquenessFuture =
-                CompletableFuture.supplyAsync(() -> checkLoanTypeDoesNotExist(codeValue), VIRTUAL_EXECUTOR);
+        // Heterogeneous gather: each independent branch runs on its own virtual thread with the caller's ambient
+        // context propagated by ContextSnapshot.wrap. The two homogeneous sub-fan-outs (sector validation, arrangement
+        // id resolution) use ParallelFanout internally.
+        var uniquenessFuture = CompletableFuture.supplyAsync(
+                () -> checkLoanTypeDoesNotExist(codeValue), ContextSnapshot.wrap(VIRTUAL_EXECUTOR));
 
-        CompletableFuture<Result<Unit>> sectorValidationFuture = validateEconomicSectorsAsync(command, codeValue);
+        var sectorValidationFuture = CompletableFuture.supplyAsync(
+                () -> validateEconomicSectors(command, codeValue), ContextSnapshot.wrap(VIRTUAL_EXECUTOR));
 
-        var arrangementIdsFuture = resolveArrangementIdsAsync(command.loanArrangementCodes());
+        var arrangementIdsFuture = CompletableFuture.supplyAsync(
+                () -> resolveArrangementIds(command.loanArrangementCodes()), ContextSnapshot.wrap(VIRTUAL_EXECUTOR));
 
-        var topicInfoFuture = CompletableFuture.supplyAsync(() -> loadTopics(command), VIRTUAL_EXECUTOR);
+        var topicInfoFuture =
+                CompletableFuture.supplyAsync(() -> loadTopics(command), ContextSnapshot.wrap(VIRTUAL_EXECUTOR));
 
         return CompletableFuture.allOf(uniquenessFuture, sectorValidationFuture, arrangementIdsFuture, topicInfoFuture)
                 .thenApply(ignored -> {
@@ -96,17 +105,13 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
                         Notification.ofError(TradeLoanApplicationServiceErrors.DUPLICATE_LOAN_TYPE, codeValue)));
     }
 
-    private CompletableFuture<Result<Set<LoanArrangementId>>> resolveArrangementIdsAsync(
-            Set<LoanArrangementCodeDto> dtos) {
-        List<CompletableFuture<Result<LoanArrangementId>>> futures = dtos.stream()
+    private Result<Set<LoanArrangementId>> resolveArrangementIds(Set<LoanArrangementCodeDto> dtos) {
+        List<Supplier<Result<LoanArrangementId>>> tasks = dtos.stream()
                 .map(LoanArrangementCodeDto::value)
                 .map(LoanArrangementCode::valueOf)
-                .map(code -> CompletableFuture.supplyAsync(() -> findArrangementId(code.unwrap()), VIRTUAL_EXECUTOR))
+                .map(code -> (Supplier<Result<LoanArrangementId>>) () -> findArrangementId(code.unwrap()))
                 .toList();
-
-        return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new))
-                .thenApply(v -> Result.traverse(futures, CompletableFuture::join))
-                .thenApply(resultList -> resultList.map(HashSet::new));
+        return ParallelFanout.allOf(tasks).map(HashSet::new);
     }
 
     private Result<LoanArrangementId> findArrangementId(LoanArrangementCode code) {
@@ -116,31 +121,24 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
                         TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND, code.value())));
     }
 
-    private CompletableFuture<Result<Unit>> validateEconomicSectorsAsync(
-            DefineLoanTypeCommand command, String loanTypeCode) {
-        List<CompletableFuture<Result<EconomicalSectorValidation>>> futures =
-                command.economicSectorCurrencies().stream()
-                        .map(sectorCurrency -> CompletableFuture.supplyAsync(
-                                () -> loanServicePort.validateEconomicalSectorForLoanType(
-                                        mapper.map(sectorCurrency.economicSector()),
-                                        LoanTypeCode.of(loanTypeCode).unwrap()),
-                                VIRTUAL_EXECUTOR))
-                        .toList();
+    private Result<Unit> validateEconomicSectors(DefineLoanTypeCommand command, String loanTypeCode) {
+        List<Supplier<Result<EconomicalSectorValidation>>> tasks = command.economicSectorCurrencies().stream()
+                .map(sectorCurrency -> (Supplier<Result<EconomicalSectorValidation>>)
+                        () -> loanServicePort.validateEconomicalSectorForLoanType(
+                                mapper.map(sectorCurrency.economicSector()),
+                                LoanTypeCode.of(loanTypeCode).unwrap()))
+                .toList();
 
-        return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new))
-                .thenApply(v -> collectSectorValidations(futures));
+        // ParallelFanout error-accumulates transport/validation failures; then enforce the per-sector validity flag.
+        return ParallelFanout.allOf(tasks).flatMap(this::ensureAllSectorsValid);
     }
 
-    private Result<Unit> collectSectorValidations(List<CompletableFuture<Result<EconomicalSectorValidation>>> futures) {
+    private Result<Unit> ensureAllSectorsValid(List<EconomicalSectorValidation> validations) {
         Notification aggregatedNotification = Notification.create();
-        for (var future : futures) {
-            Result<EconomicalSectorValidation> result = future.join();
-            if (result.isFailure()) {
-                aggregatedNotification.merge(result.err().orElseThrow().notification());
-            } else if (!result.unwrap().isValid()) {
+        for (EconomicalSectorValidation validation : validations) {
+            if (!validation.isValid()) {
                 aggregatedNotification.addError(
-                        TradeLoanApplicationServiceErrors.INVALID_ECONOMIC_SECTOR_FOR_LOAN_TYPE,
-                        result.unwrap().message());
+                        TradeLoanApplicationServiceErrors.INVALID_ECONOMIC_SECTOR_FOR_LOAN_TYPE, validation.message());
             }
         }
         return aggregatedNotification.hasErrors() ? Result.failure(aggregatedNotification) : Result.success();

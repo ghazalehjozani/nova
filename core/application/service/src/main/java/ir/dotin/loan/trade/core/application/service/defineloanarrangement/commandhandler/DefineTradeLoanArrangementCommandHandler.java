@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
@@ -14,6 +15,8 @@ import ir.dotin.platform.formula.service.query.FormulaQueryService;
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
+import ir.dotin.platform.pangaea.commons.core.concurrent.ParallelFanout;
+import ir.dotin.platform.pangaea.commons.core.context.ContextSnapshot;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
@@ -55,27 +58,20 @@ public class DefineTradeLoanArrangementCommandHandler implements CommandHandler<
                 .filter(Objects::nonNull)
                 .toList();
 
-        List<CompletableFuture<Result<Unit>>> validationFutures = formulasToValidate.stream()
-                .map(formulaId ->
-                        CompletableFuture.supplyAsync(() -> checkFormulaExistence(formulaId), VIRTUAL_EXECUTOR))
+        // The homogeneous formula-existence checks fan out via ParallelFanout; the economic-sector load runs as an
+        // independent branch. Both carry the caller's ambient context (ParallelFanout internally, ContextSnapshot.wrap
+        // for the single branch).
+        List<Supplier<Result<Unit>>> formulaTasks = formulasToValidate.stream()
+                .map(formulaId -> (Supplier<Result<Unit>>) () -> checkFormulaExistence(formulaId))
                 .toList();
+        CompletableFuture<Result<Unit>> validationsFuture = CompletableFuture.supplyAsync(
+                () -> ParallelFanout.allVoid(formulaTasks), ContextSnapshot.wrap(VIRTUAL_EXECUTOR));
 
         CompletableFuture<Result<EconomicSector>> economicSectorFuture = CompletableFuture.supplyAsync(
-                () -> loadEconomicSector(mapper.map(command.economicSector())), VIRTUAL_EXECUTOR);
+                () -> loadEconomicSector(mapper.map(command.economicSector())), ContextSnapshot.wrap(VIRTUAL_EXECUTOR));
 
-        CompletableFuture<Result<EconomicSector>> combinedValidationFuture = CompletableFuture.allOf(
-                        validationFutures.toArray(CompletableFuture[]::new))
-                .thenCombineAsync(
-                        economicSectorFuture,
-                        (v, sectorResult) -> Result.combine(
-                                Result.traverseAll(
-                                        validationFutures.stream()
-                                                .map(CompletableFuture::join)
-                                                .toList(),
-                                        res -> res),
-                                sectorResult,
-                                (voids, sector) -> sector),
-                        VIRTUAL_EXECUTOR);
+        Result<EconomicSector> combinedValidation =
+                Result.combine(validationsFuture.join(), economicSectorFuture.join(), (voids, sector) -> sector);
 
         Result<Unit> duplicateCodeResult = Result.requireFalse(
                 repository.existsByCode(
@@ -84,7 +80,7 @@ public class DefineTradeLoanArrangementCommandHandler implements CommandHandler<
                         TradeLoanApplicationServiceErrors.DUPLICATE_CODE,
                         command.code().value())));
 
-        return Result.combine(duplicateCodeResult, combinedValidationFuture.join(), (ignored, sector) -> sector)
+        return Result.combine(duplicateCodeResult, combinedValidation, (ignored, sector) -> sector)
                 .flatMap(validatedSector -> Result.success(mapper.toBuilder(command))
                         .flatMap(builder -> TradeLoanArrangement.create(builder, clock)))
                 .onSuccess(arrangement -> {
