@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.repository;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import ir.dotin.platform.pangaea.persistence.jpa.repository.PersistentRepository;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity.TradeLoanFacilityEntity;
 
 @Repository
@@ -46,6 +48,22 @@ public interface TradeLoanFacilityJpaRepository extends PersistentRepository<Tra
             @Param("loanTypeCode") String loanTypeCode,
             @Param("customerNumber") String customerNumber,
             @Param("derivedValue") String derivedValue);
+
+    @Query("""
+        SELECT CASE WHEN COUNT(t) > 0 THEN true ELSE false END
+        FROM TradeLoanFacilityEntity t
+        WHERE t.loanApplication.applicationNumber.branch.code = :branchCode
+        AND t.loanApplication.applicationNumber.loanTypeCode.value = :loanTypeCode
+        AND t.loanApplication.applicationNumber.party.customerNumber = :customerNumber
+        AND t.loanApplication.applicationNumber.derivedValue = :derivedValue
+        AND t.currentState NOT IN :terminalStates
+        """)
+    boolean existsActiveByApplicationNumber(
+            @Param("branchCode") String branchCode,
+            @Param("loanTypeCode") String loanTypeCode,
+            @Param("customerNumber") String customerNumber,
+            @Param("derivedValue") String derivedValue,
+            @Param("terminalStates") Collection<FacilityStatus> terminalStates);
 
     @Query("""
         SELECT t

@@ -1,13 +1,18 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility;
 
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import ir.dotin.platform.accounting.document.api.model.BranchCode;
 import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -26,6 +31,10 @@ import static java.util.Objects.requireNonNull;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class TradeLoanFacilityRepositoryAdapter implements TradeLoanFacilityRepository {
+
+    private static final Set<FacilityStatus> TERMINAL_STATES = EnumSet.copyOf(Arrays.stream(FacilityStatus.values())
+            .filter(FacilityStatus::isTerminal)
+            .collect(Collectors.toSet()));
 
     private final TradeLoanFacilityJpaRepository jpaRepository;
     private final TradeLoanTypeJpaRepository tradeLoanTypeJpaRepository;
@@ -68,6 +77,17 @@ public class TradeLoanFacilityRepositoryAdapter implements TradeLoanFacilityRepo
                 applicationNumber.loanTypeCode().value(),
                 applicationNumber.party().customerNumber(),
                 applicationNumber.derivedValue());
+    }
+
+    @Override
+    public boolean existsActiveByApplicationNumber(ApplicationNumber applicationNumber) {
+        requireNonNull(applicationNumber, "ApplicationNumber cannot be null");
+        return jpaRepository.existsActiveByApplicationNumber(
+                applicationNumber.branch().code().value(),
+                applicationNumber.loanTypeCode().value(),
+                applicationNumber.party().customerNumber(),
+                applicationNumber.derivedValue(),
+                TERMINAL_STATES);
     }
 
     @Override

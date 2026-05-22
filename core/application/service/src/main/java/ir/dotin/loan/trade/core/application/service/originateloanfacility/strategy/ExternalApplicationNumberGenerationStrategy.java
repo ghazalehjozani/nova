@@ -42,11 +42,19 @@ public class ExternalApplicationNumberGenerationStrategy implements ApplicationN
                     Notification.ofError(OriginateLoanFacilityErrorCodes.APPLICATION_NUMBER_CREATION_FAILED));
         }
 
-        boolean exists = facilityRepository.existsByApplicationNumber(fcbApplicationNumber);
-
-        if (exists) {
+        // Classify a clashing application number: an active facility is a true conflict; a facility that
+        // exists only in a terminal/cancelled state is a ghost/stale allocation (compensated origination,
+        // FCB loan file never materialised or already cancelled) and must surface a distinct, recoverable
+        // error rather than a misleading duplicate.
+        if (facilityRepository.existsActiveByApplicationNumber(fcbApplicationNumber)) {
             return Result.failure(
                     OriginateLoanFacilityErrorCodes.DUPLICATE_APPLICATION_NUMBER,
+                    fcbApplicationNumber.formattedApplicationNumber());
+        }
+
+        if (facilityRepository.existsByApplicationNumber(fcbApplicationNumber)) {
+            return Result.failure(
+                    OriginateLoanFacilityErrorCodes.STALE_APPLICATION_NUMBER_ALLOCATION,
                     fcbApplicationNumber.formattedApplicationNumber());
         }
 
