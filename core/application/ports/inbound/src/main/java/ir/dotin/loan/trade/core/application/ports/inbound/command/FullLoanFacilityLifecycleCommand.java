@@ -14,7 +14,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-import ir.dotin.platform.pangaea.dispatcher.api.command.Command;
+import ir.dotin.platform.pangaea.dispatcher.api.command.NonTransactionalCommand;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
@@ -34,7 +34,7 @@ public record FullLoanFacilityLifecycleCommand(
         @NotNull @Valid TransactionMetadataDto transactionMetadata,
         @NotNull @Valid List<CollateralDto> collaterals,
         @NotNull String confirmType)
-        implements Command {
+        implements NonTransactionalCommand {
 
     @Builder(toBuilder = true)
     public record DisbursementDto(
