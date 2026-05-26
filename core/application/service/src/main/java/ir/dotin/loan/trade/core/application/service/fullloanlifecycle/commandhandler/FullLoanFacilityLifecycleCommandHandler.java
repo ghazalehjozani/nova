@@ -63,9 +63,14 @@ public class FullLoanFacilityLifecycleCommandHandler implements CommandHandler<F
         }
 
         if (sagaResult.isSuccess()) {
-            List<DomainEvent<?>> events =
-                    sagaResult.dataOrNull() != null ? sagaResult.dataOrNull().collectedDomainEvents() : List.of();
-            return Result.success(events);
+            // Return NO events. Each saga step dispatches its own command, which publishes that step's
+            // domain events to the outbox inside the step's own (REQUIRED) transaction — they are already
+            // persisted. This orchestration command is a NonTransactionalCommand, so the dispatcher opens
+            // no transaction around it; returning the collected events here would make the dispatcher
+            // re-publish them with no active transaction, and the MANDATORY OutboxEventListener would throw
+            // IllegalTransactionStateException (LN-59391). The collected events on the saga data remain
+            // available for in-saga decisions (id extraction, compensation); they must not be re-published.
+            return Result.success(List.of());
         }
 
         return sagaResult
