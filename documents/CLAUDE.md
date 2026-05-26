@@ -39,8 +39,11 @@ ALL documentation MUST live inside the project repository (Bitbucket) under `/do
 ├── asyncapi/
 │   ├── README.md          # Optional extra notes
 │   └── asyncapi.yaml      # AsyncAPI 3.0.0 spec
-└── datamodels/
-    └── README.md          # Links to ERD diagrams on Confluence + data dictionary
+├── datamodels/
+│   └── README.md          # Links to ERD diagrams on Confluence + data dictionary
+└── runbooks/
+    ├── README.md          # Runbook Log (RBL) index
+    └── RB-NNNN.short-title-of-runbook.md   # Operational diagnose-and-fix procedures (Persian)
 ```
 
 Rules:
@@ -180,6 +183,22 @@ graph LR
     B --> C[Service B]
 ` `` 
 ```
+
+---
+
+## 4b. Operational Runbooks (RBL)
+
+Runbooks complement ADRs: an ADR records *why* an architectural decision was made; a Runbook records
+*how* to diagnose and fix a recurring operational incident class (symptoms, sizing/decision model,
+per-environment ceiling, verification steps).
+
+- **Location:** `/documents/runbooks/`. Index: `runbooks/README.md` (the Runbook Log — RBL).
+- **File naming:** `RB-[NNNN].[short-title-in-kebab-case].md` — same dot-separator + zero-padded
+  sequential numbering as ADRs.
+- **Language:** Persian body; filename + IDs English/ASCII. Individual files carry **no** `<div dir="rtl">`
+  wrapper (matching ADR files); only the `README.md` index uses it.
+- **Diagrams:** Mermaid (never draw.io), same rule as ADRs.
+- **Statuses:** پیش‌نویس (draft) / فعال (active) / منسوخ (deprecated → link the superseding ADR).
 
 ---
 
@@ -466,6 +485,8 @@ Document data models using:
 | ERD diagrams             | **draw.io** (Confluence plugin) | Confluence, linked from `datamodels/README.md` |
 | Context Map diagrams     | **Mermaid**                     | Embedded in `cmap/context_map.md`              |
 | Diagrams inside ADRs     | **Mermaid**                     | Embedded in the ADR `.md` file                 |
+| Diagrams inside Runbooks | **Mermaid**                     | Embedded in the `RB-NNNN.*.md` file            |
+| Operational Runbooks     | **Markdown** (`.md`, Persian)   | Repo under `/documents/runbooks/`              |
 | All prose/text docs      | **Markdown** (`.md`)            | Bitbucket repo under `/documents/`             |
 | OpenAPI & AsyncAPI specs | **YAML** (`.yaml`)              | Bitbucket repo under `/documents/`             |
 
