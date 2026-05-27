@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
+import ir.dotin.platform.pangaea.commons.core.exception.FailureCauseException;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.dispatcher.api.command.Command;
 import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
@@ -199,23 +200,25 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
         var data = ctx.getSagaData();
         log.info("Originating facility for correlation: {}", data.correlationId());
 
-        ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(data.originationCommand());
+        try {
+            ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(data.originationCommand());
 
-        return switch (result) {
-            case ExecutionResult.Fresh<List<DomainEvent<?>>> fresh -> {
-                var events = fresh.payload();
-                extractFacilityId(events)
-                        .ifPresent(fid ->
-                                ctx.updateSagaData(d -> d.withFacilityId(fid).addDomainEvents(events)));
-                yield new StepResult.Success<>(null);
-            }
-            case ExecutionResult.Replayed<List<DomainEvent<?>>> replayed -> {
-                ctx.updateSagaData(d -> d.addDomainEvents(replayed.payload()));
-                yield new StepResult.Success<>(null);
-            }
-            case ExecutionResult.BusinessFailure<List<DomainEvent<?>>> failure ->
-                new StepResult.Failure<>(FailureCause.businessRule(failure.notification()));
-        };
+            return switch (result) {
+                case ExecutionResult.Fresh<List<DomainEvent<?>>> fresh -> {
+                    var events = fresh.payload();
+                    extractFacilityId(events)
+                            .ifPresent(fid -> ctx.updateSagaData(
+                                    d -> d.withFacilityId(fid).addDomainEvents(events)));
+                    yield new StepResult.Success<>(null);
+                }
+                case ExecutionResult.Replayed<List<DomainEvent<?>>> replayed -> {
+                    ctx.updateSagaData(d -> d.addDomainEvents(replayed.payload()));
+                    yield new StepResult.Success<>(null);
+                }
+            };
+        } catch (FailureCauseException e) {
+            return new StepResult.Failure<>(e.failureCause());
+        }
     }
 
     private StepResult<Void> compensateOrigination(SagaContext<FullLoanFacilityLifecycleSagaData> ctx, Void ignored) {
@@ -236,20 +239,23 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
         log.info("Submitting facility {} for approval", data.facilityId());
 
         var command = new SubmitFacilityForApprovalCommand(data.correlationId(), 1L, data.facilityId());
-        ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
 
-        return switch (result) {
-            case ExecutionResult.Fresh<List<DomainEvent<?>>> fresh -> {
-                ctx.updateSagaData(d -> d.addDomainEvents(fresh.payload()));
-                yield new StepResult.Success<>(null);
-            }
-            case ExecutionResult.Replayed<List<DomainEvent<?>>> replayed -> {
-                ctx.updateSagaData(d -> d.addDomainEvents(replayed.payload()));
-                yield new StepResult.Success<>(null);
-            }
-            case ExecutionResult.BusinessFailure<List<DomainEvent<?>>> failure ->
-                new StepResult.Failure<>(FailureCause.businessRule(failure.notification()));
-        };
+        try {
+            ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
+
+            return switch (result) {
+                case ExecutionResult.Fresh<List<DomainEvent<?>>> fresh -> {
+                    ctx.updateSagaData(d -> d.addDomainEvents(fresh.payload()));
+                    yield new StepResult.Success<>(null);
+                }
+                case ExecutionResult.Replayed<List<DomainEvent<?>>> replayed -> {
+                    ctx.updateSagaData(d -> d.addDomainEvents(replayed.payload()));
+                    yield new StepResult.Success<>(null);
+                }
+            };
+        } catch (FailureCauseException e) {
+            return new StepResult.Failure<>(e.failureCause());
+        }
     }
 
     private StepResult<Void> compensateApprovalSubmission(
@@ -276,23 +282,25 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 .confirmType(data.confirmType())
                 .build();
 
-        ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
+        try {
+            ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
 
-        return switch (result) {
-            case ExecutionResult.Fresh<List<DomainEvent<?>>> fresh -> {
-                var events = fresh.payload();
-                extractSanctionedLoanId(events)
-                        .ifPresent(slId -> ctx.updateSagaData(
-                                d -> d.withSanctionedLoanId(slId).addDomainEvents(events)));
-                yield new StepResult.Success<>(null);
-            }
-            case ExecutionResult.Replayed<List<DomainEvent<?>>> replayed -> {
-                ctx.updateSagaData(d -> d.addDomainEvents(replayed.payload()));
-                yield new StepResult.Success<>(null);
-            }
-            case ExecutionResult.BusinessFailure<List<DomainEvent<?>>> failure ->
-                new StepResult.Failure<>(FailureCause.businessRule(failure.notification()));
-        };
+            return switch (result) {
+                case ExecutionResult.Fresh<List<DomainEvent<?>>> fresh -> {
+                    var events = fresh.payload();
+                    extractSanctionedLoanId(events)
+                            .ifPresent(slId -> ctx.updateSagaData(
+                                    d -> d.withSanctionedLoanId(slId).addDomainEvents(events)));
+                    yield new StepResult.Success<>(null);
+                }
+                case ExecutionResult.Replayed<List<DomainEvent<?>>> replayed -> {
+                    ctx.updateSagaData(d -> d.addDomainEvents(replayed.payload()));
+                    yield new StepResult.Success<>(null);
+                }
+            };
+        } catch (FailureCauseException e) {
+            return new StepResult.Failure<>(e.failureCause());
+        }
     }
 
     private StepResult<Void> compensateApproval(SagaContext<FullLoanFacilityLifecycleSagaData> ctx, Void ignored) {
@@ -328,20 +336,22 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 .channel(txConfig.channel())
                 .build();
 
-        ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
+        try {
+            ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
 
-        return switch (result) {
-            case ExecutionResult.Fresh<List<DomainEvent<?>>> fresh -> {
-                ctx.updateSagaData(d -> d.addDomainEvents(fresh.payload()));
-                yield new StepResult.Success<>(null);
-            }
-            case ExecutionResult.Replayed<List<DomainEvent<?>>> replayed -> {
-                ctx.updateSagaData(d -> d.addDomainEvents(replayed.payload()));
-                yield new StepResult.Success<>(null);
-            }
-            case ExecutionResult.BusinessFailure<List<DomainEvent<?>>> failure ->
-                new StepResult.Failure<>(FailureCause.businessRule(failure.notification()));
-        };
+            return switch (result) {
+                case ExecutionResult.Fresh<List<DomainEvent<?>>> fresh -> {
+                    ctx.updateSagaData(d -> d.addDomainEvents(fresh.payload()));
+                    yield new StepResult.Success<>(null);
+                }
+                case ExecutionResult.Replayed<List<DomainEvent<?>>> replayed -> {
+                    ctx.updateSagaData(d -> d.addDomainEvents(replayed.payload()));
+                    yield new StepResult.Success<>(null);
+                }
+            };
+        } catch (FailureCauseException e) {
+            return new StepResult.Failure<>(e.failureCause());
+        }
     }
 
     private StepResult<Void> compensateContractIssuance(
@@ -392,23 +402,25 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 .disbursementDate(data.disbursementDate())
                 .build();
 
-        ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
+        try {
+            ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
 
-        return switch (result) {
-            case ExecutionResult.Fresh<List<DomainEvent<?>>> fresh -> {
-                var events = fresh.payload();
-                extractLumpSumScheduleId(events)
-                        .ifPresent(scheduleId -> ctx.updateSagaData(
-                                d -> d.withInstallmentScheduleId(scheduleId).addDomainEvents(events)));
-                yield new StepResult.Success<>(null);
-            }
-            case ExecutionResult.Replayed<List<DomainEvent<?>>> replayed -> {
-                ctx.updateSagaData(d -> d.addDomainEvents(replayed.payload()));
-                yield new StepResult.Success<>(null);
-            }
-            case ExecutionResult.BusinessFailure<List<DomainEvent<?>>> failure ->
-                new StepResult.Failure<>(FailureCause.businessRule(failure.notification()));
-        };
+            return switch (result) {
+                case ExecutionResult.Fresh<List<DomainEvent<?>>> fresh -> {
+                    var events = fresh.payload();
+                    extractLumpSumScheduleId(events)
+                            .ifPresent(scheduleId -> ctx.updateSagaData(
+                                    d -> d.withInstallmentScheduleId(scheduleId).addDomainEvents(events)));
+                    yield new StepResult.Success<>(null);
+                }
+                case ExecutionResult.Replayed<List<DomainEvent<?>>> replayed -> {
+                    ctx.updateSagaData(d -> d.addDomainEvents(replayed.payload()));
+                    yield new StepResult.Success<>(null);
+                }
+            };
+        } catch (FailureCauseException e) {
+            return new StepResult.Failure<>(e.failureCause());
+        }
     }
 
     private StepResult<Void> executeIrregularDisbursement(SagaContext<FullLoanFacilityLifecycleSagaData> ctx) {
@@ -434,22 +446,24 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 .disbursementDate(data.disbursementDate())
                 .build();
 
-        ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
+        try {
+            ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
 
-        return switch (result) {
-            case ExecutionResult.Fresh<List<DomainEvent<?>>> fresh -> {
-                var events = fresh.payload();
-                extractIrregularScheduleIds(events, ctx);
-                ctx.updateSagaData(d -> d.addDomainEvents(events));
-                yield new StepResult.Success<>(null);
-            }
-            case ExecutionResult.Replayed<List<DomainEvent<?>>> replayed -> {
-                ctx.updateSagaData(d -> d.addDomainEvents(replayed.payload()));
-                yield new StepResult.Success<>(null);
-            }
-            case ExecutionResult.BusinessFailure<List<DomainEvent<?>>> failure ->
-                new StepResult.Failure<>(FailureCause.businessRule(failure.notification()));
-        };
+            return switch (result) {
+                case ExecutionResult.Fresh<List<DomainEvent<?>>> fresh -> {
+                    var events = fresh.payload();
+                    extractIrregularScheduleIds(events, ctx);
+                    ctx.updateSagaData(d -> d.addDomainEvents(events));
+                    yield new StepResult.Success<>(null);
+                }
+                case ExecutionResult.Replayed<List<DomainEvent<?>>> replayed -> {
+                    ctx.updateSagaData(d -> d.addDomainEvents(replayed.payload()));
+                    yield new StepResult.Success<>(null);
+                }
+            };
+        } catch (FailureCauseException e) {
+            return new StepResult.Failure<>(e.failureCause());
+        }
     }
 
     private IrregularProgressiveDisbursementCommand.InstallmentSchedulePlanDto mapInstallmentPlan(
@@ -510,13 +524,15 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
     }
 
     private <C extends Record & Command> StepResult<Void> dispatchCompensation(C command) {
-        ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
-        return switch (result) {
-            case ExecutionResult.Fresh<?> ignored -> new StepResult.Success<>(null);
-            case ExecutionResult.Replayed<?> ignored -> new StepResult.Success<>(null);
-            case ExecutionResult.BusinessFailure<?> failure ->
-                new StepResult.Failure<>(FailureCause.businessRule(failure.notification()));
-        };
+        try {
+            ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
+            return switch (result) {
+                case ExecutionResult.Fresh<?> ignored -> new StepResult.Success<>(null);
+                case ExecutionResult.Replayed<?> ignored -> new StepResult.Success<>(null);
+            };
+        } catch (FailureCauseException e) {
+            return new StepResult.Failure<>(e.failureCause());
+        }
     }
 
     private Optional<UUID> extractFacilityId(List<DomainEvent<?>> events) {
@@ -577,34 +593,36 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 .collaterals(collateralDtos)
                 .build();
 
-        ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
+        try {
+            ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
 
-        return switch (result) {
-            case ExecutionResult.Fresh<List<DomainEvent<?>>> fresh -> {
-                var events = fresh.payload();
-                extractAddedCollateralSerials(events).ifPresent(serials -> {
-                    ctx.updateSagaData(
-                            d -> d.withAddedCollateralSerials(serials).addDomainEvents(events));
-                    log.info("Successfully added {} collaterals to facility: {}", serials.size(), data.facilityId());
-                });
+            return switch (result) {
+                case ExecutionResult.Fresh<List<DomainEvent<?>>> fresh -> {
+                    var events = fresh.payload();
+                    extractAddedCollateralSerials(events).ifPresent(serials -> {
+                        ctx.updateSagaData(
+                                d -> d.withAddedCollateralSerials(serials).addDomainEvents(events));
+                        log.info(
+                                "Successfully added {} collaterals to facility: {}", serials.size(), data.facilityId());
+                    });
 
-                yield new StepResult.Success<>(null);
-            }
-            case ExecutionResult.Replayed<List<DomainEvent<?>>> replayed -> {
-                var events = replayed.payload();
+                    yield new StepResult.Success<>(null);
+                }
+                case ExecutionResult.Replayed<List<DomainEvent<?>>> replayed -> {
+                    var events = replayed.payload();
 
-                extractAddedCollateralSerials(events).ifPresent(serials -> {
-                    ctx.updateSagaData(
-                            d -> d.withAddedCollateralSerials(serials).addDomainEvents(events));
-                });
+                    extractAddedCollateralSerials(events).ifPresent(serials -> {
+                        ctx.updateSagaData(
+                                d -> d.withAddedCollateralSerials(serials).addDomainEvents(events));
+                    });
 
-                yield new StepResult.Success<>(null);
-            }
-            case ExecutionResult.BusinessFailure<List<DomainEvent<?>>> failure -> {
-                log.warn("Failed to add collaterals: {}", failure.notification());
-                yield new StepResult.Failure<>(FailureCause.businessRule(failure.notification()));
-            }
-        };
+                    yield new StepResult.Success<>(null);
+                }
+            };
+        } catch (FailureCauseException e) {
+            log.warn("Failed to add collaterals: {}", e.getNotification());
+            return new StepResult.Failure<>(e.failureCause());
+        }
     }
 
     private Optional<List<String>> extractAddedCollateralSerials(List<DomainEvent<?>> events) {

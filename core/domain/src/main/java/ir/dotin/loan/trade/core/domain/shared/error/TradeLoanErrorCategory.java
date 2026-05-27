@@ -34,7 +34,14 @@ import ir.dotin.platform.pangaea.commons.core.error.ErrorCategory;
  *  │  52  │ TRADE_FACILITY            │ TradeFacilityErrors:  001–100         │
  *  │      │                           │ Reserved:             101–999         │
  *  ├──────┼───────────────────────────┼────────────────────────────────────────┤
- *  │  53  │ Reserved                  │                                       │
+ *  │  53  │ TRADE_QUERY               │ Query not-found/lookup: 001–004       │
+ *  │      │                           │ Reserved:               005–999       │
+ *  ├──────┼───────────────────────────┼────────────────────────────────────────┤
+ *  │  54  │ TRADE_SERVICE             │ Originate:               001–025      │
+ *  │      │                           │ Submit:                  026–028      │
+ *  │      │                           │ Reserved:                029–999      │
+ *  ├──────┼───────────────────────────┼────────────────────────────────────────┤
+ *  │  55  │ Reserved                  │                                       │
  *  │  …   │                           │                                       │
  *  │  60  │ Reserved                  │                                       │
  *  └──────┴───────────────────────────┴────────────────────────────────────────┘
@@ -110,9 +117,25 @@ public enum TradeLoanErrorCategory implements ErrorCategory {
      * <p>If an error concept applies to ALL loan products, it belongs in
      * {@link ir.dotin.loan.baseloan.core.domain.shared.error.LoanErrorCategory#FACILITY_LIFECYCLE} instead.
      */
-    TRADE_FACILITY(52, "Trade-specific facility processing errors");
+    TRADE_FACILITY(52, "Trade-specific facility processing errors"),
 
-    // Codes 53–60 are reserved for future trade-loan-specific categories.
+    /**
+     * Trade-loan query (read-side) not-found and lookup errors.
+     *
+     * <p>Covers errors raised by the trade-loan CQRS read side ({@code core/application/query}) when a requested entity
+     * cannot be located: facility, loan arrangement, loan type, and installment-schedule lookups.
+     */
+    TRADE_QUERY(53, "Trade-loan query (read-side) not-found and lookup errors"),
+
+    /**
+     * Trade-loan application-service (origination/submission) errors.
+     *
+     * <p>Covers errors raised by the trade-loan command/write side ({@code core/application/service}) during facility
+     * origination and submission-for-approval orchestration.
+     */
+    TRADE_SERVICE(54, "Trade-loan application-service (origination/submission) errors");
+
+    // Codes 55–60 are reserved for future trade-loan-specific categories (53 and 54 are now used).
 
     private final int code;
     private final String description;

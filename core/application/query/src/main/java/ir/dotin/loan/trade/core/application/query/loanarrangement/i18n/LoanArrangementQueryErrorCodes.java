@@ -1,15 +1,38 @@
 package ir.dotin.loan.trade.core.application.query.loanarrangement.i18n;
 
-import ir.dotin.platform.pangaea.commons.core.i18n.LocalizedMessage;
+import org.jspecify.annotations.NonNull;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import ir.dotin.platform.pangaea.commons.core.error.ErrorCategory;
+import ir.dotin.platform.pangaea.commons.core.error.ProductErrorCode;
+import ir.dotin.loan.trade.core.domain.shared.error.TradeLoanErrorCategory;
 
-@Getter
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public enum LoanArrangementQueryErrorCodes implements LocalizedMessage<LoanArrangementQueryErrorCodes> {
-    LOAN_ARRANGEMENT_NOT_FOUND("Loan arrangement with ID {0} not found");
+public enum LoanArrangementQueryErrorCodes implements ProductErrorCode<LoanArrangementQueryErrorCodes> {
+    LOAN_ARRANGEMENT_NOT_FOUND(TradeLoanErrorCategory.TRADE_QUERY, 2, "Loan arrangement with ID {0} not found");
 
+    private final ErrorCategory category;
+    private final int sequence;
     private final String defaultMessageFormat;
+
+    LoanArrangementQueryErrorCodes(ErrorCategory category, int sequence, String defaultMessageFormat) {
+        this.category = category;
+        this.sequence = sequence;
+        this.defaultMessageFormat = defaultMessageFormat;
+        category.validate();
+    }
+
+    @Override
+    public ErrorCategory category() {
+        return category;
+    }
+
+    @Override
+    public int sequence() {
+        return sequence;
+    }
+
+    @Override
+    @NonNull
+    public String getDefaultMessageFormat() {
+        return defaultMessageFormat;
+    }
 }

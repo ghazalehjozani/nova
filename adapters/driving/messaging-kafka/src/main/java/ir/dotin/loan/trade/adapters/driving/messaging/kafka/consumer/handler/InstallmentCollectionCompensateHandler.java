@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import ir.dotin.platform.pangaea.commons.core.exception.FailureCauseException;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.pangaea.dispatcher.api.execution.ExecutionResult;
@@ -67,11 +68,15 @@ public class InstallmentCollectionCompensateHandler implements InboxMessageHandl
             return switch (executionResult) {
                 case ExecutionResult.Fresh<?> fresh -> HandlerResult.success();
                 case ExecutionResult.Replayed<?> replayed -> HandlerResult.success();
-                case ExecutionResult.BusinessFailure<?> failure ->
-                    HandlerResult.permanent(
-                            new RuntimeException(failure.notification().toString()));
             };
 
+        } catch (FailureCauseException e) {
+            LOG.error(
+                    "Domain rule rejected INSTALLMENT_COLLECTION_COMPENSATE [eventUid={}, fileNumber={}]",
+                    eventUid,
+                    compensateMessage.fileNumber(),
+                    e);
+            return HandlerResult.permanent(e);
         } catch (Exception e) {
             LOG.error(
                     "Failed to process INSTALLMENT_COLLECTION_COMPENSATE [eventUid={}, fileNumber={}]",

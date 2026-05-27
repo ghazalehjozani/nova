@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import ir.dotin.platform.pangaea.commons.core.error.CodedMessage;
 import ir.dotin.platform.pangaea.protocol.api.error.ErrorCodeContributor;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.error.InstallmentScheduleErrors;
+import ir.dotin.loan.baseloan.core.domain.installmentschedule.error.InterestCalculationMessages;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.error.LoanArrangementErrors;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.error.LoanFacilityErrors;
 import ir.dotin.loan.baseloan.core.domain.loantype.error.LoanTypeErrors;
@@ -31,6 +32,7 @@ public class BaseLoanErrorCodeContributor implements ErrorCodeContributor {
     public Collection<? extends CodedMessage<?>> contributedCodes() {
         var all = new ArrayList<CodedMessage<?>>();
         Collections.addAll(all, InstallmentScheduleErrors.values());
+        Collections.addAll(all, InterestCalculationMessages.values());
         Collections.addAll(all, LoanArrangementErrors.values());
         Collections.addAll(all, LoanFacilityErrors.values());
         Collections.addAll(all, LoanTypeErrors.values());
