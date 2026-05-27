@@ -37,7 +37,7 @@
         <loan.trade-loan.version>${project.version}</loan.trade-loan.version>
         <sonar.projectVersion>${project.version}</sonar.projectVersion>
         <platform.accounting.document.version>2026.4.1-SNAPSHOT</platform.accounting.document.version>
-        <platform.formula.version>2026.5.0-SNAPSHOT</platform.formula.version>
+        <platform.formula.version>2026.5.1-SNAPSHOT</platform.formula.version>
     </properties>
 
     <dependencyManagement>
