@@ -47,46 +47,40 @@ public class SwaggerConfig extends BaseSwaggerConfig {
     private final ResourceLoader resourceLoader;
     private final HeaderOperationCustomizer headerOperationCustomizer;
 
-    public static final String TAG_FACILITY_CASE_OPENING = "Facility Case Opening";
-    public static final String TAG_FACILITY_APPROVAL_SUBMISSION = "Facility Approval Submission";
-    public static final String TAG_FACILITY_APPROVAL = "Facility Approval";
-    public static final String TAG_FACILITY_REJECTION = "Facility Rejection";
-    public static final String TAG_FACILITY_CONTRACT_ISSUANCE = "Facility Contract Issuance";
-    public static final String TAG_LUMP_SUM_DISBURSEMENT = "Lump Sum Disbursement";
-    public static final String TAG_REGULAR_DISBURSEMENT = "Regular Disbursement";
-    public static final String TAG_IRREGULAR_DISBURSEMENT = "Irregular Disbursement";
-    public static final String TAG_FACILITY_COLLATERAL_MANAGEMENT = "Facility Collateral Management";
-    public static final String TAG_FACILITY_CLOSURE_PAID_OFF = "Facility Closure - Paid Off";
-    public static final String TAG_FACILITY_CLOSURE_DEFAULTED = "Facility Closure - Defaulted";
-    public static final String TAG_FACILITY_CANCELLATION = "Facility Cancellation";
-    public static final String TAG_LOAN_TYPE_MANAGEMENT = "Loan Type Management";
-    public static final String TAG_LOAN_ARRANGEMENT_MANAGEMENT = "Loan Arrangement Management";
-    public static final String TAG_FACILITY_QUERIES = "Facility Queries";
-    public static final String TAG_INSTALLMENT_SCHEDULE_QUERIES = "Installment Schedule Queries";
-    public static final String TAG_LOAN_TYPE_QUERIES = "Loan Type Queries";
-    public static final String TAG_LOAN_ARRANGEMENT_QUERIES = "Loan Arrangement Queries";
-    public static final String TAG_FULL_LIFECYCLE = "Full Loan Facility Lifecycle";
-    public static final String TAG_FACILITY_COMPENSATION = "Facility Compensation";
+    // One tag per aggregate: command and query controllers of the same aggregate share a tag so Swagger groups
+    // them in a single section (springdoc dedupes tags by name). Constants are kept (controllers reference them)
+    // but collapse onto the four aggregate-level tag names.
+    public static final String TAG_LOAN_TYPES = "Loan Types";
+    public static final String TAG_LOAN_ARRANGEMENTS = "Loan Arrangements";
+    public static final String TAG_LOAN_FACILITIES = "Loan Facilities";
+    public static final String TAG_INSTALLMENT_SCHEDULES = "Installment Schedules";
+
+    public static final String TAG_FACILITY_CASE_OPENING = TAG_LOAN_FACILITIES;
+    public static final String TAG_FACILITY_APPROVAL_SUBMISSION = TAG_LOAN_FACILITIES;
+    public static final String TAG_FACILITY_APPROVAL = TAG_LOAN_FACILITIES;
+    public static final String TAG_FACILITY_REJECTION = TAG_LOAN_FACILITIES;
+    public static final String TAG_FACILITY_CONTRACT_ISSUANCE = TAG_LOAN_FACILITIES;
+    public static final String TAG_LUMP_SUM_DISBURSEMENT = TAG_LOAN_FACILITIES;
+    public static final String TAG_REGULAR_DISBURSEMENT = TAG_LOAN_FACILITIES;
+    public static final String TAG_IRREGULAR_DISBURSEMENT = TAG_LOAN_FACILITIES;
+    public static final String TAG_FACILITY_COLLATERAL_MANAGEMENT = TAG_LOAN_FACILITIES;
+    public static final String TAG_FACILITY_CLOSURE_PAID_OFF = TAG_LOAN_FACILITIES;
+    public static final String TAG_FACILITY_CLOSURE_DEFAULTED = TAG_LOAN_FACILITIES;
+    public static final String TAG_FACILITY_CANCELLATION = TAG_LOAN_FACILITIES;
+    public static final String TAG_LOAN_TYPE_MANAGEMENT = TAG_LOAN_TYPES;
+    public static final String TAG_LOAN_ARRANGEMENT_MANAGEMENT = TAG_LOAN_ARRANGEMENTS;
+    public static final String TAG_FACILITY_QUERIES = TAG_LOAN_FACILITIES;
+    public static final String TAG_INSTALLMENT_SCHEDULE_QUERIES = TAG_INSTALLMENT_SCHEDULES;
+    public static final String TAG_LOAN_TYPE_QUERIES = TAG_LOAN_TYPES;
+    public static final String TAG_LOAN_ARRANGEMENT_QUERIES = TAG_LOAN_ARRANGEMENTS;
+    public static final String TAG_FULL_LIFECYCLE = TAG_LOAN_FACILITIES;
+    public static final String TAG_FACILITY_COMPENSATION = TAG_LOAN_FACILITIES;
 
     private static final Map<String, Integer> TAG_ORDER = Map.ofEntries(
-            Map.entry(TAG_LOAN_ARRANGEMENT_MANAGEMENT, 1),
-            Map.entry(TAG_LOAN_TYPE_MANAGEMENT, 2),
-            Map.entry(TAG_FACILITY_CASE_OPENING, 3),
-            Map.entry(TAG_FACILITY_APPROVAL_SUBMISSION, 4),
-            Map.entry(TAG_FACILITY_APPROVAL, 5),
-            Map.entry(TAG_FACILITY_REJECTION, 6),
-            Map.entry(TAG_FACILITY_CONTRACT_ISSUANCE, 7),
-            Map.entry(TAG_LUMP_SUM_DISBURSEMENT, 8),
-            Map.entry(TAG_REGULAR_DISBURSEMENT, 9),
-            Map.entry(TAG_IRREGULAR_DISBURSEMENT, 10),
-            Map.entry(TAG_FACILITY_COLLATERAL_MANAGEMENT, 11),
-            Map.entry(TAG_FACILITY_CLOSURE_PAID_OFF, 12),
-            Map.entry(TAG_FACILITY_CLOSURE_DEFAULTED, 13),
-            Map.entry(TAG_FACILITY_CANCELLATION, 14),
-            Map.entry(TAG_FACILITY_QUERIES, 15),
-            Map.entry(TAG_INSTALLMENT_SCHEDULE_QUERIES, 16),
-            Map.entry(TAG_LOAN_TYPE_QUERIES, 17),
-            Map.entry(TAG_LOAN_ARRANGEMENT_QUERIES, 18));
+            Map.entry(TAG_LOAN_TYPES, 1),
+            Map.entry(TAG_LOAN_ARRANGEMENTS, 2),
+            Map.entry(TAG_LOAN_FACILITIES, 3),
+            Map.entry(TAG_INSTALLMENT_SCHEDULES, 4));
 
     private OpenApiCustomizer sortTagsCustomizer() {
         return openApi -> {

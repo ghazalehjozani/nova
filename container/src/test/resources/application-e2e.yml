@@ -318,7 +318,9 @@ platform:
       enabled: true
       branch-code: "1"
   rest:
-    api-path-pattern: /api/*
+    api-path-patterns:
+      - /api/*
+      - /v1/*
     headers:
       default-language: fa
   observability:
