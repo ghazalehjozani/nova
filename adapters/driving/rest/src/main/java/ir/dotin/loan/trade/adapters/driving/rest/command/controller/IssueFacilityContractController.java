@@ -7,8 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
-import ir.dotin.platform.pangaea.protocol.api.response.BaseResponse;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
+import ir.dotin.platform.pangaea.protocol.rest.controller.CommandResponseFactory;
 import ir.dotin.platform.pangaea.security.api.AuthenticationContextHolder;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.IssueFacilityContractRequest;
@@ -22,17 +22,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/{version}/facilities/{facilityId}/issue-contract")
+@RequestMapping("/v{version}/loan-facilities/{facilityId}/issue-contract")
 @Tag(name = SwaggerConfig.TAG_FACILITY_CONTRACT_ISSUANCE, description = "عملیات مربوط به صدور قرارداد تسهیلات")
 @RequiredArgsConstructor
 class IssueFacilityContractController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final AuthenticationContextHolder authenticationContextHolder;
+    private final CommandResponseFactory responseFactory;
 
     @PostMapping(version = "1+")
     @Operation(summary = "صدور قرارداد")
-    public ResponseEntity<BaseResponse<Void>> issueFacilityContract(
+    public ResponseEntity<Void> issueFacilityContract(
             @Parameter(
                             description = "شناسه یکتای تسهیلات جهت صدور قرارداد",
                             example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
@@ -66,13 +67,13 @@ class IssueFacilityContractController extends BaseController {
                 .networkType(metadata.getOrDefault("networkType", "INTERNET"))
                 .build();
 
-        dispatcher.dispatch(command);
-        return ResponseEntity.ok(BaseResponse.success());
+        var result = dispatcher.dispatch(command);
+        return responseFactory.mutated(result);
     }
 
     @PostMapping(value = "/compensate", version = "1+")
     @Operation(summary = "جبران‌سازی مرحله صدور قرارداد")
-    public ResponseEntity<BaseResponse<Void>> compensateContractIssuance(
+    public ResponseEntity<Void> compensateContractIssuance(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
             @RequestBody @Valid CompensationRequest request) {
 
@@ -82,7 +83,7 @@ class IssueFacilityContractController extends BaseController {
                 .loanFacilityId(facilityId)
                 .build();
 
-        dispatcher.dispatch(command);
-        return ResponseEntity.ok(BaseResponse.success());
+        var result = dispatcher.dispatch(command);
+        return responseFactory.mutated(result);
     }
 }

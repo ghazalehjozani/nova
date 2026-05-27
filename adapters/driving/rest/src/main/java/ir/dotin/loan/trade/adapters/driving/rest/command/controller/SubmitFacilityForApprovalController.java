@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
-import ir.dotin.platform.pangaea.protocol.api.response.BaseResponse;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
+import ir.dotin.platform.pangaea.protocol.rest.controller.CommandResponseFactory;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.SubmitFacilityForApprovalRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.SubmitFacilityForApprovalRequestToCommandMapper;
@@ -25,28 +25,29 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/{version}/facilities/{facilityId}/submit-for-approval")
+@RequestMapping("/v{version}/loan-facilities/{facilityId}/submit-for-approval")
 @Tag(name = SwaggerConfig.TAG_FACILITY_APPROVAL_SUBMISSION, description = "عملیات مربوط به ثبت درخواست تصویب مصوبه")
 @RequiredArgsConstructor
 class SubmitFacilityForApprovalController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final SubmitFacilityForApprovalRequestToCommandMapper mapper;
+    private final CommandResponseFactory responseFactory;
 
     @PostMapping(version = "1+")
     @Operation(summary = "ثبت درخواست تصویب تسهیلات")
-    public ResponseEntity<BaseResponse<Void>> submitFacilityForApproval(
+    public ResponseEntity<Void> submitFacilityForApproval(
             @PathVariable UUID facilityId,
             @Parameter(description = "جزئیات ثبت درخواست تصویب مصوبه", required = true) @RequestBody @Valid
                     SubmitFacilityForApprovalRequest request) {
         var command = mapper.toCommand(facilityId, request);
-        dispatcher.dispatch(command);
-        return ResponseEntity.ok(BaseResponse.success());
+        var result = dispatcher.dispatch(command);
+        return responseFactory.mutated(result);
     }
 
     @PostMapping(value = "/compensate", version = "1+")
     @Operation(summary = "جبران‌سازی مرحله ثبت درخواست تصویب")
-    public ResponseEntity<BaseResponse<Void>> compensateApprovalSubmission(
+    public ResponseEntity<Void> compensateApprovalSubmission(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
             @RequestBody @Valid CompensationRequest request) {
 
@@ -56,7 +57,7 @@ class SubmitFacilityForApprovalController extends BaseController {
                 .loanFacilityId(facilityId)
                 .build();
 
-        dispatcher.dispatch(command);
-        return ResponseEntity.ok(BaseResponse.success());
+        var result = dispatcher.dispatch(command);
+        return responseFactory.mutated(result);
     }
 }

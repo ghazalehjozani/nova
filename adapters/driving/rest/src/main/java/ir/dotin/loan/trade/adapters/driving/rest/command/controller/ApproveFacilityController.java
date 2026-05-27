@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
-import ir.dotin.platform.pangaea.protocol.api.response.BaseResponse;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
+import ir.dotin.platform.pangaea.protocol.rest.controller.CommandResponseFactory;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.ApproveFacilityRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.ApproveFacilityRequestToCommandMapper;
@@ -26,17 +26,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/{version}/facilities/{facilityId}/approve")
+@RequestMapping("/v{version}/loan-facilities/{facilityId}/approve")
 @Tag(name = SwaggerConfig.TAG_FACILITY_APPROVAL, description = "عملیات مربوط به تصویب مصوبه")
 @RequiredArgsConstructor
 class ApproveFacilityController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final ApproveFacilityRequestToCommandMapper mapper;
+    private final CommandResponseFactory responseFactory;
 
     @PostMapping(version = "1+")
     @Operation(summary = "تصویب خودکار مصوبه")
-    public ResponseEntity<BaseResponse<Void>> autoApproveFacility(
+    public ResponseEntity<Void> autoApproveFacility(
             @Parameter(
                             description = "شناسه یکتای تسهیلات",
                             example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
@@ -49,13 +50,13 @@ class ApproveFacilityController extends BaseController {
         var command = mapper.toCommand(facilityId, null, request).toBuilder()
                 .uid(getIdempotencyKey())
                 .build();
-        dispatcher.dispatch(command);
-        return ResponseEntity.ok(BaseResponse.success());
+        var result = dispatcher.dispatch(command);
+        return responseFactory.mutated(result);
     }
 
     @PostMapping(value = "/{sanctionSerial}", version = "1+")
     @Operation(summary = "تصویب مصوبه با شماره سریال")
-    public ResponseEntity<BaseResponse<Void>> approveFacilityWithSerial(
+    public ResponseEntity<Void> approveFacilityWithSerial(
             @Parameter(
                             description = "شناسه یکتای تسهیلات",
                             example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
@@ -69,13 +70,13 @@ class ApproveFacilityController extends BaseController {
             @Parameter(description = "جزئیات تصویب مصوبه", required = true) @RequestBody
                     ApproveFacilityRequest request) {
         var command = mapper.toCommand(facilityId, sanctionSerial, request);
-        dispatcher.dispatch(command);
-        return ResponseEntity.ok(BaseResponse.success());
+        var result = dispatcher.dispatch(command);
+        return responseFactory.mutated(result);
     }
 
     @PostMapping(value = "/compensate", version = "1+")
     @Operation(summary = "جبران‌سازی مرحله تصویب")
-    public ResponseEntity<BaseResponse<Void>> compensateApproval(
+    public ResponseEntity<Void> compensateApproval(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
             @RequestBody @Valid CompensationRequest request) {
 
@@ -84,7 +85,7 @@ class ApproveFacilityController extends BaseController {
                 .version(request.version())
                 .loanFacilityId(facilityId)
                 .build();
-        dispatcher.dispatch(command);
-        return ResponseEntity.ok(BaseResponse.success());
+        var result = dispatcher.dispatch(command);
+        return responseFactory.mutated(result);
     }
 }

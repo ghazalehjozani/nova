@@ -6,8 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
-import ir.dotin.platform.pangaea.protocol.api.response.BaseResponse;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
+import ir.dotin.platform.pangaea.protocol.rest.controller.CommandResponseFactory;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CloseFacilityDefaultedRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.CloseFacilityDefaultedRequestToCommandMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
@@ -18,17 +18,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/{version}/facilities/{facilityId}/close-defaulted")
+@RequestMapping("/v{version}/loan-facilities/{facilityId}/close-defaulted")
 @Tag(name = SwaggerConfig.TAG_FACILITY_CLOSURE_DEFAULTED, description = "عملیات مربوط به بستن تسهیلات معوق")
 @RequiredArgsConstructor
 class CloseFacilityDefaultedController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final CloseFacilityDefaultedRequestToCommandMapper mapper;
+    private final CommandResponseFactory responseFactory;
 
     @PostMapping(version = "1+")
     @Operation(summary = "بستن تسهیلات معوق")
-    public ResponseEntity<BaseResponse<Void>> closeFacilityDefaulted(
+    public ResponseEntity<Void> closeFacilityDefaulted(
             @Parameter(
                             description = "شناسه یکتای تسهیلات معوق جهت بستن",
                             example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
@@ -38,7 +39,7 @@ class CloseFacilityDefaultedController extends BaseController {
             @Parameter(description = "جزئیات عملیات بستن تسهیلات", required = true) @RequestBody
                     CloseFacilityDefaultedRequest request) {
         var command = mapper.toCommand(facilityId, request);
-        dispatcher.dispatch(command);
-        return ResponseEntity.ok(BaseResponse.success());
+        var result = dispatcher.dispatch(command);
+        return responseFactory.mutated(result);
     }
 }

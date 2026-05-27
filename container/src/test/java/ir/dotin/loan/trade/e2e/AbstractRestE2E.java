@@ -36,7 +36,7 @@ public abstract class AbstractRestE2E extends AbstractE2E {
     }
 
     protected String apiUrl(String path) {
-        return "http://localhost:" + port + "/api/v1" + path;
+        return "http://localhost:" + port + "/v1" + path;
     }
 
     protected HttpHeaders defaultHeaders() {

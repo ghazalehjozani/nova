@@ -155,10 +155,10 @@ public class SwaggerConfig extends BaseSwaggerConfig {
     public GroupedOpenApi publicApiV1() {
         return GroupedOpenApi.builder()
                 .group("v1")
-                .pathsToMatch("/api/{version}/**")
+                .pathsToMatch("/v{version}/**")
                 .addOperationCustomizer(headerOperationCustomizer)
                 .addOpenApiCustomizer(sortTagsCustomizer())
-                .addOpenApiCustomizer(replaceVersionPlaceholder("v1"))
+                .addOpenApiCustomizer(replaceVersionPlaceholder("1"))
                 .build();
     }
 

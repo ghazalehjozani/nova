@@ -20,7 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/{version}/installment-schedules")
+@RequestMapping("/v{version}/installment-schedules")
 @RequiredArgsConstructor
 @Tag(name = SwaggerConfig.TAG_INSTALLMENT_SCHEDULE_QUERIES, description = "استعلام اقساط")
 class InstallmentScheduleQueryController extends BaseController {

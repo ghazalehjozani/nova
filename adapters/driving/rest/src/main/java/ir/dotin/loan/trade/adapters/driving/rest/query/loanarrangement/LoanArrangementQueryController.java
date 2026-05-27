@@ -30,7 +30,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/{version}/loan-arrangements")
+@RequestMapping("/v{version}/loan-arrangements")
 @RequiredArgsConstructor
 @Tag(name = SwaggerConfig.TAG_LOAN_ARRANGEMENT_QUERIES, description = "استعلام شرایط تسهیلات")
 class LoanArrangementQueryController {

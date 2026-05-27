@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
-import ir.dotin.platform.pangaea.protocol.api.response.BaseResponse;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
+import ir.dotin.platform.pangaea.protocol.rest.controller.CommandResponseFactory;
 import ir.dotin.platform.pangaea.security.api.AuthenticationContextHolder;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.IrregularProgressiveDisbursementRequest;
@@ -27,17 +27,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/{version}/facilities/{facilityId}/disburse/progressive-irregular")
+@RequestMapping("/v{version}/loan-facilities/{facilityId}/disburse/progressive-irregular")
 @Tag(name = SwaggerConfig.TAG_IRREGULAR_DISBURSEMENT, description = "عملیات مربوط به پرداخت نامنظم تسهیلات")
 @RequiredArgsConstructor
 class IrregularProgressiveDisbursementController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final AuthenticationContextHolder authenticationContextHolder;
+    private final CommandResponseFactory responseFactory;
 
     @PostMapping(version = "1+")
     @Operation(summary = "پرداخت نامنظم")
-    public ResponseEntity<BaseResponse<Void>> irregularDisbursement(
+    public ResponseEntity<Void> irregularDisbursement(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
             @Parameter(description = "جزئیات درخواست پرداخت نامنظم", required = true) @RequestBody @Valid
                     IrregularProgressiveDisbursementRequest requestBody) {
@@ -60,8 +61,8 @@ class IrregularProgressiveDisbursementController extends BaseController {
                 .disbursementDate(requestBody.disbursementDate())
                 .build();
 
-        dispatcher.dispatch(command);
-        return ResponseEntity.ok(BaseResponse.success());
+        var result = dispatcher.dispatch(command);
+        return responseFactory.mutated(result);
     }
 
     private IrregularProgressiveDisbursementCommand.InstallmentSchedulePlanDto mapInstallmentPlan(
@@ -84,7 +85,7 @@ class IrregularProgressiveDisbursementController extends BaseController {
 
     @PostMapping(value = "/compensate", version = "1+")
     @Operation(summary = "جبران‌سازی مرحله پرداخت نامنظم")
-    public ResponseEntity<BaseResponse<Void>> compensateIrregularDisbursement(
+    public ResponseEntity<Void> compensateIrregularDisbursement(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
             @RequestBody @Valid CompensationRequest request) {
 
@@ -94,7 +95,7 @@ class IrregularProgressiveDisbursementController extends BaseController {
                 .loanFacilityId(facilityId)
                 .build();
 
-        dispatcher.dispatch(command);
-        return ResponseEntity.ok(BaseResponse.success());
+        var result = dispatcher.dispatch(command);
+        return responseFactory.mutated(result);
     }
 }

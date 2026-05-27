@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
-import ir.dotin.platform.pangaea.protocol.api.response.BaseResponse;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
+import ir.dotin.platform.pangaea.protocol.rest.controller.CommandResponseFactory;
 import ir.dotin.platform.pangaea.security.api.AuthenticationContextHolder;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.LumpSumDisbursementRequest;
@@ -28,17 +28,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/{version}/facilities/{facilityId}/disburse/lump-sum")
+@RequestMapping("/v{version}/loan-facilities/{facilityId}/disburse/lump-sum")
 @Tag(name = SwaggerConfig.TAG_LUMP_SUM_DISBURSEMENT, description = "عملیات مربوط به پرداخت یکجای تسهیلات")
 @RequiredArgsConstructor
 class LumpSumDisbursementController extends BaseController {
 
     private final CommandDispatcher dispatcher;
     private final AuthenticationContextHolder authenticationContextHolder;
+    private final CommandResponseFactory responseFactory;
 
     @PostMapping(version = "1+")
     @Operation(summary = "پرداخت یکجا")
-    public ResponseEntity<BaseResponse<Void>> lumpSumDisbursement(
+    public ResponseEntity<Void> lumpSumDisbursement(
             @Parameter(
                             description = "شناسه یکتای تسهیلات",
                             example = "b8f6a9b2-02af-43c3-8a9d-97d4d99e6f58",
@@ -61,13 +62,13 @@ class LumpSumDisbursementController extends BaseController {
                 .disbursementDate(Objects.requireNonNullElse(requestBody.disbursementDate(), LocalDate.now()))
                 .userId(authenticationContextHolder.userIdOrThrow())
                 .build();
-        dispatcher.dispatch(lumpSumDisbursementCommand);
-        return ResponseEntity.ok(BaseResponse.success());
+        var result = dispatcher.dispatch(lumpSumDisbursementCommand);
+        return responseFactory.mutated(result);
     }
 
     @PostMapping(value = "/compensate", version = "1+")
     @Operation(summary = "جبران‌سازی مرحله پرداخت یکجا")
-    public ResponseEntity<BaseResponse<Void>> compensateLumpSumDisbursement(
+    public ResponseEntity<Void> compensateLumpSumDisbursement(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
             @RequestBody @Valid CompensationRequest request) {
 
@@ -77,7 +78,7 @@ class LumpSumDisbursementController extends BaseController {
                 .loanFacilityId(facilityId)
                 .build();
 
-        dispatcher.dispatch(command);
-        return ResponseEntity.ok(BaseResponse.success());
+        var result = dispatcher.dispatch(command);
+        return responseFactory.mutated(result);
     }
 }
