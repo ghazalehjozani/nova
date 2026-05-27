@@ -169,6 +169,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
         var data = ctx.getSagaData();
 
         if (data.disbursementMethod() == DisbursementMethod.REGULAR_PROGRESSIVE) {
+            // "not supported" is a capability/business-rule rejection, not a missing resource -> keep 422.
             return new StepResult.Failure<>(FailureCause.businessRule(Notification.ofError(
                     TradeLoanApplicationServiceErrors.LOAN_TYPE_NOT_FOUND, "REGULAR_PROGRESSIVE not supported")));
         }
@@ -177,7 +178,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
         if (loanTypeRepository
                 .findByCode(LoanTypeCode.of(command.loanTypeCode()).unwrap())
                 .isEmpty()) {
-            return new StepResult.Failure<>(FailureCause.businessRule(Notification.ofError(
+            return new StepResult.Failure<>(FailureCause.notFound(Notification.ofError(
                     TradeLoanApplicationServiceErrors.LOAN_TYPE_NOT_FOUND, command.loanTypeCode())));
         }
 
@@ -185,7 +186,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                 .findByCode(LoanArrangementCode.valueOf(command.loanArrangementCode())
                         .unwrap())
                 .isEmpty()) {
-            return new StepResult.Failure<>(FailureCause.businessRule(Notification.ofError(
+            return new StepResult.Failure<>(FailureCause.notFound(Notification.ofError(
                     TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND, command.loanArrangementCode())));
         }
 
@@ -365,6 +366,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
             case LUMP_SUM -> executeLumpSumDisbursement(ctx);
             case IRREGULAR_PROGRESSIVE -> executeIrregularDisbursement(ctx);
             case REGULAR_PROGRESSIVE ->
+                // "not supported" is a capability/business-rule rejection, not a missing resource -> keep 422.
                 new StepResult.Failure<>(FailureCause.businessRule(Notification.ofError(
                         TradeLoanApplicationServiceErrors.LOAN_TYPE_NOT_FOUND, "REGULAR_PROGRESSIVE not supported")));
         };

@@ -24,7 +24,7 @@ public class LoanFacilityProviderService implements LoanFacilityProvider {
     public Result<TradeLoanFacility> findLoanFacilityById(@NonNull LoanFacilityId id) {
         return Result.fromOptional(
                 tradeLoanFacilityRepository.findById(id),
-                () -> FailureCause.businessRule(
+                () -> FailureCause.notFound(
                         Notification.ofError(TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, id)));
     }
 }

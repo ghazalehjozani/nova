@@ -60,7 +60,7 @@ public class CompensateCollectInstallmentCommandHandler implements CommandHandle
                         .findById(InstallmentScheduleId.of(ids.installmentScheduleId())
                                 .unwrap())
                         .map(installmentSchedule -> (InstallmentScheduleCompensationOperations) installmentSchedule),
-                () -> FailureCause.businessRule(Notification.ofError(
+                () -> FailureCause.notFound(Notification.ofError(
                         TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
                         ids.installmentScheduleId())));
     }

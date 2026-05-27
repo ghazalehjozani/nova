@@ -76,7 +76,7 @@ public class CancelFacilityCommandHandler implements CommandHandler<CancelFacili
 
         return Result.fromOptional(
                         scheduleRepository.findById(scheduleId.orElse(null)),
-                        () -> FailureCause.businessRule(Notification.ofError(
+                        () -> FailureCause.notFound(Notification.ofError(
                                 TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
                                 command.loanFacilityId())))
                 .flatMap(schedule -> schedule.cancelSchedule(command.cancelReason(), clock)
@@ -97,7 +97,7 @@ public class CancelFacilityCommandHandler implements CommandHandler<CancelFacili
     private Result<TradeLoanFacility> loadTradeLoanFacility(ApplicationNumberResolver.LoanIdentifiers ids) {
         return Result.fromOptional(
                 facilityRepository.findById(LoanFacilityId.of(ids.loanFacilityId())),
-                () -> FailureCause.businessRule(Notification.ofError(
+                () -> FailureCause.notFound(Notification.ofError(
                         TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND, ids.loanFacilityId())));
     }
 }

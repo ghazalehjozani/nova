@@ -82,7 +82,7 @@ public class LoanFacilityRestructuringCommandHandler implements CommandHandler<L
     private Result<TradeLoanFacility> loadFacility(LoanFacilityId loanFacilityId) {
         return Result.fromOptional(
                 tradeLoanFacilityRepository.findById(loanFacilityId),
-                () -> FailureCause.businessRule(Notification.ofError(
+                () -> FailureCause.notFound(Notification.ofError(
                         TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, loanFacilityId.value())));
     }
 
@@ -109,7 +109,7 @@ public class LoanFacilityRestructuringCommandHandler implements CommandHandler<L
         return facility.getInstallmentScheduleId()
                 .map(scheduleId -> Result.fromOptional(
                         installmentScheduleRepository.findById(scheduleId),
-                        () -> FailureCause.businessRule(Notification.ofError(
+                        () -> FailureCause.notFound(Notification.ofError(
                                 TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
                                 facility.getId().value()))))
                 .orElseGet(() -> Result.failure(Notification.ofError(

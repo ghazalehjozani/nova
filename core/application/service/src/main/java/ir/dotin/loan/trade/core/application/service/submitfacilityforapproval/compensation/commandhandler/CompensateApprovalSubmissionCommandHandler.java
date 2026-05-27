@@ -39,7 +39,7 @@ class CompensateApprovalSubmissionCommandHandler implements CommandHandler<Compe
             java.util.UUID facilityId, java.util.function.Function<TradeLoanFacility, Result<Unit>> operation) {
         return Result.fromOptional(
                         repository.findById(LoanFacilityId.of(facilityId)),
-                        () -> FailureCause.businessRule(Notification.ofError(
+                        () -> FailureCause.notFound(Notification.ofError(
                                 SubmitFacilityForApprovalErrorCodes.FACILITY_NOT_FOUND, facilityId)))
                 .flatMap(facility -> operation.apply(facility).map(v -> facility))
                 .onSuccess(repository::save)

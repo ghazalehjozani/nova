@@ -43,7 +43,7 @@ class CompensateIrregularDisbursementCommandHandler implements CommandHandler<Co
 
         return Result.fromOptional(
                         facilityRepository.findById(LoanFacilityId.of(command.loanFacilityId())),
-                        () -> FailureCause.businessRule(Notification.ofError(
+                        () -> FailureCause.notFound(Notification.ofError(
                                 TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())))
                 .flatMap(facility -> revertDisbursementAndSchedules(facility, command));
     }

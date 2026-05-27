@@ -78,7 +78,7 @@ public class CompensateCloseFacilityPaidOffCommandHandler
         return Result.fromOptional(
                 installmentScheduleRepository.findById(
                         InstallmentScheduleId.of(ids.installmentScheduleId()).unwrap()),
-                () -> FailureCause.businessRule(Notification.ofError(
+                () -> FailureCause.notFound(Notification.ofError(
                         TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
                         ids.installmentScheduleId())));
     }
@@ -86,7 +86,7 @@ public class CompensateCloseFacilityPaidOffCommandHandler
     private Result<TradeLoanFacility> loadFacility(ApplicationNumberResolver.LoanIdentifiers ids) {
         return Result.fromOptional(
                 repository.findById(LoanFacilityId.of(ids.loanFacilityId())),
-                () -> FailureCause.businessRule(Notification.ofError(
+                () -> FailureCause.notFound(Notification.ofError(
                         TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, ids.loanFacilityId())));
     }
 }

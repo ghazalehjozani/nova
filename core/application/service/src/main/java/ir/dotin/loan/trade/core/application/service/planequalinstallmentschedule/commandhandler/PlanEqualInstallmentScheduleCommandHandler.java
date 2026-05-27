@@ -52,13 +52,13 @@ public class PlanEqualInstallmentScheduleCommandHandler implements CommandHandle
     private Result<ScheduleCreationDependencies> loadDependencies(PlanEqualInstallmentScheduleCommand command) {
         Result<TradeLoanFacility> facility = Result.fromOptional(
                 tradeLoanFacilityRepository.findById(LoanFacilityId.of(command.loanFacilityId())),
-                FailureCause.businessRule(Notification.ofError(
+                FailureCause.notFound(Notification.ofError(
                         TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())));
 
         return facility.flatMap(f -> {
             Result<TradeLoanArrangement> arrangement = Result.fromOptional(
                     tradeLoanArrangementRepository.findById(f.getLoanArrangementId()),
-                    FailureCause.businessRule(Notification.ofError(
+                    FailureCause.notFound(Notification.ofError(
                             TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND,
                             f.getLoanArrangementId().value())));
 

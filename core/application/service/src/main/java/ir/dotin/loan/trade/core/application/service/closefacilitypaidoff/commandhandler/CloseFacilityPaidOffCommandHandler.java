@@ -75,7 +75,7 @@ public class CloseFacilityPaidOffCommandHandler implements CommandHandler<CloseF
             ApplicationNumberResolver.LoanIdentifiers ids, CloseFacilityPaidOffCommand command) {
         return Result.fromOptional(
                 repository.findById(LoanFacilityId.of(ids.loanFacilityId())),
-                () -> FailureCause.businessRule(Notification.ofError(
+                () -> FailureCause.notFound(Notification.ofError(
                         TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, ids.loanFacilityId())));
     }
 
@@ -91,7 +91,7 @@ public class CloseFacilityPaidOffCommandHandler implements CommandHandler<CloseF
         return Result.fromOptional(
                 installmentScheduleRepository.findById(
                         InstallmentScheduleId.of(ids.installmentScheduleId()).unwrap()),
-                () -> FailureCause.businessRule(Notification.ofError(
+                () -> FailureCause.notFound(Notification.ofError(
                         TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
                         ids.installmentScheduleId())));
     }

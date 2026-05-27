@@ -62,7 +62,7 @@ public class CollectInstallmentCommandHandler implements CommandHandler<CollectI
         return Result.fromOptional(
                 installmentScheduleRepository.findById(
                         InstallmentScheduleId.of(ids.installmentScheduleId()).unwrap()),
-                () -> FailureCause.businessRule(Notification.ofError(
+                () -> FailureCause.notFound(Notification.ofError(
                         TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
                         ids.installmentScheduleId())));
     }

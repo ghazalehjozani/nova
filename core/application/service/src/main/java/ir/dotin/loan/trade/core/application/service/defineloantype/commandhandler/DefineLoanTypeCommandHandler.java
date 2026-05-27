@@ -117,7 +117,7 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
     private Result<LoanArrangementId> findArrangementId(LoanArrangementCode code) {
         return Result.fromOptional(
                 loanArrangementRepository.getIdByCode(code).map(LoanArrangementId::of),
-                () -> FailureCause.businessRule(Notification.ofError(
+                () -> FailureCause.notFound(Notification.ofError(
                         TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND, code.value())));
     }
 

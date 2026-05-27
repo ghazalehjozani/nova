@@ -240,14 +240,14 @@ public class AddFacilityCollateralSaga implements SagaDefinition<AddFacilityColl
     private Result<TradeLoanFacility> loadFacility(LoanFacilityId loanFacilityId) {
         return Result.fromOptional(
                 facilityRepository.findById(loanFacilityId),
-                () -> FailureCause.businessRule(Notification.ofError(
+                () -> FailureCause.notFound(Notification.ofError(
                         TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, loanFacilityId.value())));
     }
 
     private Result<TradeLoanArrangement> loadArrangement(TradeLoanFacility facility) {
         return Result.fromOptional(
                 arrangementRepository.findById(facility.getLoanArrangementId()),
-                () -> FailureCause.businessRule(Notification.ofError(
+                () -> FailureCause.notFound(Notification.ofError(
                         TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND,
                         facility.getLoanArrangementId(),
                         facility.getId().value())));

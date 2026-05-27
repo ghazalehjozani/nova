@@ -32,7 +32,7 @@ class CompensateApprovalCommandHandler implements CommandHandler<CompensateAppro
         log.warn("Compensating approval for facility: {}", command.loanFacilityId());
         return Result.fromOptional(
                         repository.findById(LoanFacilityId.of(command.loanFacilityId())),
-                        () -> FailureCause.businessRule(Notification.ofError(
+                        () -> FailureCause.notFound(Notification.ofError(
                                 TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())))
                 .flatMap(facility -> facility.revertApproval(clock).map(v -> facility))
                 .onSuccess(repository::save)

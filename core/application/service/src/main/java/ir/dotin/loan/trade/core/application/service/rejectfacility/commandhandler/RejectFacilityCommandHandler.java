@@ -34,7 +34,7 @@ public class RejectFacilityCommandHandler implements CommandHandler<RejectFacili
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
         return Result.fromOptional(
                         repository.findById(loanFacilityId),
-                        () -> FailureCause.businessRule(Notification.ofError(
+                        () -> FailureCause.notFound(Notification.ofError(
                                 TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.uid())))
                 .onSuccess(facility -> {
                     facility.reject(clock);

@@ -39,11 +39,11 @@ public class ApproveFacilityCommandHandler implements CommandHandler<ApproveFaci
 
         return Result.fromOptional(
                         loanFacilityRepository.findById(loanFacilityId),
-                        () -> FailureCause.businessRule(Notification.ofError(
+                        () -> FailureCause.notFound(Notification.ofError(
                                 TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())))
                 .flatMap(facility -> Result.fromOptional(
                                 loanArrangementRepository.findById(facility.getLoanArrangementId()),
-                                () -> FailureCause.businessRule(Notification.ofError(
+                                () -> FailureCause.notFound(Notification.ofError(
                                         TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND,
                                         facility.getLoanArrangementId())))
                         .flatMap(arrangement -> {

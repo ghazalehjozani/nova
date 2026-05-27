@@ -39,7 +39,7 @@ public class RegularDisbursementCommandHandler implements CommandHandler<Regular
 
         return Result.fromOptional(
                         repository.findById(loanFacilityId),
-                        () -> FailureCause.businessRule(Notification.ofError(
+                        () -> FailureCause.notFound(Notification.ofError(
                                 TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())))
                 .flatMap(this::validateDisbursementMethod)
                 //                .flatMap(facility -> {

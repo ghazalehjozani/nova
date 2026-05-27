@@ -49,7 +49,7 @@ public class FullLifecycleRevertCommandHandler implements CommandHandler<FullLif
     private Result<TradeLoanFacility> loadFacility(java.util.UUID facilityId) {
         return Result.fromOptional(
                 repository.findById(LoanFacilityId.of(facilityId)),
-                () -> FailureCause.businessRule(
+                () -> FailureCause.notFound(
                         Notification.ofError(TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, facilityId)));
     }
 

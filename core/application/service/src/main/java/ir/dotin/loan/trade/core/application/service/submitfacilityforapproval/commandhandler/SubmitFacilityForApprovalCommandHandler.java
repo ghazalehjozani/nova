@@ -34,7 +34,7 @@ public class SubmitFacilityForApprovalCommandHandler implements CommandHandler<S
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
         return Result.fromOptional(
                         repository.findById(loanFacilityId),
-                        () -> FailureCause.businessRule(Notification.ofError(
+                        () -> FailureCause.notFound(Notification.ofError(
                                 SubmitFacilityForApprovalErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId())))
                 .flatMap(facility -> domainService.submitForApproval(facility).map(v -> facility))
                 .onSuccess(facility -> {

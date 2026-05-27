@@ -127,7 +127,7 @@ public class IrregularProgressiveDisbursementCommandHandler
     private Result<TradeLoanFacility> loadFacility(LoanFacilityId loanFacilityId) {
         return Result.fromOptional(
                 tradeLoanFacilityRepository.findById(loanFacilityId),
-                () -> FailureCause.businessRule(Notification.ofError(
+                () -> FailureCause.notFound(Notification.ofError(
                         TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, loanFacilityId.value())));
     }
 
@@ -175,7 +175,7 @@ public class IrregularProgressiveDisbursementCommandHandler
     private Result<TradeLoanType> loadLoanType(TradeLoanFacility facility) {
         return Result.fromOptional(
                 tradeLoanTypeRepository.findById(facility.getLoanTypeId()),
-                () -> FailureCause.businessRule(Notification.ofError(
+                () -> FailureCause.notFound(Notification.ofError(
                         TradeLoanApplicationServiceErrors.LOAN_TYPE_NOT_FOUND,
                         facility.getLoanTypeId(),
                         facility.getId().value())));
@@ -184,7 +184,7 @@ public class IrregularProgressiveDisbursementCommandHandler
     private Result<TradeLoanArrangement> loadLoanArrangement(TradeLoanFacility facility) {
         return Result.fromOptional(
                 tradeLoanArrangementRepository.findById(facility.getLoanArrangementId()),
-                () -> FailureCause.businessRule(Notification.ofError(
+                () -> FailureCause.notFound(Notification.ofError(
                         TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND,
                         facility.getLoanArrangementId(),
                         facility.getId().value())));
@@ -194,7 +194,7 @@ public class IrregularProgressiveDisbursementCommandHandler
         return facility.getInstallmentScheduleId()
                 .map(scheduleId -> Result.fromOptional(
                         installmentScheduleRepository.findById(scheduleId),
-                        () -> FailureCause.businessRule(Notification.ofError(
+                        () -> FailureCause.notFound(Notification.ofError(
                                 TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
                                 facility.getId().value()))))
                 .orElseGet(() -> Result.failure(Notification.ofError(
