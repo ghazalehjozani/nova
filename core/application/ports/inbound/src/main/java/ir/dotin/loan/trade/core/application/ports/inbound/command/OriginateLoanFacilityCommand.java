@@ -27,7 +27,16 @@ public record OriginateLoanFacilityCommand(
         @NotNull String loanTypeCode,
         @NotNull String loanArrangementCode,
         @NotNull @Valid LoanApplicationDto loanApplication,
-        @Nullable @Valid InstallmentSchedulePlanDto installmentSchedulePlan)
+        @Nullable @Valid InstallmentSchedulePlanDto installmentSchedulePlan,
+
+        /*
+         * System-populated post pre-flight: the FCB-resolved parties produced by
+         * PrepareFacilityOriginationQuery. Intentionally carries NO @NotNull / @Valid — it is null on the
+         * client-facing query-dispatch path and only filled in by the controller / saga before the command is
+         * dispatched. The transactional command handler reconstructs PartyInfoResponse from this list instead of
+         * re-calling FCB.
+         */
+        @Nullable List<ResolvedPartyDto> resolvedParties)
         implements Command {
 
     @Builder(toBuilder = true)

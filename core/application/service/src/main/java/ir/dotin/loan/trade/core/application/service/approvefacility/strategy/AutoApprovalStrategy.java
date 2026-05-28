@@ -53,7 +53,12 @@ public class AutoApprovalStrategy implements ApprovalStrategy {
     }
 
     @Override
-    public Result<Unit> approve(TradeLoanFacility facility, TradeLoanArrangement arrangement, ConfirmType confirmType) {
+    public Result<Unit> approve(
+            ApproveFacilityCommand command,
+            TradeLoanFacility facility,
+            TradeLoanArrangement arrangement,
+            ConfirmType confirmType) {
+        // Auto approval makes no FCB call and needs no pre-flight data — the command argument is intentionally unused.
         return domainService.approve(facility, null, true, confirmType);
     }
 }

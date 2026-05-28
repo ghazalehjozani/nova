@@ -13,6 +13,9 @@ public class ApproveFacilityRequestToCommandMapper {
 
     public ApproveFacilityCommand toCommand(
             UUID facilityId, @Nullable String sanctionSerial, ApproveFacilityRequest request) {
-        return new ApproveFacilityCommand(null, request.version(), facilityId, sanctionSerial, request.confirmType());
+        // sanctionDetails is system-populated post pre-flight (PrepareFacilityApprovalQuery); never sourced from the
+        // request — built null here and threaded onto the command by the controller after the manual pre-flight.
+        return new ApproveFacilityCommand(
+                null, request.version(), facilityId, sanctionSerial, request.confirmType(), null);
     }
 }

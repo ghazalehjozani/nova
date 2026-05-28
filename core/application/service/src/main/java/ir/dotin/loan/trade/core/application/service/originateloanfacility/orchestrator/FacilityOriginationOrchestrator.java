@@ -11,10 +11,12 @@ import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.Installment
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.ResolvedPartyDto;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfoResponse;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.DependencyLoader;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.FacilityBuilder;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.FacilityPersister;
-import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.FacilityValidator;
+import ir.dotin.loan.trade.core.application.service.originateloanfacility.mapper.ResolvedPartyMapper;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy.FacilityOriginationContext;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy.InstallmentScheduleStrategy;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy.InstallmentScheduleStrategySelector;
@@ -37,18 +39,30 @@ public class FacilityOriginationOrchestrator {
     private final FacilityBuilder facilityBuilder;
     private final TradeLoanFacilityValidationService validationService;
     private final FacilityPersister facilityPersister;
-    private final FacilityValidator facilityValidator;
+    private final ResolvedPartyMapper resolvedPartyMapper;
 
+    /**
+     * Lean transactional origination: persists only. FCB validation + customer-info loading already ran tx-free in the
+     * pre-flight ({@code PrepareFacilityOriginationQuery}); their result is threaded in via
+     * {@code command.resolvedParties()}. This handler holds the pooled Hikari connection across the DB work only —
+     * never across a remote FCB round-trip.
+     */
     public Result<List<DomainEvent<?>>> originate(OriginateLoanFacilityCommand command) {
-        log.info("Starting facility origination process for LoanType: {}", command.loanTypeCode());
+        log.info("Starting facility origination persistence for LoanType: {}", command.loanTypeCode());
 
-        var validationResult = facilityValidator.callAndValidateServices(command);
-        if (validationResult.isFailure()) {
-            return Result.failure(validationResult.err().orElseThrow());
+        List<ResolvedPartyDto> resolvedParties = command.resolvedParties();
+        if (resolvedParties == null || resolvedParties.isEmpty()) {
+            throw new IllegalStateException("Origination command dispatched without pre-flight resolvedParties — "
+                    + "PrepareFacilityOriginationQuery must run before the command");
+        }
+
+        Result<List<PartyInfoResponse>> partyInfosResult = resolvedPartyMapper.reconstruct(resolvedParties);
+        if (partyInfosResult.isFailure()) {
+            return Result.failure(partyInfosResult.err().orElseThrow());
         }
 
         return dependencyLoader
-                .loadDependencies(command)
+                .loadDependencies(command, partyInfosResult.unwrap())
                 .flatMap(context -> executeOriginationWorkflow(command, context));
     }
 

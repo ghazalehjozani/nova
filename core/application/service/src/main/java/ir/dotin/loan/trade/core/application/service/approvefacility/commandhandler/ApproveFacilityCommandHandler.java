@@ -37,6 +37,14 @@ public class ApproveFacilityCommandHandler implements CommandHandler<ApproveFaci
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
         ConfirmType confirmType = ConfirmType.of(command.confirmType()).unwrap();
 
+        // Manual path requires the FCB-resolved sanction details to have been threaded in by the pre-flight
+        // (PrepareFacilityApprovalQuery). A null here means the command was dispatched without the pre-flight — which
+        // cannot happen via the controller / saga — so fail loudly rather than silently re-introduce an FCB call.
+        if (command.sanctionSerial() != null && command.sanctionDetails() == null) {
+            throw new IllegalStateException("Manual approval command dispatched without pre-flight sanctionDetails: "
+                    + command.loanFacilityId());
+        }
+
         return Result.fromOptional(
                         loanFacilityRepository.findById(loanFacilityId),
                         () -> FailureCause.notFound(Notification.ofError(
@@ -49,7 +57,7 @@ public class ApproveFacilityCommandHandler implements CommandHandler<ApproveFaci
                         .flatMap(arrangement -> {
                             ApprovalStrategy strategy = strategyFactory.getStrategy(command);
                             return strategy.validate(command, facility, arrangement)
-                                    .flatMap(ignored -> strategy.approve(facility, arrangement, confirmType))
+                                    .flatMap(ignored -> strategy.approve(command, facility, arrangement, confirmType))
                                     .map(ignored -> {
                                         loanFacilityRepository.save(facility);
                                         log.debug("Facility approved: {}", command.loanFacilityId());

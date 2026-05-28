@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
+import ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.pangaea.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
@@ -15,7 +16,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LifeInsuranceId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.ApproveFacilityCommand;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.FetchSanctionDetailsPort;
+import ir.dotin.loan.trade.core.application.ports.inbound.dto.SanctionDetailsDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.SanctionDetails;
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
@@ -32,7 +33,6 @@ import static ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantCha
 public class ManualApprovalStrategy implements ApprovalStrategy {
 
     private final TradeLoanFacilityService domainService;
-    private final FetchSanctionDetailsPort fetchSanctionDetailsPort;
 
     @Override
     public Result<Unit> validate(
@@ -52,11 +52,35 @@ public class ManualApprovalStrategy implements ApprovalStrategy {
     }
 
     @Override
-    public Result<Unit> approve(TradeLoanFacility facility, TradeLoanArrangement arrangement, ConfirmType confirmType) {
-        return fetchSanctionDetailsPort
-                .fetchBySanctionSerial(facility.getId().value().toString())
-                .flatMap(this::buildSanctionedLoanBuilder)
+    public Result<Unit> approve(
+            ApproveFacilityCommand command,
+            TradeLoanFacility facility,
+            TradeLoanArrangement arrangement,
+            ConfirmType confirmType) {
+        // SanctionDetails is no longer fetched here — it was resolved tx-free by PrepareFacilityApprovalQuery (no
+        // pooled connection held across the FCB read, LN-59412) and threaded onto the command. The command handler
+        // guarantees command.sanctionDetails() is non-null on the manual path before dispatch.
+        SanctionDetails details = reconstructSanctionDetails(command.sanctionDetails());
+        return buildSanctionedLoanBuilder(details)
                 .flatMap(builder -> domainService.approve(facility, builder, false, null));
+    }
+
+    private SanctionDetails reconstructSanctionDetails(SanctionDetailsDto dto) {
+        CurrencyType currency = CurrencyType.valueOf(dto.currencyCode()).unwrap();
+        ConfirmType confirmType = ConfirmType.of(dto.confirmTypePersonCode()).unwrap();
+        return new SanctionDetails(
+                dto.sanctionSerialValue(),
+                dto.sanctionType(),
+                dto.approvedAmount(),
+                currency,
+                dto.gracePeriod(),
+                dto.installmentCount(),
+                dto.loanDuration(),
+                dto.disbursementMethod(),
+                dto.lifeInsuranceId(),
+                dto.collateralSerial(),
+                dto.revocationReason(),
+                confirmType);
     }
 
     private Result<TradeSanctionedLoan.Builder> buildSanctionedLoanBuilder(SanctionDetails details) {

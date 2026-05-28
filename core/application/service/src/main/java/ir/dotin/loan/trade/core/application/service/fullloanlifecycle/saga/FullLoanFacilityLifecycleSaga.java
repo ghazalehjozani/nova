@@ -16,6 +16,7 @@ import ir.dotin.platform.pangaea.commons.core.exception.FailureCauseException;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.dispatcher.api.command.Command;
 import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
+import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.QueryDispatcher;
 import ir.dotin.platform.pangaea.dispatcher.api.execution.ExecutionResult;
 import ir.dotin.platform.pangaea.saga.api.annotation.SagaHandler;
 import ir.dotin.platform.pangaea.saga.api.context.SagaContext;
@@ -44,6 +45,8 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.IssueFacilityC
 import ir.dotin.loan.trade.core.application.ports.inbound.command.LumpSumDisbursementCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.SubmitFacilityForApprovalCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.query.FacilityOriginationPreflightResult;
+import ir.dotin.loan.trade.core.application.ports.inbound.query.PrepareFacilityOriginationQuery;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanTypeRepository;
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
@@ -65,6 +68,7 @@ import static java.util.Objects.requireNonNull;
 public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFacilityLifecycleSagaData> {
 
     private final CommandDispatcher dispatcher;
+    private final QueryDispatcher queryDispatcher;
     private final TradeLoanTypeRepository loanTypeRepository;
     private final TradeLoanArrangementRepository arrangementRepository;
 
@@ -201,7 +205,16 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
         log.info("Originating facility for correlation: {}", data.correlationId());
 
         try {
-            ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(data.originationCommand());
+            // Tx-free pre-flight (FCB validation + customer-info load) before the transactional command, mirroring
+            // the REST path. A pre-flight failure surfaces as FailureCauseException and is caught below, exactly like
+            // a command failure.
+            FacilityOriginationPreflightResult preflight =
+                    queryDispatcher.dispatch(new PrepareFacilityOriginationQuery(data.originationCommand()));
+            OriginateLoanFacilityCommand preparedCommand = data.originationCommand().toBuilder()
+                    .resolvedParties(preflight.parties())
+                    .build();
+
+            ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(preparedCommand);
 
             return switch (result) {
                 case ExecutionResult.Fresh<List<DomainEvent<?>>> fresh -> {

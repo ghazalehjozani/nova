@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
+import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.QueryDispatcher;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
 import ir.dotin.platform.pangaea.protocol.rest.controller.CommandResponseFactory;
 import ir.dotin.platform.pangaea.security.api.AuthenticationContextHolder;
@@ -20,6 +21,8 @@ import ir.dotin.loan.trade.adapters.driving.contract.mapper.OriginateLoanFacilit
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateOriginationCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.query.FacilityOriginationPreflightResult;
+import ir.dotin.loan.trade.core.application.ports.inbound.query.PrepareFacilityOriginationQuery;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -33,6 +36,7 @@ import lombok.RequiredArgsConstructor;
 class OpenFacilityCaseController extends BaseController {
 
     private final CommandDispatcher dispatcher;
+    private final QueryDispatcher queryDispatcher;
     private final OriginateLoanFacilityRequestMapper mapper;
     private final AuthenticationContextHolder authenticationContextHolder;
     private final CommandResponseFactory responseFactory;
@@ -52,7 +56,16 @@ class OpenFacilityCaseController extends BaseController {
                         .branch(new OriginateLoanFacilityCommand.BranchDto(branchCode))
                         .build())
                 .build();
-        var result = dispatcher.dispatch(enrichedCommand);
+
+        // Tx-free pre-flight: FCB validation + customer-info load with no pooled connection held. A validation
+        // failure throws FailureCauseException, which the platform advice maps to HTTP — do not catch it.
+        FacilityOriginationPreflightResult preflight =
+                queryDispatcher.dispatch(new PrepareFacilityOriginationQuery(enrichedCommand));
+
+        OriginateLoanFacilityCommand preparedCommand =
+                enrichedCommand.toBuilder().resolvedParties(preflight.parties()).build();
+
+        var result = dispatcher.dispatch(preparedCommand);
         return responseFactory.created(result, "loan-facilities");
     }
 

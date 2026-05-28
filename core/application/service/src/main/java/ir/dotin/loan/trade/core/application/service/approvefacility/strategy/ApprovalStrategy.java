@@ -11,5 +11,14 @@ public interface ApprovalStrategy {
 
     Result<Unit> validate(ApproveFacilityCommand command, TradeLoanFacility facility, TradeLoanArrangement arrangement);
 
-    Result<Unit> approve(TradeLoanFacility facility, TradeLoanArrangement arrangement, ConfirmType confirmType);
+    /**
+     * Approves the facility. The {@code command} is passed so the manual strategy can read the FCB-resolved
+     * {@code sanctionDetails} threaded onto it by the pre-flight ({@code PrepareFacilityApprovalQuery}) instead of
+     * re-issuing an FCB read. The auto strategy ignores it.
+     */
+    Result<Unit> approve(
+            ApproveFacilityCommand command,
+            TradeLoanFacility facility,
+            TradeLoanArrangement arrangement,
+            ConfirmType confirmType);
 }
