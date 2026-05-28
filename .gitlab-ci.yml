@@ -1,4 +1,25 @@
 ---
+# =============================================================================
+# trade-loan (nova) CI/CD
+# -----------------------------------------------------------------------------
+# The full pipeline (lint -> build -> containerize -> publish -> deploy) lives in
+# the shared platform/ci-templates `service.gitlab-ci.yml`.
+# Pipeline triggers (from the shared base):
+#   - merge request          -> lint + build + containerize-validate (no push)
+#   - push to develop         -> build + image publish + snapshot publish + SSH
+#                                deploy ("deploy on push to develop" — the dev
+#                                server is always updated to the latest develop
+#                                build; image tag = commit short SHA)
+#   - tag v<MAJOR>.<MINOR>.<PATCH> -> build + image publish + deploy
+#                                (Maven release publish is disabled below)
+#
+# Deploy requires these CI/CD variables (set at project/group level, NOT here):
+#   PROJECT_NAME / DOCKER_IMAGE_NAME   - ops-deployments key + image short name
+#   HEALTH_CHECK_URL                   - post-deploy readiness URL
+#   NEXUS_* / DEPLOY_NEXUS_*            - Nexus Maven + Docker creds
+#   OPS_DEPLOYMENTS_RO_TOKEN           - read_api on platform/ops-deployments
+#   DEPLOY_SSH_* / DEPLOY_PATH         - SSH deploy target on the dev server
+# =============================================================================
 
 include:
   - project: 'platform/ci-templates'
