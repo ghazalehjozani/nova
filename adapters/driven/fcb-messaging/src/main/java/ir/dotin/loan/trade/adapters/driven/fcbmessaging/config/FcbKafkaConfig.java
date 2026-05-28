@@ -149,7 +149,10 @@ public class FcbKafkaConfig {
      */
     private static int resolvePartitionCount(
             ConsumerFactory<String, byte[]> consumerFactory, String replyTopic, int configuredCount) {
-        try (Consumer<String, byte[]> consumer = consumerFactory.createConsumer()) {
+        // A group id is required because the consumer factory sets enable.auto.commit=true (group id is otherwise
+        // supplied per-container, not on the factory). partitionsFor is metadata-only — nothing is consumed/committed.
+        try (Consumer<String, byte[]> consumer =
+                consumerFactory.createConsumer("nova-fcb-reply-partition-metadata", "-partmeta")) {
             List<PartitionInfo> infos = consumer.partitionsFor(replyTopic);
             if (infos == null || infos.isEmpty()) {
                 LOG.warn(
