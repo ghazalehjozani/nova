@@ -42,20 +42,6 @@
             <artifactId>jakarta.jms-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>ir.dotin.platform.pangaea</groupId>
-            <artifactId>spring-boot-starter-asyncapi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.github.springwolf</groupId>
-            <artifactId>springwolf-jms</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.github.springwolf</groupId>
-            <artifactId>springwolf-ui</artifactId>
-        </dependency>
-
         <!-- pooled-jms now provided by platform starter -->
 
         <dependency>

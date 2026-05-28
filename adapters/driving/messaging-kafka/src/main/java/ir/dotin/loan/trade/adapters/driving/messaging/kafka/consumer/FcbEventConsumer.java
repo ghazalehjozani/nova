@@ -11,13 +11,10 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.pangaea.inbox.core.InboundEventIngestor;
-import ir.dotin.platform.pangaea.messaging.api.header.MessagingHeaderNames;
 import ir.dotin.platform.pangaea.messaging.api.inbound.InboundMessage;
 import ir.dotin.platform.pangaea.messaging.kafka.converter.KafkaInboundMessageConverter;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.FcbEventOperationType;
 
-import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
-import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 import io.micrometer.tracing.Span;
 import io.micrometer.tracing.Tracer;
 import tools.jackson.databind.JsonNode;
@@ -53,15 +50,6 @@ public class FcbEventConsumer {
         this.tracer = tracer;
     }
 
-    @AsyncListener(
-            operation =
-                    @AsyncOperation(
-                            channelName = "corridor.core.loan.nova.installment-operation.request.queue.v1",
-                            description = "Process FCB Events (Kafka).",
-                            servers = "kafka",
-                            headers =
-                                    @AsyncOperation.Headers(
-                                            schemaName = MessagingHeaderNames.SCHEMA_EVENT_HANDLER_HEADERS)))
     @KafkaListener(
             topics = "corridor.core.loan.nova.installment-operation.request.queue.v1",
             groupId = "${platform.messaging.kafka.consumer-group-id}",

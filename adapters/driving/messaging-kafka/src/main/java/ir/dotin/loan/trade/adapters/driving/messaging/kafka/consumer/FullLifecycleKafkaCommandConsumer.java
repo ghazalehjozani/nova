@@ -21,8 +21,6 @@ import ir.dotin.loan.trade.adapters.driving.contract.dto.FullLoanFacilityLifecyc
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.FullLoanFacilityLifecycleMessageMapper;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLoanFacilityLifecycleCommand;
 
-import io.github.springwolf.core.asyncapi.annotations.AsyncListener;
-import io.github.springwolf.core.asyncapi.annotations.AsyncOperation;
 import lombok.RequiredArgsConstructor;
 import tools.jackson.databind.ObjectMapper;
 
@@ -39,16 +37,6 @@ public class FullLifecycleKafkaCommandConsumer {
     private final KafkaInboundMessageConverter converter;
     private final ResponsePublisher kafkaResponsePublisher;
 
-    @AsyncListener(
-            operation =
-                    @AsyncOperation(
-                            channelName = "corridor.core.loan.nova.full-lifecycle.request.queue.v1",
-                            description =
-                                    "Process nova loan full lifecycle commands (Kafka, flow-driven, request/reply).",
-                            servers = "kafka",
-                            headers =
-                                    @AsyncOperation.Headers(
-                                            schemaName = MessagingHeaderNames.SCHEMA_FLOW_COMMAND_HEADERS)))
     @KafkaListener(
             topics = "corridor.core.loan.nova.full-lifecycle.request.queue.v1",
             groupId = "${platform.messaging.kafka.consumer-group-id}",

@@ -115,6 +115,18 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.LoanTypeQueryControll
   BorderColor #567d2e
   shadowing false
 }
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.PrepareFacilityApprovalQueryHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.PrepareFacilityOriginationQueryHandler>> {
+  BackgroundColor #42a5f5
+  FontColor #ffffff
+  BorderColor #2e73ab
+  shadowing false
+}
 skinparam rectangle<<TradeLoanService.TradeLoanApplication.SearchLoanFacilitiesQueryHandler>> {
   BackgroundColor #42a5f5
   FontColor #ffffff
@@ -138,14 +150,16 @@ rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]<
   rectangle "==FindAllLoanTypesQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles find all loan types queries" <<TradeLoanService.TradeLoanApplication.FindAllLoanTypesQueryHandler>> as TradeLoanService.TradeLoanApplication.FindAllLoanTypesQueryHandler
   rectangle "==GetLoanTypeByIdQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles get loan type by id queries" <<TradeLoanService.TradeLoanApplication.GetLoanTypeByIdQueryHandler>> as TradeLoanService.TradeLoanApplication.GetLoanTypeByIdQueryHandler
   rectangle "==LoanTypeFilterQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles loan type filter queries" <<TradeLoanService.TradeLoanApplication.LoanTypeFilterQueryHandler>> as TradeLoanService.TradeLoanApplication.LoanTypeFilterQueryHandler
+  rectangle "==PrepareFacilityApprovalQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles prepare facility approval queries" <<TradeLoanService.TradeLoanApplication.PrepareFacilityApprovalQueryHandler>> as TradeLoanService.TradeLoanApplication.PrepareFacilityApprovalQueryHandler
+  rectangle "==PrepareFacilityOriginationQueryHandler\n<size:10>[Component: Query Handler]</size>\n\nHandles prepare facility origination queries" <<TradeLoanService.TradeLoanApplication.PrepareFacilityOriginationQueryHandler>> as TradeLoanService.TradeLoanApplication.PrepareFacilityOriginationQueryHandler
   database "==JpaTradeInstallmentScheduleQueryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nTradeInstallmentSchedule query adapter" <<TradeLoanService.TradeLoanApplication.JpaTradeInstallmentScheduleQueryAdapter>> as TradeLoanService.TradeLoanApplication.JpaTradeInstallmentScheduleQueryAdapter
   database "==JpaTradeLoanArrangementQueryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nTradeLoanArrangement query adapter" <<TradeLoanService.TradeLoanApplication.JpaTradeLoanArrangementQueryAdapter>> as TradeLoanService.TradeLoanApplication.JpaTradeLoanArrangementQueryAdapter
   database "==JpaFacilityQueryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nFacility query adapter" <<TradeLoanService.TradeLoanApplication.JpaFacilityQueryAdapter>> as TradeLoanService.TradeLoanApplication.JpaFacilityQueryAdapter
   database "==JpaTradeLoanTypeQueryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nTradeLoanType query adapter" <<TradeLoanService.TradeLoanApplication.JpaTradeLoanTypeQueryAdapter>> as TradeLoanService.TradeLoanApplication.JpaTradeLoanTypeQueryAdapter
-  rectangle "==InstallmentScheduleQueryController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/installment-schedules" <<TradeLoanService.TradeLoanApplication.InstallmentScheduleQueryController>> as TradeLoanService.TradeLoanApplication.InstallmentScheduleQueryController
-  rectangle "==LoanArrangementQueryController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/loan-arrangements" <<TradeLoanService.TradeLoanApplication.LoanArrangementQueryController>> as TradeLoanService.TradeLoanApplication.LoanArrangementQueryController
-  rectangle "==FacilityQueryController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/loan-facilities" <<TradeLoanService.TradeLoanApplication.FacilityQueryController>> as TradeLoanService.TradeLoanApplication.FacilityQueryController
-  rectangle "==LoanTypeQueryController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/loan-types" <<TradeLoanService.TradeLoanApplication.LoanTypeQueryController>> as TradeLoanService.TradeLoanApplication.LoanTypeQueryController
+  rectangle "==InstallmentScheduleQueryController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /v{version}/installment-schedules" <<TradeLoanService.TradeLoanApplication.InstallmentScheduleQueryController>> as TradeLoanService.TradeLoanApplication.InstallmentScheduleQueryController
+  rectangle "==LoanArrangementQueryController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /v{version}/loan-arrangements" <<TradeLoanService.TradeLoanApplication.LoanArrangementQueryController>> as TradeLoanService.TradeLoanApplication.LoanArrangementQueryController
+  rectangle "==FacilityQueryController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /v{version}/loan-facilities" <<TradeLoanService.TradeLoanApplication.FacilityQueryController>> as TradeLoanService.TradeLoanApplication.FacilityQueryController
+  rectangle "==LoanTypeQueryController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /v{version}/loan-types" <<TradeLoanService.TradeLoanApplication.LoanTypeQueryController>> as TradeLoanService.TradeLoanApplication.LoanTypeQueryController
 }
 
 @enduml

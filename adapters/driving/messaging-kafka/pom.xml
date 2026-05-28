@@ -41,20 +41,6 @@
             <artifactId>trade-loan-adapters-driving-contract</artifactId>
         </dependency>
 
-        <!-- AsyncAPI documentation -->
-        <dependency>
-            <groupId>ir.dotin.platform.pangaea</groupId>
-            <artifactId>spring-boot-starter-asyncapi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.github.springwolf</groupId>
-            <artifactId>springwolf-kafka</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.github.springwolf</groupId>
-            <artifactId>springwolf-ui</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>net.time4j</groupId>
             <artifactId>time4j-base</artifactId>

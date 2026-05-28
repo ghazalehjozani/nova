@@ -20,24 +20,24 @@ workspace "Trade Loan Service" {
         trade_loan_service = softwareSystem "Trade Loan Service" "Morabehe loans with CQRS and Event Sourcing" {
             trade_loan_application = container "Trade Loan Application" "Spring Boot Hexagonal Architecture" "Java 25, Spring Boot 4" {
                 devauthcallbackcontroller = component "DevAuthCallbackController" "REST API: /api/{version}/dev/auth" "Spring REST Controller"
-                addfacilitycollateralcontroller = component "AddFacilityCollateralController" "REST API: /api/{version}/facilities/{facilityId}/collaterals" "Spring REST Controller"
-                approvefacilitycontroller = component "ApproveFacilityController" "REST API: /api/{version}/facilities/{facilityId}/approve" "Spring REST Controller"
-                closefacilitydefaultedcontroller = component "CloseFacilityDefaultedController" "REST API: /api/{version}/facilities/{facilityId}/close-defaulted" "Spring REST Controller"
-                closefacilitypaidoffcontroller = component "CloseFacilityPaidOffController" "REST API: /api/{version}/facilities/{facilityId}/close-paid-off" "Spring REST Controller"
-                defineloanarrangementcontroller = component "DefineLoanArrangementController" "REST API: /api/{version}/loan-arrangements/define" "Spring REST Controller"
-                defineloantypecontroller = component "DefineLoanTypeController" "REST API: /api/{version}/loan-types/define" "Spring REST Controller"
-                fullloanfacilitylifecyclecontroller = component "FullLoanFacilityLifecycleController" "REST API: /api/{version}/facilities/full-lifecycle" "Spring REST Controller"
-                irregularprogressivedisbursementcontroller = component "IrregularProgressiveDisbursementController" "REST API: /api/{version}/facilities/{facilityId}/disburse/progressive-irregular" "Spring REST Controller"
-                issuefacilitycontractcontroller = component "IssueFacilityContractController" "REST API: /api/{version}/facilities/{facilityId}/issue-contract" "Spring REST Controller"
-                lumpsumdisbursementcontroller = component "LumpSumDisbursementController" "REST API: /api/{version}/facilities/{facilityId}/disburse/lump-sum" "Spring REST Controller"
-                openfacilitycasecontroller = component "OpenFacilityCaseController" "REST API: /api/{version}/facilities/open-case" "Spring REST Controller"
+                addfacilitycollateralcontroller = component "AddFacilityCollateralController" "REST API: /v{version}/loan-facilities/{facilityId}/collaterals" "Spring REST Controller"
+                approvefacilitycontroller = component "ApproveFacilityController" "REST API: /v{version}/loan-facilities/{facilityId}/approve" "Spring REST Controller"
+                closefacilitydefaultedcontroller = component "CloseFacilityDefaultedController" "REST API: /v{version}/loan-facilities/{facilityId}/close-defaulted" "Spring REST Controller"
+                closefacilitypaidoffcontroller = component "CloseFacilityPaidOffController" "REST API: /v{version}/loan-facilities/{facilityId}/close-paid-off" "Spring REST Controller"
+                defineloanarrangementcontroller = component "DefineLoanArrangementController" "REST API: /v{version}/loan-arrangements" "Spring REST Controller"
+                defineloantypecontroller = component "DefineLoanTypeController" "REST API: /v{version}/loan-types" "Spring REST Controller"
+                fullloanfacilitylifecyclecontroller = component "FullLoanFacilityLifecycleController" "REST API: /v{version}/loan-facilities/{facilityId}/full-lifecycle" "Spring REST Controller"
+                irregularprogressivedisbursementcontroller = component "IrregularProgressiveDisbursementController" "REST API: /v{version}/loan-facilities/{facilityId}/disburse/progressive-irregular" "Spring REST Controller"
+                issuefacilitycontractcontroller = component "IssueFacilityContractController" "REST API: /v{version}/loan-facilities/{facilityId}/issue-contract" "Spring REST Controller"
+                lumpsumdisbursementcontroller = component "LumpSumDisbursementController" "REST API: /v{version}/loan-facilities/{facilityId}/disburse/lump-sum" "Spring REST Controller"
+                openfacilitycasecontroller = component "OpenFacilityCaseController" "REST API: /v{version}/loan-facilities" "Spring REST Controller"
                 regulardisbursementcontroller = component "RegularDisbursementController" "REST API: /api/{version}/facilities/{facilityId}/disburse/regular" "Spring REST Controller"
-                rejectfacilitycontroller = component "RejectFacilityController" "REST API: /api/{version}/facilities/{facilityId}/reject" "Spring REST Controller"
-                submitfacilityforapprovalcontroller = component "SubmitFacilityForApprovalController" "REST API: /api/{version}/facilities/{facilityId}/submit-for-approval" "Spring REST Controller"
-                installmentschedulequerycontroller = component "InstallmentScheduleQueryController" "REST API: /api/{version}/installment-schedules" "Spring REST Controller"
-                loanarrangementquerycontroller = component "LoanArrangementQueryController" "REST API: /api/{version}/loan-arrangements" "Spring REST Controller"
-                facilityquerycontroller = component "FacilityQueryController" "REST API: /api/{version}/loan-facilities" "Spring REST Controller"
-                loantypequerycontroller = component "LoanTypeQueryController" "REST API: /api/{version}/loan-types" "Spring REST Controller"
+                rejectfacilitycontroller = component "RejectFacilityController" "REST API: /v{version}/loan-facilities/{facilityId}/reject" "Spring REST Controller"
+                submitfacilityforapprovalcontroller = component "SubmitFacilityForApprovalController" "REST API: /v{version}/loan-facilities/{facilityId}/submit-for-approval" "Spring REST Controller"
+                installmentschedulequerycontroller = component "InstallmentScheduleQueryController" "REST API: /v{version}/installment-schedules" "Spring REST Controller"
+                loanarrangementquerycontroller = component "LoanArrangementQueryController" "REST API: /v{version}/loan-arrangements" "Spring REST Controller"
+                facilityquerycontroller = component "FacilityQueryController" "REST API: /v{version}/loan-facilities" "Spring REST Controller"
+                loantypequerycontroller = component "LoanTypeQueryController" "REST API: /v{version}/loan-types" "Spring REST Controller"
                 fcbeventconsumer = component "FcbEventConsumer" "Kafka consumer" "Spring Kafka Listener"
                 fulllifecyclekafkacommandconsumer = component "FullLifecycleKafkaCommandConsumer" "Kafka consumer" "Spring Kafka Listener"
                 addfacilitycollateralcommandhandler = component "AddFacilityCollateralCommandHandler" "Handles add facility collateral" "Command Handler"
@@ -79,6 +79,8 @@ workspace "Trade Loan Service" {
                 findallloantypesqueryhandler = component "FindAllLoanTypesQueryHandler" "Handles find all loan types queries" "Query Handler"
                 getloantypebyidqueryhandler = component "GetLoanTypeByIdQueryHandler" "Handles get loan type by id queries" "Query Handler"
                 loantypefilterqueryhandler = component "LoanTypeFilterQueryHandler" "Handles loan type filter queries" "Query Handler"
+                preparefacilityapprovalqueryhandler = component "PrepareFacilityApprovalQueryHandler" "Handles prepare facility approval queries" "Query Handler"
+                preparefacilityoriginationqueryhandler = component "PrepareFacilityOriginationQueryHandler" "Handles prepare facility origination queries" "Query Handler"
                 addfacilitycollateralsaga = component "AddFacilityCollateralSaga" "Orchestrates add facility collateral" "Saga Orchestrator"
                 fullloanfacilitylifecyclesaga = component "FullLoanFacilityLifecycleSaga" "Orchestrates full loan facility lifecycle" "Saga Orchestrator"
                 issuefacilitycontractsaga = component "IssueFacilityContractSaga" "Orchestrates issue facility contract" "Saga Orchestrator"
@@ -243,6 +245,16 @@ workspace "Trade Loan Service" {
         }
 
         styles {
+            element "Outbox" {
+                background #66bb6a
+                color #000000
+                shape Hexagon
+            }
+            element "Repository" {
+                background #5c6bc0
+                color #ffffff
+                shape Cylinder
+            }
             element "Compensation" {
                 background #ef5350
                 color #ffffff
@@ -329,16 +341,6 @@ workspace "Trade Loan Service" {
             }
             element "Admin" {
                 background #5c3d6e
-            }
-            element "Outbox" {
-                background #66bb6a
-                color #000000
-                shape Hexagon
-            }
-            element "Repository" {
-                background #5c6bc0
-                color #ffffff
-                shape Cylinder
             }
         }
     }

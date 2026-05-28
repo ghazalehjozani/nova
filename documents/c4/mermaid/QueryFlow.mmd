@@ -27,21 +27,25 @@ graph LR
       style 108 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
       109["<div style='font-weight: bold'>LoanTypeFilterQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles loan type filter<br />queries</div>"]
       style 109 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      128[("<div style='font-weight: bold'>JpaTradeInstallmentScheduleQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeInstallmentSchedule<br />query adapter</div>")]
-      style 128 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      129[("<div style='font-weight: bold'>JpaTradeLoanArrangementQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanArrangement query<br />adapter</div>")]
-      style 129 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      130[("<div style='font-weight: bold'>JpaFacilityQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>Facility query adapter</div>")]
+      110["<div style='font-weight: bold'>PrepareFacilityApprovalQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles prepare facility<br />approval queries</div>"]
+      style 110 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      111["<div style='font-weight: bold'>PrepareFacilityOriginationQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles prepare facility<br />origination queries</div>"]
+      style 111 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      130[("<div style='font-weight: bold'>JpaTradeInstallmentScheduleQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeInstallmentSchedule<br />query adapter</div>")]
       style 130 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      131[("<div style='font-weight: bold'>JpaTradeLoanTypeQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanType query adapter</div>")]
+      131[("<div style='font-weight: bold'>JpaTradeLoanArrangementQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanArrangement query<br />adapter</div>")]
       style 131 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      65["<div style='font-weight: bold'>InstallmentScheduleQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/api/{version}/installment-schedules</div>"]
+      132[("<div style='font-weight: bold'>JpaFacilityQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>Facility query adapter</div>")]
+      style 132 fill:#5c6bc0,stroke:#404a86,color:#ffffff
+      133[("<div style='font-weight: bold'>JpaTradeLoanTypeQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanType query adapter</div>")]
+      style 133 fill:#5c6bc0,stroke:#404a86,color:#ffffff
+      65["<div style='font-weight: bold'>InstallmentScheduleQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/installment-schedules</div>"]
       style 65 fill:#7cb342,stroke:#567d2e,color:#ffffff
-      66["<div style='font-weight: bold'>LoanArrangementQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/api/{version}/loan-arrangements</div>"]
+      66["<div style='font-weight: bold'>LoanArrangementQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/loan-arrangements</div>"]
       style 66 fill:#7cb342,stroke:#567d2e,color:#ffffff
-      67["<div style='font-weight: bold'>FacilityQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/api/{version}/loan-facilities</div>"]
+      67["<div style='font-weight: bold'>FacilityQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/loan-facilities</div>"]
       style 67 fill:#7cb342,stroke:#567d2e,color:#ffffff
-      68["<div style='font-weight: bold'>LoanTypeQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/api/{version}/loan-types</div>"]
+      68["<div style='font-weight: bold'>LoanTypeQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/loan-types</div>"]
       style 68 fill:#7cb342,stroke:#567d2e,color:#ffffff
     end
 

@@ -272,9 +272,7 @@ platform:
         - /actuator/health/readiness
         - /actuator/info
         - /swagger-ui/**
-        - /springwolf/asyncapi-ui.html
-        - /springwolf/**
-        - /springwolf/docs.yaml
+        - /asyncapi.yaml
         - /v3/api-docs/**
         - /v3/api-docs
         - /api/v1/dev/auth/callback
@@ -375,9 +373,6 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
-
-springwolf:
-  enabled: false
 
 e2e:
   auth:
