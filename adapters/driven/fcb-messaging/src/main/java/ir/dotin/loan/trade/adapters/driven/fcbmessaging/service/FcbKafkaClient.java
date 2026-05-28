@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -93,6 +94,15 @@ public class FcbKafkaClient {
     private final Tracer tracer;
     private final int replyPartition;
 
+    /**
+     * Drain state for graceful scale-down / lost-lease handling. Once {@code draining} is set, new
+     * {@code sendAndReceive} calls fast-fail and {@link #awaitDrain(Duration)} blocks until the {@code inFlight} count
+     * of outstanding request/reply calls reaches zero. Driven by {@code FcbReplyDrainCoordinator}.
+     */
+    private volatile boolean draining = false;
+
+    private final AtomicInteger inFlight = new AtomicInteger();
+
     public FcbKafkaClient(
             @Qualifier(FcbKafkaConfig.FCB_INTEGRATION_REPLYING_TEMPLATE)
                     ReplyingKafkaTemplate<String, byte[], byte[]> replyingKafkaTemplate,
@@ -126,6 +136,49 @@ public class FcbKafkaClient {
     }
 
     public Result<FcbKafkaBaseResponse> sendAndReceive(FcbKafkaBaseRequest request, Duration timeout) {
+        if (draining) {
+            return Result.failure(
+                    CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, "instance is draining its FCB reply partition");
+        }
+        inFlight.incrementAndGet();
+        try {
+            return doSendAndReceive(request, timeout);
+        } finally {
+            inFlight.decrementAndGet();
+        }
+    }
+
+    /** Marks this client draining: subsequent {@link #sendAndReceive} calls fast-fail. Idempotent. */
+    public void beginDrain() {
+        draining = true;
+    }
+
+    /** Number of request/reply calls currently in flight. */
+    public int inFlightCount() {
+        return inFlight.get();
+    }
+
+    /**
+     * Blocks until no request/reply calls are in flight or {@code timeout} elapses. Returns {@code true} if fully
+     * drained. Call {@link #beginDrain()} first so no new calls start while draining.
+     */
+    public boolean awaitDrain(Duration timeout) {
+        long deadline = System.nanoTime() + timeout.toNanos();
+        while (inFlight.get() > 0) {
+            if (System.nanoTime() >= deadline) {
+                return false;
+            }
+            try {
+                Thread.sleep(50L);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return inFlight.get() == 0;
+            }
+        }
+        return true;
+    }
+
+    private Result<FcbKafkaBaseResponse> doSendAndReceive(FcbKafkaBaseRequest request, Duration timeout) {
         request.setProducerCode(PRODUCER_CODE);
         // eventUid is generated ONCE here and reused as request key + eventUid header + Idempotency-Key on every retry
         // attempt, so retries are idempotent on the FCB side. Do not move this into the retry body.

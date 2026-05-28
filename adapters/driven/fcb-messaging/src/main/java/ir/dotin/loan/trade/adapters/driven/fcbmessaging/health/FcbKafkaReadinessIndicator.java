@@ -14,16 +14,26 @@ public class FcbKafkaReadinessIndicator implements HealthIndicator {
 
     private final ReplyingKafkaTemplate<String, byte[], byte[]> template;
     private final FcbPartitionHealthRegistry partitionRegistry;
+    private final FcbReplyLeaseState leaseState;
 
     public FcbKafkaReadinessIndicator(
             @Qualifier("fcbHealthReplyingKafkaTemplate") ReplyingKafkaTemplate<String, byte[], byte[]> template,
-            FcbPartitionHealthRegistry partitionRegistry) {
+            FcbPartitionHealthRegistry partitionRegistry,
+            FcbReplyLeaseState leaseState) {
         this.template = template;
         this.partitionRegistry = partitionRegistry;
+        this.leaseState = leaseState;
     }
 
     @Override
     public Health health() {
+        if (leaseState.isDegraded()) {
+            // Shedding the reply partition (graceful shutdown or lost lease) — report DOWN so the orchestrator drains
+            // traffic away before the reply consumer stops.
+            return Health.down()
+                    .withDetail("reason", "FCB reply partition lease shedding: " + leaseState.reason())
+                    .build();
+        }
         try {
             var assignedPartitions = template.getAssignedReplyTopicPartitions();
             boolean hasAssignment = assignedPartitions != null && !assignedPartitions.isEmpty();

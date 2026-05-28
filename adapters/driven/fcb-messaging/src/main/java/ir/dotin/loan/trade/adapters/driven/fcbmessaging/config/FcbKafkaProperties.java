@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.validation.annotation.Validated;
 
 import lombok.Data;
@@ -80,4 +81,43 @@ public class FcbKafkaProperties {
      */
     @Min(0)
     private int expectedMaxInstances = 0;
+
+    /** Consul session-backed reply-partition leasing (replaces pod-ordinal derivation). */
+    @NestedConfigurationProperty
+    private final Lease lease = new Lease();
+
+    /**
+     * Tuning for Consul session-backed reply-partition leasing. Each instance acquires a session-bound lock on one
+     * partition index under {@link #kvPrefix}; the session is renewed on a background thread and the lock auto-releases
+     * when the session TTL expires (crash) or is explicitly released (graceful shutdown). Keys live OUTSIDE the
+     * git2consul-managed config tree so the sync never prunes them.
+     */
+    @Data
+    public static class Lease {
+
+        /** When false, fall back to the static (instance-id-derived) assigner. */
+        private boolean enabled = true;
+
+        /** KV prefix for the per-partition lock keys; lock key is {@code <kvPrefix>/<partitionIndex>}. */
+        @NotBlank
+        private String kvPrefix = "locks/core/loan/nova/reply-partition";
+
+        /** Consul session TTL. The lock auto-releases this long after a crash. Consul requires &gt;= 10s. */
+        private Duration sessionTtl = Duration.ofSeconds(15);
+
+        /** How often to renew the session; should be well under {@link #sessionTtl} (≈ TTL/2). */
+        private Duration renewInterval = Duration.ofSeconds(7);
+
+        /**
+         * Consul {@code LockDelay}: refuse re-acquire for this long after a session-invalidation release (split-brain
+         * guard).
+         */
+        private Duration lockDelay = Duration.ofSeconds(15);
+
+        /** Upper bound on how long startup waits to acquire a free partition before failing fast. */
+        private Duration acquireTimeout = Duration.ofSeconds(20);
+
+        /** How long graceful drain waits for in-flight request/reply calls before stopping the consumer. */
+        private Duration drainTimeout = Duration.ofSeconds(65);
+    }
 }

@@ -72,9 +72,11 @@ public class PrepareFacilityOriginationQueryHandler
             throw new FailureCauseException(appNumberResult.err().orElseThrow());
         }
 
-        List<ResolvedPartyDto> parties = partyInfos.stream().map(this::toResolvedParty).toList();
+        List<ResolvedPartyDto> parties =
+                partyInfos.stream().map(this::toResolvedParty).toList();
 
-        return new FacilityOriginationPreflightResult(parties, appNumberResult.unwrap().derivedValue());
+        return new FacilityOriginationPreflightResult(
+                parties, appNumberResult.unwrap().derivedValue());
     }
 
     private ResolvedPartyDto toResolvedParty(PartyInfoResponse info) {

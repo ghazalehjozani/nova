@@ -1,11 +1,14 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.config;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.CooperativeStickyAssignor;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -13,6 +16,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -105,12 +109,68 @@ public class FcbKafkaConfig {
         return new DefaultKafkaConsumerFactory<>(configs);
     }
 
+    /**
+     * Fallback assigner for test slices / Consul-less contexts. In real deployments
+     * {@code ConsulLeaseReplyPartitionAssigner} (container module, {@code @Primary}) wins, so this conditional bean is
+     * absent.
+     */
+    @Bean
+    @ConditionalOnMissingBean(FcbReplyPartitionAssigner.class)
+    public FcbReplyPartitionAssigner staticFcbReplyPartitionAssigner(MessagingProperties messagingProperties) {
+        return new StaticFcbReplyPartitionAssigner(
+                messagingProperties.getKafka().getInstanceId());
+    }
+
+    /**
+     * Claims this instance's unique reply partition for its lifetime. The lease range is the broker's actual partition
+     * count for the reply topic (authoritative), falling back to {@code reply-topic-partitions} only if metadata is
+     * unavailable. The {@link ReplyPartitionLease} is also consumed by {@code FcbReplyDrainCoordinator} to release on
+     * shutdown / lost lease.
+     */
+    @Bean
+    public ReplyPartitionLease fcbIntegrationReplyPartitionLease(
+            FcbReplyPartitionAssigner assigner,
+            FcbKafkaProperties properties,
+            @Qualifier(FCB_REPLY_CONSUMER_FACTORY) ConsumerFactory<String, byte[]> fcbReplyConsumerFactory) {
+        int partitionCount = resolvePartitionCount(
+                fcbReplyConsumerFactory, properties.getReplyTopic(), properties.getReplyTopicPartitions());
+        warnIfPartitionsTooFewForExpectedInstances(partitionCount, properties.getExpectedMaxInstances());
+        return assigner.acquire(properties.getReplyTopic(), partitionCount);
+    }
+
     @Bean(FCB_INTEGRATION_REPLY_PARTITION)
-    public int fcbIntegrationReplyPartition(FcbKafkaProperties properties, MessagingProperties messagingProperties) {
-        warnIfPartitionsTooFewForExpectedInstances(
-                properties.getReplyTopicPartitions(), properties.getExpectedMaxInstances());
-        return FcbReplyPartitionResolver.resolve(
-                messagingProperties.getKafka().getInstanceId(), properties.getReplyTopicPartitions());
+    public int fcbIntegrationReplyPartition(ReplyPartitionLease fcbIntegrationReplyPartitionLease) {
+        return fcbIntegrationReplyPartitionLease.partition();
+    }
+
+    /**
+     * Authoritative partition count from broker metadata, so the lease scan range always matches the provisioned reply
+     * topic (avoiding drift between the {@code reply-topic-partitions} config default and the actual broker topic).
+     */
+    private static int resolvePartitionCount(
+            ConsumerFactory<String, byte[]> consumerFactory, String replyTopic, int configuredCount) {
+        try (Consumer<String, byte[]> consumer = consumerFactory.createConsumer()) {
+            List<PartitionInfo> infos = consumer.partitionsFor(replyTopic);
+            if (infos == null || infos.isEmpty()) {
+                LOG.warn(
+                        "FCB-REPLY-PARTITION: broker returned no partition metadata for reply topic '{}'; "
+                                + "falling back to configured reply-topic-partitions={}",
+                        replyTopic,
+                        configuredCount);
+                return configuredCount;
+            }
+            int brokerCount = infos.size();
+            if (brokerCount != configuredCount) {
+                LOG.warn(
+                        "FCB-REPLY-PARTITION: broker reply topic '{}' has {} partitions but configured "
+                                + "reply-topic-partitions={}; using broker value {} as the lease range",
+                        replyTopic,
+                        brokerCount,
+                        configuredCount,
+                        brokerCount);
+            }
+            return brokerCount;
+        }
     }
 
     /**

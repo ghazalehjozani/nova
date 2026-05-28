@@ -30,6 +30,7 @@ public interface OriginateLoanFacilityRequestMapper {
     @Mapping(target = "version", ignore = true)
     // System-populated post pre-flight (PrepareFacilityOriginationQuery); never sourced from the request.
     @Mapping(target = "resolvedParties", ignore = true)
+    @Mapping(target = "resolvedApplicationNumber", ignore = true)
     @Mapping(target = "loanApplication.branch", ignore = true)
     @Mapping(target = "loanApplication.currency", source = "loanApplication.currency")
     @Mapping(target = "loanApplication.requestedLoanDuration", source = "loanApplication.requestedLoanDurationMonths")
