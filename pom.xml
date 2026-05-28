@@ -7,7 +7,7 @@
     <parent>
         <groupId>ir.dotin.platform.pangaea</groupId>
         <artifactId>parent</artifactId>
-        <version>2026.5.32-SNAPSHOT</version>
+        <version>2026.5.33-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
