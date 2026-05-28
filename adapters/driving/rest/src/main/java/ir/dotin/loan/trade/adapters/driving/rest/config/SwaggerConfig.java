@@ -183,7 +183,7 @@ public class SwaggerConfig extends BaseSwaggerConfig {
         };
     }
 
-    /** Sets the externalDocs (AsyncAPI/springwolf link) on the v1 group spec, sourced from config. */
+    /** Sets the externalDocs (static AsyncAPI document link) on the v1 group spec, sourced from config. */
     private OpenApiCustomizer externalDocsCustomizer() {
         return openApi -> {
             RestAdapterProperties.Swagger swagger = restAdapterProperties.getSwagger();
