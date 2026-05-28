@@ -36,7 +36,15 @@ public record OriginateLoanFacilityCommand(
          * dispatched. The transactional command handler reconstructs PartyInfoResponse from this list instead of
          * re-calling FCB.
          */
-        @Nullable List<ResolvedPartyDto> resolvedParties)
+        @Nullable List<ResolvedPartyDto> resolvedParties,
+
+        /*
+         * System-populated post pre-flight: the FCB-resolved application-number derivedValue produced by
+         * PrepareFacilityOriginationQuery. Like resolvedParties it carries NO @NotNull / @Valid — null on the
+         * client-facing query-dispatch path, filled by the controller / saga before dispatch so the transactional
+         * command reconstructs the ApplicationNumber instead of making the connection-pinning FCB round-trip.
+         */
+        @Nullable String resolvedApplicationNumber)
         implements Command {
 
     @Builder(toBuilder = true)

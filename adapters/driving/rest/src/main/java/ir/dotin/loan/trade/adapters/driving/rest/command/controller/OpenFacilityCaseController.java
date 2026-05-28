@@ -62,8 +62,10 @@ class OpenFacilityCaseController extends BaseController {
         FacilityOriginationPreflightResult preflight =
                 queryDispatcher.dispatch(new PrepareFacilityOriginationQuery(enrichedCommand));
 
-        OriginateLoanFacilityCommand preparedCommand =
-                enrichedCommand.toBuilder().resolvedParties(preflight.parties()).build();
+        OriginateLoanFacilityCommand preparedCommand = enrichedCommand.toBuilder()
+                .resolvedParties(preflight.parties())
+                .resolvedApplicationNumber(preflight.resolvedApplicationNumber())
+                .build();
 
         var result = dispatcher.dispatch(preparedCommand);
         return responseFactory.created(result, "loan-facilities");

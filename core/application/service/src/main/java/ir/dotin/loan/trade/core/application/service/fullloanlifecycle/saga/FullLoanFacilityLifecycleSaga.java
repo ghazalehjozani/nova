@@ -212,6 +212,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
                     queryDispatcher.dispatch(new PrepareFacilityOriginationQuery(data.originationCommand()));
             OriginateLoanFacilityCommand preparedCommand = data.originationCommand().toBuilder()
                     .resolvedParties(preflight.parties())
+                    .resolvedApplicationNumber(preflight.resolvedApplicationNumber())
                     .build();
 
             ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(preparedCommand);

@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.core.application.service.originateloanfacility.component;
 
 import java.time.Clock;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,6 +17,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Samat;
+import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
@@ -24,7 +26,6 @@ import ir.dotin.loan.trade.core.application.ports.inbound.dto.SamatDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfoResponse;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.mapper.OriginateLoanFacilityApplicationMapper;
-import ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy.ApplicationNumberGenerationStrategy;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy.ApplicationNumberStrategySelector;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy.FacilityOriginationContext;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication;
@@ -92,10 +93,16 @@ public class FacilityBuilder {
         Set<Party> enrichedParties =
                 context.partyInfos().stream().map(PartyInfoResponse::party).collect(Collectors.toSet());
 
-        ApplicationNumberGenerationStrategy strategy = applicationNumberStrategySelector.selectStrategy();
-
-        Result<ApplicationNumber> appNumberResult =
-                strategy.generateApplicationNumber(branch, loanTypeCode, primaryApplicant);
+        // Application number is resolved tx-free in the pre-flight (PrepareFacilityOriginationQuery) and threaded in
+        // via resolvedApplicationNumber — reconstruct the VO here rather than re-calling FCB inside the transaction
+        // (RB-0002: an in-tx FCB round-trip pins the pooled Hikari connection). Fallback to the configured strategy
+        // only on the (non-pre-flight) path where it was not pre-resolved.
+        String resolvedDerivedValue = command.resolvedApplicationNumber();
+        Result<ApplicationNumber> appNumberResult = (resolvedDerivedValue != null)
+                ? ApplicationNumber.of(branch, loanTypeCode, primaryApplicant, resolvedDerivedValue)
+                : applicationNumberStrategySelector
+                        .selectStrategy()
+                        .generateApplicationNumber(branch, loanTypeCode, primaryApplicant);
 
         if (appNumberResult.isFailure()) {
             return Result.failure(appNumberResult.err().orElseThrow());
@@ -137,6 +144,42 @@ public class FacilityBuilder {
         }
 
         return TradeLoanApplication.create(builder);
+    }
+
+    /**
+     * Tx-free application-number resolution for the origination pre-flight ({@code PrepareFacilityOriginationQuery}).
+     * Mirrors {@link #buildApplication}'s branch / loan-type / primary-applicant derivation and runs the configured
+     * strategy (the FCB get-application-number round-trip for the external strategy) outside any transaction. The
+     * resolved {@code ApplicationNumber.derivedValue()} is threaded back onto the command and reused in
+     * {@link #buildApplication}, so the transactional command never pins a pooled connection across FCB (RB-0002).
+     */
+    public Result<ApplicationNumber> resolveApplicationNumber(
+            OriginateLoanFacilityCommand command, List<PartyInfoResponse> partyInfos) {
+
+        String rawBranchCode = command.loanApplication().branch().code();
+        if (rawBranchCode == null) {
+            return Result.failure(OriginateLoanFacilityErrorCodes.BRANCH_CODE_REQUIRED);
+        }
+        Result<Branch> branchResult = BranchCode.of(rawBranchCode).flatMap(Branch::of);
+        if (branchResult.isFailure()) {
+            return Result.failure(branchResult.err().orElseThrow());
+        }
+
+        Result<LoanTypeCode> loanTypeCodeResult = LoanTypeCode.of(command.loanTypeCode());
+        if (loanTypeCodeResult.isFailure()) {
+            return Result.failure(loanTypeCodeResult.err().orElseThrow());
+        }
+
+        Party primaryApplicant = partyInfos.stream()
+                .filter(info -> info.party().partyRole() == PartyRole.PRIMARY_APPLICANT)
+                .map(PartyInfoResponse::party)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(
+                        "Invariant Failure: Primary applicant missing from pre-flight party infos"));
+
+        return applicationNumberStrategySelector
+                .selectStrategy()
+                .generateApplicationNumber(branchResult.unwrap(), loanTypeCodeResult.unwrap(), primaryApplicant);
     }
 
     private Result<Unit> validateApplicationNumberMatch(

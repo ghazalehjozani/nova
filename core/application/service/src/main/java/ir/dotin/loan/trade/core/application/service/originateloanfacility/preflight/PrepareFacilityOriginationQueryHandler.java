@@ -11,6 +11,7 @@ import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.core.exception.FailureCauseException;
 import ir.dotin.platform.pangaea.dispatcher.api.query.QueryHandler;
+import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CustomerName;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuarantorParty;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
@@ -20,6 +21,7 @@ import ir.dotin.loan.trade.core.application.ports.inbound.query.FacilityOriginat
 import ir.dotin.loan.trade.core.application.ports.inbound.query.PrepareFacilityOriginationQuery;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfoResponse;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.CustomerInfoLoader;
+import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.FacilityBuilder;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.FacilityValidator;
 
 import lombok.RequiredArgsConstructor;
@@ -44,6 +46,7 @@ public class PrepareFacilityOriginationQueryHandler
 
     private final FacilityValidator facilityValidator;
     private final CustomerInfoLoader customerInfoLoader;
+    private final FacilityBuilder facilityBuilder;
 
     @Override
     public FacilityOriginationPreflightResult handle(PrepareFacilityOriginationQuery query) {
@@ -60,10 +63,18 @@ public class PrepareFacilityOriginationQueryHandler
             throw new FailureCauseException(partyInfosResult.err().orElseThrow());
         }
 
-        List<ResolvedPartyDto> parties =
-                partyInfosResult.unwrap().stream().map(this::toResolvedParty).toList();
+        List<PartyInfoResponse> partyInfos = partyInfosResult.unwrap();
 
-        return new FacilityOriginationPreflightResult(parties);
+        // Resolve the application number here, tx-free — this is the FCB get-application-number round-trip that
+        // would otherwise pin a pooled Hikari connection inside the transactional command (see RB-0002).
+        Result<ApplicationNumber> appNumberResult = facilityBuilder.resolveApplicationNumber(command, partyInfos);
+        if (appNumberResult.isFailure()) {
+            throw new FailureCauseException(appNumberResult.err().orElseThrow());
+        }
+
+        List<ResolvedPartyDto> parties = partyInfos.stream().map(this::toResolvedParty).toList();
+
+        return new FacilityOriginationPreflightResult(parties, appNumberResult.unwrap().derivedValue());
     }
 
     private ResolvedPartyDto toResolvedParty(PartyInfoResponse info) {
