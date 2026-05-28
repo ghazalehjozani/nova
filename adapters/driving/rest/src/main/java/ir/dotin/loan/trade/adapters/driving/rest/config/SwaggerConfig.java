@@ -2,6 +2,9 @@ package ir.dotin.loan.trade.adapters.driving.rest.config;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,23 +15,27 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.util.StringUtils;
 
+import ir.dotin.platform.pangaea.protocol.rest.config.RestAdapterProperties;
 import ir.dotin.platform.pangaea.protocol.rest.swagger.BaseSwaggerConfig;
 import ir.dotin.platform.pangaea.protocol.rest.swagger.HeaderOperationCustomizer;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineLoanTypeRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineTradeLoanArrangementRequest;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest;
 
+import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
+import io.swagger.v3.oas.models.examples.Example;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.parameters.Parameter;
-import lombok.RequiredArgsConstructor;
+import io.swagger.v3.oas.models.tags.Tag;
 import tools.jackson.databind.ObjectMapper;
 
 @Configuration
-@RequiredArgsConstructor
 public class SwaggerConfig extends BaseSwaggerConfig {
 
     @Value("${spring.application.name}")
@@ -37,63 +44,70 @@ public class SwaggerConfig extends BaseSwaggerConfig {
     @Value("${spring.application.version:1.0.0}")
     private String applicationVersion;
 
-    @Value("${server.servlet.context-path:}")
-    private String contextPath;
-
-    @Value("${spring.profiles.active}")
-    private String activeProfile;
-
+    private final RestAdapterProperties restAdapterProperties;
     private final ObjectMapper objectMapper;
     private final ResourceLoader resourceLoader;
     private final HeaderOperationCustomizer headerOperationCustomizer;
 
-    // One tag per aggregate: command and query controllers of the same aggregate share a tag so Swagger groups
-    // them in a single section (springdoc dedupes tags by name). Constants are kept (controllers reference them)
-    // but collapse onto the four aggregate-level tag names.
-    public static final String TAG_LOAN_TYPES = "Loan Types";
-    public static final String TAG_LOAN_ARRANGEMENTS = "Loan Arrangements";
-    public static final String TAG_LOAN_FACILITIES = "Loan Facilities";
-    public static final String TAG_INSTALLMENT_SCHEDULES = "Installment Schedules";
-
-    public static final String TAG_FACILITY_CASE_OPENING = TAG_LOAN_FACILITIES;
-    public static final String TAG_FACILITY_APPROVAL_SUBMISSION = TAG_LOAN_FACILITIES;
-    public static final String TAG_FACILITY_APPROVAL = TAG_LOAN_FACILITIES;
-    public static final String TAG_FACILITY_REJECTION = TAG_LOAN_FACILITIES;
-    public static final String TAG_FACILITY_CONTRACT_ISSUANCE = TAG_LOAN_FACILITIES;
-    public static final String TAG_LUMP_SUM_DISBURSEMENT = TAG_LOAN_FACILITIES;
-    public static final String TAG_REGULAR_DISBURSEMENT = TAG_LOAN_FACILITIES;
-    public static final String TAG_IRREGULAR_DISBURSEMENT = TAG_LOAN_FACILITIES;
-    public static final String TAG_FACILITY_COLLATERAL_MANAGEMENT = TAG_LOAN_FACILITIES;
-    public static final String TAG_FACILITY_CLOSURE_PAID_OFF = TAG_LOAN_FACILITIES;
-    public static final String TAG_FACILITY_CLOSURE_DEFAULTED = TAG_LOAN_FACILITIES;
-    public static final String TAG_FACILITY_CANCELLATION = TAG_LOAN_FACILITIES;
-    public static final String TAG_LOAN_TYPE_MANAGEMENT = TAG_LOAN_TYPES;
-    public static final String TAG_LOAN_ARRANGEMENT_MANAGEMENT = TAG_LOAN_ARRANGEMENTS;
-    public static final String TAG_FACILITY_QUERIES = TAG_LOAN_FACILITIES;
-    public static final String TAG_INSTALLMENT_SCHEDULE_QUERIES = TAG_INSTALLMENT_SCHEDULES;
-    public static final String TAG_LOAN_TYPE_QUERIES = TAG_LOAN_TYPES;
-    public static final String TAG_LOAN_ARRANGEMENT_QUERIES = TAG_LOAN_ARRANGEMENTS;
-    public static final String TAG_FULL_LIFECYCLE = TAG_LOAN_FACILITIES;
-    public static final String TAG_FACILITY_COMPENSATION = TAG_LOAN_FACILITIES;
-
-    private static final Map<String, Integer> TAG_ORDER = Map.ofEntries(
-            Map.entry(TAG_LOAN_TYPES, 1),
-            Map.entry(TAG_LOAN_ARRANGEMENTS, 2),
-            Map.entry(TAG_LOAN_FACILITIES, 3),
-            Map.entry(TAG_INSTALLMENT_SCHEDULES, 4));
-
-    private OpenApiCustomizer sortTagsCustomizer() {
-        return openApi -> {
-            var tags = openApi.getTags();
-            if (tags != null) {
-                tags.sort((tag1, tag2) -> {
-                    int order1 = TAG_ORDER.getOrDefault(tag1.getName(), 999);
-                    int order2 = TAG_ORDER.getOrDefault(tag2.getName(), 999);
-                    return Integer.compare(order1, order2);
-                });
-            }
-        };
+    public SwaggerConfig(
+            RestAdapterProperties restAdapterProperties,
+            ObjectMapper objectMapper,
+            ResourceLoader resourceLoader,
+            HeaderOperationCustomizer headerOperationCustomizer) {
+        super(restAdapterProperties.getSwagger());
+        this.restAdapterProperties = restAdapterProperties;
+        this.objectMapper = objectMapper;
+        this.resourceLoader = resourceLoader;
+        this.headerOperationCustomizer = headerOperationCustomizer;
     }
+
+    // Two tags per aggregate: a Commands (write) and a Queries (read) tag. Controllers reference the granular
+    // constants below; the constants collapse onto these eight canonical tag names so command and query operations of
+    // the same aggregate render as sibling "<Aggregate> · Commands" / "<Aggregate> · Queries" sections, nested under
+    // the aggregate via the x-tagGroups extension (ReDoc) and ordered Commands-before-Queries (stock Swagger UI).
+    public static final String TAG_LOAN_TYPES_COMMANDS = "Loan Types · Commands";
+    public static final String TAG_LOAN_TYPES_QUERIES = "Loan Types · Queries";
+    public static final String TAG_LOAN_ARRANGEMENTS_COMMANDS = "Loan Arrangements · Commands";
+    public static final String TAG_LOAN_ARRANGEMENTS_QUERIES = "Loan Arrangements · Queries";
+    public static final String TAG_LOAN_FACILITIES_COMMANDS = "Loan Facilities · Commands";
+    public static final String TAG_LOAN_FACILITIES_QUERIES = "Loan Facilities · Queries";
+    public static final String TAG_INSTALLMENT_SCHEDULES_QUERIES = "Installment Schedules · Queries";
+
+    private static final String GROUP_LOAN_TYPES = "Loan Types";
+    private static final String GROUP_LOAN_ARRANGEMENTS = "Loan Arrangements";
+    private static final String GROUP_LOAN_FACILITIES = "Loan Facilities";
+    private static final String GROUP_INSTALLMENT_SCHEDULES = "Installment Schedules";
+
+    // ---- Aliases referenced by controllers (value-only mapping onto the eight canonical tags) ----
+    public static final String TAG_LOAN_TYPE_MANAGEMENT = TAG_LOAN_TYPES_COMMANDS;
+    public static final String TAG_LOAN_TYPE_QUERIES = TAG_LOAN_TYPES_QUERIES;
+    public static final String TAG_LOAN_ARRANGEMENT_MANAGEMENT = TAG_LOAN_ARRANGEMENTS_COMMANDS;
+    public static final String TAG_LOAN_ARRANGEMENT_QUERIES = TAG_LOAN_ARRANGEMENTS_QUERIES;
+    public static final String TAG_FACILITY_CASE_OPENING = TAG_LOAN_FACILITIES_COMMANDS;
+    public static final String TAG_FACILITY_APPROVAL_SUBMISSION = TAG_LOAN_FACILITIES_COMMANDS;
+    public static final String TAG_FACILITY_APPROVAL = TAG_LOAN_FACILITIES_COMMANDS;
+    public static final String TAG_FACILITY_REJECTION = TAG_LOAN_FACILITIES_COMMANDS;
+    public static final String TAG_FACILITY_CONTRACT_ISSUANCE = TAG_LOAN_FACILITIES_COMMANDS;
+    public static final String TAG_LUMP_SUM_DISBURSEMENT = TAG_LOAN_FACILITIES_COMMANDS;
+    public static final String TAG_REGULAR_DISBURSEMENT = TAG_LOAN_FACILITIES_COMMANDS;
+    public static final String TAG_IRREGULAR_DISBURSEMENT = TAG_LOAN_FACILITIES_COMMANDS;
+    public static final String TAG_FACILITY_COLLATERAL_MANAGEMENT = TAG_LOAN_FACILITIES_COMMANDS;
+    public static final String TAG_FACILITY_CLOSURE_PAID_OFF = TAG_LOAN_FACILITIES_COMMANDS;
+    public static final String TAG_FACILITY_CLOSURE_DEFAULTED = TAG_LOAN_FACILITIES_COMMANDS;
+    public static final String TAG_FACILITY_CANCELLATION = TAG_LOAN_FACILITIES_COMMANDS;
+    public static final String TAG_FULL_LIFECYCLE = TAG_LOAN_FACILITIES_COMMANDS;
+    public static final String TAG_FACILITY_COMPENSATION = TAG_LOAN_FACILITIES_COMMANDS;
+    public static final String TAG_FACILITY_QUERIES = TAG_LOAN_FACILITIES_QUERIES;
+    public static final String TAG_INSTALLMENT_SCHEDULE_QUERIES = TAG_INSTALLMENT_SCHEDULES_QUERIES;
+
+    /** Origination request-body examples sourced from nova-loadlab journeys (display name -> classpath JSON). */
+    private static final Map<String, String> ORIGINATE_EXAMPLES = Map.of(
+            "Primary applicant only", "swagger/originate-01-primary-only.json",
+            "With guarantor", "swagger/originate-02-with-guarantor.json",
+            "Multiple collaterals", "swagger/originate-03-multi-collateral.json",
+            "Short tenor (3 months)", "swagger/originate-04-short-tenor.json",
+            "Long tenor (24 months)", "swagger/originate-05-long-tenor.json",
+            "Multi-tranche disbursement", "swagger/originate-06-multi-tranche.json");
 
     @Bean
     public OpenAPI customOpenAPI() {
@@ -101,48 +115,32 @@ public class SwaggerConfig extends BaseSwaggerConfig {
     }
 
     private Info apiInfo() {
-        return new Info()
+        RestAdapterProperties.Swagger swagger = restAdapterProperties.getSwagger();
+        Info info = new Info()
                 .title(applicationName)
                 .version(applicationVersion)
-                .description("Trade Loan API")
-                .contact(new Contact().name("Loan Team"));
-    }
+                .description(
+                        StringUtils.hasText(swagger.getDescription()) ? swagger.getDescription() : "Trade Loan API");
 
-    @Override
-    protected String getContextPath() {
-        return contextPath;
-    }
-
-    @Override
-    protected boolean isDevProfile() {
-        return !"prod".equals(activeProfile);
-    }
-
-    @Bean
-    public OpenApiCustomizer schemaExampleCustomizer() {
-        Map<String, String> schemaExamples = Map.of(
-                DefineLoanTypeRequest.class.getSimpleName(), "swagger/define-loan-type.json",
-                DefineTradeLoanArrangementRequest.class.getSimpleName(), "swagger/define-loan-arrangement.json",
-                OriginateLoanFacilityRequest.class.getSimpleName(), "swagger/originate-loan-facility.json");
-
-        return openApi -> openApi.getComponents().getSchemas().forEach((name, schema) -> {
-            if (schemaExamples.containsKey(name)) {
-                schema.setExample(loadJson(schemaExamples.get(name)));
-            }
-        });
-    }
-
-    private Object loadJson(String path) {
-        try {
-            Resource resource = resourceLoader.getResource("classpath:" + path);
-
-            if (!resource.exists()) {
-                throw new IllegalStateException("Swagger example file not found: " + path);
-            }
-            return objectMapper.readValue(resource.getInputStream(), Object.class);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Failed to load Swagger example: " + path, e);
+        RestAdapterProperties.Swagger.Contact contact = swagger.getContact();
+        if (contact != null
+                && (StringUtils.hasText(contact.getName())
+                        || StringUtils.hasText(contact.getEmail())
+                        || StringUtils.hasText(contact.getUrl()))) {
+            info.contact(
+                    new Contact().name(contact.getName()).url(contact.getUrl()).email(contact.getEmail()));
+        } else {
+            info.contact(new Contact().name("Loan Team"));
         }
+
+        RestAdapterProperties.Swagger.License license = swagger.getLicense();
+        if (license != null && StringUtils.hasText(license.getName())) {
+            info.license(new License().name(license.getName()).url(license.getUrl()));
+        }
+        if (StringUtils.hasText(swagger.getTermsOfService())) {
+            info.termsOfService(swagger.getTermsOfService());
+        }
+        return info;
     }
 
     @Bean
@@ -151,31 +149,204 @@ public class SwaggerConfig extends BaseSwaggerConfig {
                 .group("v1")
                 .pathsToMatch("/v{version}/**")
                 .addOperationCustomizer(headerOperationCustomizer)
-                .addOpenApiCustomizer(sortTagsCustomizer())
-                .addOpenApiCustomizer(replaceVersionPlaceholder("1"))
+                .addOpenApiCustomizer(tagsCustomizer())
+                .addOpenApiCustomizer(externalDocsCustomizer())
+                .addOpenApiCustomizer(pathProcessingCustomizer("1"))
+                .addOpenApiCustomizer(schemaExampleCustomizer())
+                .addOpenApiCustomizer(originateExamplesCustomizer())
                 .build();
     }
 
-    private OpenApiCustomizer replaceVersionPlaceholder(String version) {
+    /** Defines the eight aggregate Command/Query tags (ordered) and nests them under aggregate groups (x-tagGroups). */
+    private OpenApiCustomizer tagsCustomizer() {
         return openApi -> {
-            var paths = openApi.getPaths();
-            var newPaths = new Paths();
+            openApi.setTags(List.of(
+                    tag(TAG_LOAN_TYPES_COMMANDS, "Write operations (commands) for loan types."),
+                    tag(TAG_LOAN_TYPES_QUERIES, "Read operations (queries) for loan types."),
+                    tag(TAG_LOAN_ARRANGEMENTS_COMMANDS, "Write operations (commands) for loan arrangements."),
+                    tag(TAG_LOAN_ARRANGEMENTS_QUERIES, "Read operations (queries) for loan arrangements."),
+                    tag(TAG_LOAN_FACILITIES_COMMANDS, "Write operations (commands) for loan facilities."),
+                    tag(TAG_LOAN_FACILITIES_QUERIES, "Read operations (queries) for loan facilities."),
+                    tag(TAG_INSTALLMENT_SCHEDULES_QUERIES, "Read operations (queries) for installment schedules.")));
 
+            openApi.addExtension(
+                    "x-tagGroups",
+                    List.of(
+                            tagGroup(GROUP_LOAN_TYPES, List.of(TAG_LOAN_TYPES_COMMANDS, TAG_LOAN_TYPES_QUERIES)),
+                            tagGroup(
+                                    GROUP_LOAN_ARRANGEMENTS,
+                                    List.of(TAG_LOAN_ARRANGEMENTS_COMMANDS, TAG_LOAN_ARRANGEMENTS_QUERIES)),
+                            tagGroup(
+                                    GROUP_LOAN_FACILITIES,
+                                    List.of(TAG_LOAN_FACILITIES_COMMANDS, TAG_LOAN_FACILITIES_QUERIES)),
+                            tagGroup(GROUP_INSTALLMENT_SCHEDULES, List.of(TAG_INSTALLMENT_SCHEDULES_QUERIES))));
+        };
+    }
+
+    /** Sets the externalDocs (AsyncAPI/springwolf link) on the v1 group spec, sourced from config. */
+    private OpenApiCustomizer externalDocsCustomizer() {
+        return openApi -> {
+            RestAdapterProperties.Swagger swagger = restAdapterProperties.getSwagger();
+            if (StringUtils.hasText(swagger.getExternalDocsUrl())) {
+                openApi.externalDocs(new ExternalDocumentation()
+                        .url(swagger.getExternalDocsUrl())
+                        .description(swagger.getExternalDocsDescription()));
+            }
+        };
+    }
+
+    private Tag tag(String name, String description) {
+        return new Tag().name(name).description(description);
+    }
+
+    private Map<String, Object> tagGroup(String name, List<String> tags) {
+        Map<String, Object> group = new LinkedHashMap<>();
+        group.put("name", name);
+        group.put("tags", tags);
+        return group;
+    }
+
+    /**
+     * Replaces the {@code {version}} path placeholder, drops the synthetic {@code version} parameter, and reorders the
+     * paths so each aggregate is contiguous and Loan Facilities commands follow the business journey (originate →
+     * submit → approve → collaterals → issue-contract → disburse → close → lifecycle/compensation).
+     */
+    private OpenApiCustomizer pathProcessingCustomizer(String version) {
+        return openApi -> {
+            Paths paths = openApi.getPaths();
+            if (paths == null) {
+                return;
+            }
+
+            Map<String, PathItem> replaced = new LinkedHashMap<>();
             paths.forEach((path, pathItem) -> {
                 String newPath = path.replace("{version}", version);
-
                 if (pathItem.readOperations() != null) {
                     pathItem.readOperations().forEach(operation -> {
                         List<Parameter> parameters = operation.getParameters();
                         if (parameters != null) {
-                            parameters.removeIf(p -> "version".equals(p.getName()));
+                            parameters.removeIf(parameter -> "version".equals(parameter.getName()));
                         }
                     });
                 }
-                newPaths.addPathItem(newPath, pathItem);
+                replaced.put(newPath, pathItem);
             });
 
+            List<String> ordered = new ArrayList<>(replaced.keySet());
+            ordered.sort(Comparator.comparingInt(this::aggregateRank)
+                    .thenComparingInt(this::facilityJourneyRank)
+                    .thenComparing(Comparator.naturalOrder()));
+
+            Paths newPaths = new Paths();
+            for (String path : ordered) {
+                newPaths.addPathItem(path, replaced.get(path));
+            }
             openApi.setPaths(newPaths);
         };
+    }
+
+    private int aggregateRank(String path) {
+        if (path.contains("/loan-types")) {
+            return 0;
+        }
+        if (path.contains("/loan-arrangements")) {
+            return 1;
+        }
+        if (path.contains("/loan-facilities")) {
+            return 2;
+        }
+        if (path.contains("/installment-schedules")) {
+            return 3;
+        }
+        return 9;
+    }
+
+    private int facilityJourneyRank(String path) {
+        if (!path.contains("/loan-facilities") || path.endsWith("/loan-facilities")) {
+            return 0; // originate (POST) / list (GET)
+        }
+        if (path.contains("/submit")) {
+            return 1;
+        }
+        if (path.contains("/reject")) {
+            return 2;
+        }
+        if (path.contains("/approve")) {
+            return 2;
+        }
+        if (path.contains("/collateral")) {
+            return 3;
+        }
+        if (path.contains("/issue-contract")) {
+            return 4;
+        }
+        if (path.contains("/disburse")) {
+            return 5;
+        }
+        if (path.contains("/close")) {
+            return 6;
+        }
+        if (path.contains("/full-lifecycle")) {
+            return 7;
+        }
+        if (path.contains("/compensate")) {
+            return 8;
+        }
+        return 9;
+    }
+
+    /** Single schema-level example for the two "define" requests (kept from the previous configuration). */
+    private OpenApiCustomizer schemaExampleCustomizer() {
+        Map<String, String> schemaExamples = Map.of(
+                DefineLoanTypeRequest.class.getSimpleName(), "swagger/define-loan-type.json",
+                DefineTradeLoanArrangementRequest.class.getSimpleName(), "swagger/define-loan-arrangement.json");
+
+        return openApi -> {
+            if (openApi.getComponents() == null || openApi.getComponents().getSchemas() == null) {
+                return;
+            }
+            openApi.getComponents().getSchemas().forEach((name, schema) -> {
+                if (schemaExamples.containsKey(name)) {
+                    schema.setExample(loadJson(schemaExamples.get(name)));
+                }
+            });
+        };
+    }
+
+    /** Multiple named request-body examples (from nova-loadlab) on the facility-origination operation. */
+    private OpenApiCustomizer originateExamplesCustomizer() {
+        return openApi -> {
+            Paths paths = openApi.getPaths();
+            if (paths == null) {
+                return;
+            }
+            paths.forEach((path, pathItem) -> {
+                if (pathItem.getPost() == null || !path.endsWith("/loan-facilities")) {
+                    return;
+                }
+                var requestBody = pathItem.getPost().getRequestBody();
+                if (requestBody == null || requestBody.getContent() == null) {
+                    return;
+                }
+                var mediaType = requestBody.getContent().get("application/json");
+                if (mediaType == null) {
+                    return;
+                }
+                ORIGINATE_EXAMPLES.forEach((name, file) ->
+                        mediaType.addExamples(name, new Example().summary(name).value(loadJson(file))));
+            });
+        };
+    }
+
+    private Object loadJson(String path) {
+        try {
+            Resource resource = resourceLoader.getResource("classpath:" + path);
+            if (!resource.exists()) {
+                throw new IllegalStateException("Swagger example file not found: " + path);
+            }
+            return objectMapper.readValue(resource.getInputStream(), Object.class);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to load Swagger example: " + path, e);
+        }
     }
 }

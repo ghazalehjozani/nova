@@ -1,0 +1,77 @@
+{
+  "version": 0,
+  "loanTypeCode": "1404",
+  "confirmType": 1,
+  "loanArrangementCode": "1404",
+  "disbursement": {
+    "trancheAmount": 80000.00,
+    "disbursementDate": "2025-12-09"
+  },
+  "loanApplication": {
+    "requestDate": "2025-12-10T08:54:17.129Z",
+    "parties": [
+      {
+        "customerNumber": "10088",
+        "role": "PRIMARY_APPLICANT"
+      }
+    ],
+    "requestedAmount": 80000.00,
+    "disbursementMethod": "IRREGULAR_PROGRESSIVE",
+    "currency": "IRR",
+    "requestedLoanDurationMonths": 12,
+    "applicantChannel": "DIGITAL_BANK",
+    "gracePeriodDays": 10,
+    "disburseDestination": {
+      "type": "DEPOSIT",
+      "depositNumber": "1.10.1357.60"
+    },
+    "economicSectorCode": "2-1",
+    "branchCode": "1",
+    "requestReason": {
+      "code": "01"
+    },
+    "subSourceCode": "03",
+    "description": "shape 03 - multi-collateral path (two collaterals). To exercise a real-estate collateral, change one collateralTypeCode to your environment's real-estate code (see README).",
+    "credibilityRank": "A",
+    "samat": {
+      "trackingNumber": "1234567899876543",
+      "isicEconomicSector": "01",
+      "subIsicEconomicSector": "0203",
+      "useType": "11",
+      "exceptionCode": "1",
+      "consumptionPlaceCode": "100"
+    }
+  },
+  "collaterals": [
+    {
+      "collateralTypeCode": "CHEQUE",
+      "percent": 50,
+      "description": "cheque collateral 1",
+      "collateralSerial": "1",
+      "usedAmount": { "value": 50000.00, "currency": "IRR" }
+    },
+    {
+      "collateralTypeCode": "CHEQUE",
+      "percent": 30,
+      "description": "cheque collateral 2",
+      "collateralSerial": "2",
+      "usedAmount": { "value": 30000.00, "currency": "IRR" }
+    }
+  ],
+  "installmentSchedulePlan": {
+    "installments": [
+      { "sequenceNumber": 1, "dueDate": "2026-08-10T20:30:00.000Z", "principalAmount": 20000, "interestAmount": 1000 },
+      { "sequenceNumber": 2, "dueDate": "2026-09-10T20:30:00.000Z", "principalAmount": 20000, "interestAmount": 1000 },
+      { "sequenceNumber": 3, "dueDate": "2026-10-10T20:30:00.000Z", "principalAmount": 20000, "interestAmount": 1000 },
+      { "sequenceNumber": 4, "dueDate": "2026-11-10T20:30:00.000Z", "principalAmount": 20000, "interestAmount": 1000 }
+    ]
+  },
+  "metadata": {
+    "terminalId": "1",
+    "terminalType": "Branch",
+    "channel": "Branch",
+    "toolSource": "BANK",
+    "productCode": "LOAN",
+    "networkType": "BankBook"
+  }
+}

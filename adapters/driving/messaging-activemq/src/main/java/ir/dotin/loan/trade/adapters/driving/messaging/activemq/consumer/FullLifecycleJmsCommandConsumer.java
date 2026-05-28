@@ -47,6 +47,7 @@ public class FullLifecycleJmsCommandConsumer {
                             description =
                                     "Process nova loan full lifecycle commands (ActiveMQ, flow-driven, request/reply).",
                             servers = "activemq",
+                            payloadType = FullLoanFacilityLifecycleMessage.class,
                             headers =
                                     @AsyncOperation.Headers(
                                             schemaName = MessagingHeaderNames.SCHEMA_FLOW_COMMAND_HEADERS)))

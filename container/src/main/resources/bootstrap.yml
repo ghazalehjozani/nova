@@ -14,6 +14,10 @@
 spring:
   application:
     name: nova-service
+    # Filtered at build time by maven-resources-plugin (delimiter @, see pangaea-parent).
+    # Feeds OpenAPI info.version and OTEL service.version. Falls back to a literal only if
+    # filtering is disabled (e.g. running straight from source without a Maven build).
+    version: '@project.version@'
 
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
