@@ -20,5 +20,9 @@ public record IssueFacilityContractRequest(
         @Schema(description = "نسخه عملیات", example = "1", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
         Long version,
 
+        @Schema(
+                description = "متادیتای سند تراکنش (پارامترهای پایانه، کانال، محصول و شبکه)",
+                example = "{\"terminalId\":\"1\",\"terminalType\":\"Branch\",\"channel\":\"Branch\","
+                        + "\"toolSource\":\"BANK\",\"productCode\":\"LOAN\",\"networkType\":\"BankBook\"}")
         Map<String, String> metadata)
         implements BaseRequest {}

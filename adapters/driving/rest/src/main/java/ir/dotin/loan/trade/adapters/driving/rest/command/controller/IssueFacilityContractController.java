@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
+import java.util.Map;
 import java.util.UUID;
 import jakarta.validation.Valid;
 
@@ -50,8 +51,7 @@ class IssueFacilityContractController extends BaseController {
         String userId = authenticationContextHolder.userId().orElse("SYSTEM");
 
         String ip = authenticationContextHolder.ipAddress().orElse("0.0.0.0");
-        var metadata = request.metadata();
-        // TODO: change metadata structure and remove default value
+        Map<String, String> metadata = request.metadata() == null ? Map.of() : request.metadata();
         var command = IssueFacilityContractCommand.builder()
                 .uid(getIdempotencyKey())
                 .version(request.version())
@@ -59,12 +59,12 @@ class IssueFacilityContractController extends BaseController {
                 .branchCode(branchCode)
                 .userId(userId)
                 .terminalIp(ip)
-                .terminalId(metadata.getOrDefault("terminalId", "UNKNOWN"))
-                .terminalType(metadata.getOrDefault("terminalType", "WEB"))
-                .channel(metadata.getOrDefault("channel", "INTERNET_BANK"))
-                .toolSource(metadata.getOrDefault("toolSource", "CORE"))
-                .productCode(metadata.getOrDefault("productCode", "DEFAULT_PRODUCT"))
-                .networkType(metadata.getOrDefault("networkType", "INTERNET"))
+                .terminalId(metadata.get("terminalId"))
+                .terminalType(metadata.get("terminalType"))
+                .channel(metadata.get("channel"))
+                .toolSource(metadata.get("toolSource"))
+                .productCode(metadata.get("productCode"))
+                .networkType(metadata.get("networkType"))
                 .build();
 
         var result = dispatcher.dispatch(command);

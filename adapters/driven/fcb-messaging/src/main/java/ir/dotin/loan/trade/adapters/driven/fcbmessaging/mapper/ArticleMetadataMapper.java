@@ -27,19 +27,31 @@ public final class ArticleMetadataMapper {
     private static final String DEFAULT_EXTRA_INFO_TYPE = "LOAN_DOCUMENT";
 
     public static ExtraInfoMetadataDto toDto(ArticleMetadata metadata) {
+        return toDto(metadata, true);
+    }
+
+    // Document-level metadata is the shared header (terminal/network/source/dest/operational); it must NOT
+    // carry a per-leg transactionInfo (typeCode/causeTypeCode), which is article-specific.
+    public static ExtraInfoMetadataDto toDocumentDto(ArticleMetadata metadata) {
+        return toDto(metadata, false);
+    }
+
+    private static ExtraInfoMetadataDto toDto(ArticleMetadata metadata, boolean includeTransactionInfo) {
         if (metadata == null) {
             return null;
         }
 
         var builder = ExtraInfoMetadataDto.builder().extraInfoType(DEFAULT_EXTRA_INFO_TYPE);
 
-        applyTransactionInfo(builder, metadata.transactionInfo());
+        if (includeTransactionInfo) {
+            applyTransactionInfo(builder, metadata.transactionInfo());
+        }
         applyTerminalInfo(builder, metadata.terminalInfo());
         applyNetworkInfo(builder, metadata.networkInfo());
         metadata.sourceDetails().ifPresent(s -> applySourceDetails(builder, s));
         metadata.destinationDetails().ifPresent(d -> applyDestinationDetails(builder, d));
         metadata.operationalInfo().ifPresent(o -> applyOperationalInfo(builder, o));
-        applyIncludedSections(builder, metadata);
+        applyIncludedSections(builder, metadata, includeTransactionInfo);
 
         return builder.build();
     }
@@ -143,11 +155,13 @@ public final class ArticleMetadataMapper {
     }
 
     private static void applyIncludedSections(
-            ExtraInfoMetadataDto.ExtraInfoMetadataDtoBuilder b, ArticleMetadata metadata) {
+            ExtraInfoMetadataDto.ExtraInfoMetadataDtoBuilder b,
+            ArticleMetadata metadata,
+            boolean includeTransactionInfo) {
         Set<String> sections = new LinkedHashSet<>();
         sections.add(MetadataSection.TERMINAL_INFO.name());
         sections.add(MetadataSection.NETWORK_INFO.name());
-        if (metadata.transactionInfo() != null) {
+        if (includeTransactionInfo && metadata.transactionInfo() != null) {
             sections.add(MetadataSection.TRANSACTION_INFO.name());
         }
         metadata.sourceDetails().ifPresent(s -> sections.add(MetadataSection.SOURCE_DETAILS_ALL.name()));

@@ -21,7 +21,7 @@ public class DocumentMetadataUtils {
 
         return DocumentMetadataFactory.builder()
                 .terminal(DocumentMetadataFactory.TerminalConfig.of(
-                        config.terminalType(), branchCode.value(), config.terminalIp()))
+                        config.terminalType(), config.terminalId(), config.terminalIp()))
                 .product(DocumentMetadataFactory.ProductConfig.of(
                         config.productCode(),
                         loanType.getCode().value(),

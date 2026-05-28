@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import jakarta.validation.Valid;
@@ -48,17 +49,19 @@ class LumpSumDisbursementController extends BaseController {
                     UUID facilityId,
             @Parameter(description = "جزئیات درخواست پرداخت یکجا", required = true) @RequestBody
                     LumpSumDisbursementRequest requestBody) {
+        Map<String, String> metadata = requestBody.metadata() == null ? Map.of() : requestBody.metadata();
         var lumpSumDisbursementCommand = LumpSumDisbursementCommand.builder()
                 .uid(getIdempotencyKey())
                 .version(requestBody.version())
                 .loanFacilityId(facilityId)
                 .branchCode(authenticationContextHolder.branchCode().orElseThrow())
-                .productCode("LOAN")
-                .channel("Branch")
-                .networkType("BankBook")
+                .terminalId(metadata.get("terminalId"))
+                .productCode(metadata.get("productCode"))
+                .channel(metadata.get("channel"))
+                .networkType(metadata.get("networkType"))
                 .terminalIp(authenticationContextHolder.ipAddress().orElseThrow())
-                .terminalType("Branch")
-                .toolSource("BANK")
+                .terminalType(metadata.get("terminalType"))
+                .toolSource(metadata.get("toolSource"))
                 .disbursementDate(Objects.requireNonNullElse(requestBody.disbursementDate(), LocalDate.now()))
                 .userId(authenticationContextHolder.userIdOrThrow())
                 .build();

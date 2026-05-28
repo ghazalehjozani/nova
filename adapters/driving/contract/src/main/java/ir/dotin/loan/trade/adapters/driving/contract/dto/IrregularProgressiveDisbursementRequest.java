@@ -19,6 +19,11 @@ public record IrregularProgressiveDisbursementRequest(
         @Schema(description = "شناسه عملیات") @NotNull UUID uid,
         @Schema(description = "نسخه عملیات") @NotNull Long version,
         @Schema(description = "تاریخ پرداخت") LocalDate disbursementDate,
+
+        @Schema(
+                description = "متادیتای سند تراکنش (پارامترهای پایانه، کانال، محصول و شبکه)",
+                example = "{\"terminalId\":\"1\",\"terminalType\":\"Branch\",\"channel\":\"Branch\","
+                        + "\"toolSource\":\"BANK\",\"productCode\":\"LOAN\",\"networkType\":\"BankBook\"}")
         Map<String, String> metadata)
         implements BaseRequest {
 

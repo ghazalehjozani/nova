@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
+import java.util.Map;
 import java.util.UUID;
 import jakarta.validation.Valid;
 
@@ -43,6 +44,7 @@ class IrregularProgressiveDisbursementController extends BaseController {
             @Parameter(description = "جزئیات درخواست پرداخت نامنظم", required = true) @RequestBody @Valid
                     IrregularProgressiveDisbursementRequest requestBody) {
 
+        Map<String, String> metadata = requestBody.metadata() == null ? Map.of() : requestBody.metadata();
         var command = IrregularProgressiveDisbursementCommand.builder()
                 .uid(getIdempotencyKey())
                 .loanFacilityId(facilityId)
@@ -52,12 +54,12 @@ class IrregularProgressiveDisbursementController extends BaseController {
                 .branchCode(authenticationContextHolder.branchCode().orElseThrow())
                 .userId(authenticationContextHolder.userIdOrThrow())
                 .terminalIp(authenticationContextHolder.ipAddress().orElseThrow())
-                .terminalId("1")
-                .productCode("LOAN")
-                .channel("Branch")
-                .networkType("BankBook")
-                .terminalType("Branch")
-                .toolSource("BANK")
+                .terminalId(metadata.get("terminalId"))
+                .productCode(metadata.get("productCode"))
+                .channel(metadata.get("channel"))
+                .networkType(metadata.get("networkType"))
+                .terminalType(metadata.get("terminalType"))
+                .toolSource(metadata.get("toolSource"))
                 .disbursementDate(requestBody.disbursementDate())
                 .build();
 

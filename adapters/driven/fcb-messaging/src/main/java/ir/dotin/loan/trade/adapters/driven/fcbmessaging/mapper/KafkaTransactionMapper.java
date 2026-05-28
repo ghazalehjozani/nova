@@ -77,7 +77,6 @@ public final class KafkaTransactionMapper {
                     notification.merge(itemsResult.err().orElseThrow().notification()));
         }
 
-        // TODO: Fix this
         ExtraInfoMetadataDto documentMetadata = pickDocumentLevelMetadata(document);
 
         PostTransactionRequest request = PostTransactionRequest.builder()
@@ -191,10 +190,12 @@ public final class KafkaTransactionMapper {
     }
 
     private static ExtraInfoMetadataDto pickDocumentLevelMetadata(Document document) {
+        // All articles share the same base metadata; read it from any article and strip the per-leg
+        // transactionInfo so the document level carries only the shared header, not one leg's txn type/cause.
         return document.articles().stream()
                 .findFirst()
                 .map(Article::articleMetadata)
-                .map(ArticleMetadataMapper::toDto)
+                .map(ArticleMetadataMapper::toDocumentDto)
                 .orElse(null);
     }
 
