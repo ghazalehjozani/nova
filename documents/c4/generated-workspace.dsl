@@ -245,102 +245,102 @@ workspace "Trade Loan Service" {
         }
 
         styles {
-            element "Outbox" {
-                background #66bb6a
-                color #000000
-                shape Hexagon
-            }
-            element "Repository" {
-                background #5c6bc0
-                color #ffffff
+            element "Database" {
                 shape Cylinder
             }
-            element "Compensation" {
-                background #ef5350
-                color #ffffff
+            element "Internal User" {
+                background #08427b
             }
-            element "Saga" {
-                background #ab47bc
-                color #ffffff
-                shape Diamond
+            element "External System" {
+                background #999999
             }
-            element "Message Broker" {
-                background #f5a623
-                color #000000
-                shape Pipe
-            }
-            element "Component" {
-                background #85bbf0
+            element "Domain" {
+                background #ffa726
                 color #000000
             }
-            element "Controller" {
-                background #7cb342
-                color #ffffff
-            }
-            element "Client" {
-                background #ec407a
+            element "Service" {
+                background #29b6f6
                 color #ffffff
             }
             element "Monitoring" {
                 background #27ae60
                 shape WebBrowser
             }
-            element "Service" {
-                background #29b6f6
+            element "Client" {
+                background #ec407a
                 color #ffffff
             }
-            element "Domain" {
-                background #ffa726
+            element "Controller" {
+                background #7cb342
+                color #ffffff
+            }
+            element "Component" {
+                background #85bbf0
                 color #000000
             }
-            element "External System" {
-                background #999999
+            element "Message Broker" {
+                background #f5a623
+                color #000000
+                shape Pipe
             }
-            element "Internal User" {
-                background #08427b
+            element "Saga" {
+                background #ab47bc
+                color #ffffff
+                shape Diamond
             }
-            element "Database" {
+            element "Compensation" {
+                background #ef5350
+                color #ffffff
+            }
+            element "Repository" {
+                background #5c6bc0
+                color #ffffff
                 shape Cylinder
             }
-            element "Handler" {
-                background #42a5f5
-                color #ffffff
-            }
-            element "Software System" {
-                background #1168bd
-                color #ffffff
-            }
-            element "Consumer" {
-                background #ff7043
-                color #ffffff
+            element "Outbox" {
+                background #66bb6a
+                color #000000
                 shape Hexagon
+            }
+            element "Admin" {
+                background #5c3d6e
+            }
+            element "External User" {
+                background #666666
+            }
+            element "Container" {
+                background #438dd5
+                color #ffffff
+            }
+            element "Cache" {
+                background #e74c3c
+                shape Cylinder
+            }
+            element "Aggregate" {
+                background #ff9800
+                color #000000
+            }
+            element "Entity" {
+                background #ffb74d
+                color #000000
             }
             element "Person" {
                 background #08427b
                 color #ffffff
                 shape Person
             }
-            element "Entity" {
-                background #ffb74d
-                color #000000
+            element "Consumer" {
+                background #ff7043
+                color #ffffff
+                shape Hexagon
             }
-            element "Aggregate" {
-                background #ff9800
-                color #000000
-            }
-            element "Cache" {
-                background #e74c3c
-                shape Cylinder
-            }
-            element "Container" {
-                background #438dd5
+            element "Software System" {
+                background #1168bd
                 color #ffffff
             }
-            element "External User" {
-                background #666666
-            }
-            element "Admin" {
-                background #5c3d6e
+            element "Handler" {
+                background #42a5f5
+                color #ffffff
             }
         }
     }
