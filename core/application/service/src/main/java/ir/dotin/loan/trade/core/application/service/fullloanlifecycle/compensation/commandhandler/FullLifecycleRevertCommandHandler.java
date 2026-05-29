@@ -264,7 +264,7 @@ public class FullLifecycleRevertCommandHandler implements CommandHandler<FullLif
 
     private void reverseTransaction(String transactionNumber) {
         log.info("Reversing transaction: {}", transactionNumber);
-        var trackedNumber = TrackedTransactionNumber.create(transactionNumber, null, TransactionStatus.POSTED, clock);
+        var trackedNumber = TrackedTransactionNumber.create(transactionNumber, TransactionStatus.POSTED, clock);
         var result = transactionPostingPort.reverseTransaction(trackedNumber);
         if (result.isFailure()) {
             log.warn(

@@ -4,10 +4,13 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.jspecify.annotations.Nullable;
+
 public class HostResolver {
 
     private static final String UNKNOWN = "unknown";
-    private static volatile String cachedHost;
+    // lazily computed cache; null until first resolveHostName() call (double-checked locking)
+    private static volatile @Nullable String cachedHost;
 
     private HostResolver() {}
 

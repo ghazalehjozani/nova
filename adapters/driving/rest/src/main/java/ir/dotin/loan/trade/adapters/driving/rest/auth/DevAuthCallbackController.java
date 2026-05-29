@@ -69,7 +69,8 @@ public class DevAuthCallbackController {
 
         } catch (Exception e) {
             log.error("Token exchange failed", e);
-            return ResponseEntity.status(400).body(Map.of("error", e.getMessage()));
+            String msg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            return ResponseEntity.status(400).body(Map.of("error", msg));
         }
     }
 

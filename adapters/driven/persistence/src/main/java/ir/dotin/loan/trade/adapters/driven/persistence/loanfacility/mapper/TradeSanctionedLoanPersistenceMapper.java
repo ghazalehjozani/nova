@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.mapper;
 
 import java.util.Optional;
 
+import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -24,7 +25,7 @@ public interface TradeSanctionedLoanPersistenceMapper {
             qualifiedByName = "toDisbursementHistoryEmb")
     TradeSanctionedLoanEntity map(TradeSanctionedLoan domain);
 
-    default TradeSanctionedLoanEntity map(Optional<TradeSanctionedLoan> domainOpt) {
+    default @Nullable TradeSanctionedLoanEntity map(Optional<TradeSanctionedLoan> domainOpt) {
         return domainOpt.map(this::map).orElse(null);
     }
 

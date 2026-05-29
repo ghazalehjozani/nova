@@ -20,6 +20,8 @@ import ir.dotin.loan.trade.e2e.fixture.LoanFacilityTestFixture.DisbursedFacility
 import ir.dotin.loan.trade.e2e.fixture.LoanTypeTestFixture;
 import ir.dotin.loan.trade.e2e.orchestrator.MockPortConfigurator;
 
+import static java.util.Objects.requireNonNull;
+
 class InstallmentCollectionE2ETest extends AbstractMessagingE2E {
 
     private static final String INSTALLMENT_OPERATION_TOPIC =
@@ -51,10 +53,17 @@ class InstallmentCollectionE2ETest extends AbstractMessagingE2E {
     void setupFixtures() {
         formulaFixture.createDefaultFormulas();
         TradeLoanArrangementEntity arrangement = arrangementFixture.createDefaultArrangement();
-        TradeLoanTypeEntity loanType = loanTypeFixture.createDefaultLoanType(arrangement.getId());
+        // persisted fixtures: id and code are non-null by contract after save
+        TradeLoanTypeEntity loanType =
+                loanTypeFixture.createDefaultLoanType(requireNonNull(arrangement.getId(), "arrangement id after save"));
 
         facilityResult = facilityFixture.createDisbursedFacilityForCollection(
-                loanType.getId(), loanType.getCode().getValue(), arrangement.getId());
+                requireNonNull(loanType.getId(), "loan type id after save"),
+                requireNonNull(
+                        requireNonNull(loanType.getCode(), "loan type code after save")
+                                .getValue(),
+                        "loan type code value after save"),
+                requireNonNull(arrangement.getId(), "arrangement id after save"));
 
         responseConsumer = KafkaTestHelper.createResponseConsumer(
                 bootstrapServers,
@@ -132,9 +141,9 @@ class InstallmentCollectionE2ETest extends AbstractMessagingE2E {
         await().atMost(Duration.ofSeconds(30))
                 .pollInterval(Duration.ofSeconds(1))
                 .untilAsserted(() -> {
-                    ConsumerRecord<String, byte[]> response =
-                            KafkaTestHelper.awaitResponse(responseConsumer, eventUid, Duration.ofSeconds(2));
-                    assertThat(response).isNotNull();
+                    ConsumerRecord<String, byte[]> response = requireNonNull(
+                            KafkaTestHelper.awaitResponse(responseConsumer, eventUid, Duration.ofSeconds(2)),
+                            "expected a Kafka response for eventUid " + eventUid);
 
                     JsonNode responseBody = objectMapper.readTree(response.value());
                     assertThat(responseBody.get("status").asText()).isEqualTo("SUCCESS");

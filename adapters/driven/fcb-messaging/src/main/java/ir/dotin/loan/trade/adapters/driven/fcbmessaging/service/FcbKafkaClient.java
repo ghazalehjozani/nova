@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.retry.RetryException;
@@ -20,7 +21,6 @@ import org.springframework.core.retry.RetryTemplate;
 import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import org.springframework.kafka.requestreply.RequestReplyFuture;
 import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.pangaea.commons.core.Notification;
@@ -91,7 +91,7 @@ public class FcbKafkaClient {
     private final FcbHealthGate healthGate;
     private final FcbHealthMetrics healthMetrics;
     private final FcbRequestReplyMetrics requestReplyMetrics;
-    private final Tracer tracer;
+    private final @Nullable Tracer tracer;
     private final int replyPartition;
 
     /**
@@ -266,7 +266,10 @@ public class FcbKafkaClient {
             }
             case org.springframework.kafka.KafkaException ke -> {
                 requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_BROKER);
-                yield Result.failure(CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, ke.getMessage());
+                String message = ke.getMessage() != null
+                        ? ke.getMessage()
+                        : ke.getClass().getSimpleName();
+                yield Result.failure(CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, message);
             }
             case FcbSerializationException fse -> {
                 requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_SERIALIZATION);

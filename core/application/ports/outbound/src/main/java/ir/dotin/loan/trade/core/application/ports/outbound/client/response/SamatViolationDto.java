@@ -2,14 +2,16 @@ package ir.dotin.loan.trade.core.application.ports.outbound.client.response;
 
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
+
 public class SamatViolationDto {
 
-    private String field;
-    private String providedValue;
-    private String violationCode;
-    private String message;
-    private ViolationSeverity severity;
-    private ViolationCategory category;
+    private @Nullable String field;
+    private @Nullable String providedValue;
+    private @Nullable String violationCode;
+    private @Nullable String message;
+    private @Nullable ViolationSeverity severity;
+    private @Nullable ViolationCategory category;
 
     public enum ViolationSeverity {
         ERROR,
@@ -36,27 +38,27 @@ public class SamatViolationDto {
         this.category = builder.category;
     }
 
-    public String getField() {
+    public @Nullable String getField() {
         return field;
     }
 
-    public String getProvidedValue() {
+    public @Nullable String getProvidedValue() {
         return providedValue;
     }
 
-    public String getViolationCode() {
+    public @Nullable String getViolationCode() {
         return violationCode;
     }
 
-    public String getMessage() {
+    public @Nullable String getMessage() {
         return message;
     }
 
-    public ViolationSeverity getSeverity() {
+    public @Nullable ViolationSeverity getSeverity() {
         return severity;
     }
 
-    public ViolationCategory getCategory() {
+    public @Nullable ViolationCategory getCategory() {
         return category;
     }
 
@@ -65,12 +67,12 @@ public class SamatViolationDto {
     }
 
     public static class Builder {
-        private String field;
-        private String providedValue;
-        private String violationCode;
-        private String message;
+        private @Nullable String field;
+        private @Nullable String providedValue;
+        private @Nullable String violationCode;
+        private @Nullable String message;
         private ViolationSeverity severity = ViolationSeverity.ERROR;
-        private ViolationCategory category;
+        private @Nullable ViolationCategory category;
 
         public Builder field(String field) {
             this.field = field;

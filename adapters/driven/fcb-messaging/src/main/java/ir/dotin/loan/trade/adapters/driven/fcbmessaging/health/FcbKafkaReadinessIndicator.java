@@ -36,7 +36,8 @@ public class FcbKafkaReadinessIndicator implements HealthIndicator {
         }
         try {
             var assignedPartitions = template.getAssignedReplyTopicPartitions();
-            boolean hasAssignment = assignedPartitions != null && !assignedPartitions.isEmpty();
+            int assignedCount = assignedPartitions != null ? assignedPartitions.size() : 0;
+            boolean hasAssignment = assignedCount > 0;
 
             var healthyPartitions = partitionRegistry.getHealthyPartitions();
             int healthyCount = healthyPartitions.size();
@@ -44,7 +45,7 @@ public class FcbKafkaReadinessIndicator implements HealthIndicator {
             if (hasAssignment && healthyCount > 0) {
                 return Health.up()
                         .withDetail("kafkaConnection", "CONNECTED")
-                        .withDetail("assignedPartitionsCount", assignedPartitions.size())
+                        .withDetail("assignedPartitionsCount", assignedCount)
                         .withDetail("healthyPartitionsCount", healthyCount)
                         .withDetail("activePartitions", healthyPartitions)
                         .build();
@@ -61,7 +62,7 @@ public class FcbKafkaReadinessIndicator implements HealthIndicator {
                 builder.withDetail("reason", "Metadata received but no healthy probe responses yet");
             }
 
-            return builder.withDetail("assignedCount", hasAssignment ? assignedPartitions.size() : 0)
+            return builder.withDetail("assignedCount", assignedCount)
                     .withDetail("healthyCount", healthyCount)
                     .build();
 

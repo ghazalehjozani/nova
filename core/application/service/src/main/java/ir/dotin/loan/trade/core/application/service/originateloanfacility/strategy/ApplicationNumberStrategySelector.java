@@ -36,6 +36,10 @@ public class ApplicationNumberStrategySelector {
             strategy = strategies.get(ApplicationNumberGenerationType.FCB_VALIDATION);
         }
 
+        if (strategy == null) {
+            throw new IllegalStateException("No application number generation strategy found for type: " + type);
+        }
+
         return strategy;
     }
 

@@ -20,6 +20,7 @@ import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 
 import org.hibernate.proxy.HibernateProxy;
+import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.pangaea.persistence.jpa.embeddable.MoneyEmb;
 import ir.dotin.platform.pangaea.persistence.jpa.entity.PersistentEntity;
@@ -49,41 +50,52 @@ public class InstallmentScheduleEntity extends PersistentEntity {
     @OrderBy("sequenceNumber ASC")
     private List<InstallmentEntity> installments = new ArrayList<>();
 
+    @Nullable
     @Embedded
     private ScheduleHistoryEmb scheduleHistory;
 
+    @Nullable
     @Column(name = "loan_facility_id", nullable = false)
     private UUID loanFacilityId;
 
+    @Nullable
     @Embedded
     private MoneyEmb totalLoanAmount;
 
+    @Nullable
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "value", column = @Column(name = "schedule_currency", nullable = false, length = 3))
     })
     private CurrencyTypeEmb currency;
 
+    @Nullable
     @Enumerated(EnumType.STRING)
     @Column(name = "schedule_type", nullable = false)
     private InstallmentScheduleType scheduleType;
 
+    @Nullable
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private InstallmentScheduleStatus status;
 
+    @Nullable
     @Column(name = "initiated_at", nullable = false)
     private Instant initiatedAt;
 
+    @Nullable
     @Column(name = "last_modified_at", nullable = false)
     private Instant lastModifiedAt;
 
+    @Nullable
     @Embedded
     private GracePeriodEmb gracePeriod;
 
+    @Nullable
     @Column(name = "interest_rate", precision = 10, scale = 6, nullable = false)
     private BigDecimal interestRate;
 
+    @Nullable
     @Embedded
     private RestructuringRecordEmb restructuringRecord;
 

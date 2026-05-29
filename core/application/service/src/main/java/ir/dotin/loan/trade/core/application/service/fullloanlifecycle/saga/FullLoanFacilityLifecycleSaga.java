@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
@@ -252,7 +253,10 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
         var data = ctx.getSagaData();
         log.info("Submitting facility {} for approval", data.facilityId());
 
-        var command = new SubmitFacilityForApprovalCommand(data.correlationId(), 1L, data.facilityId());
+        var command = new SubmitFacilityForApprovalCommand(
+                data.correlationId(),
+                1L,
+                requireNonNull(data.facilityId(), "facilityId must be set by origination step"));
 
         try {
             ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);
@@ -480,7 +484,7 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
         }
     }
 
-    private IrregularProgressiveDisbursementCommand.InstallmentSchedulePlanDto mapInstallmentPlan(
+    private IrregularProgressiveDisbursementCommand.@Nullable InstallmentSchedulePlanDto mapInstallmentPlan(
             OriginateLoanFacilityCommand origCmd) {
         if (origCmd.installmentSchedulePlan() == null) return null;
 

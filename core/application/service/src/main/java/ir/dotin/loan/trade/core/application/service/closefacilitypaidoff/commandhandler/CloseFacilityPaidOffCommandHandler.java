@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,7 +125,9 @@ public class CloseFacilityPaidOffCommandHandler implements CommandHandler<CloseF
         }
 
         CloseInstallmentSchedulePaidOff closePaidOff = new CloseInstallmentSchedulePaidOff(
-                command.transactionReference(), closeInstallmentSchedulePaidOffItems, command.channel());
+                command.transactionReference(),
+                closeInstallmentSchedulePaidOffItems,
+                Objects.requireNonNullElse(command.channel(), ""));
 
         return schedule.closePaidOff(closePaidOff, clock).map(ignored -> schedule);
     }

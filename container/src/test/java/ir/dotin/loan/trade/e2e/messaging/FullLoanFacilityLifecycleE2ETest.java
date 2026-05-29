@@ -56,6 +56,7 @@ import ir.dotin.loan.trade.e2e.fixture.FormulaTestFixture;
 import ir.dotin.loan.trade.e2e.fixture.LoanArrangementTestFixture;
 import ir.dotin.loan.trade.e2e.fixture.LoanTypeTestFixture;
 
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
@@ -87,7 +88,9 @@ class FullLoanFacilityLifecycleE2ETest extends AbstractMessagingE2E {
     void setupFixtures() {
         formulaFixture.createDefaultFormulas();
         arrangement = arrangementFixture.createDefaultArrangement();
-        loanType = loanTypeFixture.createDefaultLoanType(arrangement.getId());
+        // persisted entity: generated id is non-null by contract after save
+        loanType =
+                loanTypeFixture.createDefaultLoanType(requireNonNull(arrangement.getId(), "arrangement id after save"));
     }
 
     @BeforeEach
@@ -99,7 +102,7 @@ class FullLoanFacilityLifecycleE2ETest extends AbstractMessagingE2E {
         // LoanServicePort
         when(loanServicePort.loadEconomicalSectorByCode(any())).thenReturn(Result.success(new EconomicSector("2-1")));
         when(loanServicePort.loadEconomicalSector(any()))
-                .thenReturn(Result.success(new EconomicalSectorResponse("2-1", "Exchange", false, null)));
+                .thenReturn(Result.success(new EconomicalSectorResponse("2-1", "Exchange", false, "")));
         when(loanServicePort.validateEconomicalSectorForLoanType(any(), any()))
                 .thenReturn(Result.success(new EconomicalSectorValidation(true, null)));
         when(loanServicePort.loadReasonTypeForCreate(any()))
@@ -148,8 +151,7 @@ class FullLoanFacilityLifecycleE2ETest extends AbstractMessagingE2E {
             }
             return Result.success(results);
         });
-        when(transactionPostingPort.reverseTransaction(any()))
-                .thenReturn(Result.<ir.dotin.platform.pangaea.commons.core.Unit>success());
+        when(transactionPostingPort.reverseTransaction(any())).thenReturn(Result.success());
 
         // CollateralServicePort
         when(collateralServicePort.validateAddAssuranceToFile(any(), any(), any()))
@@ -162,24 +164,24 @@ class FullLoanFacilityLifecycleE2ETest extends AbstractMessagingE2E {
                 .thenReturn(Result.success(
                         new ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralDetails(
                                 "E2E-SERIAL",
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
+                                "",
+                                "",
+                                "",
+                                java.math.BigDecimal.ZERO,
+                                java.math.BigDecimal.ZERO,
+                                java.math.BigDecimal.ZERO,
+                                0,
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
                                 false,
                                 false,
                                 false,
                                 false,
-                                null)));
+                                "")));
         when(collateralServicePort.unReserveCollateral(any(), any(), any(), any()))
                 .thenReturn(Result.success(
                         new ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial("E2E-SERIAL")));
@@ -212,7 +214,7 @@ class FullLoanFacilityLifecycleE2ETest extends AbstractMessagingE2E {
                         new ApplicantParty(
                                 "12345678",
                                 ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType.REAL,
-                                new CustomerName("Test", "User", null)),
+                                new CustomerName("Test", "User", "")),
                         new ir.dotin.platform.pangaea.commons.domain.vo.NationalCode("1234567890"),
                         false,
                         false,
@@ -229,13 +231,27 @@ class FullLoanFacilityLifecycleE2ETest extends AbstractMessagingE2E {
         when(fetchSanctionDetailsPort.fetchBySanctionSerial(any()))
                 .thenReturn(Result.success(
                         new ir.dotin.loan.trade.core.application.ports.outbound.client.response.SanctionDetails(
-                                "E2E-SANCTION", null, null, null, null, null, null, null, null, null, null, null)));
+                                "E2E-SANCTION",
+                                ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType.GENERAL,
+                                java.math.BigDecimal.ZERO,
+                                new ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType(
+                                        java.util.Currency.getInstance("IRR")),
+                                java.time.Period.ZERO,
+                                0,
+                                java.time.Period.ZERO,
+                                DisbursementMethod.LUMP_SUM,
+                                null,
+                                null,
+                                null,
+                                new ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType("1"))));
     }
 
     @Test
     void shouldProcessFullLifecycleSaga() throws Exception {
-        String loanTypeCode = loanType.getCode().getValue();
-        String arrangementCode = arrangement.getCode();
+        // persisted fixtures: code is non-null by contract after save
+        String loanTypeCode =
+                requireNonNull(loanType.getCode(), "loan type code after save").getValue();
+        String arrangementCode = requireNonNull(arrangement.getCode(), "arrangement code after save");
 
         FullLoanFacilityLifecycleMessage message = FullLoanFacilityLifecycleMessage.builder()
                 .version(1L)

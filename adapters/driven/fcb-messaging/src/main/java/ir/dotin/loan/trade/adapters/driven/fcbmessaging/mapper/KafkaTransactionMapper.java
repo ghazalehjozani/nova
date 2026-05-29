@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.platform.accounting.document.api.enumeration.Direction;
 import ir.dotin.platform.accounting.document.api.enumeration.RelationType;
 import ir.dotin.platform.accounting.document.api.enumeration.TransactionStatus;
@@ -189,7 +191,7 @@ public final class KafkaTransactionMapper {
         return "بند سند " + dirText + " " + typeText + " - " + id;
     }
 
-    private static ExtraInfoMetadataDto pickDocumentLevelMetadata(Document document) {
+    private static @Nullable ExtraInfoMetadataDto pickDocumentLevelMetadata(Document document) {
         // All articles share the same base metadata; read it from any article and strip the per-leg
         // transactionInfo so the document level carries only the shared header, not one leg's txn type/cause.
         return document.articles().stream()
@@ -199,7 +201,7 @@ public final class KafkaTransactionMapper {
                 .orElse(null);
     }
 
-    private static String extractIsoCode(LoanTransaction loanTransaction) {
+    private static @Nullable String extractIsoCode(LoanTransaction loanTransaction) {
         if (loanTransaction.document().isoCode().isPresent()) {
             return loanTransaction.document().isoCode().get().value();
         }

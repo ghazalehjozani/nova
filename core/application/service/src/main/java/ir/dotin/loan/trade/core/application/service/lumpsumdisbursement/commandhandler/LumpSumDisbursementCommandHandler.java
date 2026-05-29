@@ -100,8 +100,10 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
                 .orElseGet(() -> Result.failure(Notification.ofError(
                         TradeLoanApplicationServiceErrors.INVALID_DISBURSEMENT_METHOD,
                         facility.getSanctionedLoan()
-                                .map(AbstractSanctionedLoan::getDisbursementMethod)
-                                .orElse(null))));
+                                .map(sl -> sl.getDisbursementMethod() != null
+                                        ? sl.getDisbursementMethod().name()
+                                        : "null")
+                                .orElse("UNKNOWN"))));
     }
 
     private Result<ProcessingContext> loadDependencies(TradeLoanFacility facility, LumpSumDisbursementCommand command) {

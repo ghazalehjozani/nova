@@ -2,7 +2,9 @@ package ir.dotin.loan.trade.core.application.service.issuefacilitycontract.comma
 
 import java.time.Clock;
 import java.util.List;
+import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -94,7 +96,7 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
                 .orElseGet(() -> Result.failure(SagaErrors.COMPENSATED, extractReason(sagaResult)));
     }
 
-    private List<DomainEvent<?>> buildDomainEvents(IssueFacilityContractSagaData data) {
+    private List<DomainEvent<?>> buildDomainEvents(@Nullable IssueFacilityContractSagaData data) {
         if (data == null
                 || data.capturedEvents() == null
                 || data.capturedEvents().isEmpty()) {
@@ -105,8 +107,8 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
         return (List<DomainEvent<?>>) (List<?>) data.capturedEvents().stream()
                 .map(eventData -> (DomainEvent<?>) TradeLoanFacilityContractIssued.builder(clock)
                         .facilityId(eventData.facilityId())
-                        .sanctionedLoanId(eventData.sanctionedLoanId())
-                        .transactionNumber(eventData.transactionNumber())
+                        .sanctionedLoanId(Objects.requireNonNull(eventData.sanctionedLoanId(), "sanctionedLoanId"))
+                        .transactionNumber(Objects.requireNonNull(eventData.transactionNumber(), "transactionNumber"))
                         .occurredAt(eventData.occurredAt())
                         .build())
                 .toList();

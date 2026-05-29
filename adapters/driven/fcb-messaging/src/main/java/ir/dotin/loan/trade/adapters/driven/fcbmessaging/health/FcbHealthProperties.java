@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.health;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.Max;
@@ -55,7 +56,8 @@ public class FcbHealthProperties {
 
     private String producerCode = "NOVA";
 
-    private List<String> legacyConsumerGroupIds;
+    // optional config list; default empty so absence never yields null
+    private List<String> legacyConsumerGroupIds = new ArrayList<>();
 
     public enum StartupMode {
         FAIL_OPEN,

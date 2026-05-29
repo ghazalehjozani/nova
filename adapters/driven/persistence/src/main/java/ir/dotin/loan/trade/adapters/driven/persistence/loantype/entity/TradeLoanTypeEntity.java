@@ -18,6 +18,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 import org.hibernate.proxy.HibernateProxy;
+import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.pangaea.persistence.jpa.entity.PersistentEntity;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
@@ -44,19 +45,24 @@ import lombok.Setter;
 @NoArgsConstructor
 public class TradeLoanTypeEntity extends PersistentEntity {
 
+    @Nullable
     @Embedded
     private LoanTypeCodeEmb code;
 
+    @Nullable
     @Embedded
     private TitleEmb title;
 
+    @Nullable
     @Embedded
     private EditReasonEmb editReason;
 
+    @Nullable
     @Enumerated(EnumType.STRING)
     @Column(name = "gateway_type", nullable = false)
     private GatewayType gatewayType;
 
+    @Nullable
     @Column(name = "loan_application_allowed", nullable = false)
     private Boolean loanApplicationAllowed;
 
@@ -90,6 +96,7 @@ public class TradeLoanTypeEntity extends PersistentEntity {
             indexes = @Index(name = "idx_trade_loan_type_topic", columnList = "loan_type_id"))
     private Set<RelationTypeLoanTopicEmb> relationTypeLoanTopics = new HashSet<>();
 
+    @Nullable
     @Column(name = "group_id")
     private UUID groupId;
 
@@ -99,6 +106,7 @@ public class TradeLoanTypeEntity extends PersistentEntity {
     @Column(name = "disable", nullable = false)
     private boolean disable = false;
 
+    @Nullable
     @Column(name = "previous_version_id")
     private UUID previousVersion;
 

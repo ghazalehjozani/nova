@@ -3,6 +3,8 @@ package ir.dotin.loan.trade.core.domain.loanfacility.service;
 import java.time.Clock;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.domain.annotation.DomainService;
@@ -73,7 +75,7 @@ public class TradeLoanFacilityService
 
     @Override
     protected Result<Unit> performPreApprovalChecks(
-            TradeLoanFacility facility, AbstractSanctionedLoan.AbstractSanctionedLoanBuilder<?, ?> builder) {
+            TradeLoanFacility facility, AbstractSanctionedLoan.@Nullable AbstractSanctionedLoanBuilder<?, ?> builder) {
         return Result.success();
     }
 

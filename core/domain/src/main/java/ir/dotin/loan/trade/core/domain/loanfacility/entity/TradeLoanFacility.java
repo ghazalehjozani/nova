@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.util.List;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.domain.vo.Money;
@@ -37,7 +38,7 @@ public final class TradeLoanFacility
             LoanTypeId loanTypeId,
             LoanArrangementId loanArrangementId,
             Clock clock,
-            InstallmentScheduleId installmentScheduleId) {
+            @Nullable InstallmentScheduleId installmentScheduleId) {
 
         requireNonNull(id, "Facility ID cannot be null");
         requireNonNull(application, "Application cannot be null");
@@ -45,14 +46,16 @@ public final class TradeLoanFacility
         requireNonNull(loanArrangementId, "Loan arrangement ID cannot be null");
         requireNonNull(clock, "Clock cannot be null");
 
-        TradeLoanFacility facility = builder()
+        Builder b = builder()
                 .id(id)
                 .loanApplication(application)
                 .loanTypeId(loanTypeId)
                 .loanArrangementId(loanArrangementId)
-                .installmentScheduleId(installmentScheduleId)
-                .currentState(FacilityStatus.APPLICATION_SUBMITTED)
-                .buildInternal();
+                .currentState(FacilityStatus.APPLICATION_SUBMITTED);
+        if (installmentScheduleId != null) {
+            b.installmentScheduleId(installmentScheduleId);
+        }
+        TradeLoanFacility facility = b.buildInternal();
 
         var createdEvent = facility.getEventFactory()
                 .createCreatedEvent(
@@ -111,19 +114,19 @@ public final class TradeLoanFacility
         }
 
         @Override
-        public Builder sanctionedLoan(TradeSanctionedLoan newSanctionedLoan) {
+        public Builder sanctionedLoan(@Nullable TradeSanctionedLoan newSanctionedLoan) {
             super.sanctionedLoan(newSanctionedLoan);
             return this;
         }
 
         @Override
-        public Builder issueContractTransactionNumbers(List<TrackedTransactionNumber> newTransactionNumbers) {
+        public Builder issueContractTransactionNumbers(@Nullable List<TrackedTransactionNumber> newTransactionNumbers) {
             super.issueContractTransactionNumbers(newTransactionNumbers);
             return this;
         }
 
         @Override
-        public Builder disbursementTransactionNumbers(List<TrackedTransactionNumber> newTransactionNumbers) {
+        public Builder disbursementTransactionNumbers(@Nullable List<TrackedTransactionNumber> newTransactionNumbers) {
             super.disbursementTransactionNumbers(newTransactionNumbers);
             return this;
         }

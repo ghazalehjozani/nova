@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
@@ -32,7 +33,7 @@ public interface TradeLoanFacilityJpaRepository extends PersistentRepository<Tra
             """)
     long countByBranchCodeAndLoanTypeIdAndCustomerNumber(
             @Param("code") String code,
-            @Param("loanTypeId") UUID loanTypeId,
+            @Param("loanTypeId") @Nullable UUID loanTypeId,
             @Param("customerNumber") String customerNumber);
 
     @Query("""

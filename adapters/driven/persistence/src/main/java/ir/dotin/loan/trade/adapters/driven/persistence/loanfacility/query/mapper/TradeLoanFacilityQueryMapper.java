@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query.mapper;
 
 import java.text.MessageFormat;
+import java.util.Objects;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -69,9 +70,9 @@ public interface TradeLoanFacilityQueryMapper {
     default String formattedApplicationNumber(ApplicationNumberEmb emb) {
         return MessageFormat.format(
                 "{0}-{1}-{2}-{3}",
-                emb.getBranch().getCode(),
-                emb.getLoanTypeCode().getValue(),
-                emb.getParty().getCustomerNumber(),
+                Objects.requireNonNull(emb.getBranch(), "branch").getCode(),
+                Objects.requireNonNull(emb.getLoanTypeCode(), "loanTypeCode").getValue(),
+                Objects.requireNonNull(emb.getParty(), "party").getCustomerNumber(),
                 emb.getDerivedValue());
     }
 

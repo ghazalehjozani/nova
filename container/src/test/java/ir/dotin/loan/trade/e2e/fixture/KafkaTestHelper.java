@@ -15,6 +15,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.jspecify.annotations.Nullable;
 
 public final class KafkaTestHelper {
 
@@ -77,7 +78,7 @@ public final class KafkaTestHelper {
         return consumer;
     }
 
-    public static ConsumerRecord<String, byte[]> awaitResponse(
+    public static @Nullable ConsumerRecord<String, byte[]> awaitResponse(
             KafkaConsumer<String, byte[]> consumer, String eventUid, Duration timeout) {
         long deadline = System.currentTimeMillis() + timeout.toMillis();
         while (System.currentTimeMillis() < deadline) {

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.accounting.document.api.enumeration.RelationType;
@@ -138,7 +139,9 @@ public class IrregularProgressiveDisbursementCommandHandler
                 .orElseGet(() -> Result.failure(Notification.ofError(
                         TradeLoanApplicationServiceErrors.INVALID_DISBURSEMENT_METHOD,
                         facility.getSanctionedLoan()
-                                .map(sl -> sl.getDisbursementMethod().name())
+                                .map(sl -> sl.getDisbursementMethod() != null
+                                        ? sl.getDisbursementMethod().name()
+                                        : "null")
                                 .orElse("UNKNOWN"))));
     }
 
@@ -230,7 +233,7 @@ public class IrregularProgressiveDisbursementCommandHandler
     private Result<Unit> validateAll(TradeLoanFacility facility, ProcessingContext context) {
         return validateScheduleStatus(context)
                 .flatMap(ignored -> facility.validateDisbursementDate(
-                        context.disbursementDate(),
+                        requireNonNull(context.disbursementDate(), "disbursementDate"),
                         context.schedule().getInstallments().getFirst().getDueDate()))
                 .flatMap(ignored -> facility.validateIrregularTrancheDisbursement(context.trancheAmount()));
     }
@@ -280,7 +283,7 @@ public class IrregularProgressiveDisbursementCommandHandler
                         requireNonNull(
                                 facility.getSanctionedLoan().orElseThrow().getApprovedAmount()),
                         clock,
-                        context.config().userId())
+                        requireNonNull(context.config().userId(), "userId"))
                 .flatMap(newSchedule -> newSchedule.activateSchedule(clock).map(ignored -> newSchedule));
     }
 
@@ -355,8 +358,8 @@ public class IrregularProgressiveDisbursementCommandHandler
                         accountIds,
                         newSchedule.getId(),
                         clock,
-                        context.config().userId(),
-                        context.disbursementDate())
+                        requireNonNull(context.config().userId(), "userId"),
+                        requireNonNull(context.disbursementDate(), "disbursementDate"))
                 .map(ignored -> new DisbursementOperationResult(facility, context.schedule(), newSchedule));
     }
 
@@ -382,8 +385,8 @@ public class IrregularProgressiveDisbursementCommandHandler
             TransactionConfig config,
             PostTitle postTitle,
             Money trancheAmount,
-            LocalDate disbursementDate,
-            List<InstallmentSpec> customPlan) {}
+            @Nullable LocalDate disbursementDate,
+            @Nullable List<InstallmentSpec> customPlan) {}
 
     private record TransactionResult(
             TrackedTransactionNumber trackedTransactionNumber, Map<RelationType<?>, AccountId> accountIds) {}

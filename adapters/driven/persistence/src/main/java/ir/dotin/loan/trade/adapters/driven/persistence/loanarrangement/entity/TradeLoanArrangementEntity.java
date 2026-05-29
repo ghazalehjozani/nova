@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 
 import org.hibernate.proxy.HibernateProxy;
+import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.pangaea.persistence.jpa.embeddable.AmountRangeEmb;
 import ir.dotin.platform.pangaea.persistence.jpa.entity.PersistentEntity;
@@ -47,9 +48,11 @@ import lombok.Setter;
 @NoArgsConstructor
 public class TradeLoanArrangementEntity extends PersistentEntity {
 
+    @Nullable
     @Column(name = "code", nullable = false, unique = true)
     private String code;
 
+    @Nullable
     @Embedded
     private TitleEmb title;
 
@@ -59,21 +62,27 @@ public class TradeLoanArrangementEntity extends PersistentEntity {
     @Column(name = "disable", nullable = false)
     private boolean disable = false;
 
+    @Nullable
     @Embedded
     private CurrencyTypeEmb currencyType;
 
+    @Nullable
     @Embedded
     private EconomicSectorEmb economicSector;
 
+    @Nullable
     @Embedded
     private AmountRangeEmb amountRange;
 
+    @Nullable
     @Embedded
     private PeriodRangeEmb durationRange;
 
+    @Nullable
     @Column(name = "guarantor_count")
     private Integer guarantorCount;
 
+    @Nullable
     @Enumerated(EnumType.STRING)
     @Column(name = "party_type", nullable = false)
     private PartyType partyType;
@@ -81,46 +90,59 @@ public class TradeLoanArrangementEntity extends PersistentEntity {
     @Column(name = "has_installment_card", nullable = false)
     private boolean hasInstallmentCard = false;
 
+    @Nullable
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "loan_arrangement_confirm_types", joinColumns = @JoinColumn(name = "loan_arrangement_id"))
     private List<ConfirmTypeEmb> confirmTypes;
 
+    @Nullable
     @Enumerated(EnumType.STRING)
     @Column(name = "life_insurance_payment_type", nullable = false)
     private LifeInsurancePaymentType lifeInsurancePaymentType;
 
+    @Nullable
     @Enumerated(EnumType.STRING)
     @Column(name = "loan_secondary_type", nullable = false)
     private LoanSecondaryType loanSecondaryType;
 
+    @Nullable
     @Enumerated(EnumType.STRING)
     @Column(name = "section_type", nullable = false)
     private SectionType sectionType;
 
+    @Nullable
     @Embedded
     private InterestPolicyEmb interestPolicy;
 
+    @Nullable
     @Embedded
     private PenaltyPolicyEmb penaltyPolicy;
 
+    @Nullable
     @Embedded
     private InstallmentPolicyEmb installmentPolicy;
 
+    @Nullable
     @Embedded
     private GracePeriodPolicyEmb gracePeriodPolicy;
 
+    @Nullable
     @Embedded
     private RepaymentPriorityPolicyEmb repaymentPriorityPolicy;
 
+    @Nullable
     @Embedded
     private RegulatoryCompliancePolicyEmb regulatoryCompliancePolicy;
 
+    @Nullable
     @Embedded
     private CollateralPolicyEmb collateralPolicy;
 
+    @Nullable
     @Column(name = "previous_version_id")
     private UUID previousVersion;
 
+    @Nullable
     @Enumerated(EnumType.STRING)
     @Column(name = "disbursement_type")
     private DisbursementType disbursementType;

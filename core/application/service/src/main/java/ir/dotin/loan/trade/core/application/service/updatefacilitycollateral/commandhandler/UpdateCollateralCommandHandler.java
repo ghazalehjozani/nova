@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.core.application.service.updatefacilitycollateral.co
 
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -56,12 +57,15 @@ public class UpdateCollateralCommandHandler implements CommandHandler<UpdateColl
     private List<Collateral> buildCollateral(
             List<UpdateCollateralCommand.CollateralItem> collateralItems, CurrencyType currencyType) {
         if (collateralItems == null) {
-            return null;
+            return Collections.emptyList();
         }
 
         List<Collateral> list = new ArrayList<Collateral>(collateralItems.size());
         for (UpdateCollateralCommand.CollateralItem item : collateralItems) {
-            list.add(mapper.toCollateral(item, currencyType));
+            var collateral = mapper.toCollateral(item, currencyType);
+            if (collateral != null) {
+                list.add(collateral);
+            }
         }
 
         return list;

@@ -4,12 +4,15 @@ import java.io.Serializable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
+import org.jspecify.annotations.Nullable;
+
 import lombok.Data;
 
 @Data
 @Embeddable
 public class DescriptionEmb implements Serializable {
 
+    @Nullable
     @Column(name = "description", columnDefinition = "TEXT")
     private String value;
 }

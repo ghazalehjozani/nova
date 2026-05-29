@@ -16,8 +16,12 @@ import ir.dotin.loan.trade.adapters.driving.contract.dto.PartyRequestDto;
 
 public final class FullLifecycleMessageBuilder {
 
+    @SuppressWarnings("NullAway.Init") // builder field set via withLoanTypeCode before build()
     private String loanTypeCode;
+
+    @SuppressWarnings("NullAway.Init") // builder field set via withLoanArrangementCode before build()
     private String loanArrangementCode;
+
     private BigDecimal amount = new BigDecimal("50000000");
     private String currency = "IRR";
     private int durationMonths = 12;

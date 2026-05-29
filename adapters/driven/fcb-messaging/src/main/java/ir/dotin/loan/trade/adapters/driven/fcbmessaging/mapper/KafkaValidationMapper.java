@@ -40,6 +40,8 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.response.*;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+import static java.util.Objects.requireNonNull;
+
 @Slf4j
 @UtilityClass
 public class KafkaValidationMapper {
@@ -59,8 +61,14 @@ public class KafkaValidationMapper {
             return Result.failure(
                     Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "loadEconomicalSector"));
         }
+        // name/parentCode/hasChild are optional on the wire (a root sector has no parent); the target requires
+        // non-null, so coalesce absent values to safe defaults at the anti-corruption boundary.
+        Boolean hasChild = response.getHasChild();
         return EconomicalSectorResponse.of(
-                response.getCode(), response.getName(), response.getHasChild(), response.getParentCode());
+                response.getCode(),
+                response.getName() != null ? response.getName() : "",
+                hasChild != null ? hasChild : Boolean.FALSE,
+                response.getParentCode() != null ? response.getParentCode() : "");
     }
 
     public Result<EconomicalSectorValidation> mapToEcoSectorValidation(EcoSectorValidationKafkaResponse response) {
@@ -76,9 +84,9 @@ public class KafkaValidationMapper {
         }
         return ReasonType.of(
                 response.getCode(),
-                response.getCentralBankCode(),
+                nz(response.getCentralBankCode()),
                 response.getDescription(),
-                response.getReasonType(),
+                nz(response.getReasonType()),
                 response.isShouldHasSerial(),
                 response.isExemptionOfInquiryNumber());
     }
@@ -96,16 +104,19 @@ public class KafkaValidationMapper {
         }
         List<TopicInfo> result = new ArrayList<>();
         for (TopicInfoDto dto : response.getTopics()) {
+            if (dto.id() == null || dto.title() == null || dto.code() == null) {
+                continue; // skip malformed topic entries missing identity fields
+            }
             Result<TopicInfo> topicResult = TopicInfo.of(
                     dto.id(),
                     dto.title(),
                     dto.code(),
-                    dto.isDebtor(),
-                    dto.isUnderLine(),
-                    dto.type(),
-                    dto.hasOppositeAccount(),
-                    dto.numOfOpenableAccounts(),
-                    dto.isPermanent());
+                    nz(dto.isDebtor()),
+                    nz(dto.isUnderLine()),
+                    nz(dto.type()),
+                    nz(dto.hasOppositeAccount()),
+                    nz(dto.numOfOpenableAccounts()),
+                    nz(dto.isPermanent()));
             if (topicResult.isSuccess()) {
                 result.add(topicResult.unwrap());
             }
@@ -120,6 +131,9 @@ public class KafkaValidationMapper {
         }
         List<BranchCode> result = new ArrayList<>();
         for (BranchCodeListKafkaResponse.BranchCodeDto dto : response.getBranches()) {
+            if (dto.code() == null) {
+                continue; // skip branch entries missing the code
+            }
             result.add(new BranchCode(dto.code()));
         }
         return Result.success(result);
@@ -150,15 +164,15 @@ public class KafkaValidationMapper {
         }
         return BranchDetails.of(
                 response.getCode(),
-                response.getName(),
-                response.getForeignName(),
-                response.getGlobalCode(),
-                response.getManagerName(),
-                response.getSamCode(),
-                response.getSwiftCode(),
-                response.getClearBranch(),
-                response.getCityCode(),
-                response.getBankCode());
+                nz(response.getName()),
+                nz(response.getForeignName()),
+                requireNonNull(response.getGlobalCode(), "FCB loadBranch reply missing globalCode"),
+                nz(response.getManagerName()),
+                nz(response.getSamCode()),
+                nz(response.getSwiftCode()),
+                nz(response.getClearBranch()),
+                nz(response.getCityCode()),
+                nz(response.getBankCode()));
     }
 
     // ── CustomerServicePort mappings ──
@@ -169,7 +183,7 @@ public class KafkaValidationMapper {
             return Result.failure(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "loadCustomerInfo");
         }
         CustomerName customerName =
-                new CustomerName(response.getFirstName(), response.getLastName(), response.getTitle());
+                new CustomerName(nz(response.getFirstName()), nz(response.getLastName()), nz(response.getTitle()));
         PartyType partyType = Boolean.TRUE.equals(response.getReal()) ? PartyType.REAL : PartyType.LEGAL;
 
         Party party =
@@ -187,7 +201,8 @@ public class KafkaValidationMapper {
                                 .unwrap();
                 };
 
-        Result<NationalCode> nationalCodeResult = NationalCode.valueOf(response.getNationalCode());
+        Result<NationalCode> nationalCodeResult = NationalCode.valueOf(
+                requireNonNull(response.getNationalCode(), "FCB loadCustomerInfo reply missing nationalCode"));
         if (nationalCodeResult.isFailure()) {
             return Result.failure(nationalCodeResult.err().orElseThrow());
         }
@@ -207,7 +222,10 @@ public class KafkaValidationMapper {
         }
         List<PartyInfoResponse> result = new ArrayList<>();
         for (CustomerListKafkaResponse.CustomerInfoDto dto : response.getCustomers()) {
-            CustomerName customerName = new CustomerName(dto.firstName(), dto.lastName(), dto.title());
+            if (dto.customerNumber() == null || dto.nationalCode() == null) {
+                continue; // skip entries missing identity fields
+            }
+            CustomerName customerName = new CustomerName(nz(dto.firstName()), nz(dto.lastName()), nz(dto.title()));
             PartyType partyType = Boolean.TRUE.equals(dto.real()) ? PartyType.REAL : PartyType.LEGAL;
             Party party = new ApplicantParty(dto.customerNumber(), partyType, customerName);
 
@@ -227,11 +245,11 @@ public class KafkaValidationMapper {
 
     public Result<PartyBirthInfo> mapToPartyBirthInfo(CustomerBirthInfoKafkaResponse response) {
         return Result.success(new PartyBirthInfo(
-                response.getCustomerNumber(),
-                response.getAge(),
+                nz(response.getCustomerNumber()),
+                requireNonNull(response.getAge(), "FCB loadCustomerBirthInfo reply missing age"),
                 response.isGrowthOrder(),
                 response.isUnderEighteenYearsOld(),
-                response.getBirthDate(),
+                nz(response.getBirthDate()),
                 response.isCheckGrowthAg()));
     }
 
@@ -246,22 +264,31 @@ public class KafkaValidationMapper {
             return Result.failure(numberResult.err().orElseThrow());
         }
 
-        CurrencyType currencyType = null;
-        if (response.getCurrency() != null) {
-            Result<CurrencyType> currencyResult = CurrencyType.valueOf(response.getCurrency());
-            if (currencyResult.isSuccess()) {
-                currencyType = currencyResult.unwrap();
+        // FCB's legacy core does not always populate a deposit currency (it is left null for
+        // plain domestic deposits). Here getDepositInfo is an existence/ownership check only:
+        // FacilityValidator.validateDeposit inspects success/failure and never reads
+        // currencyType; the request-vs-deposit currency rule is validated separately via the
+        // DepositServicePort.hasDepositAllowedCurrencies call (validateDepositCurrency). So a
+        // missing currency must not fail the whole facility pre-flight — default it to the
+        // domestic IRR. A present-but-malformed value is still surfaced as a real contract error.
+        CurrencyType currencyType = CurrencyType.IRR;
+        String rawCurrency = response.getCurrency();
+        if (rawCurrency != null && !rawCurrency.isBlank()) {
+            Result<CurrencyType> currencyResult = CurrencyType.valueOf(rawCurrency);
+            if (currencyResult.isFailure()) {
+                return Result.failure(currencyResult.err().orElseThrow());
             }
+            currencyType = currencyResult.unwrap();
         }
 
         return DepositInfo.of(
                 numberResult.unwrap(),
-                response.getTitle(),
-                response.getType(),
+                nz(response.getTitle()),
+                nz(response.getType()),
                 currencyType,
-                response.getStatus(),
+                nz(response.getStatus()),
                 response.isExternalDeposit(),
-                response.getBranchCode(),
+                nz(response.getBranchCode()),
                 response.getOwnerNationalCodes() != null ? response.getOwnerNationalCodes() : List.of());
     }
 
@@ -319,25 +346,25 @@ public class KafkaValidationMapper {
 
     public Result<CollateralDetails> mapToCollateralDetails(CollateralDetailsKafkaResponse response) {
         return Result.success(new CollateralDetails(
-                response.getSerial(),
-                response.getCustomerNo(),
-                response.getAssuranceTypeCode(),
-                response.getAssuranceTypeName(),
-                response.getGuaranteeAmount(),
-                response.getPrice(),
-                response.getUsedMortgagePrice(),
-                response.getGuaranteeDuration(),
-                response.getGuaranteeNumber(),
-                response.getGuaranteeIssuer(),
-                response.getGuaranteeBranchCode(),
-                response.getLoanFileNumber(),
-                response.getBranchCode(),
-                response.getCurrency(),
+                nz(response.getSerial()),
+                nz(response.getCustomerNo()),
+                nz(response.getAssuranceTypeCode()),
+                nz(response.getAssuranceTypeName()),
+                requireNonNull(response.getGuaranteeAmount(), "FCB loadCollateral reply missing guaranteeAmount"),
+                requireNonNull(response.getPrice(), "FCB loadCollateral reply missing price"),
+                requireNonNull(response.getUsedMortgagePrice(), "FCB loadCollateral reply missing usedMortgagePrice"),
+                requireNonNull(response.getGuaranteeDuration(), "FCB loadCollateral reply missing guaranteeDuration"),
+                nz(response.getGuaranteeNumber()),
+                nz(response.getGuaranteeIssuer()),
+                nz(response.getGuaranteeBranchCode()),
+                nz(response.getLoanFileNumber()),
+                nz(response.getBranchCode()),
+                nz(response.getCurrency()),
                 response.isActive(),
                 response.isEscrowed(),
                 response.isReleaseAllowed(),
                 response.isSpecial(),
-                response.getAddress()));
+                nz(response.getAddress())));
     }
 
     // ── FetchSanctionDetailsPort mappings ──
@@ -383,6 +410,20 @@ public class KafkaValidationMapper {
             }
         }
 
+        // SanctionDetails requires these core sanction terms non-null; a reply that omits/mis-encodes any of them is
+        // not a usable sanction, so fail at the anti-corruption boundary rather than fabricate defaults.
+        if (sanctionType == null
+                || response.getApprovedAmount() == null
+                || currency == null
+                || gracePeriod == null
+                || response.getInstallmentCount() == null
+                || loanDuration == null
+                || disbursementMethod == null
+                || confirmType == null) {
+            return Result.failure(
+                    Notification.ofError(CoreBankingErrors.KAFKA_INVALID_RESPONSE, "fetchSanctionDetails"));
+        }
+
         return Result.success(new SanctionDetails(
                 response.getSanctionSerial(),
                 sanctionType,
@@ -400,7 +441,21 @@ public class KafkaValidationMapper {
 
     // ── Helpers ──
 
-    private Period parsePeriod(@Nullable String value) {
+    /**
+     * Anti-corruption coalescing for wire fields that are optional on the FCB reply but required (non-null) by the
+     * target response DTO. FCB may legitimately omit descriptive/secondary fields; treating an absent value as empty
+     * (rather than throwing) is the boundary policy for these. Identity/key fields are guarded separately and surface a
+     * {@code KAFKA_INVALID_RESPONSE} failure instead.
+     */
+    private static String nz(@Nullable String value) {
+        return value != null ? value : "";
+    }
+
+    private static boolean nz(@Nullable Boolean value) {
+        return value != null ? value : false;
+    }
+
+    private @Nullable Period parsePeriod(@Nullable String value) {
         if (value == null || value.isBlank()) return null;
         try {
             return Period.parse(value);
@@ -433,7 +488,7 @@ public class KafkaValidationMapper {
     }
 
     private static CoreBankingErrors resolveViolationError(SamatViolationDto violation) {
-        return switch (violation.getViolationCode()) {
+        return switch (nz(violation.getViolationCode())) {
             case "INVALID_USE_TYPE" -> CoreBankingErrors.SAMAT_INVALID_USE_TYPE;
             case "INVALID_ISIC_ECONOMIC_SECTOR" -> CoreBankingErrors.SAMAT_INVALID_ISIC_ECONOMIC_SECTOR;
             case "INVALID_ISIC_SUB_COMBINATION" -> CoreBankingErrors.SAMAT_INVALID_ISIC_SUB_COMBINATION;
@@ -444,7 +499,7 @@ public class KafkaValidationMapper {
     }
 
     private static Object[] buildViolationArgs(SamatViolationDto violation) {
-        return switch (violation.getViolationCode()) {
+        return switch (nz(violation.getViolationCode())) {
             case "INVALID_ISIC_SUB_COMBINATION" -> new Object[] {violation.getProvidedValue(), violation.getField()};
             case "SAMAT_UNKNOWN_VIOLATION" -> new Object[] {violation.getViolationCode(), violation.getMessage()};
             default -> new Object[] {violation.getProvidedValue()};

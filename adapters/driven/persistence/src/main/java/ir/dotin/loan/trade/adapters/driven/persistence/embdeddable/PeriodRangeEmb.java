@@ -6,6 +6,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.platform.pangaea.persistence.jpa.embeddable.PeriodEmb;
 
 import lombok.Data;
@@ -14,6 +16,7 @@ import lombok.Data;
 @Embeddable
 public class PeriodRangeEmb {
 
+    @Nullable
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "years", column = @Column(name = "min_years")),
@@ -22,6 +25,7 @@ public class PeriodRangeEmb {
     })
     private PeriodEmb minPeriod;
 
+    @Nullable
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "years", column = @Column(name = "max_years")),

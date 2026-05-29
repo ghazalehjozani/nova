@@ -11,7 +11,7 @@ import ir.dotin.platform.pangaea.dispatcher.api.command.Command;
 public record CancelFacilityCommand(
         @NotNull UUID uid,
         @NotNull Long version,
-        UUID loanFacilityId,
+        @Nullable UUID loanFacilityId,
         String applicationNumber,
         LocalDate cancelDate,
         String cancelDescription,

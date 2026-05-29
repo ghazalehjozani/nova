@@ -25,12 +25,16 @@ public final class DisbursementMethodCompatibilitySpecification
     public Verdict isSatisfiedBy(AbstractLoanFacility<?, ?, ?> facility) {
         requireNonNull(facility, "facility cannot be null");
         DisbursementType arrangementDisbursementType = tradeLoanArrangement.getDisbursementType();
+        @org.jspecify.annotations.Nullable
         DisbursementMethod applicationDisbursementMethod =
                 facility.getLoanApplication().getDisbursementMethod();
-        if (!arrangementDisbursementType.allows(applicationDisbursementMethod)) {
+        if (applicationDisbursementMethod == null
+                || !arrangementDisbursementType.allows(applicationDisbursementMethod)) {
+            // Pass "null" string representation when disbursement method is absent so that the
+            // @NonNull vararg slot in NotificationError.of() is satisfied.
             NotificationError error = NotificationError.of(
                     LoanFacilityErrors.DISBURSEMENT_METHOD_MISMATCH,
-                    applicationDisbursementMethod,
+                    String.valueOf(applicationDisbursementMethod),
                     arrangementDisbursementType);
             return Verdict.notSatisfied(Notification.ofError(error));
         }

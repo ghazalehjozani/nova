@@ -4,14 +4,19 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.UUID.randomUUID;
 
 public record TradeLoanFacilityOriginationReverted(
-        UUID eventId, UUID aggregateId, String eventType, String reason, Instant createdAt)
-        implements TradeLoanFacilityEvents<TradeLoanFacilityOriginationReverted> {
+        UUID eventId,
+        UUID aggregateId,
+        String eventType,
+        @Nullable String reason,
+        Instant createdAt) implements TradeLoanFacilityEvents<TradeLoanFacilityOriginationReverted> {
 
     public TradeLoanFacilityOriginationReverted {
         requireNonNull(eventId);
@@ -35,9 +40,9 @@ public record TradeLoanFacilityOriginationReverted(
 
     public static class Builder {
         private final Clock clock;
-        private UUID facilityId;
-        private String reason;
-        private Instant occurredAt;
+        private @Nullable UUID facilityId;
+        private @Nullable String reason;
+        private @Nullable Instant occurredAt;
 
         public Builder(Clock clock) {
             this.clock = clock;
@@ -61,7 +66,7 @@ public record TradeLoanFacilityOriginationReverted(
         public TradeLoanFacilityOriginationReverted build() {
             return new TradeLoanFacilityOriginationReverted(
                     randomUUID(),
-                    facilityId,
+                    java.util.Objects.requireNonNull(facilityId, "facilityId"),
                     TradeLoanFacilityEventType.ORIGINATION_REVERTED.getFullType(),
                     reason,
                     occurredAt != null ? occurredAt : clock.instant());

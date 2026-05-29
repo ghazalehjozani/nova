@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.core.application.service.addfacilitycollateral.compo
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -128,7 +129,9 @@ public class AddFacilityCollateralDependencyLoader {
 
         CollateralValidation validation = validationRes.unwrap();
         if (!validation.isValid()) {
-            return Result.failure(TradeLoanApplicationServiceErrors.COLLATERAL_VALIDATION_FAILED, validation.message());
+            return Result.failure(
+                    TradeLoanApplicationServiceErrors.COLLATERAL_VALIDATION_FAILED,
+                    Objects.requireNonNullElse(validation.message(), ""));
         }
 
         return Result.success(new CollateralValidationContext(

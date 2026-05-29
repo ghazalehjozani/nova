@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -193,8 +194,13 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
         var data = ctx.getSagaData();
         log.warn("Reversing transaction: {}", transactionNumber);
 
+        // postedTransactionNumber and postedTrackingId are guaranteed set by the postTransaction step before
+        // compensation
         var trackedNumber = TrackedTransactionNumber.create(
-                data.postedTransactionNumber(), data.postedTrackingId(), TransactionStatus.POSTED, clock);
+                Objects.requireNonNull(data.postedTransactionNumber(), "postedTransactionNumber"),
+                Objects.requireNonNull(data.postedTrackingId(), "postedTrackingId"),
+                TransactionStatus.POSTED,
+                clock);
 
         return ResultStepAdapter.toStepResultVoid(transactionPostingPort.reverseTransaction(trackedNumber));
     }
@@ -209,8 +215,12 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
 
         var facility = facilityResult.unwrap();
 
+        // postedTransactionNumber, postedTrackingId, transactionStatus are guaranteed set by the postTransaction step
         var trackedNumber = TrackedTransactionNumber.create(
-                data.postedTransactionNumber(), data.postedTrackingId(), data.transactionStatus(), clock);
+                Objects.requireNonNull(data.postedTransactionNumber(), "postedTransactionNumber"),
+                Objects.requireNonNull(data.postedTrackingId(), "postedTrackingId"),
+                Objects.requireNonNull(data.transactionStatus(), "transactionStatus"),
+                clock);
 
         var issueResult = facility.issueContract(trackedNumber, data.getAccountIdsByRelationType(), clock);
 
@@ -297,9 +307,11 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
 
         return DocumentMetadataFactory.builder()
                 .terminal(DocumentMetadataFactory.TerminalConfig.of(
-                        config.terminalType(), config.terminalId(), config.terminalIp()))
+                        Objects.requireNonNull(config.terminalType(), "terminalType"),
+                        Objects.requireNonNull(config.terminalId(), "terminalId"),
+                        Objects.requireNonNull(config.terminalIp(), "terminalIp")))
                 .product(DocumentMetadataFactory.ProductConfig.of(
-                        config.productCode(),
+                        Objects.requireNonNull(config.productCode(), "productCode"),
                         loanType.getCode().value(),
                         facility.getLoanApplication()
                                 .getApplicationNumber()
@@ -309,14 +321,19 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
                         facility.getLoanApplication().getApplicant().customerNumber(),
                         facility.getLoanApplication().getApplicant().name().fullName(),
                         List.of()))
-                .tool(DocumentMetadataFactory.ToolConfig.of(config.userId(), config.toolSource()))
-                .network(DocumentMetadataFactory.NetworkConfig.of(config.networkType(), config.channel()))
+                .tool(DocumentMetadataFactory.ToolConfig.of(
+                        Objects.requireNonNull(config.userId(), "userId"),
+                        Objects.requireNonNull(config.toolSource(), "toolSource")))
+                .network(DocumentMetadataFactory.NetworkConfig.of(
+                        Objects.requireNonNull(config.networkType(), "networkType"),
+                        Objects.requireNonNull(config.channel(), "channel")))
                 .operational(OperationalInfo.builder().build())
                 .build()
                 .flatMap(metadata -> transactionService.createIssueContractTransaction(
                         facility,
                         loanType,
-                        BranchCode.of(config.branchCode()).unwrap(),
+                        BranchCode.of(Objects.requireNonNull(config.branchCode(), "branchCode"))
+                                .unwrap(),
                         postTitle,
                         metadata,
                         resolvedAccounts));

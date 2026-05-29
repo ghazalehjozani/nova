@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.shared.query;
 
+import java.util.Objects;
+
 import org.springframework.data.domain.Sort;
 
 import ir.dotin.loan.trade.core.application.query.shared.pagination.OffsetPageRequest;
@@ -19,7 +21,8 @@ public final class SortBuilder {
                 ? Sort.Direction.ASC
                 : Sort.Direction.DESC;
 
-        return Sort.by(direction, pageRequest.sortBy()).and(Sort.by(Sort.Direction.DESC, "id"));
+        return Sort.by(direction, Objects.requireNonNull(pageRequest.sortBy(), "sortBy"))
+                .and(Sort.by(Sort.Direction.DESC, "id"));
     }
 
     public static Sort buildCursorSort() {

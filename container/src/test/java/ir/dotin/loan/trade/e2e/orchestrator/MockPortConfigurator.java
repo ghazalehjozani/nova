@@ -92,7 +92,7 @@ public class MockPortConfigurator {
     private void configureLoanServiceDefaults() {
         when(loanServicePort.loadEconomicalSectorByCode(any())).thenReturn(Result.success(new EconomicSector("2-1")));
         when(loanServicePort.loadEconomicalSector(any()))
-                .thenReturn(Result.success(new EconomicalSectorResponse("2-1", "Exchange", false, null)));
+                .thenReturn(Result.success(new EconomicalSectorResponse("2-1", "Exchange", false, "")));
         when(loanServicePort.validateEconomicalSectorForLoanType(any(), any()))
                 .thenReturn(Result.success(new EconomicalSectorValidation(true, null)));
         when(loanServicePort.loadReasonTypeForCreate(any()))
@@ -145,8 +145,7 @@ public class MockPortConfigurator {
             }
             return Result.success(results);
         });
-        when(transactionPostingPort.reverseTransaction(any()))
-                .thenReturn(Result.<ir.dotin.platform.pangaea.commons.core.Unit>success());
+        when(transactionPostingPort.reverseTransaction(any())).thenReturn(Result.success());
     }
 
     private void configureCollateralServiceDefaults() {
@@ -160,24 +159,24 @@ public class MockPortConfigurator {
                 .thenReturn(Result.success(
                         new ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralDetails(
                                 "E2E-SERIAL",
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
+                                "",
+                                "",
+                                "",
+                                java.math.BigDecimal.ZERO,
+                                java.math.BigDecimal.ZERO,
+                                java.math.BigDecimal.ZERO,
+                                0,
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
+                                "",
                                 false,
                                 false,
                                 false,
                                 false,
-                                null)));
+                                "")));
         when(collateralServicePort.unReserveCollateral(any(), any(), any(), any()))
                 .thenReturn(Result.success(
                         new ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial("E2E-SERIAL")));
@@ -208,7 +207,7 @@ public class MockPortConfigurator {
     private void configureCustomerServiceDefaults() {
         when(customerServicePort.loadCustomerInfo(any(), any(), any(), any()))
                 .thenReturn(Result.success(new PartyInfoResponse(
-                        new ApplicantParty("12345678", PartyType.REAL, new CustomerName("Test", "User", null)),
+                        new ApplicantParty("12345678", PartyType.REAL, new CustomerName("Test", "User", "")),
                         new NationalCode("1234567890"),
                         false,
                         false,
@@ -227,6 +226,17 @@ public class MockPortConfigurator {
         when(fetchSanctionDetailsPort.fetchBySanctionSerial(any()))
                 .thenReturn(Result.success(
                         new ir.dotin.loan.trade.core.application.ports.outbound.client.response.SanctionDetails(
-                                "E2E-SANCTION", null, null, null, null, null, null, null, null, null, null, null)));
+                                "E2E-SANCTION",
+                                ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType.GENERAL,
+                                java.math.BigDecimal.ZERO,
+                                new CurrencyType(java.util.Currency.getInstance("IRR")),
+                                java.time.Period.ZERO,
+                                0,
+                                java.time.Period.ZERO,
+                                ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod.LUMP_SUM,
+                                null,
+                                null,
+                                null,
+                                new ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType("1"))));
     }
 }

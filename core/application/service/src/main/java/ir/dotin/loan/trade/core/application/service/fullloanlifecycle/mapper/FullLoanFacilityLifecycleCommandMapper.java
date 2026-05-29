@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.core.application.service.fullloanlifecycle.mapper;
 
+import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
 
 import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
@@ -49,16 +50,16 @@ public interface FullLoanFacilityLifecycleCommandMapper {
                 .build();
     }
 
-    default OriginateLoanFacilityCommand.RequestReasonDto toOriginationRequestReason(
-            FullLoanFacilityLifecycleCommand.RequestReasonDto reason) {
+    default OriginateLoanFacilityCommand.@Nullable RequestReasonDto toOriginationRequestReason(
+            FullLoanFacilityLifecycleCommand.@Nullable RequestReasonDto reason) {
         if (reason == null) return null;
         return OriginateLoanFacilityCommand.RequestReasonDto.builder()
                 .code(reason.code())
                 .build();
     }
 
-    default OriginateLoanFacilityCommand.InstallmentSchedulePlanDto toOriginationSchedulePlan(
-            FullLoanFacilityLifecycleCommand.InstallmentSchedulePlanDto plan) {
+    default OriginateLoanFacilityCommand.@Nullable InstallmentSchedulePlanDto toOriginationSchedulePlan(
+            FullLoanFacilityLifecycleCommand.@Nullable InstallmentSchedulePlanDto plan) {
         if (plan == null) return null;
         return OriginateLoanFacilityCommand.InstallmentSchedulePlanDto.builder()
                 .installments(plan.installments().stream()
@@ -77,65 +78,68 @@ public interface FullLoanFacilityLifecycleCommandMapper {
                 .build();
     }
 
-    default OriginateLoanFacilityCommand.LoanDurationDto toOriginationLoanDuration(
-            FullLoanFacilityLifecycleCommand.LoanDurationDto dto) {
+    default OriginateLoanFacilityCommand.@Nullable LoanDurationDto toOriginationLoanDuration(
+            FullLoanFacilityLifecycleCommand.@Nullable LoanDurationDto dto) {
         if (dto == null) return null;
         return OriginateLoanFacilityCommand.LoanDurationDto.builder()
                 .value(dto.value())
                 .build();
     }
 
-    default OriginateLoanFacilityCommand.GracePeriodDto toOriginationGracePeriod(
-            FullLoanFacilityLifecycleCommand.GracePeriodDto dto) {
+    default OriginateLoanFacilityCommand.@Nullable GracePeriodDto toOriginationGracePeriod(
+            FullLoanFacilityLifecycleCommand.@Nullable GracePeriodDto dto) {
         if (dto == null) return null;
         return OriginateLoanFacilityCommand.GracePeriodDto.builder()
                 .value(dto.value())
                 .build();
     }
 
-    default OriginateLoanFacilityCommand.InstallmentCountDto toOriginationInstallmentCount(
-            FullLoanFacilityLifecycleCommand.InstallmentCountDto dto) {
+    default OriginateLoanFacilityCommand.@Nullable InstallmentCountDto toOriginationInstallmentCount(
+            FullLoanFacilityLifecycleCommand.@Nullable InstallmentCountDto dto) {
         if (dto == null) return null;
         return OriginateLoanFacilityCommand.InstallmentCountDto.builder()
                 .value(dto.value())
                 .build();
     }
 
-    default EconomicSectorDto toOriginationEconomicSector(FullLoanFacilityLifecycleCommand.EconomicSectorDto dto) {
+    default @Nullable EconomicSectorDto toOriginationEconomicSector(
+            FullLoanFacilityLifecycleCommand.@Nullable EconomicSectorDto dto) {
         if (dto == null) return null;
         return EconomicSectorDto.builder().code(dto.code()).build();
     }
 
-    default OriginateLoanFacilityCommand.BranchDto toOriginationBranch(FullLoanFacilityLifecycleCommand.BranchDto dto) {
+    default OriginateLoanFacilityCommand.@Nullable BranchDto toOriginationBranch(
+            FullLoanFacilityLifecycleCommand.@Nullable BranchDto dto) {
         if (dto == null) return null;
         return OriginateLoanFacilityCommand.BranchDto.builder().code(dto.code()).build();
     }
 
-    default OriginateLoanFacilityCommand.SubSourceDto toOriginationSubSource(
-            FullLoanFacilityLifecycleCommand.SubSourceDto dto) {
+    default OriginateLoanFacilityCommand.@Nullable SubSourceDto toOriginationSubSource(
+            FullLoanFacilityLifecycleCommand.@Nullable SubSourceDto dto) {
         if (dto == null) return null;
         return OriginateLoanFacilityCommand.SubSourceDto.builder()
                 .code(dto.code())
                 .build();
     }
 
-    default OriginateLoanFacilityCommand.DescriptionDto toOriginationDescription(
-            FullLoanFacilityLifecycleCommand.DescriptionDto dto) {
+    default OriginateLoanFacilityCommand.@Nullable DescriptionDto toOriginationDescription(
+            FullLoanFacilityLifecycleCommand.@Nullable DescriptionDto dto) {
         if (dto == null) return null;
         return OriginateLoanFacilityCommand.DescriptionDto.builder()
                 .value(dto.value())
                 .build();
     }
 
-    default OriginateLoanFacilityCommand.CredibilityRankDto toOriginationCredibilityRank(
-            FullLoanFacilityLifecycleCommand.CredibilityRankDto dto) {
+    default OriginateLoanFacilityCommand.@Nullable CredibilityRankDto toOriginationCredibilityRank(
+            FullLoanFacilityLifecycleCommand.@Nullable CredibilityRankDto dto) {
         if (dto == null) return null;
         return OriginateLoanFacilityCommand.CredibilityRankDto.builder()
                 .value(dto.value())
                 .build();
     }
 
-    default TransactionConfig toTransactionConfig(FullLoanFacilityLifecycleCommand.TransactionMetadataDto ctx) {
+    default @Nullable TransactionConfig toTransactionConfig(
+            FullLoanFacilityLifecycleCommand.@Nullable TransactionMetadataDto ctx) {
         if (ctx == null) return null;
         return TransactionConfig.builder()
                 .branchCode(ctx.branchCode())

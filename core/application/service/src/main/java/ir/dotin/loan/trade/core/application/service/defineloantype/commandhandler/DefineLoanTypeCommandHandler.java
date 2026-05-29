@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.core.application.service.defineloantype.commandhandl
 import java.time.Clock;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -138,7 +139,8 @@ public class DefineLoanTypeCommandHandler implements CommandHandler<DefineLoanTy
         for (EconomicalSectorValidation validation : validations) {
             if (!validation.isValid()) {
                 aggregatedNotification.addError(
-                        TradeLoanApplicationServiceErrors.INVALID_ECONOMIC_SECTOR_FOR_LOAN_TYPE, validation.message());
+                        TradeLoanApplicationServiceErrors.INVALID_ECONOMIC_SECTOR_FOR_LOAN_TYPE,
+                        Objects.requireNonNullElse(validation.message(), ""));
             }
         }
         return aggregatedNotification.hasErrors() ? Result.failure(aggregatedNotification) : Result.success();

@@ -19,15 +19,23 @@ public class FcbKafkaProperties {
 
     public static final String PREFIX = "nova.fcb.kafka";
 
+    // Spring @ConfigurationProperties binding populates this (required, @NotBlank)
+    @SuppressWarnings("NullAway.Init")
     @NotBlank
     private String requestTopic;
 
+    // Spring @ConfigurationProperties binding populates this (required, @NotBlank)
+    @SuppressWarnings("NullAway.Init")
     @NotBlank
     private String replyTopic;
 
+    // Spring @ConfigurationProperties binding populates this (required, @NotBlank)
+    @SuppressWarnings("NullAway.Init")
     @NotBlank
     private String healthRequestTopic;
 
+    // Spring @ConfigurationProperties binding populates this (required, @NotBlank)
+    @SuppressWarnings("NullAway.Init")
     @NotBlank
     private String healthReplyTopic;
 

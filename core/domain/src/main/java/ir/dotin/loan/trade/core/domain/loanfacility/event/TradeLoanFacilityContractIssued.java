@@ -4,6 +4,8 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 
@@ -44,10 +46,10 @@ public record TradeLoanFacilityContractIssued(
     }
 
     public static final class Builder {
-        private UUID aggregateId;
-        private UUID sanctionedLoanId;
-        private String transactionNumber;
-        private Instant createdAt;
+        private @Nullable UUID aggregateId;
+        private @Nullable UUID sanctionedLoanId;
+        private @Nullable String transactionNumber;
+        private @Nullable Instant createdAt;
         private final Clock clock;
 
         private Builder(Clock clock) {
@@ -77,11 +79,11 @@ public record TradeLoanFacilityContractIssued(
         public TradeLoanFacilityContractIssued build() {
             return new TradeLoanFacilityContractIssued(
                     randomUUID(),
-                    aggregateId,
+                    java.util.Objects.requireNonNull(aggregateId, "aggregateId"),
                     TradeLoanFacilityEventType.CONTRACT_ISSUED.getFullType(),
-                    sanctionedLoanId,
-                    transactionNumber,
-                    clock.instant());
+                    java.util.Objects.requireNonNull(sanctionedLoanId, "sanctionedLoanId"),
+                    java.util.Objects.requireNonNull(transactionNumber, "transactionNumber"),
+                    createdAt != null ? createdAt : clock.instant());
         }
     }
 }

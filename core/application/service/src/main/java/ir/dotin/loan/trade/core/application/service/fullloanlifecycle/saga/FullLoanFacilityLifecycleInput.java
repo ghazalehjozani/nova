@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
 import ir.dotin.platform.pangaea.saga.api.definition.SagaInput;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
@@ -18,7 +20,7 @@ public record FullLoanFacilityLifecycleInput(
         String branchCode,
         TransactionConfig transactionConfig,
         DisbursementMethod disbursementMethod,
-        LocalDate disbursementDate,
+        @Nullable LocalDate disbursementDate,
         UUID correlationId,
         String confirmType)
         implements SagaInput {
@@ -30,7 +32,7 @@ public record FullLoanFacilityLifecycleInput(
             String branchCode,
             TransactionConfig transactionConfig,
             DisbursementMethod disbursementMethod,
-            LocalDate disbursementDate,
+            @Nullable LocalDate disbursementDate,
             UUID correlationId,
             String confirmType) {
         return new FullLoanFacilityLifecycleInput(

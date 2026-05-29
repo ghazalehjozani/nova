@@ -14,6 +14,7 @@ import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator.MinimalChai
 
 import static ir.dotin.loan.trade.e2e.assertion.BaseResponseAssertions.assertSuccess;
 import static ir.dotin.loan.trade.e2e.assertion.BaseResponseAssertions.extractData;
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Disabled
@@ -45,7 +46,8 @@ class LoanTypeQueryRestE2ETest extends AbstractRestE2E {
 
     @Test
     void shouldSearchLoanTypesByCode() {
-        String code = loanType.getCode().getValue();
+        String code =
+                requireNonNull(loanType.getCode(), "loan type code after save").getValue();
 
         ResponseEntity<String> response = getJson("/loan-types/search?code=" + code);
 

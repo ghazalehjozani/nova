@@ -25,9 +25,10 @@ public class LoanFacilityRestructuringMessageMapper {
                 LoanFacilityRestructuringCommand.InstallmentSchedulePlanDto.builder()
                         .installments(installments)
                         .build();
+        // version: no optimistic-lock check for message-driven restructuring; 0L = unversioned sentinel.
         return new LoanFacilityRestructuringCommand(
                 UUID.randomUUID(),
-                null,
+                0L,
                 message.fileNumber(),
                 userId,
                 message.transactionNumber(),

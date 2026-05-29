@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driving.contract.mapper;
 import java.math.BigDecimal;
 import java.time.Period;
 
+import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -87,15 +88,15 @@ public interface OriginateLoanFacilityRequestMapper {
         return new OriginateLoanFacilityCommand.RequestReasonDto(code);
     }
 
-    default OriginateLoanFacilityCommand.SubSourceDto mapSubSource(String code) {
+    default OriginateLoanFacilityCommand.@Nullable SubSourceDto mapSubSource(@Nullable String code) {
         return code != null ? new OriginateLoanFacilityCommand.SubSourceDto(code) : null;
     }
 
-    default OriginateLoanFacilityCommand.DescriptionDto mapDescription(String value) {
+    default OriginateLoanFacilityCommand.@Nullable DescriptionDto mapDescription(@Nullable String value) {
         return value != null ? new OriginateLoanFacilityCommand.DescriptionDto(value) : null;
     }
 
-    default OriginateLoanFacilityCommand.CredibilityRankDto mapCredibilityRank(String value) {
+    default OriginateLoanFacilityCommand.@Nullable CredibilityRankDto mapCredibilityRank(@Nullable String value) {
         return value != null ? new OriginateLoanFacilityCommand.CredibilityRankDto(value) : null;
     }
 }

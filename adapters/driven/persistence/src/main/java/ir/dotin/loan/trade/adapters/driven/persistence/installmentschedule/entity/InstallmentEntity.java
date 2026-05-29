@@ -19,6 +19,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import org.hibernate.proxy.HibernateProxy;
+import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.pangaea.persistence.jpa.embeddable.MoneyEmb;
 import ir.dotin.platform.pangaea.persistence.jpa.entity.PersistentEntity;
@@ -37,19 +38,24 @@ import lombok.Setter;
 @NoArgsConstructor
 public class InstallmentEntity extends PersistentEntity {
 
+    @Nullable
     @Column(name = "sequence_number")
     private Integer sequenceNumber;
 
+    @Nullable
     @Embedded
     private InstallmentAmountEmb scheduledAmount;
 
+    @Nullable
     @Column(name = "due_date")
     private LocalDate dueDate;
 
+    @Nullable
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private InstallmentStatus status;
 
+    @Nullable
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "amount", column = @Column(name = "paid_amount_amount", precision = 19, scale = 4)),
@@ -57,6 +63,7 @@ public class InstallmentEntity extends PersistentEntity {
     })
     private MoneyEmb paidAmount;
 
+    @Nullable
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "amount", column = @Column(name = "outstanding_amount", precision = 19, scale = 4)),
@@ -64,9 +71,11 @@ public class InstallmentEntity extends PersistentEntity {
     })
     private MoneyEmb outstandingAmount;
 
+    @Nullable
     @Column(name = "paid_date")
     private LocalDate paidDate;
 
+    @Nullable
     @ManyToOne
     @JoinColumn(name = "installment_schedule_id", nullable = false)
     private InstallmentScheduleEntity installmentSchedule;

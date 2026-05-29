@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.mapper;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -59,7 +60,7 @@ public interface TradeLoanFacilityPersistenceMapper {
             qualifiedByName = "fromCloseFacilityPaidOffInfoEmb")
     TradeLoanFacility map(TradeLoanFacilityEntity entity);
 
-    default LocalDate map(Optional<LocalDate> optional) {
+    default @Nullable LocalDate map(Optional<LocalDate> optional) {
         return optional.orElse(null);
     }
 

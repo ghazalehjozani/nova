@@ -25,7 +25,10 @@ public class ResilientCacheErrorHandler implements CacheErrorHandler {
 
     @Override
     public void handleCachePutError(
-            @NonNull RuntimeException exception, Cache cache, @NonNull Object key, Object value) {
+            @NonNull RuntimeException exception,
+            Cache cache,
+            @NonNull Object key,
+            @org.jspecify.annotations.Nullable Object value) {
         log.error("Cache PUT error for cache='{}', key='{}'", cache.getName(), key, exception);
     }
 

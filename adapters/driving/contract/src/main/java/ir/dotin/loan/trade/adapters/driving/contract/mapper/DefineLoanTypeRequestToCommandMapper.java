@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.adapters.driving.contract.mapper;
 
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.mapstruct.*;
 
 import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineLoanTypeRequest;
@@ -22,8 +23,8 @@ public interface DefineLoanTypeRequestToCommandMapper {
     @Mapping(source = "loanApplicationAllowed", target = "loanApplicationAllowed.isAllowed")
     DefineLoanTypeCommand toCommand(DefineLoanTypeRequest request);
 
-    default DefineLoanTypeCommand.EconomicSectorCurrencyDto mapEconomicSectorCurrency(
-            DefineLoanTypeRequest.EconomicSectorCurrencyDto economicSectorCurrency) {
+    default DefineLoanTypeCommand.@Nullable EconomicSectorCurrencyDto mapEconomicSectorCurrency(
+            DefineLoanTypeRequest.@Nullable EconomicSectorCurrencyDto economicSectorCurrency) {
         if (economicSectorCurrency == null) {
             return null;
         }
@@ -34,12 +35,12 @@ public interface DefineLoanTypeRequestToCommandMapper {
                         .collect(Collectors.toSet()));
     }
 
-    default LoanArrangementCodeDto mapLoanArrangementCode(String loanArrangementCode) {
+    default @Nullable LoanArrangementCodeDto mapLoanArrangementCode(@Nullable String loanArrangementCode) {
         return loanArrangementCode != null ? new LoanArrangementCodeDto(loanArrangementCode) : null;
     }
 
-    default DefineLoanTypeCommand.RelationTypeLoanTopicDto mapRelationTypeLoanTopic(
-            DefineLoanTypeRequest.RelationTypeLoanTopicDto relationTypeLoanTopic) {
+    default DefineLoanTypeCommand.@Nullable RelationTypeLoanTopicDto mapRelationTypeLoanTopic(
+            DefineLoanTypeRequest.@Nullable RelationTypeLoanTopicDto relationTypeLoanTopic) {
         if (relationTypeLoanTopic == null) {
             return null;
         }

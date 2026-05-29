@@ -14,6 +14,8 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.CancelFacility
 public class CancelFacilityRequestToCommandMapper {
 
     public CancelFacilityCommand toCommand(CancelFacilityRequest message) {
+        // loanFacilityId is null at the message boundary — the handler resolves the facility from fileNumber
+        // (→ applicationNumber) via ApplicationNumberResolver. The command field is @Nullable for exactly this path.
         return new CancelFacilityCommand(
                 UUID.randomUUID(),
                 0L,

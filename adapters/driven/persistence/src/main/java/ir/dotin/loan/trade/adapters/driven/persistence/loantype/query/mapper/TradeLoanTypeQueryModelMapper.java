@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loantype.query.mapper;
 
+import java.util.Objects;
+
 import org.mapstruct.Mapper;
 
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.EconomicSectorCurrencyEmb;
@@ -14,7 +16,8 @@ public interface TradeLoanTypeQueryModelMapper {
 
     default TradeLoanTypeQueryDto.EconomicSectorCurrencyEmbDto map(EconomicSectorCurrencyEmb e) {
         return new TradeLoanTypeQueryDto.EconomicSectorCurrencyEmbDto(
-                e.getEconomicSectorCode(), currencyTypeEmbDtoSetMap(e.getCurrencyTypes()));
+                Objects.requireNonNull(e.getEconomicSectorCode(), "economicSectorCode"),
+                currencyTypeEmbDtoSetMap(Objects.requireNonNull(e.getCurrencyTypes(), "currencyTypes")));
     }
 
     default TradeLoanTypeQueryDto.CurrencyTypeEmbDto map(String value) {
@@ -23,10 +26,10 @@ public interface TradeLoanTypeQueryModelMapper {
 
     default TradeLoanTypeQueryDto.RelationTypeLoanTopicEmbDto map(RelationTypeLoanTopicEmb e) {
         return new TradeLoanTypeQueryDto.RelationTypeLoanTopicEmbDto(
-                e.getTradeRelationType(),
-                e.getTopicName(),
-                e.getTopicCode(),
-                economicSectorEmbDtoSetMap(e.getEconomicSectors()));
+                Objects.requireNonNull(e.getTradeRelationType(), "tradeRelationType"),
+                Objects.requireNonNull(e.getTopicName(), "topicName"),
+                Objects.requireNonNull(e.getTopicCode(), "topicCode"),
+                economicSectorEmbDtoSetMap(Objects.requireNonNull(e.getEconomicSectors(), "economicSectors")));
     }
 
     default java.util.Set<TradeLoanTypeQueryDto.CurrencyTypeEmbDto> currencyTypeEmbDtoSetMap(

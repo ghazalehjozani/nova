@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.core.application.service.addfacilitycollateral.comma
 import java.util.List;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -106,7 +107,7 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
                 .orElseGet(() -> Result.failure(SagaErrors.COMPENSATED, extractReason(sagaResult)));
     }
 
-    private List<DomainEvent<?>> buildDomainEvents(AddFacilityCollateralSagaData data) {
+    private List<DomainEvent<?>> buildDomainEvents(@Nullable AddFacilityCollateralSagaData data) {
         if (data == null
                 || data.capturedEvents() == null
                 || data.capturedEvents().isEmpty()) {

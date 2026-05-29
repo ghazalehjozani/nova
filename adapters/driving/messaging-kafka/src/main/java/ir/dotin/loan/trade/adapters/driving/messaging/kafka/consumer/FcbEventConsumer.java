@@ -4,10 +4,10 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.pangaea.inbox.core.InboundEventIngestor;
@@ -97,6 +97,7 @@ public class FcbEventConsumer {
         return "UNKNOWN";
     }
 
+    @Nullable
     private String resolveEventUid(JsonNode rootNode, ConsumerRecord<String, byte[]> record) {
         String fromHeader = extractHeader(record, "eventUid");
         if (fromHeader != null && !fromHeader.isEmpty()) {
@@ -109,6 +110,7 @@ public class FcbEventConsumer {
         return null;
     }
 
+    @Nullable
     private String extractHeader(ConsumerRecord<String, byte[]> record, String headerName) {
         var header = record.headers().lastHeader(headerName);
         if (header != null && header.value() != null) {

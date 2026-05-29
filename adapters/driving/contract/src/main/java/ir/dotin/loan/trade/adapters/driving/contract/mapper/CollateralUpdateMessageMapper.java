@@ -17,7 +17,8 @@ public class CollateralUpdateMessageMapper {
                 ? message.collaterals().stream().map(this::toCollateralItem).toList()
                 : List.of();
 
-        return new UpdateCollateralCommand(UUID.randomUUID(), null, message.fileNumber(), collaterals);
+        // version: no optimistic-lock check for message-driven collateral update; 0L = unversioned sentinel.
+        return new UpdateCollateralCommand(UUID.randomUUID(), 0L, message.fileNumber(), collaterals);
     }
 
     private CollateralItem toCollateralItem(CollateralDetailDto dto) {

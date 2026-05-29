@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.platform.accounting.document.api.enumeration.MetadataSection;
 import ir.dotin.platform.accounting.document.api.model.metadata.ArticleMetadata;
 import ir.dotin.platform.accounting.document.api.model.metadata.DestinationDetails;
@@ -26,17 +28,18 @@ public final class ArticleMetadataMapper {
 
     private static final String DEFAULT_EXTRA_INFO_TYPE = "LOAN_DOCUMENT";
 
-    public static ExtraInfoMetadataDto toDto(ArticleMetadata metadata) {
+    public static @Nullable ExtraInfoMetadataDto toDto(@Nullable ArticleMetadata metadata) {
         return toDto(metadata, true);
     }
 
     // Document-level metadata is the shared header (terminal/network/source/dest/operational); it must NOT
     // carry a per-leg transactionInfo (typeCode/causeTypeCode), which is article-specific.
-    public static ExtraInfoMetadataDto toDocumentDto(ArticleMetadata metadata) {
+    public static @Nullable ExtraInfoMetadataDto toDocumentDto(@Nullable ArticleMetadata metadata) {
         return toDto(metadata, false);
     }
 
-    private static ExtraInfoMetadataDto toDto(ArticleMetadata metadata, boolean includeTransactionInfo) {
+    private static @Nullable ExtraInfoMetadataDto toDto(
+            @Nullable ArticleMetadata metadata, boolean includeTransactionInfo) {
         if (metadata == null) {
             return null;
         }
@@ -56,7 +59,8 @@ public final class ArticleMetadataMapper {
         return builder.build();
     }
 
-    private static void applyTransactionInfo(ExtraInfoMetadataDto.ExtraInfoMetadataDtoBuilder b, TransactionInfo info) {
+    private static void applyTransactionInfo(
+            ExtraInfoMetadataDto.ExtraInfoMetadataDtoBuilder b, @Nullable TransactionInfo info) {
         if (info == null) return;
         if (info.transactionType() != null) {
             b.typeCode(info.transactionType().getCode());

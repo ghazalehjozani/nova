@@ -18,6 +18,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.header.internals.RecordHeader;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -73,8 +74,13 @@ public class FcbHealthProbe {
     private final int healthReplyPartition;
 
     private final AtomicLong lastSuccessfulCycleMs = new AtomicLong();
-    private volatile Thread probeThread;
-    private volatile ExecutorService probeExecutor;
+
+    // null until start() (ApplicationReadyEvent); read sites guard for null
+    private volatile @Nullable Thread probeThread;
+
+    // null until start() (ApplicationReadyEvent); read sites guard for null
+    private volatile @Nullable ExecutorService probeExecutor;
+
     private volatile boolean stopped;
 
     public FcbHealthProbe(
@@ -166,12 +172,14 @@ public class FcbHealthProbe {
     }
 
     private void runCycle() throws InterruptedException {
+        ExecutorService executor = this.probeExecutor;
+        if (executor == null) return; // probe not started (or already stopped)
         List<PartitionInfo> partitions =
                 healthReplyingKafkaTemplate.partitionsFor(kafkaProperties.getHealthRequestTopic());
         if (partitions == null || partitions.isEmpty()) return;
 
         var futures = partitions.stream()
-                .map(p -> probeExecutor.submit(() -> probePartitionOnce(p.partition())))
+                .map(p -> executor.submit(() -> probePartitionOnce(p.partition())))
                 .toList();
 
         long deadlineNanos = System.nanoTime()

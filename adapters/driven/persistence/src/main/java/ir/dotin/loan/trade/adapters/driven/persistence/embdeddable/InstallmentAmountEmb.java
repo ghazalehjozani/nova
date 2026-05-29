@@ -7,6 +7,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.platform.pangaea.persistence.jpa.embeddable.MoneyEmb;
 
 import lombok.Data;
@@ -15,6 +17,7 @@ import lombok.Data;
 @Embeddable
 public class InstallmentAmountEmb implements Serializable {
 
+    @Nullable
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(
@@ -24,6 +27,7 @@ public class InstallmentAmountEmb implements Serializable {
     })
     private MoneyEmb totalAmount;
 
+    @Nullable
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(
@@ -33,6 +37,7 @@ public class InstallmentAmountEmb implements Serializable {
     })
     private MoneyEmb principalAmount;
 
+    @Nullable
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(

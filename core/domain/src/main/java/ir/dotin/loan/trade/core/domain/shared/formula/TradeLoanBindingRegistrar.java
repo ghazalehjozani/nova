@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.formula.api.binding.FieldBinding;
 import ir.dotin.platform.formula.api.spi.BindingRegistrar;
@@ -52,7 +51,12 @@ public class TradeLoanBindingRegistrar implements BindingRegistrar {
     }
 
     @Override
-    public @Nullable FieldBinding<?, ?> resolveBinding(@NonNull String variableName) {
-        return bindings.get(variableName);
+    public @NonNull FieldBinding<?, ?> resolveBinding(@NonNull String variableName) {
+        FieldBinding<TradeLoanParameterProvider, ?> binding = bindings.get(variableName);
+        if (binding == null) {
+            throw new java.util.NoSuchElementException("No binding registered for variable '" + variableName
+                    + "' in TradeLoanBindingRegistrar." + " Call supports() before resolveBinding().");
+        }
+        return binding;
     }
 }

@@ -2,6 +2,8 @@ package ir.dotin.loan.trade.core.application.query.loantype.dto;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.platform.pangaea.dispatcher.api.query.QueryResult;
 
 import lombok.Builder;
@@ -9,8 +11,8 @@ import lombok.Builder;
 @Builder
 public record LoanTypeQueryResult(
         List<TradeLoanTypeQueryDto> loanTypes,
-        String nextCursor,
-        String previousCursor,
+        @Nullable String nextCursor,
+        @Nullable String previousCursor,
         boolean hasNext,
         boolean hasPrevious,
         Integer currentPage,
@@ -21,8 +23,8 @@ public record LoanTypeQueryResult(
 
     public static LoanTypeQueryResult forCursor(
             List<TradeLoanTypeQueryDto> loanTypes,
-            String nextCursor,
-            String previousCursor,
+            @Nullable String nextCursor,
+            @Nullable String previousCursor,
             boolean hasNext,
             boolean hasPrevious) {
         return LoanTypeQueryResult.builder()

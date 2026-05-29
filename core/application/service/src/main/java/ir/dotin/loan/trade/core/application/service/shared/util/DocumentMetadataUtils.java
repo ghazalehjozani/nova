@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.core.application.service.shared.util;
 
 import java.util.List;
+import java.util.Objects;
 
 import ir.dotin.platform.accounting.document.api.model.BranchCode;
 import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
@@ -21,9 +22,11 @@ public class DocumentMetadataUtils {
 
         return DocumentMetadataFactory.builder()
                 .terminal(DocumentMetadataFactory.TerminalConfig.of(
-                        config.terminalType(), config.terminalId(), config.terminalIp()))
+                        Objects.requireNonNull(config.terminalType(), "terminalType"),
+                        Objects.requireNonNull(config.terminalId(), "terminalId"),
+                        Objects.requireNonNull(config.terminalIp(), "terminalIp")))
                 .product(DocumentMetadataFactory.ProductConfig.of(
-                        config.productCode(),
+                        Objects.requireNonNull(config.productCode(), "productCode"),
                         loanType.getCode().value(),
                         facility.getLoanApplication()
                                 .getApplicationNumber()
@@ -33,8 +36,12 @@ public class DocumentMetadataUtils {
                         facility.getLoanApplication().getApplicant().customerNumber(),
                         facility.getLoanApplication().getApplicant().name().fullName(),
                         List.of()))
-                .tool(DocumentMetadataFactory.ToolConfig.of(config.userId(), config.toolSource()))
-                .network(DocumentMetadataFactory.NetworkConfig.of(config.networkType(), config.channel()))
+                .tool(DocumentMetadataFactory.ToolConfig.of(
+                        Objects.requireNonNull(config.userId(), "userId"),
+                        Objects.requireNonNull(config.toolSource(), "toolSource")))
+                .network(DocumentMetadataFactory.NetworkConfig.of(
+                        Objects.requireNonNull(config.networkType(), "networkType"),
+                        Objects.requireNonNull(config.channel(), "channel")))
                 .operational(OperationalInfo.builder().build())
                 .build();
     }

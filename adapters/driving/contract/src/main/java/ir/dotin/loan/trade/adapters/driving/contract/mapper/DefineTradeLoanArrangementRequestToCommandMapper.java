@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -38,22 +39,22 @@ public interface DefineTradeLoanArrangementRequestToCommandMapper {
                 .toList();
     }
 
-    default DefineTradeLoanArrangementCommand.AmountRangeDto mapAmountRange(
-            DefineTradeLoanArrangementRequest.AmountRangeDto amountRange) {
+    default DefineTradeLoanArrangementCommand.@Nullable AmountRangeDto mapAmountRange(
+            DefineTradeLoanArrangementRequest.@Nullable AmountRangeDto amountRange) {
         if (amountRange == null) return null;
         return new DefineTradeLoanArrangementCommand.AmountRangeDto(
                 new AmountDto(amountRange.min()), new AmountDto(amountRange.max()));
     }
 
-    default DefineTradeLoanArrangementCommand.LoanDurationRangeDto mapDurationRange(
-            DefineTradeLoanArrangementRequest.LoanDurationRangeDto durationRange) {
+    default DefineTradeLoanArrangementCommand.@Nullable LoanDurationRangeDto mapDurationRange(
+            DefineTradeLoanArrangementRequest.@Nullable LoanDurationRangeDto durationRange) {
         if (durationRange == null) return null;
         return new DefineTradeLoanArrangementCommand.LoanDurationRangeDto(
                 Period.ofMonths(durationRange.minMonths()), Period.ofMonths(durationRange.maxMonths()));
     }
 
-    default DefineTradeLoanArrangementCommand.InterestPolicyDto mapInterestPolicy(
-            DefineTradeLoanArrangementRequest.InterestPolicyDto interestPolicy) {
+    default DefineTradeLoanArrangementCommand.@Nullable InterestPolicyDto mapInterestPolicy(
+            DefineTradeLoanArrangementRequest.@Nullable InterestPolicyDto interestPolicy) {
         if (interestPolicy == null) return null;
         return new DefineTradeLoanArrangementCommand.InterestPolicyDto(
                 interestPolicy.rate(),
@@ -64,8 +65,8 @@ public interface DefineTradeLoanArrangementRequestToCommandMapper {
                 interestPolicy.dailyInterest());
     }
 
-    default DefineTradeLoanArrangementCommand.PenaltyPolicyDto mapPenaltyPolicy(
-            DefineTradeLoanArrangementRequest.PenaltyPolicyDto penaltyPolicy) {
+    default DefineTradeLoanArrangementCommand.@Nullable PenaltyPolicyDto mapPenaltyPolicy(
+            DefineTradeLoanArrangementRequest.@Nullable PenaltyPolicyDto penaltyPolicy) {
         if (penaltyPolicy == null) return null;
         return new DefineTradeLoanArrangementCommand.PenaltyPolicyDto(
                 penaltyPolicy.penaltyRate(),
@@ -74,8 +75,8 @@ public interface DefineTradeLoanArrangementRequestToCommandMapper {
                 penaltyPolicy.paymentType());
     }
 
-    default DefineTradeLoanArrangementCommand.InstallmentPolicyDto mapInstallmentPolicy(
-            DefineTradeLoanArrangementRequest.InstallmentPolicyDto installmentPolicy) {
+    default DefineTradeLoanArrangementCommand.@Nullable InstallmentPolicyDto mapInstallmentPolicy(
+            DefineTradeLoanArrangementRequest.@Nullable InstallmentPolicyDto installmentPolicy) {
         if (installmentPolicy == null) return null;
         return new DefineTradeLoanArrangementCommand.InstallmentPolicyDto(
                 Period.ofMonths(installmentPolicy.installmentPeriodMonths()),
@@ -84,8 +85,8 @@ public interface DefineTradeLoanArrangementRequestToCommandMapper {
                 installmentPolicy.paymentType());
     }
 
-    default DefineTradeLoanArrangementCommand.GracePeriodPolicyDto mapGracePeriodPolicy(
-            DefineTradeLoanArrangementRequest.GracePeriodPolicyDto gracePeriodPolicy) {
+    default DefineTradeLoanArrangementCommand.@Nullable GracePeriodPolicyDto mapGracePeriodPolicy(
+            DefineTradeLoanArrangementRequest.@Nullable GracePeriodPolicyDto gracePeriodPolicy) {
         if (gracePeriodPolicy == null) return null;
         return new DefineTradeLoanArrangementCommand.GracePeriodPolicyDto(
                 gracePeriodPolicy.minGracePeriodDays(),
@@ -93,8 +94,8 @@ public interface DefineTradeLoanArrangementRequestToCommandMapper {
                 gracePeriodPolicy.formula());
     }
 
-    default DefineTradeLoanArrangementCommand.RepaymentPriorityPolicyDto mapRepaymentPriorityPolicy(
-            DefineTradeLoanArrangementRequest.RepaymentPriorityPolicyDto repaymentPriorityPolicy) {
+    default DefineTradeLoanArrangementCommand.@Nullable RepaymentPriorityPolicyDto mapRepaymentPriorityPolicy(
+            DefineTradeLoanArrangementRequest.@Nullable RepaymentPriorityPolicyDto repaymentPriorityPolicy) {
         if (repaymentPriorityPolicy == null) return null;
         return new DefineTradeLoanArrangementCommand.RepaymentPriorityPolicyDto(
                 repaymentPriorityPolicy.principalPriority(),
@@ -106,8 +107,8 @@ public interface DefineTradeLoanArrangementRequestToCommandMapper {
                 repaymentPriorityPolicy.hasEqualPriority());
     }
 
-    default DefineTradeLoanArrangementCommand.RegulatoryCompliancePolicyDto mapRegulatoryCompliancePolicy(
-            DefineTradeLoanArrangementRequest.RegulatoryCompliancePolicyDto regulatoryCompliancePolicy) {
+    default DefineTradeLoanArrangementCommand.@Nullable RegulatoryCompliancePolicyDto mapRegulatoryCompliancePolicy(
+            DefineTradeLoanArrangementRequest.@Nullable RegulatoryCompliancePolicyDto regulatoryCompliancePolicy) {
         if (regulatoryCompliancePolicy == null) return null;
         return new DefineTradeLoanArrangementCommand.RegulatoryCompliancePolicyDto(
                 regulatoryCompliancePolicy.overDuePeriodMonths(),
@@ -115,8 +116,8 @@ public interface DefineTradeLoanArrangementRequestToCommandMapper {
                 regulatoryCompliancePolicy.suspiciousPeriodMonths());
     }
 
-    default DefineTradeLoanArrangementCommand.CollateralPolicyDto mapCollateralPolicy(
-            DefineTradeLoanArrangementRequest.CollateralPolicyDto collateralPolicy) {
+    default DefineTradeLoanArrangementCommand.@Nullable CollateralPolicyDto mapCollateralPolicy(
+            DefineTradeLoanArrangementRequest.@Nullable CollateralPolicyDto collateralPolicy) {
         if (collateralPolicy == null) return null;
         return new DefineTradeLoanArrangementCommand.CollateralPolicyDto(
                 collateralPolicy.totalPercent(),

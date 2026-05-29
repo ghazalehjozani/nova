@@ -20,6 +20,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 import org.hibernate.proxy.HibernateProxy;
+import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.pangaea.persistence.jpa.embeddable.MoneyEmb;
 import ir.dotin.platform.pangaea.persistence.jpa.embeddable.PeriodEmb;
@@ -50,6 +51,7 @@ import lombok.Setter;
         })
 public class TradeLoanApplicationEntity extends PersistentEntity {
 
+    @Nullable
     @Column(name = "request_date", nullable = false)
     private Instant requestDate;
 
@@ -60,6 +62,7 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
             indexes = @Index(name = "idx_trade_loan_application_parties", columnList = "loan_application_id"))
     private Set<PartyEmb> parties = new HashSet<>();
 
+    @Nullable
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "amount", column = @Column(name = "requested_amount", precision = 19, scale = 4)),
@@ -67,9 +70,11 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
     })
     private MoneyEmb requestedAmount;
 
+    @Nullable
     @Embedded
     private CurrencyTypeEmb currency;
 
+    @Nullable
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "years", column = @Column(name = "requested_duration_years")),
@@ -78,43 +83,55 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
     })
     private PeriodEmb requestedLoanDuration;
 
+    @Nullable
     @Enumerated(EnumType.STRING)
     @Column(name = "applicant_channel", nullable = false)
     private ApplicantChannel applicantChannel;
 
+    @Nullable
     @Embedded
     private GracePeriodEmb gracePeriod;
 
+    @Nullable
     @Embedded
     private InstallmentCountEmb installmentCount;
 
+    @Nullable
     @Embedded
     private DisburseDestinationEmb disburseDestination;
 
+    @Nullable
     @Embedded
     private EconomicSectorEmb economicSector;
 
+    @Nullable
     @Embedded
     private BranchEmb branch;
 
+    @Nullable
     @Embedded
     private RequestReasonEmb requestReason;
 
+    @Nullable
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "core", column = @Column(name = "sub_source_request_reason_code", length = 500)),
     })
     private SubSourceEmb subSource;
 
+    @Nullable
     @Embedded
     private DescriptionEmb description;
 
+    @Nullable
     @Embedded
     private CredibilityRankEmb credibilityRank;
 
+    @Nullable
     @Embedded
     private SamatEmb samat;
 
+    @Nullable
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "branch.code", column = @Column(name = "application_branch_code", nullable = false)),
@@ -133,6 +150,7 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
     })
     private ApplicationNumberEmb applicationNumber;
 
+    @Nullable
     @Enumerated(EnumType.STRING)
     @Column(name = "disbursement_method")
     private DisbursementMethod disbursementMethod;

@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.core.application.service.approvefacility.strategy;
 
+import java.util.Objects;
+
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.pangaea.commons.core.Notification;
@@ -60,9 +62,13 @@ public class ManualApprovalStrategy implements ApprovalStrategy {
         // SanctionDetails is no longer fetched here — it was resolved tx-free by PrepareFacilityApprovalQuery (no
         // pooled connection held across the FCB read, LN-59412) and threaded onto the command. The command handler
         // guarantees command.sanctionDetails() is non-null on the manual path before dispatch.
-        SanctionDetails details = reconstructSanctionDetails(command.sanctionDetails());
+        // command.sanctionDetails() guaranteed non-null by the command handler on the manual approval path
+        SanctionDetails details = reconstructSanctionDetails(
+                Objects.requireNonNull(command.sanctionDetails(), "sanctionDetails required for manual approval"));
         return buildSanctionedLoanBuilder(details)
-                .flatMap(builder -> domainService.approve(facility, builder, false, null));
+                // null confirmType is the designed API contract for manual approval;
+                // AbstractLoanFacilityService.approve ignores confirmType when isAutoApproval=false.
+                .flatMap(builder -> approveManual(facility, builder));
     }
 
     private SanctionDetails reconstructSanctionDetails(SanctionDetailsDto dto) {
@@ -81,6 +87,10 @@ public class ManualApprovalStrategy implements ApprovalStrategy {
                 dto.collateralSerial(),
                 dto.revocationReason(),
                 confirmType);
+    }
+
+    private Result<Unit> approveManual(TradeLoanFacility facility, TradeSanctionedLoan.Builder builder) {
+        return domainService.approve(facility, builder, false, null);
     }
 
     private Result<TradeSanctionedLoan.Builder> buildSanctionedLoanBuilder(SanctionDetails details) {
@@ -109,8 +119,9 @@ public class ManualApprovalStrategy implements ApprovalStrategy {
 
             return Result.success(builder);
         } catch (Exception e) {
-            return Result.failure(
-                    Notification.ofError(TradeLoanApplicationServiceErrors.INVALID_SANCTION_DETAILS, e.getMessage()));
+            return Result.failure(Notification.ofError(
+                    TradeLoanApplicationServiceErrors.INVALID_SANCTION_DETAILS,
+                    Objects.requireNonNullElse(e.getMessage(), e.getClass().getName())));
         }
     }
 }

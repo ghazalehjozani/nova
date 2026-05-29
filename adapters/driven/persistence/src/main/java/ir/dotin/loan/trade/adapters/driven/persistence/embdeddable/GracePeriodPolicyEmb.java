@@ -6,6 +6,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.platform.formula.infrastructure.persistence.embeddable.FormulaIdRefEmb;
 
 import lombok.Data;
@@ -13,12 +15,16 @@ import lombok.Data;
 @Data
 @Embeddable
 public class GracePeriodPolicyEmb implements Serializable {
+
+    @Nullable
     @Column(name = "min_grace_period_days")
     private Integer minGracePeriodDays;
 
+    @Nullable
     @Column(name = "max_grace_period_days")
     private Integer maxGracePeriodDays;
 
+    @Nullable
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "gracePeriodFormula"))
     private FormulaIdRefEmb gracePeriodFormula;

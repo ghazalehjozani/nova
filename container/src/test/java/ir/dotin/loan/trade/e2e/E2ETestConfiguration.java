@@ -52,10 +52,12 @@ public class E2ETestConfiguration {
 
     @Bean
     @Primary
+    // 'container' is injected (not read) only to order this bean after the compose stack has started.
     LettuceConnectionFactory e2eRedisConnectionFactory(ComposeContainer container) {
-        String host = container.getServiceHost(REDIS_SERVICE, REDIS_PORT);
-        int port = container.getServicePort(REDIS_SERVICE, REDIS_PORT);
-        RedisStandaloneConfiguration cfg = new RedisStandaloneConfiguration(host, port);
+        // Host networking (broken dev-host DNAT): services run with `network_mode: host` and bind their fixed ports
+        // directly on the host, so the Testcontainers ambassador lookup (getServiceHost/getServicePort, which assume
+        // published/DNAT ports) does not apply — connect to the fixed localhost:<port> instead.
+        RedisStandaloneConfiguration cfg = new RedisStandaloneConfiguration("localhost", REDIS_PORT);
         cfg.setPassword(RedisPassword.of(REDIS_PASSWORD));
         LettuceClientConfiguration clientCfg = LettuceClientConfiguration.builder()
                 .commandTimeout(Duration.ofSeconds(3))
@@ -67,17 +69,20 @@ public class E2ETestConfiguration {
     }
 
     @Bean
+    // 'container' is injected (not read) only to order this registrar after the compose stack has started.
     DynamicPropertyRegistrar dynamicPropertyRegistrar(ComposeContainer container) {
         return registry -> {
-            String pgHost = container.getServiceHost(POSTGRES_SERVICE, POSTGRES_PORT);
-            int pgPort = container.getServicePort(POSTGRES_SERVICE, POSTGRES_PORT);
-            String pgUrl = String.format("jdbc:postgresql://%s:%d/trade_loan_e2e", pgHost, pgPort);
+            // Host networking (broken dev-host DNAT): every compose service runs with `network_mode: host` and binds
+            // its fixed port on the host, so use fixed localhost:<port> rather than the ambassador
+            // getServiceHost/getServicePort lookups (which resolve published/DNAT ports that no longer exist).
+            String pgUrl = String.format("jdbc:postgresql://localhost:%d/trade_loan_e2e", POSTGRES_PORT);
 
             registry.add("spring.datasource.url", () -> pgUrl);
             registry.add("spring.datasource.username", () -> "e2e_user");
             registry.add("spring.datasource.password", () -> "e2e_password");
 
-            String kafkaBootstrap = "host.docker.internal:" + KAFKA_SASL_PORT;
+            // Kafka SASL listener advertises localhost:9094 (see docker-compose-e2e.yml); connect there directly.
+            String kafkaBootstrap = "localhost:" + KAFKA_SASL_PORT;
             registry.add("spring.kafka.bootstrap-servers", () -> kafkaBootstrap);
             registry.add("platform.messaging.kafka.bootstrap-servers", () -> kafkaBootstrap);
             registry.add("KAFKA_BOOTSTRAP_SERVERS", () -> kafkaBootstrap);

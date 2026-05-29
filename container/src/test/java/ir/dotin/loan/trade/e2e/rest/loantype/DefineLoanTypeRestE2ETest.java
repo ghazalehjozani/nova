@@ -20,6 +20,7 @@ import ir.dotin.loan.trade.e2e.AbstractRestE2E;
 import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator.MinimalChain;
 
 import static ir.dotin.loan.trade.e2e.assertion.BaseResponseAssertions.assertSuccess;
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Disabled
@@ -35,8 +36,9 @@ class DefineLoanTypeRestE2ETest extends AbstractRestE2E {
 
     @Test
     void shouldDefineLoanTypeSuccessfully() {
-        DefineLoanTypeRequest request =
-                buildLoanTypeRequest("E2E-LT-" + UUID.randomUUID().toString().substring(0, 8), arrangement.getCode());
+        DefineLoanTypeRequest request = buildLoanTypeRequest(
+                "E2E-LT-" + UUID.randomUUID().toString().substring(0, 8),
+                requireNonNull(arrangement.getCode(), "arrangement code after save"));
 
         ResponseEntity<String> response = postJson("/loan-types/define", request);
 

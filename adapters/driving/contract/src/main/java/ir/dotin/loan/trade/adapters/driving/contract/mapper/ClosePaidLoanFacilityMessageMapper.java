@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import net.time4j.PlainDate;
 import net.time4j.calendar.PersianCalendar;
@@ -19,9 +20,10 @@ public class ClosePaidLoanFacilityMessageMapper {
                 ? message.payments().stream().map(this::toPaymentItem).toList()
                 : List.of();
 
+        // version: no optimistic-lock check for message-driven close; 0L = unversioned sentinel.
         return new CloseFacilityPaidOffCommand(
                 UUID.randomUUID(),
-                null,
+                0L,
                 message.fileNumber(),
                 message.transactionNumber(),
                 message.currency(),
@@ -43,7 +45,7 @@ public class ClosePaidLoanFacilityMessageMapper {
                 dto.fullySettled());
     }
 
-    private LocalDate parseDate(String date) {
+    private LocalDate parseDate(@Nullable String date) {
         if (date == null || date.isBlank()) {
             return LocalDate.now();
         }

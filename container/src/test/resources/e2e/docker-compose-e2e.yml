@@ -1,15 +1,24 @@
 ---
 
+# Host networking (dev-host workaround): the dev host's Docker bridge port-publishing (the `nat DOCKER` iptables
+# chain) is broken, so containers cannot publish ports (DNAT fails). Every service therefore runs on the host network
+# namespace (`network_mode: host`) and binds its fixed port directly on the host:
+#   - Postgres -> localhost:5432
+#   - Kafka SASL_PLAINTEXT client listener -> localhost:9094 (PLAINTEXT inter-broker/healthcheck -> localhost:9092)
+#   - Redis -> localhost:6379
+# Under host net Docker ignores published `ports:` (no DNAT), so the mappings are dropped. Service-to-service DNS
+# aliases (e.g. `kafka`) also do not apply on the host net, so Kafka advertises `localhost` for both listeners and the
+# controller quorum points at `localhost`. The Testcontainers `getServiceHost/getServicePort` lookups in
+# E2ETestConfiguration are replaced with fixed `localhost:<port>` accordingly.
 services:
   postgres:
     image: postgres:18.0-alpine
+    network_mode: host
     environment:
       POSTGRES_USER: e2e_user
       POSTGRES_PASSWORD: e2e_password
       POSTGRES_DB: trade_loan_e2e
       TZ: Asia/Tehran
-    ports:
-      - "5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U e2e_user"]
       interval: 5s
@@ -18,9 +27,7 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:7.9.4
-    hostname: kafka
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    network_mode: host
     command:
       - bash
       - -c
@@ -32,11 +39,13 @@ services:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,SASL_PLAINTEXT://0.0.0.0:9094,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,SASL_PLAINTEXT://host.docker.internal:9094
+      # Host net: broker binds the host's 9092/9094 directly, so advertise localhost for both listeners (no bridge
+      # DNS alias and no host.docker.internal under host net). Host-side clients connect to localhost:9094.
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,SASL_PLAINTEXT://localhost:9094
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,SASL_PLAINTEXT:SASL_PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
       KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
       KAFKA_OPTS: "-Djava.security.auth.login.config=/tmp/kafka_jaas.conf"
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
@@ -45,8 +54,6 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-    ports:
-      - "9094:9094"
     healthcheck:
       test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1"]
       interval: 5s
@@ -56,9 +63,8 @@ services:
 
   redis:
     image: redis:8.6-alpine
+    network_mode: host
     command: redis-server --requirepass e2e_redis_pass
-    ports:
-      - "6379"
     healthcheck:
       test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "e2e_redis_pass", "ping"]
       interval: 5s

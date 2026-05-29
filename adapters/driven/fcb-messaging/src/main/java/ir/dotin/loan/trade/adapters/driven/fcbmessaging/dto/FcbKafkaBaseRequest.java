@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.jspecify.annotations.Nullable;
 
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.DeleteAccountRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.FetchSanctionDetailsRequest;
@@ -86,11 +87,25 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public abstract class FcbKafkaBaseRequest {
 
+    // set via constructor / builder / Jackson (the operation discriminator, always present)
+    @SuppressWarnings("NullAway.Init")
     private String operationName;
+
+    // stamped by FcbKafkaClient before send / set by Jackson on inbound
+    @SuppressWarnings("NullAway.Init")
     private String producerCode;
+
+    // stamped by FcbKafkaClient before send / set by Jackson on inbound
+    @SuppressWarnings("NullAway.Init")
     private String eventUid;
-    private String[] tags;
+
+    // optional wire field: never populated by Nova, absent on outbound requests
+    private String @Nullable [] tags;
+
+    // stamped by FcbKafkaClient before send / set by Jackson on inbound
+    @SuppressWarnings("NullAway.Init")
     private Date dateTime;
+
     private int version;
 
     protected FcbKafkaBaseRequest(String operationName) {
@@ -133,11 +148,11 @@ public abstract class FcbKafkaBaseRequest {
         this.version = version;
     }
 
-    public String[] getTags() {
+    public String @Nullable [] getTags() {
         return tags;
     }
 
-    public void setTags(String[] tags) {
+    public void setTags(String @Nullable [] tags) {
         this.tags = tags;
     }
 }

@@ -16,6 +16,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 import org.hibernate.proxy.HibernateProxy;
+import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.pangaea.persistence.jpa.embeddable.MoneyEmb;
 import ir.dotin.platform.pangaea.persistence.jpa.embeddable.PeriodEmb;
@@ -46,9 +47,11 @@ import lombok.Setter;
         })
 public class TradeSanctionedLoanEntity extends PersistentEntity {
 
+    @Nullable
     @Embedded
     private SanctionSerialEmb sanctionSerial;
 
+    @Nullable
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "amount", column = @Column(name = "approved_amount", precision = 19, scale = 4)),
@@ -56,16 +59,20 @@ public class TradeSanctionedLoanEntity extends PersistentEntity {
     })
     private MoneyEmb approvedAmount;
 
+    @Nullable
     @Embedded
     private CurrencyTypeEmb currency;
 
+    @Nullable
     @Embedded
     private GracePeriodEmb gracePeriod;
 
+    @Nullable
     @Embedded
     @AttributeOverrides({@AttributeOverride(name = "number", column = @Column(name = "installment_count"))})
     private InstallmentCountEmb installmentCount;
 
+    @Nullable
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "years", column = @Column(name = "loan_duration_years")),
@@ -74,23 +81,29 @@ public class TradeSanctionedLoanEntity extends PersistentEntity {
     })
     private PeriodEmb loanDuration;
 
+    @Nullable
     @Column(name = "life_insurance_id")
     private String lifeInsuranceId;
 
+    @Nullable
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "disbursement_schedule_id")
     private DisbursementScheduleEntity disbursementSchedule;
 
+    @Nullable
     @Embedded
     private DisbursementHistoryEmb disbursementHistory;
 
+    @Nullable
     @Embedded
     private RevocationReasonEmb revocationReason;
 
+    @Nullable
     @Enumerated(EnumType.STRING)
     @Column(name = "disbursement_method")
     private DisbursementMethod disbursementMethod;
 
+    @Nullable
     @Embedded
     @AttributeOverrides({@AttributeOverride(name = "value", column = @Column(name = "confirm_type", length = 50))})
     private ConfirmTypeEmb confirmType;

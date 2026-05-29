@@ -8,6 +8,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -81,32 +82,32 @@ public interface FullLoanFacilityLifecycleMessageMapper {
             FullLoanFacilityLifecycleMessage.InstallmentSpecDto dto);
 
     @Named("mapInstantToLocalDate")
-    default LocalDate mapInstantToLocalDate(Instant instant) {
+    default @Nullable LocalDate mapInstantToLocalDate(@Nullable Instant instant) {
         if (instant == null) return null;
         return LocalDate.ofInstant(instant, ZoneOffset.UTC);
     }
 
     @Named("mapMonthsToPeriod")
-    default Period mapMonthsToPeriod(Integer months) {
+    default @Nullable Period mapMonthsToPeriod(@Nullable Integer months) {
         if (months == null) return null;
         return Period.ofMonths(months);
     }
 
     @Named("mapDaysToPeriod")
-    default Period mapDaysToPeriod(Integer days) {
+    default @Nullable Period mapDaysToPeriod(@Nullable Integer days) {
         if (days == null) return null;
         return Period.ofDays(days);
     }
 
-    default AmountDto mapAmount(BigDecimal value) {
+    default @Nullable AmountDto mapAmount(@Nullable BigDecimal value) {
         return value != null ? new AmountDto(value) : null;
     }
 
-    default CurrencyTypeDto mapCurrency(String value) {
+    default @Nullable CurrencyTypeDto mapCurrency(@Nullable String value) {
         return value != null ? new CurrencyTypeDto(value) : null;
     }
 
-    default FullLoanFacilityLifecycleCommand.CredibilityRankDto mapCredibilityRank(String value) {
+    default FullLoanFacilityLifecycleCommand.@Nullable CredibilityRankDto mapCredibilityRank(@Nullable String value) {
         return value != null ? new FullLoanFacilityLifecycleCommand.CredibilityRankDto(value) : null;
     }
 

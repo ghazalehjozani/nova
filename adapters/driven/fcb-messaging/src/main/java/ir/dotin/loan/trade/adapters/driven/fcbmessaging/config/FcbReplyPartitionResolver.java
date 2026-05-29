@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driven.fcbmessaging.config;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,7 @@ public final class FcbReplyPartitionResolver {
 
     private FcbReplyPartitionResolver() {}
 
-    public static int resolve(String configuredInstanceId, int partitionCount) {
+    public static int resolve(@Nullable String configuredInstanceId, int partitionCount) {
         if (partitionCount <= 0) {
             throw new IllegalArgumentException("partitionCount must be > 0, was: " + partitionCount);
         }
@@ -62,7 +63,7 @@ public final class FcbReplyPartitionResolver {
         return partition;
     }
 
-    private static String pickSource(String configuredInstanceId) {
+    private static String pickSource(@Nullable String configuredInstanceId) {
         if (configuredInstanceId != null && !configuredInstanceId.isBlank()) {
             return configuredInstanceId;
         }
@@ -79,7 +80,7 @@ public final class FcbReplyPartitionResolver {
         return "fallback-" + System.nanoTime();
     }
 
-    private static Integer parseTrailingOrdinal(String source) {
+    private static @Nullable Integer parseTrailingOrdinal(String source) {
         Matcher m = TRAILING_ORDINAL.matcher(source);
         if (!m.matches()) {
             return null;

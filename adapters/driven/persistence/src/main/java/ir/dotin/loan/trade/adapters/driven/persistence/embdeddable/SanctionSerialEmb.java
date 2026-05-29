@@ -6,6 +6,8 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;
 
 import lombok.Data;
@@ -14,9 +16,11 @@ import lombok.Data;
 @Embeddable
 public class SanctionSerialEmb implements Serializable {
 
+    @Nullable
     @Column(name = "sanction_serial_value", nullable = false)
     private String value;
 
+    @Nullable
     @Enumerated(EnumType.STRING)
     @Column(name = "sanction_type", nullable = false)
     private SanctionType type;

@@ -66,7 +66,9 @@ public class RegularDisbursementCommandHandler implements CommandHandler<Regular
                 .orElseGet(() -> Result.failure(Notification.ofError(
                         TradeLoanApplicationServiceErrors.INVALID_DISBURSEMENT_METHOD,
                         facility.getSanctionedLoan()
-                                .map(sl -> sl.getDisbursementMethod().name())
+                                .map(sl -> sl.getDisbursementMethod() != null
+                                        ? sl.getDisbursementMethod().name()
+                                        : "null")
                                 .orElse("UNKNOWN"))));
     }
 }

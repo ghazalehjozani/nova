@@ -22,7 +22,7 @@ public record FullLoanFacilityLifecycleSagaData(
         String branchCode,
         TransactionConfig transactionConfig,
         DisbursementMethod disbursementMethod,
-        LocalDate disbursementDate,
+        @Nullable LocalDate disbursementDate,
         UUID correlationId,
         String confirmType,
         @Nullable UUID facilityId,
@@ -121,7 +121,7 @@ public record FullLoanFacilityLifecycleSagaData(
                 collectedDomainEvents);
     }
 
-    public FullLoanFacilityLifecycleSagaData withPreviousInstallmentScheduleId(UUID previousId) {
+    public FullLoanFacilityLifecycleSagaData withPreviousInstallmentScheduleId(@Nullable UUID previousId) {
         return new FullLoanFacilityLifecycleSagaData(
                 originationCommand,
                 collaterals,

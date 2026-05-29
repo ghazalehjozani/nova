@@ -48,13 +48,13 @@ public record TradeLoanFacilityLumpSumDisbursed(
 
     public static class Builder {
         private final Clock clock;
-        private UUID facilityId;
-        private UUID sanctionedLoanId;
+        private @Nullable UUID facilityId;
+        private @Nullable UUID sanctionedLoanId;
         private List<String> transactionNumbers = new ArrayList<>();
-        private String installmentPaymentType;
-        private String applicationNumber;
-        private UUID installmentScheduleId;
-        private Instant occurredAt;
+        private @Nullable String installmentPaymentType;
+        private @Nullable String applicationNumber;
+        private @Nullable UUID installmentScheduleId;
+        private @Nullable Instant occurredAt;
 
         public Builder(Clock clock) {
             this.clock = clock;
@@ -103,12 +103,12 @@ public record TradeLoanFacilityLumpSumDisbursed(
         public TradeLoanFacilityLumpSumDisbursed build() {
             return new TradeLoanFacilityLumpSumDisbursed(
                     UUID.randomUUID(),
-                    facilityId,
+                    java.util.Objects.requireNonNull(facilityId, "facilityId"),
                     TradeLoanFacilityEventType.LUMP_SUM_DISBURSED.getFullType(),
-                    sanctionedLoanId,
+                    java.util.Objects.requireNonNull(sanctionedLoanId, "sanctionedLoanId"),
                     transactionNumbers,
-                    installmentPaymentType,
-                    applicationNumber,
+                    java.util.Objects.requireNonNull(installmentPaymentType, "installmentPaymentType"),
+                    java.util.Objects.requireNonNull(applicationNumber, "applicationNumber"),
                     installmentScheduleId,
                     occurredAt != null ? occurredAt : clock.instant());
         }

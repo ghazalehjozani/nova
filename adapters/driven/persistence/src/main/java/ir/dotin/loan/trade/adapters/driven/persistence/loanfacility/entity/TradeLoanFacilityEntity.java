@@ -25,6 +25,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 import org.hibernate.proxy.HibernateProxy;
+import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.pangaea.persistence.jpa.embeddable.MoneyEmb;
 import ir.dotin.platform.pangaea.persistence.jpa.entity.PersistentEntity;
@@ -45,27 +46,34 @@ import lombok.Setter;
 @Table(name = "loan_facilities")
 public class TradeLoanFacilityEntity extends PersistentEntity {
 
+    @Nullable
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "loan_application_id", nullable = false)
     private TradeLoanApplicationEntity loanApplication;
 
+    @Nullable
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "sanctioned_loan_id")
     private TradeSanctionedLoanEntity sanctionedLoan;
 
+    @Nullable
     @Column(name = "loan_type_id", nullable = false)
     private UUID loanTypeId;
 
+    @Nullable
     @Column(name = "loan_arrangement_id", nullable = false)
     private UUID loanArrangementId;
 
+    @Nullable
     @Column(name = "installment_schedule_id")
     private UUID installmentScheduleId;
 
+    @Nullable
     @Enumerated(EnumType.STRING)
     @Column(name = "current_state", nullable = false)
     private FacilityStatus currentState;
 
+    @Nullable
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(
@@ -87,6 +95,7 @@ public class TradeLoanFacilityEntity extends PersistentEntity {
             joinColumns = @JoinColumn(name = "loan_facility_id"))
     private List<TransactionNumberEmb> disbursementTransactionNumbers = new ArrayList<>();
 
+    @Nullable
     @Embedded
     private CancellationDataEmb cancellationDataEmb;
 
@@ -116,6 +125,7 @@ public class TradeLoanFacilityEntity extends PersistentEntity {
     @Column(name = "account_id")
     private Map<String, String> accountInfoMap = new HashMap<>();
 
+    @Nullable
     @Column(name = "disbursement_date", nullable = false)
     private LocalDate disbursementDate;
 
@@ -129,6 +139,7 @@ public class TradeLoanFacilityEntity extends PersistentEntity {
             indexes = @Index(name = "idx_trade_loan_facility_collaterals", columnList = "loan_facility_id"))
     private List<CollateralEmb> collaterals = new ArrayList<>();
 
+    @Nullable
     @Embedded
     private CloseFacilityPaidOffInfoEmb closeFacilityPaidOffInfo;
 

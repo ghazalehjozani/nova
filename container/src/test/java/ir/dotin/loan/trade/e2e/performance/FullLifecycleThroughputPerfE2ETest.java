@@ -21,6 +21,7 @@ import ir.dotin.loan.trade.e2e.fixture.LoanTypeTestFixture;
 import ir.dotin.loan.trade.e2e.fixture.builder.FullLifecycleMessageBuilder;
 import ir.dotin.loan.trade.e2e.orchestrator.MockPortConfigurator;
 
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -47,11 +48,23 @@ class FullLifecycleThroughputPerfE2ETest extends AbstractPerformanceE2E {
     private TradeLoanArrangementEntity arrangement;
     private TradeLoanTypeEntity loanType;
 
+    @SuppressWarnings("NullAway.Init") // resolved in @BeforeAll setupFixtures
+    private String loanTypeCode;
+
+    @SuppressWarnings("NullAway.Init") // resolved in @BeforeAll setupFixtures
+    private String arrangementCode;
+
     @BeforeAll
     void setupFixtures() {
         formulaFixture.createDefaultFormulas();
         arrangement = arrangementFixture.createDefaultArrangement();
-        loanType = loanTypeFixture.createDefaultLoanType(arrangement.getId());
+        // persisted fixtures: id and code are non-null by contract after save
+        loanType =
+                loanTypeFixture.createDefaultLoanType(requireNonNull(arrangement.getId(), "arrangement id after save"));
+        loanTypeCode = requireNonNull(
+                requireNonNull(loanType.getCode(), "loan type code after save").getValue(),
+                "loan type code value after save");
+        arrangementCode = requireNonNull(arrangement.getCode(), "arrangement code after save");
     }
 
     @BeforeEach
@@ -67,8 +80,8 @@ class FullLifecycleThroughputPerfE2ETest extends AbstractPerformanceE2E {
 
         PerfResult result = measureThroughput(concurrentRequests, () -> {
             FullLoanFacilityLifecycleMessage message = FullLifecycleMessageBuilder.defaults()
-                    .withLoanTypeCode(loanType.getCode().getValue())
-                    .withLoanArrangementCode(arrangement.getCode())
+                    .withLoanTypeCode(loanTypeCode)
+                    .withLoanArrangementCode(arrangementCode)
                     .withCustomerNumber("12345678")
                     .build();
 
@@ -106,8 +119,8 @@ class FullLifecycleThroughputPerfE2ETest extends AbstractPerformanceE2E {
 
         PerfResult result = measureSequentialBatch(batchSize, batchCount, () -> {
             FullLoanFacilityLifecycleMessage message = FullLifecycleMessageBuilder.defaults()
-                    .withLoanTypeCode(loanType.getCode().getValue())
-                    .withLoanArrangementCode(arrangement.getCode())
+                    .withLoanTypeCode(loanTypeCode)
+                    .withLoanArrangementCode(arrangementCode)
                     .withCustomerNumber("12345678")
                     .build();
 
@@ -141,8 +154,8 @@ class FullLifecycleThroughputPerfE2ETest extends AbstractPerformanceE2E {
         // Send lifecycle messages
         for (int i = 0; i < 10; i++) {
             FullLoanFacilityLifecycleMessage message = FullLifecycleMessageBuilder.defaults()
-                    .withLoanTypeCode(loanType.getCode().getValue())
-                    .withLoanArrangementCode(arrangement.getCode())
+                    .withLoanTypeCode(loanTypeCode)
+                    .withLoanArrangementCode(arrangementCode)
                     .withCustomerNumber("12345678")
                     .build();
 

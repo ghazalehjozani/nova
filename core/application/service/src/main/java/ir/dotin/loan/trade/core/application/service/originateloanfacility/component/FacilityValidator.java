@@ -2,9 +2,11 @@ package ir.dotin.loan.trade.core.application.service.originateloanfacility.compo
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.accounting.document.api.model.AccountNumber;
@@ -82,6 +84,10 @@ public class FacilityValidator {
         SamatDto samatDto = command.loanApplication().samat();
         EconomicSectorDto economicSectorDto = command.loanApplication().economicSector();
         Samat samat = samatDtoToSamat(samatDto);
+        if (samat == null) {
+            // samatDto was null — nothing to validate
+            return Result.success();
+        }
         return validateSamatPort.validateSamat(samat, command.loanTypeCode(), economicSectorDto.code());
     }
 
@@ -189,7 +195,12 @@ public class FacilityValidator {
     }
 
     private Result<Unit> validateSubSource(OriginateLoanFacilityCommand command) {
-        String code = command.loanApplication().subSource().code();
+        var subSource = command.loanApplication().subSource();
+        if (subSource == null) {
+            // subSource is optional; skip validation when not provided
+            return Result.success();
+        }
+        String code = subSource.code();
         Result<SubSource> result = loadResourceByCode(code);
 
         if (result.isFailure()) {
@@ -289,7 +300,7 @@ public class FacilityValidator {
         };
     }
 
-    protected Samat samatDtoToSamat(SamatDto samatDto) {
+    protected @Nullable Samat samatDtoToSamat(@Nullable SamatDto samatDto) {
         if (samatDto == null) {
             return null;
         }
@@ -320,13 +331,15 @@ public class FacilityValidator {
             consumptionPlaceCode = samatDto.consumptionPlaceCode();
         }
 
+        // Samat fields are @NonNull; @Nullable samatDto sub-fields are mapped to empty string when absent
+        // (Samat.validate() will catch blank trackingNumber with a proper error result)
         Samat samat = new Samat(
-                trackingNumber,
-                isicEconomicSector,
-                subIsicEconomicSector,
-                useType,
-                exceptionCode,
-                consumptionPlaceCode);
+                Objects.requireNonNullElse(trackingNumber, ""),
+                Objects.requireNonNullElse(isicEconomicSector, ""),
+                Objects.requireNonNullElse(subIsicEconomicSector, ""),
+                Objects.requireNonNullElse(useType, ""),
+                Objects.requireNonNullElse(exceptionCode, ""),
+                Objects.requireNonNullElse(consumptionPlaceCode, ""));
 
         return samat;
     }

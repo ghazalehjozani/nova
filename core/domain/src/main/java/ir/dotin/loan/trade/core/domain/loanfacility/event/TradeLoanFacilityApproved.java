@@ -4,6 +4,8 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
@@ -37,11 +39,11 @@ public record TradeLoanFacilityApproved(
 
     public static class Builder {
         private final Clock clock;
-        private UUID facilityId;
-        private UUID sanctionedLoanId;
-        private String sanctionSerial;
-        private SanctionType sanctionType;
-        private Instant occurredAt;
+        private @Nullable UUID facilityId;
+        private @Nullable UUID sanctionedLoanId;
+        private @Nullable String sanctionSerial;
+        private @Nullable SanctionType sanctionType;
+        private @Nullable Instant occurredAt;
 
         public Builder(Clock clock) {
             this.clock = clock;
@@ -75,11 +77,11 @@ public record TradeLoanFacilityApproved(
         public TradeLoanFacilityApproved build() {
             return new TradeLoanFacilityApproved(
                     UUID.randomUUID(),
-                    facilityId,
+                    java.util.Objects.requireNonNull(facilityId, "facilityId"),
                     TradeLoanFacilityEventType.APPROVED.getFullType(),
-                    sanctionedLoanId,
-                    sanctionSerial,
-                    sanctionType,
+                    java.util.Objects.requireNonNull(sanctionedLoanId, "sanctionedLoanId"),
+                    java.util.Objects.requireNonNull(sanctionSerial, "sanctionSerial"),
+                    java.util.Objects.requireNonNull(sanctionType, "sanctionType"),
                     occurredAt != null ? occurredAt : clock.instant());
         }
     }

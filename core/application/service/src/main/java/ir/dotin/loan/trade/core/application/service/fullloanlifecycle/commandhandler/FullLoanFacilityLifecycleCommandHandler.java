@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.core.application.service.fullloanlifecycle.commandhandler;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
@@ -35,7 +36,8 @@ public class FullLoanFacilityLifecycleCommandHandler implements CommandHandler<F
         log.info("Starting full loan facility lifecycle saga for correlation: {}", command.uid());
 
         OriginateLoanFacilityCommand originationCommand = mapper.toOriginationCommand(command);
-        var transactionConfig = mapper.toTransactionConfig(command.transactionMetadata());
+        var transactionConfig = Objects.requireNonNull(
+                mapper.toTransactionConfig(command.transactionMetadata()), "transactionMetadata required");
         var disbursementMethod = command.loanApplication().disbursementMethod();
         var disbursementDate = command.disbursement().disbursementDate();
 
@@ -50,7 +52,9 @@ public class FullLoanFacilityLifecycleCommandHandler implements CommandHandler<F
                 command.uid(),
                 command.confirmType());
 
-        String sagaCorrelationId = InvocationContextHolder.current().flow().flowCorrelationId();
+        String sagaCorrelationId = Objects.requireNonNullElse(
+                InvocationContextHolder.current().flow().flowCorrelationId(),
+                command.uid().toString());
 
         SagaResult<FullLoanFacilityLifecycleSagaData> sagaResult =
                 sagaOrchestrator.executeSaga("full-loan-facility-lifecycle", input, sagaCorrelationId);

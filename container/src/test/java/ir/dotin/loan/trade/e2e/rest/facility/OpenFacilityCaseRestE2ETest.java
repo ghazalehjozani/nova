@@ -29,6 +29,7 @@ import ir.dotin.loan.trade.e2e.AbstractRestE2E;
 import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator.MinimalChain;
 
 import static ir.dotin.loan.trade.e2e.assertion.BaseResponseAssertions.assertSuccess;
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Disabled
@@ -37,17 +38,28 @@ class OpenFacilityCaseRestE2ETest extends AbstractRestE2E {
     private TradeLoanArrangementEntity arrangement;
     private TradeLoanTypeEntity loanType;
 
+    @SuppressWarnings("NullAway.Init") // resolved in @BeforeAll setupFixtures
+    private String loanTypeCode;
+
+    @SuppressWarnings("NullAway.Init") // resolved in @BeforeAll setupFixtures
+    private String arrangementCode;
+
     @BeforeAll
     void setupFixtures() {
         MinimalChain chain = prerequisiteOrchestrator.createMinimalChain();
         arrangement = chain.arrangement();
         loanType = chain.loanType();
+        // persisted fixtures: code is non-null by contract after save
+        loanTypeCode = requireNonNull(
+                requireNonNull(loanType.getCode(), "loan type code after save").getValue(),
+                "loan type code value after save");
+        arrangementCode = requireNonNull(arrangement.getCode(), "arrangement code after save");
     }
 
     @Test
     void shouldOpenFacilityCaseSuccessfully() {
         OriginateLoanFacilityRequest request =
-                buildOpenCaseRequest(loanType.getCode().getValue(), arrangement.getCode(), new BigDecimal("50000000"));
+                buildOpenCaseRequest(loanTypeCode, arrangementCode, new BigDecimal("50000000"));
 
         ResponseEntity<String> response = postJson("/facilities/open-case", request);
 
@@ -57,7 +69,7 @@ class OpenFacilityCaseRestE2ETest extends AbstractRestE2E {
     @Test
     void shouldRejectFacilityWithInvalidLoanType() {
         OriginateLoanFacilityRequest request =
-                buildOpenCaseRequest("NON_EXISTENT_TYPE", arrangement.getCode(), new BigDecimal("50000000"));
+                buildOpenCaseRequest("NON_EXISTENT_TYPE", arrangementCode, new BigDecimal("50000000"));
 
         ResponseEntity<String> response = postJson("/facilities/open-case", request);
 
@@ -70,8 +82,8 @@ class OpenFacilityCaseRestE2ETest extends AbstractRestE2E {
     @Test
     void shouldRejectFacilityExceedingAmountRange() {
         // The arrangement has max 100,000,000 IRR
-        OriginateLoanFacilityRequest request = buildOpenCaseRequest(
-                loanType.getCode().getValue(), arrangement.getCode(), new BigDecimal("999999999999"));
+        OriginateLoanFacilityRequest request =
+                buildOpenCaseRequest(loanTypeCode, arrangementCode, new BigDecimal("999999999999"));
 
         ResponseEntity<String> response = postJson("/facilities/open-case", request);
 

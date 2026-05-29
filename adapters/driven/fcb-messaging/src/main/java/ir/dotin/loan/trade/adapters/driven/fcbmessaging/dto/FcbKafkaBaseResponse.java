@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.jspecify.annotations.Nullable;
 
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.AccountInfoKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ApplicationNumberKafkaResponse;
@@ -69,10 +70,20 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ValidationResu
 })
 public abstract class FcbKafkaBaseResponse {
 
+    // set by Jackson deserialization (present on every reply)
+    @SuppressWarnings("NullAway.Init")
     private String correlationId;
+
     private boolean success;
-    private String errorCode;
-    private String errorMessage;
+
+    // optional: only populated by FCB when success=false
+    private @Nullable String errorCode;
+
+    // optional: only populated by FCB when success=false
+    private @Nullable String errorMessage;
+
+    // set by Jackson deserialization (echoed from the request, present on every reply)
+    @SuppressWarnings("NullAway.Init")
     private String operationName;
 
     protected FcbKafkaBaseResponse() {}
@@ -93,19 +104,19 @@ public abstract class FcbKafkaBaseResponse {
         this.success = success;
     }
 
-    public String getErrorCode() {
+    public @Nullable String getErrorCode() {
         return errorCode;
     }
 
-    public void setErrorCode(String errorCode) {
+    public void setErrorCode(@Nullable String errorCode) {
         this.errorCode = errorCode;
     }
 
-    public String getErrorMessage() {
+    public @Nullable String getErrorMessage() {
         return errorMessage;
     }
 
-    public void setErrorMessage(String errorMessage) {
+    public void setErrorMessage(@Nullable String errorMessage) {
         this.errorMessage = errorMessage;
     }
 

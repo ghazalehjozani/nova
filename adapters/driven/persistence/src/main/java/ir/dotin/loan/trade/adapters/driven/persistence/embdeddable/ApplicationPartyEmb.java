@@ -16,13 +16,17 @@ import lombok.Data;
 @Data
 @Embeddable
 public class ApplicationPartyEmb implements Serializable {
+
+    @Nullable
     @Column(name = "customer_number", nullable = false)
     private String customerNumber;
 
+    @Nullable
     @Enumerated(EnumType.STRING)
     @Column(name = "party_type", nullable = false)
     private PartyType partyType;
 
+    @Nullable
     @Enumerated(EnumType.STRING)
     @Column(name = "party_role", nullable = false)
     private PartyRole partyRole;

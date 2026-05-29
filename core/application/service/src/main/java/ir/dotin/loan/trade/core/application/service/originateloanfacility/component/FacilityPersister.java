@@ -25,10 +25,9 @@ public class FacilityPersister {
     private final InstallmentScheduleRepository installmentScheduleRepository;
 
     public Result<OriginationResult> persist(TradeLoanFacility facility, Optional<InstallmentSchedule> scheduleOpt) {
-        scheduleOpt.map(schedule -> {
+        scheduleOpt.ifPresent(schedule -> {
             InstallmentSchedule saved = installmentScheduleRepository.save(schedule);
             log.debug("Installment schedule persisted: {}", saved.getId().value());
-            return saved;
         });
 
         TradeLoanFacility savedFacility = loanFacilityRepository.save(facility);

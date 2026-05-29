@@ -1,0 +1,102 @@
+import org.jspecify.annotations.NullMarked;
+
+/**
+ * Trade-loan application service module — command handlers, saga orchestrators, compensation handlers, strategies,
+ * mappers, and configuration for all trade-loan use cases.
+ *
+ * <p>Declared {@code open} for reflection (Spring, MapStruct) and module-level {@link NullMarked} for the NullAway
+ * gate.
+ */
+@NullMarked
+open module ir.dotin.loan.trade.core.application.service {
+    requires transitive ir.dotin.loan.trade.core.application.ports.inbound;
+    requires transitive ir.dotin.loan.trade.core.application.ports.outbound;
+    requires transitive ir.dotin.loan.trade.core.domain;
+    requires transitive ir.dotin.loan.baseloan.core.domain;
+    requires transitive ir.dotin.platform.pangaea.commons.core;
+    requires transitive ir.dotin.platform.pangaea.commons.domain;
+    requires transitive ir.dotin.platform.pangaea.dispatcher.api;
+    requires ir.dotin.platform.pangaea.saga.api;
+    requires ir.dotin.platform.accounting.document.api;
+    requires ir.dotin.platform.accounting.document.core;
+    requires ir.dotin.platform.formula.api;
+    requires ir.dotin.platform.formula.core;
+    requires expression.kit.service;
+    requires com.google.common;
+    requires io.opentelemetry.instrumentation_annotations;
+    requires org.jspecify;
+    requires static lombok;
+    requires static jakarta.validation;
+    requires spring.context;
+    requires spring.beans;
+    requires spring.boot;
+    requires spring.tx;
+    requires org.slf4j;
+    requires org.mapstruct;
+
+    exports ir.dotin.loan.trade.core.application.service;
+    exports ir.dotin.loan.trade.core.application.service.addfacilitycollateral.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.addfacilitycollateral.compensation.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.addfacilitycollateral.component;
+    exports ir.dotin.loan.trade.core.application.service.addfacilitycollateral.mapper;
+    exports ir.dotin.loan.trade.core.application.service.addfacilitycollateral.saga;
+    exports ir.dotin.loan.trade.core.application.service.approvefacility.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.approvefacility.compensation.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.approvefacility.factory;
+    exports ir.dotin.loan.trade.core.application.service.approvefacility.preflight;
+    exports ir.dotin.loan.trade.core.application.service.approvefacility.strategy;
+    exports ir.dotin.loan.trade.core.application.service.cancelfacility.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.closefacilitydefaulted.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.closefacilitydefaulted.mapper;
+    exports ir.dotin.loan.trade.core.application.service.closefacilitypaidoff.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.closefacilitypaidoff.compensation.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.closefacilitypaidoff.mapper;
+    exports ir.dotin.loan.trade.core.application.service.collectinstallment.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.collectinstallment.compensationn.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.configuration;
+    exports ir.dotin.loan.trade.core.application.service.defineloanarrangement.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.defineloanarrangement.mapper;
+    exports ir.dotin.loan.trade.core.application.service.defineloantype.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.defineloantype.mapper;
+    exports ir.dotin.loan.trade.core.application.service.fullloanlifecycle.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.fullloanlifecycle.compensation.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.fullloanlifecycle.configuration;
+    exports ir.dotin.loan.trade.core.application.service.fullloanlifecycle.mapper;
+    exports ir.dotin.loan.trade.core.application.service.fullloanlifecycle.saga;
+    exports ir.dotin.loan.trade.core.application.service.interaction;
+    exports ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.compensation.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.configuration;
+    exports ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.mapper;
+    exports ir.dotin.loan.trade.core.application.service.issuefacilitycontract.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.issuefacilitycontract.compensation.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.issuefacilitycontract.component;
+    exports ir.dotin.loan.trade.core.application.service.issuefacilitycontract.configuration;
+    exports ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga;
+    exports ir.dotin.loan.trade.core.application.service.issuefacilitycontract.strategy;
+    exports ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.compensation.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.configuration;
+    exports ir.dotin.loan.trade.core.application.service.originateloanfacility.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.originateloanfacility.compensation.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.originateloanfacility.component;
+    exports ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n;
+    exports ir.dotin.loan.trade.core.application.service.originateloanfacility.mapper;
+    exports ir.dotin.loan.trade.core.application.service.originateloanfacility.orchestrator;
+    exports ir.dotin.loan.trade.core.application.service.originateloanfacility.preflight;
+    exports ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy;
+    exports ir.dotin.loan.trade.core.application.service.planequalinstallmentschedule.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.regulardisbursement.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.regulardisbursement.mapper;
+    exports ir.dotin.loan.trade.core.application.service.rejectfacility.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.restructuringfacility.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.restructuringfacility.mapper;
+    exports ir.dotin.loan.trade.core.application.service.shared.account;
+    exports ir.dotin.loan.trade.core.application.service.shared.error;
+    exports ir.dotin.loan.trade.core.application.service.shared.formula;
+    exports ir.dotin.loan.trade.core.application.service.shared.util;
+    exports ir.dotin.loan.trade.core.application.service.submitfacilityforapproval.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.submitfacilityforapproval.compensation.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.submitfacilityforapproval.i18n;
+    exports ir.dotin.loan.trade.core.application.service.updatefacilitycollateral.commandhandler;
+}

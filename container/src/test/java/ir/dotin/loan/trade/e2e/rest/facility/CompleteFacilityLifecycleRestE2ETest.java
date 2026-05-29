@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,7 @@ import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator.MinimalChai
 
 import static ir.dotin.loan.trade.e2e.assertion.BaseResponseAssertions.assertSuccess;
 import static ir.dotin.loan.trade.e2e.assertion.BaseResponseAssertions.extractData;
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Disabled
@@ -45,8 +47,12 @@ class CompleteFacilityLifecycleRestE2ETest extends AbstractRestE2E {
     @BeforeAll
     void setupFixtures() {
         MinimalChain chain = prerequisiteOrchestrator.createMinimalChain();
-        loanTypeCode = chain.loanType().getCode().getValue();
-        arrangementCode = chain.arrangement().getCode();
+        // persisted fixtures: code is non-null by contract after save
+        loanTypeCode = requireNonNull(
+                requireNonNull(chain.loanType().getCode(), "loan type code after save")
+                        .getValue(),
+                "loan type code value after save");
+        arrangementCode = requireNonNull(chain.arrangement().getCode(), "arrangement code after save");
     }
 
     @Test
@@ -109,7 +115,7 @@ class CompleteFacilityLifecycleRestE2ETest extends AbstractRestE2E {
         assertThat(queryData).isNotNull();
     }
 
-    private String extractFacilityIdFromEvents(JsonNode data) {
+    private @Nullable String extractFacilityIdFromEvents(@Nullable JsonNode data) {
         // The data is an EventStream containing domain events
         // Try to extract the facility ID from the event data
         if (data == null) {
@@ -137,7 +143,7 @@ class CompleteFacilityLifecycleRestE2ETest extends AbstractRestE2E {
         return findFacilityIdDeep(data);
     }
 
-    private String findFacilityIdInNode(JsonNode node) {
+    private @Nullable String findFacilityIdInNode(JsonNode node) {
         for (String field : List.of("facilityId", "loanFacilityId", "aggregateId", "id")) {
             JsonNode value = node.get(field);
             if (value != null && !value.isNull() && !value.asText().isBlank()) {
@@ -147,7 +153,7 @@ class CompleteFacilityLifecycleRestE2ETest extends AbstractRestE2E {
         return null;
     }
 
-    private String findFacilityIdDeep(JsonNode node) {
+    private @Nullable String findFacilityIdDeep(@Nullable JsonNode node) {
         if (node == null) return null;
         if (node.isObject()) {
             for (String field : List.of("facilityId", "loanFacilityId", "aggregateId")) {

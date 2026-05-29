@@ -4,6 +4,8 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 
 import static java.util.Objects.requireNonNull;
@@ -34,8 +36,8 @@ public record TradeLoanFacilityApprovalSubmissionReverted(
 
     public static class Builder {
         private final Clock clock;
-        private UUID facilityId;
-        private Instant occurredAt;
+        private @Nullable UUID facilityId;
+        private @Nullable Instant occurredAt;
 
         public Builder(Clock clock) {
             this.clock = clock;
@@ -54,7 +56,7 @@ public record TradeLoanFacilityApprovalSubmissionReverted(
         public TradeLoanFacilityApprovalSubmissionReverted build() {
             return new TradeLoanFacilityApprovalSubmissionReverted(
                     randomUUID(),
-                    facilityId,
+                    java.util.Objects.requireNonNull(facilityId, "facilityId"),
                     TradeLoanFacilityEventType.APPROVAL_SUBMISSION_REVERTED.getFullType(),
                     occurredAt != null ? occurredAt : clock.instant());
         }

@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.core.application.service.originateloanfacility.mappe
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
@@ -38,7 +39,11 @@ public class ResolvedPartyMapper {
     }
 
     private Result<PartyInfoResponse> reconstructOne(ResolvedPartyDto dto) {
-        CustomerName customerName = new CustomerName(dto.firstName(), dto.lastName(), dto.companyName());
+        // firstName/lastName/companyName are @Nullable in ResolvedPartyDto (company vs individual parties)
+        CustomerName customerName = new CustomerName(
+                Objects.requireNonNullElse(dto.firstName(), ""),
+                Objects.requireNonNullElse(dto.lastName(), ""),
+                Objects.requireNonNullElse(dto.companyName(), ""));
 
         Party party =
                 switch (dto.role()) {

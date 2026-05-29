@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.UUID;
 import jakarta.validation.Valid;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -67,8 +68,8 @@ class IrregularProgressiveDisbursementController extends BaseController {
         return responseFactory.mutated(result);
     }
 
-    private IrregularProgressiveDisbursementCommand.InstallmentSchedulePlanDto mapInstallmentPlan(
-            IrregularProgressiveDisbursementRequest.InstallmentSchedulePlanDto plan) {
+    private IrregularProgressiveDisbursementCommand.@Nullable InstallmentSchedulePlanDto mapInstallmentPlan(
+            IrregularProgressiveDisbursementRequest.@Nullable InstallmentSchedulePlanDto plan) {
         if (plan == null) return null;
 
         return IrregularProgressiveDisbursementCommand.InstallmentSchedulePlanDto.builder()

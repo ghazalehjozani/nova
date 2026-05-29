@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Range;
+import org.jspecify.annotations.Nullable;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -186,7 +187,7 @@ public abstract class ValueObjectMapper {
 
     public abstract RespiteSerialEmb toRespiteSerialEmb(RespiteSerial respiteSerial);
 
-    public RespiteSerialEmb toRespiteSerialEmb(Optional<RespiteSerial> respiteSerialOpt) {
+    public @Nullable RespiteSerialEmb toRespiteSerialEmb(Optional<RespiteSerial> respiteSerialOpt) {
         return respiteSerialOpt.map(this::toRespiteSerialEmb).orElse(null);
     }
 
@@ -196,7 +197,7 @@ public abstract class ValueObjectMapper {
         return Optional.of(toRespiteSerial(value));
     }
 
-    public ApplicationNumberEmb toApplicationNumberEmb(Optional<ApplicationNumber> applicationNumberOpt) {
+    public @Nullable ApplicationNumberEmb toApplicationNumberEmb(Optional<ApplicationNumber> applicationNumberOpt) {
         return applicationNumberOpt.map(this::toApplicationNumberEmb).orElse(null);
     }
 
@@ -208,12 +209,12 @@ public abstract class ValueObjectMapper {
 
     public abstract CollateralSerialEmb toCollateralSerialEmb(CollateralSerial collateralSerial);
 
-    public CollateralSerialEmb toCollateralSerialEmb(Optional<CollateralSerial> collateralSerial) {
+    public @Nullable CollateralSerialEmb toCollateralSerialEmb(Optional<CollateralSerial> collateralSerial) {
         return collateralSerial.map(this::toCollateralSerialEmb).orElse(null);
     }
 
     @Named("toScheduleHistoryEmb")
-    public ScheduleHistoryEmb toScheduleHistoryEmb(ScheduleHistory scheduleHistory) {
+    public @Nullable ScheduleHistoryEmb toScheduleHistoryEmb(ScheduleHistory scheduleHistory) {
         if (scheduleHistory == null) {
             return null;
         }
@@ -236,7 +237,7 @@ public abstract class ValueObjectMapper {
     }
 
     @Named("toDisbursementHistoryEmb")
-    public DisbursementHistoryEmb toDisbursementHistoryEmb(DisbursementHistory history) {
+    public @Nullable DisbursementHistoryEmb toDisbursementHistoryEmb(DisbursementHistory history) {
         if (history == null) {
             return null;
         }
@@ -256,7 +257,7 @@ public abstract class ValueObjectMapper {
         return DisbursementHistory.of(records);
     }
 
-    public DisbursementRecordEmb toDisbursementRecordEmb(DisbursementRecord record) {
+    public @Nullable DisbursementRecordEmb toDisbursementRecordEmb(DisbursementRecord record) {
         if (record == null) return null;
         DisbursementRecordEmb emb = new DisbursementRecordEmb();
         emb.setAmount(toMoneyEmb(record.amount()));
@@ -265,13 +266,16 @@ public abstract class ValueObjectMapper {
         return emb;
     }
 
-    public DisbursementRecord toDisbursementRecord(DisbursementRecordEmb emb) {
+    public @Nullable DisbursementRecord toDisbursementRecord(DisbursementRecordEmb emb) {
         if (emb == null) return null;
-        return new DisbursementRecord(toMoney(emb.getAmount()), emb.getDisbursedAt(), emb.getDisbursedBy());
+        return new DisbursementRecord(
+                toMoney(Objects.requireNonNull(emb.getAmount(), "disbursementRecord.amount")),
+                Objects.requireNonNull(emb.getDisbursedAt(), "disbursementRecord.disbursedAt"),
+                Objects.requireNonNull(emb.getDisbursedBy(), "disbursementRecord.disbursedBy"));
     }
 
     @Named("toRestructuringRecordEmb")
-    public RestructuringRecordEmb toRestructuringRecordEmb(RestructuringRecord record) {
+    public @Nullable RestructuringRecordEmb toRestructuringRecordEmb(RestructuringRecord record) {
         if (record == null) return null;
 
         RestructuringRecordEmb emb = new RestructuringRecordEmb();
@@ -288,31 +292,32 @@ public abstract class ValueObjectMapper {
     }
 
     @Named("toRestructuringRecord")
-    public RestructuringRecord toRestructuringRecord(RestructuringRecordEmb emb) {
+    public @Nullable RestructuringRecord toRestructuringRecord(RestructuringRecordEmb emb) {
         if (emb == null) return null;
 
         Money addedPrincipal = Money.valueOf(
-                        emb.getRestructuringAmount(),
-                        CurrencyType.valueOf(emb.getRestructuringAmountCurrency())
+                        Objects.requireNonNull(emb.getRestructuringAmount(), "restructuringAmount"),
+                        CurrencyType.valueOf(Objects.requireNonNull(
+                                        emb.getRestructuringAmountCurrency(), "restructuringAmountCurrency"))
                                 .unwrap())
                 .unwrap();
 
         return new RestructuringRecord(
-                emb.getReason(),
+                Objects.requireNonNull(emb.getReason(), "reason"),
                 addedPrincipal,
-                emb.getPreviousInstallmentCount(),
-                emb.getNewInstallmentCount(),
-                emb.getUnpaidInstallmentsCount(),
-                emb.getPreservedInstallmentsCount(),
-                emb.getRestructuredAt(),
-                emb.getRestructuredBy());
+                Objects.requireNonNull(emb.getPreviousInstallmentCount(), "previousInstallmentCount"),
+                Objects.requireNonNull(emb.getNewInstallmentCount(), "newInstallmentCount"),
+                Objects.requireNonNull(emb.getUnpaidInstallmentsCount(), "unpaidInstallmentsCount"),
+                Objects.requireNonNull(emb.getPreservedInstallmentsCount(), "preservedInstallmentsCount"),
+                Objects.requireNonNull(emb.getRestructuredAt(), "restructuredAt"),
+                Objects.requireNonNull(emb.getRestructuredBy(), "restructuredBy"));
     }
 
     public abstract CollateralSerial toCollateralSerial(CollateralSerialEmb embeddable);
 
     public abstract CredibilityRankEmb toCredibilityRankEmb(CredibilityRank credibilityRank);
 
-    public CredibilityRankEmb toCredibilityRankEmb(Optional<CredibilityRank> credibilityRankOpt) {
+    public @Nullable CredibilityRankEmb toCredibilityRankEmb(Optional<CredibilityRank> credibilityRankOpt) {
         return credibilityRankOpt.map(this::toCredibilityRankEmb).orElse(null);
     }
 
@@ -320,7 +325,7 @@ public abstract class ValueObjectMapper {
 
     public abstract DescriptionEmb toDescriptionEmb(Description description);
 
-    public DescriptionEmb toDescriptionEmb(Optional<Description> descriptionOpt) {
+    public @Nullable DescriptionEmb toDescriptionEmb(Optional<Description> descriptionOpt) {
         return descriptionOpt.map(this::toDescriptionEmb).orElse(null);
     }
 
@@ -344,20 +349,22 @@ public abstract class ValueObjectMapper {
     }
 
     public DisburseDestination toDisburseDestination(DisburseDestinationEmb emb) {
-        return switch (emb.getType()) {
+        return switch (Objects.requireNonNull(emb.getType(), "disburseDestinationType")) {
             case DEPOSIT ->
                 DepositDisburseDestination.of(
-                                DepositNumber.valueOf(emb.getDepositNumber()).unwrap())
+                                DepositNumber.valueOf(Objects.requireNonNull(emb.getDepositNumber(), "depositNumber"))
+                                        .unwrap())
                         .unwrap();
             case ACCOUNT ->
                 AccountDisburseDestination.of(
-                                AccountNumber.of(emb.getAccountNumber()).unwrap())
+                                AccountNumber.of(Objects.requireNonNull(emb.getAccountNumber(), "accountNumber"))
+                                        .unwrap())
                         .unwrap();
         };
     }
 
     @Named("optionalDepositNumberToString")
-    public String optionalDepositNumberToString(Optional<DepositNumber> depositNumber) {
+    public @Nullable String optionalDepositNumberToString(Optional<DepositNumber> depositNumber) {
         return depositNumber.map(DepositNumber::value).orElse(null);
     }
 
@@ -369,14 +376,14 @@ public abstract class ValueObjectMapper {
         return Optional.of(new DepositNumber(depositNumber));
     }
 
-    public GracePeriodEmb toGracePeriodEmb(GracePeriod gracePeriod) {
+    public @Nullable GracePeriodEmb toGracePeriodEmb(GracePeriod gracePeriod) {
         if (gracePeriod == null) {
             return null;
         }
         return periodToEmb(gracePeriod.value());
     }
 
-    public GracePeriod toGracePeriod(GracePeriodEmb embeddable) {
+    public @Nullable GracePeriod toGracePeriod(GracePeriodEmb embeddable) {
         if (embeddable == null) {
             return null;
         }
@@ -405,7 +412,7 @@ public abstract class ValueObjectMapper {
     @Mapping(source = "code", target = "code")
     public abstract SubSourceEmb toSubSourceEmb(SubSource subSource);
 
-    public SubSourceEmb toSubSourceEmb(Optional<SubSource> subSourceOpt) {
+    public @Nullable SubSourceEmb toSubSourceEmb(Optional<SubSource> subSourceOpt) {
         return subSourceOpt.map(this::toSubSourceEmb).orElse(null);
     }
 
@@ -448,20 +455,30 @@ public abstract class ValueObjectMapper {
         return emb;
     }
 
+    @SuppressWarnings(
+            "NullAway") // CustomerName record in @NullMarked base-loan uses @NonNull params but is designed to accept
+    // nullable names (firstName/lastName/companyName); see CustomerName#fullName null guards
     public Party toParty(PartyEmb emb) {
         CustomerName name = new CustomerName(emb.getFirstName(), emb.getLastName(), emb.getCompanyName());
+        BigDecimal guaranteePct = emb.getGuaranteePercentage();
 
-        return switch (emb.getPartyRole()) {
-            case PRIMARY_APPLICANT -> new ApplicantParty(emb.getCustomerNumber(), emb.getPartyType(), name);
-            case CO_APPLICANT -> new CoApplicantParty(emb.getCustomerNumber(), emb.getPartyType(), name);
+        return switch (Objects.requireNonNull(emb.getPartyRole(), "partyRole")) {
+            case PRIMARY_APPLICANT ->
+                new ApplicantParty(
+                        Objects.requireNonNull(emb.getCustomerNumber(), "customerNumber"),
+                        Objects.requireNonNull(emb.getPartyType(), "partyType"),
+                        name);
+            case CO_APPLICANT ->
+                new CoApplicantParty(
+                        Objects.requireNonNull(emb.getCustomerNumber(), "customerNumber"),
+                        Objects.requireNonNull(emb.getPartyType(), "partyType"),
+                        name);
             case GUARANTOR ->
                 GuarantorParty.of(
-                                emb.getCustomerNumber(),
-                                emb.getPartyType(),
+                                Objects.requireNonNull(emb.getCustomerNumber(), "customerNumber"),
+                                Objects.requireNonNull(emb.getPartyType(), "partyType"),
                                 name,
-                                emb.getGuaranteePercentage() != null
-                                        ? GuaranteePercentage.of(emb.getGuaranteePercentage())
-                                        : null)
+                                guaranteePct != null ? GuaranteePercentage.of(guaranteePct) : null)
                         .unwrap();
         };
     }
@@ -477,11 +494,18 @@ public abstract class ValueObjectMapper {
         return emb;
     }
 
+    @SuppressWarnings(
+            "NullAway") // CustomerName record in @NullMarked base-loan uses @NonNull params but is designed to accept
+    // nullable names (firstName/lastName/companyName); see CustomerName#fullName null guards
     public Party toParty(ApplicationPartyEmb emb) {
         CustomerName name = new CustomerName(emb.getFirstName(), emb.getLastName(), emb.getCompanyName());
 
-        return switch (emb.getPartyRole()) {
-            case PRIMARY_APPLICANT -> new ApplicantParty(emb.getCustomerNumber(), emb.getPartyType(), name);
+        return switch (Objects.requireNonNull(emb.getPartyRole(), "partyRole")) {
+            case PRIMARY_APPLICANT ->
+                new ApplicantParty(
+                        Objects.requireNonNull(emb.getCustomerNumber(), "customerNumber"),
+                        Objects.requireNonNull(emb.getPartyType(), "partyType"),
+                        name);
             case CO_APPLICANT, GUARANTOR ->
                 throw new UnsupportedOperationException("Application number should use primary applicant!");
         };
@@ -507,7 +531,7 @@ public abstract class ValueObjectMapper {
     public abstract TrackedTransactionNumber toTrackedTransactionNumber(TransactionNumberEmb embeddable);
 
     @Named("mapAmountRangeToEmb")
-    public AmountRangeEmb mapAmountRangeToEmb(Range<Money> amountRange) {
+    public @Nullable AmountRangeEmb mapAmountRangeToEmb(Range<Money> amountRange) {
         if (amountRange == null || !amountRange.hasLowerBound() || !amountRange.hasUpperBound()) {
             return null;
         }
@@ -519,7 +543,7 @@ public abstract class ValueObjectMapper {
     }
 
     @Named("mapInterestPolicyToEmb")
-    public InterestPolicyEmb mapInterestPolicyToEmb(InterestPolicy policy) {
+    public @Nullable InterestPolicyEmb mapInterestPolicyToEmb(InterestPolicy policy) {
         if (policy == null) return null;
         InterestPolicyEmb emb = new InterestPolicyEmb();
         emb.setBaseInterestRate(policy.baseInterestRate().value());
@@ -534,7 +558,7 @@ public abstract class ValueObjectMapper {
     }
 
     @Named("mapInstallmentPolicyToEmb")
-    public InstallmentPolicyEmb mapInstallmentPolicyToEmb(InstallmentPolicy policy) {
+    public @Nullable InstallmentPolicyEmb mapInstallmentPolicyToEmb(InstallmentPolicy policy) {
         if (policy == null) return null;
         InstallmentPolicyEmb emb = new InstallmentPolicyEmb();
         emb.setInstallmentPeriodDays(policy.installmentPeriod().value().getDays());
@@ -545,7 +569,7 @@ public abstract class ValueObjectMapper {
     }
 
     @Named("mapGracePeriodPolicyToEmb")
-    public GracePeriodPolicyEmb mapGracePeriodPolicyToEmb(GracePeriodPolicy policy) {
+    public @Nullable GracePeriodPolicyEmb mapGracePeriodPolicyToEmb(GracePeriodPolicy policy) {
         if (policy == null) return null;
         GracePeriodPolicyEmb emb = new GracePeriodPolicyEmb();
         emb.setMinGracePeriodDays(policy.minGracePeriod().getDays());
@@ -555,7 +579,7 @@ public abstract class ValueObjectMapper {
     }
 
     @Named("mapPenaltyPolicyToEmb")
-    public PenaltyPolicyEmb mapPenaltyPolicyToEmb(PenaltyPolicy policy) {
+    public @Nullable PenaltyPolicyEmb mapPenaltyPolicyToEmb(PenaltyPolicy policy) {
         if (policy == null) return null;
         PenaltyPolicyEmb emb = new PenaltyPolicyEmb();
         emb.setPenaltyRate(policy.penaltyRate().value());
@@ -566,7 +590,7 @@ public abstract class ValueObjectMapper {
     }
 
     @Named("mapCollateralPolicyToEmb")
-    public CollateralPolicyEmb mapCollateralPolicyToEmb(CollateralPolicy policy) {
+    public @Nullable CollateralPolicyEmb mapCollateralPolicyToEmb(CollateralPolicy policy) {
         if (policy == null) return null;
         CollateralPolicyEmb emb = new CollateralPolicyEmb();
         emb.setTotalPercent(policy.totalPercent());
@@ -576,7 +600,7 @@ public abstract class ValueObjectMapper {
     }
 
     @Named("mapAmountRangeEmbToRange")
-    public Range<Money> mapAmountRangeEmbToRange(AmountRangeEmb emb) {
+    public @Nullable Range<Money> mapAmountRangeEmbToRange(AmountRangeEmb emb) {
         if (emb == null || emb.getMinAmount() == null || emb.getMaxAmount() == null || emb.getCurrency() == null) {
             return null;
         }
@@ -587,61 +611,74 @@ public abstract class ValueObjectMapper {
     }
 
     @Named("mapInterestPolicyEmbToPolicy")
-    public InterestPolicy mapInterestPolicyEmbToPolicy(InterestPolicyEmb emb) {
+    public @Nullable InterestPolicy mapInterestPolicyEmbToPolicy(InterestPolicyEmb emb) {
         if (emb == null) return null;
-        Rate baseRate = Rate.valueOf(emb.getBaseInterestRate()).unwrap();
-        Rate minRate = Rate.valueOf(emb.getPreferentialMinRate()).unwrap();
-        Rate maxRate = Rate.valueOf(emb.getPreferentialMaxRate()).unwrap();
+        Rate baseRate = Rate.valueOf(Objects.requireNonNull(emb.getBaseInterestRate(), "baseInterestRate"))
+                .unwrap();
+        Rate minRate = Rate.valueOf(Objects.requireNonNull(emb.getPreferentialMinRate(), "preferentialMinRate"))
+                .unwrap();
+        Rate maxRate = Rate.valueOf(Objects.requireNonNull(emb.getPreferentialMaxRate(), "preferentialMaxRate"))
+                .unwrap();
         Range<Rate> preferentialRange = Range.closed(minRate, maxRate);
         return InterestPolicy.of(
                         baseRate,
                         preferentialRange,
-                        toFormulaId(emb.getInterestFormula()),
-                        toFormulaId(emb.getRefundInterestFormula()),
-                        emb.getDailyInterest())
+                        toFormulaId(Objects.requireNonNull(emb.getInterestFormula(), "interestFormula")),
+                        toFormulaId(Objects.requireNonNull(emb.getRefundInterestFormula(), "refundInterestFormula")),
+                        Objects.requireNonNull(emb.getDailyInterest(), "dailyInterest"))
                 .unwrap();
     }
 
     @Named("mapInstallmentPolicyEmbToPolicy")
-    public InstallmentPolicy mapInstallmentPolicyEmbToPolicy(InstallmentPolicyEmb emb) {
+    public @Nullable InstallmentPolicy mapInstallmentPolicyEmbToPolicy(InstallmentPolicyEmb emb) {
         if (emb == null) return null;
-        InstallmentPeriod installmentPeriod = InstallmentPeriod.of(Period.ofDays(emb.getInstallmentPeriodDays()))
+        InstallmentPeriod installmentPeriod = InstallmentPeriod.of(
+                        Period.ofDays(Objects.requireNonNull(emb.getInstallmentPeriodDays(), "installmentPeriodDays")))
                 .unwrap();
         return InstallmentPolicy.of(
                         installmentPeriod,
-                        toFormulaId(emb.getInstallmentFormula()),
-                        toFormulaId(emb.getInterestComponentFormula()),
-                        InstallmentPaymentType.valueOf(emb.getInstallmentPaymentType()))
+                        toFormulaId(Objects.requireNonNull(emb.getInstallmentFormula(), "installmentFormula")),
+                        toFormulaId(
+                                Objects.requireNonNull(emb.getInterestComponentFormula(), "interestComponentFormula")),
+                        InstallmentPaymentType.valueOf(
+                                Objects.requireNonNull(emb.getInstallmentPaymentType(), "installmentPaymentType")))
                 .unwrap();
     }
 
     @Named("mapGracePeriodPolicyEmbToPolicy")
-    public GracePeriodPolicy mapGracePeriodPolicyEmbToPolicy(GracePeriodPolicyEmb emb) {
+    public @Nullable GracePeriodPolicy mapGracePeriodPolicyEmbToPolicy(GracePeriodPolicyEmb emb) {
         if (emb == null) return null;
         return GracePeriodPolicy.of(
-                        Period.ofDays(emb.getMinGracePeriodDays()),
-                        Period.ofDays(emb.getMaxGracePeriodDays()),
-                        toFormulaId(emb.getGracePeriodFormula()))
+                        Period.ofDays(Objects.requireNonNull(emb.getMinGracePeriodDays(), "minGracePeriodDays")),
+                        Period.ofDays(Objects.requireNonNull(emb.getMaxGracePeriodDays(), "maxGracePeriodDays")),
+                        toFormulaId(Objects.requireNonNull(emb.getGracePeriodFormula(), "gracePeriodFormula")))
                 .unwrap();
     }
 
     @Named("mapPenaltyPolicyEmbToPolicy")
-    public PenaltyPolicy mapPenaltyPolicyEmbToPolicy(PenaltyPolicyEmb emb) {
+    public @Nullable PenaltyPolicy mapPenaltyPolicyEmbToPolicy(PenaltyPolicyEmb emb) {
         if (emb == null) return null;
-        Rate penaltyRate = Rate.valueOf(emb.getPenaltyRate()).unwrap();
-        Rate deferralRate = Rate.valueOf(emb.getDeferralInterestRate()).unwrap();
-        PenaltyPaymentType paymentType = PenaltyPaymentType.valueOf(emb.getPenaltyPaymentType());
-        return PenaltyPolicy.of(penaltyRate, deferralRate, toFormulaId(emb.getPenaltyFormula()), paymentType)
+        Rate penaltyRate = Rate.valueOf(Objects.requireNonNull(emb.getPenaltyRate(), "penaltyRate"))
+                .unwrap();
+        Rate deferralRate = Rate.valueOf(Objects.requireNonNull(emb.getDeferralInterestRate(), "deferralInterestRate"))
+                .unwrap();
+        PenaltyPaymentType paymentType =
+                PenaltyPaymentType.valueOf(Objects.requireNonNull(emb.getPenaltyPaymentType(), "penaltyPaymentType"));
+        return PenaltyPolicy.of(
+                        penaltyRate,
+                        deferralRate,
+                        toFormulaId(Objects.requireNonNull(emb.getPenaltyFormula(), "penaltyFormula")),
+                        paymentType)
                 .unwrap();
     }
 
     @Named("mapCollateralPolicyEmbToPolicy")
-    public CollateralPolicy mapCollateralPolicyEmbToPolicy(CollateralPolicyEmb emb) {
+    public @Nullable CollateralPolicy mapCollateralPolicyEmbToPolicy(CollateralPolicyEmb emb) {
         if (emb == null) return null;
         return CollateralPolicy.of(
                         new ArrayList<>(emb.getCollateralTypes()),
-                        emb.getTotalPercent(),
-                        emb.getCollateralCalculationType())
+                        Objects.requireNonNull(emb.getTotalPercent(), "totalPercent"),
+                        Objects.requireNonNull(emb.getCollateralCalculationType(), "collateralCalculationType"))
                 .unwrap();
     }
 
@@ -697,85 +734,90 @@ public abstract class ValueObjectMapper {
     }
 
     public CurrencyType currencyTypeEmbToCurrencyType(CurrencyTypeEmb currencyTypeEmb) {
-        return CurrencyType.valueOf(currencyTypeEmb.getValue()).unwrapOr(CurrencyType.IRR);
+        return CurrencyType.valueOf(Objects.requireNonNull(currencyTypeEmb.getValue(), "currencyType.value"))
+                .unwrapOr(CurrencyType.IRR);
     }
 
     @Named("embToTrackedTransactionNumber")
     public TrackedTransactionNumber embToTrackedTransactionNumber(TransactionNumberEmb emb) {
-        return new TrackedTransactionNumber(emb.getValue(), emb.getCreatedAt(), emb.getTrackingId(), emb.getStatus());
+        return new TrackedTransactionNumber(
+                Objects.requireNonNull(emb.getValue(), "transactionNumber.value"),
+                Objects.requireNonNull(emb.getCreatedAt(), "transactionNumber.createdAt"),
+                Objects.requireNonNull(emb.getTrackingId(), "transactionNumber.trackingId"),
+                Objects.requireNonNull(emb.getStatus(), "transactionNumber.status"));
     }
 
-    public UUID map(LoanArrangementId value) {
+    public @Nullable UUID map(LoanArrangementId value) {
         return value != null ? value.value() : null;
     }
 
-    public LoanArrangementId mapToLoanArrangementId(UUID value) {
+    public @Nullable LoanArrangementId mapToLoanArrangementId(UUID value) {
         return value != null ? LoanArrangementId.of(value) : null;
     }
 
-    public UUID map(LoanTypeId value) {
+    public @Nullable UUID map(LoanTypeId value) {
         return value != null ? value.value() : null;
     }
 
-    public LoanTypeId mapToLoanTypeId(UUID value) {
+    public @Nullable LoanTypeId mapToLoanTypeId(UUID value) {
         return value != null ? LoanTypeId.of(value) : null;
     }
 
-    public UUID map(LoanApplicationId value) {
+    public @Nullable UUID map(LoanApplicationId value) {
         return value != null ? value.value() : null;
     }
 
-    public LoanApplicationId mapToLoanApplicationId(UUID value) {
+    public @Nullable LoanApplicationId mapToLoanApplicationId(UUID value) {
         return value != null ? LoanApplicationId.of(value) : null;
     }
 
-    public UUID map(LoanFacilityId value) {
+    public @Nullable UUID map(LoanFacilityId value) {
         return value != null ? value.value() : null;
     }
 
-    public LoanFacilityId mapToLoanFacilityId(UUID value) {
+    public @Nullable LoanFacilityId mapToLoanFacilityId(UUID value) {
         return value != null ? LoanFacilityId.of(value) : null;
     }
 
-    public Boolean map(Active value) {
+    public @Nullable Boolean map(Active value) {
         return value != null ? value.isActive() : null;
     }
 
-    public Active mapToActive(Boolean value) {
+    public @Nullable Active mapToActive(Boolean value) {
         return value != null ? Active.of(value).unwrap() : null;
     }
 
-    public Boolean map(Disable value) {
+    public @Nullable Boolean map(Disable value) {
         return value != null ? value.isDisable() : null;
     }
 
-    public Disable mapToDisable(Boolean value) {
+    public @Nullable Disable mapToDisable(Boolean value) {
         return value != null ? Disable.of(value).unwrap() : null;
     }
 
-    public BigDecimal mapRateValue(Rate rate) {
+    public @Nullable BigDecimal mapRateValue(Rate rate) {
         return rate != null ? rate.value() : null;
     }
 
-    public Rate mapToRateFromBigDecimal(BigDecimal value) {
+    public @Nullable Rate mapToRateFromBigDecimal(BigDecimal value) {
         return value != null ? Rate.valueOf(value).unwrap() : null;
     }
 
-    public Long mapDurationToDays(Duration duration) {
+    public @Nullable Long mapDurationToDays(Duration duration) {
         return duration != null ? duration.toDays() : null;
     }
 
-    public Duration mapDaysToDuration(Long days) {
+    public @Nullable Duration mapDaysToDuration(Long days) {
         return days != null ? Duration.ofDays(days) : null;
     }
 
-    public Set<String> mapCurrencyTypesToStrings(Set<CurrencyType> currencies) {
+    public @Nullable Set<String> mapCurrencyTypesToStrings(Set<CurrencyType> currencies) {
         return currencies != null
                 ? currencies.stream().map(CurrencyType::getCode).collect(Collectors.toSet())
                 : null;
     }
 
-    public Set<CurrencyType> mapStringsToCurrencies(Set<String> currencies) {
+    public @Nullable Set<CurrencyType> mapStringsToCurrencies(Set<String> currencies) {
         return currencies != null
                 ? currencies.stream()
                         .map(currencyCode -> CurrencyType.valueOf(currencyCode).unwrap())
@@ -784,17 +826,19 @@ public abstract class ValueObjectMapper {
     }
 
     @Named("periodRangeEmbToLoanDuration")
-    public Range<LoanDuration> mapPeriodRangeEmbToLoanDuration(PeriodRangeEmb emb) {
+    public @Nullable Range<LoanDuration> mapPeriodRangeEmbToLoanDuration(PeriodRangeEmb emb) {
         if (emb == null) return null;
 
-        LoanDuration minDuration = mapPeriodEmbToLoanDuration(emb.getMinPeriod());
-        LoanDuration maxDuration = mapPeriodEmbToLoanDuration(emb.getMaxPeriod());
+        LoanDuration minDuration = Objects.requireNonNull(
+                mapPeriodEmbToLoanDuration(Objects.requireNonNull(emb.getMinPeriod(), "minPeriod")), "minDuration");
+        LoanDuration maxDuration = Objects.requireNonNull(
+                mapPeriodEmbToLoanDuration(Objects.requireNonNull(emb.getMaxPeriod(), "maxPeriod")), "maxDuration");
 
         return Range.closed(minDuration, maxDuration);
     }
 
     @Named("loanDurationToPeriodRangeEmb")
-    public PeriodRangeEmb mapLoanDurationToPeriodRangeEmb(Range<LoanDuration> loanDuration) {
+    public @Nullable PeriodRangeEmb mapLoanDurationToPeriodRangeEmb(Range<LoanDuration> loanDuration) {
         if (loanDuration == null) return null;
 
         PeriodRangeEmb emb = new PeriodRangeEmb();
@@ -804,7 +848,7 @@ public abstract class ValueObjectMapper {
         return emb;
     }
 
-    public LoanDuration mapPeriodEmbToLoanDuration(PeriodEmb emb) {
+    public @Nullable LoanDuration mapPeriodEmbToLoanDuration(PeriodEmb emb) {
         if (emb == null) return null;
         Period period = Period.of(
                 emb.getYears() != null ? emb.getYears() : 0,
@@ -813,7 +857,7 @@ public abstract class ValueObjectMapper {
         return LoanDuration.of(period).unwrap();
     }
 
-    public PeriodEmb mapLoanDurationToPeriodEmb(LoanDuration loanDuration) {
+    public @Nullable PeriodEmb mapLoanDurationToPeriodEmb(LoanDuration loanDuration) {
         if (loanDuration == null) return null;
         PeriodEmb emb = new PeriodEmb();
         emb.setDays(loanDuration.value().getDays());
@@ -823,7 +867,7 @@ public abstract class ValueObjectMapper {
     }
 
     @Named("mapDurationRangeToEmb")
-    public DurationRangeEmb mapDurationRangeToEmb(Range<Duration> durationRange) {
+    public @Nullable DurationRangeEmb mapDurationRangeToEmb(Range<Duration> durationRange) {
         if (durationRange == null || !durationRange.hasLowerBound() || !durationRange.hasUpperBound()) {
             return null;
         }
@@ -833,47 +877,47 @@ public abstract class ValueObjectMapper {
         return emb;
     }
 
-    public Boolean map(LoanApplicationStatus value) {
+    public @Nullable Boolean map(LoanApplicationStatus value) {
         return value != null ? value.isAllowed() : null;
     }
 
-    public LoanApplicationStatus mapToLoanApplicationStatus(Boolean value) {
+    public @Nullable LoanApplicationStatus mapToLoanApplicationStatus(Boolean value) {
         return value != null ? (value ? LoanApplicationStatus.ALLOWED : LoanApplicationStatus.NOT_ALLOWED) : null;
     }
 
-    public UUID map(IncomeId value) {
+    public @Nullable UUID map(IncomeId value) {
         return value != null ? value.value() : null;
     }
 
-    public IncomeId mapToIncomeId(UUID value) {
+    public @Nullable IncomeId mapToIncomeId(UUID value) {
         return value != null ? IncomeId.of(value).unwrap() : null;
     }
 
-    public UUID map(LoanTypeGroupId value) {
+    public @Nullable UUID map(LoanTypeGroupId value) {
         return value != null ? value.value() : null;
     }
 
-    public LoanTypeGroupId mapToLoanTypeGroupId(UUID value) {
+    public @Nullable LoanTypeGroupId mapToLoanTypeGroupId(UUID value) {
         return value != null ? LoanTypeGroupId.of(value).unwrap() : null;
     }
 
-    public Set<UUID> mapIncomeIdsToUUIDs(Set<IncomeId> value) {
+    public @Nullable Set<UUID> mapIncomeIdsToUUIDs(Set<IncomeId> value) {
         return value != null ? value.stream().map(this::map).collect(Collectors.toSet()) : null;
     }
 
-    public Set<IncomeId> mapUUIDsToIncomeIds(Set<UUID> value) {
+    public @Nullable Set<IncomeId> mapUUIDsToIncomeIds(Set<UUID> value) {
         return value != null ? value.stream().map(this::mapToIncomeId).collect(Collectors.toSet()) : null;
     }
 
-    public Set<UUID> mapLoanArrangementIdsToUUIDs(Set<LoanArrangementId> value) {
+    public @Nullable Set<UUID> mapLoanArrangementIdsToUUIDs(Set<LoanArrangementId> value) {
         return value != null ? value.stream().map(this::map).collect(Collectors.toSet()) : null;
     }
 
-    public Set<LoanArrangementId> mapUUIDsToLoanArrangementIds(Set<UUID> value) {
+    public @Nullable Set<LoanArrangementId> mapUUIDsToLoanArrangementIds(Set<UUID> value) {
         return value != null ? value.stream().map(this::mapToLoanArrangementId).collect(Collectors.toSet()) : null;
     }
 
-    public SamatEmb mapSamat(Optional<Samat> value) {
+    public @Nullable SamatEmb mapSamat(Optional<Samat> value) {
         return value.map(this::toSamatEmb).orElse(null);
     }
 
@@ -881,13 +925,15 @@ public abstract class ValueObjectMapper {
     public abstract SamatEmb toSamatEmb(Samat samat);
 
     // EconomicSectorCurrency set mappings
-    public Set<EconomicSectorCurrencyEmb> mapEconomicSectorCurrenciesToEmbs(Set<EconomicSectorCurrency> value) {
+    public @Nullable Set<EconomicSectorCurrencyEmb> mapEconomicSectorCurrenciesToEmbs(
+            Set<EconomicSectorCurrency> value) {
         return value != null
                 ? value.stream().map(this::toEconomicSectorCurrencyEmb).collect(Collectors.toSet())
                 : null;
     }
 
-    public Set<EconomicSectorCurrency> mapEmbsToEconomicSectorCurrencies(Set<EconomicSectorCurrencyEmb> value) {
+    public @Nullable Set<EconomicSectorCurrency> mapEmbsToEconomicSectorCurrencies(
+            Set<EconomicSectorCurrencyEmb> value) {
         return value != null
                 ? value.stream().map(this::toEconomicSectorCurrency).collect(Collectors.toSet())
                 : null;
@@ -930,13 +976,13 @@ public abstract class ValueObjectMapper {
 
         for (var emb : embs) {
             LoanTopic loanTopic = LoanTopic.of(
-                            emb.getTopicName(),
-                            emb.getTopicCode(),
-                            emb.getTradeRelationType(),
-                            toEconomicSector(emb.getEconomicSectors()))
+                            Objects.requireNonNull(emb.getTopicName(), "topicName"),
+                            Objects.requireNonNull(emb.getTopicCode(), "topicCode"),
+                            Objects.requireNonNull(emb.getTradeRelationType(), "tradeRelationType"),
+                            toEconomicSector(Objects.requireNonNull(emb.getEconomicSectors(), "economicSectors")))
                     .unwrap();
 
-            builder.put(emb.getTradeRelationType(), loanTopic);
+            builder.put(Objects.requireNonNull(emb.getTradeRelationType(), "tradeRelationType"), loanTopic);
         }
 
         return builder.build();
@@ -977,19 +1023,19 @@ public abstract class ValueObjectMapper {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    public List<AttributeEmb> mapAttributesToEmbs(List<Attribute> value) {
+    public @Nullable List<AttributeEmb> mapAttributesToEmbs(List<Attribute> value) {
         return value != null ? value.stream().map(this::toAttributeEmb).collect(Collectors.toList()) : null;
     }
 
-    public List<Attribute> mapEmbsToAttributes(List<AttributeEmb> value) {
+    public @Nullable List<Attribute> mapEmbsToAttributes(List<AttributeEmb> value) {
         return value != null ? value.stream().map(this::toAttribute).collect(Collectors.toList()) : null;
     }
 
-    public UUID map(SanctionedLoanId value) {
+    public @Nullable UUID map(SanctionedLoanId value) {
         return value != null ? value.value() : null;
     }
 
-    public SanctionedLoanId mapToSanctionedLoanId(UUID value) {
+    public @Nullable SanctionedLoanId mapToSanctionedLoanId(UUID value) {
         return value != null ? SanctionedLoanId.of(value) : null;
     }
 
@@ -997,11 +1043,11 @@ public abstract class ValueObjectMapper {
         return new LifeInsuranceId(value);
     }
 
-    public String map(Optional<LifeInsuranceId> value) {
+    public @Nullable String map(Optional<LifeInsuranceId> value) {
         return value.map(LifeInsuranceId::value).orElse(null);
     }
 
-    public UUID mapInstallmentScheduleId(Optional<InstallmentScheduleId> value) {
+    public @Nullable UUID mapInstallmentScheduleId(Optional<InstallmentScheduleId> value) {
         return value.map(InstallmentScheduleId::value).orElse(null);
     }
 
@@ -1059,7 +1105,7 @@ public abstract class ValueObjectMapper {
         return embeddables.stream().map(this::toCollateral).collect(Collectors.toList());
     }
 
-    public CancellationDataEmb mapCancellationData(Optional<CancellationData> value) {
+    public @Nullable CancellationDataEmb mapCancellationData(Optional<CancellationData> value) {
         return value.map(this::toCancellationDataEmb).orElse(null);
     }
 
@@ -1067,7 +1113,7 @@ public abstract class ValueObjectMapper {
     public abstract CancellationDataEmb toCancellationDataEmb(CancellationData cancellationData);
 
     @Named("toCloseFacilityPaidOffInfoEmb")
-    public CloseFacilityPaidOffInfoEmb toCloseFacilityPaidOffInfoEmb(CloseFacilityPaidOffInfo info) {
+    public @Nullable CloseFacilityPaidOffInfoEmb toCloseFacilityPaidOffInfoEmb(CloseFacilityPaidOffInfo info) {
         if (info == null) {
             return null;
         }
@@ -1082,7 +1128,7 @@ public abstract class ValueObjectMapper {
     }
 
     @Named("fromCloseFacilityPaidOffInfoEmb")
-    public CloseFacilityPaidOffInfo fromCloseFacilityPaidOffInfoEmb(CloseFacilityPaidOffInfoEmb emb) {
+    public @Nullable CloseFacilityPaidOffInfo fromCloseFacilityPaidOffInfoEmb(CloseFacilityPaidOffInfoEmb emb) {
         if (emb == null || emb.getClosePaidOffDate() == null) {
             return null;
         }

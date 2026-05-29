@@ -9,6 +9,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 
 import org.hibernate.proxy.HibernateProxy;
+import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.pangaea.persistence.jpa.entity.PersistentEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ScheduledTrancheEmb;
@@ -24,6 +25,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class DisbursementScheduleEntity extends PersistentEntity {
 
+    @Nullable
     @ElementCollection
     @CollectionTable(
             name = "loan_disbursement_schedule_tranches",

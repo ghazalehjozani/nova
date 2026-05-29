@@ -12,6 +12,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.CollateralCalculationType;
 
@@ -21,6 +23,7 @@ import lombok.Data;
 @Embeddable
 public class CollateralPolicyEmb implements Serializable {
 
+    @Nullable
     @Column(name = "collateral_total_percent")
     private Integer totalPercent;
 
@@ -32,6 +35,7 @@ public class CollateralPolicyEmb implements Serializable {
     @Column(name = "collateral_code")
     private Set<CollateralType> collateralTypes = new HashSet<>();
 
+    @Nullable
     @Enumerated(EnumType.STRING)
     @Column(name = "collateral_calculation_type", nullable = false)
     private CollateralCalculationType collateralCalculationType;

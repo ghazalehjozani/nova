@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.core.application.service.cancelfacility.commandhandl
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -57,10 +58,10 @@ public class CancelFacilityCommandHandler implements CommandHandler<CancelFacili
                         command.cancelDescription(),
                         command.cancelReason(),
                         command.cancelDate(),
-                        command.cancelLoanTransactionNumber())
+                        Objects.requireNonNull(command.cancelLoanTransactionNumber(), "cancelLoanTransactionNumber"))
                 .map(v -> {
                     facilityRepository.save(facility);
-                    log.debug("Facility cancelled: {}", command.loanFacilityId());
+                    log.debug("Facility cancelled: {}", facility.getId().value());
                     domainEvents.addAll(facility.domainEvents());
                     return facility;
                 });
@@ -75,10 +76,10 @@ public class CancelFacilityCommandHandler implements CommandHandler<CancelFacili
         }
 
         return Result.fromOptional(
-                        scheduleRepository.findById(scheduleId.orElse(null)),
+                        scheduleRepository.findById(scheduleId.orElseThrow()),
                         () -> FailureCause.notFound(Notification.ofError(
                                 TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
-                                command.loanFacilityId())))
+                                facility.getId().value())))
                 .flatMap(schedule -> schedule.cancelSchedule(command.cancelReason(), clock)
                         .map(v -> {
                             scheduleRepository.save(schedule);

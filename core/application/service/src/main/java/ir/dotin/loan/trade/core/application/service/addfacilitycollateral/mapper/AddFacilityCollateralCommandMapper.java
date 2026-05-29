@@ -1,7 +1,9 @@
 package ir.dotin.loan.trade.core.application.service.addfacilitycollateral.mapper;
 
 import java.util.List;
+import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
 
 import ir.dotin.platform.pangaea.commons.core.Result;
@@ -19,18 +21,18 @@ public interface AddFacilityCollateralCommandMapper {
 
     List<Collateral> toCollaterals(List<AddFacilityCollateralCommand.CollateralDto> dtos);
 
-    default Collateral toCollateral(AddFacilityCollateralCommand.CollateralDto dto) {
+    default @Nullable Collateral toCollateral(AddFacilityCollateralCommand.CollateralDto dto) {
         if (dto == null) return null;
 
         CollateralSerial serial = CollateralSerial.of(dto.collateralSerial()).unwrap();
         CollateralType type = CollateralType.valueOf(dto.collateralTypeCode().name());
-        Money usedAmount = toMoney(dto.usedAmount());
+        Money usedAmount = Objects.requireNonNull(toMoney(dto.usedAmount()), "usedAmount is required");
 
         return Collateral.valueOf(type, dto.percent(), dto.description(), serial, usedAmount)
                 .unwrapOrThrow(c -> new IllegalArgumentException("Invalid collateral data"));
     }
 
-    default Money toMoney(AddFacilityCollateralCommand.MoneyDto dto) {
+    default @Nullable Money toMoney(AddFacilityCollateralCommand.MoneyDto dto) {
         if (dto == null) {
             return null;
         }
@@ -51,13 +53,20 @@ public interface AddFacilityCollateralCommandMapper {
         }
     }
 
-    default Collateral toCollateral(UpdateCollateralCommand.CollateralItem item, CurrencyType currencyType) {
+    default @Nullable Collateral toCollateral(UpdateCollateralCommand.CollateralItem item, CurrencyType currencyType) {
         if (item == null) return null;
 
         CollateralSerial serial = CollateralSerial.of(item.collateralSerial()).unwrap();
         Result<Money> usedAmount = Money.valueOf(item.usedAmount(), currencyType);
 
-        return Collateral.valueOf(null, null, null, serial, usedAmount.unwrap())
+        // collateralType, percent, description are not carried by UpdateCollateralCommand.CollateralItem;
+        // requireNonNull is used here as a fail-fast guard — the domain Collateral record requires these fields.
+        return Collateral.valueOf(
+                        Objects.requireNonNull(null, "collateralType required for update"),
+                        Objects.requireNonNull(null, "percent required for update"),
+                        Objects.requireNonNull(null, "description required for update"),
+                        serial,
+                        usedAmount.unwrap())
                 .unwrapOrThrow(c -> new IllegalArgumentException("Invalid collateral data"));
     }
 }
