@@ -26,7 +26,6 @@ import ir.dotin.platform.pangaea.saga.api.definition.SagaInput;
 import ir.dotin.platform.pangaea.saga.api.definition.SagaStep;
 import ir.dotin.platform.pangaea.saga.api.definition.SagaSteps;
 import ir.dotin.platform.pangaea.saga.api.model.CompensationMode;
-import ir.dotin.platform.pangaea.saga.api.model.ExecutionStrategy;
 import ir.dotin.platform.pangaea.saga.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
@@ -81,16 +80,6 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
     @Override
     public CompensationMode compensationMode() {
         return CompensationMode.LIFO_SEQUENTIAL;
-    }
-
-    @Override
-    public boolean allowStrategyOverride() {
-        return true;
-    }
-
-    @Override
-    public ExecutionStrategy executionStrategy() {
-        return ExecutionStrategy.STOP_ON_STEP;
     }
 
     /**

@@ -76,11 +76,6 @@ public class AddFacilityCollateralSaga implements SagaDefinition<AddFacilityColl
     }
 
     @Override
-    public boolean allowStrategyOverride() {
-        return true;
-    }
-
-    @Override
     public List<SagaStep<AddFacilityCollateralSagaData, ?>> steps() {
         return List.of(
                 SagaSteps.step(

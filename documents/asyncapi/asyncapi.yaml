@@ -175,7 +175,7 @@ components:
       summary: Drives a loan facility through its full lifecycle as a saga (request/reply).
       contentType: application/json
       headers:
-        $ref: '#/components/schemas/FlowCommandHeaders'
+        $ref: '#/components/schemas/CommandHeaders'
       payload:
         $ref: '#/components/schemas/FullLoanFacilityLifecycleMessage'
 
@@ -234,18 +234,6 @@ components:
         reply-to: { type: string, description: Reply destination for request/reply. }
         kafka_correlationId: { type: string, description: Kafka request/reply correlation id (Kafka transport only). }
         jms_correlationId: { type: string, description: JMS request/reply correlation id (ActiveMQ transport only). }
-
-    FlowCommandHeaders:
-      allOf:
-        - $ref: '#/components/schemas/CommandHeaders'
-        - type: object
-          title: FlowCommandHeaders
-          description: Command headers extended with saga-orchestration routing fields.
-          required: [X-Flow-Correlation-ID, X-Flow-Breakpoint-Step, X-Flow-Failure-Mode]
-          properties:
-            X-Flow-Correlation-ID: { type: string, format: uuid, description: Saga correlation id. }
-            X-Flow-Breakpoint-Step: { type: string, description: Current saga step / breakpoint. }
-            X-Flow-Failure-Mode: { type: string, enum: [ROLLBACK_ALL, STOP_ON_STEP], description: Saga failure strategy. }
 
     EventHandlerHeaders:
       type: object

@@ -15,7 +15,6 @@ import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
 import ir.dotin.platform.pangaea.saga.api.error.SagaErrors;
-import ir.dotin.platform.pangaea.saga.api.exception.SagaSuspendedException;
 import ir.dotin.platform.pangaea.saga.api.model.SagaResult;
 import ir.dotin.platform.pangaea.saga.api.orchestration.SagaOrchestrator;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.IssueFacilityContractCommand;
@@ -80,11 +79,6 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
 
         log.info("Saga completed: sagaId={}, success={}", sagaResult.sagaId(), sagaResult.isSuccess());
 
-        if (sagaResult.isSuspended()) {
-            var suspended = (SagaResult.Suspended<IssueFacilityContractSagaData>) sagaResult;
-            throw new SagaSuspendedException(sagaResult.sagaId(), extractSuspendedStep(sagaResult), suspended.reason());
-        }
-
         if (sagaResult.isSuccess()) {
             List<DomainEvent<?>> domainEvents = buildDomainEvents(sagaResult.dataOrNull());
             return Result.success(domainEvents);
@@ -121,17 +115,7 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
         if (sagaResult instanceof SagaResult.Failed<IssueFacilityContractSagaData> f) {
             return f.reason();
         }
-        if (sagaResult instanceof SagaResult.Suspended<IssueFacilityContractSagaData> s) {
-            return s.reason();
-        }
         return "Unknown error";
-    }
-
-    private String extractSuspendedStep(SagaResult<IssueFacilityContractSagaData> sagaResult) {
-        if (sagaResult instanceof SagaResult.Suspended<IssueFacilityContractSagaData> s) {
-            return s.reason();
-        }
-        return "unknown";
     }
 
     private Result<List<DomainEvent<?>>> toResult(FailureCause failureCause) {

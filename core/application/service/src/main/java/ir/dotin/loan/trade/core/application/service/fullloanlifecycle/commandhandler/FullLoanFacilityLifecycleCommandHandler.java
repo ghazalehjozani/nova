@@ -11,7 +11,6 @@ import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
 import ir.dotin.platform.pangaea.saga.api.error.SagaErrors;
-import ir.dotin.platform.pangaea.saga.api.exception.SagaSuspendedException;
 import ir.dotin.platform.pangaea.saga.api.model.SagaResult;
 import ir.dotin.platform.pangaea.saga.api.orchestration.SagaOrchestrator;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLoanFacilityLifecycleCommand;
@@ -53,18 +52,13 @@ public class FullLoanFacilityLifecycleCommandHandler implements CommandHandler<F
                 command.confirmType());
 
         String sagaCorrelationId = Objects.requireNonNullElse(
-                InvocationContextHolder.current().flow().flowCorrelationId(),
+                InvocationContextHolder.current().correlation().correlationId(),
                 command.uid().toString());
 
         SagaResult<FullLoanFacilityLifecycleSagaData> sagaResult =
                 sagaOrchestrator.executeSaga("full-loan-facility-lifecycle", input, sagaCorrelationId);
 
         log.info("Saga completed: sagaId={}, success={}", sagaResult.sagaId(), sagaResult.isSuccess());
-
-        if (sagaResult.isSuspended()) {
-            var suspended = (SagaResult.Suspended<FullLoanFacilityLifecycleSagaData>) sagaResult;
-            throw new SagaSuspendedException(sagaResult.sagaId(), extractSuspendedStep(sagaResult), suspended.reason());
-        }
 
         if (sagaResult.isSuccess()) {
             // Return NO events. Each saga step dispatches its own command, which publishes that step's
@@ -94,16 +88,6 @@ public class FullLoanFacilityLifecycleCommandHandler implements CommandHandler<F
         if (sagaResult instanceof SagaResult.Failed<FullLoanFacilityLifecycleSagaData> f) {
             return f.reason();
         }
-        if (sagaResult instanceof SagaResult.Suspended<FullLoanFacilityLifecycleSagaData> s) {
-            return s.reason();
-        }
         return "Unknown error";
-    }
-
-    private String extractSuspendedStep(SagaResult<FullLoanFacilityLifecycleSagaData> sagaResult) {
-        if (sagaResult instanceof SagaResult.Suspended<FullLoanFacilityLifecycleSagaData> s) {
-            return s.reason();
-        }
-        return "unknown";
     }
 }

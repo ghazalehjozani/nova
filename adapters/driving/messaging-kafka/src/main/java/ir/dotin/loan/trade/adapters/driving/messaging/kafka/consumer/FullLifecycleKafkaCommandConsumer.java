@@ -98,8 +98,5 @@ public class FullLifecycleKafkaCommandConsumer {
         if (headers.correlationId() == null) {
             throw new IllegalArgumentException("Missing required header: " + MessagingHeaderNames.CORRELATION_ID);
         }
-        if (headers.flowFailureMode() == null) {
-            throw new IllegalArgumentException("Missing required header: " + MessagingHeaderNames.FLOW_FAILURE_MODE);
-        }
     }
 }

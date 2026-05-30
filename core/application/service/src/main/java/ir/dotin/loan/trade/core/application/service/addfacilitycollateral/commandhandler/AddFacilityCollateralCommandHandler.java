@@ -16,7 +16,6 @@ import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.commons.domain.vo.Money;
 import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
 import ir.dotin.platform.pangaea.saga.api.error.SagaErrors;
-import ir.dotin.platform.pangaea.saga.api.exception.SagaSuspendedException;
 import ir.dotin.platform.pangaea.saga.api.model.SagaResult;
 import ir.dotin.platform.pangaea.saga.api.orchestration.SagaOrchestrator;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
@@ -92,11 +91,6 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
 
         log.info("Saga completed: sagaId={}, success={}", sagaResult.sagaId(), sagaResult.isSuccess());
 
-        if (sagaResult.isSuspended()) {
-            var suspended = (SagaResult.Suspended<AddFacilityCollateralSagaData>) sagaResult;
-            throw new SagaSuspendedException(sagaResult.sagaId(), extractReason(sagaResult), suspended.reason());
-        }
-
         if (sagaResult.isSuccess()) {
             return Result.success(buildDomainEvents(sagaResult.dataOrNull()));
         }
@@ -167,9 +161,6 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
         }
         if (sagaResult instanceof SagaResult.Failed<AddFacilityCollateralSagaData> f) {
             return f.reason();
-        }
-        if (sagaResult instanceof SagaResult.Suspended<AddFacilityCollateralSagaData> s) {
-            return s.reason();
         }
         return "Unknown error";
     }
