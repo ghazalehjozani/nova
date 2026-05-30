@@ -40,6 +40,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.response.*;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+import static java.math.BigDecimal.ZERO;
 import static java.util.Objects.requireNonNull;
 
 @Slf4j
@@ -350,10 +351,10 @@ public class KafkaValidationMapper {
                 nz(response.getCustomerNo()),
                 nz(response.getAssuranceTypeCode()),
                 nz(response.getAssuranceTypeName()),
-                requireNonNull(response.getGuaranteeAmount(), "FCB loadCollateral reply missing guaranteeAmount"),
-                requireNonNull(response.getPrice(), "FCB loadCollateral reply missing price"),
-                requireNonNull(response.getUsedMortgagePrice(), "FCB loadCollateral reply missing usedMortgagePrice"),
-                requireNonNull(response.getGuaranteeDuration(), "FCB loadCollateral reply missing guaranteeDuration"),
+                nz(response.getGuaranteeAmount()),
+                nz(response.getPrice()),
+                nz(response.getUsedMortgagePrice()),
+                nz(response.getGuaranteeDuration()),
                 nz(response.getGuaranteeNumber()),
                 nz(response.getGuaranteeIssuer()),
                 nz(response.getGuaranteeBranchCode()),
@@ -453,6 +454,14 @@ public class KafkaValidationMapper {
 
     private static boolean nz(@Nullable Boolean value) {
         return value != null ? value : false;
+    }
+
+    private static BigDecimal nz(@Nullable BigDecimal value) {
+        return value != null ? value : ZERO;
+    }
+
+    private static int nz(@Nullable Integer value) {
+        return value != null ? value : 0;
     }
 
     private @Nullable Period parsePeriod(@Nullable String value) {
