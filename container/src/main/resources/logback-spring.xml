@@ -28,6 +28,8 @@
         <captureMarkerAttribute>true</captureMarkerAttribute>
         <captureKeyValuePairAttributes>true</captureKeyValuePairAttributes>
         <captureMdcAttributes>*</captureMdcAttributes>
+        <!-- Buffer for logs emitted before the OTel SDK installs; default 1000 drops nova's DEBUG-heavy startup. -->
+        <numLogsCapturedBeforeOtelInstall>20000</numLogsCapturedBeforeOtelInstall>
     </appender>
 
     <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
