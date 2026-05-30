@@ -24,7 +24,6 @@ public record AddFacilityCollateralCommand(
     @Builder
     public record CollateralDto(
             @NotBlank CollateralType collateralTypeCode,
-            @NotNull Integer percent,
             @NotBlank String description,
             @NotBlank String collateralSerial,
             @NotNull @Valid MoneyDto usedAmount) {}

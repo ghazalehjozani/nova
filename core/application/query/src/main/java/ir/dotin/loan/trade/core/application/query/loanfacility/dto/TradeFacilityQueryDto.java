@@ -114,7 +114,6 @@ public record TradeFacilityQueryDto(
 
     public record CollateralEmbDto(
             String collateralTypeCode,
-            Integer percent,
             String description,
             String collateralSerial,
             BigDecimal usedAmount,

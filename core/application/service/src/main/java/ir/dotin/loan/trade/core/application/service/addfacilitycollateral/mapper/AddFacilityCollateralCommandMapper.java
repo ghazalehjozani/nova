@@ -28,7 +28,7 @@ public interface AddFacilityCollateralCommandMapper {
         CollateralType type = CollateralType.valueOf(dto.collateralTypeCode().name());
         Money usedAmount = Objects.requireNonNull(toMoney(dto.usedAmount()), "usedAmount is required");
 
-        return Collateral.valueOf(type, dto.percent(), dto.description(), serial, usedAmount)
+        return Collateral.valueOf(type, dto.description(), serial, usedAmount)
                 .unwrapOrThrow(c -> new IllegalArgumentException("Invalid collateral data"));
     }
 
@@ -59,11 +59,10 @@ public interface AddFacilityCollateralCommandMapper {
         CollateralSerial serial = CollateralSerial.of(item.collateralSerial()).unwrap();
         Result<Money> usedAmount = Money.valueOf(item.usedAmount(), currencyType);
 
-        // collateralType, percent, description are not carried by UpdateCollateralCommand.CollateralItem;
+        // collateralType and description are not carried by UpdateCollateralCommand.CollateralItem;
         // requireNonNull is used here as a fail-fast guard — the domain Collateral record requires these fields.
         return Collateral.valueOf(
                         Objects.requireNonNull(null, "collateralType required for update"),
-                        Objects.requireNonNull(null, "percent required for update"),
                         Objects.requireNonNull(null, "description required for update"),
                         serial,
                         usedAmount.unwrap())

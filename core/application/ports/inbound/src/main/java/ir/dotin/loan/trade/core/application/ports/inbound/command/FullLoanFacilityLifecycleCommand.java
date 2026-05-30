@@ -118,7 +118,6 @@ public record FullLoanFacilityLifecycleCommand(
     @Builder(toBuilder = true)
     public record CollateralDto(
             @NotNull CollateralType collateralTypeCode,
-            @NotNull Integer percent,
             @NotNull String description,
             @NotNull String collateralSerial,
             @NotNull MoneyDto usedAmount) {}
