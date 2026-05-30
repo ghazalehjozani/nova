@@ -64,11 +64,7 @@ public record FullLoanFacilityLifecycleMessage(
     public record DisbursementDto(BigDecimal trancheAmount, LocalDate disbursementDate) {}
 
     public record CollateralDto(
-            String collateralTypeCode,
-            Integer percent,
-            String description,
-            String collateralSerial,
-            MoneyDto usedAmount) {}
+            String collateralTypeCode, String description, String collateralSerial, MoneyDto usedAmount) {}
 
     public record MoneyDto(BigDecimal value, String currency) {}
 }

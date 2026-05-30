@@ -31,9 +31,6 @@ public record AddFacilityCollateralRequest(
             @Schema(description = "Collateral type code", example = "ESTATE", required = true)
             String collateralTypeCode,
 
-            @Schema(description = "Collateral percentage", example = "100", required = true)
-            Integer percent,
-
             @Schema(description = "Collateral description", example = "Property deed", required = true)
             String description,
 

@@ -585,7 +585,6 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
         List<AddFacilityCollateralCommand.CollateralDto> collateralDtos = data.collaterals().stream()
                 .map(c -> AddFacilityCollateralCommand.CollateralDto.builder()
                         .collateralTypeCode(c.collateralTypeCode())
-                        .percent(c.percent())
                         .description(c.description())
                         .collateralSerial(c.collateralSerial())
                         .usedAmount(new AddFacilityCollateralCommand.MoneyDto(

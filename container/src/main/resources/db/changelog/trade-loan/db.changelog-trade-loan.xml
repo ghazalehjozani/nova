@@ -30,6 +30,7 @@
     <include file="db/changelog/trade-loan/v2026.3.0/008-create-outbox-events.xml"/>
     <include file="db/changelog/trade-loan/v2026.3.0/009-add-close-paid-off-fields.xml"/>
     <include file="/db/changelog/trade-loan/v2026.5.41/010-create-restructuring-events.xml"/>
+    <include file="/db/changelog/trade-loan/v2026.5.41/011-drop-collateral-percent-column.xml"/>
 
     <!-- Updates/Patches -->
     <include file="/db/changelog/trade-loan/v2026.5.32/002-update-close-paid-off-data.xml"/>

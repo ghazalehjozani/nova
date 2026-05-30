@@ -27,9 +27,6 @@ public class CollateralEmb {
     @Column(name = "collateral_type_code", nullable = false)
     private CollateralType collateralType;
 
-    @Column(name = "percent", nullable = false)
-    private Integer percent;
-
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
