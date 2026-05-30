@@ -1,11 +1,16 @@
 package ir.dotin.loan.trade.core.application.query.loanarrangement.request;
 
+import java.util.Set;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
+import ir.dotin.platform.pangaea.dispatcher.api.cache.CacheDependency;
+import ir.dotin.platform.pangaea.dispatcher.api.cache.CacheScope;
+import ir.dotin.platform.pangaea.dispatcher.api.query.CacheableQuery;
 import ir.dotin.platform.pangaea.dispatcher.api.query.Query;
 import ir.dotin.loan.trade.core.application.query.loanarrangement.dto.LoanArrangementQueryResult;
+import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 
 import lombok.Builder;
 
@@ -17,7 +22,7 @@ public record FindAllLoanArrangementsQuery(
         @Min(value = 1, message = "Page size must be at least 1")
         @Max(value = 100, message = "Page size cannot exceed 100")
         Integer pageSize)
-        implements Query<LoanArrangementQueryResult> {
+        implements Query<LoanArrangementQueryResult>, CacheableQuery {
 
     public FindAllLoanArrangementsQuery {
         if (pageSize == null) {
@@ -28,6 +33,22 @@ public record FindAllLoanArrangementsQuery(
     @Override
     public Class<LoanArrangementQueryResult> getResultType() {
         return LoanArrangementQueryResult.class;
+    }
+
+    @Override
+    public Set<CacheDependency> invalidatedBy() {
+        return Set.of(CacheDependency.ofType(TradeLoanArrangement.class));
+    }
+
+    @Override
+    public CacheScope cacheScope() {
+        return CacheScope.SHARED;
+    }
+
+    // Only the hot first page is cached; deeper cursor pages rarely repeat.
+    @Override
+    public boolean isCacheable() {
+        return isFirstPage();
     }
 
     public static FindAllLoanArrangementsQuery firstPage(int pageSize) {

@@ -2,16 +2,20 @@ package ir.dotin.loan.trade.core.application.query.loanfacility.request;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 
+import ir.dotin.platform.pangaea.dispatcher.api.cache.CacheDependency;
+import ir.dotin.platform.pangaea.dispatcher.api.query.CacheableQuery;
 import ir.dotin.platform.pangaea.dispatcher.api.query.Query;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.trade.core.application.query.loanfacility.dto.LoanFacilityQueryResult;
 import ir.dotin.loan.trade.core.application.query.shared.pagination.OffsetPageRequest;
+import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 import lombok.Builder;
 
@@ -36,7 +40,7 @@ public record LoanFacilityFilterQuery(
 
         @NotNull(message = "Offset page request is required") @Valid
         OffsetPageRequest offsetPageRequest)
-        implements Query<LoanFacilityQueryResult> {
+        implements Query<LoanFacilityQueryResult>, CacheableQuery {
 
     public LoanFacilityFilterQuery {
         if (offsetPageRequest == null) {
@@ -55,6 +59,11 @@ public record LoanFacilityFilterQuery(
     @Override
     public Class<LoanFacilityQueryResult> getResultType() {
         return LoanFacilityQueryResult.class;
+    }
+
+    @Override
+    public Set<CacheDependency> invalidatedBy() {
+        return Set.of(CacheDependency.ofType(TradeLoanFacility.class));
     }
 
     public static LoanFacilityFilterQuery of(
