@@ -41,4 +41,7 @@
     <!-- Originating W3C trace context (traceparent/tracestate) on outbox tables -->
     <include file="db/changelog/trade-loan/v2026.5.0/003-add-outbox-traceparent-columns.xml"/>
 
+    <!-- LN-59394: partial dispatch index for the outbox poller on all loan_*_outbox_events tables -->
+    <include file="db/changelog/trade-loan/v2026.5.57/012-add-outbox-poller-index.xml"/>
+
 </databaseChangeLog>
