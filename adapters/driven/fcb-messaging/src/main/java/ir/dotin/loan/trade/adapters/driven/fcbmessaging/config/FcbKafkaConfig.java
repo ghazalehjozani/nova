@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.config;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.CooperativeStickyAssignor;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
@@ -58,6 +60,7 @@ public class FcbKafkaConfig {
     private static final int REPLY_AUTO_COMMIT_INTERVAL_MS = 1_000;
     private static final int PRODUCER_DELIVERY_TIMEOUT_MS = 120_000;
     private static final int PRODUCER_REQUEST_TIMEOUT_MS = 30_000;
+    private static final Duration REPLY_PARTITION_METADATA_TIMEOUT = Duration.ofSeconds(10);
 
     @Bean(FCB_PRODUCER_FACTORY)
     public ProducerFactory<String, byte[]> fcbProducerFactory(MessagingProperties messagingProperties) {
@@ -153,7 +156,7 @@ public class FcbKafkaConfig {
         // supplied per-container, not on the factory). partitionsFor is metadata-only — nothing is consumed/committed.
         try (Consumer<String, byte[]> consumer =
                 consumerFactory.createConsumer("nova-fcb-reply-partition-metadata", "-partmeta")) {
-            List<PartitionInfo> infos = consumer.partitionsFor(replyTopic);
+            List<PartitionInfo> infos = consumer.partitionsFor(replyTopic, REPLY_PARTITION_METADATA_TIMEOUT);
             if (infos == null || infos.isEmpty()) {
                 LOG.warn(
                         "FCB-REPLY-PARTITION: broker returned no partition metadata for reply topic '{}'; "
@@ -173,6 +176,16 @@ public class FcbKafkaConfig {
                         brokerCount);
             }
             return brokerCount;
+        } catch (KafkaException ex) {
+            LOG.warn(
+                    "FCB-REPLY-PARTITION: could not fetch broker partition metadata for reply topic '{}' ({}); "
+                            + "falling back to configured reply-topic-partitions={}. Verify it matches the "
+                            + "broker-provisioned topic — mismatched counts misroute replies.",
+                    replyTopic,
+                    ex.toString(),
+                    configuredCount,
+                    ex);
+            return configuredCount;
         }
     }
 
