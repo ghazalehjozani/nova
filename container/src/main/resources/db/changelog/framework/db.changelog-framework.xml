@@ -23,5 +23,7 @@
     <include file="db/changelog/framework/v2026.3.0/006-delete-suspended-sagas.xml"/>
     <include file="db/changelog/changes/001-create-formula-definitions.xml"/>
     <include file="db/changelog/db.changelog-inbox.xml"/>
+    <!-- LN-59442: generic reconciliation discrepancy table (pangaea reconciliation-data-jpa jar) -->
+    <include file="db/changelog/db.changelog-reconciliation.xml"/>
 
 </databaseChangeLog>

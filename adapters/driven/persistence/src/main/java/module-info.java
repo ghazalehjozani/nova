@@ -65,6 +65,7 @@ open module ir.dotin.loan.trade.adapters.driven.persistence {
     exports ir.dotin.loan.trade.adapters.driven.persistence.loanfacility;
     exports ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity;
     exports ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.mapper;
+    exports ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.projection;
     exports ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query;
     exports ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query.mapper;
     exports ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.repository;

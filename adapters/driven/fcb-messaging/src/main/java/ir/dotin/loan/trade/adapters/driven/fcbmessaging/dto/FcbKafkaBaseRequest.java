@@ -29,6 +29,8 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.LoadTopicReq
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.OpenAccountByTopicRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.OpenAccountRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.PostTransactionRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ReconStateRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ReemitOutboxRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ReserveCollateralRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ReverseTransactionRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.UnReserveCollateralRequest;
@@ -80,6 +82,8 @@ import lombok.experimental.SuperBuilder;
     @JsonSubTypes.Type(value = PostTransactionRequest.class, name = "issue-general-document"),
     @JsonSubTypes.Type(value = ReverseTransactionRequest.class, name = "cancel-transfer-money-loan"),
     @JsonSubTypes.Type(value = ValidateSamatRequest.class, name = "validate-samat"),
+    @JsonSubTypes.Type(value = ReconStateRequest.class, name = "nova-loanfile-recon-state"),
+    @JsonSubTypes.Type(value = ReemitOutboxRequest.class, name = "nova-reemit-outbox"),
     @JsonSubTypes.Type(value = HeartbeatRequest.class, name = "heartbeat")
 })
 @SuperBuilder(toBuilder = true)

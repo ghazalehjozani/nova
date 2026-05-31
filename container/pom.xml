@@ -76,6 +76,16 @@
             <artifactId>trade-loan-adapters-driven-fcb-messaging</artifactId>
         </dependency>
         <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>trade-loan-adapters-driven-reconciliation</artifactId>
+        </dependency>
+        <dependency>
+            <!-- LN-59442: wires the generic reconciliation engine (orchestrator + sweep + data-jpa store
+                 + /v1/ops/reconciliation), which discovers the recon adapter's Source/Probe/Action beans -->
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>pangaea-spring-boot-starter-reconciliation</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
             <artifactId>inbox-data-jpa</artifactId>
         </dependency>

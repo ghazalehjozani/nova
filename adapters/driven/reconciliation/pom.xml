@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ir.dotin.loan</groupId>
+        <artifactId>trade-loan-adapters-driven</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>trade-loan-adapters-driven-reconciliation</artifactId>
+    <name>Trade Loan :: Adapters :: Driven :: Reconciliation</name>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <!-- Pangaea reconciliation SPI contracts (source/probe/action + model) -->
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>pangaea-reconciliation-api</artifactId>
+        </dependency>
+        <!-- Admin ports used by the convergence action to re-drive stored events / guard against in-flight sagas -->
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>outbox-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>inbox-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>saga-api</artifactId>
+        </dependency>
+
+        <!-- Spring stereotypes for the adapter beans -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>

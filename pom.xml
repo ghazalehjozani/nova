@@ -7,7 +7,7 @@
     <parent>
         <groupId>ir.dotin.platform.pangaea</groupId>
         <artifactId>parent</artifactId>
-        <version>2026.5.43-SNAPSHOT</version>
+        <version>2026.5.44-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -117,6 +117,12 @@
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
                 <artifactId>trade-loan-adapters-driven-fcb-messaging</artifactId>
+                <version>${loan.trade-loan.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>ir.dotin.loan</groupId>
+                <artifactId>trade-loan-adapters-driven-reconciliation</artifactId>
                 <version>${loan.trade-loan.version}</version>
                 <scope>compile</scope>
             </dependency>

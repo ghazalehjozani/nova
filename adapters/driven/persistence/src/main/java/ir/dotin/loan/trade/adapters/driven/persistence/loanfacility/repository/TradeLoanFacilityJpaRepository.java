@@ -1,6 +1,8 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.repository;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,11 +18,51 @@ import org.springframework.stereotype.Repository;
 import ir.dotin.platform.pangaea.persistence.jpa.repository.PersistentRepository;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity.TradeLoanFacilityEntity;
+import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.projection.FacilityReconStateProjection;
 
 @Repository
 public interface TradeLoanFacilityJpaRepository extends PersistentRepository<TradeLoanFacilityEntity> {
 
     Window<TradeLoanFacilityEntity> findAllBy(ScrollPosition position, Limit limit, Sort sort);
+
+    /**
+     * First keyset page of non-terminal facilities for reconciliation, ordered by {@code (modifiedAt, id)} so a sweep
+     * is resumable after a lost lease. {@code modifiedAt} is coalesced to {@code createdAt} for never-modified rows.
+     */
+    @Query("""
+            SELECT t.id AS id, t.currentState AS currentState, COALESCE(t.modifiedAt, t.createdAt) AS modifiedAt
+            FROM TradeLoanFacilityEntity t
+            WHERE t.currentState NOT IN :terminalStates
+            ORDER BY COALESCE(t.modifiedAt, t.createdAt) ASC, t.id ASC
+            """)
+    List<FacilityReconStateProjection> pageNonTerminalFirst(
+            @Param("terminalStates") Collection<FacilityStatus> terminalStates, Limit limit);
+
+    /**
+     * Subsequent keyset page of non-terminal facilities for reconciliation, continuing strictly after the supplied
+     * {@code (modifiedAt, id)} cursor.
+     */
+    @Query("""
+            SELECT t.id AS id, t.currentState AS currentState, COALESCE(t.modifiedAt, t.createdAt) AS modifiedAt
+            FROM TradeLoanFacilityEntity t
+            WHERE t.currentState NOT IN :terminalStates
+            AND (COALESCE(t.modifiedAt, t.createdAt) > :afterModifiedAt
+                 OR (COALESCE(t.modifiedAt, t.createdAt) = :afterModifiedAt AND t.id > :afterId))
+            ORDER BY COALESCE(t.modifiedAt, t.createdAt) ASC, t.id ASC
+            """)
+    List<FacilityReconStateProjection> pageNonTerminalAfter(
+            @Param("terminalStates") Collection<FacilityStatus> terminalStates,
+            @Param("afterModifiedAt") LocalDateTime afterModifiedAt,
+            @Param("afterId") UUID afterId,
+            Limit limit);
+
+    /** Narrow projection lookup of a single facility's reconciliation row by id. */
+    @Query("""
+            SELECT t.id AS id, t.currentState AS currentState, COALESCE(t.modifiedAt, t.createdAt) AS modifiedAt
+            FROM TradeLoanFacilityEntity t
+            WHERE t.id = :id
+            """)
+    Optional<FacilityReconStateProjection> findReconStateById(@Param("id") UUID id);
 
     @Query("""
             SELECT count(t)

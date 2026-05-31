@@ -21,6 +21,8 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.EcoSectorValid
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.EconomicSectorKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.HeartbeatKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ReasonTypeKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ReconStateKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ReemitOutboxKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ResourceKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.SanctionDetailsKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.SimpleSuccessKafkaResponse;
@@ -64,6 +66,8 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ValidationResu
     @JsonSubTypes.Type(value = AccountInfoKafkaResponse.class, name = "load-account-by-account-number-service"),
     @JsonSubTypes.Type(value = AccountInfoKafkaResponse.class, name = "find-or-create-account"),
     @JsonSubTypes.Type(value = ValidateSamatKafkaResponse.class, name = "validate-samat"),
+    @JsonSubTypes.Type(value = ReconStateKafkaResponse.class, name = "nova-loanfile-recon-state"),
+    @JsonSubTypes.Type(value = ReemitOutboxKafkaResponse.class, name = "nova-reemit-outbox"),
     @JsonSubTypes.Type(value = TransactionResultKafkaResponse.class, name = "issue-general-document"),
     @JsonSubTypes.Type(value = SimpleSuccessKafkaResponse.class, name = "cancel-transfer-money-loan"),
     @JsonSubTypes.Type(value = HeartbeatKafkaResponse.class, name = "heartbeat")
