@@ -31,6 +31,7 @@ class RejectFacilityController extends BaseController {
 
     @PostMapping(version = "1+")
     @Operation(summary = "رد تسهیلات")
+    @Hidden
     public ResponseEntity<Void> rejectFacility(
             @Parameter(
                             description = "شناسه یکتای تسهیلات جهت رد",

@@ -24,6 +24,7 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanF
 import ir.dotin.loan.trade.core.application.ports.inbound.query.FacilityOriginationPreflightResult;
 import ir.dotin.loan.trade.core.application.ports.inbound.query.PrepareFacilityOriginationQuery;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -73,6 +74,7 @@ class OpenFacilityCaseController extends BaseController {
 
     @PostMapping(value = "/{facilityId}/origination/compensate", version = "1+")
     @Operation(summary = "جبران‌سازی مرحله تشکیل پرونده")
+    @Hidden
     public ResponseEntity<Void> compensateOrigination(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
             @RequestBody @Valid CompensationRequest request) {

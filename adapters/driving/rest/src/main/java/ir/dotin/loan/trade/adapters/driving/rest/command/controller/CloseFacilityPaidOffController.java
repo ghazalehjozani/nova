@@ -12,6 +12,7 @@ import ir.dotin.loan.trade.adapters.driving.contract.dto.CloseFacilityPaidOffReq
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.CloseFacilityPaidOffRequestToCommandMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,6 +30,7 @@ class CloseFacilityPaidOffController extends BaseController {
 
     @PostMapping(version = "1+")
     @Operation(summary = "بستن تسهیلات پرداخت شده")
+    @Hidden
     public ResponseEntity<Void> closeFacilityPaidOff(
             @Parameter(
                             description = "شناسه یکتای تسهیلات پرداخت شده جهت بستن",

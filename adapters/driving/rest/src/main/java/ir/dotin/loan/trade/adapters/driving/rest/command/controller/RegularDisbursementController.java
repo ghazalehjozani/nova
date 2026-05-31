@@ -28,6 +28,7 @@ class RegularDisbursementController extends BaseController {
 
     @PostMapping(version = "1+")
     @Operation(summary = "پرداخت عادی")
+    @Hidden
     public ResponseEntity<BaseResponse<Void>> regularDisbursement(
             @Parameter(
                             description = "شناسه یکتای تسهیلات",

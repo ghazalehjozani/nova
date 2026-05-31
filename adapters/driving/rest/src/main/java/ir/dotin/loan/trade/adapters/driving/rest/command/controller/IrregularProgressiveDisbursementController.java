@@ -23,6 +23,7 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateIrre
 import ir.dotin.loan.trade.core.application.ports.inbound.command.IrregularProgressiveDisbursementCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.AmountDto;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -88,6 +89,7 @@ class IrregularProgressiveDisbursementController extends BaseController {
 
     @PostMapping(value = "/compensate", version = "1+")
     @Operation(summary = "جبران‌سازی مرحله پرداخت نامنظم")
+    @Hidden
     public ResponseEntity<Void> compensateIrregularDisbursement(
             @Parameter(description = "شناسه یکتای تسهیلات", required = true) @PathVariable UUID facilityId,
             @RequestBody @Valid CompensationRequest request) {
