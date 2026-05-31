@@ -84,6 +84,22 @@
             <artifactId>spring-boot-starter-inbox</artifactId>
         </dependency>
         <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>outbox-management</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>inbox-management</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>saga-management</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>idempotency-management</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ir.dotin.loan</groupId>
             <artifactId>trade-loan-adapters-driving-rest</artifactId>
         </dependency>
