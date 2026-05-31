@@ -85,19 +85,19 @@
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
-            <artifactId>outbox-management</artifactId>
+            <artifactId>pangaea-outbox-management</artifactId>
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
-            <artifactId>inbox-management</artifactId>
+            <artifactId>pangaea-inbox-management</artifactId>
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
-            <artifactId>saga-management</artifactId>
+            <artifactId>pangaea-saga-management</artifactId>
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
-            <artifactId>idempotency-management</artifactId>
+            <artifactId>pangaea-idempotency-management</artifactId>
         </dependency>
         <dependency>
             <groupId>ir.dotin.loan</groupId>
