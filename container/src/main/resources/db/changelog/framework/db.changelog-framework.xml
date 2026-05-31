@@ -15,7 +15,11 @@
     <include file="db/changelog/framework/v2026.3.0/002-create-dead-letter-tables.xml"/>
     <include file="db/changelog/framework/v2026.3.0/003-create-saga-tables.xml"/>
     <include file="db/changelog/framework/v2026.3.0/004-create-saga-idempotency-table.xml"/>
+    <!-- LN-59395: drop redundant idx_compensation_saga (covered by uk_saga_step) — pangaea-saga-starter jar -->
+    <include file="db/changelog/framework/v2026.5.41/004-drop-duplicate-saga-compensation-index.xml"/>
     <include file="db/changelog/framework/v2026.3.0/004-create-command-audit.xml"/>
+    <!-- LN-59395: drop redundant idx_audit_command_id (covered by command_audit_command_id_key) — pangaea-audit-starter jar -->
+    <include file="db/changelog/framework/v2026.5.41/005-drop-duplicate-command-audit-index.xml"/>
     <include file="db/changelog/framework/v2026.3.0/006-delete-suspended-sagas.xml"/>
     <include file="db/changelog/changes/001-create-formula-definitions.xml"/>
     <include file="db/changelog/db.changelog-inbox.xml"/>
