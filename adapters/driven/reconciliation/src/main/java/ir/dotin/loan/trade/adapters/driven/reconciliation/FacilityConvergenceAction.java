@@ -191,9 +191,22 @@ public class FacilityConvergenceAction implements ConvergenceAction {
 
     private ConvergeOutcome convergeNovaToFcb(String facilityId, List<OutboxRecordView> facilityRows) {
 
-        Optional<OutboxRecordView> earliest = earliestNotApplied(facilityRows);
+        // Re-drive the EARLIEST forward event FCB has NOT yet applied (INV-5), judged against FCB's CURRENT file status
+        // — not merely the earliest stored event (which FCB may already have → an idempotent no-op that never closes a
+        // LAGGING gap). So read FCB's current rank first.
+        Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId);
+        if (fcbResult.isFailure()) {
+            return ConvergeOutcome.retryLater("fcb-unreachable");
+        }
+        ReconLoanFileState fcb = fcbResult.unwrap();
+        if (!fcb.reachable()) {
+            return ConvergeOutcome.retryLater("fcb-unreachable");
+        }
+        int currentRank = fcb.exists() ? FacilityReconMapping.fcbRank(fcb.fileStatus()) : -1;
+
+        Optional<OutboxRecordView> earliest = earliestNotApplied(facilityRows, currentRank);
         if (earliest.isEmpty()) {
-            // No stored forward event to re-drive → maybe an FCB→Nova lag instead.
+            // FCB is at/ahead of every stored forward event → not a Nova→FCB forward lag; try the FCB→Nova lever.
             return convergeFcbToNova(facilityId, facilityRows);
         }
 
@@ -223,11 +236,17 @@ public class FacilityConvergenceAction implements ConvergenceAction {
         };
     }
 
-    /** Earliest (lowest sequence) outbox row that has not been applied (i.e. not yet PROCESSED). */
-    private static Optional<OutboxRecordView> earliestNotApplied(List<OutboxRecordView> rows) {
+    /**
+     * Earliest (lowest sequence) stored forward outbox row whose FCB target rank is BEYOND FCB's current file-status
+     * rank — i.e. the earliest event FCB has not yet applied (INV-5). Filtering by rank (not just sequence) is what
+     * makes a LAGGING facility re-drive the missing step (e.g. the disbursement) instead of an already-applied CREATE.
+     * For an ORPHAN ({@code fcbCurrentRank == -1}) this naturally yields the CREATE event first.
+     */
+    private static Optional<OutboxRecordView> earliestNotApplied(List<OutboxRecordView> rows, int fcbCurrentRank) {
         return rows.stream()
                 .filter(r -> r.status() != null)
                 .filter(r -> r.eventId() != null)
+                .filter(r -> FacilityReconMapping.fcbRankForEvent(r.eventType()) > fcbCurrentRank)
                 .min(Comparator.comparing(r -> r.sequenceNumber() == null ? Long.MAX_VALUE : r.sequenceNumber()));
     }
 

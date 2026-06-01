@@ -1,13 +1,14 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.service;
 
+import java.time.Duration;
 import java.util.function.Function;
 
 import org.jspecify.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.pangaea.commons.core.Result;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ReconStateKafkaResponse;
@@ -38,7 +39,14 @@ import lombok.extern.slf4j.Slf4j;
 public class FcbReconStateKafkaAdapter implements FcbReconStatePort {
 
     private final FcbKafkaClient kafkaClient;
-    private final FcbKafkaProperties properties;
+
+    /**
+     * Per-call timeout for the recon-state / re-emit request-reply, bound from Consul KV
+     * {@code reconciliation.recon-state-timeout} (defaults to 10s). Field-injected via {@code @Value} because this
+     * adapter module cannot see the container-side reconciliation properties class (hexagonal module direction).
+     */
+    @Value("${reconciliation.recon-state-timeout:10s}")
+    private Duration reconStateTimeout;
 
     @Override
     @Timed(
@@ -83,7 +91,7 @@ public class FcbReconStateKafkaAdapter implements FcbReconStatePort {
     private <R extends FcbKafkaBaseResponse, T> Result<T> sendAndMap(
             FcbKafkaBaseRequest request, Class<R> responseType, Function<R, Result<T>> responseMapper) {
 
-        Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, properties.getDefaultTimeout());
+        Result<FcbKafkaBaseResponse> result = kafkaClient.sendAndReceive(request, reconStateTimeout);
         if (result.isFailure()) {
             return Result.failure(result.err().orElseThrow());
         }

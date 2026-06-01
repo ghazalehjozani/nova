@@ -80,6 +80,34 @@ final class FacilityReconMapping {
     }
 
     /**
+     * Forward FCB rank an outbox forward event advances the loan file <em>to</em> — used to pick the EARLIEST event FCB
+     * has not yet applied relative to its current file status (INV-5). {@code -1} for events that do not advance the
+     * FCB file status (e.g. collateral) or unknown types, so they are never chosen as the missing forward step. Matched
+     * by token so all disbursement variants (LUMP_SUM / IRREGULAR_TRANCHE / FULLY_DISBURSED) map to GIVE_LOAN.
+     */
+    static int fcbRankForEvent(@Nullable String eventType) {
+        if (eventType == null) {
+            return -1;
+        }
+        if (eventType.contains("DISBURSED")) {
+            return fcbRank(FCB_GIVE_LOAN);
+        }
+        if (eventType.contains("CONTRACT_ISSUED")) {
+            return fcbRank(FCB_ISSUE_CONTRACT);
+        }
+        if (eventType.contains("APPROVAL_SUBMITTED")) {
+            return fcbRank(FCB_REQUEST_LOAN);
+        }
+        if (eventType.contains("APPROVED")) {
+            return fcbRank(FCB_APPROVE_LOAN);
+        }
+        if (eventType.contains("CREATED")) {
+            return fcbRank(FCB_REQUEST_LOAN);
+        }
+        return -1;
+    }
+
+    /**
      * True when FCB's observed file status is behind the FCB status Nova expects (FCB is lagging Nova). Returns false
      * when there is no expected FCB status (Nova has nothing FCB-visible yet) or FCB is at/ahead of the expectation.
      */

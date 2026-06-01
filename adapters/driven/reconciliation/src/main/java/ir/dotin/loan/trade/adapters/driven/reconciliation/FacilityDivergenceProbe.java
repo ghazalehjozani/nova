@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.reconciliation;
 
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -52,21 +53,64 @@ public class FacilityDivergenceProbe implements DivergenceProbe {
 
         Optional<FacilityReconRow> novaRow = readPort.findById(facilityId);
         if (novaRow.isEmpty()) {
-            return Divergence.unknown("nova-missing");
+            // Abnormal: the source aggregate vanished (Nova does not hard-delete facilities in normal ops). Surface
+            // it (INV-13 will age the resulting UNKNOWN row to NEEDS_OPERATOR). reasonCode + detail both carry "why".
+            log.warn("Recon probe {}: Nova facility row absent — UNKNOWN(nova-missing)", facilityId);
+            return Divergence.unknown("nova-missing").withDetail(Map.of("novaStatus", "<absent>"));
         }
         FacilityStatus novaStatus = novaRow.get().status();
 
         Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId);
         if (fcbResult.isFailure()) {
-            log.debug("FCB recon-state read failed for facility {} — UNKNOWN", facilityId);
-            return Divergence.unknown("fcb-unreachable");
+            log.info(
+                    "Recon probe {}: FCB recon-state read failed (novaStatus={}) — UNKNOWN(fcb-unreachable): {}",
+                    facilityId,
+                    novaStatus,
+                    fcbResult.err().map(Object::toString).orElse("<no-cause>"));
+            return Divergence.unknown("fcb-unreachable").withDetail(unreachableDetail(novaStatus));
         }
         ReconLoanFileState fcb = fcbResult.unwrap();
         if (!fcb.reachable()) {
-            return Divergence.unknown("fcb-unreachable");
+            log.info(
+                    "Recon probe {}: FCB reported unreachable (novaStatus={}) — UNKNOWN(fcb-unreachable)",
+                    facilityId,
+                    novaStatus);
+            return Divergence.unknown("fcb-unreachable").withDetail(unreachableDetail(novaStatus));
         }
 
-        return classify(novaStatus, fcb);
+        Divergence verdict = classify(novaStatus, fcb);
+        logVerdict(facilityId, novaStatus, fcb, verdict);
+        return verdict;
+    }
+
+    private static Map<String, String> unreachableDetail(FacilityStatus novaStatus) {
+        return Map.of("novaStatus", novaStatus.name(), "fcbProbe", "unreachable");
+    }
+
+    /**
+     * Diverged/aligned verdicts at INFO/DEBUG so the reason is visible from logs (UNKNOWN reasons are logged above).
+     */
+    private static void logVerdict(String facilityId, FacilityStatus novaStatus, ReconLoanFileState fcb, Divergence v) {
+        switch (v.verdict()) {
+            case ORPHAN, LAGGING ->
+                log.info(
+                        "Recon probe {}: {} ({}) — novaStatus={}, fcbExists={}, fcbFileStatus={}",
+                        facilityId,
+                        v.verdict(),
+                        v.reasonCode(),
+                        novaStatus,
+                        fcb.exists(),
+                        fcb.fileStatus());
+            case ALIGNED ->
+                log.debug(
+                        "Recon probe {}: ALIGNED — novaStatus={}, fcbFileStatus={}",
+                        facilityId,
+                        novaStatus,
+                        fcb.fileStatus());
+            case UNKNOWN -> {
+                // unreachable/missing UNKNOWN is logged before classify(); classify() never returns UNKNOWN.
+            }
+        }
     }
 
     private static Divergence classify(FacilityStatus novaStatus, ReconLoanFileState fcb) {

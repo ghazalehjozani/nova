@@ -39,6 +39,7 @@ import ir.dotin.platform.pangaea.envelope.api.InitiatorType;
 import ir.dotin.platform.pangaea.security.api.AuthenticationContextHolder;
 import ir.dotin.platform.pangaea.security.api.OAuth2TokenResponse;
 import ir.dotin.platform.pangaea.security.api.ServiceTokenProvider;
+import ir.dotin.platform.pangaea.security.api.ServiceTokenRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaConfig;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbResilienceConfig;
@@ -201,7 +202,17 @@ public class FcbKafkaClient {
 
         try {
             return retryTemplate.execute(() -> {
-                OAuth2TokenResponse token = serviceTokenProvider.getServiceToken();
+                // Token mode follows the bound security context: an interactive (REST) call delegates the caller's
+                // user token (AUTO), while a background path with no bound context — e.g. the @Scheduled reconciliation
+                // sweep / converge — uses a client-credentials service token (async). Without this, AUTO under the
+                // global FAIL_FAST ambiguous-context policy throws on the sweep thread and every recon-state call fails
+                // as KAFKA_COMMUNICATION_ERROR (surfaced as a false "fcb-unreachable" UNKNOWN). Mirrors the outbox
+                // poller pattern (KafkaEventPublisher uses ServiceTokenRequest.async()).
+                ServiceTokenRequest tokenRequest =
+                        authenticationContextHolder.authentication().isPresent()
+                                ? ServiceTokenRequest.auto()
+                                : ServiceTokenRequest.async();
+                OAuth2TokenResponse token = serviceTokenProvider.getServiceToken(tokenRequest);
                 String bearerValue = buildBearerHeader(token);
                 ActorEnvelope envelope = buildEnvelope();
                 String signedEnvelope = envelopeSigner.sign(envelope);
