@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -204,50 +205,74 @@ public class FacilityConvergenceAction implements ConvergenceAction {
         }
         int currentRank = fcb.exists() ? FacilityReconMapping.fcbRank(fcb.fileStatus()) : -1;
 
-        Optional<OutboxRecordView> earliest = earliestNotApplied(facilityRows, currentRank);
-        if (earliest.isEmpty()) {
+        List<OutboxRecordView> step = earliestMissingStep(facilityRows, currentRank);
+        if (step.isEmpty()) {
             // FCB is at/ahead of every stored forward event → not a Nova→FCB forward lag; try the FCB→Nova lever.
             return convergeFcbToNova(facilityId, facilityRows);
         }
 
-        OutboxRecordView event = earliest.get();
-        UUID eventId = event.eventId();
-        if (eventId == null) {
-            return ConvergeOutcome.retryLater("outbox-event-id-missing");
-        }
-        MessageStatus status = event.status();
-        if (status == null) {
-            return ConvergeOutcome.retryLater("outbox-status-missing");
+        // Re-drive EVERY event of the earliest-missing step, not just one (D11): a single forward step can emit several
+        // outbox events at the same FCB rank (e.g. the final tranche emits both IRREGULAR_TRANCHE_DISBURSED and
+        // FULLY_DISBURSED). Nova cannot know which one FCB actually dispatches, so re-drive them all — FCB applies the
+        // grant-triggering event (IRREGULAR_TRANCHE) and ignores the rest. INV-3 status-aware lever per event.
+        List<UUID> processedIds = new ArrayList<>();
+        boolean anyDeadLetter = false;
+        boolean anyInProgress = false;
+        for (OutboxRecordView event : step) {
+            UUID eventId = event.eventId();
+            MessageStatus status = event.status();
+            if (eventId == null || status == null) {
+                continue;
+            }
+            switch (status) {
+                case PROCESSED -> processedIds.add(eventId);
+                case DEAD_LETTER -> {
+                    outboxAdminPort.manualRetry(AGGREGATE_TYPE, eventId);
+                    anyDeadLetter = true;
+                }
+                case FAILED, RETRYING, PENDING, PROCESSING -> anyInProgress = true;
+            }
         }
 
-        return switch (status) {
-            case PROCESSED -> {
-                long republished = outboxAdminPort.republish(
-                        new OutboxRepublishCommand(List.of(eventId), AGGREGATE_TYPE, null, null, 1));
-                yield republished > 0
-                        ? ConvergeOutcome.converged("republished-processed-event")
-                        : ConvergeOutcome.retryLater("republish-noop");
+        if (!processedIds.isEmpty()) {
+            long republished = outboxAdminPort.republish(
+                    new OutboxRepublishCommand(processedIds, AGGREGATE_TYPE, null, null, processedIds.size()));
+            if (republished > 0) {
+                return ConvergeOutcome.converged("republished-processed-events:" + republished);
             }
-            case DEAD_LETTER -> {
-                outboxAdminPort.manualRetry(AGGREGATE_TYPE, eventId);
-                yield ConvergeOutcome.converged("manual-retry-dead-letter");
-            }
-            case FAILED, RETRYING, PENDING, PROCESSING -> ConvergeOutcome.retryLater("outbox-in-progress");
-        };
+        }
+        if (anyDeadLetter) {
+            return ConvergeOutcome.converged("manual-retry-dead-letter");
+        }
+        if (anyInProgress) {
+            return ConvergeOutcome.retryLater("outbox-in-progress");
+        }
+        return ConvergeOutcome.retryLater("republish-noop");
     }
 
     /**
-     * Earliest (lowest sequence) stored forward outbox row whose FCB target rank is BEYOND FCB's current file-status
-     * rank — i.e. the earliest event FCB has not yet applied (INV-5). Filtering by rank (not just sequence) is what
-     * makes a LAGGING facility re-drive the missing step (e.g. the disbursement) instead of an already-applied CREATE.
-     * For an ORPHAN ({@code fcbCurrentRank == -1}) this naturally yields the CREATE event first.
+     * All stored forward outbox rows comprising the EARLIEST step FCB has not yet applied — every row whose FCB target
+     * rank equals the minimum rank still above FCB's current file-status rank (INV-5). A single forward step can emit
+     * multiple events at the same rank (a final tranche emits both IRREGULAR_TRANCHE_DISBURSED and FULLY_DISBURSED);
+     * returning the whole step lets FCB apply the event it dispatches and ignore the rest (D11). Filtering by rank (not
+     * just sequence) is what makes a LAGGING facility re-drive the missing step instead of an already-applied CREATE;
+     * an ORPHAN ({@code fcbCurrentRank == -1}) naturally yields the CREATE step first.
      */
-    private static Optional<OutboxRecordView> earliestNotApplied(List<OutboxRecordView> rows, int fcbCurrentRank) {
+    private static List<OutboxRecordView> earliestMissingStep(List<OutboxRecordView> rows, int fcbCurrentRank) {
+        OptionalInt minMissingRank = rows.stream()
+                .filter(r -> r.status() != null && r.eventId() != null)
+                .mapToInt(r -> FacilityReconMapping.fcbRankForEvent(r.eventType()))
+                .filter(rank -> rank > fcbCurrentRank)
+                .min();
+        if (minMissingRank.isEmpty()) {
+            return List.of();
+        }
+        int step = minMissingRank.getAsInt();
         return rows.stream()
-                .filter(r -> r.status() != null)
-                .filter(r -> r.eventId() != null)
-                .filter(r -> FacilityReconMapping.fcbRankForEvent(r.eventType()) > fcbCurrentRank)
-                .min(Comparator.comparing(r -> r.sequenceNumber() == null ? Long.MAX_VALUE : r.sequenceNumber()));
+                .filter(r -> r.status() != null && r.eventId() != null)
+                .filter(r -> FacilityReconMapping.fcbRankForEvent(r.eventType()) == step)
+                .sorted(Comparator.comparing(r -> r.sequenceNumber() == null ? Long.MAX_VALUE : r.sequenceNumber()))
+                .toList();
     }
 
     // ════════════════════════════════════════ (4) FCB → Nova lever (INV-7) ════════════════════════════════
