@@ -10,7 +10,6 @@ import org.springframework.cloud.consul.ConsulProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
 
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbReplyPartitionAssigner;
@@ -25,11 +24,11 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.ReplyPartitionLea
  * ({@link ConsulProperties} host/port/scheme — single source of truth, no duplicated host config) plus the existing ACL
  * token. The ecwid {@code consul-api} jar is on the classpath as a transitive runtime dependency.
  *
- * <p>Active under the {@code kafka-fcb} profile and when {@code nova.fcb.kafka.lease.enabled} is true (default). When
- * disabled, the adapter's static fallback assigner is used. Declared {@link Primary} so it wins over the fallback.
+ * <p>Active when {@code nova.fcb.kafka.lease.enabled} is true (default) — which also implies the FCB Kafka transport is
+ * enabled ({@code nova.fcb.kafka.enabled}). When disabled, the adapter's static fallback assigner is used. Declared
+ * {@link Primary} so it wins over the fallback.
  */
 @Configuration
-@Profile("kafka-fcb")
 @ConditionalOnProperty(name = "nova.fcb.kafka.lease.enabled", havingValue = "true", matchIfMissing = true)
 public class FcbReplyPartitionLeaseConfig {
 

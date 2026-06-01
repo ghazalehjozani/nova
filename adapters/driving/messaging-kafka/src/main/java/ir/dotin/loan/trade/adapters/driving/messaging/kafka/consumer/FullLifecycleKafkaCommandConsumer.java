@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +25,17 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLoanFacili
 import lombok.RequiredArgsConstructor;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * @deprecated superseded by the Artemis FCB corridor. The full-lifecycle request/reply ingress is no longer part of the
+ *     active topology — the Nova ↔ FCB request/reply path now rides the pluggable {@code FcbRequestReplyClient} seam
+ *     routed in {@code container}. The bean only registers when
+ *     {@code nova.driving.messaging-kafka.full-lifecycle.enabled=true} (absent ⇒ OFF), so by default its
+ *     {@code @KafkaListener} never joins the consumer group. Class kept for reference / a deliberate re-enable; do not
+ *     build new flows on it.
+ */
+@Deprecated
 @Component
+@ConditionalOnProperty(prefix = "nova.driving.messaging-kafka.full-lifecycle", name = "enabled", matchIfMissing = false)
 @RequiredArgsConstructor
 public class FullLifecycleKafkaCommandConsumer {
 

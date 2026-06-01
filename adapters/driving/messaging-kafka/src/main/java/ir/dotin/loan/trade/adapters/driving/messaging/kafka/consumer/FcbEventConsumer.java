@@ -7,6 +7,7 @@ import org.apache.kafka.common.header.Header;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +21,16 @@ import io.micrometer.tracing.Tracer;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * @deprecated superseded by the Artemis FCB corridor. This FCB→Nova installment-operation event ingress is disabled by
+ *     default: the bean only registers when {@code nova.driving.messaging-kafka.fcb-event.enabled=true} (absent ⇒ OFF),
+ *     so by default its {@code @KafkaListener} never joins the consumer group. FCB→Nova facility lifecycle events still
+ *     flow over Kafka on the FCB side; this driving-adapter consumer is not part of the active Nova topology. Class
+ *     kept for reference / a deliberate re-enable; do not build new flows on it.
+ */
+@Deprecated
 @Component
+@ConditionalOnProperty(prefix = "nova.driving.messaging-kafka.fcb-event", name = "enabled", matchIfMissing = false)
 public class FcbEventConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(FcbEventConsumer.class);

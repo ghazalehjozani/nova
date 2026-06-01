@@ -2,7 +2,7 @@
   <configuration default="false" name="Nova" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <module name="trade-loan-container" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="ir.dotin.loan.trade.NovaApplication" />
-    <option name="ACTIVE_PROFILES" value="local,kafka-fcb" />
+    <option name="ACTIVE_PROFILES" value="local" />
     <option name="VM_PARAMETERS" value="-XX:+UseZGC -XX:+ZGenerational -XX:+AlwaysPreTouch -Xmx4g -Xss512k --enable-native-access=ALL-UNNAMED" />
     <method v="2">
       <option name="Make" enabled="true" />

@@ -17,7 +17,9 @@
 
   <modules>
     <module>persistence</module>
-    <module>fcb-messaging</module>
+    <module>fcb-messaging-contract</module>
+    <module>fcb-messaging-kafka</module>
+    <module>fcb-messaging-artemis</module>
     <module>reconciliation</module>
   </modules>
 

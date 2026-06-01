@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ir.dotin.loan</groupId>
+        <artifactId>trade-loan-adapters-driven</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>trade-loan-adapters-driven-fcb-messaging-artemis</artifactId>
+    <name>Trade Loan :: Adapters :: Driven :: FCB Messaging :: Artemis</name>
+    <packaging>jar</packaging>
+
+    <!--
+      ActiveMQ Artemis transport for the transport-neutral FCB request/reply seam (fcb-messaging-contract).
+      Provides ArtemisFcbRequestReplyClient implements FcbRequestReplyClient over a JMS temporary reply queue.
+      Depends on the contract module + platform security/envelope APIs + jakarta.jms + Artemis Jakarta client +
+      Jackson 3 (tools.jackson) for body JSON + micrometer-core. NO Kafka, never references fcb-messaging-kafka.
+      artemis-jakarta-client + jakarta.jms-api versions are pinned here: the pangaea-dependencies BOM manages only
+      Classic ActiveMQ (6.2.3), not the Artemis Jakarta client.
+    -->
+    <dependencies>
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>trade-loan-adapters-driven-fcb-messaging-contract</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-jakarta-client</artifactId>
+            <version>2.43.0</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.jms</groupId>
+            <artifactId>jakarta.jms-api</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>security-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>envelope-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
+        <!-- Tracer (optional at runtime) so the request/reply client can stamp the active W3C traceparent on the
+             outbound JMS message, matching the Kafka client + what the FCB Artemis listener/reply path propagates. -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>

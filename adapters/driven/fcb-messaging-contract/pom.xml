@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ir.dotin.loan</groupId>
+        <artifactId>trade-loan-adapters-driven</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>trade-loan-adapters-driven-fcb-messaging-contract</artifactId>
+    <name>Trade Loan :: Adapters :: Driven :: FCB Messaging :: Contract</name>
+    <packaging>jar</packaging>
+
+    <!--
+      Transport-neutral seam: wire DTOs, mappers, FCB error taxonomy, the FcbRequestReplyClient
+      abstraction, and the port-implementing adapters that delegate to it. ZERO Kafka/JMS/broker deps.
+      Consumed by both fcb-messaging-kafka and fcb-messaging-artemis.
+      (ports-outbound + lombok inherited from the parent; domain/base-loan/commons transitive via ports-outbound.)
+    -->
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+        <!-- Jackson 2 databind: required because Lombok @Jacksonized on the wire DTOs generates
+             @JsonDeserialize(builder=...) / @JsonPOJOBuilder references (com.fasterxml.jackson.databind.annotation). -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>security-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

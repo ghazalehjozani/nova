@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ir.dotin.loan</groupId>
+        <artifactId>trade-loan-adapters-driven</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>trade-loan-adapters-driven-fcb-messaging-kafka</artifactId>
+    <name>Trade Loan :: Adapters :: Driven :: FCB Messaging :: Kafka</name>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>trade-loan-adapters-driven-fcb-messaging-contract</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>spring-boot-starter-messaging-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>security-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>envelope-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <artifactId>opentelemetry-api</artifactId>
+            <groupId>io.opentelemetry</groupId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-instrumentation-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <artifactId>micrometer-tracing</artifactId>
+            <groupId>io.micrometer</groupId>
+        </dependency>
+    </dependencies>
+
+</project>

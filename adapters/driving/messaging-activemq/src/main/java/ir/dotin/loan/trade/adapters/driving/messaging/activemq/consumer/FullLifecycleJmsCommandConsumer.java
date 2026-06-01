@@ -7,6 +7,7 @@ import jakarta.jms.TextMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +26,17 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.FullLoanFacili
 import lombok.RequiredArgsConstructor;
 import tools.jackson.databind.ObjectMapper;
 
+/**
+ * @deprecated superseded by the Artemis FCB corridor. The Nova ↔ FCB request/reply path is now served by the pluggable
+ *     {@code FcbRequestReplyClient} seam (Artemis primary, Kafka fallback) routed in {@code container}; this
+ *     full-lifecycle JMS driving consumer is no longer part of the active topology. The bean only registers when
+ *     {@code nova.driving.messaging-activemq.enabled=true} (absent ⇒ OFF), so by default its {@code @JmsListener} never
+ *     connects — which also stops the {@code AMQ229031} full-lifecycle JMS connection errors. Class kept for reference
+ *     / a deliberate re-enable; do not build new flows on it.
+ */
+@Deprecated
 @Component
+@ConditionalOnProperty(prefix = "nova.driving.messaging-activemq", name = "enabled", matchIfMissing = false)
 @RequiredArgsConstructor
 public class FullLifecycleJmsCommandConsumer {
 

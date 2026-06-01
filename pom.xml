@@ -116,7 +116,19 @@
             </dependency>
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
-                <artifactId>trade-loan-adapters-driven-fcb-messaging</artifactId>
+                <artifactId>trade-loan-adapters-driven-fcb-messaging-contract</artifactId>
+                <version>${loan.trade-loan.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>ir.dotin.loan</groupId>
+                <artifactId>trade-loan-adapters-driven-fcb-messaging-kafka</artifactId>
+                <version>${loan.trade-loan.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>ir.dotin.loan</groupId>
+                <artifactId>trade-loan-adapters-driven-fcb-messaging-artemis</artifactId>
                 <version>${loan.trade-loan.version}</version>
                 <scope>compile</scope>
             </dependency>
