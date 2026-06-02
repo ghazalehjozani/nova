@@ -1,9 +1,6 @@
 ---
 
 spring:
-  messages:
-    basename: messages
-    encoding: UTF-8
   jpa:
     open-in-view: false
   sql:
@@ -350,7 +347,7 @@ platform:
       include-trace-context: true
       structured: true
   protocol:
-    issuer: LN
+    issuer: LOAN
 
 fcb:
   integration:

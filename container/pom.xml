@@ -256,7 +256,6 @@
                     <issuer>LOAN</issuer>
                     <locales>
                         <locale/>
-                        <locale>en</locale>
                         <locale>fa</locale>
                     </locales>
                 </configuration>
