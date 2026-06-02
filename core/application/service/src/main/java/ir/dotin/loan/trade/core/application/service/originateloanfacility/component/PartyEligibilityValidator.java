@@ -45,6 +45,10 @@ public class PartyEligibilityValidator {
         Party party = info.party();
         String nationalCode = info.nationalCode().value();
 
+        if (!info.active()) {
+            return Result.failure(Notification.ofError(
+                    OriginateLoanFacilityErrorCodes.APPLICANT_INACTIVE, nationalCode, party.partyRole()));
+        }
         if (info.isInBlackList()) {
             return Result.failure(Notification.ofError(
                     OriginateLoanFacilityErrorCodes.APPLICANT_BLACKLISTED, nationalCode, party.partyRole()));

@@ -25,6 +25,8 @@ import ir.dotin.loan.trade.core.application.service.originateloanfacility.compon
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.FacilityValidator;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.PartyEligibilityValidator;
 
+import static ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel.DIGITAL_BANK;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -67,11 +69,14 @@ public class PrepareFacilityOriginationQueryHandler
 
         List<PartyInfoResponse> partyInfos = partyInfosResult.unwrap();
 
-        // Gate origination on FCB eligibility flags (blacklist / incapacity / graylist). FCB returns these as data
-        // and does not throw, so screening is enforced here before any party is resolved.
-        Result<Unit> eligibilityResult = partyEligibilityValidator.validate(partyInfos);
-        if (eligibilityResult.isFailure()) {
-            throw new FailureCauseException(eligibilityResult.err().orElseThrow());
+        // Gate origination on FCB eligibility flags (active / blacklist / incapacity / graylist). FCB returns these as
+        // data and does not throw, so screening is enforced here before any party is resolved. DIGITAL_BANK is exempt
+        // from the entire screen — that channel's eligibility (incl. active) is governed upstream.
+        if (command.loanApplication().applicantChannel() != DIGITAL_BANK) {
+            Result<Unit> eligibilityResult = partyEligibilityValidator.validate(partyInfos);
+            if (eligibilityResult.isFailure()) {
+                throw new FailureCauseException(eligibilityResult.err().orElseThrow());
+            }
         }
 
         // Resolve the application number here, tx-free — this is the FCB get-application-number round-trip that

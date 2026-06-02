@@ -15,6 +15,7 @@ public final class CustomerInfoKafkaResponse extends FcbKafkaBaseResponse {
     private @Nullable Boolean isInBlackList;
     private @Nullable Boolean isIncapable;
     private @Nullable Boolean isInGrayList;
+    private @Nullable Boolean active;
 
     public @Nullable String getCustomerNumber() {
         return customerNumber;
@@ -86,5 +87,13 @@ public final class CustomerInfoKafkaResponse extends FcbKafkaBaseResponse {
 
     public void setIsInGrayList(@Nullable Boolean isInGrayList) {
         this.isInGrayList = isInGrayList;
+    }
+
+    public @Nullable Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(@Nullable Boolean active) {
+        this.active = active;
     }
 }

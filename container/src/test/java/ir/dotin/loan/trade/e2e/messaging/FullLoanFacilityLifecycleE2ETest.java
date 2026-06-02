@@ -218,7 +218,8 @@ class FullLoanFacilityLifecycleE2ETest extends AbstractMessagingE2E {
                         new ir.dotin.platform.pangaea.commons.domain.vo.NationalCode("1234567890"),
                         false,
                         false,
-                        false)));
+                        false,
+                        true)));
         when(customerServicePort.findRelatedCustomers(any())).thenReturn(Result.success(List.of()));
 
         // FindOrCreateAccountPort

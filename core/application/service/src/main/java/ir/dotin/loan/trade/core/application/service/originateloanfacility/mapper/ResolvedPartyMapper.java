@@ -66,6 +66,8 @@ public class ResolvedPartyMapper {
         }
 
         return Result.success(new PartyInfoResponse(
-                party, nationalCodeResult.unwrap(), dto.isInBlackList(), dto.isIncapable(), dto.isInGrayList()));
+                // active=true: eligibility (incl. active) was already screened in the origination pre-flight;
+                // this reconstruction from the resolved DTO is not re-screened.
+                party, nationalCodeResult.unwrap(), dto.isInBlackList(), dto.isIncapable(), dto.isInGrayList(), true));
     }
 }

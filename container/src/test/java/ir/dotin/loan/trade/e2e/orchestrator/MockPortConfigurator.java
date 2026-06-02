@@ -211,7 +211,8 @@ public class MockPortConfigurator {
                         new NationalCode("1234567890"),
                         false,
                         false,
-                        false)));
+                        false,
+                        true)));
         when(customerServicePort.findRelatedCustomers(any())).thenReturn(Result.success(List.of()));
     }
 

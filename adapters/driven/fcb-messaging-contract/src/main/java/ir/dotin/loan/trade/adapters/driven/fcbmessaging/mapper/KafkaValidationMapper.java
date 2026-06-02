@@ -213,7 +213,9 @@ public class KafkaValidationMapper {
                 nationalCodeResult.unwrap(),
                 Boolean.TRUE.equals(response.getIsInBlackList()),
                 Boolean.TRUE.equals(response.getIsIncapable()),
-                Boolean.TRUE.equals(response.getIsInGrayList())));
+                Boolean.TRUE.equals(response.getIsInGrayList()),
+                // Absent (old FCB during rolling deploy) -> treat as active so screening never false-rejects.
+                !Boolean.FALSE.equals(response.getActive())));
     }
 
     public Result<List<PartyInfoResponse>> mapToPartyInfoResponseList(CustomerListKafkaResponse response) {
@@ -239,7 +241,8 @@ public class KafkaValidationMapper {
                     nationalCodeResult.unwrap(),
                     Boolean.TRUE.equals(dto.isInBlackList()),
                     Boolean.TRUE.equals(dto.isIncapable()),
-                    Boolean.TRUE.equals(dto.isInGrayList())));
+                    Boolean.TRUE.equals(dto.isInGrayList()),
+                    true)); // related-customers lookup does not screen active
         }
         return Result.success(result);
     }

@@ -8,16 +8,16 @@ import ir.dotin.loan.trade.core.domain.shared.error.TradeLoanErrorCategory;
 
 /*
  * TRADE_SERVICE (54) sub-range allocation:
- *   Originate (this file):                001–025, 029–031
+ *   Originate (this file):                001–025, 029–032
  *   Submit (SubmitFacilityForApprovalErrorCodes): 026–028
- *   Reserved:                             032–999
+ *   Reserved:                             033–999
  *
  * Originate constants are assigned explicit sequences 1..N in declaration order
  * (numericCode = 54*1000 + sequence). This file currently declares 23 constants
  * in 001–023; 024–025 remain reserved within the Originate sub-range. Party
- * eligibility-screening codes (added for applicant/guarantor blacklist, incapacity
- * and graylist gating) take the contiguous 029–031 band, jumping past the Submit
- * band 026–028 to avoid renumbering Submit.
+ * eligibility-screening codes (added for applicant/guarantor blacklist, incapacity,
+ * graylist and active-customer gating) take the contiguous 029–032 band, jumping past
+ * the Submit band 026–028 to avoid renumbering Submit.
  */
 public enum OriginateLoanFacilityErrorCodes implements ProductErrorCode<OriginateLoanFacilityErrorCodes> {
     FACILITY_ALREADY_EXISTS(TradeLoanErrorCategory.TRADE_SERVICE, 1, "Facility with ID {0} already exists"),
@@ -69,7 +69,11 @@ public enum OriginateLoanFacilityErrorCodes implements ProductErrorCode<Originat
     APPLICANT_GRAYLISTED(
             TradeLoanErrorCategory.TRADE_SERVICE,
             31,
-            "Party with national code {0} ({1}) is graylisted and cannot participate in facility origination");
+            "Party with national code {0} ({1}) is graylisted and cannot participate in facility origination"),
+    APPLICANT_INACTIVE(
+            TradeLoanErrorCategory.TRADE_SERVICE,
+            32,
+            "Party with national code {0} ({1}) is not an active customer and cannot participate in facility origination");
 
     private final ErrorCategory category;
     private final int sequence;
