@@ -66,7 +66,8 @@ public class TradeLoanFacilityRepositoryAdapter implements TradeLoanFacilityRepo
                         "TradeLoanFacility not found for optimistic save: " + id));
         Long currentVersion = managed.getVersion();
         if (currentVersion == null || currentVersion != expectedVersion) {
-            // OptimisticLockingFailureException (and Hibernate's ObjectOptimisticLockingFailureException subclass thrown
+            // OptimisticLockingFailureException (and Hibernate's ObjectOptimisticLockingFailureException subclass
+            // thrown
             // by the merge below) is mapped to ErrorCode.CONFLICT (HTTP 409) by the platform
             // JpaExceptionMapperContributor — i.e. the domain CONFLICT FailureCause.
             throw new OptimisticLockingFailureException("Optimistic lock conflict on TradeLoanFacility " + id

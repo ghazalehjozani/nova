@@ -238,11 +238,21 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             long republished = outboxAdminPort.republish(
                     new OutboxRepublishCommand(processedIds, AGGREGATE_TYPE, null, null, processedIds.size()));
             if (republished > 0) {
-                return ConvergeOutcome.converged("republished-processed-events:" + republished);
+                // D12: the Nova→FCB corridor is asynchronous — republish only re-enqueues the stored event onto the
+                // outbox→broker path; FCB consumes and applies it out-of-band (seconds later). We CANNOT synchronously
+                // confirm alignment here, so return retryLater ("re-driven, re-confirm later"): the driver returns the
+                // row to OPEN behind the backoff WITHOUT counting a failed attempt (INV-11). Returning Converged would
+                // make the driver re-probe immediately, find FCB not-yet-caught-up, and mislabel the in-flight re-drive
+                // as "still divergent after converge" (false attempt burn + false NEEDS_OPERATOR + operator-facing
+                // 500).
+                // The next detection sweep resolves the row once the probe observes ALIGNED.
+                return ConvergeOutcome.retryLater("re-driven-outbox:" + republished);
             }
         }
         if (anyDeadLetter) {
-            return ConvergeOutcome.converged("manual-retry-dead-letter");
+            // Async re-drive (outbox poller re-sends the DEAD_LETTER row) — see D12 above: defer, don't claim
+            // Converged.
+            return ConvergeOutcome.retryLater("re-driven-dead-letter");
         }
         if (anyInProgress) {
             return ConvergeOutcome.retryLater("outbox-in-progress");
@@ -300,8 +310,9 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             return ConvergeOutcome.retryLater("fcb-reemit-failed");
         }
         ReconReemitOutcome outcome = reemit.unwrap();
+        // Async re-drive (FCB re-emits → Nova inbox consumes out-of-band) — see D12: defer, don't claim Converged.
         return outcome.reemittedCount() > 0
-                ? ConvergeOutcome.converged("fcb-reemitted-" + outcome.reemittedCount())
+                ? ConvergeOutcome.retryLater("re-driven-fcb-reemit:" + outcome.reemittedCount())
                 : ConvergeOutcome.retryLater("fcb-nothing-to-reemit");
     }
 
@@ -348,7 +359,8 @@ public class FacilityConvergenceAction implements ConvergenceAction {
         return switch (outcome) {
             case InboxManualRetryOutcome.Requeued requeued -> {
                 InboxAdminDetail detail = requeued.message();
-                yield ConvergeOutcome.converged("inbox-requeued-" + detail.id());
+                // Async re-drive (inbox dispatcher re-processes out-of-band) — see D12: defer, don't claim Converged.
+                yield ConvergeOutcome.retryLater("inbox-redriven:" + detail.id());
             }
             case InboxManualRetryOutcome.Rejected _ -> ConvergeOutcome.retryLater("inbox-retry-rejected");
             case InboxManualRetryOutcome.NotFound _ -> ConvergeOutcome.retryLater("inbox-not-found");

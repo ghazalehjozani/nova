@@ -25,10 +25,10 @@ import ir.dotin.loan.trade.core.application.service.originateloanfacility.compon
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.FacilityValidator;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.PartyEligibilityValidator;
 
-import static ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel.DIGITAL_BANK;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import static ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel.DIGITAL_BANK;
 
 /**
  * Tx-free pre-flight handler for facility origination. Runs the FCB validations and customer-info loads with no JPA

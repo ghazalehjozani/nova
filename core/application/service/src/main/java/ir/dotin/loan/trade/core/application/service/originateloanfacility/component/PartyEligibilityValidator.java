@@ -15,9 +15,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Gates facility origination on the eligibility flags FCB returns for each party. FCB surfaces
- * {@code isInBlackList} / {@code isIncapable} / {@code isInGrayList} as data on {@link PartyInfoResponse} and never
- * throws on them, so screening must be enforced here before the parties are resolved.
+ * Gates facility origination on the eligibility flags FCB returns for each party. FCB surfaces {@code isInBlackList} /
+ * {@code isIncapable} / {@code isInGrayList} as data on {@link PartyInfoResponse} and never throws on them, so
+ * screening must be enforced here before the parties are resolved.
  *
  * <p>Every party — applicant and guarantor alike — is screened identically. Checks are ordered most-severe first
  * (blacklist, then incapacity, then graylist) and short-circuit on the first violation, mirroring the failure style of
