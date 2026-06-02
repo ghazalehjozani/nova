@@ -38,7 +38,7 @@ public class SubmitFacilityForApprovalCommandHandler implements CommandHandler<S
                                 SubmitFacilityForApprovalErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId())))
                 .flatMap(facility -> domainService.submitForApproval(facility).map(v -> facility))
                 .onSuccess(facility -> {
-                    repository.save(facility);
+                    repository.save(facility, command.version());
                     log.info("Facility submitted for approval: {}", command.loanFacilityId());
                 })
                 .map(TradeLoanFacility::domainEvents);

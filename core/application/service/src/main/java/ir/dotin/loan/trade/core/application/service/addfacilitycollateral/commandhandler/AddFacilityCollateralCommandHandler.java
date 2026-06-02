@@ -84,7 +84,8 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
     }
 
     private Result<List<DomainEvent<?>>> runSaga(AddFacilityCollateralCommand command) {
-        var input = AddFacilityCollateralInput.of(command.loanFacilityId(), command.uid(), command.collaterals());
+        var input = AddFacilityCollateralInput.of(
+                command.loanFacilityId(), command.uid(), command.collaterals(), command.version());
 
         SagaResult<AddFacilityCollateralSagaData> sagaResult = sagaOrchestrator.executeSaga(
                 "add-facility-collateral", input, command.uid().toString());

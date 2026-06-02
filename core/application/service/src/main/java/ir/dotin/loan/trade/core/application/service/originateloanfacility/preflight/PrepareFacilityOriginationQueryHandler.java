@@ -23,6 +23,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.response.Party
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.CustomerInfoLoader;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.FacilityBuilder;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.FacilityValidator;
+import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.PartyEligibilityValidator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +47,7 @@ public class PrepareFacilityOriginationQueryHandler
 
     private final FacilityValidator facilityValidator;
     private final CustomerInfoLoader customerInfoLoader;
+    private final PartyEligibilityValidator partyEligibilityValidator;
     private final FacilityBuilder facilityBuilder;
 
     @Override
@@ -64,6 +66,13 @@ public class PrepareFacilityOriginationQueryHandler
         }
 
         List<PartyInfoResponse> partyInfos = partyInfosResult.unwrap();
+
+        // Gate origination on FCB eligibility flags (blacklist / incapacity / graylist). FCB returns these as data
+        // and does not throw, so screening is enforced here before any party is resolved.
+        Result<Unit> eligibilityResult = partyEligibilityValidator.validate(partyInfos);
+        if (eligibilityResult.isFailure()) {
+            throw new FailureCauseException(eligibilityResult.err().orElseThrow());
+        }
 
         // Resolve the application number here, tx-free — this is the FCB get-application-number round-trip that
         // would otherwise pin a pooled Hikari connection inside the transactional command (see RB-0002).

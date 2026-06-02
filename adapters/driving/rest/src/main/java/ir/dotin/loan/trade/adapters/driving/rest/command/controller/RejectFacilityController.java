@@ -9,8 +9,8 @@ import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
 import ir.dotin.platform.pangaea.protocol.rest.controller.CommandResponseFactory;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.RejectFacilityRequest;
-import ir.dotin.loan.trade.adapters.driving.contract.mapper.RejectFacilityRequestToCommandMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.RejectFacilityCommand;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 class RejectFacilityController extends BaseController {
 
     private final CommandDispatcher dispatcher;
-    private final RejectFacilityRequestToCommandMapper mapper;
     private final CommandResponseFactory responseFactory;
 
     @PostMapping(version = "1+")
@@ -40,7 +39,13 @@ class RejectFacilityController extends BaseController {
                     @PathVariable
                     UUID facilityId,
             @Parameter(description = "جزئیات رد تسهیلات", required = true) @RequestBody RejectFacilityRequest request) {
-        var command = mapper.toCommand(facilityId, request);
+        // Idempotency/correlation key comes from the filter-populated InvocationContext (X-Correlation-ID /
+        // Idempotency-Key), never from the request body, so it is consistent across every command controller.
+        var command = RejectFacilityCommand.builder()
+                .uid(getIdempotencyKey())
+                .version(request.version().longValue())
+                .loanFacilityId(facilityId)
+                .build();
         var result = dispatcher.dispatch(command);
         return responseFactory.mutated(result);
     }

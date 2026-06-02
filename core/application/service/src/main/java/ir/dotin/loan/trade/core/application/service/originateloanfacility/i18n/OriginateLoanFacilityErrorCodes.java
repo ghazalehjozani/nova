@@ -8,13 +8,16 @@ import ir.dotin.loan.trade.core.domain.shared.error.TradeLoanErrorCategory;
 
 /*
  * TRADE_SERVICE (54) sub-range allocation:
- *   Originate (this file):                001–025
+ *   Originate (this file):                001–025, 029–031
  *   Submit (SubmitFacilityForApprovalErrorCodes): 026–028
- *   Reserved:                             029–999
+ *   Reserved:                             032–999
  *
  * Originate constants are assigned explicit sequences 1..N in declaration order
- * (numericCode = 54*1000 + sequence). This file currently declares 23 constants,
- * so it uses 001–023; 024–025 remain reserved within the Originate sub-range.
+ * (numericCode = 54*1000 + sequence). This file currently declares 23 constants
+ * in 001–023; 024–025 remain reserved within the Originate sub-range. Party
+ * eligibility-screening codes (added for applicant/guarantor blacklist, incapacity
+ * and graylist gating) take the contiguous 029–031 band, jumping past the Submit
+ * band 026–028 to avoid renumbering Submit.
  */
 public enum OriginateLoanFacilityErrorCodes implements ProductErrorCode<OriginateLoanFacilityErrorCodes> {
     FACILITY_ALREADY_EXISTS(TradeLoanErrorCategory.TRADE_SERVICE, 1, "Facility with ID {0} already exists"),
@@ -54,7 +57,19 @@ public enum OriginateLoanFacilityErrorCodes implements ProductErrorCode<Originat
             TradeLoanErrorCategory.TRADE_SERVICE,
             22,
             "The selected economic sector {0} is a parent sector. Please select a child sector."),
-    INVALID_ACCOUNT_NUMBER(TradeLoanErrorCategory.TRADE_SERVICE, 23, "Invalid account number: {0}");
+    INVALID_ACCOUNT_NUMBER(TradeLoanErrorCategory.TRADE_SERVICE, 23, "Invalid account number: {0}"),
+    APPLICANT_BLACKLISTED(
+            TradeLoanErrorCategory.TRADE_SERVICE,
+            29,
+            "Party with national code {0} ({1}) is blacklisted and cannot participate in facility origination"),
+    APPLICANT_INCAPABLE(
+            TradeLoanErrorCategory.TRADE_SERVICE,
+            30,
+            "Party with national code {0} ({1}) is legally incapable and cannot participate in facility origination"),
+    APPLICANT_GRAYLISTED(
+            TradeLoanErrorCategory.TRADE_SERVICE,
+            31,
+            "Party with national code {0} ({1}) is graylisted and cannot participate in facility origination");
 
     private final ErrorCategory category;
     private final int sequence;

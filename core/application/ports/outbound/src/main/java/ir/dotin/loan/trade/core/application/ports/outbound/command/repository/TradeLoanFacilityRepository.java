@@ -14,6 +14,14 @@ public interface TradeLoanFacilityRepository {
 
     TradeLoanFacility save(TradeLoanFacility facility);
 
+    /**
+     * Persists an already-existing facility under optimistic-lock control. {@code expectedVersion} is the JPA
+     * {@code @Version} the caller observed when it read the aggregate (carried on the mutating command). The
+     * implementation rejects the write when the persisted version has moved on, surfacing a CONFLICT (HTTP 409).
+     * Use only for state-changing commands; creation goes through {@link #save(TradeLoanFacility)}.
+     */
+    TradeLoanFacility save(TradeLoanFacility facility, long expectedVersion);
+
     Optional<TradeLoanFacility> findById(LoanFacilityId id);
 
     Result<Boolean> existsById(@NotNull LoanFacilityId id);

@@ -101,7 +101,10 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
     public IssueFacilityContractSagaData createInitialData(SagaInput input) {
         var contractInput = (IssueFacilityContractInput) input;
         return IssueFacilityContractSagaData.initial(
-                contractInput.facilityId(), contractInput.branchCode(), contractInput.transactionConfig());
+                contractInput.facilityId(),
+                contractInput.branchCode(),
+                contractInput.transactionConfig(),
+                contractInput.expectedVersion());
     }
 
     private StepResult<Void> validateFacility(SagaContext<IssueFacilityContractSagaData> ctx) {
@@ -236,7 +239,7 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
 
         ctx.updateSagaData(d -> d.withCapturedEvents(capturedEvents));
 
-        facilityRepository.save(facility);
+        facilityRepository.save(facility, data.expectedVersion());
 
         log.info("Contract issued: facilityId={}", data.facilityId());
         return new StepResult.Success<>(null);

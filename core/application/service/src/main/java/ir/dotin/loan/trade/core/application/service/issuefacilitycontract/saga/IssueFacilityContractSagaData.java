@@ -20,6 +20,7 @@ public record IssueFacilityContractSagaData(
         UUID facilityId,
         String branchCode,
         TransactionConfig transactionConfig,
+        long expectedVersion,
         @Nullable String postedTransactionNumber,
         @Nullable String postedTrackingId,
         @Nullable Instant postedAt,
@@ -28,9 +29,9 @@ public record IssueFacilityContractSagaData(
         @Nullable List<CapturedEventData> capturedEvents) {
 
     public static IssueFacilityContractSagaData initial(
-            UUID facilityId, String branchCode, TransactionConfig transactionConfig) {
+            UUID facilityId, String branchCode, TransactionConfig transactionConfig, long expectedVersion) {
         return new IssueFacilityContractSagaData(
-                facilityId, branchCode, transactionConfig, null, null, null, null, null, List.of());
+                facilityId, branchCode, transactionConfig, expectedVersion, null, null, null, null, null, List.of());
     }
 
     public IssueFacilityContractSagaData withResolvedAccounts(Map<String, String> accounts) {
@@ -38,6 +39,7 @@ public record IssueFacilityContractSagaData(
                 facilityId,
                 branchCode,
                 transactionConfig,
+                expectedVersion,
                 postedTransactionNumber,
                 postedTrackingId,
                 postedAt,
@@ -52,6 +54,7 @@ public record IssueFacilityContractSagaData(
                 facilityId,
                 branchCode,
                 transactionConfig,
+                expectedVersion,
                 transactionNumber,
                 trackingId,
                 posted,
@@ -65,6 +68,7 @@ public record IssueFacilityContractSagaData(
                 facilityId,
                 branchCode,
                 transactionConfig,
+                expectedVersion,
                 postedTransactionNumber,
                 postedTrackingId,
                 postedAt,

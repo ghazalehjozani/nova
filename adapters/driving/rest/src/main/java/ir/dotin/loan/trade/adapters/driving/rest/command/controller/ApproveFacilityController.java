@@ -81,8 +81,10 @@ class ApproveFacilityController extends BaseController {
         // catch it. The resolved details are threaded onto the command so the transactional handler issues no FCB call.
         FacilityApprovalPreflightResult preflight = queryDispatcher.dispatch(new PrepareFacilityApprovalQuery(command));
 
-        ApproveFacilityCommand preparedCommand =
-                command.toBuilder().sanctionDetails(preflight.sanctionDetails()).build();
+        ApproveFacilityCommand preparedCommand = command.toBuilder()
+                .uid(getIdempotencyKey())
+                .sanctionDetails(preflight.sanctionDetails())
+                .build();
 
         var result = dispatcher.dispatch(preparedCommand);
         return responseFactory.mutated(result);

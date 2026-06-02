@@ -284,14 +284,11 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
         String signedEnvelope = envelopeSigner.sign(buildEnvelope());
 
         Connection connection = connection();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        try {
+        try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
             TemporaryQueue replyQueue = session.createTemporaryQueue();
-            MessageConsumer consumer = session.createConsumer(replyQueue);
-            try {
+            try (MessageConsumer consumer = session.createConsumer(replyQueue)) {
                 Queue requestQueue = session.createQueue(properties.getRequestAddress());
-                MessageProducer producer = session.createProducer(requestQueue);
-                try {
+                try (MessageProducer producer = session.createProducer(requestQueue)) {
                     long deadlineMs = System.currentTimeMillis() + timeout.toMillis();
                     TextMessage message = session.createTextMessage(body);
                     message.setJMSReplyTo(replyQueue);
@@ -307,14 +304,8 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
                         throw new ReplyTimeoutException();
                     }
                     return handleReply(reply, operationType);
-                } finally {
-                    producer.close();
                 }
-            } finally {
-                consumer.close();
             }
-        } finally {
-            session.close();
         }
     }
 

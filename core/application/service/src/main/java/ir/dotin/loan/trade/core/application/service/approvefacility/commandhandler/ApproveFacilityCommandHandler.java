@@ -59,7 +59,7 @@ public class ApproveFacilityCommandHandler implements CommandHandler<ApproveFaci
                             return strategy.validate(command, facility, arrangement)
                                     .flatMap(ignored -> strategy.approve(command, facility, arrangement, confirmType))
                                     .map(ignored -> {
-                                        loanFacilityRepository.save(facility);
+                                        loanFacilityRepository.save(facility, command.version());
                                         log.debug("Facility approved: {}", command.loanFacilityId());
                                         return facility.domainEvents();
                                     });

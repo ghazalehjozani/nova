@@ -93,7 +93,7 @@ public class IrregularProgressiveDisbursementCommandHandler
                         .flatMap(context -> validateAll(facility, context)
                                 .flatMap(ignored -> resolveAccounts(facility, context))
                                 .flatMap(resolvedAccounts -> processDisbursement(context, resolvedAccounts))))
-                .flatMap(this::persistAndCollectEvents)
+                .flatMap(operationResult -> persistAndCollectEvents(operationResult, command.version()))
                 .onSuccess(result ->
                         log.info("Irregular disbursement completed for facility: {}", command.loanFacilityId()))
                 .map(DisbursementResult::events);
@@ -363,10 +363,11 @@ public class IrregularProgressiveDisbursementCommandHandler
                 .map(ignored -> new DisbursementOperationResult(facility, context.schedule(), newSchedule));
     }
 
-    private Result<DisbursementResult> persistAndCollectEvents(DisbursementOperationResult operationResult) {
+    private Result<DisbursementResult> persistAndCollectEvents(
+            DisbursementOperationResult operationResult, long expectedVersion) {
         installmentScheduleRepository.save(operationResult.oldSchedule());
         InstallmentSchedule newSchedule = installmentScheduleRepository.save(operationResult.newSchedule());
-        TradeLoanFacility savedFacility = tradeLoanFacilityRepository.save(operationResult.facility());
+        TradeLoanFacility savedFacility = tradeLoanFacilityRepository.save(operationResult.facility(), expectedVersion);
 
         List<DomainEvent<?>> events = new ArrayList<>();
         events.addAll(operationResult.oldSchedule().domainEvents());

@@ -72,7 +72,8 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
                 .networkType(command.networkType())
                 .build();
 
-        var input = IssueFacilityContractInput.of(command.loanFacilityId(), command.branchCode(), transactionConfig);
+        var input = IssueFacilityContractInput.of(
+                command.loanFacilityId(), command.branchCode(), transactionConfig, command.version());
 
         SagaResult<IssueFacilityContractSagaData> sagaResult = sagaOrchestrator.executeSaga(
                 "issue-facility-contract", input, command.uid().toString());

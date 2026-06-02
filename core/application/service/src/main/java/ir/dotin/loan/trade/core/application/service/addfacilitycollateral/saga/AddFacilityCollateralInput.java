@@ -14,11 +14,17 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.AddFacilityCol
  * never stashed here — see {@link AddFacilityCollateralSaga} (instance-safe, multi-instance topology).
  */
 public record AddFacilityCollateralInput(
-        UUID facilityId, UUID requestId, List<AddFacilityCollateralCommand.CollateralDto> collaterals)
+        UUID facilityId,
+        UUID requestId,
+        List<AddFacilityCollateralCommand.CollateralDto> collaterals,
+        long expectedVersion)
         implements SagaInput {
 
     public static AddFacilityCollateralInput of(
-            UUID facilityId, UUID requestId, List<AddFacilityCollateralCommand.CollateralDto> collaterals) {
-        return new AddFacilityCollateralInput(facilityId, requestId, collaterals);
+            UUID facilityId,
+            UUID requestId,
+            List<AddFacilityCollateralCommand.CollateralDto> collaterals,
+            long expectedVersion) {
+        return new AddFacilityCollateralInput(facilityId, requestId, collaterals, expectedVersion);
     }
 }

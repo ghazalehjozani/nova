@@ -15,9 +15,9 @@ import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
 import ir.dotin.platform.pangaea.protocol.rest.controller.CommandResponseFactory;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.SubmitFacilityForApprovalRequest;
-import ir.dotin.loan.trade.adapters.driving.contract.mapper.SubmitFacilityForApprovalRequestToCommandMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateApprovalSubmissionCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.SubmitFacilityForApprovalCommand;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,7 +31,6 @@ import lombok.RequiredArgsConstructor;
 class SubmitFacilityForApprovalController extends BaseController {
 
     private final CommandDispatcher dispatcher;
-    private final SubmitFacilityForApprovalRequestToCommandMapper mapper;
     private final CommandResponseFactory responseFactory;
 
     @PostMapping(version = "1+")
@@ -40,7 +39,10 @@ class SubmitFacilityForApprovalController extends BaseController {
             @PathVariable UUID facilityId,
             @Parameter(description = "جزئیات ثبت درخواست تصویب مصوبه", required = true) @RequestBody @Valid
                     SubmitFacilityForApprovalRequest request) {
-        var command = mapper.toCommand(facilityId, request);
+        // Idempotency/correlation key comes from the filter-populated InvocationContext (X-Correlation-ID /
+        // Idempotency-Key), never from the request body, so it is consistent across every command controller.
+        var command = new SubmitFacilityForApprovalCommand(
+                getIdempotencyKey(), request.version().longValue(), facilityId);
         var result = dispatcher.dispatch(command);
         return responseFactory.mutated(result);
     }

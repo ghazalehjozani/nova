@@ -92,7 +92,10 @@ public class AddFacilityCollateralSaga implements SagaDefinition<AddFacilityColl
     public AddFacilityCollateralSagaData createInitialData(SagaInput input) {
         var collateralInput = (AddFacilityCollateralInput) input;
         return AddFacilityCollateralSagaData.initial(
-                collateralInput.facilityId(), collateralInput.requestId(), collateralInput.collaterals());
+                collateralInput.facilityId(),
+                collateralInput.requestId(),
+                collateralInput.collaterals(),
+                collateralInput.expectedVersion());
     }
 
     private StepResult<List<String>> reserveCollaterals(SagaContext<AddFacilityCollateralSagaData> ctx) {
@@ -197,7 +200,7 @@ public class AddFacilityCollateralSaga implements SagaDefinition<AddFacilityColl
                 .toList();
         ctx.updateSagaData(d -> d.withCapturedEvents(captured));
 
-        facilityRepository.save(facility);
+        facilityRepository.save(facility, data.expectedVersion());
         log.info("{} collaterals added for facility: {}", collaterals.size(), data.facilityId());
         return new StepResult.Success<>(null);
     }

@@ -39,7 +39,7 @@ public class UpdateCollateralCommandHandler implements CommandHandler<UpdateColl
     public Result<List<DomainEvent<?>>> handle(UpdateCollateralCommand command) {
         return loadFacility(command)
                 .flatMap(tradeLoanFacility -> updateCollateral(tradeLoanFacility, command))
-                .onSuccess(tradeLoanFacilityRepository::save)
+                .onSuccess(tradeLoanFacility -> tradeLoanFacilityRepository.save(tradeLoanFacility, command.version()))
                 .onSuccess(_ -> log.debug(
                         "update  collateral completed: applicationNumber={}, collateral={} ",
                         command.applicationNumber(),

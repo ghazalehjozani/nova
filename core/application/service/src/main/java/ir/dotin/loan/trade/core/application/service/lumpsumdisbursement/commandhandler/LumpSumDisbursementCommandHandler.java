@@ -80,7 +80,7 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
                         .flatMap(context -> validateDisbursement(facility, context)
                                 .flatMap(ignored -> resolveAccounts(facility, context))
                                 .flatMap(resolvedAccounts -> processDisbursement(facility, context, resolvedAccounts))))
-                .flatMap(this::persistAndCollectEvents)
+                .flatMap(operationResult -> persistAndCollectEvents(operationResult, command.version()))
                 .onSuccess(result ->
                         log.info("Lump sum disbursement completed for facility: {}", command.loanFacilityId()))
                 .map(DisbursementResult::events);
@@ -267,13 +267,14 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
                         facility.getId().value())));
     }
 
-    private Result<DisbursementResult> persistAndCollectEvents(DisbursementOperationResult operationResult) {
+    private Result<DisbursementResult> persistAndCollectEvents(
+            DisbursementOperationResult operationResult, long expectedVersion) {
         installmentScheduleRepository.save(operationResult.schedule());
         log.debug(
                 "Installment schedule saved: {}",
                 operationResult.schedule().getId().value());
 
-        tradeLoanFacilityRepository.save(operationResult.facility());
+        tradeLoanFacilityRepository.save(operationResult.facility(), expectedVersion);
         log.info("Facility saved: {}", operationResult.facility().getId().value());
 
         List<DomainEvent<?>> allEvents = aggregateEvents(operationResult);
