@@ -5,14 +5,25 @@
 - Maven 3.9.11+
 - Docker & Docker Compose
 
+## Local infrastructure (postgres / redis HA / broker)
+
+Lives in the sibling repo [`../../nova-dev-stack`](../../nova-dev-stack), not here. Stand it up first:
+
+```bash
+cd ../../nova-dev-stack
+cp .env.example .env && nano .env       # DB_*, REDIS_PASSWORD, ARTEMIS_* (must match this app's .env)
+./redis/render-sentinel-conf.sh
+docker compose up -d                    # postgres + redis HA + Artemis (primary broker)
+```
+
 ## First Time Setup
 
-### 1. Environment Variables
+### 1. Environment Variables (app — client side)
 ```bash
 # Copy template
 cp .env.example .env
 
-# Edit .env with your passwords
+# Edit .env with your passwords (shared DB_*/REDIS_PASSWORD/ARTEMIS_* must match nova-dev-stack/.env)
 nano .env
 ```
 

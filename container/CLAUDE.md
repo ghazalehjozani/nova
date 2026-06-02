@@ -49,12 +49,17 @@ container/
 ├── src/test/java/ir/dotin/loan/trade/e2e/       # E2E suite (see below)
 ├── src/test/resources/
 │   ├── application-e2e.yml                      # e2e profile overrides
-│   └── e2e/docker-compose-e2e.yml               # Testcontainers compose file
-├── redis/                                       # sentinel templates + render script
+│   └── e2e/docker-compose-e2e.yml               # Testcontainers compose file (stays here)
 ├── scripts/                                     # secret/config sync + k8s helpers
-├── Dockerfile, docker-compose.yml, .env(.example)
+├── Dockerfile, .env(.example)                   # app image + app runtime env (client side)
 └── pom.xml
 ```
+
+> **Local dev infra moved out.** PostgreSQL, the Redis Sentinel HA cluster, the broker, and the
+> `redis/` configs now live in the sibling repo [`../../nova-dev-stack`](../../nova-dev-stack)
+> (`docker-compose.yml` + `.env`). A few connection secrets (`DB_*`, `REDIS_PASSWORD`,
+> `REDIS_MASTER_NAME`, `ARTEMIS_*`) are duplicated between `.env` here and there — keep in sync.
+> Only the E2E Testcontainers compose stays in this module.
 
 `NovaApplication` does a **filtered ComponentScan** over `ir.dotin.loan.baseloan.core.domain` that picks up only `@DomainComponent`, `@DomainService`, `@DomainFactory`. Do not broaden the scan — base-loan domain types must remain pure POJOs to the application context.
 
@@ -125,7 +130,8 @@ Master: `src/main/resources/db/changelog/db.changelog-master.xml` → includes `
 - `scripts/sync-configs.sh` — push `nova-config` KV to a target Consul environment.
 - `scripts/{create,update,get}-secret.sh` — manage k8s secrets that back `${ENV_VAR}` placeholders.
 - `scripts/cleanup.sh` — remove stale local containers/volumes between runs.
-- `redis/render-sentinel-conf.sh` — renders `sentinel.conf.tmpl` into env-specific Sentinel configs at container start.
+- Local infra bring-up (postgres / redis / broker) + `render-sentinel-conf.sh` now live in
+  [`../../nova-dev-stack`](../../nova-dev-stack).
 
 ## Do-not-commit
 
