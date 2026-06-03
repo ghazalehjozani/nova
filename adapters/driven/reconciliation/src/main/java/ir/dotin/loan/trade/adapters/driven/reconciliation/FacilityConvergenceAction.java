@@ -116,82 +116,101 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             // Load the facility's outbox rows once — used for the saga guard AND the status-aware lever.
             List<OutboxRecordView> facilityRows = loadFacilityOutboxRows(facilityId);
 
-            // (1) SAGA GUARD (INV-6): defer if any saga owning this facility's correlation is in flight.
-            ConvergeOutcome guard = sagaGuard(facilityId, facilityRows);
-            if (guard != null) {
-                return guard;
-            }
+            List<String> correlationIds = facilityRows.stream()
+                    .map(OutboxRecordView::correlationId)
+                    .filter(Objects::nonNull)
+                    .map(UUID::toString)
+                    .distinct()
+                    .toList();
 
-            // (2) TERMINAL DOMINANCE: re-read Nova status.
-            Optional<FacilityReconRow> novaRow = readPort.findById(facilityId);
-            if (novaRow.isEmpty()) {
-                return ConvergeOutcome.retryLater("nova-missing");
-            }
-            FacilityStatus novaStatus = novaRow.get().status();
-            if (FacilityReconMapping.isTerminal(novaStatus)) {
-                Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId);
-                if (fcbResult.isFailure()) {
-                    return ConvergeOutcome.retryLater("fcb-unreachable");
+            // (1) SAGA GUARD (INV-6). When the facility's originating saga correlation is known, run the WHOLE
+            // re-check-and-converge UNDER that saga's per-sagaId lock so the convergence cannot race the saga
+            // orchestrator (check-and-act atomicity); the in-flight re-check runs inside the lock to defeat TOCTOU. A
+            // contended lock (saga actively processed elsewhere) -> retryLater. When no correlation is resolvable, fall
+            // back to a recency defer (a freshly-modified facility is likely mid-flow).
+            if (correlationIds.isEmpty()) {
+                ConvergeOutcome recency = deferIfRecentlyModified(facilityId);
+                if (recency != null) {
+                    return recency;
                 }
-                ReconLoanFileState fcb = fcbResult.unwrap();
-                if (!fcb.reachable()) {
-                    return ConvergeOutcome.retryLater("fcb-unreachable");
-                }
-                boolean aligned = !fcb.exists() || FacilityReconMapping.isFcbRevoked(fcb.fileStatus());
-                return aligned
-                        ? ConvergeOutcome.notApplicable("terminal-aligned")
-                        : ConvergeOutcome.needsOperator("terminal-divergent");
+                return convergeGuardedBody(facilityId, facilityRows, divergence, correlationIds);
             }
-
-            // Defense-in-depth (INV-15): re-assert the money gate locally on the freshly re-read status, so a
-            // money-moving facility (PARTIALLY/FULLY_DISBURSED — non-terminal, so it slips past the terminal check
-            // above) can never be auto-re-driven even if it reached converge() via an operator-forced path or the
-            // driver gate were ever loosened. tierFor() already gates it for the auto-sweep; this makes the
-            // irreversible-path gate locally enforced and refactor-proof.
-            if (FacilityReconMapping.isMoneyState(novaStatus)) {
-                return ConvergeOutcome.needsOperator("money-state");
-            }
-
-            // (3) / (4) verdict-directed lever.
-            return switch (divergence.verdict()) {
-                case ORPHAN, LAGGING -> convergeNovaToFcb(facilityId, facilityRows);
-                case ALIGNED, UNKNOWN -> ConvergeOutcome.notApplicable("not-divergent");
-            };
+            return sagaAdminPort
+                    .runUnderCorrelationGuard(
+                            correlationIds.get(0),
+                            () -> convergeGuardedBody(facilityId, facilityRows, divergence, correlationIds))
+                    .orElse(ConvergeOutcome.retryLater("saga-locked"));
         } catch (RuntimeException e) {
             log.warn("converge() failed for facility {} — retryLater", facilityId, e);
             return ConvergeOutcome.retryLater("converge-exception");
         }
     }
 
-    // ════════════════════════════════════════ (1) Saga guard ════════════════════════════════════════
-
-    private @Nullable ConvergeOutcome sagaGuard(String facilityId, List<OutboxRecordView> facilityRows) {
-        List<String> correlationIds = facilityRows.stream()
-                .map(OutboxRecordView::correlationId)
-                .filter(Objects::nonNull)
-                .map(UUID::toString)
-                .distinct()
-                .toList();
-
-        if (correlationIds.isEmpty()) {
-            // Fallback (INV-6): can't resolve a correlation id → defer if recently modified (< 30 min).
-            Optional<FacilityReconRow> row = readPort.findById(facilityId);
-            if (row.isPresent()) {
-                long ageMs = System.currentTimeMillis() - row.get().modifiedAtEpochMs();
-                if (row.get().modifiedAtEpochMs() > 0 && ageMs < 30 * 60 * 1000L) {
-                    return ConvergeOutcome.retryLater("recently-modified");
-                }
-            }
-            return null;
-        }
-
+    /**
+     * Convergence body, run under the saga lock when a correlation is known (INV-6). Re-checks for an in-flight saga
+     * owning any of the facility's correlations inside the lock (TOCTOU), then applies terminal-dominance, the money
+     * gate, and the verdict-directed lever.
+     */
+    private ConvergeOutcome convergeGuardedBody(
+            String facilityId,
+            List<OutboxRecordView> facilityRows,
+            Divergence divergence,
+            List<String> correlationIds) {
+        // In-flight saga re-check (inside the lock): never fight an originating flow or its compensation.
         for (String corrId : correlationIds) {
-            List<SagaInstanceView> sagas = sagaAdminPort.findByCorrelation(corrId);
-            for (SagaInstanceView saga : sagas) {
+            for (SagaInstanceView saga : sagaAdminPort.findByCorrelation(corrId)) {
                 SagaState state = saga.state();
                 if (state == SagaState.PENDING || state == SagaState.EXECUTING || state == SagaState.COMPENSATING) {
                     return ConvergeOutcome.retryLater("saga-in-flight");
                 }
+            }
+        }
+
+        // (2) TERMINAL DOMINANCE: re-read Nova status.
+        Optional<FacilityReconRow> novaRow = readPort.findById(facilityId);
+        if (novaRow.isEmpty()) {
+            return ConvergeOutcome.retryLater("nova-missing");
+        }
+        FacilityStatus novaStatus = novaRow.get().status();
+        if (FacilityReconMapping.isTerminal(novaStatus)) {
+            Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId);
+            if (fcbResult.isFailure()) {
+                return ConvergeOutcome.retryLater("fcb-unreachable");
+            }
+            ReconLoanFileState fcb = fcbResult.unwrap();
+            if (!fcb.reachable()) {
+                return ConvergeOutcome.retryLater("fcb-unreachable");
+            }
+            boolean aligned = !fcb.exists() || FacilityReconMapping.isFcbRevoked(fcb.fileStatus());
+            return aligned
+                    ? ConvergeOutcome.notApplicable("terminal-aligned")
+                    : ConvergeOutcome.needsOperator("terminal-divergent");
+        }
+
+        // Defense-in-depth (INV-15): re-assert the money gate locally on the freshly re-read status, so a money-moving
+        // facility (PARTIALLY/FULLY_DISBURSED — non-terminal, slips past the terminal check) can never be
+        // auto-re-driven
+        // even if it reached here via an operator-forced path or the driver gate were ever loosened.
+        if (FacilityReconMapping.isMoneyState(novaStatus)) {
+            return ConvergeOutcome.needsOperator("money-state");
+        }
+
+        // (3) / (4) verdict-directed lever.
+        return switch (divergence.verdict()) {
+            case ORPHAN, LAGGING -> convergeNovaToFcb(facilityId, facilityRows);
+            case ALIGNED, UNKNOWN -> ConvergeOutcome.notApplicable("not-divergent");
+        };
+    }
+
+    // ════════════════════════════════════════ (1) Saga guard fallback ════════════════════════════════════════
+
+    /** INV-6 fallback when no saga correlation is resolvable: defer a facility modified less than 30 minutes ago. */
+    private @Nullable ConvergeOutcome deferIfRecentlyModified(String facilityId) {
+        Optional<FacilityReconRow> row = readPort.findById(facilityId);
+        if (row.isPresent()) {
+            long ageMs = System.currentTimeMillis() - row.get().modifiedAtEpochMs();
+            if (row.get().modifiedAtEpochMs() > 0 && ageMs < 30 * 60 * 1000L) {
+                return ConvergeOutcome.retryLater("recently-modified");
             }
         }
         return null;
