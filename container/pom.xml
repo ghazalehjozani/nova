@@ -123,6 +123,15 @@
         </dependency>
         <dependency>
             <groupId>ir.dotin.loan</groupId>
+            <artifactId>trade-loan-adapters-driving-mcp</artifactId>
+        </dependency>
+        <dependency>
+            <!-- MCP transport runtime + 2nd security chain + ops_* tools; discovers the driving-mcp loan_* beans -->
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>pangaea-spring-boot-starter-ai-mcp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
             <artifactId>trade-loan-adapters-driving-messaging-kafka</artifactId>
         </dependency>
         <dependency>

@@ -148,6 +148,10 @@ public class SwaggerConfig extends BaseSwaggerConfig {
         return GroupedOpenApi.builder()
                 .group("v1")
                 .pathsToMatch("/v{version}/**")
+                // MCP JSON-RPC endpoints are functional servlets, not MVC routes; springdoc cannot model them. They
+                // are documented separately by the pangaea-ai-mcp-server "mcp" GroupedOpenApi. Exclude their paths
+                // (and the /v1/mcp/* sub-paths the stateless transport registers) from the business v1 group.
+                .pathsToExclude("/v1/mcp", "/v1/mcp/**", "/v1/ops/mcp", "/v1/ops/mcp/**")
                 .addOperationCustomizer(headerOperationCustomizer)
                 .addOpenApiCustomizer(tagsCustomizer())
                 .addOpenApiCustomizer(externalDocsCustomizer())

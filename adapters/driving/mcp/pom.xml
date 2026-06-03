@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>ir.dotin.loan</groupId>
+    <artifactId>trade-loan-adapters-driving</artifactId>
+    <version>${revision}</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>trade-loan-adapters-driving-mcp</artifactId>
+  <name>Trade Loan :: Adapters :: Driving :: MCP</name>
+  <packaging>jar</packaging>
+
+  <dependencies>
+    <!-- Read-side queries + their result DTOs (reused verbatim — no MCP-only DTOs). -->
+    <dependency>
+      <groupId>ir.dotin.loan</groupId>
+      <artifactId>trade-loan-core-application-query</artifactId>
+    </dependency>
+
+    <!-- Inert MCP contract: @McpBusinessTool / @McpTool / @McpToolParam markers + McpEndpoints.
+         Deliberately NOT pangaea-ai-mcp-server: this adapter only declares tools, it never runs the transport. -->
+    <dependency>
+      <groupId>ir.dotin.platform.pangaea</groupId>
+      <artifactId>pangaea-ai-mcp-api</artifactId>
+    </dependency>
+
+    <!-- QueryDispatcher bean + autoconfig. -->
+    <dependency>
+      <groupId>ir.dotin.platform.pangaea</groupId>
+      <artifactId>dispatcher-starter</artifactId>
+    </dependency>
+
+    <!-- Spring stereotypes (@Component / @RequiredArgsConstructor wiring). -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+    </dependency>
+
+    <!-- Jackson 3 (tools.jackson) — present on the classpath for tool-return serialization parity with the SDK mapper. -->
+    <dependency>
+      <groupId>tools.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jspecify</groupId>
+      <artifactId>jspecify</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+</project>

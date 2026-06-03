@@ -6,6 +6,8 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.platform.pangaea.dispatcher.api.cache.CacheDependency;
 import ir.dotin.platform.pangaea.dispatcher.api.cache.CacheScope;
 import ir.dotin.platform.pangaea.dispatcher.api.query.CacheableQuery;
@@ -46,7 +48,7 @@ public record LoanTypeFilterQuery(
         return title != null && !title.isBlank();
     }
 
-    public static LoanTypeFilterQuery of(String code, String title, int page, int pageSize) {
+    public static LoanTypeFilterQuery of(@Nullable String code, @Nullable String title, int page, int pageSize) {
         return LoanTypeFilterQuery.builder()
                 .code(code)
                 .title(title)

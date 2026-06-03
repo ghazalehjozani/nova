@@ -7,6 +7,8 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.platform.pangaea.dispatcher.api.cache.CacheDependency;
 import ir.dotin.platform.pangaea.dispatcher.api.cache.CacheScope;
 import ir.dotin.platform.pangaea.dispatcher.api.query.CacheableQuery;
@@ -67,15 +69,15 @@ public record LoanTypeArrangementFilterQuery(
     }
 
     public static LoanTypeArrangementFilterQuery of(
-            String code,
-            String title,
-            String currencyType,
-            String economicSector,
-            BigDecimal minAmount,
-            BigDecimal maxAmount,
-            Boolean active,
-            Boolean disable,
-            DisbursementMethod disbursementMethod,
+            @Nullable String code,
+            @Nullable String title,
+            @Nullable String currencyType,
+            @Nullable String economicSector,
+            @Nullable BigDecimal minAmount,
+            @Nullable BigDecimal maxAmount,
+            @Nullable Boolean active,
+            @Nullable Boolean disable,
+            @Nullable DisbursementMethod disbursementMethod,
             int page,
             int pageSize) {
         return LoanTypeArrangementFilterQuery.builder()

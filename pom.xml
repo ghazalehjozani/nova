@@ -98,6 +98,12 @@
             </dependency>
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
+                <artifactId>trade-loan-adapters-driving-mcp</artifactId>
+                <version>${loan.trade-loan.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>ir.dotin.loan</groupId>
                 <artifactId>trade-loan-adapters-driving-contract</artifactId>
                 <version>${loan.trade-loan.version}</version>
                 <scope>compile</scope>
