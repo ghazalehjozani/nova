@@ -38,7 +38,7 @@ public class RejectFacilityCommandHandler implements CommandHandler<RejectFacili
                                 TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.uid())))
                 .onSuccess(facility -> {
                     facility.reject(clock);
-                    repository.save(facility);
+                    repository.save(facility, command.version());
                     log.info("Facility rejected: {}", command.loanFacilityId());
                 })
                 .map(TradeLoanFacility::domainEvents);

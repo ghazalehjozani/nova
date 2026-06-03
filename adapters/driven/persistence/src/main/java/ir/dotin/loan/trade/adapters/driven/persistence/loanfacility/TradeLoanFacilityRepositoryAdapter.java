@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +16,6 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
-import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity.TradeLoanFacilityEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.mapper.TradeLoanFacilityPersistenceMapper;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.repository.TradeLoanFacilityJpaRepository;
 import ir.dotin.loan.trade.adapters.driven.persistence.loantype.projection.TradeLoanTypeIdProjection;
@@ -55,28 +53,9 @@ public class TradeLoanFacilityRepositoryAdapter implements TradeLoanFacilityRepo
     @Transactional
     public TradeLoanFacility save(TradeLoanFacility facility, long expectedVersion) {
         requireNonNull(facility, "TradeLoanFacility cannot be null");
-        UUID id = facility.getId().value();
-
-        // Fast pre-check against the currently-persisted row so a stale write is rejected before the merge. The merge
-        // below still carries expectedVersion onto the detached entity, so Hibernate performs the authoritative
-        // optimistic-lock check and closes the race between this read and the flush.
-        TradeLoanFacilityEntity managed = jpaRepository
-                .findById(id)
-                .orElseThrow(() -> new OptimisticLockingFailureException(
-                        "TradeLoanFacility not found for optimistic save: " + id));
-        Long currentVersion = managed.getVersion();
-        if (currentVersion == null || currentVersion != expectedVersion) {
-            // OptimisticLockingFailureException (and Hibernate's ObjectOptimisticLockingFailureException subclass
-            // thrown
-            // by the merge below) is mapped to ErrorCode.CONFLICT (HTTP 409) by the platform
-            // JpaExceptionMapperContributor — i.e. the domain CONFLICT FailureCause.
-            throw new OptimisticLockingFailureException("Optimistic lock conflict on TradeLoanFacility " + id
-                    + ": expected version " + expectedVersion + " but found " + currentVersion);
-        }
-
+        // Optimistic-lock conflict -> OptimisticLockingFailureException -> CONFLICT (HTTP 409) via the platform mapper.
         var entity = mapper.map(facility);
-        entity.setVersion(expectedVersion);
-        var saved = jpaRepository.save(entity);
+        var saved = jpaRepository.saveWithOptimisticLock(entity, expectedVersion);
         return mapper.map(saved);
     }
 

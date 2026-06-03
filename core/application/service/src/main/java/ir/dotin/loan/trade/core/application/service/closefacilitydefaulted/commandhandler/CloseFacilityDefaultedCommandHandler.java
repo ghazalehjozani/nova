@@ -38,7 +38,7 @@ public class CloseFacilityDefaultedCommandHandler implements CommandHandler<Clos
                                 TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())))
                 .flatMap(facility -> domainService.closeDefaulted(facility).map(v -> facility))
                 .onSuccess(facility -> {
-                    repository.save(facility);
+                    repository.save(facility, command.version());
                     log.debug("Facility closed as defaulted: {}", command.loanFacilityId());
                 })
                 .map(TradeLoanFacility::domainEvents);
