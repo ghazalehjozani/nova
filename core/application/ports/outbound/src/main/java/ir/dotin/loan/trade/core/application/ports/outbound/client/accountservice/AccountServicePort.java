@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice;
 
+import java.util.List;
 import java.util.UUID;
 
 import ir.dotin.platform.accounting.document.api.model.AccountId;
@@ -15,7 +16,11 @@ public interface AccountServicePort {
 
     Result<AccountId> openAccount(CreateAccountInfo createAccountInfo);
 
+    Result<List<AccountInfo>> openAccounts(List<LoanTopic> loanTopics, String currencyCode);
+
     Result<AccountNumber> deleteAccount(UUID transactionId, UUID rollBackId, AccountNumber accountNumber);
+
+    Result<List<AccountNumber>> closeAccounts(List<AccountNumber> accountNumbers);
 
     Result<AccountNumber> validateAccountNumber(String accountNumber);
 }

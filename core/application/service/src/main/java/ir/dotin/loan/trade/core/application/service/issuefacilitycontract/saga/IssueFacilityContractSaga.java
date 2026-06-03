@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.accounting.document.api.enumeration.TransactionStatus;
+import ir.dotin.platform.accounting.document.api.model.AccountNumber;
 import ir.dotin.platform.accounting.document.api.model.BranchCode;
 import ir.dotin.platform.accounting.document.api.model.PostTitle;
 import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
@@ -154,8 +156,27 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
 
     private StepResult<Void> closeAccounts(
             SagaContext<IssueFacilityContractSagaData> ctx, Map<String, String> openedAccounts) {
-        // TODO:
-        log.warn("Compensating opened accounts: {}", openedAccounts);
+        if (openedAccounts == null || openedAccounts.isEmpty()) {
+            return new StepResult.Success<>(null);
+        }
+        List<AccountNumber> accountNumbers = new ArrayList<>();
+        for (String accountValue : openedAccounts.values()) {
+            Result<AccountNumber> accountNumberResult = AccountNumber.of(accountValue);
+            if (accountNumberResult.isFailure()) {
+                log.warn("Skipping un-parsable account during compensation: {}", accountValue);
+            } else {
+                accountNumbers.add(accountNumberResult.unwrap());
+            }
+        }
+        if (!accountNumbers.isEmpty()) {
+            Result<List<AccountNumber>> closeResult = accountResolutionService.closeAccounts(accountNumbers);
+            if (closeResult.isFailure()) {
+                log.warn(
+                        "Compensation close failed for {}: {}",
+                        accountNumbers,
+                        closeResult.err().orElseThrow());
+            }
+        }
         return new StepResult.Success<>(null);
     }
 

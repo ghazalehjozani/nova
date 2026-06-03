@@ -6,6 +6,8 @@ import org.jspecify.annotations.Nullable;
 
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.AccountInfoKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ApplicationNumberKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.BatchCloseAccountKafkaResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.BatchOpenAccountKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.BranchCodeListKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.BranchDetailsKafkaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.CollateralDetailsKafkaResponse;
@@ -68,7 +70,9 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ValidationResu
     @JsonSubTypes.Type(value = ReconStateKafkaResponse.class, name = "nova-loanfile-recon-state"),
     @JsonSubTypes.Type(value = ReemitOutboxKafkaResponse.class, name = "nova-reemit-outbox"),
     @JsonSubTypes.Type(value = TransactionResultKafkaResponse.class, name = "issue-general-document"),
-    @JsonSubTypes.Type(value = SimpleSuccessKafkaResponse.class, name = "cancel-transfer-money-loan")
+    @JsonSubTypes.Type(value = SimpleSuccessKafkaResponse.class, name = "cancel-transfer-money-loan"),
+    @JsonSubTypes.Type(value = BatchOpenAccountKafkaResponse.class, name = "nova-batch-open-accounts"),
+    @JsonSubTypes.Type(value = BatchCloseAccountKafkaResponse.class, name = "nova-batch-close-accounts")
 })
 public abstract class FcbKafkaBaseResponse {
 

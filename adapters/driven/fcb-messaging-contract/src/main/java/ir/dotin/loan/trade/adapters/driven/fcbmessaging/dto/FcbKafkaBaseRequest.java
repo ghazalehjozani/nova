@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.jspecify.annotations.Nullable;
 
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.BatchCloseAccountRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.BatchOpenAccountRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.DeleteAccountRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.FetchSanctionDetailsRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.FindOrCreateAccountRequest;
@@ -82,7 +84,9 @@ import lombok.experimental.SuperBuilder;
     @JsonSubTypes.Type(value = ReverseTransactionRequest.class, name = "cancel-transfer-money-loan"),
     @JsonSubTypes.Type(value = ValidateSamatRequest.class, name = "validate-samat"),
     @JsonSubTypes.Type(value = ReconStateRequest.class, name = "nova-loanfile-recon-state"),
-    @JsonSubTypes.Type(value = ReemitOutboxRequest.class, name = "nova-reemit-outbox")
+    @JsonSubTypes.Type(value = ReemitOutboxRequest.class, name = "nova-reemit-outbox"),
+    @JsonSubTypes.Type(value = BatchOpenAccountRequest.class, name = "nova-batch-open-accounts"),
+    @JsonSubTypes.Type(value = BatchCloseAccountRequest.class, name = "nova-batch-close-accounts")
 })
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
