@@ -48,7 +48,6 @@ class AddFacilityCollateralController extends BaseController {
                 .uid(getIdempotencyKey())
                 .build();
         var result = dispatcher.dispatch(command);
-        ;
         return responseFactory.mutated(result);
     }
 
@@ -65,7 +64,6 @@ class AddFacilityCollateralController extends BaseController {
                 .collateralSerials(request.collateralSerials())
                 .build();
         var result = dispatcher.dispatch(command);
-        ;
         return responseFactory.mutated(result);
     }
 }

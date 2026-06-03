@@ -44,21 +44,14 @@ class IssueFacilityContractController extends BaseController {
             @Parameter(description = "جزئیات صدور قرارداد تسهیلات", required = true) @RequestBody
                     IssueFacilityContractRequest request) {
 
-        String branchCode = authenticationContextHolder
-                .branchCode()
-                .orElseThrow(() -> new IllegalStateException("Branch code missing in security context"));
-
-        String userId = authenticationContextHolder.userId().orElse("SYSTEM");
-
-        String ip = authenticationContextHolder.ipAddress().orElse("0.0.0.0");
         Map<String, String> metadata = request.metadata() == null ? Map.of() : request.metadata();
         var command = IssueFacilityContractCommand.builder()
                 .uid(getIdempotencyKey())
                 .version(request.version())
                 .loanFacilityId(facilityId)
-                .branchCode(branchCode)
-                .userId(userId)
-                .terminalIp(ip)
+                .branchCode(authenticationContextHolder.branchCode().orElseThrow())
+                .userId(authenticationContextHolder.userIdOrThrow())
+                .terminalIp(authenticationContextHolder.ipAddress().orElseThrow())
                 .terminalId(metadata.get("terminalId"))
                 .terminalType(metadata.get("terminalType"))
                 .channel(metadata.get("channel"))

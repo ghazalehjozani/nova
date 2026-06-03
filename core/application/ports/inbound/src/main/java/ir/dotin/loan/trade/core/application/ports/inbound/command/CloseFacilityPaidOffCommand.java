@@ -9,6 +9,9 @@ import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.pangaea.dispatcher.api.command.Command;
 
+import lombok.Builder;
+
+@Builder(toBuilder = true)
 public record CloseFacilityPaidOffCommand(
         UUID uid,
         Long version,

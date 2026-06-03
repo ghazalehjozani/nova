@@ -79,7 +79,7 @@ class IrregularProgressiveDisbursementController extends BaseController {
                                 .sequenceNumber(spec.sequenceNumber())
                                 .dueDate(spec.dueDate())
                                 .principalAmount(
-                                        spec.interestAmount() != null ? new AmountDto(spec.principalAmount()) : null)
+                                        spec.principalAmount() != null ? new AmountDto(spec.principalAmount()) : null)
                                 .interestAmount(
                                         spec.interestAmount() != null ? new AmountDto(spec.interestAmount()) : null)
                                 .build())

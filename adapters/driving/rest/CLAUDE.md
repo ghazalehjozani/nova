@@ -82,6 +82,27 @@ public ResponseEntity<BaseResponse<TradeFacilityQueryDto>> getById(@PathVariable
 
 Query DTOs (`TradeFacilityQueryDto`, `LoanFacilityQueryResult`, …) come from `core/application/query` and are returned as-is — no remapping at the REST boundary. If a field needs renaming for the wire, add it in the query module; do not introduce REST-only response DTOs here.
 
+## REST contract (SWA-101)
+
+Company standard **SWA-101 v1.2**. This adapter inherits the contract from the platform — the authoritative wire rules
+(headers, status mapping, envelope, idempotency) live in the pangaea `pangaea-spring-boot-starter-protocol-rest`
+CLAUDE.md. Nova-relevant points:
+
+- **URL naming:** logical path starts at `/v{major}` (`context-name` is added by the API Gateway — never here).
+  kebab-case (`loan-facilities`, `loan-types`), plural collections, **no verbs in paths** (RPC-action exception only
+  when resource-oriented design is not defensible, e.g. `/approve` on a facility), ≤3 sub-resource levels, camelCase
+  query params; pagination `cursor`+`size` (preferred) or `page`+`size`, `sortBy`+`order`.
+- **Headers are invisible in controllers:** never `@RequestHeader`; read via `BaseController` helpers (e.g.
+  `getIdempotencyKey()`) / the ambient `InvocationContext`. The platform `HeaderValidationFilter` enforces required
+  headers — commands need `Idempotency-Key` + `X-Correlation-ID` (UUIDs), all requests need `X-Request-DateTime` +
+  `Accept-Language`. Queries carry no idempotency/correlation requirement.
+- **Status / response shape:** commands → `201 Created` + `Location` (resource create) or `204 No Content` (mutate);
+  queries → `200 OK` + `BaseResponse<T>`. Let `CommandResponseFactory` / `BaseController` pick — don't hand-build
+  statuses or envelopes.
+- **Errors:** nova has **no** `@RestControllerAdvice`. The platform `GlobalExceptionHandler` produces the SWA-101
+  `ErrorResponse`; do not catch domain exceptions to remap them. **Success = empty `errorList []`**; a non-empty
+  `errorList` is always paired with a 4xx/5xx (never 2xx). No `RsCode` / `IsSuccess` (legacy ESB) anywhere.
+
 ## Dependency Rules (this module)
 
 - **May depend on:**

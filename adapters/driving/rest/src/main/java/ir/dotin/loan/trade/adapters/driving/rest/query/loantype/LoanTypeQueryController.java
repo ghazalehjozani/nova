@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.QueryDispatcher;
 import ir.dotin.platform.pangaea.protocol.api.response.BaseResponse;
 import ir.dotin.platform.pangaea.protocol.api.util.PagedResponseUtils;
+import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
 import ir.dotin.platform.pangaea.protocol.rest.pagination.CursorPaginationHelper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.query.loantype.dto.LoanTypeQueryResult;
@@ -31,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/v{version}/loan-types")
 @RequiredArgsConstructor
 @Tag(name = SwaggerConfig.TAG_LOAN_TYPE_QUERIES, description = "استعلام نوع تسهیلات")
-class LoanTypeQueryController {
+class LoanTypeQueryController extends BaseController {
 
     private final QueryDispatcher dispatcher;
 

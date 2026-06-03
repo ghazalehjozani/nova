@@ -18,7 +18,7 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.CloseFacilityP
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface CloseFacilityPaidOffRequestToCommandMapper {
 
-    @Mapping(target = "uid", source = "request.uid")
+    @Mapping(target = "uid", ignore = true)
     @Mapping(target = "version", source = "request.version")
     @Mapping(target = "applicationNumber", ignore = true)
     @Mapping(target = "transactionReference", ignore = true)

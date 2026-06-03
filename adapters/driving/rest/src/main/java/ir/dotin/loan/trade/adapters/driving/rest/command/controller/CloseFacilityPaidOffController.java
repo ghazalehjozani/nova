@@ -40,7 +40,9 @@ class CloseFacilityPaidOffController extends BaseController {
                     UUID facilityId,
             @Parameter(description = "جزئیات بستن تسهیلات پرداخت شده", required = true) @RequestBody
                     CloseFacilityPaidOffRequest request) {
-        var command = mapper.toCommand(facilityId, request);
+        var command = mapper.toCommand(facilityId, request).toBuilder()
+                .uid(getIdempotencyKey())
+                .build();
         var result = dispatcher.dispatch(command);
         return responseFactory.mutated(result);
     }
