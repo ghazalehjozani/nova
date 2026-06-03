@@ -33,10 +33,13 @@ public interface TradeLoanFacilityJpaRepository extends PersistentRepository<Tra
             SELECT t.id AS id, t.currentState AS currentState, COALESCE(t.modifiedAt, t.createdAt) AS modifiedAt
             FROM TradeLoanFacilityEntity t
             WHERE t.currentState NOT IN :terminalStates
+            AND COALESCE(t.modifiedAt, t.createdAt) <= :modifiedBefore
             ORDER BY COALESCE(t.modifiedAt, t.createdAt) ASC, t.id ASC
             """)
     List<FacilityReconStateProjection> pageNonTerminalFirst(
-            @Param("terminalStates") Collection<FacilityStatus> terminalStates, Limit limit);
+            @Param("terminalStates") Collection<FacilityStatus> terminalStates,
+            @Param("modifiedBefore") LocalDateTime modifiedBefore,
+            Limit limit);
 
     /**
      * Subsequent keyset page of non-terminal facilities for reconciliation, continuing strictly after the supplied
@@ -46,6 +49,7 @@ public interface TradeLoanFacilityJpaRepository extends PersistentRepository<Tra
             SELECT t.id AS id, t.currentState AS currentState, COALESCE(t.modifiedAt, t.createdAt) AS modifiedAt
             FROM TradeLoanFacilityEntity t
             WHERE t.currentState NOT IN :terminalStates
+            AND COALESCE(t.modifiedAt, t.createdAt) <= :modifiedBefore
             AND (COALESCE(t.modifiedAt, t.createdAt) > :afterModifiedAt
                  OR (COALESCE(t.modifiedAt, t.createdAt) = :afterModifiedAt AND t.id > :afterId))
             ORDER BY COALESCE(t.modifiedAt, t.createdAt) ASC, t.id ASC
@@ -54,6 +58,7 @@ public interface TradeLoanFacilityJpaRepository extends PersistentRepository<Tra
             @Param("terminalStates") Collection<FacilityStatus> terminalStates,
             @Param("afterModifiedAt") LocalDateTime afterModifiedAt,
             @Param("afterId") UUID afterId,
+            @Param("modifiedBefore") LocalDateTime modifiedBefore,
             Limit limit);
 
     /** Narrow projection lookup of a single facility's reconciliation row by id. */

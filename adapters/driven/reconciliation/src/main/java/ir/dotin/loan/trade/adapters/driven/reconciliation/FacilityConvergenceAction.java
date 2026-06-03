@@ -143,6 +143,15 @@ public class FacilityConvergenceAction implements ConvergenceAction {
                         : ConvergeOutcome.needsOperator("terminal-divergent");
             }
 
+            // Defense-in-depth (INV-15): re-assert the money gate locally on the freshly re-read status, so a
+            // money-moving facility (PARTIALLY/FULLY_DISBURSED — non-terminal, so it slips past the terminal check
+            // above) can never be auto-re-driven even if it reached converge() via an operator-forced path or the
+            // driver gate were ever loosened. tierFor() already gates it for the auto-sweep; this makes the
+            // irreversible-path gate locally enforced and refactor-proof.
+            if (FacilityReconMapping.isMoneyState(novaStatus)) {
+                return ConvergeOutcome.needsOperator("money-state");
+            }
+
             // (3) / (4) verdict-directed lever.
             return switch (divergence.verdict()) {
                 case ORPHAN, LAGGING -> convergeNovaToFcb(facilityId, facilityRows);
@@ -331,6 +340,10 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             return null;
         }
 
+        // Prefer re-driving a redrivable DEAD_LETTERED row; only escalate to NEEDS_OPERATOR if the full bounded scan
+        // found a correlated DEAD_LETTERED row that is NOT redrivable and no redrivable one. A correlated row that is
+        // not dead-lettered (e.g. already PROCESSED) must be skipped, never escalated (INV-7).
+        boolean sawNonRedrivableDeadLetter = false;
         UUID cursor = null;
         for (int page = 0; page < 50; page++) {
             InboxAdminPage deadLetters = inboxAdminPort.findDeadLetters(cursor, INBOX_SCAN_PAGE);
@@ -339,20 +352,20 @@ public class FacilityConvergenceAction implements ConvergenceAction {
                 if (corr == null || !facilityCorrelations.contains(corr)) {
                     continue;
                 }
-                if (!FacilityReconMapping.REDRIVABLE_INBOX_OPS.contains(item.messageType())) {
-                    return ConvergeOutcome.needsOperator("inbox-op-not-redrivable");
-                }
                 if (item.status() != InboxStatus.DEAD_LETTERED) {
                     continue;
                 }
-                return interpretInboxRetry(inboxAdminPort.manualRetry(item.id()));
+                if (FacilityReconMapping.REDRIVABLE_INBOX_OPS.contains(item.messageType())) {
+                    return interpretInboxRetry(inboxAdminPort.manualRetry(item.id()));
+                }
+                sawNonRedrivableDeadLetter = true;
             }
             if (!deadLetters.hasNext() || deadLetters.nextCursor() == null) {
                 break;
             }
             cursor = deadLetters.nextCursor();
         }
-        return null;
+        return sawNonRedrivableDeadLetter ? ConvergeOutcome.needsOperator("inbox-op-not-redrivable") : null;
     }
 
     private static ConvergeOutcome interpretInboxRetry(InboxManualRetryOutcome outcome) {

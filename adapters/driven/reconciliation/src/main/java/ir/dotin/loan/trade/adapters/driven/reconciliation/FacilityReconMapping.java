@@ -129,16 +129,21 @@ final class FacilityReconMapping {
         return FCB_LOAN_REVOKED.equals(fcbFileStatus);
     }
 
-    /** FCB inbox operation codes that are safe to re-drive on a DEAD_LETTERED Nova inbox row (INV-7). */
+    /**
+     * FCB inbox operation WIRE CODES that are safe to re-drive on a DEAD_LETTERED Nova inbox row (INV-7). The Nova
+     * inbox stores each handler's {@code supportedMessageType()}, which is {@code FcbEventOperationType.getCode()} —
+     * the dotted wire code, NOT the enum constant name — so this set MUST hold the dotted codes to match
+     * {@code item.messageType()}. The recon adapter is a driven adapter and must not depend on the driving-contract
+     * module where {@code FcbEventOperationType} lives, so the codes are mirrored here as literals; the guard test
+     * {@code RedrivableInboxOpsContractTest} asserts every entry resolves via {@code FcbEventOperationType.ofCode(...)}
+     * so a wire-code rename can never silently re-deaden this set.
+     */
     static final Set<String> REDRIVABLE_INBOX_OPS = Set.of(
-            "CANCEL_LOAN_FACILITY",
-            "INSTALLMENT_COLLECTION",
-            "CLOSE_PAID_OFF",
-            "COLLATERAL_UPDATE",
-            "LOAN_FACILITY_RESTRUCTURING",
-            "COMPENSATE_CANCEL_LOAN_FACILITY",
-            "COMPENSATE_INSTALLMENT_COLLECTION",
-            "COMPENSATE_CLOSE_PAID_OFF",
-            "COMPENSATE_COLLATERAL_UPDATE",
-            "COMPENSATE_LOAN_FACILITY_RESTRUCTURING");
+            "installment.collection",
+            "installment.collection.compensate",
+            "loanFacility.cancel",
+            "facility.close.paid.off",
+            "facility.cancel.close.paid.off",
+            "loanFacility.restructuring",
+            "collateral.update");
 }

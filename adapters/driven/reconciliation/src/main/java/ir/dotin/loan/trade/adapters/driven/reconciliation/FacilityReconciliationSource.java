@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.adapters.driven.reconciliation;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
@@ -40,6 +42,16 @@ public class FacilityReconciliationSource implements ReconciliationSource {
     @Value("${reconciliation.source-batch-size:200}")
     private int sourceBatchSize;
 
+    /**
+     * Detection-settling floor: a facility is not emitted for probing until it has been quiescent at least this long,
+     * so a just-created/just-modified facility whose forward event is still in the FCB corridor is not opened as a
+     * premature ORPHAN/LAGGING (early result). Bound from Consul KV {@code reconciliation.detection-settle} (default
+     * 3m); must comfortably exceed p99 create-to-FCB-apply latency. {@code @Value}-injected for the same
+     * module-direction reason as {@link #sourceBatchSize}.
+     */
+    @Value("${reconciliation.detection-settle:3m}")
+    private Duration detectionSettle;
+
     @Override
     public ReconciliationType type() {
         return TYPE;
@@ -48,8 +60,9 @@ public class FacilityReconciliationSource implements ReconciliationSource {
     @Override
     public KeyPage nextPage(@Nullable String cursor, int size) {
         // Cap the engine-requested size by the configured source page size (>=1 guards a misconfigured 0/negative).
-        int effectiveSize = Math.min(size, Math.max(1, sourceBatchSize));
-        List<FacilityReconRow> rows = readPort.pageNonTerminal(cursor, effectiveSize);
+        int effectiveSize = Math.clamp(sourceBatchSize, 1, size);
+        Instant settleCutoff = Instant.now().minus(detectionSettle);
+        List<FacilityReconRow> rows = readPort.pageNonTerminal(cursor, effectiveSize, settleCutoff);
         if (rows.isEmpty()) {
             return KeyPage.empty(TYPE);
         }
@@ -64,7 +77,7 @@ public class FacilityReconciliationSource implements ReconciliationSource {
             // partial page → no more keys this cycle
             next = Watermark.last();
         } else {
-            FacilityReconRow lastRow = rows.get(rows.size() - 1);
+            FacilityReconRow lastRow = rows.getLast();
             next = Watermark.at(encodeCursor(lastRow));
         }
         return new KeyPage(TYPE, keys, next);

@@ -65,6 +65,16 @@
             <artifactId>trade-loan-adapters-driven-persistence</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>trade-loan-adapters-driven-reconciliation</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>trade-loan-adapters-driving-contract</artifactId>
+            <scope>test</scope>
+        </dependency>
 <!--        <dependency>-->
 <!--            <groupId>ir.dotin.loan</groupId>-->
 <!--            <artifactId>trade-loan-adapters-driven-messaging</artifactId>-->

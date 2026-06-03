@@ -42,14 +42,18 @@ public class JpaFacilityReconReadAdapter implements FacilityReconReadPort {
     private final TradeLoanFacilityJpaRepository repository;
 
     @Override
-    public List<FacilityReconRow> pageNonTerminal(@Nullable String cursor, int size) {
+    public List<FacilityReconRow> pageNonTerminal(@Nullable String cursor, int size, Instant modifiedBefore) {
         Limit limit = Limit.of(Math.max(1, size));
+        // Match the UTC offset used by toEpochMs/decodeCursor so the settling cutoff is comparable to the stored
+        // (modifiedAt, createdAt) values without a clock-zone mismatch.
+        LocalDateTime settleCutoff = LocalDateTime.ofInstant(modifiedBefore, ZoneOffset.UTC);
         List<FacilityReconStateProjection> page;
         Cursor decoded = decodeCursor(cursor);
         if (decoded == null) {
-            page = repository.pageNonTerminalFirst(TERMINAL_STATES, limit);
+            page = repository.pageNonTerminalFirst(TERMINAL_STATES, settleCutoff, limit);
         } else {
-            page = repository.pageNonTerminalAfter(TERMINAL_STATES, decoded.modifiedAt(), decoded.id(), limit);
+            page = repository.pageNonTerminalAfter(
+                    TERMINAL_STATES, decoded.modifiedAt(), decoded.id(), settleCutoff, limit);
         }
         return page.stream().map(JpaFacilityReconReadAdapter::toRow).toList();
     }
