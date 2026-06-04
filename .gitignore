@@ -190,6 +190,9 @@ container/.env
 container/k8s/**/secret*.yml
 !container/k8s/**/sealed-secret*.yml
 /container/logs/
+*.p12
+*.jks
+*.keystore
 project-knowledge.xml
 /doc/.exports/
 /documents/c4/.structurizr/
