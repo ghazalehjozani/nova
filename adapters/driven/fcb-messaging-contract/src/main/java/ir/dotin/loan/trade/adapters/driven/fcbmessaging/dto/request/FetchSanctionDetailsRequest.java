@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
@@ -22,6 +23,7 @@ import lombok.extern.jackson.Jacksonized;
 public final class FetchSanctionDetailsRequest extends FcbKafkaBaseRequest {
 
     @Builder.Default
+    @JsonIgnore
     private String operationName = "fetch-sanction-details";
 
     private final String sanctionSerial;

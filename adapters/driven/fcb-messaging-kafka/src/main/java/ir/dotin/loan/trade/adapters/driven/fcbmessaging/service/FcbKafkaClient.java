@@ -3,8 +3,7 @@ package ir.dotin.loan.trade.adapters.driven.fcbmessaging.service;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.time.ZonedDateTime;
-import java.util.Date;
+import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -54,7 +53,9 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.util.HostResolver;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 
 import io.micrometer.tracing.Tracer;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 @Component(FcbKafkaClient.KAFKA_FCB_CLIENT)
 @ConditionalOnProperty(prefix = "nova.fcb.kafka", name = "enabled", matchIfMissing = true)
@@ -64,7 +65,6 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
     public static final String KAFKA_FCB_CLIENT = "kafkaFcbRequestReplyClient";
 
     private static final String HEADER_OPERATION_TYPE = "X-Operation-Type";
-    private static final String HEADER_EVENT_UID = "eventUid";
     private static final String HEADER_IDEMPOTENCY_KEY = "Idempotency-Key";
     private static final String HEADER_REQUEST_DATETIME = "X-Request-DateTime";
     private static final String HEADER_AUTHORIZATION = "Authorization";
@@ -73,7 +73,6 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
     private static final String HEADER_REQUEST_DEADLINE_EPOCH_MS = "X-Request-Deadline-Epoch-Ms";
     private static final String HEADER_HOST = "X-Host";
     private static final String ACCEPT_LANGUAGE_FA = "fa";
-    private static final String PRODUCER_CODE = "NOVA";
 
     /**
      * Floor for a per-attempt reply timeout. If less than this remains in the total wall-time budget, the attempt is
@@ -177,14 +176,8 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
     }
 
     private Result<FcbKafkaBaseResponse> doSendAndReceive(FcbKafkaBaseRequest request, Duration timeout) {
-        request.setProducerCode(PRODUCER_CODE);
-        // eventUid is generated ONCE here and reused as request key + eventUid header + Idempotency-Key on every retry
-        // attempt, so retries are idempotent on the FCB side. Do not move this into the retry body.
-        request.setEventUid(UUID.randomUUID().toString());
-        request.setDateTime(Date.from(ZonedDateTime.now().toInstant()));
-        request.setVersion(1);
-
         String operationType = request.getOperationName();
+        String idempotencyKey = UUID.randomUUID().toString();
 
         // Bound the TOTAL wall-clock time of this request/reply call (initial attempt + all retries + backoff). The
         // RetryTemplate would otherwise re-pay the full per-call reply timeout on every attempt (~3x worst case). We
@@ -209,7 +202,8 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
                 ActorEnvelope envelope = buildEnvelope();
                 String signedEnvelope = envelopeSigner.sign(envelope);
                 Duration attemptTimeout = remainingAttemptTimeout(timeout, startNanos, budgetNanos);
-                return executeRequest(request, operationType, attemptTimeout, bearerValue, signedEnvelope);
+                return executeRequest(
+                        request, operationType, idempotencyKey, attemptTimeout, bearerValue, signedEnvelope);
             });
         } catch (RetryException e) {
             return mapRetryException(e, operationType, timeout);
@@ -293,6 +287,7 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
     private Result<FcbKafkaBaseResponse> executeRequest(
             FcbKafkaBaseRequest request,
             String operationType,
+            String idempotencyKey,
             Duration timeout,
             String bearerValue,
             String signedEnvelope)
@@ -315,7 +310,7 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
         boolean success = false;
         try {
             Result<FcbKafkaBaseResponse> result =
-                    doExecuteRequest(request, operationType, timeout, bearerValue, signedEnvelope);
+                    doExecuteRequest(request, operationType, idempotencyKey, timeout, bearerValue, signedEnvelope);
             success = result.isSuccess();
             return result;
         } catch (Exception t) {
@@ -339,6 +334,7 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
     private Result<FcbKafkaBaseResponse> doExecuteRequest(
             FcbKafkaBaseRequest request,
             String operationType,
+            String idempotencyKey,
             Duration timeout,
             String bearerValue,
             String signedEnvelope)
@@ -355,16 +351,14 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
         long deadlineMs = timestampMs + timeout.toMillis();
 
         ProducerRecord<String, byte[]> record =
-                new ProducerRecord<>(properties.getRequestTopic(), request.getEventUid(), requestBytes);
+                new ProducerRecord<>(properties.getRequestTopic(), idempotencyKey, requestBytes);
 
         record.headers()
                 .add(new RecordHeader(HEADER_OPERATION_TYPE, operationType.getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader(HEADER_EVENT_UID, request.getEventUid().getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader(
-                        HEADER_IDEMPOTENCY_KEY, request.getEventUid().getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader(HEADER_IDEMPOTENCY_KEY, idempotencyKey.getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(
                         HEADER_REQUEST_DATETIME,
-                        request.getDateTime().toInstant().toString().getBytes(StandardCharsets.UTF_8)))
+                        Instant.ofEpochMilli(timestampMs).toString().getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(HEADER_AUTHORIZATION, bearerValue.getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(HEADER_ACCEPT_LANGUAGE, ACCEPT_LANGUAGE_FA.getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(
@@ -408,7 +402,7 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
 
         FcbKafkaBaseResponse response;
         try {
-            response = objectMapper.readValue(replyRecord.value(), FcbKafkaBaseResponse.class);
+            response = deserializeResponse(replyRecord.value(), operationType);
         } catch (tools.jackson.core.JacksonException e) {
             throw new FcbSerializationException("Failed to deserialize response: " + e.getMessage());
         }
@@ -427,6 +421,16 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
         }
 
         return Result.success(response);
+    }
+
+    private FcbKafkaBaseResponse deserializeResponse(byte[] payload, String operationType) {
+        JsonNode root = objectMapper.readTree(payload);
+        if (root instanceof ObjectNode object
+                && (object.get("operationName") == null
+                        || object.get("operationName").isNull())) {
+            object.put("operationName", operationType);
+        }
+        return objectMapper.treeToValue(root, FcbKafkaBaseResponse.class);
     }
 
     private String buildBearerHeader(OAuth2TokenResponse token) {

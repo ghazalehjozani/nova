@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jspecify.annotations.Nullable;
 
@@ -25,6 +26,7 @@ import lombok.extern.jackson.Jacksonized;
 public final class BatchCloseAccountRequest extends FcbKafkaBaseRequest {
 
     @Builder.Default
+    @JsonIgnore
     private String operationName = "nova-batch-close-accounts";
 
     private final List<Item> items;

@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
@@ -24,6 +25,7 @@ import lombok.extern.jackson.Jacksonized;
 public final class OpenAccountRequest extends FcbKafkaBaseRequest {
 
     @Builder.Default
+    @JsonIgnore
     private String operationName = "nova-open-account";
 
     private final String transactionId;

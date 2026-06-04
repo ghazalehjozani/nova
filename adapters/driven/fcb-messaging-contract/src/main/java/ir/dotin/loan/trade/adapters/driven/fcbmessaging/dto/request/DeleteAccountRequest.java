@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.jspecify.annotations.Nullable;
 
@@ -23,6 +24,7 @@ import lombok.extern.jackson.Jacksonized;
 public final class DeleteAccountRequest extends FcbKafkaBaseRequest {
 
     @Builder.Default
+    @JsonIgnore
     private String operationName = "nova-delete-account";
 
     private final @Nullable String accountNumber;

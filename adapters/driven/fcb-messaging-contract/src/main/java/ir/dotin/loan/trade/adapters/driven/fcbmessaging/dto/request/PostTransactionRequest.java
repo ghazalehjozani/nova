@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
@@ -30,6 +31,7 @@ public class PostTransactionRequest extends FcbKafkaBaseRequest implements Seria
     private static final long serialVersionUID = 1L;
 
     @Builder.Default
+    @JsonIgnore
     private String operationName = "issue-general-document";
 
     private final String transactionId;

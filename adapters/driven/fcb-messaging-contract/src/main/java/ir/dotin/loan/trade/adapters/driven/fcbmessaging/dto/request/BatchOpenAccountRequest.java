@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
@@ -24,6 +25,7 @@ import lombok.extern.jackson.Jacksonized;
 public final class BatchOpenAccountRequest extends FcbKafkaBaseRequest {
 
     @Builder.Default
+    @JsonIgnore
     private String operationName = "nova-batch-open-accounts";
 
     private final List<Item> items;
