@@ -18,6 +18,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.Tr
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.service.approvefacility.factory.ApprovalStrategyFactory;
 import ir.dotin.loan.trade.core.application.service.approvefacility.strategy.ApprovalStrategy;
+import ir.dotin.loan.trade.core.application.service.shared.authz.BranchAccessValidator;
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class ApproveFacilityCommandHandler implements CommandHandler<ApproveFaci
 
     private final TradeLoanFacilityRepository loanFacilityRepository;
     private final TradeLoanArrangementRepository loanArrangementRepository;
+    private final BranchAccessValidator branchAccessValidator;
     private final ApprovalStrategyFactory strategyFactory;
 
     @Override
@@ -49,6 +51,9 @@ public class ApproveFacilityCommandHandler implements CommandHandler<ApproveFaci
                         loanFacilityRepository.findById(loanFacilityId),
                         () -> FailureCause.notFound(Notification.ofError(
                                 TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())))
+                .flatMap(facility -> branchAccessValidator
+                        .verifyCallerCoversFacility(command.branchCode(), facility)
+                        .map(ignored -> facility))
                 .flatMap(facility -> Result.fromOptional(
                                 loanArrangementRepository.findById(facility.getLoanArrangementId()),
                                 () -> FailureCause.notFound(Notification.ofError(

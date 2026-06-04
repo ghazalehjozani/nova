@@ -15,6 +15,7 @@ import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.QueryDispatcher;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
 import ir.dotin.platform.pangaea.protocol.rest.controller.CommandResponseFactory;
+import ir.dotin.platform.pangaea.security.api.AuthenticationContextHolder;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.ApproveFacilityRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.ApproveFacilityRequestToCommandMapper;
@@ -38,6 +39,7 @@ class ApproveFacilityController extends BaseController {
     private final CommandDispatcher dispatcher;
     private final QueryDispatcher queryDispatcher;
     private final ApproveFacilityRequestToCommandMapper mapper;
+    private final AuthenticationContextHolder authenticationContextHolder;
     private final CommandResponseFactory responseFactory;
 
     @PostMapping(version = "1+")
@@ -52,8 +54,8 @@ class ApproveFacilityController extends BaseController {
             @Parameter(description = "جزئیات تصویب مصوبه", required = true) @RequestBody
                     ApproveFacilityRequest request) {
 
-        var command = mapper.toCommand(facilityId, null, request).toBuilder()
-                .uid(getIdempotencyKey())
+        var command = mapper.toCommand(facilityId, getIdempotencyKey(), null, request).toBuilder()
+                .branchCode(authenticationContextHolder.branchCode().orElseThrow())
                 .build();
         var result = dispatcher.dispatch(command);
         return responseFactory.mutated(result);
@@ -74,17 +76,18 @@ class ApproveFacilityController extends BaseController {
                     String sanctionSerial,
             @Parameter(description = "جزئیات تصویب مصوبه", required = true) @RequestBody
                     ApproveFacilityRequest request) {
-        ApproveFacilityCommand command = mapper.toCommand(facilityId, sanctionSerial, request);
+        ApproveFacilityCommand command =
+                mapper.toCommand(facilityId, getIdempotencyKey(), sanctionSerial, request).toBuilder()
+                        .branchCode(authenticationContextHolder.branchCode().orElseThrow())
+                        .build();
 
         // Tx-free pre-flight (manual path only): the single FCB sanction-details read runs with no pooled connection
         // held (LN-59412). A failure throws FailureCauseException, which the platform advice maps to HTTP — do not
         // catch it. The resolved details are threaded onto the command so the transactional handler issues no FCB call.
         FacilityApprovalPreflightResult preflight = queryDispatcher.dispatch(new PrepareFacilityApprovalQuery(command));
 
-        ApproveFacilityCommand preparedCommand = command.toBuilder()
-                .uid(getIdempotencyKey())
-                .sanctionDetails(preflight.sanctionDetails())
-                .build();
+        ApproveFacilityCommand preparedCommand =
+                command.toBuilder().sanctionDetails(preflight.sanctionDetails()).build();
 
         var result = dispatcher.dispatch(preparedCommand);
         return responseFactory.mutated(result);

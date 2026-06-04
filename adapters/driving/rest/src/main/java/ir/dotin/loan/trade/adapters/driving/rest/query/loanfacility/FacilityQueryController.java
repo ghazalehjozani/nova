@@ -20,11 +20,13 @@ import ir.dotin.platform.pangaea.protocol.api.response.BaseResponse;
 import ir.dotin.platform.pangaea.protocol.api.util.PagedResponseUtils;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
 import ir.dotin.platform.pangaea.protocol.rest.pagination.CursorPaginationHelper;
+import ir.dotin.platform.pangaea.security.api.AuthenticationContextHolder;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.query.loanfacility.dto.LoanFacilityQueryResult;
 import ir.dotin.loan.trade.core.application.query.loanfacility.dto.TradeFacilityQueryDto;
 import ir.dotin.loan.trade.core.application.query.loanfacility.request.FindAllLoanFacilitiesQuery;
+import ir.dotin.loan.trade.core.application.query.loanfacility.request.GetFacilityByApplicationNumberQuery;
 import ir.dotin.loan.trade.core.application.query.loanfacility.request.GetFacilityByIdQuery;
 import ir.dotin.loan.trade.core.application.query.loanfacility.request.LoanFacilityFilterQuery;
 
@@ -39,12 +41,26 @@ import lombok.RequiredArgsConstructor;
 class FacilityQueryController extends BaseController {
 
     private final QueryDispatcher queryDispatcher;
+    private final AuthenticationContextHolder authenticationContextHolder;
 
     @GetMapping(value = "/{facilityId}", version = "1")
     @Operation(summary = "دریافت تسهیلات بر اساس شناسه")
     public ResponseEntity<BaseResponse<TradeFacilityQueryDto>> getById(@PathVariable UUID facilityId) {
-        GetFacilityByIdQuery query =
-                GetFacilityByIdQuery.builder().loanFacilityId(facilityId).build();
+        GetFacilityByIdQuery query = GetFacilityByIdQuery.builder()
+                .loanFacilityId(facilityId)
+                .callerBranchCode(authenticationContextHolder.branchCode().orElseThrow())
+                .build();
+        return ResponseEntity.ok(BaseResponse.success(queryDispatcher.dispatch(query)));
+    }
+
+    @GetMapping(params = "application_number", version = "1")
+    @Operation(summary = "دریافت تسهیلات بر اساس شماره درخواست")
+    public ResponseEntity<BaseResponse<TradeFacilityQueryDto>> getByApplicationNumber(
+            @RequestParam("application_number") String applicationNumber) {
+        GetFacilityByApplicationNumberQuery query = GetFacilityByApplicationNumberQuery.builder()
+                .applicationNumber(applicationNumber)
+                .callerBranchCode(authenticationContextHolder.branchCode().orElseThrow())
+                .build();
         return ResponseEntity.ok(BaseResponse.success(queryDispatcher.dispatch(query)));
     }
 

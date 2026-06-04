@@ -14,6 +14,7 @@ import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.SubmitFacilityForApprovalCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
+import ir.dotin.loan.trade.core.application.service.shared.authz.BranchAccessValidator;
 import ir.dotin.loan.trade.core.application.service.submitfacilityforapproval.i18n.SubmitFacilityForApprovalErrorCodes;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilityService;
@@ -27,6 +28,7 @@ public class SubmitFacilityForApprovalCommandHandler implements CommandHandler<S
     private static final Logger log = LoggerFactory.getLogger(SubmitFacilityForApprovalCommandHandler.class);
 
     private final TradeLoanFacilityRepository repository;
+    private final BranchAccessValidator branchAccessValidator;
     private final TradeLoanFacilityService domainService;
 
     @Override
@@ -36,6 +38,9 @@ public class SubmitFacilityForApprovalCommandHandler implements CommandHandler<S
                         repository.findById(loanFacilityId),
                         () -> FailureCause.notFound(Notification.ofError(
                                 SubmitFacilityForApprovalErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId())))
+                .flatMap(facility -> branchAccessValidator
+                        .verifyCallerCoversFacility(command.branchCode(), facility)
+                        .map(ignored -> facility))
                 .flatMap(facility -> domainService.submitForApproval(facility).map(v -> facility))
                 .onSuccess(facility -> {
                     repository.save(facility, command.version());

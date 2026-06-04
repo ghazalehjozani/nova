@@ -12,10 +12,10 @@ import ir.dotin.loan.trade.core.application.ports.inbound.command.ApproveFacilit
 public class ApproveFacilityRequestToCommandMapper {
 
     public ApproveFacilityCommand toCommand(
-            UUID facilityId, @Nullable String sanctionSerial, ApproveFacilityRequest request) {
-        // uid assigned by the dispatcher upon dispatch; sanctionDetails is system-populated post pre-flight
-        // (PrepareFacilityApprovalQuery) and threaded onto the command by the controller — null here intentionally.
+            UUID facilityId, UUID idempotencyKey, @Nullable String sanctionSerial, ApproveFacilityRequest request) {
+        // uid is the request's idempotency key (never randomly generated); branchCode is stamped by the controller from
+        // the auth context; sanctionDetails is system-populated post pre-flight (PrepareFacilityApprovalQuery).
         return new ApproveFacilityCommand(
-                UUID.randomUUID(), request.version(), facilityId, sanctionSerial, request.confirmType(), null);
+                idempotencyKey, request.version(), facilityId, null, sanctionSerial, request.confirmType(), null);
     }
 }

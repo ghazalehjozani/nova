@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
 import ir.dotin.platform.pangaea.protocol.rest.controller.CommandResponseFactory;
+import ir.dotin.platform.pangaea.security.api.AuthenticationContextHolder;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.SubmitFacilityForApprovalRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
@@ -31,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 class SubmitFacilityForApprovalController extends BaseController {
 
     private final CommandDispatcher dispatcher;
+    private final AuthenticationContextHolder authenticationContextHolder;
     private final CommandResponseFactory responseFactory;
 
     @PostMapping(version = "1+")
@@ -41,8 +43,12 @@ class SubmitFacilityForApprovalController extends BaseController {
                     SubmitFacilityForApprovalRequest request) {
         // Idempotency/correlation key comes from the filter-populated InvocationContext (X-Correlation-ID /
         // Idempotency-Key), never from the request body, so it is consistent across every command controller.
-        var command = new SubmitFacilityForApprovalCommand(
-                getIdempotencyKey(), request.version().longValue(), facilityId);
+        var command = SubmitFacilityForApprovalCommand.builder()
+                .uid(getIdempotencyKey())
+                .version(request.version().longValue())
+                .loanFacilityId(facilityId)
+                .branchCode(authenticationContextHolder.branchCode().orElseThrow())
+                .build();
         var result = dispatcher.dispatch(command);
         return responseFactory.mutated(result);
     }

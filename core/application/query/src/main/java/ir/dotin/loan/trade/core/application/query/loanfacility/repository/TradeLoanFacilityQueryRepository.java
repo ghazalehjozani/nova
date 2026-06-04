@@ -13,6 +13,8 @@ public interface TradeLoanFacilityQueryRepository {
 
     Optional<TradeFacilityQueryDto> findById(UUID id);
 
+    Optional<TradeFacilityQueryDto> findByApplicationNumber(String applicationNumber);
+
     CursorPage<TradeFacilityQueryDto> findAll(CursorPageRequest pageRequest);
 
     OffsetPage<TradeFacilityQueryDto> findByFilter(LoanFacilityFilterQuery filter);

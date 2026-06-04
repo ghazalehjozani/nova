@@ -75,6 +75,11 @@ public class JpaFacilityQueryAdapter extends AbstractCursorPagingAdapter<TradeLo
     }
 
     @Override
+    public Optional<TradeFacilityQueryDto> findByApplicationNumber(String applicationNumber) {
+        return repository.findByApplicationNumber(applicationNumber).map(mapper::toQueryModel);
+    }
+
+    @Override
     public OffsetPage<TradeFacilityQueryDto> findByFilter(LoanFacilityFilterQuery filter) {
         Sort sort = buildSort(filter.offsetPageRequest());
         Pageable pageable = PageRequest.of(

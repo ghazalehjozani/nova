@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.platform.pangaea.dispatcher.api.command.Command;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 
@@ -18,6 +20,7 @@ public record AddFacilityCollateralCommand(
         @NotNull UUID uid,
         @NotNull Long version,
         @NotNull UUID loanFacilityId,
+        @Nullable String branchCode,
         @NotEmpty List<CollateralDto> collaterals)
         implements Command {
 

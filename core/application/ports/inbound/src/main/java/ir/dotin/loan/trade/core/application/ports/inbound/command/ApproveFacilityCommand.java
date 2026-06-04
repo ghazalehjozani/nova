@@ -14,6 +14,7 @@ public record ApproveFacilityCommand(
         @NotNull UUID uid,
         @NotNull Long version,
         @NotNull UUID loanFacilityId,
+        @Nullable String branchCode,
         @Nullable String sanctionSerial,
         @NotNull String confirmType,
 

@@ -21,6 +21,7 @@ import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.query.loantype.dto.LoanTypeQueryResult;
 import ir.dotin.loan.trade.core.application.query.loantype.dto.TradeLoanTypeQueryDto;
 import ir.dotin.loan.trade.core.application.query.loantype.request.FindAllLoanTypesQuery;
+import ir.dotin.loan.trade.core.application.query.loantype.request.GetLoanTypeByCodeQuery;
 import ir.dotin.loan.trade.core.application.query.loantype.request.GetLoanTypeByIdQuery;
 import ir.dotin.loan.trade.core.application.query.loantype.request.LoanTypeFilterQuery;
 
@@ -41,6 +42,14 @@ class LoanTypeQueryController extends BaseController {
     public ResponseEntity<BaseResponse<TradeLoanTypeQueryDto>> getById(@PathVariable UUID loanTypeId) {
         GetLoanTypeByIdQuery query =
                 GetLoanTypeByIdQuery.builder().loanTypeId(loanTypeId).build();
+        return ResponseEntity.ok(BaseResponse.success(dispatcher.dispatch(query)));
+    }
+
+    @GetMapping(params = "code", version = "1")
+    @Operation(summary = "دریافت نوع تسهیلات بر اساس کد")
+    public ResponseEntity<BaseResponse<TradeLoanTypeQueryDto>> getByCode(@RequestParam String code) {
+        GetLoanTypeByCodeQuery query =
+                GetLoanTypeByCodeQuery.builder().code(code).build();
         return ResponseEntity.ok(BaseResponse.success(dispatcher.dispatch(query)));
     }
 

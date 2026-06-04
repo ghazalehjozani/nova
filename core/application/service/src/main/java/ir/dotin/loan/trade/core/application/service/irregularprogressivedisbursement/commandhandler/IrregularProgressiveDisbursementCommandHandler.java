@@ -47,6 +47,7 @@ import ir.dotin.loan.trade.core.application.service.irregularprogressivedisburse
 import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.mapper.IrregularProgressiveDisbursementInstallmentSchedulePlanMapper;
 import ir.dotin.loan.trade.core.application.service.shared.account.AccountResolutionService;
 import ir.dotin.loan.trade.core.application.service.shared.account.LoanTopicResolver;
+import ir.dotin.loan.trade.core.application.service.shared.authz.BranchAccessValidator;
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.application.service.shared.util.DocumentMetadataUtils;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
@@ -79,6 +80,7 @@ public class IrregularProgressiveDisbursementCommandHandler
     private final DisbursementStrategyProvider strategyProvider;
     private final LoanTopicResolver loanTopicResolver;
     private final AccountResolutionService accountResolutionService;
+    private final BranchAccessValidator branchAccessValidator;
     private final Clock clock;
 
     @Override
@@ -88,6 +90,9 @@ public class IrregularProgressiveDisbursementCommandHandler
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
 
         return loadFacility(loanFacilityId)
+                .flatMap(facility -> branchAccessValidator
+                        .verifyCallerCoversFacility(command.branchCode(), facility)
+                        .map(ignored -> facility))
                 .flatMap(this::validateDisbursementMethod)
                 .flatMap(facility -> loadDependencies(facility, command)
                         .flatMap(context -> validateAll(facility, context)

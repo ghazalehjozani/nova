@@ -242,10 +242,11 @@ public class FullLoanFacilityLifecycleSaga implements SagaDefinition<FullLoanFac
         var data = ctx.getSagaData();
         log.info("Submitting facility {} for approval", data.facilityId());
 
-        var command = new SubmitFacilityForApprovalCommand(
-                data.correlationId(),
-                1L,
-                requireNonNull(data.facilityId(), "facilityId must be set by origination step"));
+        var command = SubmitFacilityForApprovalCommand.builder()
+                .uid(data.correlationId())
+                .version(1L)
+                .loanFacilityId(requireNonNull(data.facilityId(), "facilityId must be set by origination step"))
+                .build();
 
         try {
             ExecutionResult<List<DomainEvent<?>>> result = dispatcher.dispatch(command);

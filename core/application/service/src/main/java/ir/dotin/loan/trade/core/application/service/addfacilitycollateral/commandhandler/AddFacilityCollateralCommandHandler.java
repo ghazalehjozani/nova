@@ -27,6 +27,7 @@ import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.compon
 import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.mapper.AddFacilityCollateralCommandMapper;
 import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.saga.AddFacilityCollateralInput;
 import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.saga.AddFacilityCollateralSagaData;
+import ir.dotin.loan.trade.core.application.service.shared.authz.BranchAccessValidator;
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCollateralAdded;
 
@@ -49,6 +50,7 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
 
     private final AddFacilityCollateralCommandMapper mapper;
     private final AddFacilityCollateralDependencyLoader dependencyLoader;
+    private final BranchAccessValidator branchAccessValidator;
     private final SagaOrchestrator<AddFacilityCollateralSagaData> sagaOrchestrator;
 
     @Override
@@ -63,6 +65,13 @@ public class AddFacilityCollateralCommandHandler implements CommandHandler<AddFa
             return Result.failure(contextResult.err().orElseThrow());
         }
         CollateralValidationContext context = contextResult.unwrap();
+
+        Result<Unit> branchResult =
+                branchAccessValidator.verifyCallerCoversFacility(command.branchCode(), context.facility());
+        if (branchResult.isFailure()) {
+            return Result.failure(branchResult.err().orElseThrow());
+        }
+
         Money requiredAmount = Objects.requireNonNull(context).requiredCollateralAmount();
 
         Result<Unit> adequacyResult = validateCollateralAdequacy(collaterals, context);

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
 import ir.dotin.platform.pangaea.protocol.rest.controller.CommandResponseFactory;
+import ir.dotin.platform.pangaea.security.api.AuthenticationContextHolder;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.RejectFacilityRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.RejectFacilityCommand;
@@ -26,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 class RejectFacilityController extends BaseController {
 
     private final CommandDispatcher dispatcher;
+    private final AuthenticationContextHolder authenticationContextHolder;
     private final CommandResponseFactory responseFactory;
 
     @PostMapping(version = "1+")
@@ -45,6 +47,7 @@ class RejectFacilityController extends BaseController {
                 .uid(getIdempotencyKey())
                 .version(request.version().longValue())
                 .loanFacilityId(facilityId)
+                .branchCode(authenticationContextHolder.branchCode().orElseThrow())
                 .build();
         var result = dispatcher.dispatch(command);
         return responseFactory.mutated(result);

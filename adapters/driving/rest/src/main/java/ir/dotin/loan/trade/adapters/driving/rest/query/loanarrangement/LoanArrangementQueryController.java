@@ -23,6 +23,7 @@ import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.query.loanarrangement.dto.LoanArrangementQueryResult;
 import ir.dotin.loan.trade.core.application.query.loanarrangement.dto.TradeLoanArrangementQueryDto;
 import ir.dotin.loan.trade.core.application.query.loanarrangement.request.FindAllLoanArrangementsQuery;
+import ir.dotin.loan.trade.core.application.query.loanarrangement.request.GetLoanArrangementByCodeQuery;
 import ir.dotin.loan.trade.core.application.query.loanarrangement.request.GetLoanArrangementByIdQuery;
 import ir.dotin.loan.trade.core.application.query.loanarrangement.request.LoanTypeArrangementFilterQuery;
 
@@ -44,6 +45,14 @@ class LoanArrangementQueryController extends BaseController {
         GetLoanArrangementByIdQuery query = GetLoanArrangementByIdQuery.builder()
                 .loanArrangementId(loanArrangementId)
                 .build();
+        return ResponseEntity.ok(BaseResponse.success(dispatcher.dispatch(query)));
+    }
+
+    @GetMapping(params = "code", version = "1")
+    @Operation(summary = "دریافت شرایط تسهیلات بر اساس کد")
+    public ResponseEntity<BaseResponse<TradeLoanArrangementQueryDto>> getByCode(@RequestParam String code) {
+        GetLoanArrangementByCodeQuery query =
+                GetLoanArrangementByCodeQuery.builder().code(code).build();
         return ResponseEntity.ok(BaseResponse.success(dispatcher.dispatch(query)));
     }
 

@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import ir.dotin.platform.pangaea.dispatcher.api.query.QueryResult;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
@@ -12,10 +14,10 @@ import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 public record TradeLoanTypeQueryDto(
         UUID id,
         Long version,
-        LocalDateTime createdAt,
-        LocalDateTime modifiedAt,
-        String createdBy,
-        String modifiedBy,
+        @JsonIgnore LocalDateTime createdAt,
+        @JsonIgnore LocalDateTime modifiedAt,
+        @JsonIgnore String createdBy,
+        @JsonIgnore String modifiedBy,
         LoanTypeCodeEmbDto code,
         TitleEmbDto title,
         EditReasonEmbDto editReason,

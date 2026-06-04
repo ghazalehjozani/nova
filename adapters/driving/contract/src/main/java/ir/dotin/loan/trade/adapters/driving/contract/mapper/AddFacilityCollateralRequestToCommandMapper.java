@@ -20,6 +20,7 @@ public interface AddFacilityCollateralRequestToCommandMapper {
 
     @Mapping(target = "version", source = "request.version")
     @Mapping(target = "uid", ignore = true)
+    @Mapping(target = "branchCode", ignore = true)
     AddFacilityCollateralCommand toCommand(UUID loanFacilityId, AddFacilityCollateralRequest request);
 
     AddFacilityCollateralCommand.CollateralDto mapCollateralDto(AddFacilityCollateralRequest.CollateralDto dto);

@@ -15,6 +15,7 @@ import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.RejectFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
+import ir.dotin.loan.trade.core.application.service.shared.authz.BranchAccessValidator;
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
@@ -27,6 +28,7 @@ public class RejectFacilityCommandHandler implements CommandHandler<RejectFacili
     private static final Logger log = LoggerFactory.getLogger(RejectFacilityCommandHandler.class);
 
     private final TradeLoanFacilityRepository repository;
+    private final BranchAccessValidator branchAccessValidator;
     private final Clock clock;
 
     @Override
@@ -36,6 +38,9 @@ public class RejectFacilityCommandHandler implements CommandHandler<RejectFacili
                         repository.findById(loanFacilityId),
                         () -> FailureCause.notFound(Notification.ofError(
                                 TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.uid())))
+                .flatMap(facility -> branchAccessValidator
+                        .verifyCallerCoversFacility(command.branchCode(), facility)
+                        .map(ignored -> facility))
                 .onSuccess(facility -> {
                     facility.reject(clock);
                     repository.save(facility, command.version());

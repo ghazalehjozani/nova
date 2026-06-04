@@ -74,6 +74,11 @@ public class JpaTradeLoanTypeQueryAdapter
     }
 
     @Override
+    public Optional<TradeLoanTypeQueryDto> findByCode(String code) {
+        return repository.getByCode_Value(code).map(mapper::toQueryModel);
+    }
+
+    @Override
     public OffsetPage<TradeLoanTypeQueryDto> findByFilter(LoanTypeFilterQuery filter) {
         Sort sort = buildSort(filter.offsetPageRequest());
         Pageable pageable = PageRequest.of(
