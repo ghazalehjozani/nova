@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.messaging.kafka.consumer.handler;
 
+import java.util.UUID;
+
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +19,6 @@ import ir.dotin.loan.trade.adapters.driving.contract.mapper.CancelFacilityReques
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CancelFacilityCommand;
 
 import lombok.RequiredArgsConstructor;
-import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 @Component
@@ -33,13 +34,11 @@ public class CancelLoanFacilityHandler implements InboxMessageHandler {
     @Override
     public @NonNull HandlerResult handle(@NonNull InboundMessage message) {
         {
-            String eventUid = "unknown";
+            UUID eventUid = message.headers().eventUid();
             CancelFacilityRequest cancelFacilityMessage;
 
             try {
-                JsonNode rootNode = objectMapper.readTree(message.payload());
-                eventUid = rootNode.path("eventUid").asString(eventUid);
-                cancelFacilityMessage = objectMapper.treeToValue(rootNode, CancelFacilityRequest.class);
+                cancelFacilityMessage = objectMapper.readValue(message.payload(), CancelFacilityRequest.class);
             } catch (Exception e) {
                 LOG.error("Malformed CANCELLATION_LOAN_FACILITY message [eventUid={}]", eventUid, e);
                 return HandlerResult.permanent(e);
@@ -68,7 +67,7 @@ public class CancelLoanFacilityHandler implements InboxMessageHandler {
                 return HandlerResult.permanent(e);
             } catch (Exception e) {
                 LOG.error(
-                        "Failed to process INSTALLMENT_COLLECTION [eventUid={}, fileNumber={}]",
+                        "Failed to process CANCELLATION_LOAN_FACILITY [eventUid={}, fileNumber={}]",
                         eventUid,
                         cancelFacilityMessage.fileNumber(),
                         e);

@@ -20,7 +20,6 @@ import ir.dotin.loan.trade.adapters.driving.contract.dto.FcbEventOperationType;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateCloseFacilityPaidOffCommand;
 
 import lombok.RequiredArgsConstructor;
-import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 @Component
@@ -40,12 +39,15 @@ public class CloseFacilityPaidOffCompensateHandler implements InboxMessageHandle
     @Override
     public @NonNull HandlerResult handle(@NonNull InboundMessage message) {
         ClosePaidOffCompensateMessage compensateMessage;
-        String eventUid = "Unknown";
+        UUID eventUid = message.headers().eventUid();
+
+        if (eventUid == null) {
+            LOG.error("Missing eventUid header on CLOSE_FACILITY_PAID_OFF_COMPENSATE message");
+            return HandlerResult.permanent(new IllegalStateException("Missing eventUid header"));
+        }
 
         try {
-            JsonNode rootNode = objectMapper.readTree(message.payload());
-            eventUid = rootNode.path("eventUid").asString(eventUid);
-            compensateMessage = objectMapper.treeToValue(rootNode, ClosePaidOffCompensateMessage.class);
+            compensateMessage = objectMapper.readValue(message.payload(), ClosePaidOffCompensateMessage.class);
         } catch (Exception e) {
             LOG.error("Malformed CLOSE_FACILITY_PAID_OFF_COMPENSATE message [eventUid={}]", eventUid, e);
             return HandlerResult.permanent(e);
@@ -58,7 +60,7 @@ public class CloseFacilityPaidOffCompensateHandler implements InboxMessageHandle
 
         try {
             CompensateCloseFacilityPaidOffCommand command = CompensateCloseFacilityPaidOffCommand.builder()
-                    .uid(UUID.fromString(compensateMessage.eventUid()))
+                    .uid(eventUid)
                     .applicationNumber(compensateMessage.fileNumber())
                     .transactionReference(compensateMessage.transactionNumber())
                     .build();

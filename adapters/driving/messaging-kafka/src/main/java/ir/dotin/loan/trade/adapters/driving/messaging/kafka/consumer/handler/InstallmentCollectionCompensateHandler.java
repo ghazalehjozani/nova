@@ -20,7 +20,6 @@ import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentCollectionCo
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateCollectInstallmentCommand;
 
 import lombok.RequiredArgsConstructor;
-import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 @Component
@@ -40,12 +39,15 @@ public class InstallmentCollectionCompensateHandler implements InboxMessageHandl
     @Override
     public @NonNull HandlerResult handle(@NonNull InboundMessage message) {
         InstallmentCollectionCompensateMessage compensateMessage;
-        String eventUid = "Unknown";
+        UUID eventUid = message.headers().eventUid();
+
+        if (eventUid == null) {
+            LOG.error("Missing eventUid header on INSTALLMENT_COLLECTION_COMPENSATE message");
+            return HandlerResult.permanent(new IllegalStateException("Missing eventUid header"));
+        }
 
         try {
-            JsonNode rootNode = objectMapper.readTree(message.payload());
-            eventUid = rootNode.path("eventUid").asString(eventUid);
-            compensateMessage = objectMapper.treeToValue(rootNode, InstallmentCollectionCompensateMessage.class);
+            compensateMessage = objectMapper.readValue(message.payload(), InstallmentCollectionCompensateMessage.class);
         } catch (Exception e) {
             LOG.error("Malformed INSTALLMENT_COLLECTION_COMPENSATE message [eventUid={}]", eventUid, e);
             return HandlerResult.permanent(e);
@@ -58,7 +60,7 @@ public class InstallmentCollectionCompensateHandler implements InboxMessageHandl
 
         try {
             CompensateCollectInstallmentCommand command = CompensateCollectInstallmentCommand.builder()
-                    .uid(UUID.fromString(compensateMessage.eventUid()))
+                    .uid(eventUid)
                     .applicationNumber(compensateMessage.fileNumber())
                     .transactionNumbers(compensateMessage.transactionNumbers())
                     .build();

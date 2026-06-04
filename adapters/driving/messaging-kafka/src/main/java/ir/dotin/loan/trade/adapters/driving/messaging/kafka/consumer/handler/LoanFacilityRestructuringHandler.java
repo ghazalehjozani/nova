@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.messaging.kafka.consumer.handler;
 
+import java.util.UUID;
+
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +20,6 @@ import ir.dotin.loan.trade.adapters.driving.contract.mapper.LoanFacilityRestruct
 import ir.dotin.loan.trade.core.application.ports.inbound.command.LoanFacilityRestructuringCommand;
 
 import lombok.RequiredArgsConstructor;
-import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 @Component
@@ -39,13 +40,11 @@ public class LoanFacilityRestructuringHandler implements InboxMessageHandler {
 
     @Override
     public @NonNull HandlerResult handle(@NonNull InboundMessage message) {
-        String eventUid = "unknown";
+        UUID eventUid = message.headers().eventUid();
         LoanFacilityRestructuringMessage restructuringMessage;
 
         try {
-            JsonNode rootNode = objectMapper.readTree(message.payload());
-            eventUid = rootNode.path("eventUid").asString(eventUid);
-            restructuringMessage = objectMapper.treeToValue(rootNode, LoanFacilityRestructuringMessage.class);
+            restructuringMessage = objectMapper.readValue(message.payload(), LoanFacilityRestructuringMessage.class);
         } catch (Exception e) {
             LOG.error("Malformed facility restructuring message [eventUid={}]", eventUid, e);
             return HandlerResult.permanent(e);

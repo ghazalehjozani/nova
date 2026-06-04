@@ -21,11 +21,10 @@ public abstract class AbstractMessagingE2E extends AbstractE2E {
         byte[] value = objectMapper.writeValueAsBytes(payload);
         ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, key, value);
 
-        String idempotencyKey = UUID.randomUUID().toString();
+        String eventUid = UUID.randomUUID().toString();
         record.headers()
-                .add(new RecordHeader("Idempotency-Key", idempotencyKey.getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader(
-                        "X-Request-DateTime", Instant.now().toString().getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader("eventUid", eventUid.getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader("occurredAt", Instant.now().toString().getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader("Accept-Language", "fa".getBytes(StandardCharsets.UTF_8)));
 
         if (authToken != null && !authToken.isBlank()) {

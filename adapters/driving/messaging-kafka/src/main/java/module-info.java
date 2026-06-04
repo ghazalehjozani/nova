@@ -28,6 +28,7 @@ open module ir.dotin.loan.trade.adapters.driving.messaging.kafka {
     requires org.jspecify;
     requires static lombok;
     requires org.slf4j;
+    requires spring.boot.autoconfigure;
 
     exports ir.dotin.loan.trade.adapters.driving.messaging.kafka.consumer;
     exports ir.dotin.loan.trade.adapters.driving.messaging.kafka.consumer.handler;

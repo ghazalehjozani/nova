@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.messaging.kafka.consumer.handler;
 
+import java.util.UUID;
+
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +19,6 @@ import ir.dotin.loan.trade.adapters.driving.contract.mapper.CollateralUpdateMess
 import ir.dotin.loan.trade.core.application.ports.inbound.command.UpdateCollateralCommand;
 
 import lombok.RequiredArgsConstructor;
-import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 @Component
@@ -37,13 +38,11 @@ public class CollateralUpdateHandler implements InboxMessageHandler {
 
     @Override
     public @NonNull HandlerResult handle(@NonNull InboundMessage message) {
-        String eventUid = "unknown";
+        UUID eventUid = message.headers().eventUid();
         CollateralUpdateMessage collateralUpdateMessage;
 
         try {
-            JsonNode rootNode = objectMapper.readTree(message.payload());
-            eventUid = rootNode.path("eventUid").asString(eventUid);
-            collateralUpdateMessage = objectMapper.treeToValue(rootNode, CollateralUpdateMessage.class);
+            collateralUpdateMessage = objectMapper.readValue(message.payload(), CollateralUpdateMessage.class);
         } catch (Exception e) {
             LOG.error("Malformed COLLATERAL_UPDATE message [eventUid={}]", eventUid, e);
             return HandlerResult.permanent(e);

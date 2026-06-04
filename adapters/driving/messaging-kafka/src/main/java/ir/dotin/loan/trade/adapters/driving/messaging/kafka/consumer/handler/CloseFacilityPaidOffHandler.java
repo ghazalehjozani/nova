@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.messaging.kafka.consumer.handler;
 
+import java.util.UUID;
+
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +19,6 @@ import ir.dotin.loan.trade.adapters.driving.contract.mapper.ClosePaidLoanFacilit
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CloseFacilityPaidOffCommand;
 
 import lombok.RequiredArgsConstructor;
-import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 @Component
@@ -37,13 +38,11 @@ public class CloseFacilityPaidOffHandler implements InboxMessageHandler {
 
     @Override
     public @NonNull HandlerResult handle(@NonNull InboundMessage message) {
-        String eventUid = "unknown";
+        UUID eventUid = message.headers().eventUid();
         ClosePaidLoanFacilityMessage paymentMessage;
 
         try {
-            JsonNode rootNode = objectMapper.readTree(message.payload());
-            eventUid = rootNode.path("eventUid").asString(eventUid);
-            paymentMessage = objectMapper.treeToValue(rootNode, ClosePaidLoanFacilityMessage.class);
+            paymentMessage = objectMapper.readValue(message.payload(), ClosePaidLoanFacilityMessage.class);
         } catch (Exception e) {
             LOG.error("Malformed CLOSE_PAID_OFF message [eventUid={}]", eventUid, e);
             return HandlerResult.permanent(e);

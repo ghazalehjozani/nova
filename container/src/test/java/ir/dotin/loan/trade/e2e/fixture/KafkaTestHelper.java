@@ -27,18 +27,17 @@ public final class KafkaTestHelper {
         ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, key, payload);
 
         record.headers()
-                .add(new RecordHeader(
-                        "Idempotency-Key", UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader(
-                        "X-Request-DateTime", Instant.now().toString().getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader("Accept-Language", "fa".getBytes(StandardCharsets.UTF_8)));
+                .add(new RecordHeader("Accept-Language", "fa".getBytes(StandardCharsets.UTF_8)))
+                .add(new RecordHeader("occurredAt", Instant.now().toString().getBytes(StandardCharsets.UTF_8)));
 
         if (authToken != null && !authToken.isBlank()) {
             record.headers().add(new RecordHeader("Authorization", authToken.getBytes(StandardCharsets.UTF_8)));
         }
 
         if (operationType != null) {
-            record.headers().add(new RecordHeader("operationType", operationType.getBytes(StandardCharsets.UTF_8)));
+            record.headers()
+                    .add(new RecordHeader("operationType", operationType.getBytes(StandardCharsets.UTF_8)))
+                    .add(new RecordHeader("eventType", operationType.getBytes(StandardCharsets.UTF_8)));
         }
 
         if (eventUid != null) {

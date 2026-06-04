@@ -21,14 +21,6 @@ import io.micrometer.tracing.Tracer;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
-/**
- * @deprecated superseded by the Artemis FCB corridor. This FCB→Nova installment-operation event ingress is disabled by
- *     default: the bean only registers when {@code nova.driving.messaging-kafka.fcb-event.enabled=true} (absent ⇒ OFF),
- *     so by default its {@code @KafkaListener} never joins the consumer group. FCB→Nova facility lifecycle events still
- *     flow over Kafka on the FCB side; this driving-adapter consumer is not part of the active Nova topology. Class
- *     kept for reference / a deliberate re-enable; do not build new flows on it.
- */
-@Deprecated
 @Component
 @ConditionalOnProperty(prefix = "nova.driving.messaging-kafka.fcb-event", name = "enabled", matchIfMissing = false)
 public class FcbEventConsumer {
@@ -71,7 +63,7 @@ public class FcbEventConsumer {
             JsonNode rootNode = objectMapper.readTree(inboundMessage.payload());
 
             String operationType = resolveOperationType(rootNode, consumerRecord);
-            String eventUid = resolveEventUid(rootNode, consumerRecord);
+            String eventUid = resolveEventUid(consumerRecord);
 
             FcbEventOperationType opType;
             try {
@@ -108,14 +100,10 @@ public class FcbEventConsumer {
     }
 
     @Nullable
-    private String resolveEventUid(JsonNode rootNode, ConsumerRecord<String, byte[]> record) {
+    private String resolveEventUid(ConsumerRecord<String, byte[]> record) {
         String fromHeader = extractHeader(record, "eventUid");
         if (fromHeader != null && !fromHeader.isEmpty()) {
             return fromHeader;
-        }
-        JsonNode node = rootNode.get("eventUid");
-        if (node != null && !node.isNull()) {
-            return node.asString();
         }
         return null;
     }
