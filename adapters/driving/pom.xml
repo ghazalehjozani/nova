@@ -20,7 +20,6 @@
     <module>rest</module>
     <module>mcp</module>
     <module>messaging-kafka</module>
-    <module>messaging-activemq</module>
   </modules>
 
   <dependencies>

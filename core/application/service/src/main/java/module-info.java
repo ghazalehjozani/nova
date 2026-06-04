@@ -58,11 +58,6 @@ open module ir.dotin.loan.trade.core.application.service {
     exports ir.dotin.loan.trade.core.application.service.defineloanarrangement.mapper;
     exports ir.dotin.loan.trade.core.application.service.defineloantype.commandhandler;
     exports ir.dotin.loan.trade.core.application.service.defineloantype.mapper;
-    exports ir.dotin.loan.trade.core.application.service.fullloanlifecycle.commandhandler;
-    exports ir.dotin.loan.trade.core.application.service.fullloanlifecycle.compensation.commandhandler;
-    exports ir.dotin.loan.trade.core.application.service.fullloanlifecycle.configuration;
-    exports ir.dotin.loan.trade.core.application.service.fullloanlifecycle.mapper;
-    exports ir.dotin.loan.trade.core.application.service.fullloanlifecycle.saga;
     exports ir.dotin.loan.trade.core.application.service.interaction;
     exports ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.commandhandler;
     exports ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.compensation.commandhandler;

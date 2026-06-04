@@ -38,9 +38,7 @@ import lombok.RequiredArgsConstructor;
  *
  * <p>Performs the read-only pre-saga work — dependency loading, per-collateral adequacy and total-value checks — then
  * delegates the distributed reserve + add sequence to {@code AddFacilityCollateralSaga} via the
- * {@link SagaOrchestrator}. The {@code AddFacilityCollateralCommand} contract is unchanged, so the full-lifecycle saga
- * and REST controller keep dispatching it as before; this handler now triggers an internal sub-saga (mirrors
- * {@code IssueFacilityContractCommandHandler}).
+ * {@link SagaOrchestrator} (mirrors {@code IssueFacilityContractCommandHandler}).
  */
 @Service
 @RequiredArgsConstructor

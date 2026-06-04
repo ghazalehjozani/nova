@@ -116,12 +116,6 @@
             </dependency>
             <dependency>
                 <groupId>ir.dotin.loan</groupId>
-                <artifactId>trade-loan-adapters-driving-messaging-activemq</artifactId>
-                <version>${loan.trade-loan.version}</version>
-                <scope>compile</scope>
-            </dependency>
-            <dependency>
-                <groupId>ir.dotin.loan</groupId>
                 <artifactId>trade-loan-adapters-driven-fcb-messaging-contract</artifactId>
                 <version>${loan.trade-loan.version}</version>
                 <scope>compile</scope>

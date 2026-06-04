@@ -95,7 +95,6 @@ public class SwaggerConfig extends BaseSwaggerConfig {
     public static final String TAG_FACILITY_CLOSURE_PAID_OFF = TAG_LOAN_FACILITIES_COMMANDS;
     public static final String TAG_FACILITY_CLOSURE_DEFAULTED = TAG_LOAN_FACILITIES_COMMANDS;
     public static final String TAG_FACILITY_CANCELLATION = TAG_LOAN_FACILITIES_COMMANDS;
-    public static final String TAG_FULL_LIFECYCLE = TAG_LOAN_FACILITIES_COMMANDS;
     public static final String TAG_FACILITY_COMPENSATION = TAG_LOAN_FACILITIES_COMMANDS;
     public static final String TAG_FACILITY_QUERIES = TAG_LOAN_FACILITIES_QUERIES;
     public static final String TAG_INSTALLMENT_SCHEDULE_QUERIES = TAG_INSTALLMENT_SCHEDULES_QUERIES;
@@ -289,9 +288,6 @@ public class SwaggerConfig extends BaseSwaggerConfig {
         }
         if (path.contains("/close")) {
             return 6;
-        }
-        if (path.contains("/full-lifecycle")) {
-            return 7;
         }
         if (path.contains("/compensate")) {
             return 8;
