@@ -202,6 +202,20 @@ per-environment ceiling, verification steps).
 
 ---
 
+## 4c. سبک نگارش فارسی (Persian Writing Style)
+
+Applies to ALL Persian prose docs: runbooks, deployment/ops guides, ADR & context-map prose.
+
+- اصطلاحات فنی رایج را به شکل آشنا بنویس — ترانویسی (پایپلاین، کانفیگ) یا انگلیسی (env, Consul, Kafka,
+  broker, secret, pipeline, deploy, pod). از calque و فارسی‌سازی اجباری بپرهیز؛ ترجمهٔ تحت‌اللفظی فهم را
+  سخت می‌کند.
+- لحن: حرفه‌ای و خوانا — نه خیلی خودمونی، نه خیلی خشک و غیرقابل‌فهم. جمله‌ها روان باشند، طوری که یک
+  هم‌تیمی واقعاً آن را بخواند.
+- identifierها، env varها، نام فایل، config key و log line انگلیسی/ASCII و عیناً بمانند.
+- بلوک‌های کد و دیاگرام در `<div dir="ltr">` پیچیده شوند (رندر LTR)؛ بدنهٔ فایل RTL می‌ماند.
+
+---
+
 ## 5. DDD Context Map
 
 ### File Location
