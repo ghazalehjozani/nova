@@ -1,5 +1,8 @@
 package ir.dotin.loan.trade.adapters.driven.reconciliation;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -32,7 +35,9 @@ import ir.dotin.platform.pangaea.reconciliation.api.model.AutonomyTier;
 import ir.dotin.platform.pangaea.reconciliation.api.model.ConvergeOutcome;
 import ir.dotin.platform.pangaea.reconciliation.api.model.Divergence;
 import ir.dotin.platform.pangaea.reconciliation.api.model.OpaqueKey;
+import ir.dotin.platform.pangaea.reconciliation.api.model.OperatorDossier;
 import ir.dotin.platform.pangaea.reconciliation.api.model.ReconciliationType;
+import ir.dotin.platform.pangaea.reconciliation.api.model.RootCause;
 import ir.dotin.platform.pangaea.reconciliation.api.spi.ConvergenceAction;
 import ir.dotin.platform.pangaea.saga.api.admin.SagaAdminPort;
 import ir.dotin.platform.pangaea.saga.api.admin.SagaInstanceView;
@@ -80,6 +85,11 @@ public class FacilityConvergenceAction implements ConvergenceAction {
     private final SagaAdminPort sagaAdminPort;
     private final FcbReconStatePort fcbReconStatePort;
     private final FacilityReconReadPort readPort;
+    private final ReconciliationSourceProperties properties;
+    private final Clock clock;
+
+    private final FacilityRootCauseClassifier classifier = new FacilityRootCauseClassifier();
+    private final FacilityDossierBuilder dossierBuilder = new FacilityDossierBuilder();
 
     @Override
     public ReconciliationType type() {
@@ -172,6 +182,7 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             return ConvergeOutcome.retryLater("nova-missing");
         }
         FacilityStatus novaStatus = novaRow.get().status();
+        long novaModifiedAtEpochMs = novaRow.get().modifiedAtEpochMs();
         if (FacilityReconMapping.isTerminal(novaStatus)) {
             Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId);
             if (fcbResult.isFailure()) {
@@ -184,7 +195,7 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             boolean aligned = !fcb.exists() || FacilityReconMapping.isFcbRevoked(fcb.fileStatus());
             return aligned
                     ? ConvergeOutcome.notApplicable("terminal-aligned")
-                    : ConvergeOutcome.needsOperator("terminal-divergent");
+                    : classifyDivergence(novaStatus, fcb, facilityRows, correlationIds, novaModifiedAtEpochMs);
         }
 
         // Defense-in-depth (INV-15): re-assert the money gate locally on the freshly re-read status, so a money-moving
@@ -192,7 +203,15 @@ public class FacilityConvergenceAction implements ConvergenceAction {
         // auto-re-driven
         // even if it reached here via an operator-forced path or the driver gate were ever loosened.
         if (FacilityReconMapping.isMoneyState(novaStatus)) {
-            return ConvergeOutcome.needsOperator("money-state");
+            Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId);
+            if (fcbResult.isFailure()) {
+                return ConvergeOutcome.retryLater("fcb-unreachable");
+            }
+            ReconLoanFileState fcb = fcbResult.unwrap();
+            if (!fcb.reachable()) {
+                return ConvergeOutcome.retryLater("fcb-unreachable");
+            }
+            return classifyDivergence(novaStatus, fcb, facilityRows, correlationIds, novaModifiedAtEpochMs);
         }
 
         // (3) / (4) verdict-directed lever.
@@ -200,6 +219,47 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             case ORPHAN, LAGGING -> convergeNovaToFcb(facilityId, facilityRows);
             case ALIGNED, UNKNOWN -> ConvergeOutcome.notApplicable("not-divergent");
         };
+    }
+
+    // ════════════════════════════════════════ Divergence classification ════════════════════════════════════════
+
+    private ConvergeOutcome classifyDivergence(
+            FacilityStatus novaStatus,
+            ReconLoanFileState fcb,
+            List<OutboxRecordView> facilityRows,
+            List<String> correlationIds,
+            long novaModifiedAtEpochMs) {
+        List<OutboxRecordView> forwardRows = facilityRows.stream()
+                .filter(row -> FacilityReconMapping.fcbRankForEvent(row.eventType()) >= 0)
+                .toList();
+        boolean graceElapsed = !fcb.exists()
+                && novaModifiedAtEpochMs > 0
+                && Duration.between(Instant.ofEpochMilli(novaModifiedAtEpochMs), clock.instant())
+                                .compareTo(properties.getGraceWindow())
+                        > 0;
+
+        FacilityClassification classification = classifier.classify(new FacilityRootCauseClassifier.ClassifierInput(
+                fcb.exists(), fcb.fileStatus(), novaStatus, forwardRows, graceElapsed, null));
+
+        if (classification.rootCause() == RootCause.FCB_LAG) {
+            return ConvergeOutcome.retryLater("fcb-lag");
+        }
+
+        String sagaState = sagaStateSummary(correlationIds);
+        OperatorDossier dossier =
+                dossierBuilder.build(novaStatus, fcb, forwardRows, sagaState, graceElapsed, classification, null);
+        return ConvergeOutcome.needsOperator(dossier);
+    }
+
+    private String sagaStateSummary(List<String> correlationIds) {
+        List<String> states = correlationIds.stream()
+                .flatMap(corrId -> sagaAdminPort.findByCorrelation(corrId).stream())
+                .map(SagaInstanceView::state)
+                .filter(Objects::nonNull)
+                .map(SagaState::name)
+                .distinct()
+                .toList();
+        return states.isEmpty() ? "none" : String.join(",", states);
     }
 
     // ════════════════════════════════════════ (1) Saga guard fallback ════════════════════════════════════════
