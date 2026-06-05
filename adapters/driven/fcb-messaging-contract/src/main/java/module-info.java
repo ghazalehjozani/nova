@@ -22,6 +22,7 @@ open module ir.dotin.loan.trade.adapters.driven.fcbmessaging.contract {
     requires spring.context;
     requires spring.beans;
     requires spring.core;
+    requires spring.boot;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.databind;
     requires micrometer.core;

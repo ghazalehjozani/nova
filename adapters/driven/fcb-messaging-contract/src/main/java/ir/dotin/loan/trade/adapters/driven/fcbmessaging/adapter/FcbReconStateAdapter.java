@@ -1,14 +1,13 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.adapter;
 
-import java.time.Duration;
 import java.util.function.Function;
 
 import org.jspecify.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.client.FcbRequestReplyClient;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbReconStateProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbBaseRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbBaseResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ReconStateResponse;
@@ -38,14 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 public class FcbReconStateAdapter implements FcbReconStatePort {
 
     private final FcbRequestReplyClient kafkaClient;
-
-    /**
-     * Per-call timeout for the recon-state / re-emit request-reply, bound from Consul KV
-     * {@code reconciliation.recon-state-timeout} (defaults to 10s). Field-injected via {@code @Value} because this
-     * adapter module cannot see the container-side reconciliation properties class (hexagonal module direction).
-     */
-    @Value("${reconciliation.recon-state-timeout:10s}")
-    private Duration reconStateTimeout;
+    private final FcbReconStateProperties properties;
 
     @Override
     @Timed(
@@ -90,7 +82,7 @@ public class FcbReconStateAdapter implements FcbReconStatePort {
     private <R extends FcbBaseResponse, T> Result<T> sendAndMap(
             FcbBaseRequest request, Class<R> responseType, Function<R, Result<T>> responseMapper) {
 
-        Result<FcbBaseResponse> result = kafkaClient.sendAndReceive(request, reconStateTimeout);
+        Result<FcbBaseResponse> result = kafkaClient.sendAndReceive(request, properties.getReconStateTimeout());
         if (result.isFailure()) {
             return Result.failure(result.err().orElseThrow());
         }

@@ -21,6 +21,7 @@ open module ir.dotin.loan.trade.adapters.driven.reconciliation {
     requires ir.dotin.platform.pangaea.saga.api;
     requires spring.context;
     requires spring.beans;
+    requires spring.boot;
     requires org.slf4j;
     requires org.jspecify;
     requires static lombok;
