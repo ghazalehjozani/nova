@@ -24,7 +24,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
-public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
+public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient, AutoCloseable {
 
     private static final String PROP_OPERATION_TYPE = "operationType";
     private static final String PROP_IDEMPOTENCY_KEY = "idempotencyKey";
@@ -57,7 +57,7 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
         long startNanos = System.nanoTime();
         boolean success = false;
         try {
-            byte[] body = objectMapper.writeValueAsBytes(request);
+            byte[] body = serializeRequest(request);
             Reply reply = client.destination(properties.getRequestAddress())
                     .header(PROP_OPERATION_TYPE, op)
                     .header(PROP_IDEMPOTENCY_KEY, UUID.randomUUID().toString())
@@ -76,6 +76,14 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
             return Result.failure(Notification.ofError(CoreBankingErrors.FCB_SERIALIZATION_ERROR, e.getErrorMessage()));
         } finally {
             recordLatency(op, startNanos, success);
+        }
+    }
+
+    private byte[] serializeRequest(FcbBaseRequest request) {
+        try {
+            return objectMapper.writeValueAsBytes(request);
+        } catch (JacksonException e) {
+            throw new FcbSerializationException("Failed to serialize request: " + e.getMessage());
         }
     }
 
@@ -122,5 +130,15 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
                 .tag(TAG_OUTCOME, success ? OUTCOME_SUCCESS : OUTCOME_FAILURE)
                 .register(meterRegistry)
                 .record(Duration.ofNanos(System.nanoTime() - startNanos));
+    }
+
+    @Override
+    public void close() {
+        if (client instanceof AutoCloseable closeable) {
+            try {
+                closeable.close();
+            } catch (Exception ignored) {
+            }
+        }
     }
 }
