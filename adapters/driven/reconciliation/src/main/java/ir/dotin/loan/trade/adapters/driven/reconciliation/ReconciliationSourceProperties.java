@@ -21,4 +21,10 @@ public class ReconciliationSourceProperties {
      * whose Nova row last changed less than this long ago is still assumed to be in-flight toward FCB.
      */
     private Duration graceWindow = Duration.ofMinutes(15);
+
+    /**
+     * Nova-side execution gate for operator-approved REPLAY_FORWARD remediation (dark launch). Even when the management
+     * remediation flag admits the request, the replay does not execute unless this is true.
+     */
+    private boolean replayForwardEnabled = false;
 }

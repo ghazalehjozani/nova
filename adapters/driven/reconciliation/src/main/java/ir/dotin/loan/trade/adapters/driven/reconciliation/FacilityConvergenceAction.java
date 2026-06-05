@@ -31,13 +31,17 @@ import ir.dotin.platform.pangaea.outbox.api.admin.OutboxAdminPort.OutboxAdminCri
 import ir.dotin.platform.pangaea.outbox.api.admin.OutboxAdminPort.OutboxRepublishCommand;
 import ir.dotin.platform.pangaea.outbox.api.admin.OutboxRecordPage;
 import ir.dotin.platform.pangaea.outbox.api.admin.OutboxRecordView;
+import ir.dotin.platform.pangaea.reconciliation.api.admin.RemediateOutcome;
 import ir.dotin.platform.pangaea.reconciliation.api.model.AutonomyTier;
+import ir.dotin.platform.pangaea.reconciliation.api.model.Confidence;
 import ir.dotin.platform.pangaea.reconciliation.api.model.ConvergeOutcome;
 import ir.dotin.platform.pangaea.reconciliation.api.model.Divergence;
 import ir.dotin.platform.pangaea.reconciliation.api.model.OpaqueKey;
 import ir.dotin.platform.pangaea.reconciliation.api.model.OperatorDossier;
 import ir.dotin.platform.pangaea.reconciliation.api.model.ReconciliationType;
+import ir.dotin.platform.pangaea.reconciliation.api.model.RemediationKind;
 import ir.dotin.platform.pangaea.reconciliation.api.model.RootCause;
+import ir.dotin.platform.pangaea.reconciliation.api.model.SafetyTier;
 import ir.dotin.platform.pangaea.reconciliation.api.spi.ConvergenceAction;
 import ir.dotin.platform.pangaea.saga.api.admin.SagaAdminPort;
 import ir.dotin.platform.pangaea.saga.api.admin.SagaInstanceView;
@@ -219,6 +223,114 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             case ORPHAN, LAGGING -> convergeNovaToFcb(facilityId, facilityRows);
             case ALIGNED, UNKNOWN -> ConvergeOutcome.notApplicable("not-divergent");
         };
+    }
+
+    // ════════════════════════════════════════ Remediate (operator-approved REPLAY_FORWARD) ════════════════════════
+
+    @Override
+    public RemediateOutcome remediate(
+            OpaqueKey key,
+            Divergence divergence,
+            RemediationKind approvedKind,
+            String dossierHash,
+            String operatorReason,
+            @Nullable String correlationId) {
+        if (!properties.isReplayForwardEnabled()) {
+            return RemediateOutcome.notEnabled("replay-forward-disabled");
+        }
+        if (approvedKind != RemediationKind.REPLAY_FORWARD) {
+            return RemediateOutcome.rejected("unsupported-kind:" + approvedKind);
+        }
+
+        String facilityId = key.value();
+        try {
+            List<OutboxRecordView> facilityRows = loadFacilityOutboxRows(facilityId);
+            List<String> correlationIds = facilityRows.stream()
+                    .map(OutboxRecordView::correlationId)
+                    .filter(Objects::nonNull)
+                    .map(UUID::toString)
+                    .distinct()
+                    .toList();
+
+            String guardKey = correlationIds.isEmpty()
+                    ? (correlationId == null ? facilityId : correlationId)
+                    : correlationIds.get(0);
+
+            return sagaAdminPort
+                    .runUnderCorrelationGuard(
+                            guardKey, () -> remediateGuardedBody(facilityId, facilityRows, correlationIds, dossierHash))
+                    .orElse(RemediateOutcome.rejected("saga-locked"));
+        } catch (RuntimeException e) {
+            log.warn("remediate() failed for facility {} — rejected", facilityId, e);
+            return RemediateOutcome.rejected("remediate-exception");
+        }
+    }
+
+    private RemediateOutcome remediateGuardedBody(
+            String facilityId, List<OutboxRecordView> facilityRows, List<String> correlationIds, String dossierHash) {
+        for (String corrId : correlationIds) {
+            for (SagaInstanceView saga : sagaAdminPort.findByCorrelation(corrId)) {
+                SagaState state = saga.state();
+                if (state == SagaState.PENDING || state == SagaState.EXECUTING || state == SagaState.COMPENSATING) {
+                    return RemediateOutcome.rejected("saga-in-flight");
+                }
+            }
+        }
+
+        Optional<FacilityReconRow> novaRow = readPort.findById(facilityId);
+        if (novaRow.isEmpty()) {
+            return RemediateOutcome.rejected("nova-missing");
+        }
+        FacilityStatus novaStatus = novaRow.get().status();
+        long novaModifiedAtEpochMs = novaRow.get().modifiedAtEpochMs();
+
+        Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId);
+        if (fcbResult.isFailure()) {
+            return RemediateOutcome.rejected("fcb-unreachable");
+        }
+        ReconLoanFileState fcb = fcbResult.unwrap();
+        if (!fcb.reachable()) {
+            return RemediateOutcome.rejected("fcb-unreachable");
+        }
+
+        List<OutboxRecordView> forwardRows = facilityRows.stream()
+                .filter(row -> FacilityReconMapping.fcbRankForEvent(row.eventType()) >= 0)
+                .toList();
+        boolean graceElapsed = !fcb.exists()
+                && novaModifiedAtEpochMs > 0
+                && Duration.between(Instant.ofEpochMilli(novaModifiedAtEpochMs), clock.instant())
+                                .compareTo(properties.getGraceWindow())
+                        > 0;
+
+        FacilityClassification c = classifier.classify(new FacilityRootCauseClassifier.ClassifierInput(
+                fcb.exists(), fcb.fileStatus(), novaStatus, forwardRows, graceElapsed, null));
+
+        String fresh = FacilityDossierBuilder.computeHash(
+                c.rootCause(), fcb, novaStatus, forwardRows, graceElapsed, c.recommendedKind());
+        if (!fresh.equals(dossierHash)) {
+            return RemediateOutcome.dossierStale("state-moved");
+        }
+
+        if (c.rootCause() != RootCause.FCB_APPLY_LOST
+                || c.confidence() != Confidence.HIGH
+                || c.safetyTier() == SafetyTier.MANUAL_ONLY) {
+            return RemediateOutcome.rejected("not-replayable");
+        }
+
+        List<UUID> eventIds = forwardRows.stream()
+                .filter(row -> row.status() == MessageStatus.PROCESSED)
+                .filter(row -> row.eventId() != null)
+                .sorted(Comparator.comparing(
+                        row -> row.sequenceNumber() == null ? Long.MAX_VALUE : row.sequenceNumber()))
+                .map(OutboxRecordView::eventId)
+                .toList();
+        if (eventIds.isEmpty()) {
+            return RemediateOutcome.rejected("no-replayable-events");
+        }
+
+        outboxAdminPort.republish(
+                new OutboxRepublishCommand(eventIds, AGGREGATE_TYPE, null, null, null, null, eventIds.size()));
+        return RemediateOutcome.accepted("re-driven:" + eventIds.size());
     }
 
     // ════════════════════════════════════════ Divergence classification ════════════════════════════════════════
