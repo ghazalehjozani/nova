@@ -263,8 +263,8 @@ public class FacilityConvergenceAction implements ConvergenceAction {
         }
 
         if (!processedIds.isEmpty()) {
-            long republished = outboxAdminPort.republish(
-                    new OutboxRepublishCommand(processedIds, AGGREGATE_TYPE, null, null, processedIds.size()));
+            long republished = outboxAdminPort.republish(new OutboxRepublishCommand(
+                    processedIds, AGGREGATE_TYPE, null, null, null, null, processedIds.size()));
             if (republished > 0) {
                 // D12: the Nova→FCB corridor is asynchronous — republish only re-enqueues the stored event onto the
                 // outbox→broker path; FCB consumes and applies it out-of-band (seconds later). We CANNOT synchronously
@@ -414,8 +414,8 @@ public class FacilityConvergenceAction implements ConvergenceAction {
         UUID cursor = null;
         // Bounded scan: walk pages of this aggregate type, collecting rows for the target aggregate id.
         for (int page = 0; page < 50; page++) {
-            OutboxRecordPage result =
-                    outboxAdminPort.search(new OutboxAdminCriteria(null, AGGREGATE_TYPE, cursor, OUTBOX_SCAN_PAGE));
+            OutboxRecordPage result = outboxAdminPort.search(
+                    new OutboxAdminCriteria(null, AGGREGATE_TYPE, null, cursor, OUTBOX_SCAN_PAGE));
             for (OutboxRecordView view : result.content()) {
                 if (aggregateId.equals(view.aggregateId())) {
                     matched.add(view);
