@@ -223,6 +223,14 @@
             <groupId>ir.dotin.platform.pangaea</groupId>
             <artifactId>envelope-impl-jws</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>pangaea-requestreply-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>pangaea-requestreply-jms</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

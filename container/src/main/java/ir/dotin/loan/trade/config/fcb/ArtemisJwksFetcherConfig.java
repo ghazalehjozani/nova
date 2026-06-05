@@ -10,13 +10,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
-import ir.dotin.platform.pangaea.envelope.api.ActorEnvelopeFactory;
-import ir.dotin.platform.pangaea.envelope.api.ActorEnvelopeSigner;
 import ir.dotin.platform.pangaea.envelope.api.JwksFetcher;
 import ir.dotin.platform.pangaea.envelope.impl.jws.config.EnvelopeProperties;
 import ir.dotin.platform.pangaea.envelope.impl.jws.jwks.RedisTrustedKeyStore;
 import ir.dotin.platform.pangaea.envelope.impl.jws.jwks.TrustedKeyStore;
-import ir.dotin.platform.pangaea.security.api.ServiceTokenProvider;
+import ir.dotin.platform.pangaea.messaging.requestreply.api.RequestReplyClient;
+import ir.dotin.platform.pangaea.messaging.requestreply.jms.RequestReplyClientFactory;
+import ir.dotin.platform.pangaea.messaging.requestreply.jms.RequestReplyConfig;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.artemis.config.ArtemisFcbConfig;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.artemis.config.ArtemisFcbProperties;
 
@@ -34,6 +34,11 @@ import tools.jackson.databind.ObjectMapper;
  * {@link ArtemisFcbConfig}); when Artemis is disabled there is simply no fetcher — exactly like a Kafka-less service,
  * and the verifier degrades to its cached/stale-key path.
  *
+ * <p>Transport (broker connection, named reply queue, correlation, instance/host resolution, trace/host/timestamp/
+ * locale/bearer-token/actor-envelope stamping) is owned by the pangaea request/reply client + its cross-cutting
+ * interceptors. This fetcher keeps only JWKS policy: per-kid lock, circuit breaker, bounded background refresh,
+ * {@code JwksRequest} JSON, reply parsing, and {@link RedisTrustedKeyStore} writes.
+ *
  * <p>Like pangaea's {@code KafkaJwksFetcher} the fetch requires the Redis-backed {@link RedisTrustedKeyStore} (the JWK
  * set is written into Redis + the L1 cache). With Artemis explicitly enabled but the trusted-key cache not set to
  * {@code REDIS}, this fails fast at startup rather than silently registering a no-op fetcher.
@@ -43,14 +48,30 @@ import tools.jackson.databind.ObjectMapper;
 public class ArtemisJwksFetcherConfig {
 
     @Bean
+    @ConditionalOnProperty(prefix = ArtemisFcbProperties.PREFIX, name = "enabled")
+    public RequestReplyClient jwksRequestReplyClient(
+            RequestReplyClientFactory factory,
+            @Qualifier(ArtemisFcbConfig.ARTEMIS_FCB_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
+            ArtemisFcbProperties properties) {
+        RequestReplyConfig config = new RequestReplyConfig(
+                properties.getJwksReplyQueuePrefix(),
+                properties.getInstanceId(),
+                properties.getReplyTimeout(),
+                3,
+                250L,
+                2000L,
+                "fcb-legacy-jwks",
+                "activemq",
+                "fcb.artemis.jwks.latency");
+        return factory.create(connectionFactory, config);
+    }
+
+    @Bean
     @Primary
     public JwksFetcher artemisJwksFetcher(
-            @Qualifier(ArtemisFcbConfig.ARTEMIS_FCB_CONNECTION_FACTORY) ConnectionFactory artemisFcbConnectionFactory,
+            @Qualifier("jwksRequestReplyClient") RequestReplyClient client,
             ArtemisFcbProperties artemisProperties,
             ObjectMapper objectMapper,
-            ServiceTokenProvider serviceTokenProvider,
-            ActorEnvelopeFactory envelopeFactory,
-            ActorEnvelopeSigner envelopeSigner,
             EnvelopeProperties envelopeProperties,
             TrustedKeyStore trustedKeyStore,
             @Qualifier("envelopeJwksCircuitBreaker") ObjectProvider<CircuitBreaker> circuitBreaker) {
@@ -61,24 +82,19 @@ public class ArtemisJwksFetcherConfig {
         }
         CircuitBreaker breaker = circuitBreaker.getIfAvailable();
         return new ArtemisJwksFetcher(
-                artemisFcbConnectionFactory,
+                client,
                 artemisProperties,
                 objectMapper,
-                serviceTokenProvider,
-                envelopeFactory,
-                envelopeSigner,
                 envelopeProperties.getTrusted().getKafka(),
                 redis,
                 breaker);
     }
 
-    /** Cleanly stops the fetcher's background-refresh executor + cached broker connection on context shutdown. */
     @Bean
     public ArtemisJwksFetcherLifecycle artemisJwksFetcherLifecycle(JwksFetcher artemisJwksFetcher) {
         return new ArtemisJwksFetcherLifecycle(artemisJwksFetcher);
     }
 
-    /** Disposable wrapper so the fetcher's executor/connection are released on shutdown without a public SPI method. */
     public static final class ArtemisJwksFetcherLifecycle implements AutoCloseable {
         private final @Nullable ArtemisJwksFetcher fetcher;
 
