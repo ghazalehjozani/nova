@@ -3,20 +3,17 @@ package ir.dotin.loan.trade.adapters.driven.fcbmessaging.artemis.config;
 import jakarta.jms.ConnectionFactory;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import ir.dotin.platform.pangaea.envelope.api.ActorEnvelopeFactory;
-import ir.dotin.platform.pangaea.envelope.api.ActorEnvelopeSigner;
-import ir.dotin.platform.pangaea.security.api.AuthenticationContextHolder;
-import ir.dotin.platform.pangaea.security.api.ServiceTokenProvider;
+import ir.dotin.platform.pangaea.messaging.requestreply.jms.RequestReplyClientFactory;
+import ir.dotin.platform.pangaea.messaging.requestreply.jms.RequestReplyConfig;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.artemis.client.ArtemisFcbRequestReplyClient;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.tracing.Tracer;
 import tools.jackson.databind.ObjectMapper;
 
 /**
@@ -73,24 +70,22 @@ public class ArtemisFcbConfig {
 
     @Bean(ARTEMIS_FCB_CLIENT)
     public ArtemisFcbRequestReplyClient artemisFcbRequestReplyClient(
-            ConnectionFactory artemisFcbConnectionFactory,
+            RequestReplyClientFactory factory,
+            @Qualifier(ARTEMIS_FCB_CONNECTION_FACTORY) ConnectionFactory connectionFactory,
             ArtemisFcbProperties properties,
             ObjectMapper objectMapper,
-            ServiceTokenProvider serviceTokenProvider,
-            AuthenticationContextHolder authenticationContextHolder,
-            ActorEnvelopeFactory envelopeFactory,
-            ActorEnvelopeSigner envelopeSigner,
-            MeterRegistry meterRegistry,
-            ObjectProvider<Tracer> tracer) {
+            MeterRegistry meterRegistry) {
+        RequestReplyConfig config = new RequestReplyConfig(
+                properties.getReplyQueuePrefix(),
+                properties.getInstanceId(),
+                properties.getReplyTimeout(),
+                3,
+                250L,
+                2000L,
+                "fcb-legacy",
+                "activemq",
+                "fcb.artemis.request_reply.latency");
         return new ArtemisFcbRequestReplyClient(
-                artemisFcbConnectionFactory,
-                properties,
-                objectMapper,
-                serviceTokenProvider,
-                authenticationContextHolder,
-                envelopeFactory,
-                envelopeSigner,
-                meterRegistry,
-                tracer.getIfAvailable());
+                factory.create(connectionFactory, config), objectMapper, properties, meterRegistry);
     }
 }

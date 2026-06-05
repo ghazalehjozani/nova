@@ -18,9 +18,12 @@
 
     <!--
       ActiveMQ Artemis transport for the transport-neutral FCB request/reply seam (fcb-messaging-contract).
-      Provides ArtemisFcbRequestReplyClient implements FcbRequestReplyClient over a JMS temporary reply queue.
-      Depends on the contract module + platform security/envelope APIs + jakarta.jms + Artemis Jakarta client +
-      Jackson 3 (tools.jackson) for body JSON + micrometer-core. NO Kafka, never references fcb-messaging-kafka.
+      ArtemisFcbRequestReplyClient implements FcbRequestReplyClient by delegating transport to the pangaea
+      request/reply client (pangaea-requestreply-api + pangaea-spring-boot-starter-requestreply-jms, which pulls
+      the jms factory/config + cross-cutting interceptors + envelope/security transitively). Nova keeps only the FCB
+      request JSON, the operationType + idempotencyKey domain headers, and FCB error mapping. Depends on the contract
+      module + jakarta.jms + Artemis Jakarta client (for the tuned ConnectionFactory) + Jackson 3 (tools.jackson) for
+      body JSON + micrometer-core (latency timer). NO Kafka, never references fcb-messaging-kafka.
       artemis-jakarta-client + jakarta.jms-api versions are pinned here: the pangaea-dependencies BOM manages only
       Classic ActiveMQ (6.2.3), not the Artemis Jakarta client.
     -->
@@ -46,11 +49,11 @@
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
-            <artifactId>security-api</artifactId>
+            <artifactId>pangaea-requestreply-api</artifactId>
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
-            <artifactId>envelope-api</artifactId>
+            <artifactId>pangaea-spring-boot-starter-requestreply-jms</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -63,12 +66,6 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-core</artifactId>
-        </dependency>
-        <!-- Tracer (optional at runtime) so the request/reply client can stamp the active W3C traceparent on the
-             outbound JMS message, matching the Kafka client + what the FCB Artemis listener/reply path propagates. -->
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-tracing</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
