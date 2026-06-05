@@ -43,11 +43,11 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.client.FcbRequestReplyCl
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaConfig;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbResilienceConfig;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbBaseRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbBaseResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.exception.FcbSerializationException;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.exception.FcbServerException;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.KafkaErrorCodeMapper;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.FcbErrorCodeMapper;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.metrics.FcbRequestReplyMetrics;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.util.HostResolver;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
@@ -69,8 +69,6 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
     private static final String HEADER_REQUEST_DATETIME = "X-Request-DateTime";
     private static final String HEADER_AUTHORIZATION = "Authorization";
     private static final String HEADER_ACCEPT_LANGUAGE = "Accept-Language";
-    private static final String HEADER_REQUEST_TIMESTAMP_EPOCH_MS = "X-Request-Timestamp-Epoch-Ms";
-    private static final String HEADER_REQUEST_DEADLINE_EPOCH_MS = "X-Request-Deadline-Epoch-Ms";
     private static final String HEADER_HOST = "X-Host";
     private static final String ACCEPT_LANGUAGE_FA = "fa";
 
@@ -132,10 +130,10 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
     }
 
     @Override
-    public Result<FcbKafkaBaseResponse> sendAndReceive(FcbKafkaBaseRequest request, Duration timeout) {
+    public Result<FcbBaseResponse> sendAndReceive(FcbBaseRequest request, Duration timeout) {
         if (draining) {
             return Result.failure(
-                    CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, "instance is draining its FCB reply partition");
+                    CoreBankingErrors.FCB_BROKER_UNAVAILABLE, "instance is draining its FCB reply partition");
         }
         inFlight.incrementAndGet();
         try {
@@ -175,7 +173,7 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
         return true;
     }
 
-    private Result<FcbKafkaBaseResponse> doSendAndReceive(FcbKafkaBaseRequest request, Duration timeout) {
+    private Result<FcbBaseResponse> doSendAndReceive(FcbBaseRequest request, Duration timeout) {
         String operationType = request.getOperationName();
         String idempotencyKey = UUID.randomUUID().toString();
 
@@ -191,7 +189,7 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
                 // user token (AUTO), while a background path with no bound context — e.g. the @Scheduled reconciliation
                 // sweep / converge — uses a client-credentials service token (async). Without this, AUTO under the
                 // global FAIL_FAST ambiguous-context policy throws on the sweep thread and every recon-state call fails
-                // as KAFKA_COMMUNICATION_ERROR (surfaced as a false "fcb-unreachable" UNKNOWN). Mirrors the outbox
+                // as FCB_COMMUNICATION_ERROR (surfaced as a false "fcb-unreachable" UNKNOWN). Mirrors the outbox
                 // poller pattern (KafkaEventPublisher uses ServiceTokenRequest.async()).
                 ServiceTokenRequest tokenRequest =
                         authenticationContextHolder.authentication().isPresent()
@@ -243,40 +241,40 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
         return Duration.ofNanos(attemptNanos);
     }
 
-    private Result<FcbKafkaBaseResponse> mapRetryException(RetryException e, String operationType, Duration timeout) {
+    private Result<FcbBaseResponse> mapRetryException(RetryException e, String operationType, Duration timeout) {
         Throwable cause = e.getCause();
         if (cause == null) {
             requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_OTHER);
-            return Result.failure(CoreBankingErrors.KAFKA_COMMUNICATION_ERROR, "retry exhausted: " + e.getMessage());
+            return Result.failure(CoreBankingErrors.FCB_COMMUNICATION_ERROR, "retry exhausted: " + e.getMessage());
         }
         return switch (cause) {
             case FcbServerException fse -> {
                 requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_SERVER);
                 yield Result.failure(
-                        CoreBankingErrors.KAFKA_FCB_SERVER_ERROR, fse.getErrorCode(), fse.getErrorMessage());
+                        CoreBankingErrors.FCB_SERVER_ERROR, fse.getErrorCode(), fse.getErrorMessage());
             }
             case TimeoutException ignored -> {
                 requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_TIMEOUT);
                 requestReplyMetrics.recordDiscarded(operationType);
                 yield Result.failure(
-                        CoreBankingErrors.KAFKA_REPLY_TIMEOUT, operationType, String.valueOf(timeout.toMillis()));
+                        CoreBankingErrors.FCB_REPLY_TIMEOUT, operationType, String.valueOf(timeout.toMillis()));
             }
             case org.springframework.kafka.KafkaException ke -> {
                 requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_BROKER);
                 String message = ke.getMessage() != null
                         ? ke.getMessage()
                         : ke.getClass().getSimpleName();
-                yield Result.failure(CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, message);
+                yield Result.failure(CoreBankingErrors.FCB_BROKER_UNAVAILABLE, message);
             }
             case FcbSerializationException fse -> {
                 requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_SERIALIZATION);
                 yield Result.failure(
-                        Notification.ofError(CoreBankingErrors.KAFKA_SERIALIZATION_ERROR, fse.getErrorMessage()));
+                        Notification.ofError(CoreBankingErrors.FCB_SERIALIZATION_ERROR, fse.getErrorMessage()));
             }
             default -> {
                 requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_OTHER);
                 yield Result.failure(Notification.ofError(
-                        CoreBankingErrors.KAFKA_COMMUNICATION_ERROR,
+                        CoreBankingErrors.FCB_COMMUNICATION_ERROR,
                         cause.getMessage() != null
                                 ? cause.getMessage()
                                 : cause.getClass().getSimpleName()));
@@ -284,8 +282,8 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
         };
     }
 
-    private Result<FcbKafkaBaseResponse> executeRequest(
-            FcbKafkaBaseRequest request,
+    private Result<FcbBaseResponse> executeRequest(
+            FcbBaseRequest request,
             String operationType,
             String idempotencyKey,
             Duration timeout,
@@ -309,7 +307,7 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
         long startNanos = System.nanoTime();
         boolean success = false;
         try {
-            Result<FcbKafkaBaseResponse> result =
+            Result<FcbBaseResponse> result =
                     doExecuteRequest(request, operationType, idempotencyKey, timeout, bearerValue, signedEnvelope);
             success = result.isSuccess();
             return result;
@@ -331,8 +329,8 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
         }
     }
 
-    private Result<FcbKafkaBaseResponse> doExecuteRequest(
-            FcbKafkaBaseRequest request,
+    private Result<FcbBaseResponse> doExecuteRequest(
+            FcbBaseRequest request,
             String operationType,
             String idempotencyKey,
             Duration timeout,
@@ -348,7 +346,6 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
         }
 
         long timestampMs = System.currentTimeMillis();
-        long deadlineMs = timestampMs + timeout.toMillis();
 
         ProducerRecord<String, byte[]> record =
                 new ProducerRecord<>(properties.getRequestTopic(), idempotencyKey, requestBytes);
@@ -361,12 +358,6 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
                         Instant.ofEpochMilli(timestampMs).toString().getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(HEADER_AUTHORIZATION, bearerValue.getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(HEADER_ACCEPT_LANGUAGE, ACCEPT_LANGUAGE_FA.getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader(
-                        HEADER_REQUEST_TIMESTAMP_EPOCH_MS,
-                        Long.toString(timestampMs).getBytes(StandardCharsets.UTF_8)))
-                .add(new RecordHeader(
-                        HEADER_REQUEST_DEADLINE_EPOCH_MS,
-                        Long.toString(deadlineMs).getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(
                         HEADER_HOST, HostResolver.resolveHostName().getBytes(StandardCharsets.UTF_8)))
                 .add(new RecordHeader(
@@ -397,10 +388,10 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
         }
 
         if (replyRecord.value() == null || replyRecord.value().length == 0) {
-            return Result.failure(CoreBankingErrors.KAFKA_INVALID_RESPONSE, operationType);
+            return Result.failure(CoreBankingErrors.FCB_INVALID_RESPONSE, operationType);
         }
 
-        FcbKafkaBaseResponse response;
+        FcbBaseResponse response;
         try {
             response = deserializeResponse(replyRecord.value(), operationType);
         } catch (tools.jackson.core.JacksonException e) {
@@ -410,27 +401,27 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
         if (response.isError()) {
             String errorCode = response.getErrorCode() != null ? response.getErrorCode() : "UNKNOWN";
             String errorMessage = response.getErrorMessage() != null ? response.getErrorMessage() : "No error message";
-            if (KafkaErrorCodeMapper.isServerError(errorCode)) {
+            if (FcbErrorCodeMapper.isServerError(errorCode)) {
                 throw new FcbServerException(errorCode, errorMessage);
             }
-            if (KafkaErrorCodeMapper.isClientError(errorCode)) {
+            if (FcbErrorCodeMapper.isClientError(errorCode)) {
                 return Result.failure(
-                        Notification.ofError(CoreBankingErrors.KAFKA_FCB_CLIENT_ERROR, errorCode, errorMessage));
+                        Notification.ofError(CoreBankingErrors.FCB_CLIENT_ERROR, errorCode, errorMessage));
             }
-            return Result.failure(KafkaErrorCodeMapper.mapToNotification(response));
+            return Result.failure(FcbErrorCodeMapper.mapToNotification(response));
         }
 
         return Result.success(response);
     }
 
-    private FcbKafkaBaseResponse deserializeResponse(byte[] payload, String operationType) {
+    private FcbBaseResponse deserializeResponse(byte[] payload, String operationType) {
         JsonNode root = objectMapper.readTree(payload);
         if (root instanceof ObjectNode object
                 && (object.get("operationName") == null
                         || object.get("operationName").isNull())) {
             object.put("operationName", operationType);
         }
-        return objectMapper.treeToValue(root, FcbKafkaBaseResponse.class);
+        return objectMapper.treeToValue(root, FcbBaseResponse.class);
     }
 
     private String buildBearerHeader(OAuth2TokenResponse token) {

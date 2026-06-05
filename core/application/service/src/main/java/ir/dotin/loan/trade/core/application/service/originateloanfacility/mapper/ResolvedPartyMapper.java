@@ -20,7 +20,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.response.Party
 /**
  * Rebuilds {@link PartyInfoResponse} (domain {@link Party} + {@link NationalCode} + flags) from the transport-neutral
  * {@link ResolvedPartyDto}s threaded back onto the command by the tx-free pre-flight. The construction mirrors
- * {@code KafkaValidationMapper.mapToPartyInfoResponse} bit-for-bit: same {@code PartyType}→party mapping per role, same
+ * {@code FcbValidationMapper.mapToPartyInfoResponse} bit-for-bit: same {@code PartyType}→party mapping per role, same
  * {@link CustomerName} fields, same national-code parsing, same restriction flags. No FCB call happens here.
  */
 @Component

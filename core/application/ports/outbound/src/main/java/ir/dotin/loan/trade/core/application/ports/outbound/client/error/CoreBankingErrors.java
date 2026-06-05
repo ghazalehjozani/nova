@@ -44,13 +44,13 @@ public enum CoreBankingErrors implements ProductErrorCode<CoreBankingErrors> {
             19,
             "Either 'rollbackId' OR both 'fileNumber' and 'collateralSerial' must be provided"),
     BRANCH_NOT_COVERED(TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 24, "Branch {0} is not covered"),
-    KAFKA_INVALID_RESPONSE(
+    FCB_INVALID_RESPONSE(
             TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 20, "Invalid response payload for operation {0}"),
-    KAFKA_FCB_BUSINESS_ERROR(
+    FCB_BUSINESS_ERROR(
             TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 21, "FCB business error: code={0}, message={1}"),
-    KAFKA_FCB_SERVER_ERROR(
+    FCB_SERVER_ERROR(
             TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 22, "FCB server error (5xx): code={0}, message={1}"),
-    KAFKA_FCB_CLIENT_ERROR(
+    FCB_CLIENT_ERROR(
             TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 23, "FCB client error (4xx): code={0}, message={1}"),
     SAMAT_INVALID_USE_TYPE(TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 25, "Use type with code {0} is invalid"),
     SAMAT_INVALID_ISIC_ECONOMIC_SECTOR(
@@ -71,10 +71,10 @@ public enum CoreBankingErrors implements ProductErrorCode<CoreBankingErrors> {
             TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 30, "Unknown Samat violation with code {0}: {1}"),
     BRANCH_CODE_MISSING(TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 31, "Branch code not found"),
 
-    KAFKA_REPLY_TIMEOUT(PlatformErrorCategory.INTEGRATION, 1, "FCB reply timed out for operation {0} after {1}ms"),
-    KAFKA_COMMUNICATION_ERROR(PlatformErrorCategory.INTEGRATION, 2, "FCB messaging communication error: {0}"),
-    KAFKA_BROKER_UNAVAILABLE(PlatformErrorCategory.INTEGRATION, 3, "FCB message broker is unavailable: {0}"),
-    KAFKA_SERIALIZATION_ERROR(PlatformErrorCategory.INTEGRATION, 4, "Failed to serialize/deserialize FCB message: {0}");
+    FCB_REPLY_TIMEOUT(PlatformErrorCategory.INTEGRATION, 1, "FCB reply timed out for operation {0} after {1}ms"),
+    FCB_COMMUNICATION_ERROR(PlatformErrorCategory.INTEGRATION, 2, "FCB messaging communication error: {0}"),
+    FCB_BROKER_UNAVAILABLE(PlatformErrorCategory.INTEGRATION, 3, "FCB message broker is unavailable: {0}"),
+    FCB_SERIALIZATION_ERROR(PlatformErrorCategory.INTEGRATION, 4, "Failed to serialize/deserialize FCB message: {0}");
 
     private final ErrorCategory category;
     private final int sequence;

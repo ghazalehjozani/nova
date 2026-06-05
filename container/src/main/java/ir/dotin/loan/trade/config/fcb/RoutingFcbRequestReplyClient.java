@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.artemis.config.ArtemisFcbConfig;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.client.FcbRequestReplyClient;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbBaseRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbBaseResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.service.FcbKafkaClient;
 
 /**
@@ -49,7 +49,7 @@ public class RoutingFcbRequestReplyClient implements FcbRequestReplyClient {
     }
 
     @Override
-    public Result<FcbKafkaBaseResponse> sendAndReceive(FcbKafkaBaseRequest request, Duration timeout) {
+    public Result<FcbBaseResponse> sendAndReceive(FcbBaseRequest request, Duration timeout) {
         return active().sendAndReceive(request, timeout);
     }
 

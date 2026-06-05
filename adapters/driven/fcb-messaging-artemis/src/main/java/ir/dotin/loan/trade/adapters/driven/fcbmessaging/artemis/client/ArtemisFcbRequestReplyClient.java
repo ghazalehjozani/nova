@@ -6,7 +6,13 @@ import java.net.UnknownHostException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
+import jakarta.annotation.PreDestroy;
 import jakarta.jms.Connection;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.JMSException;
@@ -15,7 +21,6 @@ import jakarta.jms.MessageConsumer;
 import jakarta.jms.MessageProducer;
 import jakarta.jms.Queue;
 import jakarta.jms.Session;
-import jakarta.jms.TemporaryQueue;
 import jakarta.jms.TextMessage;
 
 import org.jspecify.annotations.Nullable;
@@ -40,11 +45,11 @@ import ir.dotin.platform.pangaea.security.api.ServiceTokenProvider;
 import ir.dotin.platform.pangaea.security.api.ServiceTokenRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.artemis.config.ArtemisFcbProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.client.FcbRequestReplyClient;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbBaseRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbBaseResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.exception.FcbSerializationException;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.exception.FcbServerException;
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.KafkaErrorCodeMapper;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.FcbErrorCodeMapper;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 
 import io.micrometer.core.instrument.MeterRegistry;
@@ -57,35 +62,14 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
-/**
- * ActiveMQ Artemis implementation of the transport-neutral {@link FcbRequestReplyClient} seam.
- *
- * <p>Each call serialises the polymorphic {@link FcbKafkaBaseRequest} to JSON (the SAME body the Kafka path sends — FCB
- * routes by the {@code operationName} discriminator into the SAME dispatcher), stamps the pinned JMS string properties,
- * creates a JMS <em>temporary</em> reply queue set as {@code JMSReplyTo} with a dedicated {@code JMSCorrelationID},
- * sends to the configured request address, and synchronously {@code receive(timeout)} on the temporary queue. Because a
- * temporary queue is bound to this connection, the broker delivers the reply only to this originating Nova instance —
- * so the Kafka reply-partition lease is unnecessary on this transport (correct for the multi-instance topology).
- *
- * <p>Error routing is identical to the Kafka client and reuses the contract's {@link KafkaErrorCodeMapper} +
- * {@link CoreBankingErrors}: HTTP-style {@code errorCode} 500–599 ⇒ server error (retryable category), 400–499 ⇒ client
- * error (terminal), else business failure; reply timeout ⇒ {@code KAFKA_REPLY_TIMEOUT}; any {@link JMSException} /
- * connection failure ⇒ {@code KAFKA_BROKER_UNAVAILABLE}.
- *
- * <p>The {@link Connection} is opened lazily on first use and cached; a {@link Session} is created per call (cheap, and
- * sidesteps JMS session single-threading). No {@code jakarta.jms} type leaks past this class; this module never
- * references {@code fcb-messaging-kafka}.
- */
 public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArtemisFcbRequestReplyClient.class);
 
-    // Pinned JMS string-property names — JMS-legal identifiers (no hyphens). Must match the FCB Artemis listener.
     private static final String PROP_OPERATION_TYPE = "operationType";
     private static final String PROP_IDEMPOTENCY_KEY = "idempotencyKey";
     private static final String PROP_AUTHORIZATION = "authorization";
     private static final String PROP_REQUEST_DATETIME = "requestDateTime";
-    private static final String PROP_REQUEST_DEADLINE_EPOCH_MS = "requestDeadlineEpochMs";
     private static final String PROP_HOST = "host";
     private static final String PROP_TRACEPARENT = "traceparent";
     private static final String PROP_ACTOR_ENVELOPE = "actorEnvelope";
@@ -94,18 +78,7 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
     private static final String ACCEPT_LANGUAGE_FA = "fa";
     private static final String UNKNOWN_HOST = "unknown";
 
-    /**
-     * Bounded retry, mirroring the Kafka client's {@code FcbResilienceConfig} (maxRetries=2 ⇒ 3 attempts). Only
-     * genuinely transient <em>transport</em> failures retry: a broker/connection {@link JMSException} and an FCB 5xx
-     * ({@code FcbServerException}). A reply timeout is <strong>not</strong> retried — it already consumed the full
-     * per-call window, and re-sending would multiply latency on an already-slow downstream (the SLO-eating foot-gun the
-     * Kafka module's resilience config warns about; the Kafka client only retries a timeout because it shrinks each
-     * attempt to a shared wall-time budget, machinery this lean JMS client deliberately omits). Serialization, client
-     * (4xx) and business errors are terminal. The {@code Idempotency-Key} is generated once per call so a retried send
-     * stays idempotent on the FCB side.
-     */
     private static final int MAX_ATTEMPTS = 3;
-
     private static final long RETRY_BASE_DELAY_MS = 250L;
     private static final long RETRY_MAX_DELAY_MS = 2_000L;
 
@@ -115,9 +88,6 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
     private static final String OUTCOME_SUCCESS = "success";
     private static final String OUTCOME_FAILURE = "failure";
 
-    // APM-dependency span tags. A CLIENT span with peer.service + messaging.system makes the FCB Artemis hop render as
-    // a distinct dependency node in Elastic APM (same scheme the Kafka client uses, which is why FCB-over-Kafka,
-    // Redis and Postgres already appear). messaging.system=activemq distinguishes the Artemis corridor from Kafka.
     private static final String SPAN_NAME_PREFIX = "fcb-legacy ";
     private static final String PEER_SERVICE = "fcb-legacy";
     private static final String MESSAGING_SYSTEM = "activemq";
@@ -132,9 +102,15 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
     private final MeterRegistry meterRegistry;
     private final @Nullable Tracer tracer;
 
-    /** Lazily-opened, cached broker connection. Opened on the first send so a down broker never blocks boot. */
     private final AtomicReference<@Nullable Connection> connectionRef = new AtomicReference<>();
+    private final ConcurrentHashMap<String, CompletableFuture<Message>> pending = new ConcurrentHashMap<>();
+    private final Object replyLock = new Object();
 
+    private volatile boolean replyReady = false;
+    private volatile @Nullable Session replySession;
+    private volatile @Nullable MessageConsumer replyConsumer;
+    private volatile @Nullable Queue replyQueue;
+    private volatile @Nullable String cachedInstanceId;
     private volatile @Nullable String cachedHost;
 
     public ArtemisFcbRequestReplyClient(
@@ -159,13 +135,13 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
     }
 
     @Override
-    public Result<FcbKafkaBaseResponse> sendAndReceive(FcbKafkaBaseRequest request, Duration timeout) {
+    public Result<FcbBaseResponse> sendAndReceive(FcbBaseRequest request, Duration timeout) {
         String operationType = request.getOperationName();
         String idempotencyKey = UUID.randomUUID().toString();
         long startNanos = System.nanoTime();
         boolean success = false;
         try {
-            Result<FcbKafkaBaseResponse> result = sendWithRetry(request, operationType, idempotencyKey, timeout);
+            Result<FcbBaseResponse> result = sendWithRetry(request, operationType, idempotencyKey, timeout);
             success = result.isSuccess();
             return result;
         } finally {
@@ -173,50 +149,37 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
         }
     }
 
-    /**
-     * Bounded retry around {@link #doSendAndReceive} mirroring the Kafka client's {@code FcbResilienceConfig}: at most
-     * {@link #MAX_ATTEMPTS} attempts, retrying only a transient broker/connection {@link JMSException} or an FCB 5xx
-     * ({@link FcbServerException}). A reply timeout ({@link ReplyTimeoutException}), FCB client errors (4xx), business
-     * failures and serialization errors are terminal and returned on the first attempt. The {@code Idempotency-Key} is
-     * stable across attempts (set in the caller), so a retried request is idempotent on the FCB side.
-     */
-    private Result<FcbKafkaBaseResponse> sendWithRetry(
-            FcbKafkaBaseRequest request, String operationType, String idempotencyKey, Duration timeout) {
-        Result<FcbKafkaBaseResponse> last = Result.failure(CoreBankingErrors.KAFKA_COMMUNICATION_ERROR, operationType);
+    private Result<FcbBaseResponse> sendWithRetry(
+            FcbBaseRequest request, String operationType, String idempotencyKey, Duration timeout) {
+        Result<FcbBaseResponse> last = Result.failure(CoreBankingErrors.FCB_COMMUNICATION_ERROR, operationType);
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
             try {
-                // Success or a terminal failure Result (client/business error) returns immediately; only the
-                // exception cases below are transient and loop.
                 return doSendAndReceive(request, operationType, idempotencyKey, timeout);
             } catch (ReplyTimeoutException e) {
-                // Terminal: the attempt already burned the full per-call window; retrying would only multiply latency.
                 return Result.failure(
-                        CoreBankingErrors.KAFKA_REPLY_TIMEOUT, operationType, String.valueOf(timeout.toMillis()));
+                        CoreBankingErrors.FCB_REPLY_TIMEOUT, operationType, String.valueOf(timeout.toMillis()));
             } catch (FcbServerException e) {
-                // 5xx from FCB — transient on its side; retry like the Kafka client (FcbServerException is retryable).
-                last = Result.failure(CoreBankingErrors.KAFKA_FCB_SERVER_ERROR, e.getErrorCode(), e.getErrorMessage());
+                last = Result.failure(CoreBankingErrors.FCB_SERVER_ERROR, e.getErrorCode(), e.getErrorMessage());
             } catch (FcbSerializationException e) {
                 return Result.failure(
-                        Notification.ofError(CoreBankingErrors.KAFKA_SERIALIZATION_ERROR, e.getErrorMessage()));
+                        Notification.ofError(CoreBankingErrors.FCB_SERIALIZATION_ERROR, e.getErrorMessage()));
             } catch (JMSException e) {
                 String message =
                         e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
-                // A failed connection invalidates the cached one so the next attempt retries a fresh connect.
                 resetConnection();
-                last = Result.failure(CoreBankingErrors.KAFKA_BROKER_UNAVAILABLE, message);
+                last = Result.failure(CoreBankingErrors.FCB_BROKER_UNAVAILABLE, message);
             } catch (RuntimeException e) {
                 String message =
                         e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
-                return Result.failure(Notification.ofError(CoreBankingErrors.KAFKA_COMMUNICATION_ERROR, message));
+                return Result.failure(Notification.ofError(CoreBankingErrors.FCB_COMMUNICATION_ERROR, message));
             }
             if (attempt < MAX_ATTEMPTS && !backoff(attempt)) {
-                break; // interrupted — stop retrying and return the last failure
+                break;
             }
         }
         return last;
     }
 
-    /** Exponential backoff (250ms → 2s) between attempts. Returns {@code false} if the thread was interrupted. */
     private static boolean backoff(int attempt) {
         long delay = Math.min(RETRY_MAX_DELAY_MS, RETRY_BASE_DELAY_MS << (attempt - 1));
         try {
@@ -228,15 +191,8 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
         }
     }
 
-    /**
-     * Opens a per-operation CLIENT span ({@code fcb-legacy <op>}, {@code messaging.system=activemq},
-     * {@code peer.service=fcb-legacy}) around the JMS round-trip so the FCB Artemis hop renders as an APM dependency
-     * node — mirroring the Kafka client. The traceparent stamped on the outbound JMS message (see
-     * {@link #currentTraceparent()}) is read from THIS span, so the FCB hop chains underneath it. A no-op when no
-     * {@link Tracer} is wired (test slices).
-     */
-    private Result<FcbKafkaBaseResponse> doSendAndReceive(
-            FcbKafkaBaseRequest request, String operationType, String idempotencyKey, Duration timeout)
+    private Result<FcbBaseResponse> doSendAndReceive(
+            FcbBaseRequest request, String operationType, String idempotencyKey, Duration timeout)
             throws JMSException, ReplyTimeoutException {
         if (tracer == null) {
             return doSendAndReceiveInSpan(request, operationType, idempotencyKey, timeout);
@@ -259,15 +215,12 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
         }
     }
 
-    private Result<FcbKafkaBaseResponse> doSendAndReceiveInSpan(
-            FcbKafkaBaseRequest request, String operationType, String idempotencyKey, Duration timeout)
+    private Result<FcbBaseResponse> doSendAndReceiveInSpan(
+            FcbBaseRequest request, String operationType, String idempotencyKey, Duration timeout)
             throws JMSException, ReplyTimeoutException {
 
         String body = serializeRequest(request);
 
-        // Token mode follows the bound security context (mirrors the Kafka client): an interactive REST call delegates
-        // the caller's user token (AUTO); a background path with no bound context (e.g. the recon sweep) uses a
-        // client-credentials service token (async), avoiding the FAIL_FAST ambiguous-context throw.
         ServiceTokenRequest tokenRequest =
                 authenticationContextHolder.authentication().isPresent()
                         ? ServiceTokenRequest.auto()
@@ -276,42 +229,89 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
         String bearerValue = buildBearerHeader(token);
         String signedEnvelope = envelopeSigner.sign(buildEnvelope());
 
+        ensureReplyInfra();
         Connection connection = connection();
-        try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
-            TemporaryQueue replyQueue = session.createTemporaryQueue();
-            try (MessageConsumer consumer = session.createConsumer(replyQueue)) {
-                Queue requestQueue = session.createQueue(properties.getRequestAddress());
-                try (MessageProducer producer = session.createProducer(requestQueue)) {
-                    long deadlineMs = System.currentTimeMillis() + timeout.toMillis();
-                    TextMessage message = session.createTextMessage(body);
-                    message.setJMSReplyTo(replyQueue);
-                    message.setJMSCorrelationID(UUID.randomUUID().toString());
-                    stampProperties(message, operationType, idempotencyKey, bearerValue, signedEnvelope, deadlineMs);
-                    producer.send(message);
+        Queue replyTo = this.replyQueue;
+        if (replyTo == null) {
+            throw new JMSException("FCB-ARTEMIS reply queue not initialised");
+        }
 
-                    Message reply = consumer.receive(timeout.toMillis());
-                    if (reply == null) {
-                        // Transient: let the bounded retry try again (the Idempotency-Key is stable, so a resend is
-                        // idempotent on FCB); the terminal KAFKA_REPLY_TIMEOUT failure is produced once retries are
-                        // exhausted in sendWithRetry.
-                        throw new ReplyTimeoutException();
-                    }
-                    return handleReply(reply, operationType);
-                }
+        String correlationId = UUID.randomUUID().toString();
+        CompletableFuture<Message> future = new CompletableFuture<>();
+        pending.put(correlationId, future);
+        try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
+            Queue requestQueue = session.createQueue(properties.getRequestAddress());
+            try (MessageProducer producer = session.createProducer(requestQueue)) {
+                producer.setTimeToLive(timeout.toMillis());
+                TextMessage message = session.createTextMessage(body);
+                message.setJMSReplyTo(replyTo);
+                message.setJMSCorrelationID(correlationId);
+                stampProperties(message, operationType, idempotencyKey, bearerValue, signedEnvelope);
+                producer.send(message);
             }
+            Message reply;
+            try {
+                reply = future.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
+            } catch (TimeoutException e) {
+                throw new ReplyTimeoutException();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new ReplyTimeoutException();
+            } catch (ExecutionException e) {
+                throw new ReplyTimeoutException();
+            }
+            return handleReply(reply, operationType);
+        } finally {
+            pending.remove(correlationId);
         }
     }
 
-    private Result<FcbKafkaBaseResponse> handleReply(Message reply, String operationType) throws JMSException {
+    private void ensureReplyInfra() throws JMSException {
+        if (replyReady) {
+            return;
+        }
+        synchronized (replyLock) {
+            if (replyReady) {
+                return;
+            }
+            Connection conn = connection();
+            Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Queue queue = session.createQueue(replyQueueName());
+            MessageConsumer consumer = session.createConsumer(queue);
+            consumer.setMessageListener(this::onReply);
+            this.replySession = session;
+            this.replyConsumer = consumer;
+            this.replyQueue = queue;
+            this.replyReady = true;
+            LOG.info("FCB-ARTEMIS: reply consumer ready on {}", replyQueueName());
+        }
+    }
+
+    private void onReply(Message message) {
+        try {
+            String correlationId = message.getJMSCorrelationID();
+            if (correlationId == null) {
+                return;
+            }
+            CompletableFuture<Message> future = pending.remove(correlationId);
+            if (future != null) {
+                future.complete(message);
+            }
+        } catch (JMSException e) {
+            LOG.warn("FCB-ARTEMIS: failed to read reply correlation id: {}", e.getMessage());
+        }
+    }
+
+    private Result<FcbBaseResponse> handleReply(Message reply, String operationType) throws JMSException {
         if (!(reply instanceof TextMessage textReply)) {
-            return Result.failure(CoreBankingErrors.KAFKA_INVALID_RESPONSE, operationType);
+            return Result.failure(CoreBankingErrors.FCB_INVALID_RESPONSE, operationType);
         }
         String payload = textReply.getText();
         if (payload == null || payload.isBlank()) {
-            return Result.failure(CoreBankingErrors.KAFKA_INVALID_RESPONSE, operationType);
+            return Result.failure(CoreBankingErrors.FCB_INVALID_RESPONSE, operationType);
         }
 
-        FcbKafkaBaseResponse response;
+        FcbBaseResponse response;
         try {
             response = deserializeResponse(payload, operationType);
         } catch (JacksonException e) {
@@ -321,14 +321,14 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
         if (response.isError()) {
             String errorCode = response.getErrorCode() != null ? response.getErrorCode() : "UNKNOWN";
             String errorMessage = response.getErrorMessage() != null ? response.getErrorMessage() : "No error message";
-            if (KafkaErrorCodeMapper.isServerError(errorCode)) {
+            if (FcbErrorCodeMapper.isServerError(errorCode)) {
                 throw new FcbServerException(errorCode, errorMessage);
             }
-            if (KafkaErrorCodeMapper.isClientError(errorCode)) {
+            if (FcbErrorCodeMapper.isClientError(errorCode)) {
                 return Result.failure(
-                        Notification.ofError(CoreBankingErrors.KAFKA_FCB_CLIENT_ERROR, errorCode, errorMessage));
+                        Notification.ofError(CoreBankingErrors.FCB_CLIENT_ERROR, errorCode, errorMessage));
             }
-            return Result.failure(KafkaErrorCodeMapper.mapToNotification(response));
+            return Result.failure(FcbErrorCodeMapper.mapToNotification(response));
         }
         return Result.success(response);
     }
@@ -338,14 +338,12 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
             String operationType,
             String idempotencyKey,
             String bearerValue,
-            String signedEnvelope,
-            long deadlineMs)
+            String signedEnvelope)
             throws JMSException {
         message.setStringProperty(PROP_OPERATION_TYPE, operationType);
         message.setStringProperty(PROP_IDEMPOTENCY_KEY, idempotencyKey);
         message.setStringProperty(PROP_AUTHORIZATION, bearerValue);
         message.setStringProperty(PROP_REQUEST_DATETIME, Instant.now().toString());
-        message.setStringProperty(PROP_REQUEST_DEADLINE_EPOCH_MS, Long.toString(deadlineMs));
         message.setStringProperty(PROP_HOST, resolveHost());
         message.setStringProperty(PROP_ACCEPT_LANGUAGE, ACCEPT_LANGUAGE_FA);
         message.setStringProperty(PROP_ACTOR_ENVELOPE, signedEnvelope);
@@ -355,17 +353,17 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
         }
     }
 
-    private FcbKafkaBaseResponse deserializeResponse(String payload, String operationType) {
+    private FcbBaseResponse deserializeResponse(String payload, String operationType) {
         JsonNode root = objectMapper.readTree(payload);
         if (root instanceof ObjectNode object
                 && (object.get("operationName") == null
                         || object.get("operationName").isNull())) {
             object.put("operationName", operationType);
         }
-        return objectMapper.treeToValue(root, FcbKafkaBaseResponse.class);
+        return objectMapper.treeToValue(root, FcbBaseResponse.class);
     }
 
-    private String serializeRequest(FcbKafkaBaseRequest request) {
+    private String serializeRequest(FcbBaseRequest request) {
         try {
             return objectMapper.writeValueAsString(request);
         } catch (JacksonException e) {
@@ -373,11 +371,6 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
         }
     }
 
-    /**
-     * Returns the cached broker {@link Connection}, opening (and starting) it on first use. Synchronised because the
-     * JMS connection is shared across calling threads. On any failure the reference is left null so the next call
-     * retries the connect.
-     */
     private Connection connection() throws JMSException {
         Connection existing = connectionRef.get();
         if (existing != null) {
@@ -413,18 +406,80 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
     }
 
     private void resetConnection() {
-        Connection stale = connectionRef.getAndSet(null);
-        if (stale != null) {
+        synchronized (replyLock) {
+            replyReady = false;
+            closeQuietly(replyConsumer);
+            closeQuietly(replySession);
+            replyConsumer = null;
+            replySession = null;
+            replyQueue = null;
+            Connection stale = connectionRef.getAndSet(null);
             closeQuietly(stale);
         }
     }
 
-    private static void closeQuietly(Connection connection) {
+    @PreDestroy
+    void shutdown() {
+        synchronized (replyLock) {
+            replyReady = false;
+            closeQuietly(replyConsumer);
+            closeQuietly(replySession);
+            replyConsumer = null;
+            replySession = null;
+            replyQueue = null;
+            Connection conn = connectionRef.getAndSet(null);
+            closeQuietly(conn);
+        }
+    }
+
+    private static void closeQuietly(@Nullable AutoCloseable resource) {
+        if (resource == null) {
+            return;
+        }
+        try {
+            resource.close();
+        } catch (Exception ignored) {
+        }
+    }
+
+    private static void closeQuietly(@Nullable Connection connection) {
+        if (connection == null) {
+            return;
+        }
         try {
             connection.close();
         } catch (JMSException ignored) {
-            // best-effort close of a connection we are already discarding
         }
+    }
+
+    private String replyQueueName() {
+        return properties.getReplyQueuePrefix() + instanceId();
+    }
+
+    private String instanceId() {
+        String c = cachedInstanceId;
+        if (c != null) {
+            return c;
+        }
+        String resolved = computeInstanceId();
+        cachedInstanceId = resolved;
+        return resolved;
+    }
+
+    private String computeInstanceId() {
+        String configured = properties.getInstanceId();
+        if (configured != null && !configured.isBlank()) {
+            return configured.trim();
+        }
+        String pod = System.getenv("KUBERNETES_POD_NAME");
+        if (pod != null && !pod.isBlank()) {
+            return pod.trim();
+        }
+        String host = computeHost();
+        if (!UNKNOWN_HOST.equals(host)) {
+            return host;
+        }
+        return UUID.randomUUID().toString();
     }
 
     private String buildBearerHeader(@Nullable OAuth2TokenResponse token) {
@@ -452,13 +507,6 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
                 InitiatorType.SYSTEM_RECOVERY, "system", null, ExecutionTrigger.RECOVERY, ExecutionMode.SYNC);
     }
 
-    /**
-     * The W3C {@code traceparent} for the active span, so the FCB hop is correlated in APM (the Kafka client gets this
-     * for free from the {@code ReplyingKafkaTemplate}'s Micrometer observation; the JMS client has no equivalent, so we
-     * stamp it explicitly — matching what the FCB-side reply path propagates). Built as
-     * {@code 00-<traceId>-<spanId>-<flags>} from the current span's {@link TraceContext}. Returns {@code null} when no
-     * {@link Tracer} is wired (test slices) or no span is active; FCB tolerates the property's absence.
-     */
     private @Nullable String currentTraceparent() {
         if (tracer == null) {
             return null;
@@ -502,7 +550,6 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
                 return h.trim();
             }
         } catch (UnknownHostException ignored) {
-            // fall through to JVM name
         }
         try {
             String name = ManagementFactory.getRuntimeMXBean().getName();
@@ -511,7 +558,6 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
                 return name.substring(at + 1);
             }
         } catch (RuntimeException ignored) {
-            // fall through to UNKNOWN
         }
         return UNKNOWN_HOST;
     }
@@ -524,9 +570,6 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
                 .record(Duration.ofNanos(System.nanoTime() - startNanos));
     }
 
-    /**
-     * Internal signal that a reply did not arrive within the per-attempt timeout — retryable in {@link #sendWithRetry}.
-     */
     private static final class ReplyTimeoutException extends Exception {
         private ReplyTimeoutException() {
             super(null, null, false, false);

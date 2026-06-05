@@ -9,10 +9,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import jakarta.jms.Connection;
@@ -23,7 +26,6 @@ import jakarta.jms.MessageConsumer;
 import jakarta.jms.MessageProducer;
 import jakarta.jms.Queue;
 import jakarta.jms.Session;
-import jakarta.jms.TemporaryQueue;
 import jakarta.jms.TextMessage;
 
 import org.jspecify.annotations.Nullable;
@@ -53,38 +55,10 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
-/**
- * ActiveMQ Artemis (JMS) implementation of pangaea's {@link JwksFetcher} SPI — the actor-envelope trusted-key fetch
- * over the same Artemis corridor Nova uses for FCB request/reply. It is the JMS mirror of pangaea's
- * {@code KafkaJwksFetcher} (same per-kid lock, optional circuit breaker, bounded background-refresh executor, identical
- * {@link RedisTrustedKeyStore} write path), but speaks JMS instead of {@code ReplyingKafkaTemplate}.
- *
- * <p>Wire contract is matched to the FCB-side {@code NovaFcbArtemisJwksListener}:
- *
- * <ul>
- *   <li>request: a {@link TextMessage} sent to {@link ArtemisFcbProperties#getJwksRequestAddress()} whose body is the
- *       JSON of pangaea {@link JwksRequest} ({@code {requestId, requestedKid}} — the field names the listener's
- *       {@code JwksRequest} reads), with {@code JMSReplyTo} = a per-request temporary queue and
- *       {@code JMSCorrelationID} = the request id;
- *   <li>JMS string properties the listener (and the integration client) read: {@code operationType} (the GET_FCB_JWKS
- *       operation name from {@link EnvelopeProperties.Kafka#getOperationType()}), {@code authorization} ({@code "Bearer
- *       " + serviceToken}), {@code actorEnvelope} (signed JWS), {@code eventUid}, {@code idempotencyKey},
- *       {@code requestDateTime}, {@code host}, {@code acceptLanguage};
- *   <li>reply: the listener replies on the temporary queue with the JSON of FCB's {@code JwksReply}; the JWK set rides
- *       as a top-level {@code keys} array of RFC&nbsp;7517 maps, so this fetcher reads {@code keys} (falling back to
- *       the nested pangaea {@code jwks.keys} shape) and feeds each key into the Redis trusted-key store.
- * </ul>
- *
- * <p>The broker {@link Connection} is opened lazily and cached (a down broker never blocks construction); a
- * {@link Session} is created per fetch. Any JMS/timeout/parse failure is logged and returns {@code false} — never
- * throws — so a transient JWKS-fetch outage degrades to "key not yet trusted" rather than failing the verifier.
- */
 public final class ArtemisJwksFetcher implements JwksFetcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArtemisJwksFetcher.class);
 
-    // Pinned JMS string-property names — JMS-legal identifiers (no hyphens). Must match the FCB Artemis JWKS listener
-    // (authorization + the integration client's stamped set).
     private static final String PROP_OPERATION_TYPE = "operationType";
     private static final String PROP_EVENT_UID = "eventUid";
     private static final String PROP_IDEMPOTENCY_KEY = "idempotencyKey";
@@ -108,6 +82,8 @@ public final class ArtemisJwksFetcher implements JwksFetcher {
     private final @Nullable CircuitBreaker circuitBreaker;
 
     private final ConcurrentHashMap<String, Object> kidLocks = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, CompletableFuture<Message>> pending = new ConcurrentHashMap<>();
+    private final Object replyLock = new Object();
     private final ThreadPoolExecutor backgroundRefresh = new ThreadPoolExecutor(
             1,
             1,
@@ -117,9 +93,13 @@ public final class ArtemisJwksFetcher implements JwksFetcher {
             new RefreshThreadFactory(),
             new ThreadPoolExecutor.DiscardPolicy());
 
-    /** Lazily-opened, cached broker connection. Opened on the first fetch so a down broker never blocks startup. */
     private final AtomicReference<@Nullable Connection> connectionRef = new AtomicReference<>();
 
+    private volatile boolean replyReady = false;
+    private volatile @Nullable Session replySession;
+    private volatile @Nullable MessageConsumer replyConsumer;
+    private volatile @Nullable Queue replyQueue;
+    private volatile @Nullable String cachedInstanceId;
     private volatile @Nullable String cachedHost;
 
     public ArtemisJwksFetcher(
@@ -143,11 +123,6 @@ public final class ArtemisJwksFetcher implements JwksFetcher {
         this.circuitBreaker = circuitBreaker;
     }
 
-    /**
-     * Synchronous fetch — used by the verifier when no fresh L1/L2 entry exists. Returns {@code true} if the JWKS was
-     * retrieved and the requested kid is now cached. The circuit breaker (if present) gates the underlying JMS
-     * request/reply call.
-     */
     @Override
     public boolean fetch(String kid) {
         Object lock = kidLocks.computeIfAbsent(kid, k -> new Object());
@@ -182,10 +157,6 @@ public final class ArtemisJwksFetcher implements JwksFetcher {
         }
     }
 
-    /**
-     * Submit an asynchronous refresh for the given kid. Used by the verifier when a stale-but-still-trusted entry is
-     * served to the caller. The bounded queue + discard policy prevents refresh storms.
-     */
     @Override
     public void refreshAsync(String kid) {
         try {
@@ -197,8 +168,14 @@ public final class ArtemisJwksFetcher implements JwksFetcher {
 
     public void shutdown() {
         backgroundRefresh.shutdownNow();
-        Connection stale = connectionRef.getAndSet(null);
-        if (stale != null) {
+        synchronized (replyLock) {
+            replyReady = false;
+            closeQuietly(replyConsumer);
+            closeQuietly(replySession);
+            replyConsumer = null;
+            replySession = null;
+            replyQueue = null;
+            Connection stale = connectionRef.getAndSet(null);
             closeQuietly(stale);
         }
     }
@@ -214,8 +191,6 @@ public final class ArtemisJwksFetcher implements JwksFetcher {
         String requestId = UUID.randomUUID().toString();
         String body = objectMapper.writeValueAsString(new JwksRequest(requestId, kid));
 
-        // JWKS fetch is a background, no-bound-user path; use a client-credentials service token (async) — same choice
-        // the integration client makes when no security context is bound.
         OAuth2TokenResponse token = serviceTokenProvider.getServiceToken(ServiceTokenRequest.async());
         String bearer = buildBearerHeader(token);
         String signedEnvelope = envelopeSigner.sign(buildEnvelope());
@@ -223,48 +198,95 @@ public final class ArtemisJwksFetcher implements JwksFetcher {
                 jwksConfig.getOperationType(), "platform.envelope.trusted.kafka.operation-type is required");
         long timeoutMs = properties.getReplyTimeout().toMillis();
 
-        try (Connection connection = connection()) {
-            try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
-                TemporaryQueue replyQueue = session.createTemporaryQueue();
-                try (MessageConsumer consumer = session.createConsumer(replyQueue)) {
-                    Queue requestQueue = session.createQueue(properties.getJwksRequestAddress());
-                    try (MessageProducer producer = session.createProducer(requestQueue)) {
-                        TextMessage message = session.createTextMessage(body);
-                        message.setJMSReplyTo(replyQueue);
-                        message.setJMSCorrelationID(requestId);
-                        message.setStringProperty(PROP_OPERATION_TYPE, operationType);
-                        message.setStringProperty(PROP_EVENT_UID, requestId);
-                        message.setStringProperty(PROP_IDEMPOTENCY_KEY, requestId);
-                        message.setStringProperty(PROP_AUTHORIZATION, bearer);
-                        message.setStringProperty(
-                                PROP_REQUEST_DATETIME, Instant.now().toString());
-                        message.setStringProperty(PROP_HOST, resolveHost());
-                        message.setStringProperty(PROP_ACCEPT_LANGUAGE, ACCEPT_LANGUAGE_FA);
-                        message.setStringProperty(PROP_ACTOR_ENVELOPE, signedEnvelope);
-                        producer.send(message);
+        ensureReplyInfra();
+        Connection connection = connection();
+        Queue replyTo = this.replyQueue;
+        if (replyTo == null) {
+            throw new JMSException("FCB-ARTEMIS jwks reply queue not initialised");
+        }
 
-                        Message reply = consumer.receive(timeoutMs);
-                        if (!(reply instanceof TextMessage textReply)) {
-                            return null;
-                        }
-                        String payload = textReply.getText();
-                        if (payload == null || payload.isBlank()) {
-                            return null;
-                        }
-                        return parseReply(payload);
-                    }
-                }
+        CompletableFuture<Message> future = new CompletableFuture<>();
+        pending.put(requestId, future);
+        try (Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
+            Queue requestQueue = session.createQueue(properties.getJwksRequestAddress());
+            try (MessageProducer producer = session.createProducer(requestQueue)) {
+                producer.setTimeToLive(timeoutMs);
+                TextMessage message = session.createTextMessage(body);
+                message.setJMSReplyTo(replyTo);
+                message.setJMSCorrelationID(requestId);
+                message.setStringProperty(PROP_OPERATION_TYPE, operationType);
+                message.setStringProperty(PROP_EVENT_UID, requestId);
+                message.setStringProperty(PROP_IDEMPOTENCY_KEY, requestId);
+                message.setStringProperty(PROP_AUTHORIZATION, bearer);
+                message.setStringProperty(PROP_REQUEST_DATETIME, Instant.now().toString());
+                message.setStringProperty(PROP_HOST, resolveHost());
+                message.setStringProperty(PROP_ACCEPT_LANGUAGE, ACCEPT_LANGUAGE_FA);
+                message.setStringProperty(PROP_ACTOR_ENVELOPE, signedEnvelope);
+                producer.send(message);
             }
+            Message reply;
+            try {
+                reply = future.get(timeoutMs, TimeUnit.MILLISECONDS);
+            } catch (TimeoutException e) {
+                return null;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return null;
+            } catch (ExecutionException e) {
+                return null;
+            }
+            if (!(reply instanceof TextMessage textReply)) {
+                return null;
+            }
+            String payload = textReply.getText();
+            if (payload == null || payload.isBlank()) {
+                return null;
+            }
+            return parseReply(payload);
+        } catch (JMSException e) {
+            resetConnection();
+            throw e;
+        } finally {
+            pending.remove(requestId);
         }
     }
 
-    /**
-     * Parses the FCB JWKS reply. FCB's {@code JwksReply} serialises the JWK set as a top-level {@code keys} array of
-     * RFC 7517 maps (not the nested pangaea {@code jwks.keys} shape), so the tree is read directly: {@code keys} is
-     * preferred, the nested {@code jwks.keys} is the fallback, and each key map is bound to a pangaea {@link Jwk}. A
-     * present {@code errorCode} maps to a failed {@link JwksReply} so {@link JwksReply#isSuccess()} is honoured exactly
-     * as on the Kafka path.
-     */
+    private void ensureReplyInfra() throws JMSException {
+        if (replyReady) {
+            return;
+        }
+        synchronized (replyLock) {
+            if (replyReady) {
+                return;
+            }
+            Connection conn = connection();
+            Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Queue queue = session.createQueue(replyQueueName());
+            MessageConsumer consumer = session.createConsumer(queue);
+            consumer.setMessageListener(this::onReply);
+            this.replySession = session;
+            this.replyConsumer = consumer;
+            this.replyQueue = queue;
+            this.replyReady = true;
+            LOG.info("envelope.jwks: artemis reply consumer ready on {}", replyQueueName());
+        }
+    }
+
+    private void onReply(Message message) {
+        try {
+            String correlationId = message.getJMSCorrelationID();
+            if (correlationId == null) {
+                return;
+            }
+            CompletableFuture<Message> future = pending.remove(correlationId);
+            if (future != null) {
+                future.complete(message);
+            }
+        } catch (JMSException e) {
+            LOG.warn("envelope.jwks: failed to read reply correlation id: {}", e.getMessage());
+        }
+    }
+
     private JwksReply parseReply(String payload) {
         JsonNode node = objectMapper.readTree(payload);
         String requestId = text(node.get("requestId"));
@@ -328,12 +350,67 @@ public final class ArtemisJwksFetcher implements JwksFetcher {
         return connection;
     }
 
-    private static void closeQuietly(Connection connection) {
+    private void resetConnection() {
+        synchronized (replyLock) {
+            replyReady = false;
+            closeQuietly(replyConsumer);
+            closeQuietly(replySession);
+            replyConsumer = null;
+            replySession = null;
+            replyQueue = null;
+            Connection stale = connectionRef.getAndSet(null);
+            closeQuietly(stale);
+        }
+    }
+
+    private static void closeQuietly(@Nullable AutoCloseable resource) {
+        if (resource == null) {
+            return;
+        }
+        try {
+            resource.close();
+        } catch (Exception ignored) {
+        }
+    }
+
+    private static void closeQuietly(@Nullable Connection connection) {
+        if (connection == null) {
+            return;
+        }
         try {
             connection.close();
         } catch (JMSException ignored) {
-            // best-effort close of a connection we are already discarding
         }
+    }
+
+    private String replyQueueName() {
+        return properties.getJwksReplyQueuePrefix() + instanceId();
+    }
+
+    private String instanceId() {
+        String c = cachedInstanceId;
+        if (c != null) {
+            return c;
+        }
+        String resolved = computeInstanceId();
+        cachedInstanceId = resolved;
+        return resolved;
+    }
+
+    private String computeInstanceId() {
+        String configured = properties.getInstanceId();
+        if (configured != null && !configured.isBlank()) {
+            return configured.trim();
+        }
+        String pod = System.getenv("KUBERNETES_POD_NAME");
+        if (pod != null && !pod.isBlank()) {
+            return pod.trim();
+        }
+        String host = computeHost();
+        if (!UNKNOWN_HOST.equals(host)) {
+            return host;
+        }
+        return UUID.randomUUID().toString();
     }
 
     private String buildBearerHeader(@Nullable OAuth2TokenResponse token) {
@@ -348,8 +425,6 @@ public final class ArtemisJwksFetcher implements JwksFetcher {
     }
 
     private ActorEnvelope buildEnvelope() {
-        // JWKS fetch is a system path with no bound user; sign a config-default system envelope (same as the
-        // integration client's no-user branch).
         return envelopeFactory.fromConfigDefault(
                 InitiatorType.SYSTEM_RECOVERY, "system", null, ExecutionTrigger.RECOVERY, ExecutionMode.SYNC);
     }
@@ -375,7 +450,6 @@ public final class ArtemisJwksFetcher implements JwksFetcher {
                 return h.trim();
             }
         } catch (UnknownHostException ignored) {
-            // fall through to JVM name
         }
         try {
             String name = ManagementFactory.getRuntimeMXBean().getName();
@@ -384,7 +458,6 @@ public final class ArtemisJwksFetcher implements JwksFetcher {
                 return name.substring(at + 1);
             }
         } catch (RuntimeException ignored) {
-            // fall through to UNKNOWN
         }
         return UNKNOWN_HOST;
     }

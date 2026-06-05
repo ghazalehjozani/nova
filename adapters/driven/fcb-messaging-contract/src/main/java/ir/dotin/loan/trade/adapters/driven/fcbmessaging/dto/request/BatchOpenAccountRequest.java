@@ -5,7 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbBaseRequest;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +22,7 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
-public final class BatchOpenAccountRequest extends FcbKafkaBaseRequest {
+public final class BatchOpenAccountRequest extends FcbBaseRequest {
 
     @Builder.Default
     @JsonIgnore

@@ -8,7 +8,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbKafkaBaseRequest;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbBaseRequest;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +25,7 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
-public class PostTransactionRequest extends FcbKafkaBaseRequest implements Serializable {
+public class PostTransactionRequest extends FcbBaseRequest implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;

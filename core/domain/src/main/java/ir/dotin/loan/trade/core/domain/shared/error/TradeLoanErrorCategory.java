@@ -28,7 +28,7 @@ import ir.dotin.platform.pangaea.commons.core.error.ErrorCategory;
  *  │ Code │ Category                  │ Sequence allocation                   │
  *  ├──────┼───────────────────────────┼────────────────────────────────────────┤
  *  │  51  │ CORE_BANKING_INTEGRATION  │ CoreBankingErrors:  001–050           │
- *  │      │                           │ CoreBankingKafka:   051–080           │
+ *  │      │                           │ CoreBankingFcb:   051–080           │
  *  │      │                           │ Reserved:           081–999           │
  *  ├──────┼───────────────────────────┼────────────────────────────────────────┤
  *  │  52  │ TRADE_FACILITY            │ TradeFacilityErrors:  001–100         │

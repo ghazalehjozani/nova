@@ -127,7 +127,7 @@ public class MockPortConfigurator {
             AccountId id = invocation.getArgument(0);
             return Result.failure(ir.dotin.platform.pangaea.commons.core.Notification.ofError(
                     ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors
-                            .KAFKA_INVALID_RESPONSE,
+                            .FCB_INVALID_RESPONSE,
                     "findAccountById-stub"));
         });
     }
