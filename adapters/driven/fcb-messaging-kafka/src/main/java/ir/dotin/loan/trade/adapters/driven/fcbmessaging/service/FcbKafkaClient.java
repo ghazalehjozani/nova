@@ -250,8 +250,7 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
         return switch (cause) {
             case FcbServerException fse -> {
                 requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_SERVER);
-                yield Result.failure(
-                        CoreBankingErrors.FCB_SERVER_ERROR, fse.getErrorCode(), fse.getErrorMessage());
+                yield Result.failure(CoreBankingErrors.FCB_SERVER_ERROR, fse.getErrorCode(), fse.getErrorMessage());
             }
             case TimeoutException ignored -> {
                 requestReplyMetrics.recordPublisherFailure(operationType, FcbRequestReplyMetrics.REASON_TIMEOUT);

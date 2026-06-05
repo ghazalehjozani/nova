@@ -334,11 +334,7 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient {
     }
 
     private void stampProperties(
-            TextMessage message,
-            String operationType,
-            String idempotencyKey,
-            String bearerValue,
-            String signedEnvelope)
+            TextMessage message, String operationType, String idempotencyKey, String bearerValue, String signedEnvelope)
             throws JMSException {
         message.setStringProperty(PROP_OPERATION_TYPE, operationType);
         message.setStringProperty(PROP_IDEMPOTENCY_KEY, idempotencyKey);

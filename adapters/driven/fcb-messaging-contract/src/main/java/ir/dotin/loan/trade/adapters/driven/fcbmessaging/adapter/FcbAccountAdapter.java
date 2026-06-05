@@ -262,8 +262,7 @@ public class FcbAccountAdapter implements AccountServicePort, FindOrCreateAccoun
         return Result.success(closed);
     }
 
-    private <T> Result<T> sendAndMap(
-            FcbBaseRequest request, Function<AccountInfoResponse, Result<T>> responseMapper) {
+    private <T> Result<T> sendAndMap(FcbBaseRequest request, Function<AccountInfoResponse, Result<T>> responseMapper) {
         return sendTyped(request, AccountInfoResponse.class, responseMapper);
     }
 

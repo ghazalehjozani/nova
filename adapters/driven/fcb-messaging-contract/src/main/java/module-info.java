@@ -3,8 +3,8 @@ import org.jspecify.annotations.NullMarked;
 /**
  * Trade-loan FCB messaging <em>contract</em> — transport-neutral seam shared by every FCB transport adapter.
  *
- * <p>Holds the wire DTOs (polymorphic {@code FcbBaseRequest}/{@code FcbBaseResponse} keyed on
- * {@code operationName}), the domain⇄wire mappers, the FCB error/exception taxonomy, the request/reply abstraction
+ * <p>Holds the wire DTOs (polymorphic {@code FcbBaseRequest}/{@code FcbBaseResponse} keyed on {@code operationName}),
+ * the domain⇄wire mappers, the FCB error/exception taxonomy, the request/reply abstraction
  * {@code FcbRequestReplyClient}, and the port-implementing adapters that delegate to it. Carries <strong>zero</strong>
  * Kafka / JMS / broker types — the transport lives in {@code fcb-messaging-kafka} and {@code fcb-messaging-artemis}.
  *

@@ -59,8 +59,7 @@ public class FcbValidationMapper {
 
     public Result<EconomicalSectorResponse> mapToEconomicalSectorResponse(EconomicSectorResponse response) {
         if (response.getCode() == null) {
-            return Result.failure(
-                    Notification.ofError(CoreBankingErrors.FCB_INVALID_RESPONSE, "loadEconomicalSector"));
+            return Result.failure(Notification.ofError(CoreBankingErrors.FCB_INVALID_RESPONSE, "loadEconomicalSector"));
         }
         // name/parentCode/hasChild are optional on the wire (a root sector has no parent); the target requires
         // non-null, so coalesce absent values to safe defaults at the anti-corruption boundary.
@@ -127,8 +126,7 @@ public class FcbValidationMapper {
 
     public Result<List<BranchCode>> mapToBranchCodeList(BranchCodeListResponse response) {
         if (response.getBranches() == null) {
-            return Result.failure(
-                    Notification.ofError(CoreBankingErrors.FCB_INVALID_RESPONSE, "loadCoveredBranches"));
+            return Result.failure(Notification.ofError(CoreBankingErrors.FCB_INVALID_RESPONSE, "loadCoveredBranches"));
         }
         List<BranchCode> result = new ArrayList<>();
         for (BranchCodeListResponse.BranchCodeDto dto : response.getBranches()) {
@@ -143,8 +141,7 @@ public class FcbValidationMapper {
     public Result<ApplicationNumber> mapToApplicationNumber(
             ApplicationNumberResponse response, Branch branch, LoanTypeCode loanTypeCode, Party party) {
         if (response.getFileNumber() == null || response.getFileNumber().isBlank()) {
-            return Result.failure(
-                    Notification.ofError(CoreBankingErrors.FCB_INVALID_RESPONSE, "getApplicationNumber"));
+            return Result.failure(Notification.ofError(CoreBankingErrors.FCB_INVALID_RESPONSE, "getApplicationNumber"));
         }
         String fileNumber = response.getFileNumber();
 
@@ -220,8 +217,7 @@ public class FcbValidationMapper {
 
     public Result<List<PartyInfoResponse>> mapToPartyInfoResponseList(CustomerListResponse response) {
         if (response.getCustomers() == null) {
-            return Result.failure(
-                    Notification.ofError(CoreBankingErrors.FCB_INVALID_RESPONSE, "findRelatedCustomers"));
+            return Result.failure(Notification.ofError(CoreBankingErrors.FCB_INVALID_RESPONSE, "findRelatedCustomers"));
         }
         List<PartyInfoResponse> result = new ArrayList<>();
         for (CustomerListResponse.CustomerInfoDto dto : response.getCustomers()) {
@@ -375,8 +371,7 @@ public class FcbValidationMapper {
 
     public Result<SanctionDetails> mapToSanctionDetails(SanctionDetailsResponse response) {
         if (response.getSanctionSerial() == null || response.getSanctionSerial().isBlank()) {
-            return Result.failure(
-                    Notification.ofError(CoreBankingErrors.FCB_INVALID_RESPONSE, "fetchSanctionDetails"));
+            return Result.failure(Notification.ofError(CoreBankingErrors.FCB_INVALID_RESPONSE, "fetchSanctionDetails"));
         }
 
         SanctionType sanctionType = null;
@@ -424,8 +419,7 @@ public class FcbValidationMapper {
                 || loanDuration == null
                 || disbursementMethod == null
                 || confirmType == null) {
-            return Result.failure(
-                    Notification.ofError(CoreBankingErrors.FCB_INVALID_RESPONSE, "fetchSanctionDetails"));
+            return Result.failure(Notification.ofError(CoreBankingErrors.FCB_INVALID_RESPONSE, "fetchSanctionDetails"));
         }
 
         return Result.success(new SanctionDetails(
