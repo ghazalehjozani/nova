@@ -33,11 +33,12 @@ variables:
   MVN_BUILD_PROFILES: '!dev,nexus'
   MVN_DEPLOY_SNAPSHOT_PROFILES: '!dev,nexus,release'
   MVN_DEPLOY_RELEASE_PROFILES: '!dev,nexus,release'
+  DOCKER_BUILD_CONTEXT: 'container'
 
 build:
   before_script:
-    - mkdir -p target
-    - printf '%s' "$KEYSTORE_P12_B64" | tr -d '[:space:]' | base64 -d > target/keystore.p12
+    - mkdir -p container/target
+    - printf '%s' "$KEYSTORE_P12_B64" | tr -d '[:space:]' | base64 -d > container/target/keystore.p12
 
 lint-yaml:
   extends: .lint-yaml
