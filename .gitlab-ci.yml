@@ -36,7 +36,7 @@ variables:
 
 build:
   before_script:
-    - !reference [.mvn-build, before_script]
+    - mkdir -p target
     - echo "$KEYSTORE_P12_B64" | base64 -d > target/keystore.p12
 
 lint-yaml:
