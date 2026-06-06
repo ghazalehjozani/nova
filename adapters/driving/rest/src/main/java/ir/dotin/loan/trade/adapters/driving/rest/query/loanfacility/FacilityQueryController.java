@@ -21,6 +21,7 @@ import ir.dotin.platform.pangaea.protocol.api.util.PagedResponseUtils;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
 import ir.dotin.platform.pangaea.protocol.rest.pagination.CursorPaginationHelper;
 import ir.dotin.platform.pangaea.security.api.AuthenticationContextHolder;
+import ir.dotin.platform.pangaea.security.api.MissingSecurityContextException;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.query.loanfacility.dto.LoanFacilityQueryResult;
@@ -48,7 +49,10 @@ class FacilityQueryController extends BaseController {
     public ResponseEntity<BaseResponse<TradeFacilityQueryDto>> getById(@PathVariable UUID facilityId) {
         GetFacilityByIdQuery query = GetFacilityByIdQuery.builder()
                 .loanFacilityId(facilityId)
-                .callerBranchCode(authenticationContextHolder.branchCode().orElseThrow())
+                .callerBranchCode(authenticationContextHolder
+                        .branchCode()
+                        .orElseThrow(() -> new MissingSecurityContextException(
+                                "branch_code claim is absent from the JWT security context")))
                 .build();
         return ResponseEntity.ok(BaseResponse.success(queryDispatcher.dispatch(query)));
     }
@@ -59,7 +63,10 @@ class FacilityQueryController extends BaseController {
             @RequestParam("application_number") String applicationNumber) {
         GetFacilityByApplicationNumberQuery query = GetFacilityByApplicationNumberQuery.builder()
                 .applicationNumber(applicationNumber)
-                .callerBranchCode(authenticationContextHolder.branchCode().orElseThrow())
+                .callerBranchCode(authenticationContextHolder
+                        .branchCode()
+                        .orElseThrow(() -> new MissingSecurityContextException(
+                                "branch_code claim is absent from the JWT security context")))
                 .build();
         return ResponseEntity.ok(BaseResponse.success(queryDispatcher.dispatch(query)));
     }
