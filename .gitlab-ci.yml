@@ -2,14 +2,12 @@
 # =============================================================================
 # trade-loan (nova) CI/CD
 # -----------------------------------------------------------------------------
-# The full pipeline (lint -> build -> containerize -> publish -> deploy) lives in
+# Full pipeline (lint -> build -> containerize -> publish -> deploy) lives in
 # the shared platform/ci-templates `service.gitlab-ci.yml`.
 # Pipeline triggers (from the shared base):
 #   - merge request          -> lint + build + containerize-validate (no push)
 #   - push to develop         -> build + image publish + snapshot publish + SSH
-#                                deploy ("deploy on push to develop" — the dev
-#                                server is always updated to the latest develop
-#                                build; image tag = commit short SHA)
+#                                deploy (dev server always updated; tag = short SHA)
 #   - tag v<MAJOR>.<MINOR>.<PATCH> -> build + image publish + deploy
 #                                (Maven release publish is disabled below)
 #
@@ -19,6 +17,7 @@
 #   NEXUS_* / DEPLOY_NEXUS_*            - Nexus Maven + Docker creds
 #   OPS_DEPLOYMENTS_RO_TOKEN           - read_api on platform/ops-deployments
 #   DEPLOY_SSH_* / DEPLOY_PATH         - SSH deploy target on the dev server
+#   KEYSTORE_P12_B64                   - `base64 -w0 keystore.p12`, masked + protected
 # =============================================================================
 
 include:
@@ -34,6 +33,11 @@ variables:
   MVN_BUILD_PROFILES: '!dev,nexus'
   MVN_DEPLOY_SNAPSHOT_PROFILES: '!dev,nexus,release'
   MVN_DEPLOY_RELEASE_PROFILES: '!dev,nexus,release'
+
+build:
+  before_script:
+    - !reference [.mvn-build, before_script]
+    - echo "$KEYSTORE_P12_B64" | base64 -d > target/keystore.p12
 
 lint-yaml:
   extends: .lint-yaml
