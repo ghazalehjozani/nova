@@ -17,7 +17,7 @@
 #   NEXUS_* / DEPLOY_NEXUS_*            - Nexus Maven + Docker creds
 #   OPS_DEPLOYMENTS_RO_TOKEN           - read_api on platform/ops-deployments
 #   DEPLOY_SSH_* / DEPLOY_PATH         - SSH deploy target on the dev server
-#   KEYSTORE_P12_B64                   - `base64 -w0 keystore.p12`, masked + protected
+#   KEYSTORE_P12_B64                   - `base64 -w0 keystore.p12` (Linux) or `base64 -b 0 keystore.p12` (macOS), masked
 # =============================================================================
 
 include:
@@ -37,7 +37,7 @@ variables:
 build:
   before_script:
     - mkdir -p target
-    - echo "$KEYSTORE_P12_B64" | base64 -d > target/keystore.p12
+    - printf '%s' "$KEYSTORE_P12_B64" | tr -d '[:space:]' | base64 -d > target/keystore.p12
 
 lint-yaml:
   extends: .lint-yaml
