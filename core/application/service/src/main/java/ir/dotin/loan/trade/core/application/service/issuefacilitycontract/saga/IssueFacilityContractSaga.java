@@ -50,6 +50,7 @@ import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityContractIssued;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
+import ir.dotin.loan.trade.core.domain.shared.document.enums.DocumentMetadataType;
 import ir.dotin.loan.trade.core.domain.shared.document.strategy.IssueContractCommitmentHandlingStrategy;
 import ir.dotin.loan.trade.core.domain.shared.document.transaction.TradeIssueContractTransactionService;
 
@@ -346,6 +347,7 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
                 .network(DocumentMetadataFactory.NetworkConfig.of(
                         Objects.requireNonNull(config.networkType(), "networkType"),
                         Objects.requireNonNull(config.channel(), "channel")))
+                .metadataType(DocumentMetadataType.ISSUE_CONTRACT.code())
                 .operational(OperationalInfo.builder().build())
                 .build()
                 .flatMap(metadata -> transactionService.createIssueContractTransaction(

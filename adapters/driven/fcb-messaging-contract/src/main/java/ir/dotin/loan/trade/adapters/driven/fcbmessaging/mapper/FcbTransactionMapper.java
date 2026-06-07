@@ -12,6 +12,7 @@ import ir.dotin.platform.accounting.document.api.enumeration.RelationType;
 import ir.dotin.platform.accounting.document.api.enumeration.TransactionStatus;
 import ir.dotin.platform.accounting.document.api.model.Article;
 import ir.dotin.platform.accounting.document.api.model.Document;
+import ir.dotin.platform.accounting.document.api.model.metadata.ArticleMetadata;
 import ir.dotin.platform.accounting.document.api.model.target.AccountNumberTarget;
 import ir.dotin.platform.accounting.document.api.model.target.AccountTarget;
 import ir.dotin.platform.accounting.document.api.model.target.ArticleTarget;
@@ -40,11 +41,12 @@ import lombok.extern.slf4j.Slf4j;
 public final class FcbTransactionMapper {
 
     public static Result<PostTransactionRequest> mapToIssueDocumentRequest(
-            LoanTransaction loanTransaction, UUID trackingId) {
+            LoanTransaction loanTransaction, UUID trackingId, boolean includeExtraInfo) {
 
         log.debug(
-                "Mapping LoanTransaction to PostTransactionRequest - facilityId: {}",
-                loanTransaction.loanFacilityId().value());
+                "Mapping LoanTransaction to PostTransactionRequest - facilityId: {}, includeExtraInfo: {}",
+                loanTransaction.loanFacilityId().value(),
+                includeExtraInfo);
 
         Notification notification = Notification.create();
 
@@ -73,13 +75,15 @@ public final class FcbTransactionMapper {
                     notification.addError(CoreCommonErrors.GENERAL_FIELD_REQUIRED, "Document description"));
         }
 
-        Result<List<DocumentItemDto>> itemsResult = mapArticles(document.articles());
+        Result<List<DocumentItemDto>> itemsResult = mapArticles(document.articles(), includeExtraInfo);
         if (itemsResult.isFailure()) {
             return Result.failure(
                     notification.merge(itemsResult.err().orElseThrow().notification()));
         }
 
-        ExtraInfoMetadataDto documentMetadata = pickDocumentLevelMetadata(document);
+        ExtraInfoMetadataDto documentMetadata = includeExtraInfo
+                ? pickDocumentLevelMetadata(document)
+                : ArticleMetadataMapper.documentEnvelope(firstArticleMetadata(document));
 
         PostTransactionRequest request = PostTransactionRequest.builder()
                 .transactionId(String.valueOf(trackingId))
@@ -98,7 +102,7 @@ public final class FcbTransactionMapper {
         return Result.success(request);
     }
 
-    public static Result<List<DocumentItemDto>> mapArticles(List<Article> articles) {
+    public static Result<List<DocumentItemDto>> mapArticles(List<Article> articles, boolean includeExtraInfo) {
         Notification notification = Notification.create();
 
         if (articles == null || articles.isEmpty()) {
@@ -108,7 +112,7 @@ public final class FcbTransactionMapper {
         List<DocumentItemDto> items = new ArrayList<>(articles.size());
         for (int i = 0; i < articles.size(); i++) {
             Article article = articles.get(i);
-            Result<DocumentItemDto> itemResult = mapArticle(article, i);
+            Result<DocumentItemDto> itemResult = mapArticle(article, i, includeExtraInfo);
             if (itemResult.isFailure()) {
                 notification.merge(itemResult.err().orElseThrow().notification());
                 continue;
@@ -122,7 +126,7 @@ public final class FcbTransactionMapper {
         return Result.success(items);
     }
 
-    private static Result<DocumentItemDto> mapArticle(Article article, int index) {
+    private static Result<DocumentItemDto> mapArticle(Article article, int index, boolean includeExtraInfo) {
         Notification notification = Notification.create();
 
         if (article == null) {
@@ -137,7 +141,7 @@ public final class FcbTransactionMapper {
         }
 
         TransactionDirectionDto direction = mapDirection(article.direction());
-        ExtraInfoMetadataDto metadata = ArticleMetadataMapper.toDto(article.articleMetadata());
+        ExtraInfoMetadataDto metadata = includeExtraInfo ? ArticleMetadataMapper.toDto(article.articleMetadata()) : null;
 
         String title = buildTitle(descriptor, direction);
 
@@ -189,6 +193,13 @@ public final class FcbTransactionMapper {
                 ? typeText
                 : descriptor.identifier();
         return "بند سند " + dirText + " " + typeText + " - " + id;
+    }
+
+    private static @Nullable ArticleMetadata firstArticleMetadata(Document document) {
+        return document.articles().stream()
+                .findFirst()
+                .map(Article::articleMetadata)
+                .orElse(null);
     }
 
     private static @Nullable ExtraInfoMetadataDto pickDocumentLevelMetadata(Document document) {

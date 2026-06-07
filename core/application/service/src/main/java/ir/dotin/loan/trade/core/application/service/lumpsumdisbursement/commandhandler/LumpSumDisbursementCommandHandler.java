@@ -46,6 +46,7 @@ import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
+import ir.dotin.loan.trade.core.domain.shared.document.enums.DocumentMetadataType;
 import ir.dotin.loan.trade.core.domain.shared.document.strategy.DisbursementStrategyProvider;
 import ir.dotin.loan.trade.core.domain.shared.document.transaction.TradeLampSunDisbursementTransactionService;
 
@@ -166,15 +167,15 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
 
     private Result<TransactionConfig> createTransactionConfig(LumpSumDisbursementCommand command) {
         return Result.success(new TransactionConfig(
-                command.terminalType(),
-                command.terminalId(),
-                command.terminalIp(),
-                command.productCode(),
+                DocumentMetadataUtils.orEmpty(command.terminalType()),
+                DocumentMetadataUtils.orEmpty(command.terminalId()),
+                DocumentMetadataUtils.orEmpty(command.terminalIp()),
+                DocumentMetadataUtils.orEmpty(command.productCode()),
                 command.userId(),
-                command.toolSource(),
-                command.networkType(),
+                DocumentMetadataUtils.orEmpty(command.toolSource()),
+                DocumentMetadataUtils.orEmpty(command.networkType()),
                 command.branchCode(),
-                command.channel()));
+                DocumentMetadataUtils.orEmpty(command.channel())));
     }
 
     private Result<PostTitle> createPostTitle(TradeLoanFacility facility) {
@@ -225,7 +226,7 @@ public class LumpSumDisbursementCommandHandler implements CommandHandler<LumpSum
 
     private Result<ArticleMetadata> createBaseMetadata(TradeLoanFacility facility, ProcessingContext context) {
         return DocumentMetadataUtils.createBaseArticleMetadata(
-                facility, context.loanType(), context.branchCode(), context.config());
+                facility, context.loanType(), context.branchCode(), context.config(), DocumentMetadataType.DISBURSEMENT);
     }
 
     private Result<List<LoanTransaction>> createTransactions(

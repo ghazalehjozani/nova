@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.core.application.ports.inbound.command;
 
 import java.time.LocalDate;
 import java.util.UUID;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 
 import ir.dotin.platform.pangaea.dispatcher.api.command.Command;
@@ -14,13 +15,13 @@ public record LumpSumDisbursementCommand(
         @NotNull Long version,
         @NotNull UUID loanFacilityId,
         @NotNull String branchCode,
-        @NotNull String terminalType,
-        @NotNull String terminalIp,
-        @NotNull String terminalId,
-        @NotNull String productCode,
+        @Nullable String terminalType,
+        @Nullable String terminalIp,
+        @Nullable String terminalId,
+        @Nullable String productCode,
         @NotNull String userId,
-        @NotNull String toolSource,
-        @NotNull String networkType,
-        @NotNull String channel,
+        @Nullable String toolSource,
+        @Nullable String networkType,
+        @Nullable String channel,
         @NotNull LocalDate disbursementDate)
         implements Command {}

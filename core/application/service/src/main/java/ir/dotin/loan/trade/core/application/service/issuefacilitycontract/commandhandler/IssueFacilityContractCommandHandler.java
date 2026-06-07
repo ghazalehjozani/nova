@@ -23,6 +23,7 @@ import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.compon
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga.IssueFacilityContractInput;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga.IssueFacilityContractSagaData;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.strategy.FacilityContractContext;
+import ir.dotin.loan.trade.core.application.service.shared.util.DocumentMetadataUtils;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityContractIssued;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.validator.FacilityContractValidation;
 
@@ -63,13 +64,13 @@ public class IssueFacilityContractCommandHandler implements CommandHandler<Issue
         TransactionConfig transactionConfig = TransactionConfig.builder()
                 .userId(command.userId())
                 .branchCode(command.branchCode())
-                .terminalId(command.terminalId())
-                .terminalIp(command.terminalIp())
-                .terminalType(command.terminalType())
-                .channel(command.channel())
-                .toolSource(command.toolSource())
-                .productCode(command.productCode())
-                .networkType(command.networkType())
+                .terminalId(DocumentMetadataUtils.orEmpty(command.terminalId()))
+                .terminalIp(DocumentMetadataUtils.orEmpty(command.terminalIp()))
+                .terminalType(DocumentMetadataUtils.orEmpty(command.terminalType()))
+                .channel(DocumentMetadataUtils.orEmpty(command.channel()))
+                .toolSource(DocumentMetadataUtils.orEmpty(command.toolSource()))
+                .productCode(DocumentMetadataUtils.orEmpty(command.productCode()))
+                .networkType(DocumentMetadataUtils.orEmpty(command.networkType()))
                 .build();
 
         var input = IssueFacilityContractInput.of(

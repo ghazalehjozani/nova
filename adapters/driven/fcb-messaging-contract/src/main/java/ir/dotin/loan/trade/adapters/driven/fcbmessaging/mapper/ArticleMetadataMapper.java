@@ -28,6 +28,25 @@ public final class ArticleMetadataMapper {
 
     private static final String DEFAULT_EXTRA_INFO_TYPE = "LOAN_DOCUMENT";
 
+    /**
+     * Minimal document-metadata envelope carrying only the metadata type. FCB hard-requires a non-null document
+     * metadata with a non-blank type (GL {@code validateMetaData}); this satisfies that envelope without sending any of
+     * the rich metadata sections, used when {@code nova.fcb.documents.enabled} is off. The type is the per-operation
+     * document code (disbursement / issue-contract) carried on the metadata, defaulting to {@code LOAN_DOCUMENT}.
+     */
+    public static ExtraInfoMetadataDto documentEnvelope(@Nullable ArticleMetadata metadata) {
+        return ExtraInfoMetadataDto.builder()
+                .extraInfoType(resolveMetadataType(metadata))
+                .build();
+    }
+
+    private static String resolveMetadataType(@Nullable ArticleMetadata metadata) {
+        if (metadata != null && metadata.metadataType() != null && !metadata.metadataType().isBlank()) {
+            return metadata.metadataType();
+        }
+        return DEFAULT_EXTRA_INFO_TYPE;
+    }
+
     public static @Nullable ExtraInfoMetadataDto toDto(@Nullable ArticleMetadata metadata) {
         return toDto(metadata, true);
     }
@@ -44,7 +63,8 @@ public final class ArticleMetadataMapper {
             return null;
         }
 
-        var builder = ExtraInfoMetadataDto.builder().extraInfoType(DEFAULT_EXTRA_INFO_TYPE);
+        var builder = ExtraInfoMetadataDto.builder()
+                .extraInfoType(includeTransactionInfo ? DEFAULT_EXTRA_INFO_TYPE : resolveMetadataType(metadata));
 
         if (includeTransactionInfo) {
             applyTransactionInfo(builder, metadata.transactionInfo());

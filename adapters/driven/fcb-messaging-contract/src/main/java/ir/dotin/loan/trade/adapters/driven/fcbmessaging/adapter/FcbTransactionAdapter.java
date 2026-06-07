@@ -15,6 +15,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.client.FcbRequestReplyClient;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbDocumentProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbBaseResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.TransactionResultResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.PostTransactionRequest;
@@ -34,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 public class FcbTransactionAdapter implements TransactionPostingPort {
 
     private final FcbRequestReplyClient kafkaClient;
+    private final FcbDocumentProperties documentProperties;
     private final Clock clock;
 
     /**
@@ -54,7 +56,8 @@ public class FcbTransactionAdapter implements TransactionPostingPort {
                 trackingId);
 
         Result<PostTransactionRequest> mappingResult =
-                FcbTransactionMapper.mapToIssueDocumentRequest(loanTransaction, trackingId);
+                FcbTransactionMapper.mapToIssueDocumentRequest(
+                        loanTransaction, trackingId, documentProperties.isEnabled());
         if (mappingResult.isFailure()) {
             log.error(
                     "Failed to map LoanTransaction to IssueDocumentRequest: {}",

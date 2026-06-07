@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.core.application.ports.inbound.command;
 
 import java.util.UUID;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 
 import ir.dotin.platform.pangaea.dispatcher.api.command.Command;
@@ -14,11 +15,11 @@ public record IssueFacilityContractCommand(
         @NotNull UUID loanFacilityId,
         @NotNull String branchCode,
         @NotNull String userId,
-        @NotNull String terminalId,
-        @NotNull String terminalIp,
-        @NotNull String terminalType,
-        @NotNull String channel,
-        @NotNull String toolSource,
-        @NotNull String productCode,
-        @NotNull String networkType)
+        @Nullable String terminalId,
+        @Nullable String terminalIp,
+        @Nullable String terminalType,
+        @Nullable String channel,
+        @Nullable String toolSource,
+        @Nullable String productCode,
+        @Nullable String networkType)
         implements Command {}
