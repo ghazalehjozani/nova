@@ -12,11 +12,13 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.pangaea.commons.domain.vo.Money;
-import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.CloseInstallmentSchedulePaidOff;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CloseFacilityPaidOffInfo;
@@ -30,11 +32,8 @@ import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplic
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilityService;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
-public class CloseFacilityPaidOffCommandHandler implements CommandHandler<CloseFacilityPaidOffCommand> {
+public class CloseFacilityPaidOffCommandHandler extends WriteCommandHandler<CloseFacilityPaidOffCommand, Unit> {
 
     private static final Logger log = LoggerFactory.getLogger(CloseFacilityPaidOffCommandHandler.class);
 
@@ -45,8 +44,28 @@ public class CloseFacilityPaidOffCommandHandler implements CommandHandler<CloseF
     private final ApplicationNumberResolver applicationNumberResolver;
     private final Clock clock;
 
+    public CloseFacilityPaidOffCommandHandler(
+            WriteTransaction writeTransaction,
+            TradeLoanFacilityService domainService,
+            TradeLoanFacilityRepository repository,
+            InstallmentScheduleRepository installmentScheduleRepository,
+            ApplicationNumberResolver applicationNumberResolver,
+            Clock clock) {
+        super(writeTransaction);
+        this.domainService = domainService;
+        this.repository = repository;
+        this.installmentScheduleRepository = installmentScheduleRepository;
+        this.applicationNumberResolver = applicationNumberResolver;
+        this.clock = clock;
+    }
+
     @Override
-    public Result<List<DomainEvent<?>>> handle(CloseFacilityPaidOffCommand command) {
+    protected Result<Unit> prepare(CloseFacilityPaidOffCommand command) {
+        return Result.success();
+    }
+
+    @Override
+    protected Result<List<DomainEvent<?>>> write(CloseFacilityPaidOffCommand command, Unit prepared) {
         List<DomainEvent<?>> allEvents = new ArrayList<>();
         return resolveIdentifiers(command)
                 .flatMap(ids -> loadSchedule(ids, command)

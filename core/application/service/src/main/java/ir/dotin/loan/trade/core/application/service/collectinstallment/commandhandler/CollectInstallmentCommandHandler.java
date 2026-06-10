@@ -9,12 +9,14 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.pangaea.commons.domain.vo.Money;
-import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentPaymentRecord;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
@@ -25,11 +27,8 @@ import ir.dotin.loan.trade.core.application.ports.outbound.query.ApplicationNumb
 import ir.dotin.loan.trade.core.application.ports.outbound.query.ApplicationNumberResolver.LoanIdentifiers;
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
-public class CollectInstallmentCommandHandler implements CommandHandler<CollectInstallmentCommand> {
+public class CollectInstallmentCommandHandler extends WriteCommandHandler<CollectInstallmentCommand, Unit> {
 
     private static final Logger log = LoggerFactory.getLogger(CollectInstallmentCommandHandler.class);
 
@@ -37,8 +36,24 @@ public class CollectInstallmentCommandHandler implements CommandHandler<CollectI
     private final ApplicationNumberResolver applicationNumberResolver;
     private final Clock clock;
 
+    public CollectInstallmentCommandHandler(
+            WriteTransaction writeTransaction,
+            InstallmentScheduleRepository installmentScheduleRepository,
+            ApplicationNumberResolver applicationNumberResolver,
+            Clock clock) {
+        super(writeTransaction);
+        this.installmentScheduleRepository = installmentScheduleRepository;
+        this.applicationNumberResolver = applicationNumberResolver;
+        this.clock = clock;
+    }
+
     @Override
-    public Result<List<DomainEvent<?>>> handle(CollectInstallmentCommand command) {
+    protected Result<Unit> prepare(CollectInstallmentCommand command) {
+        return Result.success();
+    }
+
+    @Override
+    protected Result<List<DomainEvent<?>>> write(CollectInstallmentCommand command, Unit prepared) {
         return resolveIdentifiers(command)
                 .flatMap(ids -> loadSchedule(ids, command))
                 .flatMap(schedule -> collectAllPayments(schedule, command))

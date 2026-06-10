@@ -5,11 +5,10 @@ import java.util.UUID;
 
 import org.jspecify.annotations.Nullable;
 
-import ir.dotin.platform.pangaea.dispatcher.api.cache.CacheDependency;
-import ir.dotin.platform.pangaea.dispatcher.api.query.CacheableQuery;
-import ir.dotin.platform.pangaea.dispatcher.api.query.Query;
+import ir.dotin.platform.pangaea.servicelayer.api.query.Query;
+import ir.dotin.platform.pangaea.servicelayer.cache.CacheTag;
+import ir.dotin.platform.pangaea.servicelayer.cache.CacheableQuery;
 import ir.dotin.loan.trade.core.application.query.loanfacility.dto.TradeFacilityQueryDto;
-import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 import lombok.Builder;
 
@@ -23,7 +22,7 @@ public record GetFacilityByIdQuery(
     }
 
     @Override
-    public Set<CacheDependency> invalidatedBy() {
-        return Set.of(CacheDependency.of(TradeLoanFacility.class, loanFacilityId));
+    public Set<CacheTag> invalidatedBy() {
+        return Set.of(CacheTag.ofInstance("TradeLoanFacility", loanFacilityId));
     }
 }

@@ -1,91 +1,75 @@
 package ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.commandhandler;
 
-import java.time.Clock;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import ir.dotin.platform.accounting.document.api.enumeration.RelationType;
-import ir.dotin.platform.accounting.document.api.model.AccountId;
-import ir.dotin.platform.accounting.document.api.model.BranchCode;
-import ir.dotin.platform.accounting.document.api.model.PostTitle;
 import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
-import ir.dotin.platform.accounting.document.api.model.metadata.ArticleMetadata;
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
-import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
-import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.pangaea.commons.domain.vo.Money;
-import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
+import ir.dotin.platform.pangaea.saga.api.definition.SagaInput;
+import ir.dotin.platform.pangaea.saga.api.handler.SagaCommandHandler;
+import ir.dotin.platform.pangaea.saga.api.orchestration.SagaOrchestrator;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.Installment;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
-import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleStatus;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.service.InstallmentRecalculationService;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentSpec;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.ResolvedAccounts;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.IrregularProgressiveDisbursementCommand;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.InstallmentScheduleRepository;
-import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
-import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanTypeRepository;
-import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.configuration.IrregularProgressiveDisbursementConfiguration;
 import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.mapper.IrregularProgressiveDisbursementInstallmentSchedulePlanMapper;
-import ir.dotin.loan.trade.core.application.service.shared.account.AccountResolutionService;
-import ir.dotin.loan.trade.core.application.service.shared.account.LoanTopicResolver;
+import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.saga.IrregularProgressiveDisbursementInput;
+import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.saga.IrregularProgressiveDisbursementSagaData;
+import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.saga.IrregularProgressiveDisbursementSagaData.InstallmentSpecData;
 import ir.dotin.loan.trade.core.application.service.shared.authz.BranchAccessValidator;
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.application.service.shared.util.DocumentMetadataUtils;
-import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
-import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
-import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
-import ir.dotin.loan.trade.core.domain.shared.document.enums.DocumentMetadataType;
-import ir.dotin.loan.trade.core.domain.shared.document.strategy.DisbursementStrategyProvider;
-import ir.dotin.loan.trade.core.domain.shared.document.transaction.IrregularProgressiveDisbursementTransactionService;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 import static java.util.Objects.requireNonNull;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class IrregularProgressiveDisbursementCommandHandler
-        implements CommandHandler<IrregularProgressiveDisbursementCommand> {
+        extends SagaCommandHandler<IrregularProgressiveDisbursementCommand, IrregularProgressiveDisbursementSagaData> {
+
+    private static final Logger log = LoggerFactory.getLogger(IrregularProgressiveDisbursementCommandHandler.class);
 
     private final TradeLoanFacilityRepository tradeLoanFacilityRepository;
-    private final TradeLoanTypeRepository tradeLoanTypeRepository;
-    private final TradeLoanArrangementRepository tradeLoanArrangementRepository;
     private final InstallmentScheduleRepository installmentScheduleRepository;
-    private final IrregularProgressiveDisbursementTransactionService transactionService;
     private final InstallmentRecalculationService recalculationService;
-    private final TransactionPostingPort transactionPostingPort;
-    private final IrregularProgressiveDisbursementConfiguration configuration;
     private final IrregularProgressiveDisbursementInstallmentSchedulePlanMapper planMapper;
-    private final DisbursementStrategyProvider strategyProvider;
-    private final LoanTopicResolver loanTopicResolver;
-    private final AccountResolutionService accountResolutionService;
     private final BranchAccessValidator branchAccessValidator;
-    private final Clock clock;
+
+    public IrregularProgressiveDisbursementCommandHandler(
+            SagaOrchestrator<IrregularProgressiveDisbursementSagaData> sagaOrchestrator,
+            TradeLoanFacilityRepository tradeLoanFacilityRepository,
+            InstallmentScheduleRepository installmentScheduleRepository,
+            InstallmentRecalculationService recalculationService,
+            IrregularProgressiveDisbursementInstallmentSchedulePlanMapper planMapper,
+            BranchAccessValidator branchAccessValidator) {
+        super(sagaOrchestrator);
+        this.tradeLoanFacilityRepository = tradeLoanFacilityRepository;
+        this.installmentScheduleRepository = installmentScheduleRepository;
+        this.recalculationService = recalculationService;
+        this.planMapper = planMapper;
+        this.branchAccessValidator = branchAccessValidator;
+    }
 
     @Override
-    public Result<List<DomainEvent<?>>> handle(IrregularProgressiveDisbursementCommand command) {
+    protected String sagaType() {
+        return "irregular-progressive-disbursement";
+    }
+
+    @Override
+    protected Result<SagaInput> prepare(IrregularProgressiveDisbursementCommand command) {
         log.info("Starting irregular disbursement for facility: {}", command.loanFacilityId());
 
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
@@ -95,40 +79,88 @@ public class IrregularProgressiveDisbursementCommandHandler
                         .verifyCallerCoversFacility(command.branchCode(), facility)
                         .map(ignored -> facility))
                 .flatMap(this::validateDisbursementMethod)
-                .flatMap(facility -> loadDependencies(facility, command)
-                        .flatMap(context -> validateAll(facility, context)
-                                .flatMap(ignored -> resolveAccounts(facility, context))
-                                .flatMap(resolvedAccounts -> processDisbursement(context, resolvedAccounts))))
-                .flatMap(operationResult -> persistAndCollectEvents(operationResult, command.version()))
-                .onSuccess(result ->
-                        log.info("Irregular disbursement completed for facility: {}", command.loanFacilityId()))
-                .map(DisbursementResult::events);
+                .flatMap(facility -> loadInstallmentSchedule(facility)
+                        .flatMap(schedule -> approvePlan(command, facility, schedule)));
     }
 
-    private Result<ResolvedAccounts> resolveAccounts(TradeLoanFacility facility, ProcessingContext context) {
-        Set<TradeRelationType> requiredRelationTypes = strategyProvider.getAllRequiredRelationTypes(facility);
+    private Result<SagaInput> approvePlan(
+            IrregularProgressiveDisbursementCommand command, TradeLoanFacility facility, InstallmentSchedule schedule) {
 
-        Set<LoanTopic> requiredTopics = loanTopicResolver.resolveTopics(
-                context.loanType(), facility.getLoanApplication().getEconomicSector(), requiredRelationTypes);
+        CurrencyType currencyType =
+                requireNonNull(facility.getSanctionedLoan().orElseThrow().getCurrency());
+        Money trancheAmount =
+                Money.valueOf(command.trancheAmount(), currencyType).unwrap();
 
-        return accountResolutionService.resolveAccounts(
-                requiredTopics,
-                facility.getAccountInfoMap(),
-                context.arrangement().getCurrencyType().getCode());
+        List<InstallmentSpec> customPlan = null;
+        if (command.installmentSchedulePlan() != null) {
+            customPlan = planMapper.mapSpecs(command.installmentSchedulePlan().installments(), currencyType);
+        }
+        List<InstallmentSpec> finalCustomPlan = customPlan;
+
+        return recalculationService
+                .recalculateForIrregularDisbursement(schedule, facility, trancheAmount, finalCustomPlan)
+                .map(approvedInstallments -> buildInput(
+                        command,
+                        facility,
+                        currencyType,
+                        toSpecData(finalCustomPlan),
+                        flattenInstallments(approvedInstallments)));
     }
 
-    private Result<DisbursementOperationResult> processDisbursement(
-            ProcessingContext context, ResolvedAccounts resolvedAccounts) {
+    private SagaInput buildInput(
+            IrregularProgressiveDisbursementCommand command,
+            TradeLoanFacility facility,
+            CurrencyType currencyType,
+            @Nullable List<InstallmentSpecData> customPlanSpecs,
+            List<InstallmentSpecData> approvedPlanSpecs) {
 
-        return recalculateSchedule(context).flatMap(recalculatedInstallments -> restructureAndActivateSchedule(
-                        context.facility(), context, recalculatedInstallments)
-                .flatMap(newSchedule -> createBaseMetadata(context.facility(), context)
-                        .flatMap(metadata -> createTransactions(
-                                context.facility(), context, metadata, recalculatedInstallments, resolvedAccounts))
-                        .flatMap(transactions ->
-                                postTransactionsInBatch(context.facility().getId(), transactions))
-                        .flatMap(transactionResults -> performDisbursementOperations(
-                                context.facility(), context, transactionResults, newSchedule))));
+        TransactionConfig transactionConfig = new TransactionConfig(
+                DocumentMetadataUtils.orEmpty(command.terminalType()),
+                DocumentMetadataUtils.orEmpty(command.terminalId()),
+                DocumentMetadataUtils.orEmpty(command.terminalIp()),
+                DocumentMetadataUtils.orEmpty(command.productCode()),
+                command.userId(),
+                DocumentMetadataUtils.orEmpty(command.toolSource()),
+                DocumentMetadataUtils.orEmpty(command.networkType()),
+                command.branchCode(),
+                DocumentMetadataUtils.orEmpty(command.channel()));
+
+        int trancheNumber = facility.getSanctionedLoan().orElseThrow().getDisbursementCount() + 1;
+
+        return new IrregularProgressiveDisbursementInput(
+                command.loanFacilityId(),
+                command.branchCode(),
+                transactionConfig,
+                command.disbursementDate(),
+                command.version(),
+                command.trancheAmount(),
+                currencyType.getCode(),
+                trancheNumber,
+                customPlanSpecs,
+                approvedPlanSpecs);
+    }
+
+    private @Nullable List<InstallmentSpecData> toSpecData(@Nullable List<InstallmentSpec> specs) {
+        if (specs == null) {
+            return null;
+        }
+        return specs.stream()
+                .map(spec -> new InstallmentSpecData(
+                        spec.sequenceNumber(),
+                        spec.dueDate(),
+                        spec.principalAmount().value(),
+                        spec.interestAmount().value()))
+                .toList();
+    }
+
+    private List<InstallmentSpecData> flattenInstallments(List<Installment> installments) {
+        return installments.stream()
+                .map(installment -> new InstallmentSpecData(
+                        installment.getSequenceNumber(),
+                        installment.getDueDate(),
+                        installment.getScheduledAmount().principalAmount().value(),
+                        installment.getScheduledAmount().interestAmount().value()))
+                .toList();
     }
 
     private Result<TradeLoanFacility> loadFacility(LoanFacilityId loanFacilityId) {
@@ -136,67 +168,6 @@ public class IrregularProgressiveDisbursementCommandHandler
                 tradeLoanFacilityRepository.findById(loanFacilityId),
                 () -> FailureCause.notFound(Notification.ofError(
                         TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, loanFacilityId.value())));
-    }
-
-    private Result<TradeLoanFacility> validateDisbursementMethod(TradeLoanFacility facility) {
-        return facility.getSanctionedLoan()
-                .filter(sl -> sl.getDisbursementMethod() == DisbursementMethod.IRREGULAR_PROGRESSIVE)
-                .map(ignored -> Result.success(facility))
-                .orElseGet(() -> Result.failure(Notification.ofError(
-                        TradeLoanApplicationServiceErrors.INVALID_DISBURSEMENT_METHOD,
-                        facility.getSanctionedLoan()
-                                .map(sl -> sl.getDisbursementMethod() != null
-                                        ? sl.getDisbursementMethod().name()
-                                        : "null")
-                                .orElse("UNKNOWN"))));
-    }
-
-    private Result<ProcessingContext> loadDependencies(
-            TradeLoanFacility facility, IrregularProgressiveDisbursementCommand command) {
-        CurrencyType currencyType = facility.getSanctionedLoan().orElseThrow().getCurrency();
-        Money trancheAmount = Money.valueOf(command.trancheAmount(), requireNonNull(currencyType))
-                .unwrap();
-
-        List<InstallmentSpec> customPlan = null;
-        if (command.installmentSchedulePlan() != null) {
-            customPlan = planMapper.mapSpecs(command.installmentSchedulePlan().installments(), currencyType);
-        }
-
-        List<InstallmentSpec> finalCustomPlan = customPlan;
-
-        return loadLoanType(facility).flatMap(loanType -> loadLoanArrangement(facility)
-                .flatMap(arrangement -> loadInstallmentSchedule(facility).flatMap(schedule -> createBranchCode(command)
-                        .flatMap(branchCode -> createTransactionConfig(command)
-                                .flatMap(config -> createPostTitle(facility)
-                                        .map(postTitle -> new ProcessingContext(
-                                                loanType,
-                                                arrangement,
-                                                facility,
-                                                schedule,
-                                                branchCode,
-                                                config,
-                                                postTitle,
-                                                trancheAmount,
-                                                command.disbursementDate(),
-                                                finalCustomPlan)))))));
-    }
-
-    private Result<TradeLoanType> loadLoanType(TradeLoanFacility facility) {
-        return Result.fromOptional(
-                tradeLoanTypeRepository.findById(facility.getLoanTypeId()),
-                () -> FailureCause.notFound(Notification.ofError(
-                        TradeLoanApplicationServiceErrors.LOAN_TYPE_NOT_FOUND,
-                        facility.getLoanTypeId(),
-                        facility.getId().value())));
-    }
-
-    private Result<TradeLoanArrangement> loadLoanArrangement(TradeLoanFacility facility) {
-        return Result.fromOptional(
-                tradeLoanArrangementRepository.findById(facility.getLoanArrangementId()),
-                () -> FailureCause.notFound(Notification.ofError(
-                        TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND,
-                        facility.getLoanArrangementId(),
-                        facility.getId().value())));
     }
 
     private Result<InstallmentSchedule> loadInstallmentSchedule(TradeLoanFacility facility) {
@@ -211,196 +182,16 @@ public class IrregularProgressiveDisbursementCommandHandler
                         facility.getId().value())));
     }
 
-    private Result<BranchCode> createBranchCode(IrregularProgressiveDisbursementCommand command) {
-        return BranchCode.of(command.branchCode())
-                .or(Result.failure(TradeLoanApplicationServiceErrors.INVALID_BRANCH_CODE, command.branchCode()));
+    private Result<TradeLoanFacility> validateDisbursementMethod(TradeLoanFacility facility) {
+        return facility.getSanctionedLoan()
+                .filter(sl -> sl.getDisbursementMethod() == DisbursementMethod.IRREGULAR_PROGRESSIVE)
+                .map(ignored -> Result.success(facility))
+                .orElseGet(() -> Result.failure(Notification.ofError(
+                        TradeLoanApplicationServiceErrors.INVALID_DISBURSEMENT_METHOD,
+                        facility.getSanctionedLoan()
+                                .map(sl -> sl.getDisbursementMethod() != null
+                                        ? sl.getDisbursementMethod().name()
+                                        : "null")
+                                .orElse("UNKNOWN"))));
     }
-
-    private Result<TransactionConfig> createTransactionConfig(IrregularProgressiveDisbursementCommand command) {
-        return Result.success(new TransactionConfig(
-                DocumentMetadataUtils.orEmpty(command.terminalType()),
-                DocumentMetadataUtils.orEmpty(command.terminalId()),
-                DocumentMetadataUtils.orEmpty(command.terminalIp()),
-                DocumentMetadataUtils.orEmpty(command.productCode()),
-                command.userId(),
-                DocumentMetadataUtils.orEmpty(command.toolSource()),
-                DocumentMetadataUtils.orEmpty(command.networkType()),
-                command.branchCode(),
-                DocumentMetadataUtils.orEmpty(command.channel())));
-    }
-
-    private Result<PostTitle> createPostTitle(TradeLoanFacility facility) {
-        int trancheNumber = facility.getSanctionedLoan().orElseThrow().getDisbursementCount() + 1;
-        String title =
-                configuration.getPostTitleTemplate().formatted(facility.getId().value(), trancheNumber);
-        return PostTitle.of(title);
-    }
-
-    private Result<Unit> validateAll(TradeLoanFacility facility, ProcessingContext context) {
-        return validateScheduleStatus(context)
-                .flatMap(ignored -> facility.validateDisbursementDate(
-                        requireNonNull(context.disbursementDate(), "disbursementDate"),
-                        context.schedule().getInstallments().getFirst().getDueDate()))
-                .flatMap(ignored -> facility.validateIrregularTrancheDisbursement(context.trancheAmount()));
-    }
-
-    private Result<Unit> validateScheduleStatus(ProcessingContext context) {
-        boolean isFirstDisbursement = context.schedule().getScheduleHistory().count() == 0;
-        InstallmentScheduleStatus currentStatus = context.schedule().getStatus();
-
-        if (isFirstDisbursement) {
-            if (currentStatus != InstallmentScheduleStatus.DRAFT) {
-                return Result.failure(
-                        TradeLoanApplicationServiceErrors.INVALID_SCHEDULE_STATUS_FOR_FIRST_DISBURSEMENT,
-                        currentStatus);
-            }
-        } else {
-            if (currentStatus != InstallmentScheduleStatus.ACTIVE) {
-                return Result.failure(
-                        TradeLoanApplicationServiceErrors.INVALID_SCHEDULE_STATUS_FOR_SUBSEQUENT_DISBURSEMENT,
-                        currentStatus);
-            }
-        }
-
-        return Result.success();
-    }
-
-    private Result<List<Installment>> recalculateSchedule(ProcessingContext context) {
-        return recalculationService.recalculateForIrregularDisbursement(
-                context.schedule(), context.facility(), context.trancheAmount(), context.customPlan());
-    }
-
-    private Result<InstallmentSchedule> restructureAndActivateSchedule(
-            TradeLoanFacility facility, ProcessingContext context, List<Installment> recalculatedInstallments) {
-
-        int trancheNumber = context.schedule().getScheduleHistory().count() + 1;
-        String reason = String.format(
-                "Tranche %d disbursement: %s",
-                trancheNumber, context.trancheAmount().value());
-        Money totalTranche = facility.getTotalDisbursedAmount()
-                .add(context.trancheAmount())
-                .unwrapOrThrow(c -> new IllegalStateException("Creating zero Money failed unexpectedly."));
-
-        return context.schedule()
-                .restructureSchedule(
-                        recalculatedInstallments,
-                        reason,
-                        totalTranche,
-                        requireNonNull(
-                                facility.getSanctionedLoan().orElseThrow().getApprovedAmount()),
-                        clock,
-                        requireNonNull(context.config().userId(), "userId"))
-                .flatMap(newSchedule -> newSchedule.activateSchedule(clock).map(ignored -> newSchedule));
-    }
-
-    private Result<ArticleMetadata> createBaseMetadata(TradeLoanFacility facility, ProcessingContext context) {
-        return DocumentMetadataUtils.createBaseArticleMetadata(
-                facility, context.loanType(), context.branchCode(), context.config(), DocumentMetadataType.DISBURSEMENT);
-    }
-
-    private Result<List<LoanTransaction>> createTransactions(
-            TradeLoanFacility facility,
-            ProcessingContext context,
-            ArticleMetadata metadata,
-            List<Installment> recalculatedInstallments,
-            ResolvedAccounts resolvedAccounts) {
-
-        return transactionService.createTransactions(
-                facility,
-                context.loanType(),
-                context.branchCode(),
-                context.postTitle(),
-                metadata,
-                context.schedule(),
-                recalculatedInstallments,
-                context.trancheAmount(),
-                resolvedAccounts);
-    }
-
-    private Result<List<TransactionResult>> postTransactionsInBatch(
-            LoanFacilityId facilityId, List<LoanTransaction> transactions) {
-        return transactionPostingPort
-                .postTransactions(facilityId, configuration.getFcbMergedDocumentTitle(), transactions)
-                .map(trackedNumbers -> {
-                    Map<RelationType<?>, AccountId> allAccountIds = new LinkedHashMap<>();
-                    transactions.stream()
-                            .flatMap(tx -> tx.extractAccountIdsByRelationType().entrySet().stream())
-                            .forEach(entry ->
-                                    allAccountIds.merge(entry.getKey(), entry.getValue(), (existing, newValue) -> {
-                                        if (!existing.equals(newValue)) {
-                                            throw new IllegalStateException(
-                                                    "Conflicting account ID for relation type: %s, existing: %s, new: %s"
-                                                            .formatted(
-                                                                    entry.getKey(),
-                                                                    existing.value(),
-                                                                    newValue.value()));
-                                        }
-                                        return existing;
-                                    }));
-
-                    return trackedNumbers.stream()
-                            .map(tracked -> new TransactionResult(tracked, allAccountIds))
-                            .toList();
-                });
-    }
-
-    private Result<DisbursementOperationResult> performDisbursementOperations(
-            TradeLoanFacility facility,
-            ProcessingContext context,
-            List<TransactionResult> transactionResults,
-            InstallmentSchedule newSchedule) {
-
-        List<TrackedTransactionNumber> trackedNumbers = transactionResults.stream()
-                .map(TransactionResult::trackedTransactionNumber)
-                .toList();
-
-        Map<RelationType<?>, AccountId> accountIds = transactionResults.stream()
-                .flatMap(result -> result.accountIds().entrySet().stream())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (existing, replacement) -> existing));
-
-        return facility.disburseIrregularTranche(
-                        context.trancheAmount(),
-                        trackedNumbers,
-                        accountIds,
-                        newSchedule.getId(),
-                        clock,
-                        requireNonNull(context.config().userId(), "userId"),
-                        requireNonNull(context.disbursementDate(), "disbursementDate"))
-                .map(ignored -> new DisbursementOperationResult(facility, context.schedule(), newSchedule));
-    }
-
-    private Result<DisbursementResult> persistAndCollectEvents(
-            DisbursementOperationResult operationResult, long expectedVersion) {
-        installmentScheduleRepository.save(operationResult.oldSchedule());
-        InstallmentSchedule newSchedule = installmentScheduleRepository.save(operationResult.newSchedule());
-        TradeLoanFacility savedFacility = tradeLoanFacilityRepository.save(operationResult.facility(), expectedVersion);
-
-        List<DomainEvent<?>> events = new ArrayList<>();
-        events.addAll(operationResult.oldSchedule().domainEvents());
-        events.addAll(operationResult.newSchedule().domainEvents());
-        events.addAll(operationResult.facility().domainEvents());
-
-        return Result.success(new DisbursementResult(savedFacility, newSchedule, events));
-    }
-
-    private record ProcessingContext(
-            TradeLoanType loanType,
-            TradeLoanArrangement arrangement,
-            TradeLoanFacility facility,
-            InstallmentSchedule schedule,
-            BranchCode branchCode,
-            TransactionConfig config,
-            PostTitle postTitle,
-            Money trancheAmount,
-            @Nullable LocalDate disbursementDate,
-            @Nullable List<InstallmentSpec> customPlan) {}
-
-    private record TransactionResult(
-            TrackedTransactionNumber trackedTransactionNumber, Map<RelationType<?>, AccountId> accountIds) {}
-
-    private record DisbursementOperationResult(
-            TradeLoanFacility facility, InstallmentSchedule oldSchedule, InstallmentSchedule newSchedule) {}
-
-    private record DisbursementResult(
-            TradeLoanFacility facility, InstallmentSchedule schedule, List<DomainEvent<?>> events) {}
 }

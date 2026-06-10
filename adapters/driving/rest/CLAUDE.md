@@ -96,7 +96,7 @@ CLAUDE.md. Nova-relevant points:
   `getIdempotencyKey()`) / the ambient `InvocationContext`. The platform `HeaderValidationFilter` enforces required
   headers — commands need `Idempotency-Key` + `X-Correlation-ID` (UUIDs), all requests need `X-Request-DateTime` +
   `Accept-Language`. Queries carry no idempotency/correlation requirement.
-- **Status / response shape:** commands → `201 Created` + `Location` (resource create) or `204 No Content` (mutate);
+- **Status / response shape:** commands → `201 Created` + `Location` (resource create) or `204 No Content` (execute);
   queries → `200 OK` + `BaseResponse<T>`. Let `CommandResponseFactory` / `BaseController` pick — don't hand-build
   statuses or envelopes.
 - **Errors:** nova has **no** `@RestControllerAdvice`. The platform `GlobalExceptionHandler` produces the SWA-101

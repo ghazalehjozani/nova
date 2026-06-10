@@ -2,7 +2,7 @@ package ir.dotin.loan.trade.core.application.query.loanfacility.request;
 
 import org.jspecify.annotations.Nullable;
 
-import ir.dotin.platform.pangaea.dispatcher.api.query.Query;
+import ir.dotin.platform.pangaea.servicelayer.api.query.Query;
 import ir.dotin.loan.trade.core.application.query.loanfacility.dto.TradeFacilityQueryDto;
 
 import lombok.Builder;

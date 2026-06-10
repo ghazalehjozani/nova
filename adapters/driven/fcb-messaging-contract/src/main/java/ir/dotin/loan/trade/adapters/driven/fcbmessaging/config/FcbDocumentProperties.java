@@ -10,8 +10,8 @@ import lombok.Data;
  *
  * <p>A mutable POJO (not a {@code record}) so {@code ConfigurationPropertiesRebinder} can refresh it live on a Consul
  * {@code RefreshEvent} — {@code FcbTransactionAdapter} reads {@link #isEnabled()} per call and picks up the flipped
- * value with no redeploy. The code default is {@code false}: FCB does not yet consume the metadata, so the safe
- * default sends none. It is flipped to {@code true} via {@code nova-config} once FCB supports it.
+ * value with no redeploy. The code default is {@code false}: FCB does not yet consume the metadata, so the safe default
+ * sends none. It is flipped to {@code true} via {@code nova-config} once FCB supports it.
  */
 @Data
 @ConfigurationProperties(prefix = "nova.fcb.documents")

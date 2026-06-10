@@ -5,12 +5,11 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-import ir.dotin.platform.pangaea.dispatcher.api.cache.CacheDependency;
-import ir.dotin.platform.pangaea.dispatcher.api.cache.CacheScope;
-import ir.dotin.platform.pangaea.dispatcher.api.query.CacheableQuery;
-import ir.dotin.platform.pangaea.dispatcher.api.query.Query;
+import ir.dotin.platform.pangaea.servicelayer.api.query.Query;
+import ir.dotin.platform.pangaea.servicelayer.cache.CacheScope;
+import ir.dotin.platform.pangaea.servicelayer.cache.CacheTag;
+import ir.dotin.platform.pangaea.servicelayer.cache.CacheableQuery;
 import ir.dotin.loan.trade.core.application.query.loanarrangement.dto.LoanArrangementQueryResult;
-import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 
 import lombok.Builder;
 
@@ -36,8 +35,8 @@ public record FindAllLoanArrangementsQuery(
     }
 
     @Override
-    public Set<CacheDependency> invalidatedBy() {
-        return Set.of(CacheDependency.ofType(TradeLoanArrangement.class));
+    public Set<CacheTag> invalidatedBy() {
+        return Set.of(CacheTag.ofType("TradeLoanArrangement"));
     }
 
     @Override

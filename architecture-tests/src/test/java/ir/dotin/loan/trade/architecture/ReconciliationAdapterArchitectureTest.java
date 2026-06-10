@@ -73,7 +73,7 @@ class ReconciliationAdapterArchitectureTest {
                 .should()
                 .dependOnClassesThat()
                 .resideInAnyPackage(
-                        "ir.dotin.platform.pangaea.dispatcher..", "ir.dotin.loan.trade.core.application.service..")
+                        "ir.dotin.platform.pangaea.servicelayer..", "ir.dotin.loan.trade.core.application.service..")
                 .because("INV-4: recon must converge by re-driving the STORED event via the admin ports, never by "
                         + "re-running a command through the dispatcher or an application-service command handler");
         rule.check(RECON_CLASSES);

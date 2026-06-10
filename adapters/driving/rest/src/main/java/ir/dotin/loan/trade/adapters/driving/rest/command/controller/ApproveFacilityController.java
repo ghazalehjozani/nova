@@ -11,19 +11,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
-import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.QueryDispatcher;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
 import ir.dotin.platform.pangaea.protocol.rest.controller.CommandResponseFactory;
 import ir.dotin.platform.pangaea.security.api.AuthenticationContextHolder;
+import ir.dotin.platform.pangaea.servicelayer.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.ApproveFacilityRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CompensationRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.ApproveFacilityRequestToCommandMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.ApproveFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateApprovalCommand;
-import ir.dotin.loan.trade.core.application.ports.inbound.query.FacilityApprovalPreflightResult;
-import ir.dotin.loan.trade.core.application.ports.inbound.query.PrepareFacilityApprovalQuery;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,7 +34,6 @@ import lombok.RequiredArgsConstructor;
 class ApproveFacilityController extends BaseController {
 
     private final CommandDispatcher dispatcher;
-    private final QueryDispatcher queryDispatcher;
     private final ApproveFacilityRequestToCommandMapper mapper;
     private final AuthenticationContextHolder authenticationContextHolder;
     private final CommandResponseFactory responseFactory;
@@ -81,15 +77,7 @@ class ApproveFacilityController extends BaseController {
                         .branchCode(authenticationContextHolder.branchCode().orElseThrow())
                         .build();
 
-        // Tx-free pre-flight (manual path only): the single FCB sanction-details read runs with no pooled connection
-        // held (LN-59412). A failure throws FailureCauseException, which the platform advice maps to HTTP — do not
-        // catch it. The resolved details are threaded onto the command so the transactional handler issues no FCB call.
-        FacilityApprovalPreflightResult preflight = queryDispatcher.dispatch(new PrepareFacilityApprovalQuery(command));
-
-        ApproveFacilityCommand preparedCommand =
-                command.toBuilder().sanctionDetails(preflight.sanctionDetails()).build();
-
-        var result = dispatcher.dispatch(preparedCommand);
+        var result = dispatcher.dispatch(command);
         return responseFactory.mutated(result);
     }
 

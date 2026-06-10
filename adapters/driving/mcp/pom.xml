@@ -33,7 +33,7 @@
     <!-- QueryDispatcher bean + autoconfig. -->
     <dependency>
       <groupId>ir.dotin.platform.pangaea</groupId>
-      <artifactId>dispatcher-starter</artifactId>
+      <artifactId>pangaea-service-layer-starter</artifactId>
     </dependency>
 
     <!-- Spring stereotypes (@Component / @RequiredArgsConstructor wiring). -->

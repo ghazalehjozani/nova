@@ -11,13 +11,12 @@ import jakarta.validation.constraints.PastOrPresent;
 
 import org.jspecify.annotations.Nullable;
 
-import ir.dotin.platform.pangaea.dispatcher.api.cache.CacheDependency;
-import ir.dotin.platform.pangaea.dispatcher.api.query.CacheableQuery;
-import ir.dotin.platform.pangaea.dispatcher.api.query.Query;
+import ir.dotin.platform.pangaea.servicelayer.api.query.Query;
+import ir.dotin.platform.pangaea.servicelayer.cache.CacheTag;
+import ir.dotin.platform.pangaea.servicelayer.cache.CacheableQuery;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.trade.core.application.query.loanfacility.dto.LoanFacilityQueryResult;
 import ir.dotin.loan.trade.core.application.query.shared.pagination.OffsetPageRequest;
-import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 import lombok.Builder;
 
@@ -64,8 +63,8 @@ public record LoanFacilityFilterQuery(
     }
 
     @Override
-    public Set<CacheDependency> invalidatedBy() {
-        return Set.of(CacheDependency.ofType(TradeLoanFacility.class));
+    public Set<CacheTag> invalidatedBy() {
+        return Set.of(CacheTag.ofType("TradeLoanFacility"));
     }
 
     public static LoanFacilityFilterQuery of(

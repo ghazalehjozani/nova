@@ -9,10 +9,12 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
-import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.InstallmentScheduleCreationContext;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -25,11 +27,9 @@ import ir.dotin.loan.trade.core.domain.installmentschedule.service.TradeRepaymen
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
-public class PlanEqualInstallmentScheduleCommandHandler implements CommandHandler<PlanEqualInstallmentScheduleCommand> {
+public class PlanEqualInstallmentScheduleCommandHandler
+        extends WriteCommandHandler<PlanEqualInstallmentScheduleCommand, Unit> {
 
     private static final Logger log = LoggerFactory.getLogger(PlanEqualInstallmentScheduleCommandHandler.class);
 
@@ -39,8 +39,28 @@ public class PlanEqualInstallmentScheduleCommandHandler implements CommandHandle
     private final TradeRepaymentSchedulingService schedulingService;
     private final Clock clock;
 
+    public PlanEqualInstallmentScheduleCommandHandler(
+            WriteTransaction writeTransaction,
+            InstallmentScheduleRepository installmentScheduleRepository,
+            TradeLoanFacilityRepository tradeLoanFacilityRepository,
+            TradeLoanArrangementRepository tradeLoanArrangementRepository,
+            TradeRepaymentSchedulingService schedulingService,
+            Clock clock) {
+        super(writeTransaction);
+        this.installmentScheduleRepository = installmentScheduleRepository;
+        this.tradeLoanFacilityRepository = tradeLoanFacilityRepository;
+        this.tradeLoanArrangementRepository = tradeLoanArrangementRepository;
+        this.schedulingService = schedulingService;
+        this.clock = clock;
+    }
+
     @Override
-    public Result<List<DomainEvent<?>>> handle(PlanEqualInstallmentScheduleCommand command) {
+    protected Result<Unit> prepare(PlanEqualInstallmentScheduleCommand command) {
+        return Result.success();
+    }
+
+    @Override
+    protected Result<List<DomainEvent<?>>> write(PlanEqualInstallmentScheduleCommand command, Unit prepared) {
         return loadDependencies(command)
                 .flatMap(this::planSchedule)
                 .onSuccess(installmentScheduleRepository::save)

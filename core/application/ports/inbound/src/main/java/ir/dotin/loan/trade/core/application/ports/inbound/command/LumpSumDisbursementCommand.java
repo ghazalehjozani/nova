@@ -5,7 +5,7 @@ import java.util.UUID;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 
-import ir.dotin.platform.pangaea.dispatcher.api.command.Command;
+import ir.dotin.platform.pangaea.servicelayer.api.command.Command;
 
 import lombok.Builder;
 

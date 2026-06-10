@@ -115,7 +115,7 @@
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
-            <artifactId>pangaea-idempotency-management</artifactId>
+            <artifactId>pangaea-idempotency</artifactId>
         </dependency>
         <dependency>
             <groupId>ir.dotin.loan</groupId>

@@ -10,11 +10,11 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.pangaea.commons.core.exception.FailureCauseException;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
-import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
-import ir.dotin.platform.pangaea.dispatcher.api.execution.ExecutionResult;
 import ir.dotin.platform.pangaea.inbox.api.HandlerResult;
 import ir.dotin.platform.pangaea.inbox.api.InboxMessageHandler;
 import ir.dotin.platform.pangaea.messaging.api.inbound.InboundMessage;
+import ir.dotin.platform.pangaea.servicelayer.api.dispatcher.CommandDispatcher;
+import ir.dotin.platform.pangaea.servicelayer.api.execution.ExecutionResult;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.ClosePaidOffCompensateMessage;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.FcbEventOperationType;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateCloseFacilityPaidOffCommand;

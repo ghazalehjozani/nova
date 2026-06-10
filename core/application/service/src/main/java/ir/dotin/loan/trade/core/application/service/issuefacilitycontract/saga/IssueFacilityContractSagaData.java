@@ -2,7 +2,6 @@ package ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga;
 
 import java.time.Instant;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -25,13 +24,12 @@ public record IssueFacilityContractSagaData(
         @Nullable String postedTrackingId,
         @Nullable Instant postedAt,
         @Nullable TransactionStatus transactionStatus,
-        @Nullable Map<String, String> resolvedAccounts,
-        @Nullable List<CapturedEventData> capturedEvents) {
+        @Nullable Map<String, String> resolvedAccounts) {
 
     public static IssueFacilityContractSagaData initial(
             UUID facilityId, String branchCode, TransactionConfig transactionConfig, long expectedVersion) {
         return new IssueFacilityContractSagaData(
-                facilityId, branchCode, transactionConfig, expectedVersion, null, null, null, null, null, List.of());
+                facilityId, branchCode, transactionConfig, expectedVersion, null, null, null, null, null);
     }
 
     public IssueFacilityContractSagaData withResolvedAccounts(Map<String, String> accounts) {
@@ -44,8 +42,7 @@ public record IssueFacilityContractSagaData(
                 postedTrackingId,
                 postedAt,
                 transactionStatus,
-                accounts,
-                capturedEvents);
+                accounts);
     }
 
     public IssueFacilityContractSagaData withPostedTransaction(
@@ -59,22 +56,7 @@ public record IssueFacilityContractSagaData(
                 trackingId,
                 posted,
                 status,
-                resolvedAccounts,
-                capturedEvents);
-    }
-
-    public IssueFacilityContractSagaData withCapturedEvents(List<CapturedEventData> events) {
-        return new IssueFacilityContractSagaData(
-                facilityId,
-                branchCode,
-                transactionConfig,
-                expectedVersion,
-                postedTransactionNumber,
-                postedTrackingId,
-                postedAt,
-                transactionStatus,
-                resolvedAccounts,
-                events);
+                resolvedAccounts);
     }
 
     public ResolvedAccounts getResolvedAccounts() {
@@ -89,22 +71,5 @@ public record IssueFacilityContractSagaData(
 
     public Map<RelationType<?>, AccountId> getAccountIdsByRelationType() {
         return getResolvedAccounts().accountsByRelationType();
-    }
-
-    public record CapturedEventData(
-            String eventType,
-            UUID facilityId,
-            @Nullable UUID sanctionedLoanId,
-            @Nullable String transactionNumber,
-            Instant occurredAt) {
-
-        public static CapturedEventData contractIssued(
-                String eventType,
-                UUID facilityId,
-                UUID sanctionedLoanId,
-                String transactionNumber,
-                Instant occurredAt) {
-            return new CapturedEventData(eventType, facilityId, sanctionedLoanId, transactionNumber, occurredAt);
-        }
     }
 }

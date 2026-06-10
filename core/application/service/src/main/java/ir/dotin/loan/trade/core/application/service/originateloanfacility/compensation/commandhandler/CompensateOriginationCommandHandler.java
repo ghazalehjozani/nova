@@ -8,9 +8,11 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
-import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -20,22 +22,35 @@ import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.Tr
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
-class CompensateOriginationCommandHandler implements CommandHandler<CompensateOriginationCommand> {
+class CompensateOriginationCommandHandler extends WriteCommandHandler<CompensateOriginationCommand, Unit> {
 
     private final TradeLoanFacilityRepository facilityRepository;
     private final InstallmentScheduleRepository scheduleRepository;
     private final Clock clock;
 
-    @Override
-    public Result<List<DomainEvent<?>>> handle(CompensateOriginationCommand command) {
-        log.warn("Compensating origination for facility: {}", command.loanFacilityId());
+    CompensateOriginationCommandHandler(
+            WriteTransaction writeTransaction,
+            TradeLoanFacilityRepository facilityRepository,
+            InstallmentScheduleRepository scheduleRepository,
+            Clock clock) {
+        super(writeTransaction);
+        this.facilityRepository = facilityRepository;
+        this.scheduleRepository = scheduleRepository;
+        this.clock = clock;
+    }
 
+    @Override
+    protected Result<Unit> prepare(CompensateOriginationCommand command) {
+        log.warn("Compensating origination for facility: {}", command.loanFacilityId());
+        return Result.success();
+    }
+
+    @Override
+    protected Result<List<DomainEvent<?>>> write(CompensateOriginationCommand command, Unit prepared) {
         return Result.fromOptional(
                         facilityRepository.findById(LoanFacilityId.of(command.loanFacilityId())),
                         () -> FailureCause.notFound(Notification.ofError(

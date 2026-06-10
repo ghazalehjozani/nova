@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.core.application.service.approvefacility.strategy;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.pangaea.commons.core.Notification;
@@ -9,6 +10,7 @@ import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.ApproveFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.SanctionDetails;
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
@@ -57,8 +59,8 @@ public class AutoApprovalStrategy implements ApprovalStrategy {
             ApproveFacilityCommand command,
             TradeLoanFacility facility,
             TradeLoanArrangement arrangement,
-            ConfirmType confirmType) {
-        // Auto approval makes no FCB call and needs no pre-flight data — the command argument is intentionally unused.
+            ConfirmType confirmType,
+            @Nullable SanctionDetails sanctionDetails) {
         return domainService.approve(facility, null, true, confirmType);
     }
 }

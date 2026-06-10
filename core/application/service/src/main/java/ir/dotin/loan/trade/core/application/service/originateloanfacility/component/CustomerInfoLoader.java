@@ -45,23 +45,9 @@ public class CustomerInfoLoader {
         Set<PartyDto> partySet = command.loanApplication().parties();
         List<PartyDto> parties = new ArrayList<>(partySet);
         int partyCount = parties.size();
-        AtomicReferenceArray<PartyInfoResponse> partyRefs = new AtomicReferenceArray<>(partyCount);
+        AtomicReferenceArray<@Nullable PartyInfoResponse> partyRefs = new AtomicReferenceArray<>(partyCount);
 
-        List<Supplier<Result<Unit>>> tasks = new ArrayList<>(partyCount);
-        for (int i = 0; i < partyCount; i++) {
-            final int idx = i;
-            final PartyDto partyDto = parties.get(i);
-            tasks.add(() -> {
-                BigDecimal percentage =
-                        partyDto instanceof PartyDto.GuarantorDto guarantor ? guarantor.guaranteePercentage() : null;
-                Result<PartyInfoResponse> r = loadCustomerInfo(partyDto.customerNumber(), partyDto.role(), percentage);
-                if (r.isFailure()) {
-                    return Result.failure(r.err().orElseThrow());
-                }
-                partyRefs.set(idx, r.unwrap());
-                return Result.success();
-            });
-        }
+        List<Supplier<Result<Unit>>> tasks = getTasks(partyCount, parties, partyRefs);
 
         Result<Unit> fanout = ParallelFanout.allVoid(tasks);
         if (fanout.isFailure()) {
@@ -78,6 +64,26 @@ public class CustomerInfoLoader {
 
         log.debug("Successfully loaded customer-info for {} parties", partyInfos.size());
         return Result.success(partyInfos);
+    }
+
+    private List<Supplier<Result<Unit>>> getTasks(
+            int partyCount, List<PartyDto> parties, AtomicReferenceArray<@Nullable PartyInfoResponse> partyRefs) {
+        List<Supplier<Result<Unit>>> tasks = new ArrayList<>(partyCount);
+        for (int i = 0; i < partyCount; i++) {
+            final int idx = i;
+            final PartyDto partyDto = parties.get(i);
+            tasks.add(() -> {
+                BigDecimal percentage =
+                        partyDto instanceof PartyDto.GuarantorDto guarantor ? guarantor.guaranteePercentage() : null;
+                Result<PartyInfoResponse> r = loadCustomerInfo(partyDto.customerNumber(), partyDto.role(), percentage);
+                if (r.isFailure()) {
+                    return Result.failure(r.err().orElseThrow());
+                }
+                partyRefs.set(idx, r.unwrap());
+                return Result.success();
+            });
+        }
+        return tasks;
     }
 
     private Result<PartyInfoResponse> loadCustomerInfo(

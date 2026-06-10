@@ -56,9 +56,9 @@ public class DocumentMetadataUtils {
 
     /**
      * Extra-info fields (terminal/network/tool/product) are optional now that FCB does not consume document metadata
-     * (gated by {@code nova.fcb.documents.enabled}). Command fields may be null when a client omits them; this coalesces
-     * a missing value to an empty string at the {@link TransactionConfig} boundary so its {@code @NonNull} components
-     * hold, while the metadata is stripped before sending whenever the flag is off.
+     * (gated by {@code nova.fcb.documents.enabled}). Command fields may be null when a client omits them; this
+     * coalesces a missing value to an empty string at the {@link TransactionConfig} boundary so its {@code @NonNull}
+     * components hold, while the metadata is stripped before sending whenever the flag is off.
      */
     public String orEmpty(@Nullable String value) {
         return value == null ? "" : value;

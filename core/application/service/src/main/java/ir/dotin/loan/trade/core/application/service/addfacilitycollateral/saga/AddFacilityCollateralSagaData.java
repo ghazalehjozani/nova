@@ -1,6 +1,5 @@
 package ir.dotin.loan.trade.core.application.service.addfacilitycollateral.saga;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,34 +17,17 @@ public record AddFacilityCollateralSagaData(
         UUID requestId,
         List<AddFacilityCollateralCommand.CollateralDto> collaterals,
         long expectedVersion,
-        @Nullable List<String> reservedSerials,
-        @Nullable List<CapturedEventData> capturedEvents) {
+        @Nullable List<String> reservedSerials) {
 
     public static AddFacilityCollateralSagaData initial(
             UUID facilityId,
             UUID requestId,
             List<AddFacilityCollateralCommand.CollateralDto> collaterals,
             long expectedVersion) {
-        return new AddFacilityCollateralSagaData(
-                facilityId, requestId, collaterals, expectedVersion, List.of(), List.of());
+        return new AddFacilityCollateralSagaData(facilityId, requestId, collaterals, expectedVersion, List.of());
     }
 
     public AddFacilityCollateralSagaData withReservedSerials(List<String> serials) {
-        return new AddFacilityCollateralSagaData(
-                facilityId, requestId, collaterals, expectedVersion, serials, capturedEvents);
+        return new AddFacilityCollateralSagaData(facilityId, requestId, collaterals, expectedVersion, serials);
     }
-
-    public AddFacilityCollateralSagaData withCapturedEvents(List<CapturedEventData> events) {
-        return new AddFacilityCollateralSagaData(
-                facilityId, requestId, collaterals, expectedVersion, reservedSerials, events);
-    }
-
-    /** Flat, serializable snapshot of a {@code TradeLoanFacilityCollateralAdded} event for re-surfacing post-saga. */
-    public record CapturedEventData(
-            UUID eventId,
-            UUID aggregateId,
-            String eventType,
-            UUID sanctionedLoanId,
-            List<String> collateralSerials,
-            Instant createdAt) {}
 }

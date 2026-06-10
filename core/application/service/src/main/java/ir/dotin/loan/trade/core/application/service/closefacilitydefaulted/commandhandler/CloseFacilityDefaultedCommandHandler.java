@@ -8,9 +8,11 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
-import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CloseFacilityDefaultedCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
@@ -19,11 +21,8 @@ import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplic
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilityService;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
-public class CloseFacilityDefaultedCommandHandler implements CommandHandler<CloseFacilityDefaultedCommand> {
+public class CloseFacilityDefaultedCommandHandler extends WriteCommandHandler<CloseFacilityDefaultedCommand, Unit> {
 
     private static final Logger log = LoggerFactory.getLogger(CloseFacilityDefaultedCommandHandler.class);
 
@@ -31,8 +30,24 @@ public class CloseFacilityDefaultedCommandHandler implements CommandHandler<Clos
     private final BranchAccessValidator branchAccessValidator;
     private final TradeLoanFacilityService domainService;
 
+    public CloseFacilityDefaultedCommandHandler(
+            WriteTransaction writeTransaction,
+            TradeLoanFacilityRepository repository,
+            BranchAccessValidator branchAccessValidator,
+            TradeLoanFacilityService domainService) {
+        super(writeTransaction);
+        this.repository = repository;
+        this.branchAccessValidator = branchAccessValidator;
+        this.domainService = domainService;
+    }
+
     @Override
-    public Result<List<DomainEvent<?>>> handle(CloseFacilityDefaultedCommand command) {
+    protected Result<Unit> prepare(CloseFacilityDefaultedCommand command) {
+        return Result.success();
+    }
+
+    @Override
+    protected Result<List<DomainEvent<?>>> write(CloseFacilityDefaultedCommand command, Unit prepared) {
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
         return Result.fromOptional(
                         repository.findById(loanFacilityId),

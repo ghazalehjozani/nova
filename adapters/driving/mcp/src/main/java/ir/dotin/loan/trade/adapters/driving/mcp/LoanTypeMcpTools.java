@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import ir.dotin.platform.pangaea.ai.mcp.api.McpBusinessTool;
 import ir.dotin.platform.pangaea.ai.mcp.api.McpTool;
 import ir.dotin.platform.pangaea.ai.mcp.api.McpToolParam;
-import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.QueryDispatcher;
+import ir.dotin.platform.pangaea.servicelayer.api.dispatcher.QueryDispatcher;
 import ir.dotin.loan.trade.core.application.query.loantype.dto.LoanTypeQueryResult;
 import ir.dotin.loan.trade.core.application.query.loantype.dto.TradeLoanTypeQueryDto;
 import ir.dotin.loan.trade.core.application.query.loantype.request.GetLoanTypeByIdQuery;

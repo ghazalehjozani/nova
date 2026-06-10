@@ -61,12 +61,6 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.FacilityQueryControll
   BorderColor #567d2e
   shadowing false
 }
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.FullLoanFacilityLifecycleController>> {
-  BackgroundColor #7cb342
-  FontColor #ffffff
-  BorderColor #567d2e
-  shadowing false
-}
 skinparam rectangle<<TradeLoanService.TradeLoanApplication.InstallmentScheduleQueryController>> {
   BackgroundColor #7cb342
   FontColor #ffffff
@@ -109,12 +103,6 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.OpenFacilityCaseContr
   BorderColor #567d2e
   shadowing false
 }
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.RegularDisbursementController>> {
-  BackgroundColor #7cb342
-  FontColor #ffffff
-  BorderColor #567d2e
-  shadowing false
-}
 skinparam rectangle<<TradeLoanService.TradeLoanApplication.RejectFacilityController>> {
   BackgroundColor #7cb342
   FontColor #ffffff
@@ -141,12 +129,10 @@ rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]<
   rectangle "==CloseFacilityPaidOffController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /v{version}/loan-facilities/{facilityId}/close-paid-off" <<TradeLoanService.TradeLoanApplication.CloseFacilityPaidOffController>> as TradeLoanService.TradeLoanApplication.CloseFacilityPaidOffController
   rectangle "==DefineLoanArrangementController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /v{version}/loan-arrangements" <<TradeLoanService.TradeLoanApplication.DefineLoanArrangementController>> as TradeLoanService.TradeLoanApplication.DefineLoanArrangementController
   rectangle "==DefineLoanTypeController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /v{version}/loan-types" <<TradeLoanService.TradeLoanApplication.DefineLoanTypeController>> as TradeLoanService.TradeLoanApplication.DefineLoanTypeController
-  rectangle "==FullLoanFacilityLifecycleController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /v{version}/loan-facilities/{facilityId}/full-lifecycle" <<TradeLoanService.TradeLoanApplication.FullLoanFacilityLifecycleController>> as TradeLoanService.TradeLoanApplication.FullLoanFacilityLifecycleController
   rectangle "==IrregularProgressiveDisbursementController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /v{version}/loan-facilities/{facilityId}/disburse/progressive-irregular" <<TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementController>> as TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementController
   rectangle "==IssueFacilityContractController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /v{version}/loan-facilities/{facilityId}/issue-contract" <<TradeLoanService.TradeLoanApplication.IssueFacilityContractController>> as TradeLoanService.TradeLoanApplication.IssueFacilityContractController
   rectangle "==LumpSumDisbursementController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /v{version}/loan-facilities/{facilityId}/disburse/lump-sum" <<TradeLoanService.TradeLoanApplication.LumpSumDisbursementController>> as TradeLoanService.TradeLoanApplication.LumpSumDisbursementController
   rectangle "==OpenFacilityCaseController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /v{version}/loan-facilities" <<TradeLoanService.TradeLoanApplication.OpenFacilityCaseController>> as TradeLoanService.TradeLoanApplication.OpenFacilityCaseController
-  rectangle "==RegularDisbursementController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /api/{version}/facilities/{facilityId}/disburse/regular" <<TradeLoanService.TradeLoanApplication.RegularDisbursementController>> as TradeLoanService.TradeLoanApplication.RegularDisbursementController
   rectangle "==RejectFacilityController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /v{version}/loan-facilities/{facilityId}/reject" <<TradeLoanService.TradeLoanApplication.RejectFacilityController>> as TradeLoanService.TradeLoanApplication.RejectFacilityController
   rectangle "==SubmitFacilityForApprovalController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /v{version}/loan-facilities/{facilityId}/submit-for-approval" <<TradeLoanService.TradeLoanApplication.SubmitFacilityForApprovalController>> as TradeLoanService.TradeLoanApplication.SubmitFacilityForApprovalController
   rectangle "==InstallmentScheduleQueryController\n<size:10>[Component: Spring REST Controller]</size>\n\nREST API: /v{version}/installment-schedules" <<TradeLoanService.TradeLoanApplication.InstallmentScheduleQueryController>> as TradeLoanService.TradeLoanApplication.InstallmentScheduleQueryController

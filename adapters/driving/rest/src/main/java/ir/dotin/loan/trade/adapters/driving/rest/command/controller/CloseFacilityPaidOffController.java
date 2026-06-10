@@ -5,9 +5,9 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
 import ir.dotin.platform.pangaea.protocol.rest.controller.CommandResponseFactory;
+import ir.dotin.platform.pangaea.servicelayer.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CloseFacilityPaidOffRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.CloseFacilityPaidOffRequestToCommandMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;

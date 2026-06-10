@@ -13,7 +13,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-import ir.dotin.platform.pangaea.dispatcher.api.command.Command;
+import ir.dotin.platform.pangaea.servicelayer.api.command.Command;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.*;
@@ -27,24 +27,7 @@ public record OriginateLoanFacilityCommand(
         @NotNull String loanTypeCode,
         @NotNull String loanArrangementCode,
         @NotNull @Valid LoanApplicationDto loanApplication,
-        @Nullable @Valid InstallmentSchedulePlanDto installmentSchedulePlan,
-
-        /*
-         * System-populated post pre-flight: the FCB-resolved parties produced by
-         * PrepareFacilityOriginationQuery. Intentionally carries NO @NotNull / @Valid — it is null on the
-         * client-facing query-dispatch path and only filled in by the controller / saga before the command is
-         * dispatched. The transactional command handler reconstructs PartyInfoResponse from this list instead of
-         * re-calling FCB.
-         */
-        @Nullable List<ResolvedPartyDto> resolvedParties,
-
-        /*
-         * System-populated post pre-flight: the FCB-resolved application-number derivedValue produced by
-         * PrepareFacilityOriginationQuery. Like resolvedParties it carries NO @NotNull / @Valid — null on the
-         * client-facing query-dispatch path, filled by the controller / saga before dispatch so the transactional
-         * command reconstructs the ApplicationNumber instead of making the connection-pinning FCB round-trip.
-         */
-        @Nullable String resolvedApplicationNumber)
+        @Nullable @Valid InstallmentSchedulePlanDto installmentSchedulePlan)
         implements Command {
 
     @Builder(toBuilder = true)

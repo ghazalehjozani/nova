@@ -55,9 +55,8 @@ public class FcbTransactionAdapter implements TransactionPostingPort {
                 loanTransaction.loanFacilityId().value(),
                 trackingId);
 
-        Result<PostTransactionRequest> mappingResult =
-                FcbTransactionMapper.mapToIssueDocumentRequest(
-                        loanTransaction, trackingId, documentProperties.isEnabled());
+        Result<PostTransactionRequest> mappingResult = FcbTransactionMapper.mapToIssueDocumentRequest(
+                loanTransaction, trackingId, documentProperties.isEnabled());
         if (mappingResult.isFailure()) {
             log.error(
                     "Failed to map LoanTransaction to IssueDocumentRequest: {}",

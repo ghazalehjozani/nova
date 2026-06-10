@@ -7,18 +7,18 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CollateralUpdateMessage;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CollateralUpdateMessage.CollateralDetailDto;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.UpdateCollateralCommand;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.UpdateCollateralCommand.CollateralItem;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.UpdateFacilityCollateralCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.UpdateFacilityCollateralCommand.CollateralItem;
 
 @Component
 public class CollateralUpdateMessageMapper {
-    public UpdateCollateralCommand toCommand(CollateralUpdateMessage message) {
+    public UpdateFacilityCollateralCommand toCommand(CollateralUpdateMessage message) {
         List<CollateralItem> collaterals = message.collaterals() != null
                 ? message.collaterals().stream().map(this::toCollateralItem).toList()
                 : List.of();
 
         // version: no optimistic-lock check for message-driven collateral update; 0L = unversioned sentinel.
-        return new UpdateCollateralCommand(UUID.randomUUID(), 0L, message.fileNumber(), collaterals);
+        return new UpdateFacilityCollateralCommand(UUID.randomUUID(), 0L, message.fileNumber(), collaterals);
     }
 
     private CollateralItem toCollateralItem(CollateralDetailDto dto) {

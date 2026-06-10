@@ -27,12 +27,6 @@ import io.opentelemetry.instrumentation.annotations.WithSpan;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * DB-only dependency loader for the transactional origination command. Loads arrangement + loan-type from the local
- * database (no FCB, no customer-info) and assembles the {@link FacilityOriginationContext} with the party infos already
- * resolved by the tx-free pre-flight ({@code PrepareFacilityOriginationQuery}) and reconstructed from the command's
- * {@code resolvedParties}. This keeps the (pooled-connection-holding) transaction free of any remote FCB round-trip.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor

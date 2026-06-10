@@ -98,7 +98,7 @@ public class FacilityValidator {
     }
 
     private Result<Unit> validateNotParent(EconomicalSectorResponse sector) {
-        if (Boolean.TRUE.equals(sector.hasChild())) {
+        if (sector.hasChild()) {
             return Result.failure(
                     Notification.ofError(OriginateLoanFacilityErrorCodes.ECONOMIC_SECTOR_IS_PARENT, sector.code()));
         }
@@ -312,9 +312,7 @@ public class FacilityValidator {
         String exceptionCode = null;
         String consumptionPlaceCode = null;
 
-        if (samatDto.trackingNumber() != null) {
-            trackingNumber = samatDto.trackingNumber();
-        }
+        trackingNumber = samatDto.trackingNumber();
         if (samatDto.isicEconomicSector() != null) {
             isicEconomicSector = samatDto.isicEconomicSector();
         }
@@ -333,15 +331,14 @@ public class FacilityValidator {
 
         // Samat fields are @NonNull; @Nullable samatDto sub-fields are mapped to empty string when absent
         // (Samat.validate() will catch blank trackingNumber with a proper error result)
-        Samat samat = new Samat(
-                Objects.requireNonNullElse(trackingNumber, ""),
+
+        return new Samat(
+                trackingNumber,
                 Objects.requireNonNullElse(isicEconomicSector, ""),
                 Objects.requireNonNullElse(subIsicEconomicSector, ""),
                 Objects.requireNonNullElse(useType, ""),
                 Objects.requireNonNullElse(exceptionCode, ""),
                 Objects.requireNonNullElse(consumptionPlaceCode, ""));
-
-        return samat;
     }
     // TODO reasonType service must change load-reason-type
 }

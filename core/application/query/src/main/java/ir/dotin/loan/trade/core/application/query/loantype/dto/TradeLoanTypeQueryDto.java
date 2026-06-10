@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import ir.dotin.platform.pangaea.dispatcher.api.query.QueryResult;
+import ir.dotin.platform.pangaea.servicelayer.api.query.QueryResult;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 

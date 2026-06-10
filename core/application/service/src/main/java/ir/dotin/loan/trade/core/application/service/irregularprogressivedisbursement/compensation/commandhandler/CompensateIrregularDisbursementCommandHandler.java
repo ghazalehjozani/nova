@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.stereotype.Service;
 
@@ -11,50 +12,81 @@ import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
-import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.RevertRestructuringResult;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateIrregularDisbursementCommand;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.InstallmentScheduleRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
+import ir.dotin.loan.trade.core.application.service.shared.account.FcbTransactionReverser;
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
-class CompensateIrregularDisbursementCommandHandler implements CommandHandler<CompensateIrregularDisbursementCommand> {
+class CompensateIrregularDisbursementCommandHandler
+        extends WriteCommandHandler<
+                CompensateIrregularDisbursementCommand,
+                CompensateIrregularDisbursementCommandHandler.ReversalPreparation> {
 
     private final TradeLoanFacilityRepository facilityRepository;
     private final InstallmentScheduleRepository scheduleRepository;
-    private final TransactionPostingPort transactionPostingPort;
+    private final FcbTransactionReverser fcbTransactionReverser;
     private final Clock clock;
 
-    @Override
-    public Result<List<DomainEvent<?>>> handle(CompensateIrregularDisbursementCommand command) {
-        log.warn("Compensating irregular disbursement for facility: {}", command.loanFacilityId());
+    CompensateIrregularDisbursementCommandHandler(
+            WriteTransaction writeTransaction,
+            TradeLoanFacilityRepository facilityRepository,
+            InstallmentScheduleRepository scheduleRepository,
+            FcbTransactionReverser fcbTransactionReverser,
+            Clock clock) {
+        super(writeTransaction);
+        this.facilityRepository = facilityRepository;
+        this.scheduleRepository = scheduleRepository;
+        this.fcbTransactionReverser = fcbTransactionReverser;
+        this.clock = clock;
+    }
 
+    @Override
+    protected Result<ReversalPreparation> prepare(CompensateIrregularDisbursementCommand command) {
+        log.warn("Compensating irregular disbursement for facility: {}", command.loanFacilityId());
+        return Result.success(new ReversalPreparation(new AtomicReference<>()));
+    }
+
+    @Override
+    protected Result<List<DomainEvent<?>>> write(
+            CompensateIrregularDisbursementCommand command, ReversalPreparation prepared) {
         return Result.fromOptional(
                         facilityRepository.findById(LoanFacilityId.of(command.loanFacilityId())),
                         () -> FailureCause.notFound(Notification.ofError(
                                 TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())))
-                .flatMap(facility -> revertDisbursementAndSchedules(facility, command));
+                .flatMap(facility -> revertDisbursementAndSchedules(facility, command, prepared.reversals()));
+    }
+
+    @Override
+    protected void afterCommit(
+            CompensateIrregularDisbursementCommand command, ReversalPreparation prepared, List<DomainEvent<?>> events) {
+        TrackedTransactionNumber removed = prepared.reversals().get();
+        if (removed != null) {
+            reverseTransaction(removed);
+        }
     }
 
     private Result<List<DomainEvent<?>>> revertDisbursementAndSchedules(
-            TradeLoanFacility facility, CompensateIrregularDisbursementCommand command) {
+            TradeLoanFacility facility,
+            CompensateIrregularDisbursementCommand command,
+            AtomicReference<TrackedTransactionNumber> reversedTransaction) {
 
         List<DomainEvent<?>> allEvents = new ArrayList<>();
 
         return facility.revertIrregularTrancheDisbursement(clock).flatMap(removedTransactionOpt -> {
-            removedTransactionOpt.ifPresent(this::reverseTransaction);
+            removedTransactionOpt.ifPresent(reversedTransaction::set);
 
             facilityRepository.save(facility);
             allEvents.addAll(facility.domainEvents());
@@ -170,12 +202,8 @@ class CompensateIrregularDisbursementCommandHandler implements CommandHandler<Co
 
     private void reverseTransaction(TrackedTransactionNumber trackedNumber) {
         log.info("Reversing irregular disbursement transaction: {}", trackedNumber.value());
-        var reverseResult = transactionPostingPort.reverseTransaction(trackedNumber);
-        if (reverseResult.isFailure()) {
-            log.error(
-                    "Failed to reverse irregular disbursement transaction: {}. Errors: {}",
-                    trackedNumber.value(),
-                    reverseResult.err().orElseThrow().notification());
-        }
+        fcbTransactionReverser.reverseBestEffort(trackedNumber);
     }
+
+    record ReversalPreparation(AtomicReference<TrackedTransactionNumber> reversals) {}
 }

@@ -12,9 +12,11 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
-import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CancelFacilityCommand;
@@ -25,11 +27,8 @@ import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplic
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilityService;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
-public class CancelFacilityCommandHandler implements CommandHandler<CancelFacilityCommand> {
+public class CancelFacilityCommandHandler extends WriteCommandHandler<CancelFacilityCommand, Unit> {
 
     private static final Logger log = LoggerFactory.getLogger(CancelFacilityCommandHandler.class);
 
@@ -39,8 +38,28 @@ public class CancelFacilityCommandHandler implements CommandHandler<CancelFacili
     private final ApplicationNumberResolver applicationNumberResolver;
     private final Clock clock;
 
+    public CancelFacilityCommandHandler(
+            WriteTransaction writeTransaction,
+            TradeLoanFacilityRepository facilityRepository,
+            InstallmentScheduleRepository scheduleRepository,
+            TradeLoanFacilityService domainService,
+            ApplicationNumberResolver applicationNumberResolver,
+            Clock clock) {
+        super(writeTransaction);
+        this.facilityRepository = facilityRepository;
+        this.scheduleRepository = scheduleRepository;
+        this.domainService = domainService;
+        this.applicationNumberResolver = applicationNumberResolver;
+        this.clock = clock;
+    }
+
     @Override
-    public Result<List<DomainEvent<?>>> handle(CancelFacilityCommand command) {
+    protected Result<Unit> prepare(CancelFacilityCommand command) {
+        return Result.success();
+    }
+
+    @Override
+    protected Result<List<DomainEvent<?>>> write(CancelFacilityCommand command, Unit prepared) {
         List<DomainEvent<?>> domainEvents = new ArrayList<>();
 
         return resolveIdentifiers(command)

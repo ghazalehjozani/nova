@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
-import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -23,12 +25,9 @@ import ir.dotin.loan.trade.core.application.ports.outbound.query.ApplicationNumb
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class CompensateCloseFacilityPaidOffCommandHandler
-        implements CommandHandler<CompensateCloseFacilityPaidOffCommand> {
+        extends WriteCommandHandler<CompensateCloseFacilityPaidOffCommand, Unit> {
 
     private static final Logger log = LoggerFactory.getLogger(CompensateCloseFacilityPaidOffCommandHandler.class);
 
@@ -37,8 +36,26 @@ public class CompensateCloseFacilityPaidOffCommandHandler
     private final ApplicationNumberResolver applicationNumberResolver;
     private final Clock clock;
 
+    public CompensateCloseFacilityPaidOffCommandHandler(
+            WriteTransaction writeTransaction,
+            TradeLoanFacilityRepository repository,
+            InstallmentScheduleRepository installmentScheduleRepository,
+            ApplicationNumberResolver applicationNumberResolver,
+            Clock clock) {
+        super(writeTransaction);
+        this.repository = repository;
+        this.installmentScheduleRepository = installmentScheduleRepository;
+        this.applicationNumberResolver = applicationNumberResolver;
+        this.clock = clock;
+    }
+
     @Override
-    public Result<List<DomainEvent<?>>> handle(CompensateCloseFacilityPaidOffCommand command) {
+    protected Result<Unit> prepare(CompensateCloseFacilityPaidOffCommand command) {
+        return Result.success();
+    }
+
+    @Override
+    protected Result<List<DomainEvent<?>>> write(CompensateCloseFacilityPaidOffCommand command, Unit prepared) {
         List<DomainEvent<?>> allEvents = new ArrayList<>();
 
         return resolveIdentifiers(command)

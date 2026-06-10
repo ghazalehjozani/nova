@@ -4,7 +4,6 @@ import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.pangaea.commons.core.Notification;
@@ -37,12 +36,11 @@ public class GradualScheduleStrategy implements InstallmentScheduleStrategy {
     private final Clock clock;
 
     @Override
-    @NonNull
     public Result<Optional<InstallmentSchedule>> planSchedule(
-            @NonNull OriginateLoanFacilityCommand command,
-            @NonNull TradeLoanApplication application,
-            @NonNull FacilityOriginationContext context,
-            @NonNull LoanFacilityId facilityId) {
+            OriginateLoanFacilityCommand command,
+            TradeLoanApplication application,
+            FacilityOriginationContext context,
+            LoanFacilityId facilityId) {
 
         if (command.installmentSchedulePlan() == null) {
             log.error("Installment schedule plan is mandatory for GRADUAL payment type");
@@ -61,8 +59,7 @@ public class GradualScheduleStrategy implements InstallmentScheduleStrategy {
     }
 
     @Override
-    @NonNull
-    public Result<Unit> validateCommand(@NonNull OriginateLoanFacilityCommand command) {
+    public Result<Unit> validateCommand(OriginateLoanFacilityCommand command) {
         return Result.requireTrue(
                 command.installmentSchedulePlan() != null,
                 () -> FailureCause.businessRule(Notification.ofError(

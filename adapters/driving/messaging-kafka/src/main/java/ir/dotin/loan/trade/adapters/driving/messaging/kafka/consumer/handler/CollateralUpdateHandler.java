@@ -8,15 +8,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.pangaea.commons.core.exception.FailureCauseException;
-import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
-import ir.dotin.platform.pangaea.dispatcher.api.execution.ExecutionResult;
 import ir.dotin.platform.pangaea.inbox.api.HandlerResult;
 import ir.dotin.platform.pangaea.inbox.api.InboxMessageHandler;
 import ir.dotin.platform.pangaea.messaging.api.inbound.InboundMessage;
+import ir.dotin.platform.pangaea.servicelayer.api.dispatcher.CommandDispatcher;
+import ir.dotin.platform.pangaea.servicelayer.api.execution.ExecutionResult;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CollateralUpdateMessage;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.FcbEventOperationType;
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.CollateralUpdateMessageMapper;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.UpdateCollateralCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.UpdateFacilityCollateralCommand;
 
 import lombok.RequiredArgsConstructor;
 import tools.jackson.databind.ObjectMapper;
@@ -54,7 +54,7 @@ public class CollateralUpdateHandler implements InboxMessageHandler {
                 collateralUpdateMessage.fileNumber());
 
         try {
-            UpdateCollateralCommand command = messageMapper.toCommand(collateralUpdateMessage);
+            UpdateFacilityCollateralCommand command = messageMapper.toCommand(collateralUpdateMessage);
             ExecutionResult<?> executionResult = dispatcher.dispatch(command);
 
             return switch (executionResult) {

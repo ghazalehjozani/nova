@@ -24,6 +24,7 @@ import ir.dotin.platform.accounting.document.core.factory.DocumentMetadataFactor
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
+import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.saga.api.annotation.SagaHandler;
 import ir.dotin.platform.pangaea.saga.api.context.SagaContext;
 import ir.dotin.platform.pangaea.saga.api.definition.SagaDefinition;
@@ -47,7 +48,6 @@ import ir.dotin.loan.trade.core.application.service.shared.account.LoanTopicReso
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
-import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityContractIssued;
 import ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 import ir.dotin.loan.trade.core.domain.shared.document.enums.DocumentMetadataType;
@@ -93,11 +93,10 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
                                 this::reverseTransaction)
                         .withConservativeRetry()
                         .withTimeout(Duration.ofSeconds(30)),
-                SagaSteps.step(
-                                IssueFacilityContractStep.UPDATE_FACILITY_STATE,
-                                this::updateFacilityState,
-                                this::revertFacilityState)
-                        .withNoRetry());
+                SagaSteps.writeStep(
+                        IssueFacilityContractStep.UPDATE_FACILITY_STATE,
+                        this::updateFacilityState,
+                        this::revertFacilityState));
     }
 
     @Override
@@ -248,23 +247,12 @@ public class IssueFacilityContractSaga implements SagaDefinition<IssueFacilityCo
             return ResultStepAdapter.toStepResultVoid(issueResult);
         }
 
-        var capturedEvents = facility.domainEvents().stream()
-                .filter(TradeLoanFacilityContractIssued.class::isInstance)
-                .map(TradeLoanFacilityContractIssued.class::cast)
-                .map(event -> IssueFacilityContractSagaData.CapturedEventData.contractIssued(
-                        event.eventType(),
-                        event.aggregateId(),
-                        event.sanctionedLoanId(),
-                        event.transactionNumber(),
-                        event.createdAt()))
-                .toList();
-
-        ctx.updateSagaData(d -> d.withCapturedEvents(capturedEvents));
+        List<DomainEvent<?>> events = List.copyOf(facility.domainEvents());
 
         facilityRepository.save(facility, data.expectedVersion());
 
         log.info("Contract issued: facilityId={}", data.facilityId());
-        return new StepResult.Success<>(null);
+        return StepResult.Success.of(null, events);
     }
 
     private StepResult<Void> revertFacilityState(SagaContext<IssueFacilityContractSagaData> ctx, Void ignored) {

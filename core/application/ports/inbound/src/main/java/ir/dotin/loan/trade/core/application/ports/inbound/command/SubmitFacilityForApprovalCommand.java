@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 import org.jspecify.annotations.Nullable;
 
-import ir.dotin.platform.pangaea.dispatcher.api.command.Command;
+import ir.dotin.platform.pangaea.servicelayer.api.command.Command;
 
 import lombok.Builder;
 

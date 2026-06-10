@@ -80,6 +80,10 @@ public enum TradeLoanApplicationServiceErrors implements ProductErrorCode<TradeL
             PlatformErrorCategory.STATE_CONFLICT,
             62,
             "Subsequent disbursement requires schedule in ACTIVE status, but found: {0}"),
+    DISBURSEMENT_PLAN_DRIFT(
+            PlatformErrorCategory.STATE_CONFLICT,
+            63,
+            "Approved disbursement plan no longer matches schedule state for facility {0}"),
 
     // ── DATA_ACCESS (06) ────────────────────────────────────────────────────────
 

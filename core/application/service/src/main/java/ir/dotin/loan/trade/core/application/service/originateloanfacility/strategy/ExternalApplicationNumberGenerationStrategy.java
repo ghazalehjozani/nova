@@ -1,6 +1,5 @@
 package ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy;
 
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.pangaea.commons.core.Notification;
@@ -25,8 +24,8 @@ public class ExternalApplicationNumberGenerationStrategy implements ApplicationN
     private final TradeLoanFacilityRepository facilityRepository;
 
     @Override
-    public @NonNull Result<ApplicationNumber> generateApplicationNumber(
-            @NonNull Branch branch, @NonNull LoanTypeCode loanTypeCode, @NonNull Party primaryApplicant) {
+    public Result<ApplicationNumber> generateApplicationNumber(
+            Branch branch, LoanTypeCode loanTypeCode, Party primaryApplicant) {
 
         Result<ApplicationNumber> fcbResult =
                 loanServicePort.getApplicationNumber(branch, loanTypeCode, primaryApplicant);
@@ -62,7 +61,7 @@ public class ExternalApplicationNumberGenerationStrategy implements ApplicationN
     }
 
     @Override
-    public @NonNull ApplicationNumberGenerationType getType() {
+    public ApplicationNumberGenerationType getType() {
         return ApplicationNumberGenerationType.FCB_VALIDATION;
     }
 }

@@ -10,24 +10,21 @@ graph TB
     subgraph 11 ["Trade Loan Application"]
       style 11 fill:#ffffff,stroke:#2e6295,color:#2e6295
 
-      134["<div style='font-weight: bold'>InstallmentScheduleOutboxHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Outbox Pattern]</div><div style='font-size: 80%; margin-top:10px'>InstallmentSchedule outbox<br />handler</div>"]
+      131["<div style='font-weight: bold'>InstallmentScheduleOutboxHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Outbox Pattern]</div><div style='font-size: 80%; margin-top:10px'>InstallmentSchedule outbox<br />handler</div>"]
+      style 131 fill:#66bb6a,stroke:#47824a,color:#000000
+      132["<div style='font-weight: bold'>TradeLoanArrangementOutboxHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Outbox Pattern]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanArrangement outbox<br />handler</div>"]
+      style 132 fill:#66bb6a,stroke:#47824a,color:#000000
+      133["<div style='font-weight: bold'>TradeLoanFacilityOutboxHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Outbox Pattern]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanFacility outbox<br />handler</div>"]
+      style 133 fill:#66bb6a,stroke:#47824a,color:#000000
+      134["<div style='font-weight: bold'>TradeLoanTypeOutboxHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Outbox Pattern]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanType outbox handler</div>"]
       style 134 fill:#66bb6a,stroke:#47824a,color:#000000
-      135["<div style='font-weight: bold'>TradeLoanArrangementOutboxHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Outbox Pattern]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanArrangement outbox<br />handler</div>"]
-      style 135 fill:#66bb6a,stroke:#47824a,color:#000000
-      136["<div style='font-weight: bold'>TradeLoanFacilityOutboxHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Outbox Pattern]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanFacility outbox<br />handler</div>"]
-      style 136 fill:#66bb6a,stroke:#47824a,color:#000000
-      137["<div style='font-weight: bold'>TradeLoanTypeOutboxHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Outbox Pattern]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanType outbox handler</div>"]
-      style 137 fill:#66bb6a,stroke:#47824a,color:#000000
-      69["<div style='font-weight: bold'>FcbEventConsumer</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Kafka Listener]</div><div style='font-size: 80%; margin-top:10px'>Kafka consumer</div>"]
-      style 69 fill:#ff7043,stroke:#b24e2e,color:#ffffff
-      70["<div style='font-weight: bold'>FullLifecycleKafkaCommandConsumer</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Kafka Listener]</div><div style='font-size: 80%; margin-top:10px'>Kafka consumer</div>"]
-      style 70 fill:#ff7043,stroke:#b24e2e,color:#ffffff
+      67["<div style='font-weight: bold'>FcbEventConsumer</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Kafka Listener]</div><div style='font-size: 80%; margin-top:10px'>Kafka consumer</div>"]
+      style 67 fill:#ff7043,stroke:#b24e2e,color:#ffffff
     end
 
-    69-. "<div>Consumes from</div><div style='font-size: 70%'>[Kafka Protocol]</div>" .->13
-    70-. "<div>Consumes from</div><div style='font-size: 70%'>[Kafka Protocol]</div>" .->13
+    67-. "<div>Consumes from</div><div style='font-size: 70%'>[Kafka Protocol]</div>" .->13
+    131-. "<div>Publishes events</div><div style='font-size: 70%'>[Kafka Protocol]</div>" .->13
+    132-. "<div>Publishes events</div><div style='font-size: 70%'>[Kafka Protocol]</div>" .->13
+    133-. "<div>Publishes events</div><div style='font-size: 70%'>[Kafka Protocol]</div>" .->13
     134-. "<div>Publishes events</div><div style='font-size: 70%'>[Kafka Protocol]</div>" .->13
-    135-. "<div>Publishes events</div><div style='font-size: 70%'>[Kafka Protocol]</div>" .->13
-    136-. "<div>Publishes events</div><div style='font-size: 70%'>[Kafka Protocol]</div>" .->13
-    137-. "<div>Publishes events</div><div style='font-size: 70%'>[Kafka Protocol]</div>" .->13
   end

@@ -31,6 +31,10 @@
         <artifactId>saga-api</artifactId>
     </dependency>
     <dependency>
+        <groupId>ir.dotin.platform.pangaea</groupId>
+        <artifactId>pangaea-transaction</artifactId>
+    </dependency>
+    <dependency>
       <groupId>ir.dotin.platform</groupId>
       <artifactId>expression-kit-service</artifactId>
     </dependency>

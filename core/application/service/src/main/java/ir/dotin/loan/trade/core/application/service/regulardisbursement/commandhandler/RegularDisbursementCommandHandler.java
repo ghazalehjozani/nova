@@ -9,10 +9,12 @@ import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
-import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.RegularDisbursementCommand;
@@ -21,11 +23,8 @@ import ir.dotin.loan.trade.core.application.service.regulardisbursement.mapper.R
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
-public class RegularDisbursementCommandHandler implements CommandHandler<RegularDisbursementCommand> {
+public class RegularDisbursementCommandHandler extends WriteCommandHandler<RegularDisbursementCommand, Unit> {
 
     private static final Logger log = LoggerFactory.getLogger(RegularDisbursementCommandHandler.class);
 
@@ -33,8 +32,24 @@ public class RegularDisbursementCommandHandler implements CommandHandler<Regular
     private final TradeLoanFacilityRepository repository;
     private final Clock clock;
 
+    public RegularDisbursementCommandHandler(
+            WriteTransaction writeTransaction,
+            RegularDisbursementCommandMapper mapper,
+            TradeLoanFacilityRepository repository,
+            Clock clock) {
+        super(writeTransaction);
+        this.mapper = mapper;
+        this.repository = repository;
+        this.clock = clock;
+    }
+
     @Override
-    public Result<List<DomainEvent<?>>> handle(RegularDisbursementCommand command) {
+    protected Result<Unit> prepare(RegularDisbursementCommand command) {
+        return Result.success();
+    }
+
+    @Override
+    protected Result<List<DomainEvent<?>>> write(RegularDisbursementCommand command, Unit prepared) {
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
 
         return Result.fromOptional(

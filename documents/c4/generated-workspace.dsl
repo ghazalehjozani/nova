@@ -26,12 +26,10 @@ workspace "Trade Loan Service" {
                 closefacilitypaidoffcontroller = component "CloseFacilityPaidOffController" "REST API: /v{version}/loan-facilities/{facilityId}/close-paid-off" "Spring REST Controller"
                 defineloanarrangementcontroller = component "DefineLoanArrangementController" "REST API: /v{version}/loan-arrangements" "Spring REST Controller"
                 defineloantypecontroller = component "DefineLoanTypeController" "REST API: /v{version}/loan-types" "Spring REST Controller"
-                fullloanfacilitylifecyclecontroller = component "FullLoanFacilityLifecycleController" "REST API: /v{version}/loan-facilities/{facilityId}/full-lifecycle" "Spring REST Controller"
                 irregularprogressivedisbursementcontroller = component "IrregularProgressiveDisbursementController" "REST API: /v{version}/loan-facilities/{facilityId}/disburse/progressive-irregular" "Spring REST Controller"
                 issuefacilitycontractcontroller = component "IssueFacilityContractController" "REST API: /v{version}/loan-facilities/{facilityId}/issue-contract" "Spring REST Controller"
                 lumpsumdisbursementcontroller = component "LumpSumDisbursementController" "REST API: /v{version}/loan-facilities/{facilityId}/disburse/lump-sum" "Spring REST Controller"
                 openfacilitycasecontroller = component "OpenFacilityCaseController" "REST API: /v{version}/loan-facilities" "Spring REST Controller"
-                regulardisbursementcontroller = component "RegularDisbursementController" "REST API: /api/{version}/facilities/{facilityId}/disburse/regular" "Spring REST Controller"
                 rejectfacilitycontroller = component "RejectFacilityController" "REST API: /v{version}/loan-facilities/{facilityId}/reject" "Spring REST Controller"
                 submitfacilityforapprovalcontroller = component "SubmitFacilityForApprovalController" "REST API: /v{version}/loan-facilities/{facilityId}/submit-for-approval" "Spring REST Controller"
                 installmentschedulequerycontroller = component "InstallmentScheduleQueryController" "REST API: /v{version}/installment-schedules" "Spring REST Controller"
@@ -39,7 +37,6 @@ workspace "Trade Loan Service" {
                 facilityquerycontroller = component "FacilityQueryController" "REST API: /v{version}/loan-facilities" "Spring REST Controller"
                 loantypequerycontroller = component "LoanTypeQueryController" "REST API: /v{version}/loan-types" "Spring REST Controller"
                 fcbeventconsumer = component "FcbEventConsumer" "Kafka consumer" "Spring Kafka Listener"
-                fulllifecyclekafkacommandconsumer = component "FullLifecycleKafkaCommandConsumer" "Kafka consumer" "Spring Kafka Listener"
                 addfacilitycollateralcommandhandler = component "AddFacilityCollateralCommandHandler" "Handles add facility collateral" "Command Handler"
                 compensatecollateralcommandhandler = component "CompensateCollateralCommandHandler" "Handles compensate collateral" "Command Handler"
                 approvefacilitycommandhandler = component "ApproveFacilityCommandHandler" "Handles approve facility" "Command Handler"
@@ -50,14 +47,13 @@ workspace "Trade Loan Service" {
                 compensateclosefacilitypaidoffcommandhandler = component "CompensateCloseFacilityPaidOffCommandHandler" "Handles compensate close facility paid off" "Command Handler"
                 collectinstallmentcommandhandler = component "CollectInstallmentCommandHandler" "Handles collect installment" "Command Handler"
                 compensatecollectinstallmentcommandhandler = component "CompensateCollectInstallmentCommandHandler" "Handles compensate collect installment" "Command Handler"
-                definetradeloanarrangementcommandhandler = component "DefineTradeLoanArrangementCommandHandler" "Handles define trade loan arrangement" "Command Handler"
                 defineloantypecommandhandler = component "DefineLoanTypeCommandHandler" "Handles define loan type" "Command Handler"
-                fullloanfacilitylifecyclecommandhandler = component "FullLoanFacilityLifecycleCommandHandler" "Handles full loan facility lifecycle" "Command Handler"
-                fulllifecyclerevertcommandhandler = component "FullLifecycleRevertCommandHandler" "Handles full lifecycle revert" "Command Handler"
+                definetradeloanarrangementcommandhandler = component "DefineTradeLoanArrangementCommandHandler" "Handles define trade loan arrangement" "Command Handler"
                 irregularprogressivedisbursementcommandhandler = component "IrregularProgressiveDisbursementCommandHandler" "Handles irregular progressive disbursement" "Command Handler"
                 compensateirregulardisbursementcommandhandler = component "CompensateIrregularDisbursementCommandHandler" "Handles compensate irregular disbursement" "Command Handler"
                 issuefacilitycontractcommandhandler = component "IssueFacilityContractCommandHandler" "Handles issue facility contract" "Command Handler"
                 compensatecontractissuancecommandhandler = component "CompensateContractIssuanceCommandHandler" "Handles compensate contract issuance" "Command Handler"
+                loanfacilityrestructuringcommandhandler = component "LoanFacilityRestructuringCommandHandler" "Handles loan facility restructuring" "Command Handler"
                 lumpsumdisbursementcommandhandler = component "LumpSumDisbursementCommandHandler" "Handles lump sum disbursement" "Command Handler"
                 compensatelumpsumdisbursementcommandhandler = component "CompensateLumpSumDisbursementCommandHandler" "Handles compensate lump sum disbursement" "Command Handler"
                 originateloanfacilitycommandhandler = component "OriginateLoanFacilityCommandHandler" "Handles originate loan facility" "Command Handler"
@@ -65,25 +61,26 @@ workspace "Trade Loan Service" {
                 planequalinstallmentschedulecommandhandler = component "PlanEqualInstallmentScheduleCommandHandler" "Handles plan equal installment schedule" "Command Handler"
                 regulardisbursementcommandhandler = component "RegularDisbursementCommandHandler" "Handles regular disbursement" "Command Handler"
                 rejectfacilitycommandhandler = component "RejectFacilityCommandHandler" "Handles reject facility" "Command Handler"
-                loanfacilityrestructuringcommandhandler = component "LoanFacilityRestructuringCommandHandler" "Handles loan facility restructuring" "Command Handler"
                 submitfacilityforapprovalcommandhandler = component "SubmitFacilityForApprovalCommandHandler" "Handles submit facility for approval" "Command Handler"
                 compensateapprovalsubmissioncommandhandler = component "CompensateApprovalSubmissionCommandHandler" "Handles compensate approval submission" "Command Handler"
-                updatecollateralcommandhandler = component "UpdateCollateralCommandHandler" "Handles update collateral" "Command Handler"
+                updatefacilitycollateralcommandhandler = component "UpdateFacilityCollateralCommandHandler" "Handles update facility collateral" "Command Handler"
                 getinstallmentschedulebyidqueryhandler = component "GetInstallmentScheduleByIdQueryHandler" "Handles get installment schedule by id queries" "Query Handler"
                 findallloanarrangementsqueryhandler = component "FindAllLoanArrangementsQueryHandler" "Handles find all loan arrangements queries" "Query Handler"
+                getloanarrangementbycodequeryhandler = component "GetLoanArrangementByCodeQueryHandler" "Handles get loan arrangement by code queries" "Query Handler"
                 getloanarrangementbyidqueryhandler = component "GetLoanArrangementByIdQueryHandler" "Handles get loan arrangement by id queries" "Query Handler"
                 loantypearrangementfilterqueryhandler = component "LoanTypeArrangementFilterQueryHandler" "Handles loan type arrangement filter queries" "Query Handler"
                 findallloanfacilitiesqueryhandler = component "FindAllLoanFacilitiesQueryHandler" "Handles find all loan facilities queries" "Query Handler"
+                getfacilitybyapplicationnumberqueryhandler = component "GetFacilityByApplicationNumberQueryHandler" "Handles get facility by application number queries" "Query Handler"
                 getfacilitybyidqueryhandler = component "GetFacilityByIdQueryHandler" "Handles get facility by id queries" "Query Handler"
                 searchloanfacilitiesqueryhandler = component "SearchLoanFacilitiesQueryHandler" "Handles search loan facilities queries" "Query Handler"
                 findallloantypesqueryhandler = component "FindAllLoanTypesQueryHandler" "Handles find all loan types queries" "Query Handler"
+                getloantypebycodequeryhandler = component "GetLoanTypeByCodeQueryHandler" "Handles get loan type by code queries" "Query Handler"
                 getloantypebyidqueryhandler = component "GetLoanTypeByIdQueryHandler" "Handles get loan type by id queries" "Query Handler"
                 loantypefilterqueryhandler = component "LoanTypeFilterQueryHandler" "Handles loan type filter queries" "Query Handler"
-                preparefacilityapprovalqueryhandler = component "PrepareFacilityApprovalQueryHandler" "Handles prepare facility approval queries" "Query Handler"
-                preparefacilityoriginationqueryhandler = component "PrepareFacilityOriginationQueryHandler" "Handles prepare facility origination queries" "Query Handler"
                 addfacilitycollateralsaga = component "AddFacilityCollateralSaga" "Orchestrates add facility collateral" "Saga Orchestrator"
-                fullloanfacilitylifecyclesaga = component "FullLoanFacilityLifecycleSaga" "Orchestrates full loan facility lifecycle" "Saga Orchestrator"
+                irregularprogressivedisbursementsaga = component "IrregularProgressiveDisbursementSaga" "Orchestrates irregular progressive disbursement" "Saga Orchestrator"
                 issuefacilitycontractsaga = component "IssueFacilityContractSaga" "Orchestrates issue facility contract" "Saga Orchestrator"
+                lumpsumdisbursementsaga = component "LumpSumDisbursementSaga" "Orchestrates lump sum disbursement" "Saga Orchestrator"
                 tradeloanarrangement = component "TradeLoanArrangement" "trade loan arrangement aggregate" "DDD Aggregate Root"
                 tradeloanapplication = component "TradeLoanApplication" "trade loan application aggregate" "DDD Aggregate Root"
                 tradeloanfacility = component "TradeLoanFacility" "trade loan facility aggregate" "DDD Aggregate Root"
@@ -145,11 +142,11 @@ workspace "Trade Loan Service" {
         system_administrator -> trade_loan_service "Monitors Kafka"
         fcbeventconsumer -> kafka "Consumes from"
         trade_loan_application -> kafka "Consumes from"
-        fulllifecyclekafkacommandconsumer -> kafka "Consumes from"
         cancelfacilitycommandhandler -> tradeloanfacilityservice "Uses"
         closefacilitydefaultedcommandhandler -> tradeloanfacilityservice "Uses"
         closefacilitypaidoffcommandhandler -> tradeloanfacilityservice "Uses"
         defineloantypecommandhandler -> tradeloantypevalidationservice "Uses"
+        originateloanfacilitycommandhandler -> tradeloanfacilityvalidationservice "Uses"
         planequalinstallmentschedulecommandhandler -> traderepaymentschedulingservice "Uses"
         submitfacilityforapprovalcommandhandler -> tradeloanfacilityservice "Uses"
         addfacilitycollateralsaga -> tradeloanfacilityservice "Uses"
@@ -245,6 +242,23 @@ workspace "Trade Loan Service" {
         }
 
         styles {
+            element "Client" {
+                background #ec407a
+                color #ffffff
+            }
+            element "Controller" {
+                background #7cb342
+                color #ffffff
+            }
+            element "Component" {
+                background #85bbf0
+                color #000000
+            }
+            element "Message Broker" {
+                background #f5a623
+                color #000000
+                shape Pipe
+            }
             element "Saga" {
                 background #ab47bc
                 color #ffffff
@@ -324,23 +338,6 @@ workspace "Trade Loan Service" {
             element "Monitoring" {
                 background #27ae60
                 shape WebBrowser
-            }
-            element "Client" {
-                background #ec407a
-                color #ffffff
-            }
-            element "Controller" {
-                background #7cb342
-                color #ffffff
-            }
-            element "Component" {
-                background #85bbf0
-                color #000000
-            }
-            element "Message Broker" {
-                background #f5a623
-                color #000000
-                shape Pipe
             }
         }
     }

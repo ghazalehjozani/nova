@@ -49,9 +49,10 @@ public class FacilityBuilder {
             OriginateLoanFacilityCommand command,
             FacilityOriginationContext context,
             @Nullable InstallmentScheduleId scheduleId,
-            @NonNull LoanFacilityId facilityId) {
+            @NonNull LoanFacilityId facilityId,
+            ApplicationNumber applicationNumber) {
 
-        return buildApplication(command, context).map(application -> {
+        return buildApplication(command, context, applicationNumber).map(application -> {
             TradeLoanFacility facility = TradeLoanFacility.create(
                     facilityId,
                     application,
@@ -65,9 +66,8 @@ public class FacilityBuilder {
     }
 
     public Result<TradeLoanApplication> buildApplication(
-            OriginateLoanFacilityCommand command, FacilityOriginationContext context) {
+            OriginateLoanFacilityCommand command, FacilityOriginationContext context, ApplicationNumber appNumber) {
 
-        // 1. Validate Branch Code
         String rawBranchCode = command.loanApplication().branch().code();
         if (rawBranchCode == null) {
             return Result.failure(OriginateLoanFacilityErrorCodes.BRANCH_CODE_REQUIRED);
@@ -79,45 +79,18 @@ public class FacilityBuilder {
         }
         Branch branch = branchResult.unwrap();
 
-        // 2. Validate Loan Type Code
-        Result<LoanTypeCode> loanTypeCodeResult =
-                LoanTypeCode.of(requireNonNull(context.loanType().getCode()).value());
-        if (loanTypeCodeResult.isFailure()) {
-            return Result.failure(loanTypeCodeResult.err().orElseThrow());
-        }
-        LoanTypeCode loanTypeCode = loanTypeCodeResult.unwrap();
-
-        // 3. Prepare Parties
-        Party primaryApplicant = context.primaryApplicant().party();
-
         Set<Party> enrichedParties =
                 context.partyInfos().stream().map(PartyInfoResponse::party).collect(Collectors.toSet());
 
-        // Application number is resolved tx-free in the pre-flight (PrepareFacilityOriginationQuery) and threaded in
-        // via resolvedApplicationNumber — reconstruct the VO here rather than re-calling FCB inside the transaction
-        // (RB-0002: an in-tx FCB round-trip pins the pooled Hikari connection). Fallback to the configured strategy
-        // only on the (non-pre-flight) path where it was not pre-resolved.
-        String resolvedDerivedValue = command.resolvedApplicationNumber();
-        Result<ApplicationNumber> appNumberResult = (resolvedDerivedValue != null)
-                ? ApplicationNumber.of(branch, loanTypeCode, primaryApplicant, resolvedDerivedValue)
-                : applicationNumberStrategySelector
-                        .selectStrategy()
-                        .generateApplicationNumber(branch, loanTypeCode, primaryApplicant);
-
-        if (appNumberResult.isFailure()) {
-            return Result.failure(appNumberResult.err().orElseThrow());
-        }
-
-        Result<Unit> matchResult = validateApplicationNumberMatch(command, appNumberResult);
+        Result<Unit> matchResult = validateApplicationNumberMatch(command, appNumber);
         if (matchResult.isFailure()) {
             return Result.failure(matchResult.err().orElseThrow());
         }
 
-        // 4. Build Application
         TradeLoanApplication.Builder builder = applicationMapper
                 .map(command.loanApplication())
                 .parties(enrichedParties)
-                .applicationNumber(appNumberResult.unwrap())
+                .applicationNumber(appNumber)
                 .branch(branch);
         fillInstallmentCount(builder, command);
 
@@ -146,13 +119,6 @@ public class FacilityBuilder {
         return TradeLoanApplication.create(builder);
     }
 
-    /**
-     * Tx-free application-number resolution for the origination pre-flight ({@code PrepareFacilityOriginationQuery}).
-     * Mirrors {@link #buildApplication}'s branch / loan-type / primary-applicant derivation and runs the configured
-     * strategy (the FCB get-application-number round-trip for the external strategy) outside any transaction. The
-     * resolved {@code ApplicationNumber.derivedValue()} is threaded back onto the command and reused in
-     * {@link #buildApplication}, so the transactional command never pins a pooled connection across FCB (RB-0002).
-     */
     public Result<ApplicationNumber> resolveApplicationNumber(
             OriginateLoanFacilityCommand command, List<PartyInfoResponse> partyInfos) {
 
@@ -183,11 +149,11 @@ public class FacilityBuilder {
     }
 
     private Result<Unit> validateApplicationNumberMatch(
-            OriginateLoanFacilityCommand command, Result<ApplicationNumber> appNumberResult) {
+            OriginateLoanFacilityCommand command, ApplicationNumber appNumber) {
         String commandAppNumber = command.loanApplication().applicationNumber();
 
         if (commandAppNumber != null) {
-            String generatedAppNumber = appNumberResult.unwrap().formattedApplicationNumber();
+            String generatedAppNumber = appNumber.formattedApplicationNumber();
 
             if (!generatedAppNumber.equals(commandAppNumber)) {
                 return Result.failure(

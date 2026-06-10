@@ -1,6 +1,5 @@
 package ir.dotin.loan.trade.core.application.service.originateloanfacility.strategy;
 
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.accounting.document.api.model.BranchCode;
@@ -24,8 +23,8 @@ public class InternalApplicationNumberGenerationStrategy implements ApplicationN
     private final TradeLoanFacilityRepository facilityRepository;
 
     @Override
-    public @NonNull Result<ApplicationNumber> generateApplicationNumber(
-            @NonNull Branch branch, @NonNull LoanTypeCode loanTypeCode, @NonNull Party primaryApplicant) {
+    public Result<ApplicationNumber> generateApplicationNumber(
+            Branch branch, LoanTypeCode loanTypeCode, Party primaryApplicant) {
         String derivedValue = String.valueOf(
                 generateApplicationSequence(branch.code(), loanTypeCode, primaryApplicant.customerNumber()));
         ApplicationNumber applicationNumber =
@@ -42,7 +41,7 @@ public class InternalApplicationNumberGenerationStrategy implements ApplicationN
     }
 
     @Override
-    public @NonNull ApplicationNumberGenerationType getType() {
+    public ApplicationNumberGenerationType getType() {
         return ApplicationNumberGenerationType.INTERNAL_GENERATION;
     }
 

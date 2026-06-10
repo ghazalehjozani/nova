@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
+import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.saga.api.annotation.SagaHandler;
 import ir.dotin.platform.pangaea.saga.api.context.SagaContext;
 import ir.dotin.platform.pangaea.saga.api.definition.SagaDefinition;
@@ -34,7 +35,6 @@ import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.mapper
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
-import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCollateralAdded;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilityService;
 
 import lombok.RequiredArgsConstructor;
@@ -84,8 +84,8 @@ public class AddFacilityCollateralSaga implements SagaDefinition<AddFacilityColl
                                 this::unReserveCollaterals)
                         .withConservativeRetry()
                         .withTimeout(Duration.ofSeconds(30)),
-                SagaSteps.step(AddFacilityCollateralStep.ADD_COLLATERAL, this::addCollateral, this::revertAddCollateral)
-                        .withNoRetry());
+                SagaSteps.writeStep(
+                        AddFacilityCollateralStep.ADD_COLLATERAL, this::addCollateral, this::revertAddCollateral));
     }
 
     @Override
@@ -187,22 +187,11 @@ public class AddFacilityCollateralSaga implements SagaDefinition<AddFacilityColl
             return ResultStepAdapter.toStepResultVoid(validation);
         }
 
-        List<AddFacilityCollateralSagaData.CapturedEventData> captured = facility.domainEvents().stream()
-                .filter(TradeLoanFacilityCollateralAdded.class::isInstance)
-                .map(TradeLoanFacilityCollateralAdded.class::cast)
-                .map(event -> new AddFacilityCollateralSagaData.CapturedEventData(
-                        event.eventId(),
-                        event.aggregateId(),
-                        event.eventType(),
-                        event.sanctionedLoanId(),
-                        event.collateralSerials(),
-                        event.createdAt()))
-                .toList();
-        ctx.updateSagaData(d -> d.withCapturedEvents(captured));
+        List<DomainEvent<?>> events = List.copyOf(facility.domainEvents());
 
         facilityRepository.save(facility, data.expectedVersion());
         log.info("{} collaterals added for facility: {}", collaterals.size(), data.facilityId());
-        return new StepResult.Success<>(null);
+        return StepResult.Success.of(null, events);
     }
 
     private StepResult<Void> revertAddCollateral(SagaContext<AddFacilityCollateralSagaData> ctx, Void ignored) {

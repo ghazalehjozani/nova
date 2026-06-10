@@ -19,13 +19,19 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication.AddFacilityCollateral
   BorderColor #773183
   shadowing false
 }
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.FullLoanFacilityLifecycleSaga>> {
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementSaga>> {
   BackgroundColor #ab47bc
   FontColor #ffffff
   BorderColor #773183
   shadowing false
 }
 skinparam rectangle<<TradeLoanService.TradeLoanApplication.IssueFacilityContractSaga>> {
+  BackgroundColor #ab47bc
+  FontColor #ffffff
+  BorderColor #773183
+  shadowing false
+}
+skinparam rectangle<<TradeLoanService.TradeLoanApplication.LumpSumDisbursementSaga>> {
   BackgroundColor #ab47bc
   FontColor #ffffff
   BorderColor #773183
@@ -39,8 +45,9 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
 
 rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>" <<TradeLoanService.TradeLoanApplication>> {
   rectangle "==AddFacilityCollateralSaga\n<size:10>[Component: Saga Orchestrator]</size>\n\nOrchestrates add facility collateral" <<TradeLoanService.TradeLoanApplication.AddFacilityCollateralSaga>> as TradeLoanService.TradeLoanApplication.AddFacilityCollateralSaga
-  rectangle "==FullLoanFacilityLifecycleSaga\n<size:10>[Component: Saga Orchestrator]</size>\n\nOrchestrates full loan facility lifecycle" <<TradeLoanService.TradeLoanApplication.FullLoanFacilityLifecycleSaga>> as TradeLoanService.TradeLoanApplication.FullLoanFacilityLifecycleSaga
+  rectangle "==IrregularProgressiveDisbursementSaga\n<size:10>[Component: Saga Orchestrator]</size>\n\nOrchestrates irregular progressive disbursement" <<TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementSaga>> as TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementSaga
   rectangle "==IssueFacilityContractSaga\n<size:10>[Component: Saga Orchestrator]</size>\n\nOrchestrates issue facility contract" <<TradeLoanService.TradeLoanApplication.IssueFacilityContractSaga>> as TradeLoanService.TradeLoanApplication.IssueFacilityContractSaga
+  rectangle "==LumpSumDisbursementSaga\n<size:10>[Component: Saga Orchestrator]</size>\n\nOrchestrates lump sum disbursement" <<TradeLoanService.TradeLoanApplication.LumpSumDisbursementSaga>> as TradeLoanService.TradeLoanApplication.LumpSumDisbursementSaga
 }
 
 @enduml

@@ -41,7 +41,9 @@ public final class ArticleMetadataMapper {
     }
 
     private static String resolveMetadataType(@Nullable ArticleMetadata metadata) {
-        if (metadata != null && metadata.metadataType() != null && !metadata.metadataType().isBlank()) {
+        if (metadata != null
+                && metadata.metadataType() != null
+                && !metadata.metadataType().isBlank()) {
             return metadata.metadataType();
         }
         return DEFAULT_EXTRA_INFO_TYPE;

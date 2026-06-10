@@ -141,7 +141,8 @@ public final class FcbTransactionMapper {
         }
 
         TransactionDirectionDto direction = mapDirection(article.direction());
-        ExtraInfoMetadataDto metadata = includeExtraInfo ? ArticleMetadataMapper.toDto(article.articleMetadata()) : null;
+        ExtraInfoMetadataDto metadata =
+                includeExtraInfo ? ArticleMetadataMapper.toDto(article.articleMetadata()) : null;
 
         String title = buildTitle(descriptor, direction);
 

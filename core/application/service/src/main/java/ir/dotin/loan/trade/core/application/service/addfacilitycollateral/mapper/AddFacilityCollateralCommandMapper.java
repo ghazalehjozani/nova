@@ -13,7 +13,7 @@ import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.AddFacilityCollateralCommand;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.UpdateCollateralCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.UpdateFacilityCollateralCommand;
 import ir.dotin.loan.trade.core.application.service.BaseMapperConfig;
 
 @Mapper(config = BaseMapperConfig.class)
@@ -53,13 +53,14 @@ public interface AddFacilityCollateralCommandMapper {
         }
     }
 
-    default @Nullable Collateral toCollateral(UpdateCollateralCommand.CollateralItem item, CurrencyType currencyType) {
+    default @Nullable Collateral toCollateral(
+            UpdateFacilityCollateralCommand.CollateralItem item, CurrencyType currencyType) {
         if (item == null) return null;
 
         CollateralSerial serial = CollateralSerial.of(item.collateralSerial()).unwrap();
         Result<Money> usedAmount = Money.valueOf(item.usedAmount(), currencyType);
 
-        // collateralType and description are not carried by UpdateCollateralCommand.CollateralItem;
+        // collateralType and description are not carried by UpdateFacilityCollateralCommand.CollateralItem;
         // requireNonNull is used here as a fail-fast guard — the domain Collateral record requires these fields.
         return Collateral.valueOf(
                         Objects.requireNonNull(null, "collateralType required for update"),

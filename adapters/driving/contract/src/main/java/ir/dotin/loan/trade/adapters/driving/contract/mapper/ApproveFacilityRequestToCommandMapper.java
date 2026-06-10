@@ -13,9 +13,9 @@ public class ApproveFacilityRequestToCommandMapper {
 
     public ApproveFacilityCommand toCommand(
             UUID facilityId, UUID idempotencyKey, @Nullable String sanctionSerial, ApproveFacilityRequest request) {
-        // uid is the request's idempotency key (never randomly generated); branchCode is stamped by the controller from
-        // the auth context; sanctionDetails is system-populated post pre-flight (PrepareFacilityApprovalQuery).
+        // uid is the request's idempotency key (never randomly generated); branchCode is stamped by the controller
+        // from the auth context.
         return new ApproveFacilityCommand(
-                idempotencyKey, request.version(), facilityId, null, sanctionSerial, request.confirmType(), null);
+                idempotencyKey, request.version(), facilityId, null, sanctionSerial, request.confirmType());
     }
 }

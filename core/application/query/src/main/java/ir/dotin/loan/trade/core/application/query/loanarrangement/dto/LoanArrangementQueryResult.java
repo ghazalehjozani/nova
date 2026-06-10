@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import ir.dotin.platform.pangaea.dispatcher.api.query.QueryResult;
+import ir.dotin.platform.pangaea.servicelayer.api.query.QueryResult;
 
 import lombok.Builder;
 

@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.core.application.service.approvefacility.commandhand
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -10,22 +11,23 @@ import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
-import ir.dotin.platform.pangaea.dispatcher.api.command.CommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
+import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.ApproveFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.response.SanctionDetails;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
+import ir.dotin.loan.trade.core.application.service.approvefacility.component.SanctionDetailsLoader;
 import ir.dotin.loan.trade.core.application.service.approvefacility.factory.ApprovalStrategyFactory;
 import ir.dotin.loan.trade.core.application.service.approvefacility.strategy.ApprovalStrategy;
 import ir.dotin.loan.trade.core.application.service.shared.authz.BranchAccessValidator;
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
-public class ApproveFacilityCommandHandler implements CommandHandler<ApproveFacilityCommand> {
+public class ApproveFacilityCommandHandler
+        extends WriteCommandHandler<ApproveFacilityCommand, ApproveFacilityCommandHandler.ApprovalPreparation> {
 
     private static final Logger log = LoggerFactory.getLogger(ApproveFacilityCommandHandler.class);
 
@@ -33,19 +35,39 @@ public class ApproveFacilityCommandHandler implements CommandHandler<ApproveFaci
     private final TradeLoanArrangementRepository loanArrangementRepository;
     private final BranchAccessValidator branchAccessValidator;
     private final ApprovalStrategyFactory strategyFactory;
+    private final SanctionDetailsLoader sanctionDetailsLoader;
+
+    public ApproveFacilityCommandHandler(
+            WriteTransaction writeTransaction,
+            TradeLoanFacilityRepository loanFacilityRepository,
+            TradeLoanArrangementRepository loanArrangementRepository,
+            BranchAccessValidator branchAccessValidator,
+            ApprovalStrategyFactory strategyFactory,
+            SanctionDetailsLoader sanctionDetailsLoader) {
+        super(writeTransaction);
+        this.loanFacilityRepository = loanFacilityRepository;
+        this.loanArrangementRepository = loanArrangementRepository;
+        this.branchAccessValidator = branchAccessValidator;
+        this.strategyFactory = strategyFactory;
+        this.sanctionDetailsLoader = sanctionDetailsLoader;
+    }
 
     @Override
-    public Result<List<DomainEvent<?>>> handle(ApproveFacilityCommand command) {
-        LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
+    protected Result<ApprovalPreparation> prepare(ApproveFacilityCommand command) {
         ConfirmType confirmType = ConfirmType.of(command.confirmType()).unwrap();
 
-        // Manual path requires the FCB-resolved sanction details to have been threaded in by the pre-flight
-        // (PrepareFacilityApprovalQuery). A null here means the command was dispatched without the pre-flight — which
-        // cannot happen via the controller / saga — so fail loudly rather than silently re-introduce an FCB call.
-        if (command.sanctionSerial() != null && command.sanctionDetails() == null) {
-            throw new IllegalStateException("Manual approval command dispatched without pre-flight sanctionDetails: "
-                    + command.loanFacilityId());
+        if (command.sanctionSerial() == null) {
+            return Result.success(new ApprovalPreparation(confirmType, null));
         }
+
+        return sanctionDetailsLoader
+                .loadForManualApproval(command.loanFacilityId())
+                .map(details -> new ApprovalPreparation(confirmType, details));
+    }
+
+    @Override
+    protected Result<List<DomainEvent<?>>> write(ApproveFacilityCommand command, ApprovalPreparation prepared) {
+        LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
 
         return Result.fromOptional(
                         loanFacilityRepository.findById(loanFacilityId),
@@ -62,7 +84,12 @@ public class ApproveFacilityCommandHandler implements CommandHandler<ApproveFaci
                         .flatMap(arrangement -> {
                             ApprovalStrategy strategy = strategyFactory.getStrategy(command);
                             return strategy.validate(command, facility, arrangement)
-                                    .flatMap(ignored -> strategy.approve(command, facility, arrangement, confirmType))
+                                    .flatMap(ignored -> strategy.approve(
+                                            command,
+                                            facility,
+                                            arrangement,
+                                            prepared.confirmType(),
+                                            prepared.sanctionDetails()))
                                     .map(ignored -> {
                                         loanFacilityRepository.save(facility, command.version());
                                         log.debug("Facility approved: {}", command.loanFacilityId());
@@ -70,4 +97,7 @@ public class ApproveFacilityCommandHandler implements CommandHandler<ApproveFaci
                                     });
                         }));
     }
+
+    public record ApprovalPreparation(
+            ConfirmType confirmType, @Nullable SanctionDetails sanctionDetails) {}
 }

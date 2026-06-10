@@ -5,10 +5,10 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import ir.dotin.platform.pangaea.dispatcher.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
 import ir.dotin.platform.pangaea.protocol.rest.controller.CommandResponseFactory;
 import ir.dotin.platform.pangaea.security.api.AuthenticationContextHolder;
+import ir.dotin.platform.pangaea.servicelayer.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.RejectFacilityRequest;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.RejectFacilityCommand;

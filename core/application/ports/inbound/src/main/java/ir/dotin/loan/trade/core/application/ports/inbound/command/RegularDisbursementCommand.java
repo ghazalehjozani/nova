@@ -4,7 +4,7 @@ import java.util.UUID;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
-import ir.dotin.platform.pangaea.dispatcher.api.command.Command;
+import ir.dotin.platform.pangaea.servicelayer.api.command.Command;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.MoneyDto;
 
 public record RegularDisbursementCommand(

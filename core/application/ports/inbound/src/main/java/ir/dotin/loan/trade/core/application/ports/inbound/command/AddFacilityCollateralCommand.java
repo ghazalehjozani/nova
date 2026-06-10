@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotNull;
 
 import org.jspecify.annotations.Nullable;
 
-import ir.dotin.platform.pangaea.dispatcher.api.command.Command;
+import ir.dotin.platform.pangaea.servicelayer.api.command.Command;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 
 import lombok.Builder;
