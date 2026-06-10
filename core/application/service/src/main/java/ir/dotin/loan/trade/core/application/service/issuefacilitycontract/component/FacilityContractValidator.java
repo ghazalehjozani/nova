@@ -11,7 +11,7 @@ import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.core.concurrent.ParallelFanout;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.IssueFacilityContractCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.BranchCoveragePort;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.strategy.FacilityContractContext;
 
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class FacilityContractValidator {
 
-    private final LoanServicePort loanServicePort;
+    private final BranchCoveragePort branchCoveragePort;
 
     public Result<Unit> callAndValidateServices(IssueFacilityContractCommand command, FacilityContractContext context) {
         log.debug("Call and validate services for facility contract issuance");
@@ -37,7 +37,7 @@ public class FacilityContractValidator {
         String branchCode = command.branchCode();
         BranchCode facilityBranchCode =
                 context.facility().getLoanApplication().getBranch().code();
-        Result<List<BranchCode>> result = loanServicePort.loadCoveredBranches(facilityBranchCode);
+        Result<List<BranchCode>> result = branchCoveragePort.coveredBranches(facilityBranchCode);
 
         if (result.isFailure()) {
             return Result.failure(result.err().orElseThrow());

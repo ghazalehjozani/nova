@@ -56,13 +56,16 @@ public class ApproveFacilityCommandHandler
     protected Result<ApprovalPreparation> prepare(ApproveFacilityCommand command) {
         ConfirmType confirmType = ConfirmType.of(command.confirmType()).unwrap();
 
-        if (command.sanctionSerial() == null) {
-            return Result.success(new ApprovalPreparation(confirmType, null));
-        }
-
-        return sanctionDetailsLoader
-                .loadForManualApproval(command.loanFacilityId())
-                .map(details -> new ApprovalPreparation(confirmType, details));
+        return branchAccessValidator
+                .verifyCallerCoversFacility(command.branchCode(), LoanFacilityId.of(command.loanFacilityId()))
+                .flatMap(ignored -> {
+                    if (command.sanctionSerial() == null) {
+                        return Result.success(new ApprovalPreparation(confirmType, null));
+                    }
+                    return sanctionDetailsLoader
+                            .loadForManualApproval(command.loanFacilityId())
+                            .map(details -> new ApprovalPreparation(confirmType, details));
+                });
     }
 
     @Override
@@ -73,9 +76,6 @@ public class ApproveFacilityCommandHandler
                         loanFacilityRepository.findById(loanFacilityId),
                         () -> FailureCause.notFound(Notification.ofError(
                                 TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())))
-                .flatMap(facility -> branchAccessValidator
-                        .verifyCallerCoversFacility(command.branchCode(), facility)
-                        .map(ignored -> facility))
                 .flatMap(facility -> Result.fromOptional(
                                 loanArrangementRepository.findById(facility.getLoanArrangementId()),
                                 () -> FailureCause.notFound(Notification.ofError(

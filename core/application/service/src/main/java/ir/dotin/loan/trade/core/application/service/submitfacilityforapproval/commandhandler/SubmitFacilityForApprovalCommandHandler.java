@@ -44,7 +44,8 @@ public class SubmitFacilityForApprovalCommandHandler
 
     @Override
     protected Result<Unit> prepare(SubmitFacilityForApprovalCommand command) {
-        return Result.success();
+        return branchAccessValidator.verifyCallerCoversFacility(
+                command.branchCode(), LoanFacilityId.of(command.loanFacilityId()));
     }
 
     @Override
@@ -54,9 +55,6 @@ public class SubmitFacilityForApprovalCommandHandler
                         repository.findById(loanFacilityId),
                         () -> FailureCause.notFound(Notification.ofError(
                                 SubmitFacilityForApprovalErrorCodes.FACILITY_NOT_FOUND, command.loanFacilityId())))
-                .flatMap(facility -> branchAccessValidator
-                        .verifyCallerCoversFacility(command.branchCode(), facility)
-                        .map(ignored -> facility))
                 .flatMap(facility -> domainService.submitForApproval(facility).map(v -> facility))
                 .onSuccess(facility -> {
                     repository.save(facility, command.version());

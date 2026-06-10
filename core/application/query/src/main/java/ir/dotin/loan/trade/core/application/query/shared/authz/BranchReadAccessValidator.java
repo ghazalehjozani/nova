@@ -11,7 +11,7 @@ import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.core.exception.FailureCauseException;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.BranchCoveragePort;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,14 +19,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BranchReadAccessValidator {
 
-    private final LoanServicePort loanServicePort;
+    private final BranchCoveragePort branchCoveragePort;
 
     public void verifyCallerCoversBranch(@Nullable String callerBranchCode, @Nullable String facilityBranchCode) {
         if (callerBranchCode == null || facilityBranchCode == null) {
             return;
         }
         BranchCode facilityBranch = BranchCode.of(facilityBranchCode).unwrap();
-        Result<List<BranchCode>> covered = loanServicePort.loadCoveredBranches(facilityBranch);
+        Result<List<BranchCode>> covered = branchCoveragePort.coveredBranches(facilityBranch);
         if (covered.isFailure()) {
             throw new FailureCauseException(covered.err().orElseThrow());
         }

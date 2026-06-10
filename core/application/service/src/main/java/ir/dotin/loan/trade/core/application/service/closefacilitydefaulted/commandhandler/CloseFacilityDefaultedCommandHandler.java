@@ -43,7 +43,8 @@ public class CloseFacilityDefaultedCommandHandler extends WriteCommandHandler<Cl
 
     @Override
     protected Result<Unit> prepare(CloseFacilityDefaultedCommand command) {
-        return Result.success();
+        return branchAccessValidator.verifyCallerCoversFacility(
+                command.branchCode(), LoanFacilityId.of(command.loanFacilityId()));
     }
 
     @Override
@@ -53,9 +54,6 @@ public class CloseFacilityDefaultedCommandHandler extends WriteCommandHandler<Cl
                         repository.findById(loanFacilityId),
                         () -> FailureCause.notFound(Notification.ofError(
                                 TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())))
-                .flatMap(facility -> branchAccessValidator
-                        .verifyCallerCoversFacility(command.branchCode(), facility)
-                        .map(ignored -> facility))
                 .flatMap(facility -> domainService.closeDefaulted(facility).map(v -> facility))
                 .onSuccess(facility -> {
                     repository.save(facility, command.version());

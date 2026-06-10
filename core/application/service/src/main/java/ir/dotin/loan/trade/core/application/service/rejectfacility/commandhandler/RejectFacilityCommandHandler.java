@@ -43,7 +43,8 @@ public class RejectFacilityCommandHandler extends WriteCommandHandler<RejectFaci
 
     @Override
     protected Result<Unit> prepare(RejectFacilityCommand command) {
-        return Result.success();
+        return branchAccessValidator.verifyCallerCoversFacility(
+                command.branchCode(), LoanFacilityId.of(command.loanFacilityId()));
     }
 
     @Override
@@ -53,9 +54,6 @@ public class RejectFacilityCommandHandler extends WriteCommandHandler<RejectFaci
                         repository.findById(loanFacilityId),
                         () -> FailureCause.notFound(Notification.ofError(
                                 TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.uid())))
-                .flatMap(facility -> branchAccessValidator
-                        .verifyCallerCoversFacility(command.branchCode(), facility)
-                        .map(ignored -> facility))
                 .onSuccess(facility -> {
                     facility.reject(clock);
                     repository.save(facility, command.version());
