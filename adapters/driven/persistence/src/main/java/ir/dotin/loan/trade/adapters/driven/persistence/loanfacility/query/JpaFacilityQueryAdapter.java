@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import ir.dotin.platform.pangaea.persistence.jpa.query.QueryCriteria;
 import ir.dotin.platform.pangaea.persistence.jpa.repository.PersistentRepository;
@@ -31,6 +32,7 @@ import ir.dotin.loan.trade.core.application.query.shared.pagination.CursorPositi
 import ir.dotin.loan.trade.core.application.query.shared.pagination.OffsetPage;
 
 @Repository
+@Transactional(readOnly = true)
 public class JpaFacilityQueryAdapter extends AbstractCursorPagingAdapter<TradeLoanFacilityEntity, TradeFacilityQueryDto>
         implements TradeLoanFacilityQueryRepository {
 

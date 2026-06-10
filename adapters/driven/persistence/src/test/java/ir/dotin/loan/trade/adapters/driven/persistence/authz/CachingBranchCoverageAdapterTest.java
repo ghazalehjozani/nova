@@ -57,7 +57,8 @@ class CachingBranchCoverageAdapterTest {
     void missLoadsFromSourceAndWritesCacheWithTtl() {
         when(valueOperations.get(KEY)).thenReturn(null);
         when(loanServicePort.loadCoveredBranches(branch))
-                .thenReturn(Result.success(List.of(BranchCode.of("123").unwrap(), BranchCode.of("456").unwrap())));
+                .thenReturn(Result.success(List.of(
+                        BranchCode.of("123").unwrap(), BranchCode.of("456").unwrap())));
 
         Result<List<BranchCode>> result = adapter.coveredBranches(branch);
 
@@ -72,7 +73,8 @@ class CachingBranchCoverageAdapterTest {
         Result<List<BranchCode>> result = adapter.coveredBranches(branch);
 
         assertThat(result.unwrap())
-                .containsExactly(BranchCode.of("123").unwrap(), BranchCode.of("456").unwrap());
+                .containsExactly(
+                        BranchCode.of("123").unwrap(), BranchCode.of("456").unwrap());
         verifyNoInteractions(loanServicePort);
     }
 

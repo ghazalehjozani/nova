@@ -3,7 +3,8 @@ package ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanArrangementId;
@@ -17,7 +18,8 @@ import lombok.RequiredArgsConstructor;
 
 import static java.util.Objects.requireNonNull;
 
-@Service
+@Repository
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class TradeLoanArrangementRepositoryAdapter implements TradeLoanArrangementRepository {
 
@@ -25,6 +27,7 @@ public class TradeLoanArrangementRepositoryAdapter implements TradeLoanArrangeme
     private final TradeLoanArrangementPersistenceMapper mapper;
 
     @Override
+    @Transactional
     public void save(TradeLoanArrangement arrangement) {
         var entity = mapper.map(arrangement);
         jpaRepository.save(requireNonNull(entity));

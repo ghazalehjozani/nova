@@ -69,8 +69,7 @@ public class CachingBranchCoverageAdapter implements BranchCoveragePort {
     }
 
     private static String encode(List<BranchCode> covered) {
-        return String.join(
-                SEPARATOR, covered.stream().map(BranchCode::value).toList());
+        return String.join(SEPARATOR, covered.stream().map(BranchCode::value).toList());
     }
 
     private static @Nullable List<BranchCode> decode(String value) {
