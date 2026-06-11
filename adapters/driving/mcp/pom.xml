@@ -27,13 +27,13 @@
          Deliberately NOT pangaea-ai-mcp-server: this adapter only declares tools, it never runs the transport. -->
     <dependency>
       <groupId>ir.dotin.platform.pangaea</groupId>
-      <artifactId>pangaea-ai-mcp-api</artifactId>
+      <artifactId>ai-mcp-api</artifactId>
     </dependency>
 
     <!-- QueryDispatcher bean + autoconfig. -->
     <dependency>
       <groupId>ir.dotin.platform.pangaea</groupId>
-      <artifactId>pangaea-service-layer-starter</artifactId>
+      <artifactId>service-layer-starter</artifactId>
     </dependency>
 
     <!-- Spring stereotypes (@Component / @RequiredArgsConstructor wiring). -->

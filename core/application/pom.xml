@@ -29,7 +29,7 @@
   <dependencies>
     <dependency>
       <groupId>ir.dotin.platform.pangaea</groupId>
-      <artifactId>pangaea-service-layer-api</artifactId>
+      <artifactId>service-layer-api</artifactId>
     </dependency>
     <dependency>
       <groupId>ir.dotin.loan</groupId>

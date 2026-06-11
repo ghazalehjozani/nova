@@ -47,7 +47,7 @@
       </dependency>
       <dependency>
           <groupId>ir.dotin.platform.pangaea</groupId>
-          <artifactId>pangaea-service-layer-starter</artifactId>
+          <artifactId>service-layer-starter</artifactId>
       </dependency>
     <dependency>
       <groupId>org.springdoc</groupId>

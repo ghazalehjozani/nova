@@ -91,7 +91,7 @@
             <!-- LN-59442: wires the generic reconciliation engine (orchestrator + sweep + data-jpa store
                  + /v1/ops/reconciliation), which discovers the recon adapter's Source/Probe/Action beans -->
             <groupId>ir.dotin.platform.pangaea</groupId>
-            <artifactId>pangaea-spring-boot-starter-reconciliation</artifactId>
+            <artifactId>spring-boot-starter-reconciliation</artifactId>
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
@@ -103,11 +103,11 @@
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
-            <artifactId>pangaea-outbox-management</artifactId>
+            <artifactId>outbox-management</artifactId>
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
-            <artifactId>pangaea-inbox-management</artifactId>
+            <artifactId>inbox-management</artifactId>
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
@@ -115,7 +115,7 @@
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
-            <artifactId>pangaea-idempotency</artifactId>
+            <artifactId>idempotency</artifactId>
         </dependency>
         <dependency>
             <groupId>ir.dotin.loan</groupId>
@@ -128,7 +128,7 @@
         <dependency>
             <!-- MCP transport runtime + 2nd security chain + ops_* tools; discovers the driving-mcp loan_* beans -->
             <groupId>ir.dotin.platform.pangaea</groupId>
-            <artifactId>pangaea-spring-boot-starter-ai-mcp</artifactId>
+            <artifactId>spring-boot-starter-ai-mcp</artifactId>
         </dependency>
         <dependency>
             <groupId>ir.dotin.loan</groupId>
@@ -225,11 +225,11 @@
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
-            <artifactId>pangaea-requestreply-api</artifactId>
+            <artifactId>requestreply-api</artifactId>
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
-            <artifactId>pangaea-requestreply-jms</artifactId>
+            <artifactId>requestreply-jms</artifactId>
         </dependency>
     </dependencies>
 

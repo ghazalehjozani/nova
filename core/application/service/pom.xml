@@ -32,7 +32,7 @@
     </dependency>
     <dependency>
         <groupId>ir.dotin.platform.pangaea</groupId>
-        <artifactId>pangaea-transaction</artifactId>
+        <artifactId>transaction</artifactId>
     </dependency>
     <dependency>
       <groupId>ir.dotin.platform</groupId>

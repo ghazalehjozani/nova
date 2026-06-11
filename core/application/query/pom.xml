@@ -19,7 +19,7 @@
   <dependencies>
     <dependency>
         <groupId>ir.dotin.platform.pangaea</groupId>
-        <artifactId>pangaea-query-cache</artifactId>
+        <artifactId>query-cache</artifactId>
     </dependency>
     <dependency>
         <groupId>ir.dotin.loan</groupId>
