@@ -10,8 +10,10 @@ import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
+import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
+import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
+import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateApprovalCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
@@ -22,26 +24,40 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-class CompensateApprovalCommandHandler extends WriteCommandHandler<CompensateApprovalCommand, Unit> {
+final class CompensateApprovalCommandHandler extends WorkflowCommandHandler<CompensateApprovalCommand, CompensateApprovalCommandHandler.Data> {
+
+    record Data(CompensateApprovalCommand command, Unit prepared) {}
 
     private final TradeLoanFacilityRepository repository;
     private final Clock clock;
+    private final Workflow<Data> workflow;
 
     CompensateApprovalCommandHandler(
-            WriteTransaction writeTransaction, TradeLoanFacilityRepository repository, Clock clock) {
-        super(writeTransaction);
+            WorkflowEngine engine, TradeLoanFacilityRepository repository, Clock clock) {
+        super(engine);
         this.repository = repository;
         this.clock = clock;
+        this.workflow = Workflow.singleWrite(
+                "compensate-approval",
+                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
-    protected Result<Unit> prepare(CompensateApprovalCommand command) {
+    protected Workflow<Data> workflow() {
+        return workflow;
+    }
+
+    @Override
+    protected Result<Data> seed(CompensateApprovalCommand command) {
+        return prepare(command).map(prepared -> new Data(command, prepared));
+    }
+
+    private Result<Unit> prepare(CompensateApprovalCommand command) {
         log.warn("Compensating approval for facility: {}", command.loanFacilityId());
         return Result.success();
     }
 
-    @Override
-    protected Result<List<DomainEvent<?>>> write(CompensateApprovalCommand command, Unit prepared) {
+    private Result<List<DomainEvent<?>>> write(CompensateApprovalCommand command, Unit prepared) {
         return Result.fromOptional(
                         repository.findById(LoanFacilityId.of(command.loanFacilityId())),
                         () -> FailureCause.notFound(Notification.ofError(

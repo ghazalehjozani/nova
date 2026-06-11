@@ -25,7 +25,7 @@ Runbookها مکمل ADRها هستند: ADR «چرا» یک تصمیم معما
 | [RB-0008](RB-0008.artemis-broker.md)                   | کارگزار Artemis                            | پیام‌رسانی / HA     | 2026-06-04 | فعال     |
 | [RB-0009](RB-0009.postgres-prod-patroni-haproxy.md)    | Postgres در تولید: Patroni + HAProxy        | پایگاه‌داده / HA    | 2026-06-04 | فعال     |
 | [RB-0010](RB-0010.outbox-inbox-drain-replay.md)        | تخلیه و بازپخش Outbox/Inbox                 | پیام‌رسانی / عملیات | 2026-06-04 | فعال     |
-| [RB-0011](RB-0011.saga-stuck-compensation-recovery.md) | بازیابی Saga گیرکرده و جبران                | ساگا / عملیات       | 2026-06-04 | فعال     |
+| [RB-0011](RB-0011.workflow-stuck-compensation-recovery.md) | بازیابی Workflow گیرکرده و جبران         | Workflow / عملیات   | 2026-06-11 | فعال     |
 | [RB-0012](RB-0012.reconciliation-ops.md)               | عملیات تطبیق (Reconciliation)              | تطبیق / عملیات      | 2026-06-04 | پیش‌نویس |
 | [RB-0013](RB-0013.nova-fcb-transport-switch.md)        | جابه‌جایی انتقال Nova↔FCB (Artemis↔Kafka)   | پیام‌رسانی / عملیات | 2026-06-04 | فعال     |
 

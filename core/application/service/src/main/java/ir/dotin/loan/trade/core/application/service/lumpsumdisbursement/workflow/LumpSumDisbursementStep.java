@@ -1,8 +1,8 @@
-package ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.saga;
+package ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.workflow;
 
-import ir.dotin.platform.pangaea.saga.api.model.SagaStepId;
+import ir.dotin.platform.pangaea.workflow.api.model.WorkflowStepId;
 
-public enum LumpSumDisbursementStep implements SagaStepId {
+public enum LumpSumDisbursementStep implements WorkflowStepId {
     VALIDATE_FACILITY("validate-facility"),
     RESOLVE_ACCOUNTS("resolve-accounts"),
     POST_TRANSACTIONS("post-transactions"),

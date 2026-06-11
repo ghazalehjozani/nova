@@ -16,8 +16,10 @@ import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
+import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
+import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
+import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.UpdateFacilityCollateralCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
@@ -26,32 +28,47 @@ import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplic
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 @Service
-public class UpdateFacilityCollateralCommandHandler extends WriteCommandHandler<UpdateFacilityCollateralCommand, Unit> {
+public final class UpdateFacilityCollateralCommandHandler
+        extends WorkflowCommandHandler<UpdateFacilityCollateralCommand, UpdateFacilityCollateralCommandHandler.Data> {
 
     private static final Logger log = LoggerFactory.getLogger(UpdateFacilityCollateralCommandHandler.class);
+
+    record Data(UpdateFacilityCollateralCommand command, Unit prepared) {}
 
     private final TradeLoanFacilityRepository tradeLoanFacilityRepository;
     private final Clock clock;
     private final AddFacilityCollateralCommandMapper mapper;
+    private final Workflow<Data> workflow;
 
     public UpdateFacilityCollateralCommandHandler(
-            WriteTransaction writeTransaction,
+            WorkflowEngine engine,
             TradeLoanFacilityRepository tradeLoanFacilityRepository,
             Clock clock,
             AddFacilityCollateralCommandMapper mapper) {
-        super(writeTransaction);
+        super(engine);
         this.tradeLoanFacilityRepository = tradeLoanFacilityRepository;
         this.clock = clock;
         this.mapper = mapper;
+        this.workflow = Workflow.singleWrite(
+                "update-facility-collateral",
+                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
-    protected Result<Unit> prepare(UpdateFacilityCollateralCommand command) {
+    protected Workflow<Data> workflow() {
+        return workflow;
+    }
+
+    @Override
+    protected Result<Data> seed(UpdateFacilityCollateralCommand command) {
+        return prepare(command).map(prepared -> new Data(command, prepared));
+    }
+
+    private Result<Unit> prepare(UpdateFacilityCollateralCommand command) {
         return Result.success();
     }
 
-    @Override
-    protected Result<List<DomainEvent<?>>> write(UpdateFacilityCollateralCommand command, Unit prepared) {
+    private Result<List<DomainEvent<?>>> write(UpdateFacilityCollateralCommand command, Unit prepared) {
         return loadFacility(command)
                 .flatMap(tradeLoanFacility -> updateCollateral(tradeLoanFacility, command))
                 .onSuccess(tradeLoanFacility -> tradeLoanFacilityRepository.save(tradeLoanFacility, command.version()))

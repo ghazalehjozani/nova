@@ -25,7 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  *       money-state lever — so only the reconciliation adapter (behind its fail-closed remediate gates) may call it. No
  *       other Nova code may auto-trigger a republish.
  *   <li>Decision/serialization purity: {@code FacilityRootCauseClassifier} and {@code FacilityDossierBuilder} are pure
- *       logic — they must not depend on any outbound/admin port, Spring, FCB client, or saga/inbox/outbox admin type.
+ *       logic — they must not depend on any outbound/admin port, Spring, FCB client, or workflow/inbox/outbox admin
+ *       type.
  *   <li>Single gated path: {@code FacilityConvergenceAction} is the only {@code ConvergenceAction} implementation, so
  *       the maker-checker gates cannot be bypassed by a second, un-gated impl.
  * </ul>
@@ -126,7 +127,7 @@ class ReconciliationAdapterArchitectureTest {
                 .resideInAnyPackage(
                         "org.springframework..",
                         "ir.dotin.platform.pangaea.inbox.api.admin..",
-                        "ir.dotin.platform.pangaea.saga.api.admin..",
+                        "ir.dotin.platform.pangaea.workflow.api.admin..",
                         "ir.dotin.platform.pangaea.reconciliation.api.admin..")
                 .orShould()
                 .dependOnClassesThat()
@@ -142,7 +143,7 @@ class ReconciliationAdapterArchitectureTest {
                 .haveSimpleName("FacilityReconReadPort")
                 .because(
                         "the pure classifier/dossier logic must NOT reach any outbound/admin port, Spring, FCB client, "
-                                + "or saga/inbox/outbox admin type — no I/O, no side effects");
+                                + "or workflow/inbox/outbox admin type — no I/O, no side effects");
         denyRule.check(RECON_CLASSES);
     }
 

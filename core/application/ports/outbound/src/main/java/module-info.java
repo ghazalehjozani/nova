@@ -12,6 +12,7 @@ open module ir.dotin.loan.trade.core.application.ports.outbound {
     requires transitive ir.dotin.loan.baseloan.core.domain;
     requires transitive ir.dotin.platform.pangaea.commons.core;
     requires transitive ir.dotin.platform.pangaea.commons.domain;
+    requires transitive ir.dotin.platform.pangaea.servicelayer.api;
     requires transitive ir.dotin.platform.accounting.document.api;
     requires org.jspecify;
     requires static jakarta.validation;

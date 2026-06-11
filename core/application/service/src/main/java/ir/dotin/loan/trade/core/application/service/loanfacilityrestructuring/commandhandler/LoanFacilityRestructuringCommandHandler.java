@@ -15,8 +15,10 @@ import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
+import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
+import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
+import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.Installment;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.service.InstallmentRecalculationService;
@@ -33,10 +35,13 @@ import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import static java.util.Objects.requireNonNull;
 
 @Service
-public class LoanFacilityRestructuringCommandHandler
-        extends WriteCommandHandler<LoanFacilityRestructuringCommand, Unit> {
+public final class LoanFacilityRestructuringCommandHandler
+        extends WorkflowCommandHandler<
+                LoanFacilityRestructuringCommand, LoanFacilityRestructuringCommandHandler.Data> {
 
     private static final Logger log = LoggerFactory.getLogger(LoanFacilityRestructuringCommandHandler.class);
+
+    record Data(LoanFacilityRestructuringCommand command, Unit prepared) {}
 
     private final TradeLoanFacilityRepository tradeLoanFacilityRepository;
     private final InstallmentScheduleRepository installmentScheduleRepository;
@@ -44,31 +49,43 @@ public class LoanFacilityRestructuringCommandHandler
     private final LoanFacilityRestructuringInstallmentSchedulePlanMapper schedulePlanMapper;
     private final InstallmentRecalculationService recalculationService;
     private final Clock clock;
+    private final Workflow<Data> workflow;
 
     public LoanFacilityRestructuringCommandHandler(
-            WriteTransaction writeTransaction,
+            WorkflowEngine engine,
             TradeLoanFacilityRepository tradeLoanFacilityRepository,
             InstallmentScheduleRepository installmentScheduleRepository,
             ApplicationNumberResolver applicationNumberResolver,
             LoanFacilityRestructuringInstallmentSchedulePlanMapper schedulePlanMapper,
             InstallmentRecalculationService recalculationService,
             Clock clock) {
-        super(writeTransaction);
+        super(engine);
         this.tradeLoanFacilityRepository = tradeLoanFacilityRepository;
         this.installmentScheduleRepository = installmentScheduleRepository;
         this.applicationNumberResolver = applicationNumberResolver;
         this.schedulePlanMapper = schedulePlanMapper;
         this.recalculationService = recalculationService;
         this.clock = clock;
+        this.workflow = Workflow.singleWrite(
+                "loan-facility-restructuring",
+                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
-    protected Result<Unit> prepare(LoanFacilityRestructuringCommand command) {
+    protected Workflow<Data> workflow() {
+        return workflow;
+    }
+
+    @Override
+    protected Result<Data> seed(LoanFacilityRestructuringCommand command) {
+        return prepare(command).map(prepared -> new Data(command, prepared));
+    }
+
+    private Result<Unit> prepare(LoanFacilityRestructuringCommand command) {
         return Result.success();
     }
 
-    @Override
-    protected Result<List<DomainEvent<?>>> write(LoanFacilityRestructuringCommand command, Unit prepared) {
+    private Result<List<DomainEvent<?>>> write(LoanFacilityRestructuringCommand command, Unit prepared) {
         return resolveIdentifier(command).flatMap(this::loadFacility).flatMap(facility -> loadDependencies(
                         facility, command)
                 .flatMap(context -> validateAll(facility, context)

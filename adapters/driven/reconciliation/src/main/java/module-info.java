@@ -18,7 +18,7 @@ open module ir.dotin.loan.trade.adapters.driven.reconciliation {
     requires ir.dotin.platform.pangaea.reconciliation.api;
     requires ir.dotin.platform.pangaea.outbox.api;
     requires ir.dotin.platform.pangaea.inbox.api;
-    requires ir.dotin.platform.pangaea.saga.api;
+    requires ir.dotin.platform.pangaea.workflow.api;
     requires spring.context;
     requires spring.beans;
     requires spring.boot;

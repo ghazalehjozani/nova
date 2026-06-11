@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice;
 import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.servicelayer.api.port.RemotePort;
 
 /**
  * Outbound port for the Nova↔FCB reconciliation corridor. Lets the reconciliation adapter ask FCB for the authoritative
@@ -12,7 +13,7 @@ import ir.dotin.platform.pangaea.commons.core.Result;
  * <p>Pure interface — no Spring annotations. Every call is a fresh request/reply with its own {@code eventUid}, so
  * FCB's idempotency cache is bypassed and the probe always reads current state (INV-10).
  */
-public interface FcbReconStatePort {
+public interface FcbReconStatePort extends RemotePort {
 
     /**
      * Reads FCB's current loan-file state for the facility. A communication failure surfaces as a {@link Result}

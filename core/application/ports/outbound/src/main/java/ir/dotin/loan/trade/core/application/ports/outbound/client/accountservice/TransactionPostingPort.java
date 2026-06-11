@@ -5,11 +5,12 @@ import java.util.List;
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
+import ir.dotin.platform.pangaea.servicelayer.api.port.RemotePort;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTransaction;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 
-public interface TransactionPostingPort {
+public interface TransactionPostingPort extends RemotePort {
 
     /**
      * Posts a transaction to the external accounting system.

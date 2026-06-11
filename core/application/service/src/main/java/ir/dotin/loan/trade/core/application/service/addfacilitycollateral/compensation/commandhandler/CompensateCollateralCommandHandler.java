@@ -9,8 +9,10 @@ import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
+import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
+import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
+import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateCollateralCommand;
@@ -23,27 +25,42 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class CompensateCollateralCommandHandler
-        extends WriteCommandHandler<
-                CompensateCollateralCommand, CompensateCollateralCommandHandler.ReleasePreparation> {
+public final class CompensateCollateralCommandHandler
+        extends WorkflowCommandHandler<
+                CompensateCollateralCommand, CompensateCollateralCommandHandler.Data> {
+
+    record Data(CompensateCollateralCommand command, ReleasePreparation prepared) {}
 
     private final TradeLoanFacilityRepository repository;
     private final CollateralReservationReleaser collateralReservationReleaser;
     private final Clock clock;
+    private final Workflow<Data> workflow;
 
     public CompensateCollateralCommandHandler(
-            WriteTransaction writeTransaction,
+            WorkflowEngine engine,
             TradeLoanFacilityRepository repository,
             CollateralReservationReleaser collateralReservationReleaser,
             Clock clock) {
-        super(writeTransaction);
+        super(engine);
         this.repository = repository;
         this.collateralReservationReleaser = collateralReservationReleaser;
         this.clock = clock;
+        this.workflow = Workflow.singleWrite(
+                "compensate-collateral",
+                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
-    protected Result<ReleasePreparation> prepare(CompensateCollateralCommand command) {
+    protected Workflow<Data> workflow() {
+        return workflow;
+    }
+
+    @Override
+    protected Result<Data> seed(CompensateCollateralCommand command) {
+        return prepare(command).map(prepared -> new Data(command, prepared));
+    }
+
+    private Result<ReleasePreparation> prepare(CompensateCollateralCommand command) {
         List<String> serialsToRevert = command.collateralSerials();
 
         if (serialsToRevert == null || serialsToRevert.isEmpty()) {
@@ -66,8 +83,7 @@ public class CompensateCollateralCommandHandler
         return Result.success(new ReleasePreparation(false));
     }
 
-    @Override
-    protected Result<List<DomainEvent<?>>> write(CompensateCollateralCommand command, ReleasePreparation prepared) {
+    private Result<List<DomainEvent<?>>> write(CompensateCollateralCommand command, ReleasePreparation prepared) {
         if (prepared.noOp()) {
             return Result.success(List.of());
         }

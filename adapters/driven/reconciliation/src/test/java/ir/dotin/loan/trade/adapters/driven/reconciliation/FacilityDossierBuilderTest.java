@@ -64,7 +64,7 @@ class FacilityDossierBuilderTest {
 
         NovaSnapshot nova = Objects.requireNonNull(dossier.novaSnapshot());
         assertThat(nova.status()).isEqualTo("FULLY_DISBURSED");
-        assertThat(nova.sagaState()).isEqualTo("DISBURSED");
+        assertThat(nova.workflowState()).isEqualTo("DISBURSED");
         assertThat(nova.lastForwardEvents())
                 .containsExactly("TRADE_LOAN_FACILITY_FULLY_DISBURSED", "TRADE_LOAN_FACILITY_DISBURSED");
         assertThat(nova.outboxRows()).hasSize(2);

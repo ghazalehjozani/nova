@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.saga;
+package ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.workflow;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -17,7 +17,7 @@ import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ResolvedAccounts;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
-public record IrregularProgressiveDisbursementSagaData(
+public record IrregularDisbursementData(
         UUID facilityId,
         String branchCode,
         TransactionConfig transactionConfig,
@@ -32,25 +32,35 @@ public record IrregularProgressiveDisbursementSagaData(
         @Nullable List<PostedTransactionData> postedTransactions,
         @Nullable Map<String, String> postedAccountIds) {
 
-    public static IrregularProgressiveDisbursementSagaData initial(IrregularProgressiveDisbursementInput input) {
-        return new IrregularProgressiveDisbursementSagaData(
-                input.facilityId(),
-                input.branchCode(),
-                input.transactionConfig(),
-                input.disbursementDate(),
-                input.expectedVersion(),
-                input.trancheAmount(),
-                input.currencyCode(),
-                input.trancheNumber(),
-                input.customPlanSpecs(),
-                input.approvedPlanSpecs(),
+    public static IrregularDisbursementData initial(
+            UUID facilityId,
+            String branchCode,
+            TransactionConfig transactionConfig,
+            @Nullable LocalDate disbursementDate,
+            long expectedVersion,
+            BigDecimal trancheAmount,
+            String currencyCode,
+            int trancheNumber,
+            @Nullable List<InstallmentSpecData> customPlanSpecs,
+            List<InstallmentSpecData> approvedPlanSpecs) {
+        return new IrregularDisbursementData(
+                facilityId,
+                branchCode,
+                transactionConfig,
+                disbursementDate,
+                expectedVersion,
+                trancheAmount,
+                currencyCode,
+                trancheNumber,
+                customPlanSpecs,
+                approvedPlanSpecs,
                 null,
                 null,
                 null);
     }
 
-    public IrregularProgressiveDisbursementSagaData withResolvedAccounts(Map<String, String> accounts) {
-        return new IrregularProgressiveDisbursementSagaData(
+    public IrregularDisbursementData withResolvedAccounts(Map<String, String> accounts) {
+        return new IrregularDisbursementData(
                 facilityId,
                 branchCode,
                 transactionConfig,
@@ -66,9 +76,9 @@ public record IrregularProgressiveDisbursementSagaData(
                 postedAccountIds);
     }
 
-    public IrregularProgressiveDisbursementSagaData withPostedTransactions(
+    public IrregularDisbursementData withPostedTransactions(
             List<PostedTransactionData> transactions, Map<String, String> accountIds) {
-        return new IrregularProgressiveDisbursementSagaData(
+        return new IrregularDisbursementData(
                 facilityId,
                 branchCode,
                 transactionConfig,
@@ -100,8 +110,7 @@ public record IrregularProgressiveDisbursementSagaData(
 
     private static Map<RelationType<?>, AccountId> toAccountIdMap(Map<String, String> serialized) {
         return serialized.entrySet().stream()
-                .collect(
-                        Collectors.toMap(e -> TradeRelationType.valueOf(e.getKey()), e -> new AccountId(e.getValue())));
+                .collect(Collectors.toMap(e -> TradeRelationType.valueOf(e.getKey()), e -> new AccountId(e.getValue())));
     }
 
     public record InstallmentSpecData(

@@ -8,19 +8,22 @@
     <!--
         Framework module changelog: INCLUDES ONLY.
         Contains infrastructure and platform-level tables
-        (ShedLock, Dead-Letter Queue, Saga, Command Audit).
+        (ShedLock, Dead-Letter Queue, Workflow, Command Audit).
     -->
 
     <include file="db/changelog/framework/v2026.3.0/001-create-shedlock.xml"/>
     <include file="db/changelog/framework/v2026.3.0/002-create-dead-letter-tables.xml"/>
-    <include file="db/changelog/framework/v2026.3.0/003-create-saga-tables.xml"/>
-    <include file="db/changelog/framework/v2026.3.0/004-create-saga-idempotency-table.xml"/>
-    <!-- LN-59395: drop redundant idx_compensation_saga (covered by uk_saga_step) — pangaea-saga-starter jar -->
-    <include file="db/changelog/framework/v2026.5.41/004-drop-duplicate-saga-compensation-index.xml"/>
+    <!-- LN-59501: saga→workflow rewire — pangaea-workflow-starter jar (2026.6.4) -->
+    <include file="db/changelog/framework/v2026.6.4/001-create-workflow-run.xml"/>
+    <include file="db/changelog/framework/v2026.6.4/002-create-workflow-compensation.xml"/>
+    <include file="db/changelog/framework/v2026.6.4/003-create-workflow-resume-key.xml"/>
+    <include file="db/changelog/framework/v2026.6.4/004-create-shedlock-table.xml"/>
     <include file="db/changelog/framework/v2026.3.0/004-create-command-audit.xml"/>
     <!-- LN-59395: drop redundant idx_audit_command_id (covered by command_audit_command_id_key) — pangaea-audit-starter jar -->
     <include file="db/changelog/framework/v2026.5.41/005-drop-duplicate-command-audit-index.xml"/>
     <include file="db/changelog/framework/v2026.3.0/006-delete-suspended-sagas.xml"/>
+    <!-- LN-59501: drop retired saga tables once drained (nova-owned, forward-only) -->
+    <include file="db/changelog/framework/v2026.6.4/005-drop-saga-tables.xml"/>
     <include file="db/changelog/changes/001-create-formula-definitions.xml"/>
     <include file="db/changelog/db.changelog-inbox.xml"/>
     <!-- LN-59442: generic reconciliation discrepancy table (pangaea reconciliation-data-jpa jar) -->

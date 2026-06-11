@@ -22,7 +22,7 @@
             <groupId>ir.dotin.platform.pangaea</groupId>
             <artifactId>pangaea-reconciliation-api</artifactId>
         </dependency>
-        <!-- Admin ports used by the convergence action to re-drive stored events / guard against in-flight sagas -->
+        <!-- Admin ports used by the convergence action to re-drive stored events / guard against in-flight workflow runs -->
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
             <artifactId>outbox-api</artifactId>
@@ -33,7 +33,7 @@
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
-            <artifactId>saga-api</artifactId>
+            <artifactId>workflow-api</artifactId>
         </dependency>
 
         <!-- Spring stereotypes for the adapter beans -->

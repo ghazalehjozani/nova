@@ -5,13 +5,14 @@ import java.util.UUID;
 
 import ir.dotin.platform.accounting.document.api.model.BranchCode;
 import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.servicelayer.api.port.RemotePort;
 import ir.dotin.platform.pangaea.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralDetails;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralValidation;
 
-public interface CollateralServicePort {
+public interface CollateralServicePort extends RemotePort {
     Result<CollateralValidation> validateAddAssuranceToFile(
             List<CollateralSerial> collateralSerial, List<Long> usedCosts, BranchCode branchCode);
 

@@ -4,6 +4,7 @@ import java.util.List;
 
 import ir.dotin.platform.accounting.document.api.model.BranchCode;
 import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.servicelayer.api.port.RemotePort;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
@@ -16,7 +17,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.response.Econo
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.ReasonType;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.TopicInfo;
 
-public interface LoanServicePort {
+public interface LoanServicePort extends RemotePort {
 
     Result<EconomicSector> loadEconomicalSectorByCode(EconomicSector economicSector);
 

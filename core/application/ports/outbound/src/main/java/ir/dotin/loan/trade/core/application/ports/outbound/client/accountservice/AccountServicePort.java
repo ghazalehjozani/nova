@@ -6,11 +6,12 @@ import java.util.UUID;
 import ir.dotin.platform.accounting.document.api.model.AccountId;
 import ir.dotin.platform.accounting.document.api.model.AccountNumber;
 import ir.dotin.platform.pangaea.commons.core.Result;
+import ir.dotin.platform.pangaea.servicelayer.api.port.RemotePort;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CreateAccountInfo;
 
-public interface AccountServicePort {
+public interface AccountServicePort extends RemotePort {
 
     Result<AccountInfo> openAccount(LoanTopic loanTopic, String currencyCode);
 

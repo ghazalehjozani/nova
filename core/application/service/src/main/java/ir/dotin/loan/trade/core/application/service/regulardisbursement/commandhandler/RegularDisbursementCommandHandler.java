@@ -13,8 +13,10 @@ import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
+import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
+import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
+import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.RegularDisbursementCommand;
@@ -24,32 +26,47 @@ import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplic
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 @Service
-public class RegularDisbursementCommandHandler extends WriteCommandHandler<RegularDisbursementCommand, Unit> {
+public final class RegularDisbursementCommandHandler
+        extends WorkflowCommandHandler<RegularDisbursementCommand, RegularDisbursementCommandHandler.Data> {
 
     private static final Logger log = LoggerFactory.getLogger(RegularDisbursementCommandHandler.class);
+
+    record Data(RegularDisbursementCommand command, Unit prepared) {}
 
     private final RegularDisbursementCommandMapper mapper;
     private final TradeLoanFacilityRepository repository;
     private final Clock clock;
+    private final Workflow<Data> workflow;
 
     public RegularDisbursementCommandHandler(
-            WriteTransaction writeTransaction,
+            WorkflowEngine engine,
             RegularDisbursementCommandMapper mapper,
             TradeLoanFacilityRepository repository,
             Clock clock) {
-        super(writeTransaction);
+        super(engine);
         this.mapper = mapper;
         this.repository = repository;
         this.clock = clock;
+        this.workflow = Workflow.singleWrite(
+                "regular-disbursement",
+                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
-    protected Result<Unit> prepare(RegularDisbursementCommand command) {
+    protected Workflow<Data> workflow() {
+        return workflow;
+    }
+
+    @Override
+    protected Result<Data> seed(RegularDisbursementCommand command) {
+        return prepare(command).map(prepared -> new Data(command, prepared));
+    }
+
+    private Result<Unit> prepare(RegularDisbursementCommand command) {
         return Result.success();
     }
 
-    @Override
-    protected Result<List<DomainEvent<?>>> write(RegularDisbursementCommand command, Unit prepared) {
+    private Result<List<DomainEvent<?>>> write(RegularDisbursementCommand command, Unit prepared) {
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
 
         return Result.fromOptional(

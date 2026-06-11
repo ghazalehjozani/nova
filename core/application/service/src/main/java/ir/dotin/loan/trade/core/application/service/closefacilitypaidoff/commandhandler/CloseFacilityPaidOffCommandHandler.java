@@ -17,8 +17,10 @@ import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.pangaea.commons.domain.vo.Money;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
+import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
+import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
+import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.CloseInstallmentSchedulePaidOff;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CloseFacilityPaidOffInfo;
@@ -33,9 +35,11 @@ import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilityService;
 
 @Service
-public class CloseFacilityPaidOffCommandHandler extends WriteCommandHandler<CloseFacilityPaidOffCommand, Unit> {
+public final class CloseFacilityPaidOffCommandHandler extends WorkflowCommandHandler<CloseFacilityPaidOffCommand, CloseFacilityPaidOffCommandHandler.Data> {
 
     private static final Logger log = LoggerFactory.getLogger(CloseFacilityPaidOffCommandHandler.class);
+
+    record Data(CloseFacilityPaidOffCommand command, Unit prepared) {}
 
     private final TradeLoanFacilityService domainService;
     private final TradeLoanFacilityRepository repository;
@@ -43,29 +47,41 @@ public class CloseFacilityPaidOffCommandHandler extends WriteCommandHandler<Clos
     private final InstallmentScheduleRepository installmentScheduleRepository;
     private final ApplicationNumberResolver applicationNumberResolver;
     private final Clock clock;
+    private final Workflow<Data> workflow;
 
     public CloseFacilityPaidOffCommandHandler(
-            WriteTransaction writeTransaction,
+            WorkflowEngine engine,
             TradeLoanFacilityService domainService,
             TradeLoanFacilityRepository repository,
             InstallmentScheduleRepository installmentScheduleRepository,
             ApplicationNumberResolver applicationNumberResolver,
             Clock clock) {
-        super(writeTransaction);
+        super(engine);
         this.domainService = domainService;
         this.repository = repository;
         this.installmentScheduleRepository = installmentScheduleRepository;
         this.applicationNumberResolver = applicationNumberResolver;
         this.clock = clock;
+        this.workflow = Workflow.singleWrite(
+                "close-facility-paid-off",
+                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
-    protected Result<Unit> prepare(CloseFacilityPaidOffCommand command) {
+    protected Workflow<Data> workflow() {
+        return workflow;
+    }
+
+    @Override
+    protected Result<Data> seed(CloseFacilityPaidOffCommand command) {
+        return prepare(command).map(prepared -> new Data(command, prepared));
+    }
+
+    private Result<Unit> prepare(CloseFacilityPaidOffCommand command) {
         return Result.success();
     }
 
-    @Override
-    protected Result<List<DomainEvent<?>>> write(CloseFacilityPaidOffCommand command, Unit prepared) {
+    private Result<List<DomainEvent<?>>> write(CloseFacilityPaidOffCommand command, Unit prepared) {
         List<DomainEvent<?>> allEvents = new ArrayList<>();
         return resolveIdentifiers(command)
                 .flatMap(ids -> loadSchedule(ids, command)

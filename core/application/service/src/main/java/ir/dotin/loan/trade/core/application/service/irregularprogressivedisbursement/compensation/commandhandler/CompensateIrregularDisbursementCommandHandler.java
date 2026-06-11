@@ -12,8 +12,10 @@ import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
+import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
+import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
+import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.RevertRestructuringResult;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
@@ -30,52 +32,66 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-class CompensateIrregularDisbursementCommandHandler
-        extends WriteCommandHandler<
+final class CompensateIrregularDisbursementCommandHandler
+        extends WorkflowCommandHandler<
                 CompensateIrregularDisbursementCommand,
-                CompensateIrregularDisbursementCommandHandler.ReversalPreparation> {
+                CompensateIrregularDisbursementCommandHandler.Data> {
+
+    record Data(CompensateIrregularDisbursementCommand command, ReversalPreparation prepared) {}
 
     private final TradeLoanFacilityRepository facilityRepository;
     private final InstallmentScheduleRepository scheduleRepository;
     private final FcbTransactionReverser fcbTransactionReverser;
     private final Clock clock;
+    private final Workflow<Data> workflow;
 
     CompensateIrregularDisbursementCommandHandler(
-            WriteTransaction writeTransaction,
+            WorkflowEngine engine,
             TradeLoanFacilityRepository facilityRepository,
             InstallmentScheduleRepository scheduleRepository,
             FcbTransactionReverser fcbTransactionReverser,
             Clock clock) {
-        super(writeTransaction);
+        super(engine);
         this.facilityRepository = facilityRepository;
         this.scheduleRepository = scheduleRepository;
         this.fcbTransactionReverser = fcbTransactionReverser;
         this.clock = clock;
+        this.workflow = Workflow.singleWrite(
+                "compensate-irregular-disbursement",
+                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
-    protected Result<ReversalPreparation> prepare(CompensateIrregularDisbursementCommand command) {
+    protected Workflow<Data> workflow() {
+        return workflow;
+    }
+
+    @Override
+    protected Result<Data> seed(CompensateIrregularDisbursementCommand command) {
+        return prepare(command).map(prepared -> new Data(command, prepared));
+    }
+
+    @Override
+    protected void afterCompleted(
+            CompensateIrregularDisbursementCommand command, Data data, List<DomainEvent<?>> publishedEvents) {
+        TrackedTransactionNumber removed = data.prepared().reversals().get();
+        if (removed != null) {
+            reverseTransaction(removed);
+        }
+    }
+
+    private Result<ReversalPreparation> prepare(CompensateIrregularDisbursementCommand command) {
         log.warn("Compensating irregular disbursement for facility: {}", command.loanFacilityId());
         return Result.success(new ReversalPreparation(new AtomicReference<>()));
     }
 
-    @Override
-    protected Result<List<DomainEvent<?>>> write(
+    private Result<List<DomainEvent<?>>> write(
             CompensateIrregularDisbursementCommand command, ReversalPreparation prepared) {
         return Result.fromOptional(
                         facilityRepository.findById(LoanFacilityId.of(command.loanFacilityId())),
                         () -> FailureCause.notFound(Notification.ofError(
                                 TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())))
                 .flatMap(facility -> revertDisbursementAndSchedules(facility, command, prepared.reversals()));
-    }
-
-    @Override
-    protected void afterCommit(
-            CompensateIrregularDisbursementCommand command, ReversalPreparation prepared, List<DomainEvent<?>> events) {
-        TrackedTransactionNumber removed = prepared.reversals().get();
-        if (removed != null) {
-            reverseTransaction(removed);
-        }
     }
 
     private Result<List<DomainEvent<?>>> revertDisbursementAndSchedules(

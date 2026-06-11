@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga;
+package ir.dotin.loan.trade.core.application.service.issuefacilitycontract.workflow;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -15,7 +15,7 @@ import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ResolvedAccounts;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
-public record IssueFacilityContractSagaData(
+public record ContractData(
         UUID facilityId,
         String branchCode,
         TransactionConfig transactionConfig,
@@ -26,14 +26,14 @@ public record IssueFacilityContractSagaData(
         @Nullable TransactionStatus transactionStatus,
         @Nullable Map<String, String> resolvedAccounts) {
 
-    public static IssueFacilityContractSagaData initial(
+    public static ContractData initial(
             UUID facilityId, String branchCode, TransactionConfig transactionConfig, long expectedVersion) {
-        return new IssueFacilityContractSagaData(
+        return new ContractData(
                 facilityId, branchCode, transactionConfig, expectedVersion, null, null, null, null, null);
     }
 
-    public IssueFacilityContractSagaData withResolvedAccounts(Map<String, String> accounts) {
-        return new IssueFacilityContractSagaData(
+    public ContractData withResolvedAccounts(Map<String, String> accounts) {
+        return new ContractData(
                 facilityId,
                 branchCode,
                 transactionConfig,
@@ -45,9 +45,9 @@ public record IssueFacilityContractSagaData(
                 accounts);
     }
 
-    public IssueFacilityContractSagaData withPostedTransaction(
+    public ContractData withPostedTransaction(
             String transactionNumber, String trackingId, TransactionStatus status, Instant posted) {
-        return new IssueFacilityContractSagaData(
+        return new ContractData(
                 facilityId,
                 branchCode,
                 transactionConfig,
@@ -64,8 +64,7 @@ public record IssueFacilityContractSagaData(
             return new ResolvedAccounts(Collections.emptyMap());
         }
         Map<RelationType<?>, AccountId> accounts = resolvedAccounts.entrySet().stream()
-                .collect(
-                        Collectors.toMap(e -> TradeRelationType.valueOf(e.getKey()), e -> new AccountId(e.getValue())));
+                .collect(Collectors.toMap(e -> TradeRelationType.valueOf(e.getKey()), e -> new AccountId(e.getValue())));
         return new ResolvedAccounts(accounts);
     }
 

@@ -31,7 +31,7 @@ import ir.dotin.platform.pangaea.reconciliation.api.model.OperatorDossier;
 import ir.dotin.platform.pangaea.reconciliation.api.model.RemediationKind;
 import ir.dotin.platform.pangaea.reconciliation.api.model.RootCause;
 import ir.dotin.platform.pangaea.reconciliation.api.model.SafetyTier;
-import ir.dotin.platform.pangaea.saga.api.admin.SagaAdminPort;
+import ir.dotin.platform.pangaea.workflow.api.admin.WorkflowAdminPort;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FacilityReconReadPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FacilityReconRow;
@@ -62,7 +62,7 @@ class FacilityConvergenceActionDossierTest {
     private InboxAdminPort inboxAdminPort;
 
     @Mock
-    private SagaAdminPort sagaAdminPort;
+    private WorkflowAdminPort workflowAdminPort;
 
     @Mock
     private FcbReconStatePort fcbReconStatePort;
@@ -78,7 +78,7 @@ class FacilityConvergenceActionDossierTest {
         properties = new ReconciliationSourceProperties();
         properties.setGraceWindow(Duration.ofMinutes(15));
         action = new FacilityConvergenceAction(
-                outboxAdminPort, inboxAdminPort, sagaAdminPort, fcbReconStatePort, readPort, properties, clock);
+                outboxAdminPort, inboxAdminPort, workflowAdminPort, fcbReconStatePort, readPort, properties, clock);
     }
 
     @Test
@@ -87,7 +87,7 @@ class FacilityConvergenceActionDossierTest {
         stubNova(FacilityStatus.FULLY_DISBURSED, modifiedAt);
         stubOutbox(forward(FACILITY, CORRELATION, "TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED, 10L));
         stubGuardRunsSupplier();
-        when(sagaAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
+        when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
         when(fcbReconStatePort.loadReconState(FACILITY.toString())).thenReturn(Result.success(fcbAbsentReachable()));
 
         ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString());
@@ -106,7 +106,7 @@ class FacilityConvergenceActionDossierTest {
         stubNova(FacilityStatus.FULLY_DISBURSED, modifiedAt);
         stubOutbox(forward(FACILITY, CORRELATION, "TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED, 10L));
         stubGuardRunsSupplier();
-        when(sagaAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
+        when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
         when(fcbReconStatePort.loadReconState(FACILITY.toString())).thenReturn(Result.success(fcbAbsentReachable()));
 
         ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString());
@@ -121,7 +121,7 @@ class FacilityConvergenceActionDossierTest {
         stubNova(FacilityStatus.FULLY_DISBURSED, modifiedAt);
         stubOutbox(forward(FACILITY, CORRELATION, "TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED, 10L));
         stubGuardRunsSupplier();
-        when(sagaAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
+        when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
         when(fcbReconStatePort.loadReconState(FACILITY.toString())).thenReturn(Result.success(fcbUnreachable()));
 
         ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString());
@@ -136,7 +136,7 @@ class FacilityConvergenceActionDossierTest {
         stubNova(FacilityStatus.CLOSED_PAID_OFF, modifiedAt);
         stubOutbox(forward(FACILITY, CORRELATION, "TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED, 10L));
         stubGuardRunsSupplier();
-        when(sagaAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
+        when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
         when(fcbReconStatePort.loadReconState(FACILITY.toString())).thenReturn(Result.success(fcbPresent("GIVE_LOAN")));
 
         ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString());
@@ -153,7 +153,7 @@ class FacilityConvergenceActionDossierTest {
         stubNova(FacilityStatus.CLOSED_PAID_OFF, modifiedAt);
         stubOutbox(forward(FACILITY, CORRELATION, "TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED, 10L));
         stubGuardRunsSupplier();
-        when(sagaAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
+        when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
         when(fcbReconStatePort.loadReconState(FACILITY.toString())).thenReturn(Result.success(fcbUnreachable()));
 
         ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString());
@@ -174,7 +174,7 @@ class FacilityConvergenceActionDossierTest {
 
     private void stubGuardRunsSupplier() {
         lenient()
-                .when(sagaAdminPort.runUnderCorrelationGuard(anyString(), any()))
+                .when(workflowAdminPort.runUnderCorrelationGuard(anyString(), any()))
                 .thenAnswer(invocation -> {
                     Supplier<?> supplier = invocation.getArgument(1);
                     return Optional.ofNullable(supplier.get());

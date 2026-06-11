@@ -1,8 +1,8 @@
-package ir.dotin.loan.trade.core.application.service.addfacilitycollateral.saga;
+package ir.dotin.loan.trade.core.application.service.addfacilitycollateral.workflow;
 
-import ir.dotin.platform.pangaea.saga.api.model.SagaStepId;
+import ir.dotin.platform.pangaea.workflow.api.model.WorkflowStepId;
 
-public enum AddFacilityCollateralStep implements SagaStepId {
+public enum AddFacilityCollateralStep implements WorkflowStepId {
     RESERVE_COLLATERALS("reserve-collaterals"),
     ADD_COLLATERAL("add-collateral");
 

@@ -43,9 +43,9 @@ import ir.dotin.platform.pangaea.reconciliation.api.model.RemediationKind;
 import ir.dotin.platform.pangaea.reconciliation.api.model.RootCause;
 import ir.dotin.platform.pangaea.reconciliation.api.model.SafetyTier;
 import ir.dotin.platform.pangaea.reconciliation.api.spi.ConvergenceAction;
-import ir.dotin.platform.pangaea.saga.api.admin.SagaAdminPort;
-import ir.dotin.platform.pangaea.saga.api.admin.SagaInstanceView;
-import ir.dotin.platform.pangaea.saga.api.model.SagaState;
+import ir.dotin.platform.pangaea.workflow.api.admin.WorkflowAdminPort;
+import ir.dotin.platform.pangaea.workflow.api.admin.WorkflowRunView;
+import ir.dotin.platform.pangaea.workflow.api.model.RunState;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FacilityReconReadPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FacilityReconRow;
@@ -65,8 +65,9 @@ import lombok.RequiredArgsConstructor;
  * <ul>
  *   <li>INV-15: {@link #tierFor} returns {@code OPERATOR_GATED} for every revoke/cancel or money/terminal path, in
  *       code.
- *   <li>INV-6: {@link #converge} re-checks for an in-flight saga that owns the facility (via the facility's outbox-row
- *       correlation ids) and defers if one is mid-flight — defeating a check-and-act race with the originating flow.
+ *   <li>INV-6: {@link #converge} re-checks for an in-flight workflow run that owns the facility (via the facility's
+ *       outbox-row correlation ids) and defers if one is mid-flight — defeating a check-and-act race with the
+ *       originating flow.
  *   <li>INV-5: picks the EARLIEST not-yet-applied forward outbox event (lowest sequence number).
  *   <li>INV-3: status-aware lever — branches on the stored row's {@link MessageStatus}.
  * </ul>
@@ -86,7 +87,7 @@ public class FacilityConvergenceAction implements ConvergenceAction {
 
     private final OutboxAdminPort outboxAdminPort;
     private final InboxAdminPort inboxAdminPort;
-    private final SagaAdminPort sagaAdminPort;
+    private final WorkflowAdminPort workflowAdminPort;
     private final FcbReconStatePort fcbReconStatePort;
     private final FacilityReconReadPort readPort;
     private final ReconciliationSourceProperties properties;
@@ -127,7 +128,7 @@ public class FacilityConvergenceAction implements ConvergenceAction {
     public ConvergeOutcome converge(OpaqueKey key, Divergence divergence, @Nullable String correlationId) {
         String facilityId = key.value();
         try {
-            // Load the facility's outbox rows once — used for the saga guard AND the status-aware lever.
+            // Load the facility's outbox rows once — used for the workflow guard AND the status-aware lever.
             List<OutboxRecordView> facilityRows = loadFacilityOutboxRows(facilityId);
 
             List<String> correlationIds = facilityRows.stream()
@@ -137,10 +138,10 @@ public class FacilityConvergenceAction implements ConvergenceAction {
                     .distinct()
                     .toList();
 
-            // (1) SAGA GUARD (INV-6). When the facility's originating saga correlation is known, run the WHOLE
-            // re-check-and-converge UNDER that saga's per-sagaId lock so the convergence cannot race the saga
+            // (1) WORKFLOW GUARD (INV-6). When the facility's originating workflow correlation is known, run the WHOLE
+            // re-check-and-converge UNDER that run's per-correlation lock so the convergence cannot race the workflow
             // orchestrator (check-and-act atomicity); the in-flight re-check runs inside the lock to defeat TOCTOU. A
-            // contended lock (saga actively processed elsewhere) -> retryLater. When no correlation is resolvable, fall
+            // contended lock (run actively processed elsewhere) -> retryLater. When no correlation is resolvable, fall
             // back to a recency defer (a freshly-modified facility is likely mid-flow).
             if (correlationIds.isEmpty()) {
                 ConvergeOutcome recency = deferIfRecentlyModified(facilityId);
@@ -149,7 +150,7 @@ public class FacilityConvergenceAction implements ConvergenceAction {
                 }
                 return convergeGuardedBody(facilityId, facilityRows, divergence, correlationIds);
             }
-            return sagaAdminPort
+            return workflowAdminPort
                     .runUnderCorrelationGuard(
                             correlationIds.get(0),
                             () -> convergeGuardedBody(facilityId, facilityRows, divergence, correlationIds))
@@ -161,20 +162,20 @@ public class FacilityConvergenceAction implements ConvergenceAction {
     }
 
     /**
-     * Convergence body, run under the saga lock when a correlation is known (INV-6). Re-checks for an in-flight saga
-     * owning any of the facility's correlations inside the lock (TOCTOU), then applies terminal-dominance, the money
-     * gate, and the verdict-directed lever.
+     * Convergence body, run under the workflow lock when a correlation is known (INV-6). Re-checks for an in-flight
+     * workflow run owning any of the facility's correlations inside the lock (TOCTOU), then applies terminal-dominance,
+     * the money gate, and the verdict-directed lever.
      */
     private ConvergeOutcome convergeGuardedBody(
             String facilityId,
             List<OutboxRecordView> facilityRows,
             Divergence divergence,
             List<String> correlationIds) {
-        // In-flight saga re-check (inside the lock): never fight an originating flow or its compensation.
+        // In-flight workflow re-check (inside the lock): never fight an originating flow or its compensation.
         for (String corrId : correlationIds) {
-            for (SagaInstanceView saga : sagaAdminPort.findByCorrelation(corrId)) {
-                SagaState state = saga.state();
-                if (state == SagaState.PENDING || state == SagaState.EXECUTING || state == SagaState.COMPENSATING) {
+            for (WorkflowRunView run : workflowAdminPort.findByCorrelation(corrId)) {
+                RunState state = run.state();
+                if (state == RunState.EXECUTING || state == RunState.COMPENSATING) {
                     return ConvergeOutcome.retryLater("saga-in-flight");
                 }
             }
@@ -256,7 +257,7 @@ public class FacilityConvergenceAction implements ConvergenceAction {
                     ? (correlationId == null ? facilityId : correlationId)
                     : correlationIds.get(0);
 
-            return sagaAdminPort
+            return workflowAdminPort
                     .runUnderCorrelationGuard(
                             guardKey, () -> remediateGuardedBody(facilityId, facilityRows, correlationIds, dossierHash))
                     .orElse(RemediateOutcome.rejected("saga-locked"));
@@ -269,9 +270,9 @@ public class FacilityConvergenceAction implements ConvergenceAction {
     private RemediateOutcome remediateGuardedBody(
             String facilityId, List<OutboxRecordView> facilityRows, List<String> correlationIds, String dossierHash) {
         for (String corrId : correlationIds) {
-            for (SagaInstanceView saga : sagaAdminPort.findByCorrelation(corrId)) {
-                SagaState state = saga.state();
-                if (state == SagaState.PENDING || state == SagaState.EXECUTING || state == SagaState.COMPENSATING) {
+            for (WorkflowRunView run : workflowAdminPort.findByCorrelation(corrId)) {
+                RunState state = run.state();
+                if (state == RunState.EXECUTING || state == RunState.COMPENSATING) {
                     return RemediateOutcome.rejected("saga-in-flight");
                 }
             }
@@ -357,26 +358,26 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             return ConvergeOutcome.retryLater("fcb-lag");
         }
 
-        String sagaState = sagaStateSummary(correlationIds);
+        String workflowState = workflowStateSummary(correlationIds);
         OperatorDossier dossier =
-                dossierBuilder.build(novaStatus, fcb, forwardRows, sagaState, graceElapsed, classification, null);
+                dossierBuilder.build(novaStatus, fcb, forwardRows, workflowState, graceElapsed, classification, null);
         return ConvergeOutcome.needsOperator(dossier);
     }
 
-    private String sagaStateSummary(List<String> correlationIds) {
+    private String workflowStateSummary(List<String> correlationIds) {
         List<String> states = correlationIds.stream()
-                .flatMap(corrId -> sagaAdminPort.findByCorrelation(corrId).stream())
-                .map(SagaInstanceView::state)
+                .flatMap(corrId -> workflowAdminPort.findByCorrelation(corrId).stream())
+                .map(WorkflowRunView::state)
                 .filter(Objects::nonNull)
-                .map(SagaState::name)
+                .map(RunState::name)
                 .distinct()
                 .toList();
         return states.isEmpty() ? "none" : String.join(",", states);
     }
 
-    // ════════════════════════════════════════ (1) Saga guard fallback ════════════════════════════════════════
+    // ════════════════════════════════════════ (1) Workflow guard fallback ════════════════════════════════════════
 
-    /** INV-6 fallback when no saga correlation is resolvable: defer a facility modified less than 30 minutes ago. */
+    /** INV-6 fallback when no workflow correlation is resolvable: defer a facility modified less than 30 minutes ago. */
     private @Nullable ConvergeOutcome deferIfRecentlyModified(String facilityId) {
         Optional<FacilityReconRow> row = readPort.findById(facilityId);
         if (row.isPresent()) {

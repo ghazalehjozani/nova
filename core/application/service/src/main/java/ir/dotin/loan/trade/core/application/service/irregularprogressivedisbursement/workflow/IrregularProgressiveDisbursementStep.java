@@ -1,8 +1,8 @@
-package ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.saga;
+package ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.workflow;
 
-import ir.dotin.platform.pangaea.saga.api.model.SagaStepId;
+import ir.dotin.platform.pangaea.workflow.api.model.WorkflowStepId;
 
-public enum IrregularProgressiveDisbursementStep implements SagaStepId {
+public enum IrregularProgressiveDisbursementStep implements WorkflowStepId {
     VALIDATE_FACILITY("validate-facility"),
     RESOLVE_ACCOUNTS("resolve-accounts"),
     POST_TRANSACTIONS("post-transactions"),

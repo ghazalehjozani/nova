@@ -111,7 +111,7 @@
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
-            <artifactId>pangaea-saga-management</artifactId>
+            <artifactId>workflow-management</artifactId>
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>

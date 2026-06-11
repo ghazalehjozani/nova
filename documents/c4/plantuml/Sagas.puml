@@ -13,41 +13,5 @@ skinparam {
 
 hide stereotype
 
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.AddFacilityCollateralSaga>> {
-  BackgroundColor #ab47bc
-  FontColor #ffffff
-  BorderColor #773183
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementSaga>> {
-  BackgroundColor #ab47bc
-  FontColor #ffffff
-  BorderColor #773183
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.IssueFacilityContractSaga>> {
-  BackgroundColor #ab47bc
-  FontColor #ffffff
-  BorderColor #773183
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.LumpSumDisbursementSaga>> {
-  BackgroundColor #ab47bc
-  FontColor #ffffff
-  BorderColor #773183
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
-  BorderColor #2e6295
-  FontColor #2e6295
-  shadowing false
-}
-
-rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>" <<TradeLoanService.TradeLoanApplication>> {
-  rectangle "==AddFacilityCollateralSaga\n<size:10>[Component: Saga Orchestrator]</size>\n\nOrchestrates add facility collateral" <<TradeLoanService.TradeLoanApplication.AddFacilityCollateralSaga>> as TradeLoanService.TradeLoanApplication.AddFacilityCollateralSaga
-  rectangle "==IrregularProgressiveDisbursementSaga\n<size:10>[Component: Saga Orchestrator]</size>\n\nOrchestrates irregular progressive disbursement" <<TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementSaga>> as TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementSaga
-  rectangle "==IssueFacilityContractSaga\n<size:10>[Component: Saga Orchestrator]</size>\n\nOrchestrates issue facility contract" <<TradeLoanService.TradeLoanApplication.IssueFacilityContractSaga>> as TradeLoanService.TradeLoanApplication.IssueFacilityContractSaga
-  rectangle "==LumpSumDisbursementSaga\n<size:10>[Component: Saga Orchestrator]</size>\n\nOrchestrates lump sum disbursement" <<TradeLoanService.TradeLoanApplication.LumpSumDisbursementSaga>> as TradeLoanService.TradeLoanApplication.LumpSumDisbursementSaga
-}
 
 @enduml

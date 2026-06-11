@@ -11,8 +11,10 @@ import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
+import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
+import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
+import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.ApproveFacilityCommand;
@@ -26,34 +28,49 @@ import ir.dotin.loan.trade.core.application.service.shared.authz.BranchAccessVal
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 
 @Service
-public class ApproveFacilityCommandHandler
-        extends WriteCommandHandler<ApproveFacilityCommand, ApproveFacilityCommandHandler.ApprovalPreparation> {
+public final class ApproveFacilityCommandHandler
+        extends WorkflowCommandHandler<ApproveFacilityCommand, ApproveFacilityCommandHandler.Data> {
 
     private static final Logger log = LoggerFactory.getLogger(ApproveFacilityCommandHandler.class);
+
+    record Data(ApproveFacilityCommand command, ApprovalPreparation prepared) {}
 
     private final TradeLoanFacilityRepository loanFacilityRepository;
     private final TradeLoanArrangementRepository loanArrangementRepository;
     private final BranchAccessValidator branchAccessValidator;
     private final ApprovalStrategyFactory strategyFactory;
     private final SanctionDetailsLoader sanctionDetailsLoader;
+    private final Workflow<Data> workflow;
 
     public ApproveFacilityCommandHandler(
-            WriteTransaction writeTransaction,
+            WorkflowEngine engine,
             TradeLoanFacilityRepository loanFacilityRepository,
             TradeLoanArrangementRepository loanArrangementRepository,
             BranchAccessValidator branchAccessValidator,
             ApprovalStrategyFactory strategyFactory,
             SanctionDetailsLoader sanctionDetailsLoader) {
-        super(writeTransaction);
+        super(engine);
         this.loanFacilityRepository = loanFacilityRepository;
         this.loanArrangementRepository = loanArrangementRepository;
         this.branchAccessValidator = branchAccessValidator;
         this.strategyFactory = strategyFactory;
         this.sanctionDetailsLoader = sanctionDetailsLoader;
+        this.workflow = Workflow.singleWrite(
+                "approve-facility",
+                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
-    protected Result<ApprovalPreparation> prepare(ApproveFacilityCommand command) {
+    protected Workflow<Data> workflow() {
+        return workflow;
+    }
+
+    @Override
+    protected Result<Data> seed(ApproveFacilityCommand command) {
+        return prepare(command).map(prepared -> new Data(command, prepared));
+    }
+
+    private Result<ApprovalPreparation> prepare(ApproveFacilityCommand command) {
         ConfirmType confirmType = ConfirmType.of(command.confirmType()).unwrap();
 
         return branchAccessValidator
@@ -68,8 +85,7 @@ public class ApproveFacilityCommandHandler
                 });
     }
 
-    @Override
-    protected Result<List<DomainEvent<?>>> write(ApproveFacilityCommand command, ApprovalPreparation prepared) {
+    private Result<List<DomainEvent<?>>> write(ApproveFacilityCommand command, ApprovalPreparation prepared) {
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
 
         return Result.fromOptional(

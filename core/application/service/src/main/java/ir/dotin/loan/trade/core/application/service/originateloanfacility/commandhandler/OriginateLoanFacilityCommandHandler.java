@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
+import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
+import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
+import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
@@ -36,9 +38,11 @@ import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @Service
-public class OriginateLoanFacilityCommandHandler
-        extends WriteCommandHandler<
-                OriginateLoanFacilityCommand, OriginateLoanFacilityCommandHandler.OriginationPreparation> {
+public final class OriginateLoanFacilityCommandHandler
+        extends WorkflowCommandHandler<
+                OriginateLoanFacilityCommand, OriginateLoanFacilityCommandHandler.Data> {
+
+    record Data(OriginateLoanFacilityCommand command, OriginationPreparation prepared) {}
 
     private final FacilityValidator facilityValidator;
     private final CustomerInfoLoader customerInfoLoader;
@@ -48,9 +52,10 @@ public class OriginateLoanFacilityCommandHandler
     private final FacilityBuilder facilityBuilder;
     private final TradeLoanFacilityValidationService validationService;
     private final FacilityPersister facilityPersister;
+    private final Workflow<Data> workflow;
 
     public OriginateLoanFacilityCommandHandler(
-            WriteTransaction writeTransaction,
+            WorkflowEngine engine,
             FacilityValidator facilityValidator,
             CustomerInfoLoader customerInfoLoader,
             PartyEligibilityValidator partyEligibilityValidator,
@@ -59,7 +64,7 @@ public class OriginateLoanFacilityCommandHandler
             FacilityBuilder facilityBuilder,
             TradeLoanFacilityValidationService validationService,
             FacilityPersister facilityPersister) {
-        super(writeTransaction);
+        super(engine);
         this.facilityValidator = facilityValidator;
         this.customerInfoLoader = customerInfoLoader;
         this.partyEligibilityValidator = partyEligibilityValidator;
@@ -68,10 +73,22 @@ public class OriginateLoanFacilityCommandHandler
         this.facilityBuilder = facilityBuilder;
         this.validationService = validationService;
         this.facilityPersister = facilityPersister;
+        this.workflow = Workflow.singleWrite(
+                "originate-loan-facility",
+                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
-    protected Result<OriginationPreparation> prepare(OriginateLoanFacilityCommand command) {
+    protected Workflow<Data> workflow() {
+        return workflow;
+    }
+
+    @Override
+    protected Result<Data> seed(OriginateLoanFacilityCommand command) {
+        return prepare(command).map(prepared -> new Data(command, prepared));
+    }
+
+    private Result<OriginationPreparation> prepare(OriginateLoanFacilityCommand command) {
         log.info("Starting facility origination for LoanType: {}", command.loanTypeCode());
 
         Result<Unit> validationResult = facilityValidator.callAndValidateServices(command);
@@ -97,8 +114,7 @@ public class OriginateLoanFacilityCommandHandler
                 .map(applicationNumber -> new OriginationPreparation(partyInfos, applicationNumber));
     }
 
-    @Override
-    protected Result<List<DomainEvent<?>>> write(
+    private Result<List<DomainEvent<?>>> write(
             OriginateLoanFacilityCommand command, OriginationPreparation prepared) {
         return dependencyLoader
                 .loadDependencies(command, prepared.partyInfos())

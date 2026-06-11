@@ -28,7 +28,7 @@
 
     <dependency>
         <groupId>ir.dotin.platform.pangaea</groupId>
-        <artifactId>saga-api</artifactId>
+        <artifactId>workflow-api</artifactId>
     </dependency>
     <dependency>
         <groupId>ir.dotin.platform.pangaea</groupId>

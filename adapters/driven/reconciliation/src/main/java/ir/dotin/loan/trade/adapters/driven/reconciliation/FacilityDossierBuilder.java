@@ -36,7 +36,7 @@ final class FacilityDossierBuilder {
             FacilityStatus novaStatus,
             ReconLoanFileState fcb,
             List<OutboxRecordView> forwardOutboxRows,
-            @Nullable String sagaState,
+            @Nullable String workflowState,
             boolean graceElapsed,
             FacilityClassification classification,
             @Nullable String fcbBusinessError) {
@@ -45,7 +45,7 @@ final class FacilityDossierBuilder {
         Objects.requireNonNull(classification, "classification");
         List<OutboxRecordView> rows = List.copyOf(forwardOutboxRows);
 
-        NovaSnapshot novaSnapshot = novaSnapshot(novaStatus, rows, sagaState);
+        NovaSnapshot novaSnapshot = novaSnapshot(novaStatus, rows, workflowState);
         FcbSnapshot fcbSnapshot = new FcbSnapshot(fcb.reachable(), fcb.exists(), fcb.fileStatus(), fcbBusinessError);
 
         ProposedRemediation recommended = recommendation(classification, fcb, rows, graceElapsed);
@@ -66,7 +66,7 @@ final class FacilityDossierBuilder {
     }
 
     private NovaSnapshot novaSnapshot(
-            FacilityStatus novaStatus, List<OutboxRecordView> rows, @Nullable String sagaState) {
+            FacilityStatus novaStatus, List<OutboxRecordView> rows, @Nullable String workflowState) {
         List<String> lastForwardEvents = rows.stream()
                 .sorted(Comparator.comparing(FacilityDossierBuilder::sequenceOf))
                 .map(row -> nullSafe(row.eventType()))
@@ -80,7 +80,7 @@ final class FacilityDossierBuilder {
                         false,
                         row.sequenceNumber()))
                 .toList();
-        return new NovaSnapshot(novaStatus.name(), lastForwardEvents, outboxRows, sagaState);
+        return new NovaSnapshot(novaStatus.name(), lastForwardEvents, outboxRows, workflowState);
     }
 
     private ProposedRemediation recommendation(

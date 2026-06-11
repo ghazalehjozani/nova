@@ -1,7 +1,7 @@
 import org.jspecify.annotations.NullMarked;
 
 /**
- * Trade-loan application service module — command handlers, saga orchestrators, compensation handlers, strategies,
+ * Trade-loan application service module — command handlers, workflow orchestrations, compensation handlers, strategies,
  * mappers, and configuration for all trade-loan use cases.
  *
  * <p>Declared {@code open} for reflection (Spring, MapStruct) and module-level {@link NullMarked} for the NullAway
@@ -17,7 +17,7 @@ open module ir.dotin.loan.trade.core.application.service {
     requires transitive ir.dotin.platform.pangaea.commons.domain;
     requires transitive ir.dotin.platform.pangaea.servicelayer.api;
     requires ir.dotin.platform.pangaea.servicelayer.transaction;
-    requires ir.dotin.platform.pangaea.saga.api;
+    requires ir.dotin.platform.pangaea.workflow.api;
     requires ir.dotin.platform.accounting.document.api;
     requires ir.dotin.platform.accounting.document.core;
     requires ir.dotin.platform.formula.api;
@@ -40,7 +40,7 @@ open module ir.dotin.loan.trade.core.application.service {
     exports ir.dotin.loan.trade.core.application.service.addfacilitycollateral.compensation.commandhandler;
     exports ir.dotin.loan.trade.core.application.service.addfacilitycollateral.component;
     exports ir.dotin.loan.trade.core.application.service.addfacilitycollateral.mapper;
-    exports ir.dotin.loan.trade.core.application.service.addfacilitycollateral.saga;
+    exports ir.dotin.loan.trade.core.application.service.addfacilitycollateral.workflow;
     exports ir.dotin.loan.trade.core.application.service.approvefacility.commandhandler;
     exports ir.dotin.loan.trade.core.application.service.approvefacility.compensation.commandhandler;
     exports ir.dotin.loan.trade.core.application.service.approvefacility.component;
@@ -63,7 +63,7 @@ open module ir.dotin.loan.trade.core.application.service {
     exports ir.dotin.loan.trade.core.application.service.defineloantype.mapper;
     exports ir.dotin.loan.trade.core.application.service.interaction;
     exports ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.commandhandler;
-    exports ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.saga;
+    exports ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.workflow;
     exports ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.compensation.commandhandler;
     exports ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.configuration;
     exports ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.mapper;
@@ -71,10 +71,10 @@ open module ir.dotin.loan.trade.core.application.service {
     exports ir.dotin.loan.trade.core.application.service.issuefacilitycontract.compensation.commandhandler;
     exports ir.dotin.loan.trade.core.application.service.issuefacilitycontract.component;
     exports ir.dotin.loan.trade.core.application.service.issuefacilitycontract.configuration;
-    exports ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga;
+    exports ir.dotin.loan.trade.core.application.service.issuefacilitycontract.workflow;
     exports ir.dotin.loan.trade.core.application.service.issuefacilitycontract.strategy;
     exports ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.commandhandler;
-    exports ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.saga;
+    exports ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.workflow;
     exports ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.compensation.commandhandler;
     exports ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.configuration;
     exports ir.dotin.loan.trade.core.application.service.originateloanfacility.commandhandler;

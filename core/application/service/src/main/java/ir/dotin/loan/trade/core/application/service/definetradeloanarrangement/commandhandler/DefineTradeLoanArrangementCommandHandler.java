@@ -19,8 +19,10 @@ import ir.dotin.platform.pangaea.commons.core.concurrent.ParallelFanout;
 import ir.dotin.platform.pangaea.commons.core.context.ContextSnapshot;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
+import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
+import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
+import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.DefineTradeLoanArrangementCommand;
@@ -34,35 +36,50 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class DefineTradeLoanArrangementCommandHandler
-        extends WriteCommandHandler<
-                DefineTradeLoanArrangementCommand, DefineTradeLoanArrangementCommandHandler.ArrangementPreparation> {
+public final class DefineTradeLoanArrangementCommandHandler
+        extends WorkflowCommandHandler<
+                DefineTradeLoanArrangementCommand, DefineTradeLoanArrangementCommandHandler.Data> {
+
+    record Data(DefineTradeLoanArrangementCommand command, ArrangementPreparation prepared) {}
 
     private final DefineTradeLoanArrangementCommandMapper mapper;
     private final TradeLoanArrangementRepository repository;
     private final Clock clock;
     private final FormulaQueryService formulaQueryService;
     private final EconomicalSectorLoader economicalSectorLoader;
+    private final Workflow<Data> workflow;
 
     private static final ExecutorService VIRTUAL_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
     public DefineTradeLoanArrangementCommandHandler(
-            WriteTransaction writeTransaction,
+            WorkflowEngine engine,
             DefineTradeLoanArrangementCommandMapper mapper,
             TradeLoanArrangementRepository repository,
             Clock clock,
             FormulaQueryService formulaQueryService,
             EconomicalSectorLoader economicalSectorLoader) {
-        super(writeTransaction);
+        super(engine);
         this.mapper = mapper;
         this.repository = repository;
         this.clock = clock;
         this.formulaQueryService = formulaQueryService;
         this.economicalSectorLoader = economicalSectorLoader;
+        this.workflow = Workflow.singleWrite(
+                "define-trade-loan-arrangement",
+                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
-    protected Result<ArrangementPreparation> prepare(DefineTradeLoanArrangementCommand command) {
+    protected Workflow<Data> workflow() {
+        return workflow;
+    }
+
+    @Override
+    protected Result<Data> seed(DefineTradeLoanArrangementCommand command) {
+        return prepare(command).map(prepared -> new Data(command, prepared));
+    }
+
+    private Result<ArrangementPreparation> prepare(DefineTradeLoanArrangementCommand command) {
         List<String> formulasToValidate = Stream.of(
                         command.interestPolicy().interestFormula(),
                         command.interestPolicy().refundFormula(),
@@ -96,8 +113,7 @@ public class DefineTradeLoanArrangementCommandHandler
                 .map(ArrangementPreparation::new);
     }
 
-    @Override
-    protected Result<List<DomainEvent<?>>> write(
+    private Result<List<DomainEvent<?>>> write(
             DefineTradeLoanArrangementCommand command, ArrangementPreparation prepared) {
         return Result.success(mapper.toBuilder(command))
                 .flatMap(builder -> TradeLoanArrangement.create(builder, clock))

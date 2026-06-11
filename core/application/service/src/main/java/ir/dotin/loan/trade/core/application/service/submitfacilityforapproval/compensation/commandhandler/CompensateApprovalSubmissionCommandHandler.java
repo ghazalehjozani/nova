@@ -12,8 +12,10 @@ import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
+import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
+import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
+import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateApprovalSubmissionCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
@@ -21,28 +23,44 @@ import ir.dotin.loan.trade.core.application.service.submitfacilityforapproval.i1
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 @Service
-class CompensateApprovalSubmissionCommandHandler
-        extends WriteCommandHandler<CompensateApprovalSubmissionCommand, Unit> {
+final class CompensateApprovalSubmissionCommandHandler
+        extends WorkflowCommandHandler<
+                CompensateApprovalSubmissionCommand, CompensateApprovalSubmissionCommandHandler.Data> {
 
     private static final Logger log = LoggerFactory.getLogger(CompensateApprovalSubmissionCommandHandler.class);
+
+    record Data(CompensateApprovalSubmissionCommand command, Unit prepared) {}
+
     private final TradeLoanFacilityRepository repository;
     private final Clock clock;
+    private final Workflow<Data> workflow;
 
     CompensateApprovalSubmissionCommandHandler(
-            WriteTransaction writeTransaction, TradeLoanFacilityRepository repository, Clock clock) {
-        super(writeTransaction);
+            WorkflowEngine engine, TradeLoanFacilityRepository repository, Clock clock) {
+        super(engine);
         this.repository = repository;
         this.clock = clock;
+        this.workflow = Workflow.singleWrite(
+                "compensate-approval-submission",
+                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
-    protected Result<Unit> prepare(CompensateApprovalSubmissionCommand command) {
+    protected Workflow<Data> workflow() {
+        return workflow;
+    }
+
+    @Override
+    protected Result<Data> seed(CompensateApprovalSubmissionCommand command) {
+        return prepare(command).map(prepared -> new Data(command, prepared));
+    }
+
+    private Result<Unit> prepare(CompensateApprovalSubmissionCommand command) {
         log.warn("Compensating approval submission for facility: {}", command.loanFacilityId());
         return Result.success();
     }
 
-    @Override
-    protected Result<List<DomainEvent<?>>> write(CompensateApprovalSubmissionCommand command, Unit prepared) {
+    private Result<List<DomainEvent<?>>> write(CompensateApprovalSubmissionCommand command, Unit prepared) {
         return loadAndProcess(command.loanFacilityId(), f -> f.revertApprovalSubmission(clock));
     }
 

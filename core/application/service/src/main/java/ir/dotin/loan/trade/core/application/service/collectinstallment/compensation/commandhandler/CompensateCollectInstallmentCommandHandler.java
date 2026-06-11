@@ -11,8 +11,10 @@ import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteCommandHandler;
-import ir.dotin.platform.pangaea.servicelayer.transaction.WriteTransaction;
+import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
+import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
+import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentScheduleCompensationOperations;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
@@ -25,31 +27,46 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class CompensateCollectInstallmentCommandHandler
-        extends WriteCommandHandler<CompensateCollectInstallmentCommand, Unit> {
+public final class CompensateCollectInstallmentCommandHandler
+        extends WorkflowCommandHandler<
+                CompensateCollectInstallmentCommand, CompensateCollectInstallmentCommandHandler.Data> {
+
+    record Data(CompensateCollectInstallmentCommand command, Unit prepared) {}
 
     private final ApplicationNumberResolver applicationNumberResolver;
     private final InstallmentScheduleRepository installmentScheduleRepository;
     private final Clock clock;
+    private final Workflow<Data> workflow;
 
     public CompensateCollectInstallmentCommandHandler(
-            WriteTransaction writeTransaction,
+            WorkflowEngine engine,
             ApplicationNumberResolver applicationNumberResolver,
             InstallmentScheduleRepository installmentScheduleRepository,
             Clock clock) {
-        super(writeTransaction);
+        super(engine);
         this.applicationNumberResolver = applicationNumberResolver;
         this.installmentScheduleRepository = installmentScheduleRepository;
         this.clock = clock;
+        this.workflow = Workflow.singleWrite(
+                "compensate-collect-installment",
+                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
-    protected Result<Unit> prepare(CompensateCollectInstallmentCommand command) {
+    protected Workflow<Data> workflow() {
+        return workflow;
+    }
+
+    @Override
+    protected Result<Data> seed(CompensateCollectInstallmentCommand command) {
+        return prepare(command).map(prepared -> new Data(command, prepared));
+    }
+
+    private Result<Unit> prepare(CompensateCollectInstallmentCommand command) {
         return Result.success();
     }
 
-    @Override
-    protected Result<List<DomainEvent<?>>> write(CompensateCollectInstallmentCommand command, Unit prepared) {
+    private Result<List<DomainEvent<?>>> write(CompensateCollectInstallmentCommand command, Unit prepared) {
         return resolveIdentifiers(command)
                 .flatMap(this::loadSchedule)
                 .flatMap(compensationOperations -> {

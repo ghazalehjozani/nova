@@ -9,19 +9,19 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.pangaea.commons.core.error.CodedMessage;
 import ir.dotin.platform.pangaea.protocol.api.error.ErrorCodeContributor;
-import ir.dotin.platform.pangaea.saga.api.error.SagaErrors;
+import ir.dotin.platform.pangaea.workflow.api.error.WorkflowErrors;
 
 /**
- * Contributes platform saga error codes (execution and coordination errors).
+ * Contributes platform workflow error codes (execution and coordination errors).
  *
  * @since 2.0
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
-public class SagaErrorCodeContributor implements ErrorCodeContributor { // TODO: Move to platform
+public class WorkflowErrorCodeContributor implements ErrorCodeContributor { // TODO: Move to platform
 
     @Override
     public Collection<? extends CodedMessage<?>> contributedCodes() {
-        return List.of(SagaErrors.values());
+        return List.of(WorkflowErrors.values());
     }
 }

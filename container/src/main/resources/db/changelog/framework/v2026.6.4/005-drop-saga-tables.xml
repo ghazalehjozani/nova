@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <!--
+        Saga→workflow rewire (LN-59501): the FSM orchestrator was replaced by the engine-backed workflow
+        runner (workflow_run / workflow_compensation / workflow_resume_key). The retired saga tables are
+        dropped here once drained. The drain gate (RB-0011) asserts zero non-terminal saga_instance rows
+        before this runs; terminal rows (COMPLETED / COMPENSATED) and a fresh DB that never had saga tables
+        both MARK_RAN cleanly. Forward-only — these drops are irreversible, so rollback is empty. No DB-level
+        FK exists between the saga tables (compensation references saga_id logically only), but drop order is
+        still child-before-parent: saga_compensation, saga_idempotency, saga_instance. Indexes drop with their
+        tables.
+    -->
+
+    <changeSet id="fw-2026.6.4-005-drop-saga-tables" author="DOTIN\m.amirabdollahi">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="saga_instance"/>
+            <tableExists tableName="saga_compensation"/>
+            <tableExists tableName="saga_idempotency"/>
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM saga_instance
+                WHERE current_state IN ('PENDING','EXECUTING','COMPENSATING','FAILED','TIMED_OUT','COMPENSATION_FAILED')
+            </sqlCheck>
+        </preConditions>
+        <comment>Drop retired saga tables after engine-backed workflow rewire (drained per RB-0011)</comment>
+        <dropTable tableName="saga_compensation"/>
+        <dropTable tableName="saga_idempotency"/>
+        <dropTable tableName="saga_instance"/>
+        <rollback/>
+    </changeSet>
+
+</databaseChangeLog>

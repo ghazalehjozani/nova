@@ -1,8 +1,8 @@
-package ir.dotin.loan.trade.core.application.service.issuefacilitycontract.saga;
+package ir.dotin.loan.trade.core.application.service.issuefacilitycontract.workflow;
 
-import ir.dotin.platform.pangaea.saga.api.model.SagaStepId;
+import ir.dotin.platform.pangaea.workflow.api.model.WorkflowStepId;
 
-public enum IssueFacilityContractStep implements SagaStepId {
+public enum IssueFacilityContractStep implements WorkflowStepId {
     VALIDATE_FACILITY("validate-facility"),
     OPEN_ACCOUNTS("open-accounts"),
     POST_TRANSACTION("post-transaction"),

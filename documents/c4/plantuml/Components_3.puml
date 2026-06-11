@@ -25,12 +25,6 @@ skinparam database<<TradeLoanService.TradeLoanApplication.InstallmentScheduleRep
   BorderColor #404a86
   shadowing false
 }
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.IssueFacilityContractSaga>> {
-  BackgroundColor #ab47bc
-  FontColor #ffffff
-  BorderColor #773183
-  shadowing false
-}
 skinparam database<<TradeLoanService.TradeLoanApplication.JpaFacilityQueryAdapter>> {
   BackgroundColor #5c6bc0
   FontColor #ffffff
@@ -53,24 +47,6 @@ skinparam database<<TradeLoanService.TradeLoanApplication.JpaTradeLoanTypeQueryA
   BackgroundColor #5c6bc0
   FontColor #ffffff
   BorderColor #404a86
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.LumpSumDisbursementSaga>> {
-  BackgroundColor #ab47bc
-  FontColor #ffffff
-  BorderColor #773183
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanApplication>> {
-  BackgroundColor #ff9800
-  FontColor #000000
-  BorderColor #b26a00
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanArrangement>> {
-  BackgroundColor #ff9800
-  FontColor #000000
-  BorderColor #b26a00
   shadowing false
 }
 skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler>> {
@@ -170,10 +146,6 @@ skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
 }
 
 rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>" <<TradeLoanService.TradeLoanApplication>> {
-  rectangle "==IssueFacilityContractSaga\n<size:10>[Component: Saga Orchestrator]</size>\n\nOrchestrates issue facility contract" <<TradeLoanService.TradeLoanApplication.IssueFacilityContractSaga>> as TradeLoanService.TradeLoanApplication.IssueFacilityContractSaga
-  rectangle "==LumpSumDisbursementSaga\n<size:10>[Component: Saga Orchestrator]</size>\n\nOrchestrates lump sum disbursement" <<TradeLoanService.TradeLoanApplication.LumpSumDisbursementSaga>> as TradeLoanService.TradeLoanApplication.LumpSumDisbursementSaga
-  rectangle "==TradeLoanArrangement\n<size:10>[Component: DDD Aggregate Root]</size>\n\ntrade loan arrangement aggregate" <<TradeLoanService.TradeLoanApplication.TradeLoanArrangement>> as TradeLoanService.TradeLoanApplication.TradeLoanArrangement
-  rectangle "==TradeLoanApplication\n<size:10>[Component: DDD Aggregate Root]</size>\n\ntrade loan application aggregate" <<TradeLoanService.TradeLoanApplication.TradeLoanApplication>> as TradeLoanService.TradeLoanApplication.TradeLoanApplication
   rectangle "==TradeLoanFacility\n<size:10>[Component: DDD Aggregate Root]</size>\n\ntrade loan facility aggregate" <<TradeLoanService.TradeLoanApplication.TradeLoanFacility>> as TradeLoanService.TradeLoanApplication.TradeLoanFacility
   rectangle "==TradeLoanFacilityEventFactory\n<size:10>[Component: DDD Entity]</size>\n\ntrade loan facility event factory entity" <<TradeLoanService.TradeLoanApplication.TradeLoanFacilityEventFactory>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityEventFactory
   rectangle "==TradeSanctionedLoan\n<size:10>[Component: DDD Aggregate Root]</size>\n\ntrade sanctioned loan aggregate" <<TradeLoanService.TradeLoanApplication.TradeSanctionedLoan>> as TradeLoanService.TradeLoanApplication.TradeSanctionedLoan

@@ -2,9 +2,10 @@ package ir.dotin.loan.trade.core.application.ports.outbound.client.samat;
 
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
+import ir.dotin.platform.pangaea.servicelayer.api.port.RemotePort;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Samat;
 
-public interface ValidateSamatPort {
+public interface ValidateSamatPort extends RemotePort {
 
     Result<Unit> validateSamat(Samat samat, String loanTypeCode, String economicalSectionCode);
 }

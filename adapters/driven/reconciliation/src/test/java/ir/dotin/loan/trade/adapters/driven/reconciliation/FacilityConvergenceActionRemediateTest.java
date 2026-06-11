@@ -30,10 +30,10 @@ import ir.dotin.platform.pangaea.reconciliation.api.model.Direction;
 import ir.dotin.platform.pangaea.reconciliation.api.model.Divergence;
 import ir.dotin.platform.pangaea.reconciliation.api.model.OpaqueKey;
 import ir.dotin.platform.pangaea.reconciliation.api.model.RemediationKind;
-import ir.dotin.platform.pangaea.saga.api.admin.SagaAdminPort;
-import ir.dotin.platform.pangaea.saga.api.admin.SagaInstanceView;
-import ir.dotin.platform.pangaea.saga.api.model.SagaId;
-import ir.dotin.platform.pangaea.saga.api.model.SagaState;
+import ir.dotin.platform.pangaea.workflow.api.admin.WorkflowAdminPort;
+import ir.dotin.platform.pangaea.workflow.api.admin.WorkflowRunView;
+import ir.dotin.platform.pangaea.workflow.api.model.RunId;
+import ir.dotin.platform.pangaea.workflow.api.model.RunState;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FacilityReconReadPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FacilityReconRow;
@@ -70,7 +70,7 @@ class FacilityConvergenceActionRemediateTest {
     private InboxAdminPort inboxAdminPort;
 
     @Mock
-    private SagaAdminPort sagaAdminPort;
+    private WorkflowAdminPort workflowAdminPort;
 
     @Mock
     private FcbReconStatePort fcbReconStatePort;
@@ -87,7 +87,7 @@ class FacilityConvergenceActionRemediateTest {
         properties.setGraceWindow(Duration.ofMinutes(15));
         properties.setReplayForwardEnabled(true);
         action = new FacilityConvergenceAction(
-                outboxAdminPort, inboxAdminPort, sagaAdminPort, fcbReconStatePort, readPort, properties, clock);
+                outboxAdminPort, inboxAdminPort, workflowAdminPort, fcbReconStatePort, readPort, properties, clock);
     }
 
     @Test
@@ -136,7 +136,7 @@ class FacilityConvergenceActionRemediateTest {
         stubNova(FacilityStatus.FULLY_DISBURSED, modifiedAt);
         stubOutbox(rows);
         stubGuardRunsSupplier();
-        when(sagaAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
+        when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
         when(fcbReconStatePort.loadReconState(FACILITY.toString())).thenReturn(Result.success(fcbAbsentReachable()));
         when(outboxAdminPort.republish(any())).thenReturn(2L);
 
@@ -172,7 +172,7 @@ class FacilityConvergenceActionRemediateTest {
         stubNova(FacilityStatus.FULLY_DISBURSED, modifiedAt);
         stubOutbox(rows);
         stubGuardRunsSupplier();
-        when(sagaAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
+        when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
         when(fcbReconStatePort.loadReconState(FACILITY.toString())).thenReturn(Result.success(fcbAbsentReachable()));
 
         RemediateOutcome outcome = action.remediate(
@@ -197,7 +197,7 @@ class FacilityConvergenceActionRemediateTest {
         stubNova(FacilityStatus.FULLY_DISBURSED, modifiedAt);
         stubOutbox(rows);
         stubGuardRunsSupplier();
-        when(sagaAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
+        when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
         when(fcbReconStatePort.loadReconState(FACILITY.toString())).thenReturn(Result.success(fcb));
 
         String hash = freshHashFor(rows, FacilityStatus.FULLY_DISBURSED, fcb, false);
@@ -217,7 +217,7 @@ class FacilityConvergenceActionRemediateTest {
         stubOutbox(List.of(
                 forward(ROW_ID_A, EVENT_ID_A, "TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED, 10L)));
         stubGuardRunsSupplier();
-        when(sagaAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
+        when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
         when(fcbReconStatePort.loadReconState(FACILITY.toString())).thenReturn(Result.success(fcbUnreachable()));
 
         RemediateOutcome outcome = action.remediate(
@@ -238,7 +238,7 @@ class FacilityConvergenceActionRemediateTest {
         stubOutbox(List.of(
                 forward(ROW_ID_A, EVENT_ID_A, "TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED, 10L)));
         stubGuardRunsSupplier();
-        when(sagaAdminPort.findByCorrelation(anyString())).thenReturn(List.of(sagaInState(SagaState.EXECUTING)));
+        when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of(runInState(RunState.EXECUTING)));
 
         RemediateOutcome outcome = action.remediate(
                 key(),
@@ -257,7 +257,7 @@ class FacilityConvergenceActionRemediateTest {
     void sagaLockedIsRejectedWithoutRepublishing() {
         stubOutbox(List.of(
                 forward(ROW_ID_A, EVENT_ID_A, "TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED, 10L)));
-        when(sagaAdminPort.runUnderCorrelationGuard(anyString(), any())).thenReturn(Optional.empty());
+        when(workflowAdminPort.runUnderCorrelationGuard(anyString(), any())).thenReturn(Optional.empty());
 
         RemediateOutcome outcome = action.remediate(
                 key(),
@@ -277,7 +277,7 @@ class FacilityConvergenceActionRemediateTest {
         stubOutbox(List.of(
                 forward(ROW_ID_A, EVENT_ID_A, "TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED, 10L)));
         stubGuardRunsSupplier();
-        when(sagaAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
+        when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
         when(readPort.findById(FACILITY.toString())).thenReturn(Optional.empty());
 
         RemediateOutcome outcome = action.remediate(
@@ -316,17 +316,17 @@ class FacilityConvergenceActionRemediateTest {
 
     private void stubGuardRunsSupplier() {
         lenient()
-                .when(sagaAdminPort.runUnderCorrelationGuard(anyString(), any()))
+                .when(workflowAdminPort.runUnderCorrelationGuard(anyString(), any()))
                 .thenAnswer(invocation -> {
                     Supplier<?> supplier = invocation.getArgument(1);
                     return Optional.ofNullable(supplier.get());
                 });
     }
 
-    private static SagaInstanceView sagaInState(SagaState state) {
-        return new SagaInstanceView(
-                SagaId.of(UUID.randomUUID()),
-                "TradeLoanSaga",
+    private static WorkflowRunView runInState(RunState state) {
+        return new WorkflowRunView(
+                RunId.of(UUID.randomUUID()),
+                "TradeLoanWorkflow",
                 state,
                 CORRELATION.toString(),
                 null,

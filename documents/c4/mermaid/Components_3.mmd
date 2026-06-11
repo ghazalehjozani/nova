@@ -7,56 +7,48 @@ graph TB
     subgraph 11 ["Trade Loan Application"]
       style 11 fill:#ffffff,stroke:#2e6295,color:#2e6295
 
-      110["<div style='font-weight: bold'>IssueFacilityContractSaga</div><div style='font-size: 70%; margin-top: 0px'>[Component: Saga Orchestrator]</div><div style='font-size: 80%; margin-top:10px'>Orchestrates issue facility<br />contract</div>"]
-      style 110 fill:#ab47bc,stroke:#773183,color:#ffffff
-      111["<div style='font-weight: bold'>LumpSumDisbursementSaga</div><div style='font-size: 70%; margin-top: 0px'>[Component: Saga Orchestrator]</div><div style='font-size: 80%; margin-top:10px'>Orchestrates lump sum<br />disbursement</div>"]
-      style 111 fill:#ab47bc,stroke:#773183,color:#ffffff
-      112["<div style='font-weight: bold'>TradeLoanArrangement</div><div style='font-size: 70%; margin-top: 0px'>[Component: DDD Aggregate Root]</div><div style='font-size: 80%; margin-top:10px'>trade loan arrangement<br />aggregate</div>"]
+      110["<div style='font-weight: bold'>TradeLoanFacility</div><div style='font-size: 70%; margin-top: 0px'>[Component: DDD Aggregate Root]</div><div style='font-size: 80%; margin-top:10px'>trade loan facility aggregate</div>"]
+      style 110 fill:#ff9800,stroke:#b26a00,color:#000000
+      111["<div style='font-weight: bold'>TradeLoanFacilityEventFactory</div><div style='font-size: 70%; margin-top: 0px'>[Component: DDD Entity]</div><div style='font-size: 80%; margin-top:10px'>trade loan facility event<br />factory entity</div>"]
+      style 111 fill:#ffb74d,stroke:#b28035,color:#000000
+      112["<div style='font-weight: bold'>TradeSanctionedLoan</div><div style='font-size: 70%; margin-top: 0px'>[Component: DDD Aggregate Root]</div><div style='font-size: 80%; margin-top:10px'>trade sanctioned loan<br />aggregate</div>"]
       style 112 fill:#ff9800,stroke:#b26a00,color:#000000
-      113["<div style='font-weight: bold'>TradeLoanApplication</div><div style='font-size: 70%; margin-top: 0px'>[Component: DDD Aggregate Root]</div><div style='font-size: 80%; margin-top:10px'>trade loan application<br />aggregate</div>"]
+      113["<div style='font-weight: bold'>TradeLoanType</div><div style='font-size: 70%; margin-top: 0px'>[Component: DDD Aggregate Root]</div><div style='font-size: 80%; margin-top:10px'>trade loan type aggregate</div>"]
       style 113 fill:#ff9800,stroke:#b26a00,color:#000000
-      114["<div style='font-weight: bold'>TradeLoanFacility</div><div style='font-size: 70%; margin-top: 0px'>[Component: DDD Aggregate Root]</div><div style='font-size: 80%; margin-top:10px'>trade loan facility aggregate</div>"]
-      style 114 fill:#ff9800,stroke:#b26a00,color:#000000
-      115["<div style='font-weight: bold'>TradeLoanFacilityEventFactory</div><div style='font-size: 70%; margin-top: 0px'>[Component: DDD Entity]</div><div style='font-size: 80%; margin-top:10px'>trade loan facility event<br />factory entity</div>"]
-      style 115 fill:#ffb74d,stroke:#b28035,color:#000000
-      116["<div style='font-weight: bold'>TradeSanctionedLoan</div><div style='font-size: 70%; margin-top: 0px'>[Component: DDD Aggregate Root]</div><div style='font-size: 80%; margin-top:10px'>trade sanctioned loan<br />aggregate</div>"]
-      style 116 fill:#ff9800,stroke:#b26a00,color:#000000
-      117["<div style='font-weight: bold'>TradeLoanType</div><div style='font-size: 70%; margin-top: 0px'>[Component: DDD Aggregate Root]</div><div style='font-size: 80%; margin-top:10px'>trade loan type aggregate</div>"]
-      style 117 fill:#ff9800,stroke:#b26a00,color:#000000
-      118["<div style='font-weight: bold'>TradeRepaymentSchedulingService</div><div style='font-size: 70%; margin-top: 0px'>[Component: Domain Service]</div><div style='font-size: 80%; margin-top:10px'>trade repayment scheduling<br />service domain service</div>"]
+      114["<div style='font-weight: bold'>TradeRepaymentSchedulingService</div><div style='font-size: 70%; margin-top: 0px'>[Component: Domain Service]</div><div style='font-size: 80%; margin-top:10px'>trade repayment scheduling<br />service domain service</div>"]
+      style 114 fill:#29b6f6,stroke:#1c7fac,color:#ffffff
+      115["<div style='font-weight: bold'>TradeLoanFacilityService</div><div style='font-size: 70%; margin-top: 0px'>[Component: Domain Service]</div><div style='font-size: 80%; margin-top:10px'>trade loan facility service<br />domain service</div>"]
+      style 115 fill:#29b6f6,stroke:#1c7fac,color:#ffffff
+      116["<div style='font-weight: bold'>TradeLoanFacilityValidationService</div><div style='font-size: 70%; margin-top: 0px'>[Component: Domain Service]</div><div style='font-size: 80%; margin-top:10px'>trade loan facility<br />validation service domain<br />service</div>"]
+      style 116 fill:#29b6f6,stroke:#1c7fac,color:#ffffff
+      117["<div style='font-weight: bold'>TradeSanctionValidationService</div><div style='font-size: 70%; margin-top: 0px'>[Component: Domain Service]</div><div style='font-size: 80%; margin-top:10px'>trade sanction validation<br />service domain service</div>"]
+      style 117 fill:#29b6f6,stroke:#1c7fac,color:#ffffff
+      118["<div style='font-weight: bold'>TradeLoanTypeValidationService</div><div style='font-size: 70%; margin-top: 0px'>[Component: Domain Service]</div><div style='font-size: 80%; margin-top:10px'>trade loan type validation<br />service domain service</div>"]
       style 118 fill:#29b6f6,stroke:#1c7fac,color:#ffffff
-      119["<div style='font-weight: bold'>TradeLoanFacilityService</div><div style='font-size: 70%; margin-top: 0px'>[Component: Domain Service]</div><div style='font-size: 80%; margin-top:10px'>trade loan facility service<br />domain service</div>"]
-      style 119 fill:#29b6f6,stroke:#1c7fac,color:#ffffff
-      120["<div style='font-weight: bold'>TradeLoanFacilityValidationService</div><div style='font-size: 70%; margin-top: 0px'>[Component: Domain Service]</div><div style='font-size: 80%; margin-top:10px'>trade loan facility<br />validation service domain<br />service</div>"]
-      style 120 fill:#29b6f6,stroke:#1c7fac,color:#ffffff
-      121["<div style='font-weight: bold'>TradeSanctionValidationService</div><div style='font-size: 70%; margin-top: 0px'>[Component: Domain Service]</div><div style='font-size: 80%; margin-top:10px'>trade sanction validation<br />service domain service</div>"]
-      style 121 fill:#29b6f6,stroke:#1c7fac,color:#ffffff
-      122["<div style='font-weight: bold'>TradeLoanTypeValidationService</div><div style='font-size: 70%; margin-top: 0px'>[Component: Domain Service]</div><div style='font-size: 80%; margin-top:10px'>trade loan type validation<br />service domain service</div>"]
-      style 122 fill:#29b6f6,stroke:#1c7fac,color:#ffffff
-      123[("<div style='font-weight: bold'>InstallmentScheduleRepositoryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>InstallmentSchedule<br />persistence adapter</div>")]
+      119[("<div style='font-weight: bold'>InstallmentScheduleRepositoryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>InstallmentSchedule<br />persistence adapter</div>")]
+      style 119 fill:#5c6bc0,stroke:#404a86,color:#ffffff
+      120[("<div style='font-weight: bold'>TradeLoanArrangementRepositoryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanArrangement<br />persistence adapter</div>")]
+      style 120 fill:#5c6bc0,stroke:#404a86,color:#ffffff
+      121[("<div style='font-weight: bold'>TradeLoanFacilityRepositoryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanFacility persistence<br />adapter</div>")]
+      style 121 fill:#5c6bc0,stroke:#404a86,color:#ffffff
+      122[("<div style='font-weight: bold'>TradeLoanTypeRepositoryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanType persistence<br />adapter</div>")]
+      style 122 fill:#5c6bc0,stroke:#404a86,color:#ffffff
+      123[("<div style='font-weight: bold'>JpaTradeInstallmentScheduleQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeInstallmentSchedule<br />query adapter</div>")]
       style 123 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      124[("<div style='font-weight: bold'>TradeLoanArrangementRepositoryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanArrangement<br />persistence adapter</div>")]
+      124[("<div style='font-weight: bold'>JpaTradeLoanArrangementQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanArrangement query<br />adapter</div>")]
       style 124 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      125[("<div style='font-weight: bold'>TradeLoanFacilityRepositoryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanFacility persistence<br />adapter</div>")]
+      125[("<div style='font-weight: bold'>JpaFacilityQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>Facility query adapter</div>")]
       style 125 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      126[("<div style='font-weight: bold'>TradeLoanTypeRepositoryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanType persistence<br />adapter</div>")]
+      126[("<div style='font-weight: bold'>JpaTradeLoanTypeQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanType query adapter</div>")]
       style 126 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      127[("<div style='font-weight: bold'>JpaTradeInstallmentScheduleQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeInstallmentSchedule<br />query adapter</div>")]
-      style 127 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      128[("<div style='font-weight: bold'>JpaTradeLoanArrangementQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanArrangement query<br />adapter</div>")]
-      style 128 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      129[("<div style='font-weight: bold'>JpaFacilityQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>Facility query adapter</div>")]
-      style 129 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      130[("<div style='font-weight: bold'>JpaTradeLoanTypeQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanType query adapter</div>")]
-      style 130 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      131["<div style='font-weight: bold'>InstallmentScheduleOutboxHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Outbox Pattern]</div><div style='font-size: 80%; margin-top:10px'>InstallmentSchedule outbox<br />handler</div>"]
-      style 131 fill:#66bb6a,stroke:#47824a,color:#000000
-      132["<div style='font-weight: bold'>TradeLoanArrangementOutboxHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Outbox Pattern]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanArrangement outbox<br />handler</div>"]
-      style 132 fill:#66bb6a,stroke:#47824a,color:#000000
-      133["<div style='font-weight: bold'>TradeLoanFacilityOutboxHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Outbox Pattern]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanFacility outbox<br />handler</div>"]
-      style 133 fill:#66bb6a,stroke:#47824a,color:#000000
-      134["<div style='font-weight: bold'>TradeLoanTypeOutboxHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Outbox Pattern]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanType outbox handler</div>"]
-      style 134 fill:#66bb6a,stroke:#47824a,color:#000000
+      127["<div style='font-weight: bold'>InstallmentScheduleOutboxHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Outbox Pattern]</div><div style='font-size: 80%; margin-top:10px'>InstallmentSchedule outbox<br />handler</div>"]
+      style 127 fill:#66bb6a,stroke:#47824a,color:#000000
+      128["<div style='font-weight: bold'>TradeLoanArrangementOutboxHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Outbox Pattern]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanArrangement outbox<br />handler</div>"]
+      style 128 fill:#66bb6a,stroke:#47824a,color:#000000
+      129["<div style='font-weight: bold'>TradeLoanFacilityOutboxHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Outbox Pattern]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanFacility outbox<br />handler</div>"]
+      style 129 fill:#66bb6a,stroke:#47824a,color:#000000
+      130["<div style='font-weight: bold'>TradeLoanTypeOutboxHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Outbox Pattern]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanType outbox handler</div>"]
+      style 130 fill:#66bb6a,stroke:#47824a,color:#000000
     end
 
   end
