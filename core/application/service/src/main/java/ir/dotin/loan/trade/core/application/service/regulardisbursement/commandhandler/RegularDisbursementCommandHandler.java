@@ -15,6 +15,7 @@ import ir.dotin.platform.pangaea.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
 import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
@@ -31,30 +32,12 @@ public final class RegularDisbursementCommandHandler
 
     private static final Logger log = LoggerFactory.getLogger(RegularDisbursementCommandHandler.class);
 
-    record Data(RegularDisbursementCommand command, Unit prepared) {}
-
-    private final RegularDisbursementCommandMapper mapper;
-    private final TradeLoanFacilityRepository repository;
-    private final Clock clock;
-    private final Workflow<Data> workflow;
-
-    public RegularDisbursementCommandHandler(
-            WorkflowEngine engine,
-            RegularDisbursementCommandMapper mapper,
-            TradeLoanFacilityRepository repository,
-            Clock clock) {
-        super(engine);
-        this.mapper = mapper;
-        this.repository = repository;
-        this.clock = clock;
-        this.workflow = Workflow.singleWrite(
-                "regular-disbursement",
-                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
-    }
-
     @Override
-    protected Workflow<Data> workflow() {
-        return workflow;
+    protected Workflow<Data> route(WorkflowRoute<Data> route) {
+        return route.singleWrite(
+                "regular-disbursement",
+                ctx -> StepResult.fromWriteResult(
+                        write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
@@ -102,5 +85,22 @@ public final class RegularDisbursementCommandHandler
                                         ? sl.getDisbursementMethod().name()
                                         : "null")
                                 .orElse("UNKNOWN"))));
+    }
+
+    record Data(RegularDisbursementCommand command, Unit prepared) {}
+
+    private final RegularDisbursementCommandMapper mapper;
+    private final TradeLoanFacilityRepository repository;
+    private final Clock clock;
+
+    public RegularDisbursementCommandHandler(
+            WorkflowEngine engine,
+            RegularDisbursementCommandMapper mapper,
+            TradeLoanFacilityRepository repository,
+            Clock clock) {
+        super(engine);
+        this.mapper = mapper;
+        this.repository = repository;
+        this.clock = clock;
     }
 }

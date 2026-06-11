@@ -22,16 +22,17 @@ No `src/test` exists yet — the only declared test dep is `spring-boot-starter-
 ```
 ir.dotin.loan.trade.core.application.ports.outbound
 ├── client/                       # ports to external/core-banking services
-│   ├── accountservice/           # AccountServicePort, TransactionPostingPort
-│   ├── customerservice/          # CustomerServicePort
-│   ├── depositservice/           # DepositServicePort
-│   ├── loanservice/              # LoanServicePort, CollateralServicePort
-│   ├── samat/                    # ValidateSamatPort (regulator)
+│   ├── accountservice/           # AccountServicePort (write), AccountValidationPort (read), TransactionPostingPort (write)
+│   ├── customerservice/          # CustomerServicePort (read)
+│   ├── depositservice/           # DepositServicePort (read)
+│   ├── loanservice/              # LoanServicePort (read), CollateralServicePort (write), CollateralReadPort (read), BranchCoveragePort (local JPA)
+│   ├── reconservice/             # FcbReconStatePort (read), FcbOutboxReemitPort (idempotent write), FacilityReconReadPort (local JPA)
+│   ├── samat/                    # ValidateSamatPort (read, regulator)
 │   ├── request/                  # input DTOs for the ports above
 │   ├── response/                 # output DTOs returned by the ports
 │   ├── error/                    # CoreBankingErrors (shared error catalogue)
 │   ├── ConcurrentApplicationOperationException.java
-│   └── (loose ports) FindOrCreateAccountPort, FindAccountByIdPort, FetchSanctionDetailsPort
+│   └── (loose ports) FindOrCreateAccountPort (write), FindAccountByIdPort (read), FetchSanctionDetailsPort (read)
 ├── command/repository/           # aggregate repositories used by command handlers
 │   ├── TradeLoanFacilityRepository
 │   ├── TradeLoanArrangementRepository
@@ -52,6 +53,7 @@ Three sub-port families with distinct contracts:
 - **Domain terms only.** No legacy terminology (e.g. `fileNumber`) in port signatures. Anti-corruption translation belongs in the implementing adapter (see root `CLAUDE.md` rule 3).
 - **`Result<T>` over exceptions** for client ports — see `CoreBankingErrors` for the shared catalogue. Repository ports use `Optional<T>` for lookup and throw for true errors.
 - **DTOs are local to this module.** `request/` and `response/` types are inputs/outputs of these ports — do not leak into domain code. Domain VOs (e.g. `LoanFacilityId`, `AccountInfo`, `ApplicationNumber`) come from `base-loan` or `trade core/domain`.
+- **Remote-IO marker taxonomy** — every client port over a remote system extends exactly one pangaea marker: `RemoteReadPort` (queries; free anywhere tx-free), `RemoteWritePort` (mutates the remote system; runtime-enforced to run only inside a workflow `RemoteStep` body or compensation), or `RemoteIdempotentWritePort` (idempotent non-rollbackable repair op like `reemitOutbox`; free anywhere tx-free). Mixed read+write interfaces are split (ISP) — e.g. `AccountServicePort`/`AccountValidationPort`, `CollateralServicePort`/`CollateralReadPort`, `FcbReconStatePort`/`FcbOutboxReemitPort`; one FCB adapter class may implement both halves. Local JPA-backed ports (`BranchCoveragePort`, `FacilityReconReadPort`) carry NO marker. Command handlers must never inject a marked port as a field (startup verifier).
 - **No Spring annotations** — ports are pure interfaces. DI wiring happens in adapter modules.
 - **Adding a new port:** drop it under the matching `client/<service>/` package; create the subpackage if integrating a new external system. Put DTOs in shared `request/` and `response/` unless the system is large enough to warrant its own DTO package (none yet).
 

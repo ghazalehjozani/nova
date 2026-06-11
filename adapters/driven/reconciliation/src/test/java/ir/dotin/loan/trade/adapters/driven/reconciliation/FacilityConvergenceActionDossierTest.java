@@ -35,6 +35,7 @@ import ir.dotin.platform.pangaea.workflow.api.admin.WorkflowAdminPort;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FacilityReconReadPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FacilityReconRow;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FcbOutboxReemitPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FcbReconStatePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.ReconLoanFileState;
 
@@ -68,6 +69,9 @@ class FacilityConvergenceActionDossierTest {
     private FcbReconStatePort fcbReconStatePort;
 
     @Mock
+    private FcbOutboxReemitPort fcbOutboxReemitPort;
+
+    @Mock
     private FacilityReconReadPort readPort;
 
     private ReconciliationSourceProperties properties;
@@ -78,7 +82,14 @@ class FacilityConvergenceActionDossierTest {
         properties = new ReconciliationSourceProperties();
         properties.setGraceWindow(Duration.ofMinutes(15));
         action = new FacilityConvergenceAction(
-                outboxAdminPort, inboxAdminPort, workflowAdminPort, fcbReconStatePort, readPort, properties, clock);
+                outboxAdminPort,
+                inboxAdminPort,
+                workflowAdminPort,
+                fcbReconStatePort,
+                fcbOutboxReemitPort,
+                readPort,
+                properties,
+                clock);
     }
 
     @Test

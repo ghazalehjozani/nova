@@ -7,13 +7,13 @@ import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.pangaea.commons.core.Result;
-import ir.dotin.platform.pangaea.servicelayer.api.port.RemotePort;
+import ir.dotin.platform.pangaea.servicelayer.api.port.RemoteReadPort;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CustomerInfoLoadOptions;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyBirthInfo;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfoResponse;
 
-public interface CustomerServicePort extends RemotePort {
+public interface CustomerServicePort extends RemoteReadPort {
 
     Result<PartyInfoResponse> loadCustomerInfo(
             String customerNumber,

@@ -19,6 +19,7 @@ import ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.pangaea.commons.domain.vo.Money;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
 import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
@@ -35,41 +36,17 @@ import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilityService;
 
 @Service
-public final class CloseFacilityPaidOffCommandHandler extends WorkflowCommandHandler<CloseFacilityPaidOffCommand, CloseFacilityPaidOffCommandHandler.Data> {
+public final class CloseFacilityPaidOffCommandHandler
+        extends WorkflowCommandHandler<CloseFacilityPaidOffCommand, CloseFacilityPaidOffCommandHandler.Data> {
 
     private static final Logger log = LoggerFactory.getLogger(CloseFacilityPaidOffCommandHandler.class);
 
-    record Data(CloseFacilityPaidOffCommand command, Unit prepared) {}
-
-    private final TradeLoanFacilityService domainService;
-    private final TradeLoanFacilityRepository repository;
-
-    private final InstallmentScheduleRepository installmentScheduleRepository;
-    private final ApplicationNumberResolver applicationNumberResolver;
-    private final Clock clock;
-    private final Workflow<Data> workflow;
-
-    public CloseFacilityPaidOffCommandHandler(
-            WorkflowEngine engine,
-            TradeLoanFacilityService domainService,
-            TradeLoanFacilityRepository repository,
-            InstallmentScheduleRepository installmentScheduleRepository,
-            ApplicationNumberResolver applicationNumberResolver,
-            Clock clock) {
-        super(engine);
-        this.domainService = domainService;
-        this.repository = repository;
-        this.installmentScheduleRepository = installmentScheduleRepository;
-        this.applicationNumberResolver = applicationNumberResolver;
-        this.clock = clock;
-        this.workflow = Workflow.singleWrite(
-                "close-facility-paid-off",
-                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
-    }
-
     @Override
-    protected Workflow<Data> workflow() {
-        return workflow;
+    protected Workflow<Data> route(WorkflowRoute<Data> route) {
+        return route.singleWrite(
+                "close-facility-paid-off",
+                ctx -> StepResult.fromWriteResult(
+                        write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
@@ -202,5 +179,29 @@ public final class CloseFacilityPaidOffCommandHandler extends WorkflowCommandHan
         return command.payments().stream()
                 .map(item -> Money.valueOf(item.totalPaidAmount(), currency).unwrap())
                 .reduce(Money.zero(currency).unwrap(), (a, b) -> a.add(b).unwrap());
+    }
+
+    record Data(CloseFacilityPaidOffCommand command, Unit prepared) {}
+
+    private final TradeLoanFacilityService domainService;
+    private final TradeLoanFacilityRepository repository;
+
+    private final InstallmentScheduleRepository installmentScheduleRepository;
+    private final ApplicationNumberResolver applicationNumberResolver;
+    private final Clock clock;
+
+    public CloseFacilityPaidOffCommandHandler(
+            WorkflowEngine engine,
+            TradeLoanFacilityService domainService,
+            TradeLoanFacilityRepository repository,
+            InstallmentScheduleRepository installmentScheduleRepository,
+            ApplicationNumberResolver applicationNumberResolver,
+            Clock clock) {
+        super(engine);
+        this.domainService = domainService;
+        this.repository = repository;
+        this.installmentScheduleRepository = installmentScheduleRepository;
+        this.applicationNumberResolver = applicationNumberResolver;
+        this.clock = clock;
     }
 }

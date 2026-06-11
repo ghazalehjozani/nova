@@ -62,7 +62,8 @@ public record LumpSumData(
             return new ResolvedAccounts(Collections.emptyMap());
         }
         Map<RelationType<?>, AccountId> accounts = resolvedAccounts.entrySet().stream()
-                .collect(Collectors.toMap(e -> TradeRelationType.valueOf(e.getKey()), e -> new AccountId(e.getValue())));
+                .collect(
+                        Collectors.toMap(e -> TradeRelationType.valueOf(e.getKey()), e -> new AccountId(e.getValue())));
         return new ResolvedAccounts(accounts);
     }
 

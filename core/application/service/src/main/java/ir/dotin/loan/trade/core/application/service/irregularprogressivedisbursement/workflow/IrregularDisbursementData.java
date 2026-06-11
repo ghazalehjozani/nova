@@ -110,7 +110,8 @@ public record IrregularDisbursementData(
 
     private static Map<RelationType<?>, AccountId> toAccountIdMap(Map<String, String> serialized) {
         return serialized.entrySet().stream()
-                .collect(Collectors.toMap(e -> TradeRelationType.valueOf(e.getKey()), e -> new AccountId(e.getValue())));
+                .collect(
+                        Collectors.toMap(e -> TradeRelationType.valueOf(e.getKey()), e -> new AccountId(e.getValue())));
     }
 
     public record InstallmentSpecData(

@@ -1,11 +1,11 @@
 package ir.dotin.loan.trade.core.application.ports.outbound.client;
 
 import ir.dotin.platform.pangaea.commons.core.Result;
-import ir.dotin.platform.pangaea.servicelayer.api.port.RemotePort;
+import ir.dotin.platform.pangaea.servicelayer.api.port.RemoteWritePort;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.AccountInfo;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
 
-public interface FindOrCreateAccountPort extends RemotePort {
+public interface FindOrCreateAccountPort extends RemoteWritePort {
 
     /**
      * Finds an existing account for the given loan topic or creates a new one if not found.

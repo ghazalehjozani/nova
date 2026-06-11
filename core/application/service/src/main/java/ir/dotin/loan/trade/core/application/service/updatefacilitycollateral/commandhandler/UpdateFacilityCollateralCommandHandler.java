@@ -18,6 +18,7 @@ import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
 import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
@@ -33,30 +34,12 @@ public final class UpdateFacilityCollateralCommandHandler
 
     private static final Logger log = LoggerFactory.getLogger(UpdateFacilityCollateralCommandHandler.class);
 
-    record Data(UpdateFacilityCollateralCommand command, Unit prepared) {}
-
-    private final TradeLoanFacilityRepository tradeLoanFacilityRepository;
-    private final Clock clock;
-    private final AddFacilityCollateralCommandMapper mapper;
-    private final Workflow<Data> workflow;
-
-    public UpdateFacilityCollateralCommandHandler(
-            WorkflowEngine engine,
-            TradeLoanFacilityRepository tradeLoanFacilityRepository,
-            Clock clock,
-            AddFacilityCollateralCommandMapper mapper) {
-        super(engine);
-        this.tradeLoanFacilityRepository = tradeLoanFacilityRepository;
-        this.clock = clock;
-        this.mapper = mapper;
-        this.workflow = Workflow.singleWrite(
-                "update-facility-collateral",
-                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
-    }
-
     @Override
-    protected Workflow<Data> workflow() {
-        return workflow;
+    protected Workflow<Data> route(WorkflowRoute<Data> route) {
+        return route.singleWrite(
+                "update-facility-collateral",
+                ctx -> StepResult.fromWriteResult(
+                        write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
@@ -92,7 +75,7 @@ public final class UpdateFacilityCollateralCommandHandler
             return Collections.emptyList();
         }
 
-        List<Collateral> list = new ArrayList<Collateral>(collateralItems.size());
+        List<Collateral> list = new ArrayList<>(collateralItems.size());
         for (UpdateFacilityCollateralCommand.CollateralItem item : collateralItems) {
             var collateral = mapper.toCollateral(item, currencyType);
             if (collateral != null) {
@@ -111,5 +94,22 @@ public final class UpdateFacilityCollateralCommandHandler
                         tradeLoanFacility.getLoanApplication().getCurrency()),
                 clock);
         return Result.success(tradeLoanFacility);
+    }
+
+    record Data(UpdateFacilityCollateralCommand command, Unit prepared) {}
+
+    private final TradeLoanFacilityRepository tradeLoanFacilityRepository;
+    private final Clock clock;
+    private final AddFacilityCollateralCommandMapper mapper;
+
+    public UpdateFacilityCollateralCommandHandler(
+            WorkflowEngine engine,
+            TradeLoanFacilityRepository tradeLoanFacilityRepository,
+            Clock clock,
+            AddFacilityCollateralCommandMapper mapper) {
+        super(engine);
+        this.tradeLoanFacilityRepository = tradeLoanFacilityRepository;
+        this.clock = clock;
+        this.mapper = mapper;
     }
 }

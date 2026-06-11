@@ -11,6 +11,7 @@ import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
 import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
@@ -26,33 +27,14 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public final class CompensateCollateralCommandHandler
-        extends WorkflowCommandHandler<
-                CompensateCollateralCommand, CompensateCollateralCommandHandler.Data> {
-
-    record Data(CompensateCollateralCommand command, ReleasePreparation prepared) {}
-
-    private final TradeLoanFacilityRepository repository;
-    private final CollateralReservationReleaser collateralReservationReleaser;
-    private final Clock clock;
-    private final Workflow<Data> workflow;
-
-    public CompensateCollateralCommandHandler(
-            WorkflowEngine engine,
-            TradeLoanFacilityRepository repository,
-            CollateralReservationReleaser collateralReservationReleaser,
-            Clock clock) {
-        super(engine);
-        this.repository = repository;
-        this.collateralReservationReleaser = collateralReservationReleaser;
-        this.clock = clock;
-        this.workflow = Workflow.singleWrite(
-                "compensate-collateral",
-                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
-    }
+        extends WorkflowCommandHandler<CompensateCollateralCommand, CompensateCollateralCommandHandler.Data> {
 
     @Override
-    protected Workflow<Data> workflow() {
-        return workflow;
+    protected Workflow<Data> route(WorkflowRoute<Data> route) {
+        return route.singleWrite(
+                "compensate-collateral",
+                ctx -> StepResult.fromWriteResult(
+                        write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
@@ -118,4 +100,21 @@ public final class CompensateCollateralCommandHandler
     }
 
     record ReleasePreparation(boolean noOp) {}
+
+    record Data(CompensateCollateralCommand command, ReleasePreparation prepared) {}
+
+    private final TradeLoanFacilityRepository repository;
+    private final CollateralReservationReleaser collateralReservationReleaser;
+    private final Clock clock;
+
+    public CompensateCollateralCommandHandler(
+            WorkflowEngine engine,
+            TradeLoanFacilityRepository repository,
+            CollateralReservationReleaser collateralReservationReleaser,
+            Clock clock) {
+        super(engine);
+        this.repository = repository;
+        this.collateralReservationReleaser = collateralReservationReleaser;
+        this.clock = clock;
+    }
 }

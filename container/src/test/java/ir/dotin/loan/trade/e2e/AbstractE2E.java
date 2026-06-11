@@ -15,9 +15,11 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.FetchSanctionD
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FindAccountByIdPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FindOrCreateAccountPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.AccountServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.AccountValidationPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.customerservice.CustomerServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.depositservice.DepositServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.CollateralReadPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.CollateralServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.e2e.fixture.FormulaTestFixture;
@@ -49,10 +51,16 @@ public abstract class AbstractE2E {
     protected AccountServicePort accountServicePort;
 
     @MockitoBean
+    protected AccountValidationPort accountValidationPort;
+
+    @MockitoBean
     protected TransactionPostingPort transactionPostingPort;
 
     @MockitoBean
     protected CollateralServicePort collateralServicePort;
+
+    @MockitoBean
+    protected CollateralReadPort collateralReadPort;
 
     @MockitoBean
     protected DepositServicePort depositServicePort;

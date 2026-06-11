@@ -31,6 +31,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.mapper.FcbAccountMapper;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FindAccountByIdPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FindOrCreateAccountPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.AccountServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.AccountValidationPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CreateAccountInfo;
 
@@ -41,7 +42,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FcbAccountAdapter implements AccountServicePort, FindOrCreateAccountPort, FindAccountByIdPort {
+public class FcbAccountAdapter
+        implements AccountServicePort, AccountValidationPort, FindOrCreateAccountPort, FindAccountByIdPort {
 
     private final FcbRequestReplyClient kafkaClient;
     private final AuthenticationContextHolder authenticationContextHolder;

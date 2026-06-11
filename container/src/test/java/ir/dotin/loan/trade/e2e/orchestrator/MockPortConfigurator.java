@@ -27,9 +27,11 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.FetchSanctionD
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FindAccountByIdPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.FindOrCreateAccountPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.AccountServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.AccountValidationPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.TransactionPostingPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.customerservice.CustomerServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.depositservice.DepositServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.CollateralReadPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.CollateralServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CreateAccountInfo;
@@ -57,8 +59,10 @@ public class MockPortConfigurator {
 
     private final LoanServicePort loanServicePort;
     private final AccountServicePort accountServicePort;
+    private final AccountValidationPort accountValidationPort;
     private final TransactionPostingPort transactionPostingPort;
     private final CollateralServicePort collateralServicePort;
+    private final CollateralReadPort collateralReadPort;
     private final DepositServicePort depositServicePort;
     private final CustomerServicePort customerServicePort;
     private final FindOrCreateAccountPort findOrCreateAccountPort;
@@ -80,8 +84,10 @@ public class MockPortConfigurator {
         reset(
                 loanServicePort,
                 accountServicePort,
+                accountValidationPort,
                 transactionPostingPort,
                 collateralServicePort,
+                collateralReadPort,
                 depositServicePort,
                 customerServicePort,
                 findOrCreateAccountPort,
@@ -121,7 +127,7 @@ public class MockPortConfigurator {
         });
         when(accountServicePort.openAccount(any(CreateAccountInfo.class)))
                 .thenReturn(Result.success(new AccountId("ACC-E2E-001")));
-        when(accountServicePort.validateAccountNumber(any()))
+        when(accountValidationPort.validateAccountNumber(any()))
                 .thenReturn(Result.success(new AccountNumber("1.10.1357.60")));
         when(findAccountByIdPort.findAccountById(any())).thenAnswer(invocation -> {
             AccountId id = invocation.getArgument(0);
@@ -149,13 +155,13 @@ public class MockPortConfigurator {
     }
 
     private void configureCollateralServiceDefaults() {
-        when(collateralServicePort.validateAddAssuranceToFile(any(), any(), any()))
+        when(collateralReadPort.validateAddAssuranceToFile(any(), any(), any()))
                 .thenReturn(Result.success(
                         new ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralValidation(
                                 true, null)));
         when(collateralServicePort.reserveCollateral(any(), any(), any(), any(), any()))
                 .thenReturn(Result.success(List.of()));
-        when(collateralServicePort.loadCollateral(any(), any()))
+        when(collateralReadPort.loadCollateral(any(), any()))
                 .thenReturn(Result.success(
                         new ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralDetails(
                                 "E2E-SERIAL",

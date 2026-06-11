@@ -14,6 +14,7 @@ import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
 import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -29,25 +30,12 @@ final class CompensateApprovalSubmissionCommandHandler
 
     private static final Logger log = LoggerFactory.getLogger(CompensateApprovalSubmissionCommandHandler.class);
 
-    record Data(CompensateApprovalSubmissionCommand command, Unit prepared) {}
-
-    private final TradeLoanFacilityRepository repository;
-    private final Clock clock;
-    private final Workflow<Data> workflow;
-
-    CompensateApprovalSubmissionCommandHandler(
-            WorkflowEngine engine, TradeLoanFacilityRepository repository, Clock clock) {
-        super(engine);
-        this.repository = repository;
-        this.clock = clock;
-        this.workflow = Workflow.singleWrite(
-                "compensate-approval-submission",
-                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
-    }
-
     @Override
-    protected Workflow<Data> workflow() {
-        return workflow;
+    protected Workflow<Data> route(WorkflowRoute<Data> route) {
+        return route.singleWrite(
+                "compensate-approval-submission",
+                ctx -> StepResult.fromWriteResult(
+                        write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
@@ -73,5 +61,17 @@ final class CompensateApprovalSubmissionCommandHandler
                 .flatMap(facility -> operation.apply(facility).map(v -> facility))
                 .onSuccess(repository::save)
                 .map(TradeLoanFacility::domainEvents);
+    }
+
+    record Data(CompensateApprovalSubmissionCommand command, Unit prepared) {}
+
+    private final TradeLoanFacilityRepository repository;
+    private final Clock clock;
+
+    CompensateApprovalSubmissionCommandHandler(
+            WorkflowEngine engine, TradeLoanFacilityRepository repository, Clock clock) {
+        super(engine);
+        this.repository = repository;
+        this.clock = clock;
     }
 }

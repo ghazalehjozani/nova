@@ -17,6 +17,7 @@ import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
 import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
@@ -30,40 +31,17 @@ import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilityService;
 
 @Service
-public final class CancelFacilityCommandHandler extends WorkflowCommandHandler<CancelFacilityCommand, CancelFacilityCommandHandler.Data> {
+public final class CancelFacilityCommandHandler
+        extends WorkflowCommandHandler<CancelFacilityCommand, CancelFacilityCommandHandler.Data> {
 
     private static final Logger log = LoggerFactory.getLogger(CancelFacilityCommandHandler.class);
 
-    record Data(CancelFacilityCommand command, Unit prepared) {}
-
-    private final TradeLoanFacilityRepository facilityRepository;
-    private final InstallmentScheduleRepository scheduleRepository;
-    private final TradeLoanFacilityService domainService;
-    private final ApplicationNumberResolver applicationNumberResolver;
-    private final Clock clock;
-    private final Workflow<Data> workflow;
-
-    public CancelFacilityCommandHandler(
-            WorkflowEngine engine,
-            TradeLoanFacilityRepository facilityRepository,
-            InstallmentScheduleRepository scheduleRepository,
-            TradeLoanFacilityService domainService,
-            ApplicationNumberResolver applicationNumberResolver,
-            Clock clock) {
-        super(engine);
-        this.facilityRepository = facilityRepository;
-        this.scheduleRepository = scheduleRepository;
-        this.domainService = domainService;
-        this.applicationNumberResolver = applicationNumberResolver;
-        this.clock = clock;
-        this.workflow = Workflow.singleWrite(
-                "cancel-facility",
-                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
-    }
-
     @Override
-    protected Workflow<Data> workflow() {
-        return workflow;
+    protected Workflow<Data> route(WorkflowRoute<Data> route) {
+        return route.singleWrite(
+                "cancel-facility",
+                ctx -> StepResult.fromWriteResult(
+                        write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
@@ -135,5 +113,28 @@ public final class CancelFacilityCommandHandler extends WorkflowCommandHandler<C
                 facilityRepository.findById(LoanFacilityId.of(ids.loanFacilityId())),
                 () -> FailureCause.notFound(Notification.ofError(
                         TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND, ids.loanFacilityId())));
+    }
+
+    record Data(CancelFacilityCommand command, Unit prepared) {}
+
+    private final TradeLoanFacilityRepository facilityRepository;
+    private final InstallmentScheduleRepository scheduleRepository;
+    private final TradeLoanFacilityService domainService;
+    private final ApplicationNumberResolver applicationNumberResolver;
+    private final Clock clock;
+
+    public CancelFacilityCommandHandler(
+            WorkflowEngine engine,
+            TradeLoanFacilityRepository facilityRepository,
+            InstallmentScheduleRepository scheduleRepository,
+            TradeLoanFacilityService domainService,
+            ApplicationNumberResolver applicationNumberResolver,
+            Clock clock) {
+        super(engine);
+        this.facilityRepository = facilityRepository;
+        this.scheduleRepository = scheduleRepository;
+        this.domainService = domainService;
+        this.applicationNumberResolver = applicationNumberResolver;
+        this.clock = clock;
     }
 }

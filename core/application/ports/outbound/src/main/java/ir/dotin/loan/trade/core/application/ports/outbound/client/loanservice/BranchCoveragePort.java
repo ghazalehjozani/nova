@@ -4,9 +4,8 @@ import java.util.List;
 
 import ir.dotin.platform.accounting.document.api.model.BranchCode;
 import ir.dotin.platform.pangaea.commons.core.Result;
-import ir.dotin.platform.pangaea.servicelayer.api.port.RemotePort;
 
-public interface BranchCoveragePort extends RemotePort {
+public interface BranchCoveragePort {
 
     Result<List<BranchCode>> coveredBranches(BranchCode branchCode);
 }

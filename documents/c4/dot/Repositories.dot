@@ -25,12 +25,12 @@ digraph {
     126 [id=126,shape=cylinder, label=<<font point-size="34">JpaTradeLoanTypeQueryAdapter</font><br /><font point-size="19">[Component: Spring Data JPA]</font><br /><br /><font point-size="24">TradeLoanType query adapter</font>>, style=filled, color="#404a86", fillcolor="#5c6bc0", fontcolor="#ffffff"]
   }
 
-  119 -> 12 [id=141, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  120 -> 12 [id=142, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  121 -> 12 [id=143, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  122 -> 12 [id=144, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  123 -> 12 [id=145, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  124 -> 12 [id=146, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  125 -> 12 [id=147, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  126 -> 12 [id=148, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  119 -> 12 [id=140, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  120 -> 12 [id=141, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  121 -> 12 [id=142, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  122 -> 12 [id=143, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  123 -> 12 [id=144, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  124 -> 12 [id=145, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  125 -> 12 [id=146, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  126 -> 12 [id=147, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
 }

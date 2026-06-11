@@ -15,6 +15,7 @@ import ir.dotin.platform.pangaea.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
 import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
@@ -36,36 +37,12 @@ public final class PlanEqualInstallmentScheduleCommandHandler
 
     private static final Logger log = LoggerFactory.getLogger(PlanEqualInstallmentScheduleCommandHandler.class);
 
-    record Data(PlanEqualInstallmentScheduleCommand command, Unit prepared) {}
-
-    private final InstallmentScheduleRepository installmentScheduleRepository;
-    private final TradeLoanFacilityRepository tradeLoanFacilityRepository;
-    private final TradeLoanArrangementRepository tradeLoanArrangementRepository;
-    private final TradeRepaymentSchedulingService schedulingService;
-    private final Clock clock;
-    private final Workflow<Data> workflow;
-
-    public PlanEqualInstallmentScheduleCommandHandler(
-            WorkflowEngine engine,
-            InstallmentScheduleRepository installmentScheduleRepository,
-            TradeLoanFacilityRepository tradeLoanFacilityRepository,
-            TradeLoanArrangementRepository tradeLoanArrangementRepository,
-            TradeRepaymentSchedulingService schedulingService,
-            Clock clock) {
-        super(engine);
-        this.installmentScheduleRepository = installmentScheduleRepository;
-        this.tradeLoanFacilityRepository = tradeLoanFacilityRepository;
-        this.tradeLoanArrangementRepository = tradeLoanArrangementRepository;
-        this.schedulingService = schedulingService;
-        this.clock = clock;
-        this.workflow = Workflow.singleWrite(
-                "plan-equal-installment-schedule",
-                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
-    }
-
     @Override
-    protected Workflow<Data> workflow() {
-        return workflow;
+    protected Workflow<Data> route(WorkflowRoute<Data> route) {
+        return route.singleWrite(
+                "plan-equal-installment-schedule",
+                ctx -> StepResult.fromWriteResult(
+                        write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
@@ -109,5 +86,28 @@ public final class PlanEqualInstallmentScheduleCommandHandler
         return schedulingService.planEqualInstallmentSchedule(context);
     }
 
+    record Data(PlanEqualInstallmentScheduleCommand command, Unit prepared) {}
+
     private record ScheduleCreationDependencies(TradeLoanFacility facility, TradeLoanArrangement arrangement) {}
+
+    private final InstallmentScheduleRepository installmentScheduleRepository;
+    private final TradeLoanFacilityRepository tradeLoanFacilityRepository;
+    private final TradeLoanArrangementRepository tradeLoanArrangementRepository;
+    private final TradeRepaymentSchedulingService schedulingService;
+    private final Clock clock;
+
+    public PlanEqualInstallmentScheduleCommandHandler(
+            WorkflowEngine engine,
+            InstallmentScheduleRepository installmentScheduleRepository,
+            TradeLoanFacilityRepository tradeLoanFacilityRepository,
+            TradeLoanArrangementRepository tradeLoanArrangementRepository,
+            TradeRepaymentSchedulingService schedulingService,
+            Clock clock) {
+        super(engine);
+        this.installmentScheduleRepository = installmentScheduleRepository;
+        this.tradeLoanFacilityRepository = tradeLoanFacilityRepository;
+        this.tradeLoanArrangementRepository = tradeLoanArrangementRepository;
+        this.schedulingService = schedulingService;
+        this.clock = clock;
+    }
 }

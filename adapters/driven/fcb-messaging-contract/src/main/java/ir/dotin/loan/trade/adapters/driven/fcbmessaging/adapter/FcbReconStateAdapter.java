@@ -15,6 +15,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ReemitOutboxRe
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ReconStateRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ReemitOutboxRequest;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FcbOutboxReemitPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FcbReconStatePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.ReconLoanFileState;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.ReconReemitOutcome;
@@ -34,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FcbReconStateAdapter implements FcbReconStatePort {
+public class FcbReconStateAdapter implements FcbReconStatePort, FcbOutboxReemitPort {
 
     private final FcbRequestReplyClient kafkaClient;
     private final FcbReconStateProperties properties;

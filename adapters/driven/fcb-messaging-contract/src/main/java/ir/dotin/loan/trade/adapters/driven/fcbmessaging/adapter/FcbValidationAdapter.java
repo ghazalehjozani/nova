@@ -40,6 +40,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.FetchSanctionD
 import ir.dotin.loan.trade.core.application.ports.outbound.client.customerservice.CustomerServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.depositservice.DepositServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.CollateralReadPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.CollateralServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CustomerInfoLoadOptions;
@@ -58,6 +59,7 @@ public class FcbValidationAdapter
                 CustomerServicePort,
                 DepositServicePort,
                 CollateralServicePort,
+                CollateralReadPort,
                 FetchSanctionDetailsPort,
                 ValidateSamatPort {
 

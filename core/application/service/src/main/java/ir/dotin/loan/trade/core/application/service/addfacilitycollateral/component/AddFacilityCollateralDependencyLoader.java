@@ -25,7 +25,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.service.validator.Abstrac
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
-import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.CollateralServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.CollateralReadPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralDetails;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CollateralValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.InstallmentScheduleRepository;
@@ -48,7 +48,7 @@ public class AddFacilityCollateralDependencyLoader {
     private final InstallmentScheduleRepository installmentScheduleRepository;
     private final CollateralCalculationService collateralCalculationService;
     private final AbstractCollateralValidationService collateralValidationService;
-    private final CollateralServicePort collateralServicePort;
+    private final CollateralReadPort collateralReadPort;
 
     private static final ExecutorService VIRTUAL_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
@@ -156,11 +156,11 @@ public class AddFacilityCollateralDependencyLoader {
     }
 
     private Result<CollateralDetails> loadCollateralDetails(CollateralSerial serial, TradeLoanFacility facility) {
-        return collateralServicePort.loadCollateral(serial.value(), "");
+        return collateralReadPort.loadCollateral(serial.value(), "");
     }
 
     private Result<CollateralValidation> validateAssurance(
             List<CollateralSerial> serials, List<Long> usedCosts, BranchCode branchCode) {
-        return collateralServicePort.validateAddAssuranceToFile(serials, usedCosts, branchCode);
+        return collateralReadPort.validateAddAssuranceToFile(serials, usedCosts, branchCode);
     }
 }

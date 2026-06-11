@@ -11,6 +11,7 @@ import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
 import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.DefineLoanTypeCommand;
@@ -26,36 +27,12 @@ public final class DefineLoanTypeCommandHandler
 
     private static final Logger log = LoggerFactory.getLogger(DefineLoanTypeCommandHandler.class);
 
-    record Data(DefineLoanTypeCommand command, LoanTypePrerequisitesLoader.Prerequisites prepared) {}
-
-    private final DefineLoanTypeCommandMapper mapper;
-    private final TradeLoanTypeRepository loanTypeRepository;
-    private final TradeLoanTypeValidationService loanTypeValidationService;
-    private final Clock clock;
-    private final LoanTypePrerequisitesLoader prerequisitesLoader;
-    private final Workflow<Data> workflow;
-
-    public DefineLoanTypeCommandHandler(
-            WorkflowEngine engine,
-            DefineLoanTypeCommandMapper mapper,
-            TradeLoanTypeRepository loanTypeRepository,
-            TradeLoanTypeValidationService loanTypeValidationService,
-            Clock clock,
-            LoanTypePrerequisitesLoader prerequisitesLoader) {
-        super(engine);
-        this.mapper = mapper;
-        this.loanTypeRepository = loanTypeRepository;
-        this.loanTypeValidationService = loanTypeValidationService;
-        this.clock = clock;
-        this.prerequisitesLoader = prerequisitesLoader;
-        this.workflow = Workflow.singleWrite(
-                "define-loan-type",
-                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
-    }
-
     @Override
-    protected Workflow<Data> workflow() {
-        return workflow;
+    protected Workflow<Data> route(WorkflowRoute<Data> route) {
+        return route.singleWrite(
+                "define-loan-type",
+                ctx -> StepResult.fromWriteResult(
+                        write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
@@ -86,5 +63,28 @@ public final class DefineLoanTypeCommandHandler
         return loanTypeValidationService
                 .validateMandatoryRelationTypeLoanTopics(loanType)
                 .map(ignored -> loanType);
+    }
+
+    record Data(DefineLoanTypeCommand command, LoanTypePrerequisitesLoader.Prerequisites prepared) {}
+
+    private final DefineLoanTypeCommandMapper mapper;
+    private final TradeLoanTypeRepository loanTypeRepository;
+    private final TradeLoanTypeValidationService loanTypeValidationService;
+    private final Clock clock;
+    private final LoanTypePrerequisitesLoader prerequisitesLoader;
+
+    public DefineLoanTypeCommandHandler(
+            WorkflowEngine engine,
+            DefineLoanTypeCommandMapper mapper,
+            TradeLoanTypeRepository loanTypeRepository,
+            TradeLoanTypeValidationService loanTypeValidationService,
+            Clock clock,
+            LoanTypePrerequisitesLoader prerequisitesLoader) {
+        super(engine);
+        this.mapper = mapper;
+        this.loanTypeRepository = loanTypeRepository;
+        this.loanTypeValidationService = loanTypeValidationService;
+        this.clock = clock;
+        this.prerequisitesLoader = prerequisitesLoader;
     }
 }

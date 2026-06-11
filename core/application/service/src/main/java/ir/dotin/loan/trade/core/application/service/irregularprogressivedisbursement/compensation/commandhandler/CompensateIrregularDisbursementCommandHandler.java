@@ -14,6 +14,7 @@ import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
 import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
@@ -34,36 +35,14 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 final class CompensateIrregularDisbursementCommandHandler
         extends WorkflowCommandHandler<
-                CompensateIrregularDisbursementCommand,
-                CompensateIrregularDisbursementCommandHandler.Data> {
-
-    record Data(CompensateIrregularDisbursementCommand command, ReversalPreparation prepared) {}
-
-    private final TradeLoanFacilityRepository facilityRepository;
-    private final InstallmentScheduleRepository scheduleRepository;
-    private final FcbTransactionReverser fcbTransactionReverser;
-    private final Clock clock;
-    private final Workflow<Data> workflow;
-
-    CompensateIrregularDisbursementCommandHandler(
-            WorkflowEngine engine,
-            TradeLoanFacilityRepository facilityRepository,
-            InstallmentScheduleRepository scheduleRepository,
-            FcbTransactionReverser fcbTransactionReverser,
-            Clock clock) {
-        super(engine);
-        this.facilityRepository = facilityRepository;
-        this.scheduleRepository = scheduleRepository;
-        this.fcbTransactionReverser = fcbTransactionReverser;
-        this.clock = clock;
-        this.workflow = Workflow.singleWrite(
-                "compensate-irregular-disbursement",
-                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
-    }
+                CompensateIrregularDisbursementCommand, CompensateIrregularDisbursementCommandHandler.Data> {
 
     @Override
-    protected Workflow<Data> workflow() {
-        return workflow;
+    protected Workflow<Data> route(WorkflowRoute<Data> route) {
+        return route.singleWrite(
+                "compensate-irregular-disbursement",
+                ctx -> StepResult.fromWriteResult(
+                        write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
@@ -222,4 +201,24 @@ final class CompensateIrregularDisbursementCommandHandler
     }
 
     record ReversalPreparation(AtomicReference<TrackedTransactionNumber> reversals) {}
+
+    record Data(CompensateIrregularDisbursementCommand command, ReversalPreparation prepared) {}
+
+    private final TradeLoanFacilityRepository facilityRepository;
+    private final InstallmentScheduleRepository scheduleRepository;
+    private final FcbTransactionReverser fcbTransactionReverser;
+    private final Clock clock;
+
+    CompensateIrregularDisbursementCommandHandler(
+            WorkflowEngine engine,
+            TradeLoanFacilityRepository facilityRepository,
+            InstallmentScheduleRepository scheduleRepository,
+            FcbTransactionReverser fcbTransactionReverser,
+            Clock clock) {
+        super(engine);
+        this.facilityRepository = facilityRepository;
+        this.scheduleRepository = scheduleRepository;
+        this.fcbTransactionReverser = fcbTransactionReverser;
+        this.clock = clock;
+    }
 }

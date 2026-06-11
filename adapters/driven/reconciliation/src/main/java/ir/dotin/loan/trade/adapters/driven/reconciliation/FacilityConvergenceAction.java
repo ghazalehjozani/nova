@@ -49,6 +49,7 @@ import ir.dotin.platform.pangaea.workflow.api.model.RunState;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FacilityReconReadPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FacilityReconRow;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FcbOutboxReemitPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FcbReconStatePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.ReconLoanFileState;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.ReconReemitOutcome;
@@ -89,6 +90,7 @@ public class FacilityConvergenceAction implements ConvergenceAction {
     private final InboxAdminPort inboxAdminPort;
     private final WorkflowAdminPort workflowAdminPort;
     private final FcbReconStatePort fcbReconStatePort;
+    private final FcbOutboxReemitPort fcbOutboxReemitPort;
     private final FacilityReconReadPort readPort;
     private final ReconciliationSourceProperties properties;
     private final Clock clock;
@@ -377,7 +379,9 @@ public class FacilityConvergenceAction implements ConvergenceAction {
 
     // ════════════════════════════════════════ (1) Workflow guard fallback ════════════════════════════════════════
 
-    /** INV-6 fallback when no workflow correlation is resolvable: defer a facility modified less than 30 minutes ago. */
+    /**
+     * INV-6 fallback when no workflow correlation is resolvable: defer a facility modified less than 30 minutes ago.
+     */
     private @Nullable ConvergeOutcome deferIfRecentlyModified(String facilityId) {
         Optional<FacilityReconRow> row = readPort.findById(facilityId);
         if (row.isPresent()) {
@@ -506,7 +510,7 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             return ConvergeOutcome.retryLater("fcb-unreachable");
         }
 
-        Result<ReconReemitOutcome> reemit = fcbReconStatePort.reemitOutbox(facilityId, fcb.outboxRef());
+        Result<ReconReemitOutcome> reemit = fcbOutboxReemitPort.reemitOutbox(facilityId, fcb.outboxRef());
         if (reemit.isFailure()) {
             return ConvergeOutcome.retryLater("fcb-reemit-failed");
         }

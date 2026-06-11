@@ -14,6 +14,7 @@ import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
 import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -29,30 +30,12 @@ public final class RejectFacilityCommandHandler
 
     private static final Logger log = LoggerFactory.getLogger(RejectFacilityCommandHandler.class);
 
-    record Data(RejectFacilityCommand command, Unit prepared) {}
-
-    private final TradeLoanFacilityRepository repository;
-    private final BranchAccessValidator branchAccessValidator;
-    private final Clock clock;
-    private final Workflow<Data> workflow;
-
-    public RejectFacilityCommandHandler(
-            WorkflowEngine engine,
-            TradeLoanFacilityRepository repository,
-            BranchAccessValidator branchAccessValidator,
-            Clock clock) {
-        super(engine);
-        this.repository = repository;
-        this.branchAccessValidator = branchAccessValidator;
-        this.clock = clock;
-        this.workflow = Workflow.singleWrite(
-                "reject-facility",
-                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
-    }
-
     @Override
-    protected Workflow<Data> workflow() {
-        return workflow;
+    protected Workflow<Data> route(WorkflowRoute<Data> route) {
+        return route.singleWrite(
+                "reject-facility",
+                ctx -> StepResult.fromWriteResult(
+                        write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
@@ -77,5 +60,22 @@ public final class RejectFacilityCommandHandler
                     log.info("Facility rejected: {}", command.loanFacilityId());
                 })
                 .map(TradeLoanFacility::domainEvents);
+    }
+
+    record Data(RejectFacilityCommand command, Unit prepared) {}
+
+    private final TradeLoanFacilityRepository repository;
+    private final BranchAccessValidator branchAccessValidator;
+    private final Clock clock;
+
+    public RejectFacilityCommandHandler(
+            WorkflowEngine engine,
+            TradeLoanFacilityRepository repository,
+            BranchAccessValidator branchAccessValidator,
+            Clock clock) {
+        super(engine);
+        this.repository = repository;
+        this.branchAccessValidator = branchAccessValidator;
+        this.clock = clock;
     }
 }

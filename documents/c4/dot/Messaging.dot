@@ -23,8 +23,8 @@ digraph {
   }
 
   67 -> 13 [id=131, label=<<font point-size="24">Consumes from</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  127 -> 13 [id=149, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  128 -> 13 [id=151, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  129 -> 13 [id=152, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  130 -> 13 [id=153, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  127 -> 13 [id=148, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  128 -> 13 [id=150, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  129 -> 13 [id=151, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  130 -> 13 [id=152, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
 }

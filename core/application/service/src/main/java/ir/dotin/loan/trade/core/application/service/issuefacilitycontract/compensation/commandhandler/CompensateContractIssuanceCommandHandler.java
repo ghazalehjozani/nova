@@ -12,6 +12,7 @@ import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
 import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -30,30 +31,12 @@ final class CompensateContractIssuanceCommandHandler
         extends WorkflowCommandHandler<
                 CompensateContractIssuanceCommand, CompensateContractIssuanceCommandHandler.Data> {
 
-    record Data(CompensateContractIssuanceCommand command, ReversalPreparation prepared) {}
-
-    private final TradeLoanFacilityRepository repository;
-    private final FcbTransactionReverser fcbTransactionReverser;
-    private final Clock clock;
-    private final Workflow<Data> workflow;
-
-    CompensateContractIssuanceCommandHandler(
-            WorkflowEngine engine,
-            TradeLoanFacilityRepository repository,
-            FcbTransactionReverser fcbTransactionReverser,
-            Clock clock) {
-        super(engine);
-        this.repository = repository;
-        this.fcbTransactionReverser = fcbTransactionReverser;
-        this.clock = clock;
-        this.workflow = Workflow.singleWrite(
-                "compensate-contract-issuance",
-                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
-    }
-
     @Override
-    protected Workflow<Data> workflow() {
-        return workflow;
+    protected Workflow<Data> route(WorkflowRoute<Data> route) {
+        return route.singleWrite(
+                "compensate-contract-issuance",
+                ctx -> StepResult.fromWriteResult(
+                        write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
@@ -89,5 +72,22 @@ final class CompensateContractIssuanceCommandHandler
                 .map(TradeLoanFacility::domainEvents);
     }
 
+    record Data(CompensateContractIssuanceCommand command, ReversalPreparation prepared) {}
+
     record ReversalPreparation(AtomicReference<TrackedTransactionNumber> reversals) {}
+
+    private final TradeLoanFacilityRepository repository;
+    private final FcbTransactionReverser fcbTransactionReverser;
+    private final Clock clock;
+
+    CompensateContractIssuanceCommandHandler(
+            WorkflowEngine engine,
+            TradeLoanFacilityRepository repository,
+            FcbTransactionReverser fcbTransactionReverser,
+            Clock clock) {
+        super(engine);
+        this.repository = repository;
+        this.fcbTransactionReverser = fcbTransactionReverser;
+        this.clock = clock;
+    }
 }

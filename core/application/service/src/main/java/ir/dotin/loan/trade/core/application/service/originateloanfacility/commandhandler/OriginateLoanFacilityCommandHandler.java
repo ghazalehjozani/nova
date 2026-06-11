@@ -10,6 +10,7 @@ import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
 import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
@@ -39,48 +40,14 @@ import static java.util.Objects.requireNonNull;
 @Slf4j
 @Service
 public final class OriginateLoanFacilityCommandHandler
-        extends WorkflowCommandHandler<
-                OriginateLoanFacilityCommand, OriginateLoanFacilityCommandHandler.Data> {
-
-    record Data(OriginateLoanFacilityCommand command, OriginationPreparation prepared) {}
-
-    private final FacilityValidator facilityValidator;
-    private final CustomerInfoLoader customerInfoLoader;
-    private final PartyEligibilityValidator partyEligibilityValidator;
-    private final DependencyLoader dependencyLoader;
-    private final InstallmentScheduleStrategySelector strategySelector;
-    private final FacilityBuilder facilityBuilder;
-    private final TradeLoanFacilityValidationService validationService;
-    private final FacilityPersister facilityPersister;
-    private final Workflow<Data> workflow;
-
-    public OriginateLoanFacilityCommandHandler(
-            WorkflowEngine engine,
-            FacilityValidator facilityValidator,
-            CustomerInfoLoader customerInfoLoader,
-            PartyEligibilityValidator partyEligibilityValidator,
-            DependencyLoader dependencyLoader,
-            InstallmentScheduleStrategySelector strategySelector,
-            FacilityBuilder facilityBuilder,
-            TradeLoanFacilityValidationService validationService,
-            FacilityPersister facilityPersister) {
-        super(engine);
-        this.facilityValidator = facilityValidator;
-        this.customerInfoLoader = customerInfoLoader;
-        this.partyEligibilityValidator = partyEligibilityValidator;
-        this.dependencyLoader = dependencyLoader;
-        this.strategySelector = strategySelector;
-        this.facilityBuilder = facilityBuilder;
-        this.validationService = validationService;
-        this.facilityPersister = facilityPersister;
-        this.workflow = Workflow.singleWrite(
-                "originate-loan-facility",
-                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
-    }
+        extends WorkflowCommandHandler<OriginateLoanFacilityCommand, OriginateLoanFacilityCommandHandler.Data> {
 
     @Override
-    protected Workflow<Data> workflow() {
-        return workflow;
+    protected Workflow<Data> route(WorkflowRoute<Data> route) {
+        return route.singleWrite(
+                "originate-loan-facility",
+                ctx -> StepResult.fromWriteResult(
+                        write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
@@ -114,8 +81,7 @@ public final class OriginateLoanFacilityCommandHandler
                 .map(applicationNumber -> new OriginationPreparation(partyInfos, applicationNumber));
     }
 
-    private Result<List<DomainEvent<?>>> write(
-            OriginateLoanFacilityCommand command, OriginationPreparation prepared) {
+    private Result<List<DomainEvent<?>>> write(OriginateLoanFacilityCommand command, OriginationPreparation prepared) {
         return dependencyLoader
                 .loadDependencies(command, prepared.partyInfos())
                 .flatMap(context -> executeOriginationWorkflow(command, context, prepared.applicationNumber()));
@@ -173,7 +139,39 @@ public final class OriginateLoanFacilityCommandHandler
                 .map(facilityPersister::aggregateEvents);
     }
 
+    record Data(OriginateLoanFacilityCommand command, OriginationPreparation prepared) {}
+
     public record OriginationPreparation(List<PartyInfoResponse> partyInfos, ApplicationNumber applicationNumber) {}
 
     private record FacilityAggregation(TradeLoanFacility facility, Optional<InstallmentSchedule> schedule) {}
+
+    private final FacilityValidator facilityValidator;
+    private final CustomerInfoLoader customerInfoLoader;
+    private final PartyEligibilityValidator partyEligibilityValidator;
+    private final DependencyLoader dependencyLoader;
+    private final InstallmentScheduleStrategySelector strategySelector;
+    private final FacilityBuilder facilityBuilder;
+    private final TradeLoanFacilityValidationService validationService;
+    private final FacilityPersister facilityPersister;
+
+    public OriginateLoanFacilityCommandHandler(
+            WorkflowEngine engine,
+            FacilityValidator facilityValidator,
+            CustomerInfoLoader customerInfoLoader,
+            PartyEligibilityValidator partyEligibilityValidator,
+            DependencyLoader dependencyLoader,
+            InstallmentScheduleStrategySelector strategySelector,
+            FacilityBuilder facilityBuilder,
+            TradeLoanFacilityValidationService validationService,
+            FacilityPersister facilityPersister) {
+        super(engine);
+        this.facilityValidator = facilityValidator;
+        this.customerInfoLoader = customerInfoLoader;
+        this.partyEligibilityValidator = partyEligibilityValidator;
+        this.dependencyLoader = dependencyLoader;
+        this.strategySelector = strategySelector;
+        this.facilityBuilder = facilityBuilder;
+        this.validationService = validationService;
+        this.facilityPersister = facilityPersister;
+    }
 }

@@ -13,6 +13,7 @@ import ir.dotin.platform.pangaea.commons.domain.entity.AbstractAggregateRoot;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
 import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
@@ -31,30 +32,12 @@ public final class CompensateCollectInstallmentCommandHandler
         extends WorkflowCommandHandler<
                 CompensateCollectInstallmentCommand, CompensateCollectInstallmentCommandHandler.Data> {
 
-    record Data(CompensateCollectInstallmentCommand command, Unit prepared) {}
-
-    private final ApplicationNumberResolver applicationNumberResolver;
-    private final InstallmentScheduleRepository installmentScheduleRepository;
-    private final Clock clock;
-    private final Workflow<Data> workflow;
-
-    public CompensateCollectInstallmentCommandHandler(
-            WorkflowEngine engine,
-            ApplicationNumberResolver applicationNumberResolver,
-            InstallmentScheduleRepository installmentScheduleRepository,
-            Clock clock) {
-        super(engine);
-        this.applicationNumberResolver = applicationNumberResolver;
-        this.installmentScheduleRepository = installmentScheduleRepository;
-        this.clock = clock;
-        this.workflow = Workflow.singleWrite(
-                "compensate-collect-installment",
-                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
-    }
-
     @Override
-    protected Workflow<Data> workflow() {
-        return workflow;
+    protected Workflow<Data> route(WorkflowRoute<Data> route) {
+        return route.singleWrite(
+                "compensate-collect-installment",
+                ctx -> StepResult.fromWriteResult(
+                        write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
@@ -97,5 +80,22 @@ public final class CompensateCollectInstallmentCommandHandler
                 () -> FailureCause.notFound(Notification.ofError(
                         TradeLoanApplicationServiceErrors.INSTALLMENT_SCHEDULE_NOT_FOUND,
                         ids.installmentScheduleId())));
+    }
+
+    record Data(CompensateCollectInstallmentCommand command, Unit prepared) {}
+
+    private final ApplicationNumberResolver applicationNumberResolver;
+    private final InstallmentScheduleRepository installmentScheduleRepository;
+    private final Clock clock;
+
+    public CompensateCollectInstallmentCommandHandler(
+            WorkflowEngine engine,
+            ApplicationNumberResolver applicationNumberResolver,
+            InstallmentScheduleRepository installmentScheduleRepository,
+            Clock clock) {
+        super(engine);
+        this.applicationNumberResolver = applicationNumberResolver;
+        this.installmentScheduleRepository = installmentScheduleRepository;
+        this.clock = clock;
     }
 }

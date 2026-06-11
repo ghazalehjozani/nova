@@ -13,6 +13,7 @@ import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
+import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
 import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -25,35 +26,16 @@ import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilitySer
 
 @Service
 public final class SubmitFacilityForApprovalCommandHandler
-        extends WorkflowCommandHandler<
-                SubmitFacilityForApprovalCommand, SubmitFacilityForApprovalCommandHandler.Data> {
+        extends WorkflowCommandHandler<SubmitFacilityForApprovalCommand, SubmitFacilityForApprovalCommandHandler.Data> {
 
     private static final Logger log = LoggerFactory.getLogger(SubmitFacilityForApprovalCommandHandler.class);
 
-    record Data(SubmitFacilityForApprovalCommand command, Unit prepared) {}
-
-    private final TradeLoanFacilityRepository repository;
-    private final BranchAccessValidator branchAccessValidator;
-    private final TradeLoanFacilityService domainService;
-    private final Workflow<Data> workflow;
-
-    public SubmitFacilityForApprovalCommandHandler(
-            WorkflowEngine engine,
-            TradeLoanFacilityRepository repository,
-            BranchAccessValidator branchAccessValidator,
-            TradeLoanFacilityService domainService) {
-        super(engine);
-        this.repository = repository;
-        this.branchAccessValidator = branchAccessValidator;
-        this.domainService = domainService;
-        this.workflow = Workflow.singleWrite(
-                "submit-facility-for-approval",
-                ctx -> StepResult.fromWriteResult(write(ctx.data().command(), ctx.data().prepared())));
-    }
-
     @Override
-    protected Workflow<Data> workflow() {
-        return workflow;
+    protected Workflow<Data> route(WorkflowRoute<Data> route) {
+        return route.singleWrite(
+                "submit-facility-for-approval",
+                ctx -> StepResult.fromWriteResult(
+                        write(ctx.data().command(), ctx.data().prepared())));
     }
 
     @Override
@@ -78,5 +60,22 @@ public final class SubmitFacilityForApprovalCommandHandler
                     log.info("Facility submitted for approval: {}", command.loanFacilityId());
                 })
                 .map(TradeLoanFacility::domainEvents);
+    }
+
+    record Data(SubmitFacilityForApprovalCommand command, Unit prepared) {}
+
+    private final TradeLoanFacilityRepository repository;
+    private final BranchAccessValidator branchAccessValidator;
+    private final TradeLoanFacilityService domainService;
+
+    public SubmitFacilityForApprovalCommandHandler(
+            WorkflowEngine engine,
+            TradeLoanFacilityRepository repository,
+            BranchAccessValidator branchAccessValidator,
+            TradeLoanFacilityService domainService) {
+        super(engine);
+        this.repository = repository;
+        this.branchAccessValidator = branchAccessValidator;
+        this.domainService = domainService;
     }
 }

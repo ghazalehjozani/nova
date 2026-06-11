@@ -6,15 +6,13 @@ import java.util.Optional;
 
 import org.jspecify.annotations.Nullable;
 
-import ir.dotin.platform.pangaea.servicelayer.api.port.RemotePort;
-
 /**
  * Narrow read port for facility-state reconciliation. Pages the facilities a reconciliation source should emit
  * (non-terminal, keyset-ordered by last-modified) and resolves a single facility's reconciliation row by id.
  *
  * <p>Pure interface — no Spring annotations. Implemented by the persistence driven adapter.
  */
-public interface FacilityReconReadPort extends RemotePort {
+public interface FacilityReconReadPort {
 
     /**
      * Returns the next page of non-terminal facilities ordered by {@code (modifiedAt, id)} for keyset resumption,
