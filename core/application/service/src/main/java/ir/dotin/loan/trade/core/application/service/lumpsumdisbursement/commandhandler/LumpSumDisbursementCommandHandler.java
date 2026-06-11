@@ -30,16 +30,18 @@ public class LumpSumDisbursementCommandHandler extends WorkflowCommandHandler<Lu
 
     @Override
     protected Workflow<LumpSumData> route(WorkflowRoute<LumpSumData> route) {
+        // @formatter:off
         return route.type("lump-sum-disbursement")
                 .read(LumpSumDisbursementStep.VALIDATE_FACILITY, validateFacilityStep)
                 .remote(LumpSumDisbursementStep.RESOLVE_ACCOUNTS, resolveAccountsStep)
-                .retry(RetryPolicy.CONSERVATIVE)
-                .timeout(Duration.ofSeconds(30))
+                    .retry(RetryPolicy.CONSERVATIVE)
+                    .timeout(Duration.ofSeconds(30))
                 .remote(LumpSumDisbursementStep.POST_TRANSACTIONS, postTransactionsStep)
-                .retry(RetryPolicy.CONSERVATIVE)
-                .timeout(Duration.ofSeconds(30))
+                    .retry(RetryPolicy.CONSERVATIVE)
+                    .timeout(Duration.ofSeconds(30))
                 .write(LumpSumDisbursementStep.APPLY_DISBURSEMENT, applyDisbursementStep)
                 .build();
+        // @formatter:on
     }
 
     @Override

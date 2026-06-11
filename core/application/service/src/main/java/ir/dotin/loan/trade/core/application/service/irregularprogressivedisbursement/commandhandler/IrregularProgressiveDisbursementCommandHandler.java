@@ -35,16 +35,18 @@ public class IrregularProgressiveDisbursementCommandHandler
 
     @Override
     protected Workflow<IrregularDisbursementData> route(WorkflowRoute<IrregularDisbursementData> route) {
+        // @formatter:off
         return route.type("irregular-progressive-disbursement")
                 .read(IrregularProgressiveDisbursementStep.VALIDATE_FACILITY, validateFacilityStep)
                 .remote(IrregularProgressiveDisbursementStep.RESOLVE_ACCOUNTS, resolveAccountsStep)
-                .retry(RetryPolicy.CONSERVATIVE)
-                .timeout(Duration.ofSeconds(30))
+                    .retry(RetryPolicy.CONSERVATIVE)
+                    .timeout(Duration.ofSeconds(30))
                 .remote(IrregularProgressiveDisbursementStep.POST_TRANSACTIONS, postTransactionsStep)
-                .retry(RetryPolicy.CONSERVATIVE)
-                .timeout(Duration.ofSeconds(30))
+                    .retry(RetryPolicy.CONSERVATIVE)
+                    .timeout(Duration.ofSeconds(30))
                 .write(IrregularProgressiveDisbursementStep.APPLY_DISBURSEMENT, applyDisbursementStep)
                 .build();
+        // @formatter:on
     }
 
     @Override

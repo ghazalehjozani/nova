@@ -32,12 +32,14 @@ public class AddFacilityCollateralCommandHandler
 
     @Override
     protected Workflow<CollateralData> route(WorkflowRoute<CollateralData> route) {
+        // @formatter:off
         return route.type("add-facility-collateral")
                 .remote(AddFacilityCollateralStep.RESERVE_COLLATERALS, reserveCollateralsStep)
-                .retry(RetryPolicy.CONSERVATIVE)
-                .timeout(Duration.ofSeconds(30))
+                    .retry(RetryPolicy.CONSERVATIVE)
+                    .timeout(Duration.ofSeconds(30))
                 .write(AddFacilityCollateralStep.ADD_COLLATERAL, addCollateralStep)
                 .build();
+        // @formatter:on
     }
 
     @Override

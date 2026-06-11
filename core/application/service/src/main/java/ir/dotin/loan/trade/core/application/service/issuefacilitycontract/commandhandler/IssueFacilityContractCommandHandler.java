@@ -29,16 +29,18 @@ public class IssueFacilityContractCommandHandler
 
     @Override
     protected Workflow<ContractData> route(WorkflowRoute<ContractData> route) {
+        // @formatter:off
         return route.type("issue-facility-contract")
                 .read(IssueFacilityContractStep.VALIDATE_FACILITY, validateFacilityStep)
                 .remote(IssueFacilityContractStep.OPEN_ACCOUNTS, openAccountsStep)
-                .retry(RetryPolicy.CONSERVATIVE)
-                .timeout(Duration.ofSeconds(30))
+                    .retry(RetryPolicy.CONSERVATIVE)
+                    .timeout(Duration.ofSeconds(30))
                 .remote(IssueFacilityContractStep.POST_TRANSACTION, postTransactionStep)
-                .retry(RetryPolicy.CONSERVATIVE)
-                .timeout(Duration.ofSeconds(30))
+                    .retry(RetryPolicy.CONSERVATIVE)
+                    .timeout(Duration.ofSeconds(30))
                 .write(IssueFacilityContractStep.UPDATE_FACILITY_STATE, updateFacilityStateStep)
                 .build();
+        // @formatter:on
     }
 
     @Override
