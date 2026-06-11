@@ -138,13 +138,6 @@ workspace "Trade Loan Service" {
         system_administrator -> trade_loan_service "Monitors Kafka"
         fcbeventconsumer -> kafka "Consumes from"
         trade_loan_application -> kafka "Consumes from"
-        cancelfacilitycommandhandler -> tradeloanfacilityservice "Uses"
-        closefacilitydefaultedcommandhandler -> tradeloanfacilityservice "Uses"
-        closefacilitypaidoffcommandhandler -> tradeloanfacilityservice "Uses"
-        defineloantypecommandhandler -> tradeloantypevalidationservice "Uses"
-        originateloanfacilitycommandhandler -> tradeloanfacilityvalidationservice "Uses"
-        planequalinstallmentschedulecommandhandler -> traderepaymentschedulingservice "Uses"
-        submitfacilityforapprovalcommandhandler -> tradeloanfacilityservice "Uses"
         installmentschedulerepositoryadapter -> postgresql_database "Reads/Writes"
         tradeloanarrangementrepositoryadapter -> postgresql_database "Reads/Writes"
         tradeloanfacilityrepositoryadapter -> postgresql_database "Reads/Writes"
@@ -237,38 +230,6 @@ workspace "Trade Loan Service" {
         }
 
         styles {
-            element "Person" {
-                background #08427b
-                color #ffffff
-                shape Person
-            }
-            element "Entity" {
-                background #ffb74d
-                color #000000
-            }
-            element "Aggregate" {
-                background #ff9800
-                color #000000
-            }
-            element "Cache" {
-                background #e74c3c
-                shape Cylinder
-            }
-            element "Container" {
-                background #438dd5
-                color #ffffff
-            }
-            element "External User" {
-                background #666666
-            }
-            element "Admin" {
-                background #5c3d6e
-            }
-            element "Outbox" {
-                background #66bb6a
-                color #000000
-                shape Hexagon
-            }
             element "Repository" {
                 background #5c6bc0
                 color #ffffff
@@ -332,6 +293,38 @@ workspace "Trade Loan Service" {
             element "Consumer" {
                 background #ff7043
                 color #ffffff
+                shape Hexagon
+            }
+            element "Person" {
+                background #08427b
+                color #ffffff
+                shape Person
+            }
+            element "Entity" {
+                background #ffb74d
+                color #000000
+            }
+            element "Aggregate" {
+                background #ff9800
+                color #000000
+            }
+            element "Cache" {
+                background #e74c3c
+                shape Cylinder
+            }
+            element "Container" {
+                background #438dd5
+                color #ffffff
+            }
+            element "External User" {
+                background #666666
+            }
+            element "Admin" {
+                background #5c3d6e
+            }
+            element "Outbox" {
+                background #66bb6a
+                color #000000
                 shape Hexagon
             }
         }

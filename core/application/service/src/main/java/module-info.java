@@ -104,4 +104,27 @@ open module ir.dotin.loan.trade.core.application.service {
     exports ir.dotin.loan.trade.core.application.service.submitfacilityforapproval.compensation.commandhandler;
     exports ir.dotin.loan.trade.core.application.service.submitfacilityforapproval.i18n;
     exports ir.dotin.loan.trade.core.application.service.updatefacilitycollateral.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.addfacilitycollateral.compensation.step;
+    exports ir.dotin.loan.trade.core.application.service.approvefacility.compensation.step;
+    exports ir.dotin.loan.trade.core.application.service.approvefacility.step;
+    exports ir.dotin.loan.trade.core.application.service.cancelfacility.step;
+    exports ir.dotin.loan.trade.core.application.service.closefacilitydefaulted.step;
+    exports ir.dotin.loan.trade.core.application.service.closefacilitypaidoff.compensation.step;
+    exports ir.dotin.loan.trade.core.application.service.closefacilitypaidoff.step;
+    exports ir.dotin.loan.trade.core.application.service.collectinstallment.compensation.step;
+    exports ir.dotin.loan.trade.core.application.service.collectinstallment.step;
+    exports ir.dotin.loan.trade.core.application.service.defineloantype.step;
+    exports ir.dotin.loan.trade.core.application.service.definetradeloanarrangement.step;
+    exports ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.compensation.step;
+    exports ir.dotin.loan.trade.core.application.service.issuefacilitycontract.compensation.step;
+    exports ir.dotin.loan.trade.core.application.service.loanfacilityrestructuring.step;
+    exports ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.compensation.step;
+    exports ir.dotin.loan.trade.core.application.service.originateloanfacility.compensation.step;
+    exports ir.dotin.loan.trade.core.application.service.originateloanfacility.step;
+    exports ir.dotin.loan.trade.core.application.service.planequalinstallmentschedule.step;
+    exports ir.dotin.loan.trade.core.application.service.regulardisbursement.step;
+    exports ir.dotin.loan.trade.core.application.service.rejectfacility.step;
+    exports ir.dotin.loan.trade.core.application.service.submitfacilityforapproval.compensation.step;
+    exports ir.dotin.loan.trade.core.application.service.submitfacilityforapproval.step;
+    exports ir.dotin.loan.trade.core.application.service.updatefacilitycollateral.step;
 }

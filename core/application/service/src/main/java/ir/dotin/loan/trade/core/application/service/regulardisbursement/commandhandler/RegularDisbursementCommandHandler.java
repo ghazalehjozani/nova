@@ -1,106 +1,38 @@
 package ir.dotin.loan.trade.core.application.service.regulardisbursement.commandhandler;
 
-import java.time.Clock;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
-import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
-import ir.dotin.platform.pangaea.commons.domain.entity.AbstractAggregateRoot;
-import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
 import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
 import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
-import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
-import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.RegularDisbursementCommand;
-import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
-import ir.dotin.loan.trade.core.application.service.regulardisbursement.mapper.RegularDisbursementCommandMapper;
-import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
-import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
+import ir.dotin.loan.trade.core.application.service.regulardisbursement.step.ApplyRegularDisbursementStep;
+import ir.dotin.loan.trade.core.application.service.regulardisbursement.step.RegularDisbursementData;
 
 @Service
 public final class RegularDisbursementCommandHandler
-        extends WorkflowCommandHandler<RegularDisbursementCommand, RegularDisbursementCommandHandler.Data> {
-
-    private static final Logger log = LoggerFactory.getLogger(RegularDisbursementCommandHandler.class);
+        extends WorkflowCommandHandler<RegularDisbursementCommand, RegularDisbursementData> {
 
     @Override
-    protected Workflow<Data> route(WorkflowRoute<Data> route) {
-        return route.singleWrite(
-                "regular-disbursement",
-                ctx -> StepResult.fromWriteResult(
-                        write(ctx.data().command(), ctx.data().prepared())));
+    protected Workflow<RegularDisbursementData> route(WorkflowRoute<RegularDisbursementData> route) {
+        // @formatter:off
+        return route.singleWrite("regular-disbursement", applyRegularDisbursementStep);
+        // @formatter:on
     }
 
     @Override
-    protected Result<Data> seed(RegularDisbursementCommand command) {
-        return prepare(command).map(prepared -> new Data(command, prepared));
+    protected Result<RegularDisbursementData> seed(RegularDisbursementCommand command) {
+        return Result.success(new RegularDisbursementData(command, Unit.INSTANCE));
     }
 
-    private Result<Unit> prepare(RegularDisbursementCommand command) {
-        return Result.success();
-    }
-
-    private Result<List<DomainEvent<?>>> write(RegularDisbursementCommand command, Unit prepared) {
-        LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
-
-        return Result.fromOptional(
-                        repository.findById(loanFacilityId),
-                        () -> FailureCause.notFound(Notification.ofError(
-                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())))
-                .flatMap(this::validateDisbursementMethod)
-                //                .flatMap(facility -> {
-                //                    Money trancheAmount = mapper.toMoney(command.trancheAmount());
-                //                    return facility.disbursement(trancheAmount, trackedNumbers, accountIds,
-                // clock).map(ignored -> facility);
-                //                })
-                .onSuccess(facility -> {
-                    repository.save(facility);
-                    log.info(
-                            "Regular disbursement tranche {} completed for facility: {}. Amount: {}, Total: {}",
-                            command.trancheNumber(),
-                            command.loanFacilityId(),
-                            command.trancheAmount(),
-                            facility.getTotalDisbursedAmount());
-                })
-                .map(AbstractAggregateRoot::domainEvents);
-    }
-
-    private Result<TradeLoanFacility> validateDisbursementMethod(TradeLoanFacility facility) {
-        return facility.getSanctionedLoan()
-                .filter(sl -> sl.getDisbursementMethod() == DisbursementMethod.REGULAR_PROGRESSIVE)
-                .map(sl -> Result.success(facility))
-                .orElseGet(() -> Result.failure(Notification.ofError(
-                        TradeLoanApplicationServiceErrors.INVALID_DISBURSEMENT_METHOD,
-                        facility.getSanctionedLoan()
-                                .map(sl -> sl.getDisbursementMethod() != null
-                                        ? sl.getDisbursementMethod().name()
-                                        : "null")
-                                .orElse("UNKNOWN"))));
-    }
-
-    record Data(RegularDisbursementCommand command, Unit prepared) {}
-
-    private final RegularDisbursementCommandMapper mapper;
-    private final TradeLoanFacilityRepository repository;
-    private final Clock clock;
+    private final ApplyRegularDisbursementStep applyRegularDisbursementStep;
 
     public RegularDisbursementCommandHandler(
-            WorkflowEngine engine,
-            RegularDisbursementCommandMapper mapper,
-            TradeLoanFacilityRepository repository,
-            Clock clock) {
+            WorkflowEngine engine, ApplyRegularDisbursementStep applyRegularDisbursementStep) {
         super(engine);
-        this.mapper = mapper;
-        this.repository = repository;
-        this.clock = clock;
+        this.applyRegularDisbursementStep = applyRegularDisbursementStep;
     }
 }

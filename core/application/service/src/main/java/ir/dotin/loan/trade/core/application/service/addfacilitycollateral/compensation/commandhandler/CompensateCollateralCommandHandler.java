@@ -1,6 +1,5 @@
 package ir.dotin.loan.trade.core.application.service.addfacilitycollateral.compensation.commandhandler;
 
-import java.time.Clock;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -8,16 +7,17 @@ import org.springframework.stereotype.Service;
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
-import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
 import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
 import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
-import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateCollateralCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
+import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.compensation.step.ReleasePreparation;
+import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.compensation.step.RevertCollateralData;
+import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.compensation.step.RevertCollateralStep;
 import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.component.CollateralReservationReleaser;
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
@@ -27,19 +27,18 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public final class CompensateCollateralCommandHandler
-        extends WorkflowCommandHandler<CompensateCollateralCommand, CompensateCollateralCommandHandler.Data> {
+        extends WorkflowCommandHandler<CompensateCollateralCommand, RevertCollateralData> {
 
     @Override
-    protected Workflow<Data> route(WorkflowRoute<Data> route) {
-        return route.singleWrite(
-                "compensate-collateral",
-                ctx -> StepResult.fromWriteResult(
-                        write(ctx.data().command(), ctx.data().prepared())));
+    protected Workflow<RevertCollateralData> route(WorkflowRoute<RevertCollateralData> route) {
+        // @formatter:off
+        return route.singleWrite("compensate-collateral", revertCollateralStep);
+        // @formatter:on
     }
 
     @Override
-    protected Result<Data> seed(CompensateCollateralCommand command) {
-        return prepare(command).map(prepared -> new Data(command, prepared));
+    protected Result<RevertCollateralData> seed(CompensateCollateralCommand command) {
+        return prepare(command).map(prepared -> new RevertCollateralData(command, prepared));
     }
 
     private Result<ReleasePreparation> prepare(CompensateCollateralCommand command) {
@@ -65,33 +64,6 @@ public final class CompensateCollateralCommandHandler
         return Result.success(new ReleasePreparation(false));
     }
 
-    private Result<List<DomainEvent<?>>> write(CompensateCollateralCommand command, ReleasePreparation prepared) {
-        if (prepared.noOp()) {
-            return Result.success(List.of());
-        }
-        return revertCollaterals(command, command.collateralSerials());
-    }
-
-    private Result<List<DomainEvent<?>>> revertCollaterals(
-            CompensateCollateralCommand command, List<String> serialsToRevert) {
-
-        return loadFacility(command)
-                .flatMap(facility ->
-                        facility.revertAddCollateral(serialsToRevert, clock).map(v -> facility))
-                .onSuccess(f -> {
-                    repository.save(f);
-                    log.info(
-                            "Successfully reverted {} collaterals locally for facility: {}",
-                            serialsToRevert.size(),
-                            f.getId().value());
-                })
-                .onFailure(cause -> log.error(
-                        "Failed to revert collaterals in domain for facility {}: {}",
-                        command.loanFacilityId(),
-                        cause.notification()))
-                .map(TradeLoanFacility::domainEvents);
-    }
-
     private Result<TradeLoanFacility> loadFacility(CompensateCollateralCommand command) {
         return Result.fromOptional(
                 repository.findById(LoanFacilityId.of(command.loanFacilityId())),
@@ -99,22 +71,18 @@ public final class CompensateCollateralCommandHandler
                         TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())));
     }
 
-    record ReleasePreparation(boolean noOp) {}
-
-    record Data(CompensateCollateralCommand command, ReleasePreparation prepared) {}
-
     private final TradeLoanFacilityRepository repository;
     private final CollateralReservationReleaser collateralReservationReleaser;
-    private final Clock clock;
+    private final RevertCollateralStep revertCollateralStep;
 
     public CompensateCollateralCommandHandler(
             WorkflowEngine engine,
             TradeLoanFacilityRepository repository,
             CollateralReservationReleaser collateralReservationReleaser,
-            Clock clock) {
+            RevertCollateralStep revertCollateralStep) {
         super(engine);
         this.repository = repository;
         this.collateralReservationReleaser = collateralReservationReleaser;
-        this.clock = clock;
+        this.revertCollateralStep = revertCollateralStep;
     }
 }

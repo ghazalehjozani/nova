@@ -1,53 +1,34 @@
 package ir.dotin.loan.trade.core.application.service.approvefacility.commandhandler;
 
-import java.util.List;
-
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
-import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
-import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
 import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
 import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
-import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.ApproveFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.SanctionDetails;
-import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
-import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.service.approvefacility.component.SanctionDetailsLoader;
-import ir.dotin.loan.trade.core.application.service.approvefacility.factory.ApprovalStrategyFactory;
-import ir.dotin.loan.trade.core.application.service.approvefacility.strategy.ApprovalStrategy;
+import ir.dotin.loan.trade.core.application.service.approvefacility.step.ApproveFacilityStep;
 import ir.dotin.loan.trade.core.application.service.shared.authz.BranchAccessValidator;
-import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 
 @Service
 public final class ApproveFacilityCommandHandler
         extends WorkflowCommandHandler<ApproveFacilityCommand, ApproveFacilityCommandHandler.Data> {
 
-    private static final Logger log = LoggerFactory.getLogger(ApproveFacilityCommandHandler.class);
-
     @Override
     protected Workflow<Data> route(WorkflowRoute<Data> route) {
-        return route.singleWrite(
-                "approve-facility",
-                ctx -> StepResult.fromWriteResult(
-                        write(ctx.data().command(), ctx.data().prepared())));
+        // @formatter:off
+        return route.singleWrite("approve-facility", approveFacilityStep);
+        // @formatter:on
     }
 
     @Override
     protected Result<Data> seed(ApproveFacilityCommand command) {
-        return prepare(command).map(prepared -> new Data(command, prepared));
-    }
-
-    private Result<ApprovalPreparation> prepare(ApproveFacilityCommand command) {
         ConfirmType confirmType = ConfirmType.of(command.confirmType()).unwrap();
 
         return branchAccessValidator
@@ -59,61 +40,27 @@ public final class ApproveFacilityCommandHandler
                     return sanctionDetailsLoader
                             .loadForManualApproval(command.loanFacilityId())
                             .map(details -> new ApprovalPreparation(confirmType, details));
-                });
-    }
-
-    private Result<List<DomainEvent<?>>> write(ApproveFacilityCommand command, ApprovalPreparation prepared) {
-        LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
-
-        return Result.fromOptional(
-                        loanFacilityRepository.findById(loanFacilityId),
-                        () -> FailureCause.notFound(Notification.ofError(
-                                TradeLoanApplicationServiceErrors.FACILITY_NOT_FOUND, command.loanFacilityId())))
-                .flatMap(facility -> Result.fromOptional(
-                                loanArrangementRepository.findById(facility.getLoanArrangementId()),
-                                () -> FailureCause.notFound(Notification.ofError(
-                                        TradeLoanApplicationServiceErrors.LOAN_ARRANGEMENT_NOT_FOUND,
-                                        facility.getLoanArrangementId())))
-                        .flatMap(arrangement -> {
-                            ApprovalStrategy strategy = strategyFactory.getStrategy(command);
-                            return strategy.validate(command, facility, arrangement)
-                                    .flatMap(ignored -> strategy.approve(
-                                            command,
-                                            facility,
-                                            arrangement,
-                                            prepared.confirmType(),
-                                            prepared.sanctionDetails()))
-                                    .map(ignored -> {
-                                        loanFacilityRepository.save(facility, command.version());
-                                        log.debug("Facility approved: {}", command.loanFacilityId());
-                                        return facility.domainEvents();
-                                    });
-                        }));
+                })
+                .map(prepared -> new Data(command, prepared));
     }
 
     public record ApprovalPreparation(
             ConfirmType confirmType, @Nullable SanctionDetails sanctionDetails) {}
 
-    record Data(ApproveFacilityCommand command, ApprovalPreparation prepared) {}
+    public record Data(ApproveFacilityCommand command, ApprovalPreparation prepared) {}
 
-    private final TradeLoanFacilityRepository loanFacilityRepository;
-    private final TradeLoanArrangementRepository loanArrangementRepository;
     private final BranchAccessValidator branchAccessValidator;
-    private final ApprovalStrategyFactory strategyFactory;
     private final SanctionDetailsLoader sanctionDetailsLoader;
+    private final ApproveFacilityStep approveFacilityStep;
 
     public ApproveFacilityCommandHandler(
             WorkflowEngine engine,
-            TradeLoanFacilityRepository loanFacilityRepository,
-            TradeLoanArrangementRepository loanArrangementRepository,
             BranchAccessValidator branchAccessValidator,
-            ApprovalStrategyFactory strategyFactory,
-            SanctionDetailsLoader sanctionDetailsLoader) {
+            SanctionDetailsLoader sanctionDetailsLoader,
+            ApproveFacilityStep approveFacilityStep) {
         super(engine);
-        this.loanFacilityRepository = loanFacilityRepository;
-        this.loanArrangementRepository = loanArrangementRepository;
         this.branchAccessValidator = branchAccessValidator;
-        this.strategyFactory = strategyFactory;
         this.sanctionDetailsLoader = sanctionDetailsLoader;
+        this.approveFacilityStep = approveFacilityStep;
     }
 }
