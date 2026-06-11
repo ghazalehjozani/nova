@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
+@Component("lumpSumApplyDisbursementStep")
 @RequiredArgsConstructor
 public class ApplyDisbursementStep implements WriteActivity<LumpSumData>, Compensable<LumpSumData> {
 
@@ -42,6 +42,7 @@ public class ApplyDisbursementStep implements WriteActivity<LumpSumData>, Compen
     private final InstallmentScheduleRepository installmentScheduleRepository;
     private final Clock clock;
 
+    @Override
     public StepResult<List<DomainEvent<?>>> execute(WorkflowContext<LumpSumData> ctx) {
         var data = ctx.data();
 
@@ -68,6 +69,7 @@ public class ApplyDisbursementStep implements WriteActivity<LumpSumData>, Compen
         return StepResult.fromWriteResult(result);
     }
 
+    @Override
     public StepResult<Void> compensate(WorkflowContext<LumpSumData> ctx) {
         var data = ctx.data();
 

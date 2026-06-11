@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import static java.util.Objects.requireNonNull;
 
 @Slf4j
-@Component
+@Component("irregularApplyDisbursementStep")
 @RequiredArgsConstructor
 public class ApplyDisbursementStep
         implements WriteActivity<IrregularDisbursementData>, Compensable<IrregularDisbursementData> {

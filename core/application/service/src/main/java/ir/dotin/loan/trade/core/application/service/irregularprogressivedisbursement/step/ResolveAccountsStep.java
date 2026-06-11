@@ -13,7 +13,7 @@ import ir.dotin.loan.trade.core.application.service.shared.disbursement.Facility
 
 import lombok.RequiredArgsConstructor;
 
-@Component
+@Component("irregularResolveAccountsStep")
 @RequiredArgsConstructor
 public class ResolveAccountsStep
         implements RemoteActivity<IrregularDisbursementData>, Compensable<IrregularDisbursementData> {

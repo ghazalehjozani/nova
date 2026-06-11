@@ -16,7 +16,7 @@ import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 import lombok.RequiredArgsConstructor;
 
-@Component
+@Component("issueContractValidateFacilityStep")
 @RequiredArgsConstructor
 public class ValidateFacilityStep implements ReadActivity<ContractData> {
 

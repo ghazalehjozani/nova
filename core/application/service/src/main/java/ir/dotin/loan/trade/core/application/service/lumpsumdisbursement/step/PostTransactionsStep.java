@@ -33,7 +33,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
+@Component("lumpSumPostTransactionsStep")
 @RequiredArgsConstructor
 public class PostTransactionsStep implements RemoteActivity<LumpSumData>, Compensable<LumpSumData> {
 
@@ -43,6 +43,7 @@ public class PostTransactionsStep implements RemoteActivity<LumpSumData>, Compen
     private final LumpSumDisbursementConfiguration configuration;
     private final Clock clock;
 
+    @Override
     public StepResult<Void> execute(WorkflowContext<LumpSumData> ctx) {
         var data = ctx.data();
         ResolvedAccounts resolvedAccounts = data.getResolvedAccounts();
@@ -83,6 +84,7 @@ public class PostTransactionsStep implements RemoteActivity<LumpSumData>, Compen
         return new StepResult.Success<>(null);
     }
 
+    @Override
     public StepResult<Void> compensate(WorkflowContext<LumpSumData> ctx) {
         var data = ctx.data();
         log.warn("Reversing transactions for facility {}", data.facilityId());

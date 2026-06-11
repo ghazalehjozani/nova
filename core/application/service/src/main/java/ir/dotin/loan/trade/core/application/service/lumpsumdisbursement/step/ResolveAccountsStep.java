@@ -13,13 +13,14 @@ import ir.dotin.loan.trade.core.application.service.shared.disbursement.Facility
 
 import lombok.RequiredArgsConstructor;
 
-@Component
+@Component("lumpSumResolveAccountsStep")
 @RequiredArgsConstructor
 public class ResolveAccountsStep implements RemoteActivity<LumpSumData>, Compensable<LumpSumData> {
 
     private final FacilityDependencyLoader dependencyLoader;
     private final AccountResolutionSupport accountResolutionSupport;
 
+    @Override
     public StepResult<Void> execute(WorkflowContext<LumpSumData> ctx) {
         var data = ctx.data();
 
@@ -41,6 +42,7 @@ public class ResolveAccountsStep implements RemoteActivity<LumpSumData>, Compens
         return new StepResult.Success<>(null);
     }
 
+    @Override
     public StepResult<Void> compensate(WorkflowContext<LumpSumData> ctx) {
         accountResolutionSupport.closeAccounts(ctx.data().resolvedAccounts());
         return new StepResult.Success<>(null);

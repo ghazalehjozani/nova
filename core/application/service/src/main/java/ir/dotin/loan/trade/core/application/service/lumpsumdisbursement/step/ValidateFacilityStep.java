@@ -18,12 +18,13 @@ import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 import lombok.RequiredArgsConstructor;
 
-@Component
+@Component("lumpSumValidateFacilityStep")
 @RequiredArgsConstructor
 public class ValidateFacilityStep implements ReadActivity<LumpSumData> {
 
     private final FacilityDependencyLoader dependencyLoader;
 
+    @Override
     public StepResult<Void> execute(WorkflowContext<LumpSumData> ctx) {
         var data = ctx.data();
 

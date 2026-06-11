@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 import static java.util.Objects.requireNonNull;
 
-@Component
+@Component("irregularValidateFacilityStep")
 @RequiredArgsConstructor
 public class ValidateFacilityStep implements ReadActivity<IrregularDisbursementData> {
 
