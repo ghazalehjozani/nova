@@ -10,7 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import ir.dotin.platform.pangaea.workflow.api.definition.Step;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
-import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.component.FacilityContractDependencyLoader;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.component.FacilityContractValidator;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.step.OpenAccountsStep;
@@ -25,9 +24,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("NullAway")
 class IssueFacilityContractCommandHandlerTest {
-
-    @Mock
-    private WorkflowEngine engine;
 
     @Mock
     private FacilityContractDependencyLoader dependencyLoader;
@@ -55,7 +51,6 @@ class IssueFacilityContractCommandHandlerTest {
     @BeforeEach
     void setUp() {
         handler = new IssueFacilityContractCommandHandler(
-                engine,
                 dependencyLoader,
                 facilityValidator,
                 facilityContractValidation,

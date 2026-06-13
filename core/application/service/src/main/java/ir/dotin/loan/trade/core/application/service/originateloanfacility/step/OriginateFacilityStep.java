@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.context.WorkflowContext;
-import ir.dotin.platform.pangaea.workflow.api.definition.WriteActivity;
+import ir.dotin.platform.pangaea.workflow.api.definition.PublishingWriteActivity;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
@@ -32,7 +32,7 @@ import static java.util.Objects.requireNonNull;
 
 @Component
 @RequiredArgsConstructor
-public class OriginateFacilityStep implements WriteActivity<OriginateFacilityData> {
+public class OriginateFacilityStep implements PublishingWriteActivity<OriginateFacilityData> {
 
     private final DependencyLoader dependencyLoader;
     private final InstallmentScheduleStrategySelector strategySelector;

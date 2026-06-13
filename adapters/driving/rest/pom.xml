@@ -22,6 +22,10 @@
           <artifactId>spring-boot-starter-protocol-rest</artifactId>
       </dependency>
       <dependency>
+          <groupId>ir.dotin.platform.pangaea</groupId>
+          <artifactId>protocol-core</artifactId>
+      </dependency>
+      <dependency>
           <groupId>ir.dotin.loan</groupId>
           <artifactId>trade-loan-core-application-query</artifactId>
       </dependency>

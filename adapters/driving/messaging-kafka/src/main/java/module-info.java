@@ -17,7 +17,7 @@ open module ir.dotin.loan.trade.adapters.driving.messaging.kafka {
     requires ir.dotin.platform.pangaea.messaging.kafka;
     requires ir.dotin.platform.pangaea.servicelayer.api;
     requires ir.dotin.platform.pangaea.commons.core;
-    requires ir.dotin.platform.pangaea.commons.security;
+    requires ir.dotin.platform.pangaea.security.api;
     requires spring.context;
     requires spring.beans;
     requires spring.kafka;

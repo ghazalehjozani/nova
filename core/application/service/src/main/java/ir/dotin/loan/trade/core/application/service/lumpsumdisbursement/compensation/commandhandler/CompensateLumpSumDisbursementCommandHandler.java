@@ -10,8 +10,6 @@ import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
-import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
-import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateLumpSumDisbursementCommand;
 import ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.compensation.step.ReversalPreparation;
@@ -19,29 +17,33 @@ import ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.compensa
 import ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.compensation.step.RevertLumpSumDisbursementStep;
 import ir.dotin.loan.trade.core.application.service.shared.account.FcbTransactionReverser;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import static ir.dotin.platform.pangaea.workflow.api.definition.Steps.writePublishing;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 final class CompensateLumpSumDisbursementCommandHandler
-        extends WorkflowCommandHandler<CompensateLumpSumDisbursementCommand, RevertLumpSumData> {
+        implements WorkflowCommandHandler<CompensateLumpSumDisbursementCommand, RevertLumpSumData> {
 
     @Override
-    protected Workflow<RevertLumpSumData> route(WorkflowRoute<RevertLumpSumData> route) {
+    public Workflow<RevertLumpSumData> definition() {
         // @formatter:off
-        return route.singleWrite("compensate-lump-sum-disbursement", revertLumpSumDisbursementStep);
+        return Workflow.singleWrite("compensate-lump-sum-disbursement", writePublishing(revertLumpSumDisbursementStep));
         // @formatter:on
     }
 
     @Override
-    protected Result<RevertLumpSumData> seed(CompensateLumpSumDisbursementCommand command) {
+    public Result<RevertLumpSumData> seed(CompensateLumpSumDisbursementCommand command) {
         log.warn("Compensating lump sum disbursement for facility: {}", command.loanFacilityId());
         return Result.success(
                 new RevertLumpSumData(command, new ReversalPreparation(new AtomicReference<>(new ArrayList<>()))));
     }
 
     @Override
-    protected void afterCompleted(
+    public void afterCompleted(
             CompensateLumpSumDisbursementCommand command,
             RevertLumpSumData data,
             List<DomainEvent<?>> publishedEvents) {
@@ -53,13 +55,4 @@ final class CompensateLumpSumDisbursementCommandHandler
 
     private final RevertLumpSumDisbursementStep revertLumpSumDisbursementStep;
     private final FcbTransactionReverser fcbTransactionReverser;
-
-    CompensateLumpSumDisbursementCommandHandler(
-            WorkflowEngine engine,
-            RevertLumpSumDisbursementStep revertLumpSumDisbursementStep,
-            FcbTransactionReverser fcbTransactionReverser) {
-        super(engine);
-        this.revertLumpSumDisbursementStep = revertLumpSumDisbursementStep;
-        this.fcbTransactionReverser = fcbTransactionReverser;
-    }
 }

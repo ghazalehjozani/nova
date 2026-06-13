@@ -9,8 +9,6 @@ import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
-import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
-import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateContractIssuanceCommand;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.compensation.step.ReversalPreparation;
@@ -18,29 +16,33 @@ import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.compen
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.compensation.step.RevertContractIssuanceStep;
 import ir.dotin.loan.trade.core.application.service.shared.account.FcbTransactionReverser;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import static ir.dotin.platform.pangaea.workflow.api.definition.Steps.writePublishing;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 final class CompensateContractIssuanceCommandHandler
-        extends WorkflowCommandHandler<CompensateContractIssuanceCommand, RevertContractIssuanceData> {
+        implements WorkflowCommandHandler<CompensateContractIssuanceCommand, RevertContractIssuanceData> {
 
     @Override
-    protected Workflow<RevertContractIssuanceData> route(WorkflowRoute<RevertContractIssuanceData> route) {
+    public Workflow<RevertContractIssuanceData> definition() {
         // @formatter:off
-        return route.singleWrite("compensate-contract-issuance", revertContractIssuanceStep);
+        return Workflow.singleWrite("compensate-contract-issuance", writePublishing(revertContractIssuanceStep));
         // @formatter:on
     }
 
     @Override
-    protected Result<RevertContractIssuanceData> seed(CompensateContractIssuanceCommand command) {
+    public Result<RevertContractIssuanceData> seed(CompensateContractIssuanceCommand command) {
         log.warn("Compensating contract issuance for facility: {}", command.loanFacilityId());
         return Result.success(
                 new RevertContractIssuanceData(command, new ReversalPreparation(new AtomicReference<>())));
     }
 
     @Override
-    protected void afterCompleted(
+    public void afterCompleted(
             CompensateContractIssuanceCommand command,
             RevertContractIssuanceData data,
             List<DomainEvent<?>> publishedEvents) {
@@ -52,13 +54,4 @@ final class CompensateContractIssuanceCommandHandler
 
     private final RevertContractIssuanceStep revertContractIssuanceStep;
     private final FcbTransactionReverser fcbTransactionReverser;
-
-    CompensateContractIssuanceCommandHandler(
-            WorkflowEngine engine,
-            RevertContractIssuanceStep revertContractIssuanceStep,
-            FcbTransactionReverser fcbTransactionReverser) {
-        super(engine);
-        this.revertContractIssuanceStep = revertContractIssuanceStep;
-        this.fcbTransactionReverser = fcbTransactionReverser;
-    }
 }

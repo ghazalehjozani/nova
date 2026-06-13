@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ir.dotin.platform.pangaea.protocol.api.response.BaseResponse;
-import ir.dotin.platform.pangaea.protocol.api.util.PagedResponseUtils;
+import ir.dotin.platform.pangaea.protocol.core.util.PagedResponseUtils;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
 import ir.dotin.platform.pangaea.protocol.rest.pagination.CursorPaginationHelper;
 import ir.dotin.platform.pangaea.servicelayer.api.dispatcher.QueryDispatcher;

@@ -15,7 +15,7 @@ open module ir.dotin.loan.trade.adapters.driven.fcbmessaging {
     requires transitive ir.dotin.loan.baseloan.core.domain;
     requires transitive ir.dotin.platform.pangaea.commons.core;
     requires transitive ir.dotin.platform.pangaea.commons.domain;
-    requires ir.dotin.platform.pangaea.commons.security;
+    requires ir.dotin.platform.pangaea.security.api;
     requires ir.dotin.platform.pangaea.envelope.api;
     requires ir.dotin.platform.pangaea.messaging.autoconfigure;
     requires ir.dotin.platform.pangaea.messaging.kafka;

@@ -10,7 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import ir.dotin.platform.pangaea.workflow.api.definition.Step;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
-import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.step.ApplyDisbursementStep;
 import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.step.PostTransactionsStep;
 import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.step.ResolveAccountsStep;
@@ -24,9 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("NullAway")
 class IrregularProgressiveDisbursementCommandHandlerTest {
-
-    @Mock
-    private WorkflowEngine engine;
 
     @Mock
     private FacilityDependencyLoader dependencyLoader;
@@ -54,7 +50,6 @@ class IrregularProgressiveDisbursementCommandHandlerTest {
     @BeforeEach
     void setUp() {
         handler = new IrregularProgressiveDisbursementCommandHandler(
-                engine,
                 dependencyLoader,
                 branchAccessValidator,
                 seedAssembler,

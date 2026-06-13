@@ -9,7 +9,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import ir.dotin.platform.pangaea.workflow.api.definition.Step;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
-import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.component.AddFacilityCollateralDependencyLoader;
 import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.mapper.AddFacilityCollateralCommandMapper;
 import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.step.AddCollateralStep;
@@ -22,9 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("NullAway")
 class AddFacilityCollateralCommandHandlerTest {
-
-    @Mock
-    private WorkflowEngine engine;
 
     @Mock
     private AddFacilityCollateralCommandMapper mapper;
@@ -43,7 +39,7 @@ class AddFacilityCollateralCommandHandlerTest {
 
     private AddFacilityCollateralCommandHandler handler() {
         return new AddFacilityCollateralCommandHandler(
-                engine, mapper, dependencyLoader, branchAccessValidator, reserveCollateralsStep, addCollateralStep);
+                mapper, dependencyLoader, branchAccessValidator, reserveCollateralsStep, addCollateralStep);
     }
 
     @Test

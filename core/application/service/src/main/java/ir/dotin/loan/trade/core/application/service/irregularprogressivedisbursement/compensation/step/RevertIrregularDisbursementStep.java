@@ -14,7 +14,7 @@ import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.context.WorkflowContext;
-import ir.dotin.platform.pangaea.workflow.api.definition.WriteActivity;
+import ir.dotin.platform.pangaea.workflow.api.definition.PublishingWriteActivity;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.vo.RevertRestructuringResult;
@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RevertIrregularDisbursementStep implements WriteActivity<RevertIrregularDisbursementData> {
+public class RevertIrregularDisbursementStep implements PublishingWriteActivity<RevertIrregularDisbursementData> {
 
     private final TradeLoanFacilityRepository facilityRepository;
     private final InstallmentScheduleRepository scheduleRepository;

@@ -12,7 +12,7 @@ import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.commons.domain.vo.Money;
 import ir.dotin.platform.pangaea.workflow.api.context.WorkflowContext;
 import ir.dotin.platform.pangaea.workflow.api.definition.Compensable;
-import ir.dotin.platform.pangaea.workflow.api.definition.WriteActivity;
+import ir.dotin.platform.pangaea.workflow.api.definition.PublishingWriteActivity;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.Installment;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
@@ -35,7 +35,7 @@ import static java.util.Objects.requireNonNull;
 @Component("irregularApplyDisbursementStep")
 @RequiredArgsConstructor
 public class ApplyDisbursementStep
-        implements WriteActivity<IrregularDisbursementData>, Compensable<IrregularDisbursementData> {
+        implements PublishingWriteActivity<IrregularDisbursementData>, Compensable<IrregularDisbursementData> {
 
     private final FacilityDependencyLoader dependencyLoader;
     private final TransactionPostingSupport transactionPostingSupport;

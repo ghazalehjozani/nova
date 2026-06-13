@@ -14,7 +14,7 @@ import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.pangaea.workflow.api.context.WorkflowContext;
-import ir.dotin.platform.pangaea.workflow.api.definition.WriteActivity;
+import ir.dotin.platform.pangaea.workflow.api.definition.PublishingWriteActivity;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.Installment;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.entity.InstallmentSchedule;
@@ -38,7 +38,7 @@ import static java.util.Objects.requireNonNull;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RestructureFacilityStep implements WriteActivity<LoanFacilityRestructuringCommandHandler.Data> {
+public class RestructureFacilityStep implements PublishingWriteActivity<LoanFacilityRestructuringCommandHandler.Data> {
 
     private final TradeLoanFacilityRepository tradeLoanFacilityRepository;
     private final InstallmentScheduleRepository installmentScheduleRepository;

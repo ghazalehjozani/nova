@@ -9,8 +9,6 @@ import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
-import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
-import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateIrregularDisbursementCommand;
 import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.compensation.step.ReversalPreparation;
@@ -18,27 +16,31 @@ import ir.dotin.loan.trade.core.application.service.irregularprogressivedisburse
 import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.compensation.step.RevertIrregularDisbursementStep;
 import ir.dotin.loan.trade.core.application.service.shared.account.FcbTransactionReverser;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import static ir.dotin.platform.pangaea.workflow.api.definition.Steps.writePublishing;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 final class CompensateIrregularDisbursementCommandHandler
-        extends WorkflowCommandHandler<CompensateIrregularDisbursementCommand, RevertIrregularDisbursementData> {
+        implements WorkflowCommandHandler<CompensateIrregularDisbursementCommand, RevertIrregularDisbursementData> {
 
     @Override
-    protected Workflow<RevertIrregularDisbursementData> route(WorkflowRoute<RevertIrregularDisbursementData> route) {
+    public Workflow<RevertIrregularDisbursementData> definition() {
         // @formatter:off
-        return route.singleWrite("compensate-irregular-disbursement", revertIrregularDisbursementStep);
+        return Workflow.singleWrite("compensate-irregular-disbursement", writePublishing(revertIrregularDisbursementStep));
         // @formatter:on
     }
 
     @Override
-    protected Result<RevertIrregularDisbursementData> seed(CompensateIrregularDisbursementCommand command) {
+    public Result<RevertIrregularDisbursementData> seed(CompensateIrregularDisbursementCommand command) {
         return prepare(command).map(prepared -> new RevertIrregularDisbursementData(command, prepared));
     }
 
     @Override
-    protected void afterCompleted(
+    public void afterCompleted(
             CompensateIrregularDisbursementCommand command,
             RevertIrregularDisbursementData data,
             List<DomainEvent<?>> publishedEvents) {
@@ -60,13 +62,4 @@ final class CompensateIrregularDisbursementCommandHandler
 
     private final RevertIrregularDisbursementStep revertIrregularDisbursementStep;
     private final FcbTransactionReverser fcbTransactionReverser;
-
-    CompensateIrregularDisbursementCommandHandler(
-            WorkflowEngine engine,
-            RevertIrregularDisbursementStep revertIrregularDisbursementStep,
-            FcbTransactionReverser fcbTransactionReverser) {
-        super(engine);
-        this.revertIrregularDisbursementStep = revertIrregularDisbursementStep;
-        this.fcbTransactionReverser = fcbTransactionReverser;
-    }
 }

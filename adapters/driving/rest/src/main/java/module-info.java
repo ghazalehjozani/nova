@@ -14,9 +14,10 @@ open module ir.dotin.loan.trade.adapters.driving.rest {
     requires ir.dotin.loan.baseloan.core.domain;
     requires ir.dotin.platform.pangaea.protocol.rest;
     requires ir.dotin.platform.pangaea.protocol.api;
+    requires ir.dotin.platform.pangaea.protocol.core;
     requires ir.dotin.platform.pangaea.servicelayer.api;
-    requires ir.dotin.platform.pangaea.commons.security;
-    requires ir.dotin.platform.pangaea.security.oauth2;
+    requires ir.dotin.platform.pangaea.security.api;
+    requires ir.dotin.platform.pangaea.security.oauth2.core;
     requires spring.context;
     requires spring.beans;
     requires spring.web;

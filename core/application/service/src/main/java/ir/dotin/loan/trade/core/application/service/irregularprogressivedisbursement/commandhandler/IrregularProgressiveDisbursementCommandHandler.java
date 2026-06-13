@@ -10,8 +10,6 @@ import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
-import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
-import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.platform.pangaea.workflow.api.model.RetryPolicy;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -27,30 +25,37 @@ import ir.dotin.loan.trade.core.application.service.shared.disbursement.Facility
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
+import lombok.RequiredArgsConstructor;
+
+import static ir.dotin.platform.pangaea.workflow.api.definition.Steps.read;
+import static ir.dotin.platform.pangaea.workflow.api.definition.Steps.remote;
+import static ir.dotin.platform.pangaea.workflow.api.definition.Steps.writePublishing;
+
 @Service
+@RequiredArgsConstructor
 public class IrregularProgressiveDisbursementCommandHandler
-        extends WorkflowCommandHandler<IrregularProgressiveDisbursementCommand, IrregularDisbursementData> {
+        implements WorkflowCommandHandler<IrregularProgressiveDisbursementCommand, IrregularDisbursementData> {
 
     private static final Logger log = LoggerFactory.getLogger(IrregularProgressiveDisbursementCommandHandler.class);
 
     @Override
-    protected Workflow<IrregularDisbursementData> route(WorkflowRoute<IrregularDisbursementData> route) {
+    public Workflow<IrregularDisbursementData> definition() {
         // @formatter:off
-        return route.type("irregular-progressive-disbursement")
-                .read(IrregularProgressiveDisbursementStep.VALIDATE_FACILITY, validateFacilityStep)
-                .remote(IrregularProgressiveDisbursementStep.RESOLVE_ACCOUNTS, resolveAccountsStep)
-                    .retry(RetryPolicy.CONSERVATIVE)
-                    .timeout(Duration.ofSeconds(30))
-                .remote(IrregularProgressiveDisbursementStep.POST_TRANSACTIONS, postTransactionsStep)
-                    .retry(RetryPolicy.CONSERVATIVE)
-                    .timeout(Duration.ofSeconds(30))
-                .write(IrregularProgressiveDisbursementStep.APPLY_DISBURSEMENT, applyDisbursementStep)
+        return Workflow.<IrregularDisbursementData>named("irregular-progressive-disbursement")
+                .step(read(IrregularProgressiveDisbursementStep.VALIDATE_FACILITY, validateFacilityStep))
+                .step(remote(IrregularProgressiveDisbursementStep.RESOLVE_ACCOUNTS, resolveAccountsStep)
+                        .retry(RetryPolicy.CONSERVATIVE)
+                        .timeout(Duration.ofSeconds(30)))
+                .step(remote(IrregularProgressiveDisbursementStep.POST_TRANSACTIONS, postTransactionsStep)
+                        .retry(RetryPolicy.CONSERVATIVE)
+                        .timeout(Duration.ofSeconds(30)))
+                .step(writePublishing(IrregularProgressiveDisbursementStep.APPLY_DISBURSEMENT, applyDisbursementStep))
                 .build();
         // @formatter:on
     }
 
     @Override
-    protected Result<IrregularDisbursementData> seed(IrregularProgressiveDisbursementCommand command) {
+    public Result<IrregularDisbursementData> seed(IrregularProgressiveDisbursementCommand command) {
         log.info("Starting irregular disbursement for facility: {}", command.loanFacilityId());
 
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
@@ -86,23 +91,4 @@ public class IrregularProgressiveDisbursementCommandHandler
     private final ResolveAccountsStep resolveAccountsStep;
     private final PostTransactionsStep postTransactionsStep;
     private final ApplyDisbursementStep applyDisbursementStep;
-
-    public IrregularProgressiveDisbursementCommandHandler(
-            WorkflowEngine engine,
-            FacilityDependencyLoader dependencyLoader,
-            BranchAccessValidator branchAccessValidator,
-            IrregularDisbursementSeedAssembler seedAssembler,
-            ValidateFacilityStep validateFacilityStep,
-            ResolveAccountsStep resolveAccountsStep,
-            PostTransactionsStep postTransactionsStep,
-            ApplyDisbursementStep applyDisbursementStep) {
-        super(engine);
-        this.dependencyLoader = dependencyLoader;
-        this.branchAccessValidator = branchAccessValidator;
-        this.seedAssembler = seedAssembler;
-        this.validateFacilityStep = validateFacilityStep;
-        this.resolveAccountsStep = resolveAccountsStep;
-        this.postTransactionsStep = postTransactionsStep;
-        this.applyDisbursementStep = applyDisbursementStep;
-    }
 }

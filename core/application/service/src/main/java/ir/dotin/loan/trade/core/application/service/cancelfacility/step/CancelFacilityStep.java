@@ -13,7 +13,7 @@ import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.context.WorkflowContext;
-import ir.dotin.platform.pangaea.workflow.api.definition.WriteActivity;
+import ir.dotin.platform.pangaea.workflow.api.definition.PublishingWriteActivity;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CancelFacilityStep implements WriteActivity<CancelFacilityCommandHandler.Data> {
+public class CancelFacilityStep implements PublishingWriteActivity<CancelFacilityCommandHandler.Data> {
 
     private final TradeLoanFacilityRepository facilityRepository;
     private final InstallmentScheduleRepository scheduleRepository;

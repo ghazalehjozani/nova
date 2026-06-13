@@ -9,7 +9,7 @@ import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.context.WorkflowContext;
-import ir.dotin.platform.pangaea.workflow.api.definition.WriteActivity;
+import ir.dotin.platform.pangaea.workflow.api.definition.PublishingWriteActivity;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.ApproveFacilityCommand;
@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ApproveFacilityStep implements WriteActivity<ApproveFacilityCommandHandler.Data> {
+public class ApproveFacilityStep implements PublishingWriteActivity<ApproveFacilityCommandHandler.Data> {
 
     private final TradeLoanFacilityRepository loanFacilityRepository;
     private final TradeLoanArrangementRepository loanArrangementRepository;

@@ -13,7 +13,7 @@ import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.context.WorkflowContext;
 import ir.dotin.platform.pangaea.workflow.api.definition.Compensable;
-import ir.dotin.platform.pangaea.workflow.api.definition.WriteActivity;
+import ir.dotin.platform.pangaea.workflow.api.definition.PublishingWriteActivity;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.entity.AbstractSanctionedLoan;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component("lumpSumApplyDisbursementStep")
 @RequiredArgsConstructor
-public class ApplyDisbursementStep implements WriteActivity<LumpSumData>, Compensable<LumpSumData> {
+public class ApplyDisbursementStep implements PublishingWriteActivity<LumpSumData>, Compensable<LumpSumData> {
 
     private final FacilityDependencyLoader dependencyLoader;
     private final TransactionPostingSupport transactionPostingSupport;

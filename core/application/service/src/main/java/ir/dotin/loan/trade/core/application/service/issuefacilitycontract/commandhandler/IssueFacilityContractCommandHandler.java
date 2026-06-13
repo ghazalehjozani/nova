@@ -8,8 +8,6 @@ import ir.dotin.platform.accounting.document.api.model.TransactionConfig;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
-import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
-import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.platform.pangaea.workflow.api.model.RetryPolicy;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.IssueFacilityContractCommand;
 import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.component.FacilityContractDependencyLoader;
@@ -23,28 +21,35 @@ import ir.dotin.loan.trade.core.application.service.issuefacilitycontract.workfl
 import ir.dotin.loan.trade.core.application.service.shared.util.DocumentMetadataUtils;
 import ir.dotin.loan.trade.core.domain.loanfacility.service.validator.FacilityContractValidation;
 
+import lombok.RequiredArgsConstructor;
+
+import static ir.dotin.platform.pangaea.workflow.api.definition.Steps.read;
+import static ir.dotin.platform.pangaea.workflow.api.definition.Steps.remote;
+import static ir.dotin.platform.pangaea.workflow.api.definition.Steps.writePublishing;
+
 @Service
+@RequiredArgsConstructor
 public class IssueFacilityContractCommandHandler
-        extends WorkflowCommandHandler<IssueFacilityContractCommand, ContractData> {
+        implements WorkflowCommandHandler<IssueFacilityContractCommand, ContractData> {
 
     @Override
-    protected Workflow<ContractData> route(WorkflowRoute<ContractData> route) {
+    public Workflow<ContractData> definition() {
         // @formatter:off
-        return route.type("issue-facility-contract")
-                .read(IssueFacilityContractStep.VALIDATE_FACILITY, validateFacilityStep)
-                .remote(IssueFacilityContractStep.OPEN_ACCOUNTS, openAccountsStep)
-                    .retry(RetryPolicy.CONSERVATIVE)
-                    .timeout(Duration.ofSeconds(30))
-                .remote(IssueFacilityContractStep.POST_TRANSACTION, postTransactionStep)
-                    .retry(RetryPolicy.CONSERVATIVE)
-                    .timeout(Duration.ofSeconds(30))
-                .write(IssueFacilityContractStep.UPDATE_FACILITY_STATE, updateFacilityStateStep)
+        return Workflow.<ContractData>named("issue-facility-contract")
+                .step(read(IssueFacilityContractStep.VALIDATE_FACILITY, validateFacilityStep))
+                .step(remote(IssueFacilityContractStep.OPEN_ACCOUNTS, openAccountsStep)
+                        .retry(RetryPolicy.CONSERVATIVE)
+                        .timeout(Duration.ofSeconds(30)))
+                .step(remote(IssueFacilityContractStep.POST_TRANSACTION, postTransactionStep)
+                        .retry(RetryPolicy.CONSERVATIVE)
+                        .timeout(Duration.ofSeconds(30)))
+                .step(writePublishing(IssueFacilityContractStep.UPDATE_FACILITY_STATE, updateFacilityStateStep))
                 .build();
         // @formatter:on
     }
 
     @Override
-    protected Result<ContractData> seed(IssueFacilityContractCommand command) {
+    public Result<ContractData> seed(IssueFacilityContractCommand command) {
         return dependencyLoader.loadDependencies(command).flatMap(context -> facilityValidator
                 .callAndValidateServices(command, context)
                 .flatMap(ignored -> facilityContractValidation.validateForContractIssuance(
@@ -76,23 +81,4 @@ public class IssueFacilityContractCommandHandler
     private final OpenAccountsStep openAccountsStep;
     private final PostTransactionStep postTransactionStep;
     private final UpdateFacilityStateStep updateFacilityStateStep;
-
-    public IssueFacilityContractCommandHandler(
-            WorkflowEngine engine,
-            FacilityContractDependencyLoader dependencyLoader,
-            FacilityContractValidator facilityValidator,
-            FacilityContractValidation facilityContractValidation,
-            ValidateFacilityStep validateFacilityStep,
-            OpenAccountsStep openAccountsStep,
-            PostTransactionStep postTransactionStep,
-            UpdateFacilityStateStep updateFacilityStateStep) {
-        super(engine);
-        this.dependencyLoader = dependencyLoader;
-        this.facilityValidator = facilityValidator;
-        this.facilityContractValidation = facilityContractValidation;
-        this.validateFacilityStep = validateFacilityStep;
-        this.openAccountsStep = openAccountsStep;
-        this.postTransactionStep = postTransactionStep;
-        this.updateFacilityStateStep = updateFacilityStateStep;
-    }
 }

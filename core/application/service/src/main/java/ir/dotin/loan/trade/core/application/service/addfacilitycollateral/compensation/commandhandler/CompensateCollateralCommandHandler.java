@@ -9,8 +9,6 @@ import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
-import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
-import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateCollateralCommand;
@@ -22,22 +20,26 @@ import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.compon
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import static ir.dotin.platform.pangaea.workflow.api.definition.Steps.writePublishing;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public final class CompensateCollateralCommandHandler
-        extends WorkflowCommandHandler<CompensateCollateralCommand, RevertCollateralData> {
+        implements WorkflowCommandHandler<CompensateCollateralCommand, RevertCollateralData> {
 
     @Override
-    protected Workflow<RevertCollateralData> route(WorkflowRoute<RevertCollateralData> route) {
+    public Workflow<RevertCollateralData> definition() {
         // @formatter:off
-        return route.singleWrite("compensate-collateral", revertCollateralStep);
+        return Workflow.singleWrite("compensate-collateral", writePublishing(revertCollateralStep));
         // @formatter:on
     }
 
     @Override
-    protected Result<RevertCollateralData> seed(CompensateCollateralCommand command) {
+    public Result<RevertCollateralData> seed(CompensateCollateralCommand command) {
         return prepare(command).map(prepared -> new RevertCollateralData(command, prepared));
     }
 
@@ -74,15 +76,4 @@ public final class CompensateCollateralCommandHandler
     private final TradeLoanFacilityRepository repository;
     private final CollateralReservationReleaser collateralReservationReleaser;
     private final RevertCollateralStep revertCollateralStep;
-
-    public CompensateCollateralCommandHandler(
-            WorkflowEngine engine,
-            TradeLoanFacilityRepository repository,
-            CollateralReservationReleaser collateralReservationReleaser,
-            RevertCollateralStep revertCollateralStep) {
-        super(engine);
-        this.repository = repository;
-        this.collateralReservationReleaser = collateralReservationReleaser;
-        this.revertCollateralStep = revertCollateralStep;
-    }
 }

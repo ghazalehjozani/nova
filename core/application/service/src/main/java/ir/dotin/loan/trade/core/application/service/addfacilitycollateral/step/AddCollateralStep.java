@@ -11,7 +11,7 @@ import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.context.WorkflowContext;
 import ir.dotin.platform.pangaea.workflow.api.definition.Compensable;
-import ir.dotin.platform.pangaea.workflow.api.definition.WriteActivity;
+import ir.dotin.platform.pangaea.workflow.api.definition.PublishingWriteActivity;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.service.validator.AbstractCollateralValidationService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class AddCollateralStep implements WriteActivity<CollateralData>, Compensable<CollateralData> {
+public class AddCollateralStep implements PublishingWriteActivity<CollateralData>, Compensable<CollateralData> {
 
     private final AddFacilityCollateralCommandMapper mapper;
     private final TradeLoanFacilityRepository facilityRepository;

@@ -11,8 +11,6 @@ import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.domain.vo.Money;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
-import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
-import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.platform.pangaea.workflow.api.model.RetryPolicy;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
@@ -26,24 +24,30 @@ import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.workfl
 import ir.dotin.loan.trade.core.application.service.addfacilitycollateral.workflow.CollateralData;
 import ir.dotin.loan.trade.core.application.service.shared.authz.BranchAccessValidator;
 
+import lombok.RequiredArgsConstructor;
+
+import static ir.dotin.platform.pangaea.workflow.api.definition.Steps.remote;
+import static ir.dotin.platform.pangaea.workflow.api.definition.Steps.writePublishing;
+
 @Service
+@RequiredArgsConstructor
 public class AddFacilityCollateralCommandHandler
-        extends WorkflowCommandHandler<AddFacilityCollateralCommand, CollateralData> {
+        implements WorkflowCommandHandler<AddFacilityCollateralCommand, CollateralData> {
 
     @Override
-    protected Workflow<CollateralData> route(WorkflowRoute<CollateralData> route) {
+    public Workflow<CollateralData> definition() {
         // @formatter:off
-        return route.type("add-facility-collateral")
-                .remote(AddFacilityCollateralStep.RESERVE_COLLATERALS, reserveCollateralsStep)
-                    .retry(RetryPolicy.CONSERVATIVE)
-                    .timeout(Duration.ofSeconds(30))
-                .write(AddFacilityCollateralStep.ADD_COLLATERAL, addCollateralStep)
+        return Workflow.<CollateralData>named("add-facility-collateral")
+                .step(remote(AddFacilityCollateralStep.RESERVE_COLLATERALS, reserveCollateralsStep)
+                        .retry(RetryPolicy.CONSERVATIVE)
+                        .timeout(Duration.ofSeconds(30)))
+                .step(writePublishing(AddFacilityCollateralStep.ADD_COLLATERAL, addCollateralStep))
                 .build();
         // @formatter:on
     }
 
     @Override
-    protected Result<CollateralData> seed(AddFacilityCollateralCommand command) {
+    public Result<CollateralData> seed(AddFacilityCollateralCommand command) {
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());
 
         List<Collateral> collaterals = mapper.toCollaterals(command.collaterals());
@@ -88,19 +92,4 @@ public class AddFacilityCollateralCommandHandler
     private final BranchAccessValidator branchAccessValidator;
     private final ReserveCollateralsStep reserveCollateralsStep;
     private final AddCollateralStep addCollateralStep;
-
-    public AddFacilityCollateralCommandHandler(
-            WorkflowEngine engine,
-            AddFacilityCollateralCommandMapper mapper,
-            AddFacilityCollateralDependencyLoader dependencyLoader,
-            BranchAccessValidator branchAccessValidator,
-            ReserveCollateralsStep reserveCollateralsStep,
-            AddCollateralStep addCollateralStep) {
-        super(engine);
-        this.mapper = mapper;
-        this.dependencyLoader = dependencyLoader;
-        this.branchAccessValidator = branchAccessValidator;
-        this.reserveCollateralsStep = reserveCollateralsStep;
-        this.addCollateralStep = addCollateralStep;
-    }
 }

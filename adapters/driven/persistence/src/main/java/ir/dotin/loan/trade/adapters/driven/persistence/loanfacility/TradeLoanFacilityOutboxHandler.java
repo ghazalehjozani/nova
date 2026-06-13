@@ -3,7 +3,7 @@ package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility;
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.pangaea.commons.domain.entity.AbstractAggregateRoot;
-import ir.dotin.platform.pangaea.messaging.persistence.handler.OutboxHandler;
+import ir.dotin.platform.pangaea.outbox.jpa.handler.OutboxHandler;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity.TradeLoanFacilityOutboxEventEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.mapper.LoanApplicationOutboxEventMapper;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.repository.LoanFacilityOutboxRepository;

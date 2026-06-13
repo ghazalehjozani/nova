@@ -17,7 +17,7 @@ open module ir.dotin.loan.trade.adapters.driven.fcbmessaging.contract {
     requires transitive ir.dotin.loan.baseloan.core.domain;
     requires transitive ir.dotin.platform.pangaea.commons.core;
     requires transitive ir.dotin.platform.pangaea.commons.domain;
-    requires ir.dotin.platform.pangaea.commons.security;
+    requires ir.dotin.platform.pangaea.security.api;
     requires ir.dotin.platform.accounting.document.api;
     requires spring.context;
     requires spring.beans;

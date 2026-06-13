@@ -100,13 +100,6 @@ platform:
       caching-enabled: true
       cache-strategy: REDIS
       cache-ttl: 1m
-    events:
-      publisher: spring
-      publish-before-commit: true
-      publish-async: false
-      enforce-event-ordering: true
-      max-concurrent-listeners: 4
-      shutdown-timeout-seconds: 10
     metrics:
       enabled: false
       log-execution: false

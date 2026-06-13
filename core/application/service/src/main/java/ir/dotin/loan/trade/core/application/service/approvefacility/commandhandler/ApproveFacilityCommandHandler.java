@@ -6,8 +6,6 @@ import org.springframework.stereotype.Service;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
-import ir.dotin.platform.pangaea.workflow.api.definition.WorkflowRoute;
-import ir.dotin.platform.pangaea.workflow.api.engine.WorkflowEngine;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.ApproveFacilityCommand;
@@ -16,19 +14,24 @@ import ir.dotin.loan.trade.core.application.service.approvefacility.component.Sa
 import ir.dotin.loan.trade.core.application.service.approvefacility.step.ApproveFacilityStep;
 import ir.dotin.loan.trade.core.application.service.shared.authz.BranchAccessValidator;
 
+import lombok.RequiredArgsConstructor;
+
+import static ir.dotin.platform.pangaea.workflow.api.definition.Steps.writePublishing;
+
 @Service
+@RequiredArgsConstructor
 public final class ApproveFacilityCommandHandler
-        extends WorkflowCommandHandler<ApproveFacilityCommand, ApproveFacilityCommandHandler.Data> {
+        implements WorkflowCommandHandler<ApproveFacilityCommand, ApproveFacilityCommandHandler.Data> {
 
     @Override
-    protected Workflow<Data> route(WorkflowRoute<Data> route) {
+    public Workflow<Data> definition() {
         // @formatter:off
-        return route.singleWrite("approve-facility", approveFacilityStep);
+        return Workflow.singleWrite("approve-facility", writePublishing(approveFacilityStep));
         // @formatter:on
     }
 
     @Override
-    protected Result<Data> seed(ApproveFacilityCommand command) {
+    public Result<Data> seed(ApproveFacilityCommand command) {
         ConfirmType confirmType = ConfirmType.of(command.confirmType()).unwrap();
 
         return branchAccessValidator
@@ -52,15 +55,4 @@ public final class ApproveFacilityCommandHandler
     private final BranchAccessValidator branchAccessValidator;
     private final SanctionDetailsLoader sanctionDetailsLoader;
     private final ApproveFacilityStep approveFacilityStep;
-
-    public ApproveFacilityCommandHandler(
-            WorkflowEngine engine,
-            BranchAccessValidator branchAccessValidator,
-            SanctionDetailsLoader sanctionDetailsLoader,
-            ApproveFacilityStep approveFacilityStep) {
-        super(engine);
-        this.branchAccessValidator = branchAccessValidator;
-        this.sanctionDetailsLoader = sanctionDetailsLoader;
-        this.approveFacilityStep = approveFacilityStep;
-    }
 }

@@ -16,7 +16,7 @@ open module ir.dotin.loan.trade.adapters.driven.persistence {
     requires transitive ir.dotin.platform.pangaea.commons.core;
     requires transitive ir.dotin.platform.pangaea.commons.domain;
     requires ir.dotin.platform.pangaea.persistence.jpa;
-    requires ir.dotin.platform.pangaea.messaging.persistence;
+    requires ir.dotin.platform.pangaea.outbox.jpa;
     requires ir.dotin.platform.pangaea.outbox.api;
     requires ir.dotin.platform.accounting.document.api;
     requires ir.dotin.platform.formula.infrastructure;
