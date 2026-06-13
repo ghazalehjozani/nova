@@ -27,4 +27,12 @@ public class ReconciliationSourceProperties {
      * remediation flag admits the request, the replay does not execute unless this is true.
      */
     private boolean replayForwardEnabled = false;
+
+    /**
+     * Fair-chance window for an FCB-absent apply-lost orphan: while the Nova row last changed less than this long ago
+     * the action keeps re-driving the stored forward step so the FCB effect-aware re-apply can converge it; once it is
+     * exceeded the still-orphan divergence escalates to NEEDS_OPERATOR with its FCB_APPLY_LOST dossier instead of
+     * re-driving forever.
+     */
+    private Duration applyLostEscalateAfter = Duration.ofHours(1);
 }

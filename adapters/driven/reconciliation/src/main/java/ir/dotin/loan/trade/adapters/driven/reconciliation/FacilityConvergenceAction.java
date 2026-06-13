@@ -223,7 +223,8 @@ public class FacilityConvergenceAction implements ConvergenceAction {
 
         // (3) / (4) verdict-directed lever.
         return switch (divergence.verdict()) {
-            case ORPHAN, LAGGING -> convergeNovaToFcb(facilityId, facilityRows);
+            case ORPHAN, LAGGING ->
+                convergeNovaToFcb(facilityId, facilityRows, novaStatus, novaModifiedAtEpochMs, correlationIds);
             case ALIGNED, UNKNOWN -> ConvergeOutcome.notApplicable("not-divergent");
         };
     }
@@ -344,14 +345,8 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             List<OutboxRecordView> facilityRows,
             List<String> correlationIds,
             long novaModifiedAtEpochMs) {
-        List<OutboxRecordView> forwardRows = facilityRows.stream()
-                .filter(row -> FacilityReconMapping.fcbRankForEvent(row.eventType()) >= 0)
-                .toList();
-        boolean graceElapsed = !fcb.exists()
-                && novaModifiedAtEpochMs > 0
-                && Duration.between(Instant.ofEpochMilli(novaModifiedAtEpochMs), clock.instant())
-                                .compareTo(properties.getGraceWindow())
-                        > 0;
+        List<OutboxRecordView> forwardRows = forwardRows(facilityRows);
+        boolean graceElapsed = graceElapsed(fcb, novaModifiedAtEpochMs);
 
         FacilityClassification classification = classifier.classify(new FacilityRootCauseClassifier.ClassifierInput(
                 fcb.exists(), fcb.fileStatus(), novaStatus, forwardRows, graceElapsed, null));
@@ -360,10 +355,74 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             return ConvergeOutcome.retryLater("fcb-lag");
         }
 
+        return ConvergeOutcome.needsOperator(
+                buildDossier(novaStatus, fcb, forwardRows, correlationIds, graceElapsed, classification));
+    }
+
+    private OperatorDossier buildDossier(
+            FacilityStatus novaStatus,
+            ReconLoanFileState fcb,
+            List<OutboxRecordView> forwardRows,
+            List<String> correlationIds,
+            boolean graceElapsed,
+            FacilityClassification classification) {
         String workflowState = workflowStateSummary(correlationIds);
-        OperatorDossier dossier =
-                dossierBuilder.build(novaStatus, fcb, forwardRows, workflowState, graceElapsed, classification, null);
-        return ConvergeOutcome.needsOperator(dossier);
+        return dossierBuilder.build(novaStatus, fcb, forwardRows, workflowState, graceElapsed, classification, null);
+    }
+
+    private static List<OutboxRecordView> forwardRows(List<OutboxRecordView> facilityRows) {
+        return facilityRows.stream()
+                .filter(row -> FacilityReconMapping.fcbRankForEvent(row.eventType()) >= 0)
+                .toList();
+    }
+
+    private boolean graceElapsed(ReconLoanFileState fcb, long novaModifiedAtEpochMs) {
+        return !fcb.exists()
+                && novaModifiedAtEpochMs > 0
+                && Duration.between(Instant.ofEpochMilli(novaModifiedAtEpochMs), clock.instant())
+                                .compareTo(properties.getGraceWindow())
+                        > 0;
+    }
+
+    // ════════════════════════════════════════ Classify (no convergence) ════════════════════════════════════════
+
+    @Override
+    public Optional<OperatorDossier> classify(OpaqueKey key, Divergence divergence) {
+        String facilityId = key.value();
+        try {
+            Optional<FacilityReconRow> novaRow = readPort.findById(facilityId);
+            if (novaRow.isEmpty()) {
+                return Optional.empty();
+            }
+            Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId);
+            if (fcbResult.isFailure()) {
+                return Optional.empty();
+            }
+            ReconLoanFileState fcb = fcbResult.unwrap();
+            if (!fcb.reachable()) {
+                return Optional.empty();
+            }
+
+            FacilityStatus novaStatus = novaRow.get().status();
+            long novaModifiedAtEpochMs = novaRow.get().modifiedAtEpochMs();
+            List<OutboxRecordView> facilityRows = loadFacilityOutboxRows(facilityId);
+            List<String> correlationIds = facilityRows.stream()
+                    .map(OutboxRecordView::correlationId)
+                    .filter(Objects::nonNull)
+                    .map(UUID::toString)
+                    .distinct()
+                    .toList();
+            List<OutboxRecordView> forwardRows = forwardRows(facilityRows);
+            boolean graceElapsed = graceElapsed(fcb, novaModifiedAtEpochMs);
+
+            FacilityClassification classification = classifier.classify(new FacilityRootCauseClassifier.ClassifierInput(
+                    fcb.exists(), fcb.fileStatus(), novaStatus, forwardRows, graceElapsed, null));
+            return Optional.of(
+                    buildDossier(novaStatus, fcb, forwardRows, correlationIds, graceElapsed, classification));
+        } catch (RuntimeException e) {
+            log.warn("classify() failed for facility {} — no dossier", facilityId, e);
+            return Optional.empty();
+        }
     }
 
     private String workflowStateSummary(List<String> correlationIds) {
@@ -395,7 +454,12 @@ public class FacilityConvergenceAction implements ConvergenceAction {
 
     // ════════════════════════════════════════ (3) Nova → FCB lever (INV-3, INV-5) ════════════════════════════════
 
-    private ConvergeOutcome convergeNovaToFcb(String facilityId, List<OutboxRecordView> facilityRows) {
+    private ConvergeOutcome convergeNovaToFcb(
+            String facilityId,
+            List<OutboxRecordView> facilityRows,
+            FacilityStatus novaStatus,
+            long novaModifiedAtEpochMs,
+            List<String> correlationIds) {
 
         // Re-drive the EARLIEST forward event FCB has NOT yet applied (INV-5), judged against FCB's CURRENT file status
         // — not merely the earliest stored event (which FCB may already have → an idempotent no-op that never closes a
@@ -439,6 +503,20 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             }
         }
 
+        // FCB-absent orphan whose earliest-missing step is entirely PROCESSED = the forward event was already published
+        // once but FCB never materialized it (FCB_APPLY_LOST). Re-driving alone re-publishes every cycle and (since a
+        // re-drive returns retryLater, never incrementing the attempt budget) the row would loop forever without ever
+        // carrying a root cause or escalating. So classify it up front: while the apply-lost fair-chance window is open
+        // we still re-drive (the FCB effect-aware re-apply can converge it); once the window is exceeded we escalate to
+        // NEEDS_OPERATOR with the FCB_APPLY_LOST dossier instead of re-driving silently forever.
+        if (!fcb.exists() && !anyDeadLetter && !anyInProgress && !processedIds.isEmpty()) {
+            ConvergeOutcome escalation =
+                    escalateIfApplyLostExhausted(novaStatus, fcb, facilityRows, correlationIds, novaModifiedAtEpochMs);
+            if (escalation != null) {
+                return escalation;
+            }
+        }
+
         if (!processedIds.isEmpty()) {
             long republished = outboxAdminPort.republish(new OutboxRepublishCommand(
                     processedIds, AGGREGATE_TYPE, null, null, null, null, processedIds.size()));
@@ -463,6 +541,44 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             return ConvergeOutcome.retryLater("outbox-in-progress");
         }
         return ConvergeOutcome.retryLater("republish-noop");
+    }
+
+    /**
+     * For an FCB-absent apply-lost orphan, decide whether the FCB re-apply has had a fair chance: classify the
+     * divergence and, only when it is {@code FCB_APPLY_LOST} (grace already elapsed) AND the Nova row last changed
+     * longer ago than {@code applyLostEscalateAfter}, escalate to {@code NeedsOperator} with the
+     * REPLAY_FORWARD-recommending dossier so the loop terminates. Returns {@code null} (keep re-driving) while still
+     * inside the fair-chance window, when grace has not yet elapsed (classifier yields {@code FCB_LAG}), or when the
+     * classification is anything other than {@code FCB_APPLY_LOST}. Side-effect-free.
+     */
+    private @Nullable ConvergeOutcome escalateIfApplyLostExhausted(
+            FacilityStatus novaStatus,
+            ReconLoanFileState fcb,
+            List<OutboxRecordView> facilityRows,
+            List<String> correlationIds,
+            long novaModifiedAtEpochMs) {
+        boolean graceElapsed = graceElapsed(fcb, novaModifiedAtEpochMs);
+        if (!graceElapsed) {
+            return null;
+        }
+        List<OutboxRecordView> forwardRows = forwardRows(facilityRows);
+        FacilityClassification classification = classifier.classify(new FacilityRootCauseClassifier.ClassifierInput(
+                fcb.exists(), fcb.fileStatus(), novaStatus, forwardRows, graceElapsed, null));
+        if (classification.rootCause() != RootCause.FCB_APPLY_LOST) {
+            return null;
+        }
+        if (!applyLostFairChanceElapsed(novaModifiedAtEpochMs)) {
+            return null;
+        }
+        return ConvergeOutcome.needsOperator(
+                buildDossier(novaStatus, fcb, forwardRows, correlationIds, graceElapsed, classification));
+    }
+
+    private boolean applyLostFairChanceElapsed(long novaModifiedAtEpochMs) {
+        return novaModifiedAtEpochMs > 0
+                && Duration.between(Instant.ofEpochMilli(novaModifiedAtEpochMs), clock.instant())
+                                .compareTo(properties.getApplyLostEscalateAfter())
+                        > 0;
     }
 
     /**
