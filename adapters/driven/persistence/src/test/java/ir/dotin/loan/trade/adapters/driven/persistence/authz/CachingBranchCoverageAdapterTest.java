@@ -49,7 +49,7 @@ class CachingBranchCoverageAdapterTest {
     @BeforeEach
     void setUp() {
         properties = new BranchCoverageCacheProperties();
-        adapter = new CachingBranchCoverageAdapter(loanServicePort, redisTemplate, properties);
+        adapter = new CachingBranchCoverageAdapter(loanServicePort, redisTemplate, properties, "v1");
         lenient().when(redisTemplate.opsForValue()).thenReturn(valueOperations);
     }
 

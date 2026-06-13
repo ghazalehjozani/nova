@@ -26,6 +26,8 @@ import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializ
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import ir.dotin.platform.pangaea.commons.core.cache.CacheKeyspace;
+
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.ReadFrom;
 import io.lettuce.core.SocketOptions;
@@ -136,7 +138,8 @@ public class RedisConfig implements CachingConfigurer {
     }
 
     @Bean
-    public RedisCacheManager redisLoanCacheManager(RedisConnectionFactory connectionFactory) {
+    public RedisCacheManager redisLoanCacheManager(
+            RedisConnectionFactory connectionFactory, @Value("${nova.cache.version}") String cacheKeyVersion) {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfBaseType(Object.class)
                 .build();
@@ -157,6 +160,7 @@ public class RedisConfig implements CachingConfigurer {
 
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofHours(1))
+                .prefixCacheNameWith(CacheKeyspace.versioned("", cacheKeyVersion))
                 .serializeKeysWith(
                         RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer))
