@@ -15,7 +15,10 @@ import com.ecwid.consul.v1.session.model.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ir.dotin.platform.pangaea.observability.core.BackgroundTransaction;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.ReplyPartitionLease;
+
+import io.opentelemetry.api.trace.Tracer;
 
 /**
  * A Consul session-backed claim on one partition of the FCB reply topic. The claim is a KV lock acquired with the
@@ -34,6 +37,7 @@ final class ConsulReplyPartitionLease implements ReplyPartitionLease {
     private final int partition;
     private final String lockKey;
     private final Consumer<String> onLeaseLost;
+    private final Tracer tracer;
     private final ScheduledExecutorService renewer;
     private final AtomicBoolean held = new AtomicBoolean(true);
 
@@ -44,13 +48,15 @@ final class ConsulReplyPartitionLease implements ReplyPartitionLease {
             int partition,
             String lockKey,
             Duration renewInterval,
-            Consumer<String> onLeaseLost) {
+            Consumer<String> onLeaseLost,
+            Tracer tracer) {
         this.consul = consul;
         this.aclToken = aclToken;
         this.sessionId = sessionId;
         this.partition = partition;
         this.lockKey = lockKey;
         this.onLeaseLost = onLeaseLost;
+        this.tracer = tracer;
         this.renewer = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread t = new Thread(r, "fcb-reply-lease-renew-p" + partition);
             t.setDaemon(true);
@@ -74,6 +80,10 @@ final class ConsulReplyPartitionLease implements ReplyPartitionLease {
         if (!held.get()) {
             return;
         }
+        BackgroundTransaction.run(tracer, "fcb.reply-lease.renew", "scheduled", this::doRenew);
+    }
+
+    private void doRenew() {
         try {
             Response<Session> resp = aclToken.isBlank()
                     ? consul.renewSession(sessionId, QueryParams.DEFAULT)

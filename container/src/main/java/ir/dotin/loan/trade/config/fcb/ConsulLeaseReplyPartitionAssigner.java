@@ -15,6 +15,8 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbReplyPartition
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.ReplyPartitionLease;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.ReplyPartitionLeaseLostListener;
 
+import io.opentelemetry.api.trace.Tracer;
+
 /**
  * Coordinates reply-partition assignment through Consul so each live instance owns a unique partition regardless of pod
  * ordinal/hostname. Creates a TTL session, then scans partition indices {@code [0, partitionCount)} and takes the first
@@ -32,18 +34,21 @@ final class ConsulLeaseReplyPartitionAssigner implements FcbReplyPartitionAssign
     private final FcbKafkaProperties.Lease leaseProps;
     private final String instanceId;
     private final ObjectProvider<ReplyPartitionLeaseLostListener> listeners;
+    private final Tracer tracer;
 
     ConsulLeaseReplyPartitionAssigner(
             ConsulClient consul,
             String aclToken,
             FcbKafkaProperties properties,
             String instanceId,
-            ObjectProvider<ReplyPartitionLeaseLostListener> listeners) {
+            ObjectProvider<ReplyPartitionLeaseLostListener> listeners,
+            Tracer tracer) {
         this.consul = consul;
         this.aclToken = aclToken == null ? "" : aclToken;
         this.leaseProps = properties.getLease();
         this.instanceId = instanceId == null ? "" : instanceId;
         this.listeners = listeners;
+        this.tracer = tracer;
     }
 
     @Override
@@ -67,7 +72,8 @@ final class ConsulLeaseReplyPartitionAssigner implements FcbReplyPartitionAssign
                             partition,
                             lockKey,
                             leaseProps.getRenewInterval(),
-                            this::notifyLeaseLost);
+                            this::notifyLeaseLost,
+                            tracer);
                 }
                 if (System.nanoTime() > deadlineNanos) {
                     break;

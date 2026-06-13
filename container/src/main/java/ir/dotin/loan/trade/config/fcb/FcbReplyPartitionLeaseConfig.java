@@ -15,6 +15,8 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbKafkaPropertie
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbReplyPartitionAssigner;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.ReplyPartitionLeaseLostListener;
 
+import io.opentelemetry.api.OpenTelemetry;
+
 /**
  * Wires the Consul-backed reply-partition assigner.
  *
@@ -42,10 +44,16 @@ public class FcbReplyPartitionLeaseConfig {
                     String aclToken,
             @Value("${platform.messaging.kafka.instance-id:${HOSTNAME:nova-service}}") String instanceId,
             FcbKafkaProperties properties,
-            ObjectProvider<ReplyPartitionLeaseLostListener> leaseLostListeners) {
+            ObjectProvider<ReplyPartitionLeaseLostListener> leaseLostListeners,
+            ObjectProvider<OpenTelemetry> openTelemetry) {
         ConsulClient consulClient = buildLeaseConsulClient(consulProperties);
         return new ConsulLeaseReplyPartitionAssigner(
-                consulClient, aclToken, properties, instanceId, leaseLostListeners);
+                consulClient,
+                aclToken,
+                properties,
+                instanceId,
+                leaseLostListeners,
+                openTelemetry.getIfAvailable(OpenTelemetry::noop).getTracer("ir.dotin.loan.fcb.reply-lease"));
     }
 
     /**
