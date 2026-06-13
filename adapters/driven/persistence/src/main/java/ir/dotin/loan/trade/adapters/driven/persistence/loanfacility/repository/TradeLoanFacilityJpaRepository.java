@@ -30,7 +30,11 @@ public interface TradeLoanFacilityJpaRepository extends PersistentRepository<Tra
      * is resumable after a lost lease. {@code modifiedAt} is coalesced to {@code createdAt} for never-modified rows.
      */
     @Query("""
-            SELECT t.id AS id, t.currentState AS currentState, COALESCE(t.modifiedAt, t.createdAt) AS modifiedAt
+            SELECT t.id AS id, t.currentState AS currentState, COALESCE(t.modifiedAt, t.createdAt) AS modifiedAt,
+                   t.loanApplication.applicationNumber.branch.code AS applicationBranchCode,
+                   t.loanApplication.applicationNumber.loanTypeCode.value AS applicationLoanTypeCode,
+                   t.loanApplication.applicationNumber.party.customerNumber AS applicationCustomerNumber,
+                   t.loanApplication.applicationNumber.derivedValue AS applicationDerivedValue
             FROM TradeLoanFacilityEntity t
             WHERE t.currentState NOT IN :terminalStates
             AND COALESCE(t.modifiedAt, t.createdAt) <= :modifiedBefore
@@ -46,7 +50,11 @@ public interface TradeLoanFacilityJpaRepository extends PersistentRepository<Tra
      * {@code (modifiedAt, id)} cursor.
      */
     @Query("""
-            SELECT t.id AS id, t.currentState AS currentState, COALESCE(t.modifiedAt, t.createdAt) AS modifiedAt
+            SELECT t.id AS id, t.currentState AS currentState, COALESCE(t.modifiedAt, t.createdAt) AS modifiedAt,
+                   t.loanApplication.applicationNumber.branch.code AS applicationBranchCode,
+                   t.loanApplication.applicationNumber.loanTypeCode.value AS applicationLoanTypeCode,
+                   t.loanApplication.applicationNumber.party.customerNumber AS applicationCustomerNumber,
+                   t.loanApplication.applicationNumber.derivedValue AS applicationDerivedValue
             FROM TradeLoanFacilityEntity t
             WHERE t.currentState NOT IN :terminalStates
             AND COALESCE(t.modifiedAt, t.createdAt) <= :modifiedBefore
@@ -63,7 +71,11 @@ public interface TradeLoanFacilityJpaRepository extends PersistentRepository<Tra
 
     /** Narrow projection lookup of a single facility's reconciliation row by id. */
     @Query("""
-            SELECT t.id AS id, t.currentState AS currentState, COALESCE(t.modifiedAt, t.createdAt) AS modifiedAt
+            SELECT t.id AS id, t.currentState AS currentState, COALESCE(t.modifiedAt, t.createdAt) AS modifiedAt,
+                   t.loanApplication.applicationNumber.branch.code AS applicationBranchCode,
+                   t.loanApplication.applicationNumber.loanTypeCode.value AS applicationLoanTypeCode,
+                   t.loanApplication.applicationNumber.party.customerNumber AS applicationCustomerNumber,
+                   t.loanApplication.applicationNumber.derivedValue AS applicationDerivedValue
             FROM TradeLoanFacilityEntity t
             WHERE t.id = :id
             """)

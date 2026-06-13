@@ -7,7 +7,7 @@
     <parent>
         <groupId>ir.dotin.platform.pangaea</groupId>
         <artifactId>parent</artifactId>
-        <version>2026.6.6-SNAPSHOT</version>
+        <version>2026.6.7-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -18,9 +18,9 @@
     <version>${revision}</version>
 
     <scm>
-        <connection>scm:git:https://bitbucket.dotin.ir/scm/core/trade-loan.git</connection>
-        <developerConnection>scm:git:https://bitbucket.dotin.ir/scm/core/trade-loan.git</developerConnection>
-        <url>https://bitbucket.dotin.ir/projects/core/repos/trade-loan</url>
+        <connection>scm:git:https://hub.dotin.ir/gitlab/expenditures/customer-based/nova.git</connection>
+        <developerConnection>scm:git:https://hub.dotin.ir/gitlab/expenditures/customer-based/nova.git</developerConnection>
+        <url>https://hub.dotin.ir/gitlab/expenditures/customer-based/nova</url>
     </scm>
 
     <modules>

@@ -119,9 +119,19 @@ final class FacilityReconMapping {
         return fcbRank(observedFcbFileStatus) < fcbRank(expected);
     }
 
-    static Map<String, String> observedDetail(FacilityStatus novaStatus, @Nullable String fcbFileStatus) {
+    static Map<String, String> observedDetail(
+            FacilityStatus novaStatus, @Nullable String fcbFileStatus, @Nullable String applicationNumber) {
         return Map.of(
-                "novaStatus", novaStatus.name(), "fcbFileStatus", fcbFileStatus == null ? "<absent>" : fcbFileStatus);
+                "novaStatus",
+                novaStatus.name(),
+                "fcbFileStatus",
+                fcbFileStatus == null ? "<absent>" : fcbFileStatus,
+                "applicationNumber",
+                blankToAbsent(applicationNumber));
+    }
+
+    private static String blankToAbsent(@Nullable String value) {
+        return value == null || value.isBlank() ? "<absent>" : value;
     }
 
     /** Whether an FCB file status denotes a revoked/cancelled loan file. */

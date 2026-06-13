@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driven.reconciliation;
 import java.util.Map;
 import java.util.Optional;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -59,6 +60,7 @@ public class FacilityDivergenceProbe implements DivergenceProbe {
             return Divergence.unknown("nova-missing").withDetail(Map.of("novaStatus", "<absent>"));
         }
         FacilityStatus novaStatus = novaRow.get().status();
+        String applicationNumber = novaRow.get().applicationNumber();
 
         Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId);
         if (fcbResult.isFailure()) {
@@ -67,7 +69,7 @@ public class FacilityDivergenceProbe implements DivergenceProbe {
                     facilityId,
                     novaStatus,
                     fcbResult.err().map(Object::toString).orElse("<no-cause>"));
-            return Divergence.unknown("fcb-unreachable").withDetail(unreachableDetail(novaStatus));
+            return Divergence.unknown("fcb-unreachable").withDetail(unreachableDetail(novaStatus, applicationNumber));
         }
         ReconLoanFileState fcb = fcbResult.unwrap();
         if (!fcb.reachable()) {
@@ -75,16 +77,23 @@ public class FacilityDivergenceProbe implements DivergenceProbe {
                     "Recon probe {}: FCB reported unreachable (novaStatus={}) — UNKNOWN(fcb-unreachable)",
                     facilityId,
                     novaStatus);
-            return Divergence.unknown("fcb-unreachable").withDetail(unreachableDetail(novaStatus));
+            return Divergence.unknown("fcb-unreachable").withDetail(unreachableDetail(novaStatus, applicationNumber));
         }
 
-        Divergence verdict = classify(novaStatus, fcb);
+        Divergence verdict = classify(novaStatus, fcb, applicationNumber);
         logVerdict(facilityId, novaStatus, fcb, verdict);
         return verdict;
     }
 
-    private static Map<String, String> unreachableDetail(FacilityStatus novaStatus) {
-        return Map.of("novaStatus", novaStatus.name(), "fcbProbe", "unreachable");
+    private static Map<String, String> unreachableDetail(
+            FacilityStatus novaStatus, @Nullable String applicationNumber) {
+        return Map.of(
+                "novaStatus",
+                novaStatus.name(),
+                "fcbProbe",
+                "unreachable",
+                "applicationNumber",
+                applicationNumber == null || applicationNumber.isBlank() ? "<absent>" : applicationNumber);
     }
 
     /**
@@ -113,32 +122,35 @@ public class FacilityDivergenceProbe implements DivergenceProbe {
         }
     }
 
-    private static Divergence classify(FacilityStatus novaStatus, ReconLoanFileState fcb) {
+    private static Divergence classify(
+            FacilityStatus novaStatus, ReconLoanFileState fcb, @Nullable String applicationNumber) {
         String fcbFileStatus = fcb.fileStatus();
 
         // INV-1: terminal-dominant. Nova terminal + FCB reflects it (absent or revoked) → aligned.
         if (FacilityReconMapping.isTerminal(novaStatus)) {
             boolean fcbReflectsTerminal = !fcb.exists() || FacilityReconMapping.isFcbRevoked(fcbFileStatus);
             if (fcbReflectsTerminal) {
-                return Divergence.aligned().withDetail(FacilityReconMapping.observedDetail(novaStatus, fcbFileStatus));
+                return Divergence.aligned()
+                        .withDetail(FacilityReconMapping.observedDetail(novaStatus, fcbFileStatus, applicationNumber));
             }
             // Nova terminal but FCB still shows an active file — a divergence an operator must judge (revoke path).
             return Divergence.lagging(Direction.SOURCE_AHEAD, "nova-terminal-fcb-active")
-                    .withDetail(FacilityReconMapping.observedDetail(novaStatus, fcbFileStatus));
+                    .withDetail(FacilityReconMapping.observedDetail(novaStatus, fcbFileStatus, applicationNumber));
         }
 
         // Non-terminal Nova: if FCB has no file at all, the forward create event never landed → ORPHAN.
         if (!fcb.exists()) {
             return Divergence.orphan(Direction.SOURCE_AHEAD, "fcb-absent")
-                    .withDetail(FacilityReconMapping.observedDetail(novaStatus, null));
+                    .withDetail(FacilityReconMapping.observedDetail(novaStatus, null, applicationNumber));
         }
 
         // FCB has a file: compare expected forward status. If FCB is behind Nova's expectation → LAGGING.
         if (FacilityReconMapping.fcbBehind(novaStatus, fcbFileStatus)) {
             return Divergence.lagging(Direction.SOURCE_AHEAD, "fcb-behind")
-                    .withDetail(FacilityReconMapping.observedDetail(novaStatus, fcbFileStatus));
+                    .withDetail(FacilityReconMapping.observedDetail(novaStatus, fcbFileStatus, applicationNumber));
         }
 
-        return Divergence.aligned().withDetail(FacilityReconMapping.observedDetail(novaStatus, fcbFileStatus));
+        return Divergence.aligned()
+                .withDetail(FacilityReconMapping.observedDetail(novaStatus, fcbFileStatus, applicationNumber));
     }
 }

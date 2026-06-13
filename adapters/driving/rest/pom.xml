@@ -30,6 +30,10 @@
           <artifactId>trade-loan-core-application-query</artifactId>
       </dependency>
       <dependency>
+          <groupId>ir.dotin.platform.pangaea</groupId>
+          <artifactId>reconciliation-management</artifactId>
+      </dependency>
+      <dependency>
           <groupId>ir.dotin.platform</groupId>
           <artifactId>expression-kit-rest</artifactId>
       </dependency>

@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query;
 
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -73,7 +74,23 @@ public class JpaFacilityReconReadAdapter implements FacilityReconReadPort {
         UUID id = Objects.requireNonNull(p.getId(), "facility id");
         FacilityStatus status = Objects.requireNonNull(p.getCurrentState(), "facility currentState");
         long epochMs = toEpochMs(p.getModifiedAt());
-        return new FacilityReconRow(id.toString(), status, epochMs);
+        String applicationNumber = formatApplicationNumber(
+                p.getApplicationBranchCode(),
+                p.getApplicationLoanTypeCode(),
+                p.getApplicationCustomerNumber(),
+                p.getApplicationDerivedValue());
+        return new FacilityReconRow(id.toString(), status, epochMs, applicationNumber);
+    }
+
+    private static @Nullable String formatApplicationNumber(
+            @Nullable String branchCode,
+            @Nullable String loanTypeCode,
+            @Nullable String customerNumber,
+            @Nullable String derivedValue) {
+        if (branchCode == null || loanTypeCode == null || customerNumber == null || derivedValue == null) {
+            return null;
+        }
+        return MessageFormat.format("{0}-{1}-{2}-{3}", branchCode, loanTypeCode, customerNumber, derivedValue);
     }
 
     private static long toEpochMs(@Nullable LocalDateTime modifiedAt) {

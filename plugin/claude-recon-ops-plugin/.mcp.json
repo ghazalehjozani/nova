@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "nova-recon-ops": {
+      "type": "http",
+      "url": "${RECON_OPS_MCP_URL:-http://localhost:8085/v1/ops/mcp}",
+      "headers": {
+        "Authorization": "Bearer ${MCP_OPS_TOKEN}"
+      }
+    }
+  }
+}

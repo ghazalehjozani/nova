@@ -101,7 +101,7 @@ class FacilityConvergenceActionDossierTest {
         when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
         when(fcbReconStatePort.loadReconState(FACILITY.toString())).thenReturn(Result.success(fcbAbsentReachable()));
 
-        ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString());
+        ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString(), false);
 
         assertThat(outcome).isInstanceOf(ConvergeOutcome.NeedsOperator.class);
         OperatorDossier dossier = Objects.requireNonNull(((ConvergeOutcome.NeedsOperator) outcome).dossier());
@@ -120,7 +120,7 @@ class FacilityConvergenceActionDossierTest {
         when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
         when(fcbReconStatePort.loadReconState(FACILITY.toString())).thenReturn(Result.success(fcbAbsentReachable()));
 
-        ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString());
+        ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString(), false);
 
         assertThat(outcome).isInstanceOf(ConvergeOutcome.RetryLater.class);
         assertThat(((ConvergeOutcome.RetryLater) outcome).reason()).isEqualTo("fcb-lag");
@@ -135,7 +135,7 @@ class FacilityConvergenceActionDossierTest {
         when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
         when(fcbReconStatePort.loadReconState(FACILITY.toString())).thenReturn(Result.success(fcbUnreachable()));
 
-        ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString());
+        ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString(), false);
 
         assertThat(outcome).isInstanceOf(ConvergeOutcome.RetryLater.class);
         assertThat(((ConvergeOutcome.RetryLater) outcome).reason()).isEqualTo("fcb-unreachable");
@@ -150,7 +150,7 @@ class FacilityConvergenceActionDossierTest {
         when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
         when(fcbReconStatePort.loadReconState(FACILITY.toString())).thenReturn(Result.success(fcbPresent("GIVE_LOAN")));
 
-        ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString());
+        ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString(), false);
 
         assertThat(outcome).isInstanceOf(ConvergeOutcome.NeedsOperator.class);
         OperatorDossier dossier = Objects.requireNonNull(((ConvergeOutcome.NeedsOperator) outcome).dossier());
@@ -167,7 +167,7 @@ class FacilityConvergenceActionDossierTest {
         when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
         when(fcbReconStatePort.loadReconState(FACILITY.toString())).thenReturn(Result.success(fcbUnreachable()));
 
-        ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString());
+        ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString(), false);
 
         assertThat(outcome).isInstanceOf(ConvergeOutcome.RetryLater.class);
         assertThat(((ConvergeOutcome.RetryLater) outcome).reason()).isEqualTo("fcb-unreachable");
@@ -176,7 +176,8 @@ class FacilityConvergenceActionDossierTest {
 
     private void stubNova(FacilityStatus status, long modifiedAtEpochMs) {
         when(readPort.findById(FACILITY.toString()))
-                .thenReturn(Optional.of(new FacilityReconRow(FACILITY.toString(), status, modifiedAtEpochMs)));
+                .thenReturn(Optional.of(
+                        new FacilityReconRow(FACILITY.toString(), status, modifiedAtEpochMs, "1-1404-10088-279")));
     }
 
     private void stubOutbox(OutboxRecordView row) {

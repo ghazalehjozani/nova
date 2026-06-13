@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "recon-ops",
+  "displayName": "Nova Recon Ops",
+  "version": "0.1.0",
+  "description": "Operator/AI surface for Nova<->FCB dual-persistence reconciliation. Wraps the Pangaea + nova recon MCP ops tools (ops_recon_* and loan_recon_get_by_application_number) served at the running service's /v1/ops/mcp endpoint, with runbooks for triage, force-converge, and maker-checker remediation.",
+  "author": {
+    "name": "Nova Platform"
+  },
+  "keywords": [
+    "reconciliation",
+    "nova",
+    "fcb",
+    "mcp",
+    "ops",
+    "convergence",
+    "remediation"
+  ]
+}

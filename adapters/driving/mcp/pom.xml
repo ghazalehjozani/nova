@@ -23,11 +23,17 @@
       <artifactId>trade-loan-core-application-query</artifactId>
     </dependency>
 
-    <!-- Inert MCP contract: @McpBusinessTool / @McpTool / @McpToolParam markers + McpEndpoints.
+    <!-- Inert MCP contract: @McpBusinessTool / @McpOpsTool / @McpTool / @McpToolParam markers + McpEndpoints.
          Deliberately NOT pangaea-ai-mcp-server: this adapter only declares tools, it never runs the transport. -->
     <dependency>
       <groupId>ir.dotin.platform.pangaea</groupId>
       <artifactId>ai-mcp-api</artifactId>
+    </dependency>
+
+    <!-- ReconciliationManagementService (the @McpOpsTool delegates to it) + DiscrepancyView return type. -->
+    <dependency>
+      <groupId>ir.dotin.platform.pangaea</groupId>
+      <artifactId>reconciliation-management</artifactId>
     </dependency>
 
     <!-- QueryDispatcher bean + autoconfig. -->

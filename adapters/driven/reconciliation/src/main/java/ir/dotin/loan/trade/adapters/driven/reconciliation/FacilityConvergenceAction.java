@@ -127,7 +127,8 @@ public class FacilityConvergenceAction implements ConvergenceAction {
     // ════════════════════════════════════════ Converge ════════════════════════════════════════
 
     @Override
-    public ConvergeOutcome converge(OpaqueKey key, Divergence divergence, @Nullable String correlationId) {
+    public ConvergeOutcome converge(
+            OpaqueKey key, Divergence divergence, @Nullable String correlationId, boolean operatorForced) {
         String facilityId = key.value();
         try {
             // Load the facility's outbox rows once — used for the workflow guard AND the status-aware lever.
@@ -150,12 +151,13 @@ public class FacilityConvergenceAction implements ConvergenceAction {
                 if (recency != null) {
                     return recency;
                 }
-                return convergeGuardedBody(facilityId, facilityRows, divergence, correlationIds);
+                return convergeGuardedBody(facilityId, facilityRows, divergence, correlationIds, operatorForced);
             }
             return workflowAdminPort
                     .runUnderCorrelationGuard(
                             correlationIds.get(0),
-                            () -> convergeGuardedBody(facilityId, facilityRows, divergence, correlationIds))
+                            () -> convergeGuardedBody(
+                                    facilityId, facilityRows, divergence, correlationIds, operatorForced))
                     .orElse(ConvergeOutcome.retryLater("saga-locked"));
         } catch (RuntimeException e) {
             log.warn("converge() failed for facility {} — retryLater", facilityId, e);
@@ -172,7 +174,8 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             String facilityId,
             List<OutboxRecordView> facilityRows,
             Divergence divergence,
-            List<String> correlationIds) {
+            List<String> correlationIds,
+            boolean operatorForced) {
         // In-flight workflow re-check (inside the lock): never fight an originating flow or its compensation.
         for (String corrId : correlationIds) {
             for (WorkflowRunView run : workflowAdminPort.findByCorrelation(corrId)) {
@@ -224,7 +227,8 @@ public class FacilityConvergenceAction implements ConvergenceAction {
         // (3) / (4) verdict-directed lever.
         return switch (divergence.verdict()) {
             case ORPHAN, LAGGING ->
-                convergeNovaToFcb(facilityId, facilityRows, novaStatus, novaModifiedAtEpochMs, correlationIds);
+                convergeNovaToFcb(
+                        facilityId, facilityRows, novaStatus, novaModifiedAtEpochMs, correlationIds, operatorForced);
             case ALIGNED, UNKNOWN -> ConvergeOutcome.notApplicable("not-divergent");
         };
     }
@@ -459,7 +463,8 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             List<OutboxRecordView> facilityRows,
             FacilityStatus novaStatus,
             long novaModifiedAtEpochMs,
-            List<String> correlationIds) {
+            List<String> correlationIds,
+            boolean operatorForced) {
 
         // Re-drive the EARLIEST forward event FCB has NOT yet applied (INV-5), judged against FCB's CURRENT file status
         // — not merely the earliest stored event (which FCB may already have → an idempotent no-op that never closes a
@@ -508,8 +513,10 @@ public class FacilityConvergenceAction implements ConvergenceAction {
         // re-drive returns retryLater, never incrementing the attempt budget) the row would loop forever without ever
         // carrying a root cause or escalating. So classify it up front: while the apply-lost fair-chance window is open
         // we still re-drive (the FCB effect-aware re-apply can converge it); once the window is exceeded we escalate to
-        // NEEDS_OPERATOR with the FCB_APPLY_LOST dossier instead of re-driving silently forever.
-        if (!fcb.exists() && !anyDeadLetter && !anyInProgress && !processedIds.isEmpty()) {
+        // NEEDS_OPERATOR with the FCB_APPLY_LOST dossier instead of re-driving silently forever. An operator-forced
+        // converge IS the maker-checker authority deciding to re-drive: skip the fair-chance-window escalation so an
+        // aged apply-lost orphan re-drives instead of re-escalating (money/terminal gating above is untouched).
+        if (!operatorForced && !fcb.exists() && !anyDeadLetter && !anyInProgress && !processedIds.isEmpty()) {
             ConvergeOutcome escalation =
                     escalateIfApplyLostExhausted(novaStatus, fcb, facilityRows, correlationIds, novaModifiedAtEpochMs);
             if (escalation != null) {

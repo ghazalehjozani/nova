@@ -22,6 +22,8 @@ open module ir.dotin.loan.trade.adapters.driving.mcp {
     requires transitive ir.dotin.loan.trade.core.application.query;
     requires ir.dotin.loan.baseloan.core.domain;
     requires ir.dotin.platform.pangaea.ai.mcp.api;
+    requires ir.dotin.platform.pangaea.reconciliation.management;
+    requires ir.dotin.platform.pangaea.reconciliation.api;
     requires ir.dotin.platform.pangaea.servicelayer.api;
     requires spring.context;
     requires spring.beans;

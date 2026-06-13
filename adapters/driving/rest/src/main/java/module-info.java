@@ -16,6 +16,8 @@ open module ir.dotin.loan.trade.adapters.driving.rest {
     requires ir.dotin.platform.pangaea.protocol.api;
     requires ir.dotin.platform.pangaea.protocol.core;
     requires ir.dotin.platform.pangaea.servicelayer.api;
+    requires ir.dotin.platform.pangaea.reconciliation.management;
+    requires ir.dotin.platform.pangaea.reconciliation.api;
     requires ir.dotin.platform.pangaea.security.api;
     requires ir.dotin.platform.pangaea.security.oauth2.core;
     requires spring.context;
@@ -42,6 +44,7 @@ open module ir.dotin.loan.trade.adapters.driving.rest {
     exports ir.dotin.loan.trade.adapters.driving.rest.config;
     exports ir.dotin.loan.trade.adapters.driving.rest.filter;
     exports ir.dotin.loan.trade.adapters.driving.rest.query.installmentschedule;
+    exports ir.dotin.loan.trade.adapters.driving.rest.ops.reconciliation;
     exports ir.dotin.loan.trade.adapters.driving.rest.query.loanarrangement;
     exports ir.dotin.loan.trade.adapters.driving.rest.query.loanfacility;
     exports ir.dotin.loan.trade.adapters.driving.rest.query.loantype;

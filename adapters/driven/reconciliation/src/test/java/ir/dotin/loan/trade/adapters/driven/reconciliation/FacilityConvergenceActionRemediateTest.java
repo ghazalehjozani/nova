@@ -318,7 +318,8 @@ class FacilityConvergenceActionRemediateTest {
 
     private void stubNova(FacilityStatus status, long modifiedAtEpochMs) {
         when(readPort.findById(FACILITY.toString()))
-                .thenReturn(Optional.of(new FacilityReconRow(FACILITY.toString(), status, modifiedAtEpochMs)));
+                .thenReturn(Optional.of(
+                        new FacilityReconRow(FACILITY.toString(), status, modifiedAtEpochMs, "1-1404-10088-279")));
     }
 
     private void stubOutbox(List<OutboxRecordView> rows) {
