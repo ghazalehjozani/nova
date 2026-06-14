@@ -34,6 +34,10 @@
             <artifactId>starter-all</artifactId>
         </dependency>
         <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>spring-boot-starter-runtime</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ir.dotin.platform</groupId>
             <artifactId>expression-kit-spring-boot-starter</artifactId>
         </dependency>
