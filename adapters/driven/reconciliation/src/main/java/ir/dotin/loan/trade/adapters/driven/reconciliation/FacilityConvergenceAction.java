@@ -325,9 +325,17 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             return RemediateOutcome.rejected("not-replayable");
         }
 
+        // Money-safety (INV-15), defense-in-depth with FCB's rank-gated effect-aware re-apply: re-drive ONLY the
+        // forward
+        // events FCB has not yet applied — those whose FCB target rank is strictly above FCB's current file rank. An
+        // FCB-absent apply-lost orphan (currentRank = -1) re-drives the whole forward chain from CREATE; a
+        // partially-applied file re-drives only the missing tail, so a re-driven REPLAY_FORWARD can never re-post an
+        // already-applied disbursement (double-grant) even if FCB's eventUid dedup ever lapses.
+        int currentRank = fcb.exists() ? FacilityReconMapping.fcbRank(fcb.fileStatus()) : -1;
         List<UUID> eventIds = forwardRows.stream()
                 .filter(row -> row.status() == MessageStatus.PROCESSED)
                 .filter(row -> row.eventId() != null)
+                .filter(row -> FacilityReconMapping.fcbRankForEvent(row.eventType()) > currentRank)
                 .sorted(Comparator.comparing(
                         row -> row.sequenceNumber() == null ? Long.MAX_VALUE : row.sequenceNumber()))
                 .map(OutboxRecordView::eventId)
