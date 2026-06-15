@@ -1,8 +1,12 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query.mapper;
 
 import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -78,7 +82,13 @@ public interface TradeLoanFacilityQueryMapper {
 
     @Mapping(target = "amount", source = "amount.amount")
     @Mapping(target = "currency", source = "amount.currency")
+    @Mapping(target = "scheduledDate", source = "scheduledDate", qualifiedByName = "instantToUtcLocalDate")
     TradeFacilityQueryDto.TradeSanctionedLoanEntityDto.ScheduledTrancheEmbDto toTrancheDto(ScheduledTrancheEmb emb);
+
+    @Named("instantToUtcLocalDate")
+    default @Nullable LocalDate instantToUtcLocalDate(@Nullable Instant instant) {
+        return instant == null ? null : LocalDate.ofInstant(instant, ZoneOffset.UTC);
+    }
 
     @Mapping(target = "amount", source = "amount.amount")
     @Mapping(target = "currency", source = "amount.currency")

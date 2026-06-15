@@ -197,11 +197,12 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
                                 : ServiceTokenRequest.async();
                 OAuth2TokenResponse token = serviceTokenProvider.getServiceToken(tokenRequest);
                 String bearerValue = buildBearerHeader(token);
+                byte[] requestBytes = serializeRequest(request);
                 ActorEnvelope envelope = buildEnvelope();
-                String signedEnvelope = envelopeSigner.sign(envelope);
+                String signedEnvelope = envelopeSigner.sign(envelope, requestBytes);
                 Duration attemptTimeout = remainingAttemptTimeout(timeout, startNanos, budgetNanos);
                 return executeRequest(
-                        request, operationType, idempotencyKey, attemptTimeout, bearerValue, signedEnvelope);
+                        operationType, idempotencyKey, attemptTimeout, bearerValue, signedEnvelope, requestBytes);
             });
         } catch (RetryException e) {
             return mapRetryException(e, operationType, timeout);
@@ -282,12 +283,12 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
     }
 
     private Result<FcbBaseResponse> executeRequest(
-            FcbBaseRequest request,
             String operationType,
             String idempotencyKey,
             Duration timeout,
             String bearerValue,
-            String signedEnvelope)
+            String signedEnvelope,
+            byte[] requestBytes)
             throws Exception {
 
         io.micrometer.tracing.Span hop = null;
@@ -307,7 +308,7 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
         boolean success = false;
         try {
             Result<FcbBaseResponse> result =
-                    doExecuteRequest(request, operationType, idempotencyKey, timeout, bearerValue, signedEnvelope);
+                    doExecuteRequest(operationType, idempotencyKey, timeout, bearerValue, signedEnvelope, requestBytes);
             success = result.isSuccess();
             return result;
         } catch (Exception t) {
@@ -329,20 +330,13 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
     }
 
     private Result<FcbBaseResponse> doExecuteRequest(
-            FcbBaseRequest request,
             String operationType,
             String idempotencyKey,
             Duration timeout,
             String bearerValue,
-            String signedEnvelope)
+            String signedEnvelope,
+            byte[] requestBytes)
             throws Exception {
-
-        byte[] requestBytes;
-        try {
-            requestBytes = objectMapper.writeValueAsBytes(request);
-        } catch (tools.jackson.core.JacksonException e) {
-            throw new FcbSerializationException("Failed to serialize request: " + e.getMessage());
-        }
 
         long timestampMs = System.currentTimeMillis();
 
@@ -432,6 +426,14 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
             throw new IllegalStateException("OAuth2TokenResponse contains blank accessToken");
         }
         return "Bearer " + accessToken;
+    }
+
+    private byte[] serializeRequest(FcbBaseRequest request) {
+        try {
+            return objectMapper.writeValueAsBytes(request);
+        } catch (tools.jackson.core.JacksonException e) {
+            throw new FcbSerializationException("Failed to serialize request: " + e.getMessage());
+        }
     }
 
     private ActorEnvelope buildEnvelope() {

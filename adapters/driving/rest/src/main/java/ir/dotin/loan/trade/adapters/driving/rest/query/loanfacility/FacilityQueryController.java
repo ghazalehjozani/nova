@@ -1,7 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.rest.query.loanfacility;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import jakarta.validation.constraints.Max;
@@ -57,10 +57,10 @@ class FacilityQueryController extends BaseController {
         return ResponseEntity.ok(BaseResponse.success(queryDispatcher.dispatch(query)));
     }
 
-    @GetMapping(params = "application_number", version = "1")
+    @GetMapping(params = "applicationNumber", version = "1")
     @Operation(summary = "دریافت تسهیلات بر اساس شماره درخواست")
     public ResponseEntity<BaseResponse<TradeFacilityQueryDto>> getByApplicationNumber(
-            @RequestParam("application_number") String applicationNumber) {
+            @RequestParam("applicationNumber") String applicationNumber) {
         GetFacilityByApplicationNumberQuery query = GetFacilityByApplicationNumberQuery.builder()
                 .applicationNumber(applicationNumber)
                 .callerBranchCode(authenticationContextHolder
@@ -93,10 +93,8 @@ class FacilityQueryController extends BaseController {
     public ResponseEntity<BaseResponse<List<TradeFacilityQueryDto>>> searchFacilities(
             @RequestParam(required = false) UUID loanTypeId,
             @RequestParam(required = false) String customerNumber,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-                    LocalDateTime createDateFrom,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-                    LocalDateTime createDateTo,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant createDateFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant createDateTo,
             @RequestParam(required = false) BigDecimal requestAmountMin,
             @RequestParam(required = false) BigDecimal requestAmountMax,
             @RequestParam(required = false) FacilityStatus status,

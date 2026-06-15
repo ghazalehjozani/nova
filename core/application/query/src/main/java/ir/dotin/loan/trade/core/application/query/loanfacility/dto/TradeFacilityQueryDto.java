@@ -72,8 +72,10 @@ public record TradeFacilityQueryDto(
             implements Serializable {
         public record PartyEmbDto(
                 String customerNumber,
+
                 PartyType partyType,
                 PartyRole partyRole,
+
                 String firstName,
                 String lastName,
                 String companyName,
@@ -101,7 +103,7 @@ public record TradeFacilityQueryDto(
             DisbursementMethod disbursementMethod,
             String confirmType)
             implements Serializable {
-        public record ScheduledTrancheEmbDto(Instant scheduledDate, BigDecimal amount, String currency)
+        public record ScheduledTrancheEmbDto(LocalDate scheduledDate, BigDecimal amount, String currency)
                 implements Serializable {}
 
         public record DisbursementRecordEmbDto(

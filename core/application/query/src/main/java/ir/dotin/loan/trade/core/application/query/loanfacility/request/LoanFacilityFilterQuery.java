@@ -1,7 +1,7 @@
 package ir.dotin.loan.trade.core.application.query.loanfacility.request;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 import jakarta.validation.Valid;
@@ -26,10 +26,10 @@ public record LoanFacilityFilterQuery(
         String customerNumber,
 
         @PastOrPresent(message = "Create date from cannot be in the future")
-        LocalDateTime createDateFrom,
+        Instant createDateFrom,
 
         @PastOrPresent(message = "Create date to cannot be in the future")
-        LocalDateTime createDateTo,
+        Instant createDateTo,
 
         @DecimalMin(value = "0.0", inclusive = false, message = "Request amount min must be positive")
         BigDecimal requestAmountMin,
@@ -70,8 +70,8 @@ public record LoanFacilityFilterQuery(
     public static LoanFacilityFilterQuery of(
             @Nullable UUID loanTypeId,
             @Nullable String customerNumber,
-            @Nullable LocalDateTime createDateFrom,
-            @Nullable LocalDateTime createDateTo,
+            @Nullable Instant createDateFrom,
+            @Nullable Instant createDateTo,
             @Nullable BigDecimal requestAmountMin,
             @Nullable BigDecimal requestAmountMax,
             @Nullable FacilityStatus status,

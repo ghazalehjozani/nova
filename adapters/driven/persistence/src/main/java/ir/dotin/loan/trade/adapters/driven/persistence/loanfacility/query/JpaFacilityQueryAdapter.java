@@ -1,9 +1,13 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -82,6 +86,7 @@ public class JpaFacilityQueryAdapter extends AbstractCursorPagingAdapter<TradeLo
     }
 
     @Override
+    @SuppressWarnings("NullAway")
     public OffsetPage<TradeFacilityQueryDto> findByFilter(LoanFacilityFilterQuery filter) {
         Sort sort = buildSort(filter.offsetPageRequest());
         Pageable pageable = PageRequest.of(
@@ -91,8 +96,8 @@ public class JpaFacilityQueryAdapter extends AbstractCursorPagingAdapter<TradeLo
 
         Specification<TradeLoanFacilityEntity> spec = criteria.where("loanTypeId", filter.loanTypeId())
                 .whereNested("loanApplication.customer.customerNumber", filter.customerNumber())
-                .whereGreaterThanOrEqual("createdAt", filter.createDateFrom())
-                .whereLessThanOrEqual("createdAt", filter.createDateTo())
+                .whereGreaterThanOrEqual("createdAt", toUtcDateTime(filter.createDateFrom()))
+                .whereLessThanOrEqual("createdAt", toUtcDateTime(filter.createDateTo()))
                 .whereNestedGreaterThanOrEqual("loanApplication.requestedAmount.amount", filter.requestAmountMin())
                 .whereNestedLessThanOrEqual("loanApplication.requestedAmount.amount", filter.requestAmountMax())
                 .where("currentState", filter.status())
@@ -115,5 +120,9 @@ public class JpaFacilityQueryAdapter extends AbstractCursorPagingAdapter<TradeLo
 
     private Sort buildSort(ir.dotin.loan.trade.core.application.query.shared.pagination.OffsetPageRequest pageRequest) {
         return SortBuilder.buildOffsetSort(pageRequest);
+    }
+
+    private static @Nullable LocalDateTime toUtcDateTime(@Nullable Instant instant) {
+        return instant == null ? null : LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
     }
 }

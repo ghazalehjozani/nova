@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Profile({"dev", "stage"})
 @Hidden
 @RestController
-@RequestMapping("/api/{version}/dev/auth")
+@RequestMapping("/v{version}/dev/auth")
 @RequiredArgsConstructor
 public class DevAuthCallbackController {
 

@@ -1,7 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.mcp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 import org.jspecify.annotations.Nullable;
@@ -72,18 +72,18 @@ public class LoanFacilityMcpTools {
                     String customerNumber,
             @McpToolParam(
                             name = "createDateFrom",
-                            description = "Lower bound (inclusive) of facility creation time, ISO-8601 local date-time"
-                                    + " (e.g. 2026-01-31T00:00:00). Must not be in the future.",
+                            description = "Lower bound (inclusive) of facility creation time, ISO-8601 instant in UTC"
+                                    + " (e.g. 2026-01-31T00:00:00Z). Must not be in the future.",
                             required = false)
                     @Nullable
-                    LocalDateTime createDateFrom,
+                    Instant createDateFrom,
             @McpToolParam(
                             name = "createDateTo",
-                            description = "Upper bound (inclusive) of facility creation time, ISO-8601 local date-time."
+                            description = "Upper bound (inclusive) of facility creation time, ISO-8601 instant in UTC."
                                     + " Must not be before createDateFrom.",
                             required = false)
                     @Nullable
-                    LocalDateTime createDateTo,
+                    Instant createDateTo,
             @McpToolParam(
                             name = "requestAmountMin",
                             description = "Lower bound (inclusive) of the requested amount; positive decimal.",
