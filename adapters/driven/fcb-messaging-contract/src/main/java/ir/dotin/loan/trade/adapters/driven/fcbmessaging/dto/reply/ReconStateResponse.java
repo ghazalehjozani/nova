@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply;
 
+import java.util.List;
+
 import org.jspecify.annotations.Nullable;
 
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbBaseResponse;
@@ -22,6 +24,10 @@ public final class ReconStateResponse extends FcbBaseResponse {
     private boolean reachable;
 
     private @Nullable String outboxRef;
+
+    private @Nullable List<ReconPeerSignal> peerSignals;
+
+    private boolean dltPresentForFacility;
 
     public boolean isExists() {
         return exists;
@@ -69,5 +75,21 @@ public final class ReconStateResponse extends FcbBaseResponse {
 
     public void setOutboxRef(@Nullable String outboxRef) {
         this.outboxRef = outboxRef;
+    }
+
+    public @Nullable List<ReconPeerSignal> getPeerSignals() {
+        return peerSignals;
+    }
+
+    public void setPeerSignals(@Nullable List<ReconPeerSignal> peerSignals) {
+        this.peerSignals = peerSignals;
+    }
+
+    public boolean isDltPresentForFacility() {
+        return dltPresentForFacility;
+    }
+
+    public void setDltPresentForFacility(boolean dltPresentForFacility) {
+        this.dltPresentForFacility = dltPresentForFacility;
     }
 }

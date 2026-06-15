@@ -1,10 +1,7 @@
 package ir.dotin.loan.trade.adapters.driven.reconciliation;
 
-import java.time.Clock;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -33,6 +30,8 @@ import ir.dotin.platform.pangaea.reconciliation.api.model.RootCause;
 import ir.dotin.platform.pangaea.reconciliation.api.model.SafetyTier;
 import ir.dotin.platform.pangaea.workflow.api.admin.WorkflowAdminPort;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.EventPeerSignal;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.EventPeerSignal.IdempotencyState;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FacilityReconReadPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FacilityReconRow;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FcbOutboxReemitPort;
@@ -42,6 +41,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.R
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -50,11 +50,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class FacilityConvergenceActionDossierTest {
 
-    private static final Instant NOW = Instant.parse("2026-06-05T12:00:00Z");
     private static final UUID FACILITY = UUID.fromString("11111111-1111-1111-1111-111111111111");
     private static final UUID CORRELATION = UUID.fromString("22222222-2222-2222-2222-222222222222");
-
-    private final Clock clock = Clock.fixed(NOW, ZoneOffset.UTC);
+    private static final UUID EVENT_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
+    private static final long MODIFIED_AT = 1_000_000L;
 
     @Mock
     private OutboxAdminPort outboxAdminPort;
@@ -80,7 +79,6 @@ class FacilityConvergenceActionDossierTest {
     @BeforeEach
     void setUp() {
         properties = new ReconciliationSourceProperties();
-        properties.setGraceWindow(Duration.ofMinutes(15));
         action = new FacilityConvergenceAction(
                 outboxAdminPort,
                 inboxAdminPort,
@@ -88,18 +86,17 @@ class FacilityConvergenceActionDossierTest {
                 fcbReconStatePort,
                 fcbOutboxReemitPort,
                 readPort,
-                properties,
-                clock);
+                properties);
     }
 
     @Test
-    void moneyStateApplyLostGraceElapsedReturnsReplayForwardDossier() {
-        long modifiedAt = NOW.minus(Duration.ofMinutes(30)).toEpochMilli();
-        stubNova(FacilityStatus.FULLY_DISBURSED, modifiedAt);
-        stubOutbox(forward(FACILITY, CORRELATION, "TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED, 10L));
+    void moneyStateApplyLostBySignalReturnsReplayForwardDossier() {
+        stubNova(FacilityStatus.FULLY_DISBURSED);
+        stubOutbox(forward("TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED, 10L));
         stubGuardRunsSupplier();
         when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
-        when(fcbReconStatePort.loadReconState(FACILITY.toString())).thenReturn(Result.success(fcbAbsentReachable()));
+        when(fcbReconStatePort.loadReconState(eq(FACILITY.toString()), any()))
+                .thenReturn(Result.success(fcbAbsentWithCompleted()));
 
         ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString(), false);
 
@@ -112,13 +109,13 @@ class FacilityConvergenceActionDossierTest {
     }
 
     @Test
-    void moneyStateGraceNotElapsedReturnsFcbLagRetry() {
-        long modifiedAt = NOW.minus(Duration.ofMinutes(2)).toEpochMilli();
-        stubNova(FacilityStatus.FULLY_DISBURSED, modifiedAt);
-        stubOutbox(forward(FACILITY, CORRELATION, "TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED, 10L));
+    void moneyStateNoSignalReturnsFcbLagRetry() {
+        stubNova(FacilityStatus.FULLY_DISBURSED);
+        stubOutbox(forward("TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED, 10L));
         stubGuardRunsSupplier();
         when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
-        when(fcbReconStatePort.loadReconState(FACILITY.toString())).thenReturn(Result.success(fcbAbsentReachable()));
+        when(fcbReconStatePort.loadReconState(eq(FACILITY.toString()), any()))
+                .thenReturn(Result.success(fcbAbsentReachable()));
 
         ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString(), false);
 
@@ -128,12 +125,12 @@ class FacilityConvergenceActionDossierTest {
 
     @Test
     void moneyStateFcbUnreachableRetriesAndDoesNotClassify() {
-        long modifiedAt = NOW.minus(Duration.ofMinutes(30)).toEpochMilli();
-        stubNova(FacilityStatus.FULLY_DISBURSED, modifiedAt);
-        stubOutbox(forward(FACILITY, CORRELATION, "TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED, 10L));
+        stubNova(FacilityStatus.FULLY_DISBURSED);
+        stubOutbox(forward("TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED, 10L));
         stubGuardRunsSupplier();
         when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
-        when(fcbReconStatePort.loadReconState(FACILITY.toString())).thenReturn(Result.success(fcbUnreachable()));
+        when(fcbReconStatePort.loadReconState(eq(FACILITY.toString()), any()))
+                .thenReturn(Result.success(fcbUnreachable()));
 
         ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString(), false);
 
@@ -143,29 +140,29 @@ class FacilityConvergenceActionDossierTest {
 
     @Test
     void terminalDivergentReturnsDossierNotBareString() {
-        long modifiedAt = NOW.minus(Duration.ofMinutes(30)).toEpochMilli();
-        stubNova(FacilityStatus.CLOSED_PAID_OFF, modifiedAt);
-        stubOutbox(forward(FACILITY, CORRELATION, "TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED, 10L));
+        stubNova(FacilityStatus.CLOSED_PAID_OFF);
+        stubOutbox(forward("TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED, 10L));
         stubGuardRunsSupplier();
         when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
-        when(fcbReconStatePort.loadReconState(FACILITY.toString())).thenReturn(Result.success(fcbPresent("GIVE_LOAN")));
+        when(fcbReconStatePort.loadReconState(eq(FACILITY.toString()), any()))
+                .thenReturn(Result.success(fcbPresent("GIVE_LOAN")));
 
         ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString(), false);
 
         assertThat(outcome).isInstanceOf(ConvergeOutcome.NeedsOperator.class);
         OperatorDossier dossier = Objects.requireNonNull(((ConvergeOutcome.NeedsOperator) outcome).dossier());
         assertThat(dossier.dossierHash()).isNotBlank();
-        verify(fcbReconStatePort).loadReconState(FACILITY.toString());
+        verify(fcbReconStatePort).loadReconState(eq(FACILITY.toString()), any());
     }
 
     @Test
     void fcbUnreachableTerminalNeverClassifies() {
-        long modifiedAt = NOW.minus(Duration.ofMinutes(30)).toEpochMilli();
-        stubNova(FacilityStatus.CLOSED_PAID_OFF, modifiedAt);
-        stubOutbox(forward(FACILITY, CORRELATION, "TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED, 10L));
+        stubNova(FacilityStatus.CLOSED_PAID_OFF);
+        stubOutbox(forward("TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED, 10L));
         stubGuardRunsSupplier();
         when(workflowAdminPort.findByCorrelation(anyString())).thenReturn(List.of());
-        when(fcbReconStatePort.loadReconState(FACILITY.toString())).thenReturn(Result.success(fcbUnreachable()));
+        when(fcbReconStatePort.loadReconState(eq(FACILITY.toString()), any()))
+                .thenReturn(Result.success(fcbUnreachable()));
 
         ConvergeOutcome outcome = action.converge(key(), divergence(), CORRELATION.toString(), false);
 
@@ -174,10 +171,10 @@ class FacilityConvergenceActionDossierTest {
         verify(outboxAdminPort, never()).republish(any());
     }
 
-    private void stubNova(FacilityStatus status, long modifiedAtEpochMs) {
+    private void stubNova(FacilityStatus status) {
         when(readPort.findById(FACILITY.toString()))
                 .thenReturn(Optional.of(
-                        new FacilityReconRow(FACILITY.toString(), status, modifiedAtEpochMs, "1-1404-10088-279")));
+                        new FacilityReconRow(FACILITY.toString(), status, MODIFIED_AT, "1-1404-10088-279")));
     }
 
     private void stubOutbox(OutboxRecordView row) {
@@ -202,24 +199,35 @@ class FacilityConvergenceActionDossierTest {
     }
 
     private static ReconLoanFileState fcbAbsentReachable() {
-        return new ReconLoanFileState(false, null, "manual", NOW.toEpochMilli(), true, null);
+        return new ReconLoanFileState(false, null, "manual", MODIFIED_AT, true, null, List.of(), false);
+    }
+
+    private static ReconLoanFileState fcbAbsentWithCompleted() {
+        return new ReconLoanFileState(
+                false,
+                null,
+                "manual",
+                MODIFIED_AT,
+                true,
+                null,
+                List.of(new EventPeerSignal(EVENT_ID.toString(), IdempotencyState.COMPLETED, false, null)),
+                false);
     }
 
     private static ReconLoanFileState fcbUnreachable() {
-        return new ReconLoanFileState(false, null, "manual", NOW.toEpochMilli(), false, null);
+        return new ReconLoanFileState(false, null, "manual", MODIFIED_AT, false, null, List.of(), false);
     }
 
     private static ReconLoanFileState fcbPresent(String fileStatus) {
-        return new ReconLoanFileState(true, fileStatus, "manual", NOW.toEpochMilli(), true, "outbox-1");
+        return new ReconLoanFileState(true, fileStatus, "manual", MODIFIED_AT, true, "outbox-1", List.of(), false);
     }
 
-    private static OutboxRecordView forward(
-            UUID aggregateId, UUID correlationId, String eventType, MessageStatus status, long sequence) {
+    private static OutboxRecordView forward(String eventType, MessageStatus status, long sequence) {
         return new OutboxRecordView(
                 UUID.randomUUID(),
-                UUID.randomUUID(),
+                EVENT_ID,
                 "idem-" + eventType,
-                aggregateId,
+                FACILITY,
                 "TradeLoanFacility",
                 eventType,
                 1,
@@ -230,7 +238,7 @@ class FacilityConvergenceActionDossierTest {
                 0,
                 (Instant) null,
                 (String) null,
-                correlationId,
+                CORRELATION,
                 UUID.randomUUID(),
                 LocalDateTime.now(),
                 LocalDateTime.now(),

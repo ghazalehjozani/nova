@@ -1,7 +1,5 @@
 package ir.dotin.loan.trade.adapters.driven.reconciliation;
 
-import java.time.Duration;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -21,17 +19,17 @@ class ReconciliationSourcePropertiesTest {
         runner.run(context -> {
             ReconciliationSourceProperties props = context.getBean(ReconciliationSourceProperties.class);
             assertThat(props.getSourceBatchSize()).isEqualTo(200);
-            assertThat(props.getDetectionSettle()).isEqualTo(Duration.ofMinutes(3));
+            assertThat(props.isReplayForwardEnabled()).isFalse();
         });
     }
 
     @Test
     void bindsOverrides() {
-        runner.withPropertyValues("reconciliation.source-batch-size=50", "reconciliation.detection-settle=90s")
+        runner.withPropertyValues("reconciliation.source-batch-size=50", "reconciliation.replay-forward-enabled=true")
                 .run(context -> {
                     ReconciliationSourceProperties props = context.getBean(ReconciliationSourceProperties.class);
                     assertThat(props.getSourceBatchSize()).isEqualTo(50);
-                    assertThat(props.getDetectionSettle()).isEqualTo(Duration.ofSeconds(90));
+                    assertThat(props.isReplayForwardEnabled()).isTrue();
                 });
     }
 

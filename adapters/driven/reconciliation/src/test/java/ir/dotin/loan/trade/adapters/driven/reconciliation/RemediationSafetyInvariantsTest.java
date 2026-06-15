@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.adapters.driven.reconciliation;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -18,10 +19,14 @@ import ir.dotin.platform.pangaea.reconciliation.api.model.RemediationKind;
 import ir.dotin.platform.pangaea.reconciliation.api.model.RootCause;
 import ir.dotin.platform.pangaea.reconciliation.api.model.SafetyTier;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.EventPeerSignal;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.EventPeerSignal.IdempotencyState;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class RemediationSafetyInvariantsTest {
+
+    private static final UUID UID = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000009");
 
     private final FacilityRootCauseClassifier classifier = new FacilityRootCauseClassifier();
 
@@ -78,66 +83,105 @@ class RemediationSafetyInvariantsTest {
 
     static Stream<Arguments> moneyStateSweep() {
         FacilityStatus money = FacilityStatus.FULLY_DISBURSED;
-        return Stream.of(
-                Arguments.of("money/absent/grace/processed", input(false, null, money, true, null, processedForward())),
-                Arguments.of("money/absent/notGrace", input(false, null, money, false, null, processedForward())),
-                Arguments.of(
-                        "money/absent/grace/businessError",
-                        input(false, null, money, true, "FCB rejected", processedForward())),
-                Arguments.of("money/absent/grace/noForward", input(false, null, money, true, null, List.of())),
-                Arguments.of(
-                        "money/absent/grace/forwardDeadLetter",
-                        input(false, null, money, true, null, deadLetterForward())),
-                Arguments.of(
-                        "money/exists/rankMismatch",
-                        input(true, FacilityReconMapping.FCB_REQUEST_LOAN, money, true, null, processedForward())));
+        return sweepFor("money", money);
     }
 
     static Stream<Arguments> nonMoneyStateSweep() {
-        FacilityStatus nonMoney = FacilityStatus.APPROVED;
+        return sweepFor("nonMoney", FacilityStatus.APPROVED);
+    }
+
+    private static Stream<Arguments> sweepFor(String label, FacilityStatus status) {
         return Stream.of(
                 Arguments.of(
-                        "nonMoney/absent/grace/processed",
-                        input(false, null, nonMoney, true, null, processedForward())),
-                Arguments.of("nonMoney/absent/notGrace", input(false, null, nonMoney, false, null, processedForward())),
+                        label + "/absent/completed", input(false, null, status, completed(), false, null, processed())),
                 Arguments.of(
-                        "nonMoney/absent/grace/businessError",
-                        input(false, null, nonMoney, true, "FCB rejected", processedForward())),
-                Arguments.of("nonMoney/absent/grace/noForward", input(false, null, nonMoney, true, null, List.of())),
+                        label + "/absent/noSignal", input(false, null, status, Map.of(), false, null, processed())),
                 Arguments.of(
-                        "nonMoney/absent/grace/forwardDeadLetter",
-                        input(false, null, nonMoney, true, null, deadLetterForward())),
+                        label + "/absent/inProgress",
+                        input(false, null, status, inProgress(), false, null, processed())),
                 Arguments.of(
-                        "nonMoney/exists/rankMismatch",
-                        input(true, FacilityReconMapping.FCB_REQUEST_LOAN, nonMoney, true, null, processedForward())),
+                        label + "/absent/businessError",
+                        input(false, null, status, Map.of(), false, "FCB rejected", processed())),
                 Arguments.of(
-                        "nonMoney/exists/rankMatch",
-                        input(true, FacilityReconMapping.FCB_APPROVE_LOAN, nonMoney, true, null, processedForward())));
+                        label + "/absent/dltBusiness",
+                        input(false, null, status, dltBusiness(), true, null, processed())),
+                Arguments.of(
+                        label + "/absent/dltTransient",
+                        input(false, null, status, dltTransient(), true, null, processed())),
+                Arguments.of(label + "/absent/noForward", input(false, null, status, Map.of(), false, null, List.of())),
+                Arguments.of(
+                        label + "/absent/forwardDeadLetter",
+                        input(false, null, status, Map.of(), false, null, deadLetter())),
+                Arguments.of(
+                        label + "/exists/rankMismatch/completed",
+                        input(
+                                true,
+                                FacilityReconMapping.FCB_REQUEST_LOAN,
+                                status,
+                                completed(),
+                                false,
+                                null,
+                                processed())),
+                Arguments.of(
+                        label + "/exists/rankMismatch/noSignal",
+                        input(
+                                true,
+                                FacilityReconMapping.FCB_REQUEST_LOAN,
+                                status,
+                                Map.of(),
+                                false,
+                                null,
+                                processed())));
     }
 
     private static FacilityRootCauseClassifier.ClassifierInput input(
             boolean fcbExists,
             @Nullable String fcbFileStatus,
             FacilityStatus novaStatus,
-            boolean graceElapsed,
+            Map<String, EventPeerSignal> peerSignals,
+            boolean dltPresentForFacility,
             @Nullable String fcbBusinessError,
             List<OutboxRecordView> forwardRows) {
         return new FacilityRootCauseClassifier.ClassifierInput(
-                fcbExists, fcbFileStatus, novaStatus, forwardRows, graceElapsed, fcbBusinessError);
+                fcbExists,
+                fcbFileStatus,
+                novaStatus,
+                forwardRows,
+                peerSignals,
+                dltPresentForFacility,
+                fcbBusinessError);
     }
 
-    private static List<OutboxRecordView> processedForward() {
-        return List.of(forward("TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED));
+    private static Map<String, EventPeerSignal> completed() {
+        return Map.of(UID.toString(), new EventPeerSignal(UID.toString(), IdempotencyState.COMPLETED, false, null));
     }
 
-    private static List<OutboxRecordView> deadLetterForward() {
-        return List.of(forward("TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.DEAD_LETTER));
+    private static Map<String, EventPeerSignal> inProgress() {
+        return Map.of(UID.toString(), new EventPeerSignal(UID.toString(), IdempotencyState.IN_PROGRESS, false, null));
     }
 
-    private static OutboxRecordView forward(String eventType, MessageStatus status) {
+    private static Map<String, EventPeerSignal> dltBusiness() {
+        return Map.of(UID.toString(), new EventPeerSignal(UID.toString(), IdempotencyState.ABSENT, true, "BUSINESS"));
+    }
+
+    private static Map<String, EventPeerSignal> dltTransient() {
+        return Map.of(
+                UID.toString(),
+                new EventPeerSignal(UID.toString(), IdempotencyState.ABSENT, true, "TRANSIENT_INTERNAL"));
+    }
+
+    private static List<OutboxRecordView> processed() {
+        return List.of(forward(UID, "TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED));
+    }
+
+    private static List<OutboxRecordView> deadLetter() {
+        return List.of(forward(UID, "TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.DEAD_LETTER));
+    }
+
+    private static OutboxRecordView forward(UUID eventId, String eventType, MessageStatus status) {
         return new OutboxRecordView(
                 UUID.randomUUID(),
-                UUID.randomUUID(),
+                eventId,
                 "idem-" + eventType,
                 UUID.randomUUID(),
                 "LoanFacility",

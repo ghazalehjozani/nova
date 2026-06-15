@@ -1,6 +1,5 @@
 package ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,18 +14,15 @@ import org.jspecify.annotations.Nullable;
 public interface FacilityReconReadPort {
 
     /**
-     * Returns the next page of non-terminal facilities ordered by {@code (modifiedAt, id)} for keyset resumption,
-     * excluding facilities modified more recently than {@code modifiedBefore} — a detection-settling floor so a
-     * just-created/just-modified facility (whose forward event is still propagating to the peer) is not opened as a
-     * premature ORPHAN/LAGGING on the first sweep.
+     * Returns the next page of non-terminal facilities ordered by {@code (modifiedAt, id)} for keyset resumption. There
+     * is no wall-clock settling floor (LN-59513): a just-modified facility is emitted and the convergence action defers
+     * it on a signal (forward outbox still in-flight) rather than a timer.
      *
      * @param cursor opaque continuation token from the previous page (encodes {@code modifiedAtEpochMs|id}), or
      *     {@code null} to start from the beginning.
      * @param size maximum rows to return.
-     * @param modifiedBefore settling cutoff; only facilities whose last-modified instant is at or before this are
-     *     eligible.
      */
-    List<FacilityReconRow> pageNonTerminal(@Nullable String cursor, int size, Instant modifiedBefore);
+    List<FacilityReconRow> pageNonTerminal(@Nullable String cursor, int size);
 
     /** Resolves a single facility's reconciliation row by its id string, if present. */
     Optional<FacilityReconRow> findById(String facilityId);

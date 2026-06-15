@@ -1,5 +1,9 @@
 package ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice;
 
+import java.util.List;
+
+import org.jspecify.annotations.Nullable;
+
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.servicelayer.api.port.RemoteReadPort;
 
@@ -14,8 +18,12 @@ import ir.dotin.platform.pangaea.servicelayer.api.port.RemoteReadPort;
 public interface FcbReconStatePort extends RemoteReadPort {
 
     /**
-     * Reads FCB's current loan-file state for the facility. A communication failure surfaces as a {@link Result}
-     * failure; a non-authoritative FCB answer surfaces as {@link ReconLoanFileState#reachable()} == {@code false}.
+     * Reads FCB's current loan-file state for the facility, plus — when {@code forwardEventUids} is non-empty — FCB's
+     * durable peer signal (idempotency state + dead-letter) for each of those forward event uids, so the classifier can
+     * decide apply-lost on signals rather than a clock (LN-59513). Pass {@code null}/empty for a state-only probe (the
+     * divergence verdict needs no signals and FCB then skips the signal gather). A communication failure surfaces as a
+     * {@link Result} failure; a non-authoritative FCB answer surfaces as {@link ReconLoanFileState#reachable()} ==
+     * {@code false}.
      */
-    Result<ReconLoanFileState> loadReconState(String facilityId);
+    Result<ReconLoanFileState> loadReconState(String facilityId, @Nullable List<String> forwardEventUids);
 }

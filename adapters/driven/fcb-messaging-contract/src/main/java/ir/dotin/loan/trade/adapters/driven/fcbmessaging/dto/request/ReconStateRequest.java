@@ -1,7 +1,10 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.jspecify.annotations.Nullable;
 
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbBaseRequest;
 
@@ -27,4 +30,10 @@ public final class ReconStateRequest extends FcbBaseRequest {
     private String operationName = "nova-loanfile-recon-state";
 
     private final String facilityId;
+
+    /**
+     * Forward event uids (Nova outbox {@code eventId}s) FCB should return durable peer signals for;
+     * {@code null}/omitted for a state-only probe (LN-59513).
+     */
+    private final @Nullable List<String> forwardEventUids;
 }

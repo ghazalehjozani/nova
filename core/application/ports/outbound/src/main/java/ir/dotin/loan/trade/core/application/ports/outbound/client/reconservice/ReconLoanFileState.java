@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice;
 
+import java.util.List;
+
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -15,6 +17,11 @@ import org.jspecify.annotations.Nullable;
  * @param reachable whether FCB answered authoritatively. {@code false} signals the read was inconclusive (peer down /
  *     timeout) and the probe must yield {@code UNKNOWN}, never {@code ORPHAN}.
  * @param outboxRef opaque FCB outbox reference used to re-emit a missing FCB→Nova event; {@code null} when none.
+ * @param peerSignals per-forward-event-uid FCB durable signals (idempotency + dead-letter), returned only when the
+ *     probe asked about specific forward uids; empty otherwise. Lets the classifier decide apply-lost on signals, not a
+ *     clock (LN-59513).
+ * @param dltPresentForFacility whether FCB holds ANY {@code DEAD} dead-letter row for this facility (a coarse signal
+ *     covering dead rows whose uid the probe did not ask about, e.g. keyed by topic.partition.offset).
  */
 public record ReconLoanFileState(
         boolean exists,
@@ -22,4 +29,11 @@ public record ReconLoanFileState(
         String manualId,
         @Nullable Long lastModifiedEpochMs,
         boolean reachable,
-        @Nullable String outboxRef) {}
+        @Nullable String outboxRef,
+        List<EventPeerSignal> peerSignals,
+        boolean dltPresentForFacility) {
+
+    public ReconLoanFileState {
+        peerSignals = peerSignals == null ? List.of() : List.copyOf(peerSignals);
+    }
+}

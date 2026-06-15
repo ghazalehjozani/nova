@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.adapter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 import org.jspecify.annotations.Nullable;
@@ -10,11 +12,13 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.client.FcbRequestReplyCl
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbReconStateProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbBaseRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbBaseResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ReconPeerSignal;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ReconStateResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ReemitOutboxResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ReconStateRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.request.ReemitOutboxRequest;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.EventPeerSignal;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FcbOutboxReemitPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FcbReconStatePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.ReconLoanFileState;
@@ -44,9 +48,14 @@ public class FcbReconStateAdapter implements FcbReconStatePort, FcbOutboxReemitP
     @Timed(
             value = "fcb.outbound",
             extraTags = {"op", "loadReconState"})
-    public Result<ReconLoanFileState> loadReconState(String facilityId) {
+    public Result<ReconLoanFileState> loadReconState(String facilityId, @Nullable List<String> forwardEventUids) {
+        List<String> uids =
+                forwardEventUids == null || forwardEventUids.isEmpty() ? null : List.copyOf(forwardEventUids);
         return sendAndMap(
-                ReconStateRequest.builder().facilityId(facilityId).build(),
+                ReconStateRequest.builder()
+                        .facilityId(facilityId)
+                        .forwardEventUids(uids)
+                        .build(),
                 ReconStateResponse.class,
                 FcbReconStateAdapter::mapToReconLoanFileState);
     }
@@ -72,7 +81,41 @@ public class FcbReconStateAdapter implements FcbReconStatePort, FcbOutboxReemitP
                 response.getManualId(),
                 response.getLastModifiedEpochMs(),
                 response.isReachable(),
-                response.getOutboxRef()));
+                response.getOutboxRef(),
+                mapPeerSignals(response.getPeerSignals()),
+                response.isDltPresentForFacility()));
+    }
+
+    private static List<EventPeerSignal> mapPeerSignals(@Nullable List<ReconPeerSignal> wireSignals) {
+        if (wireSignals == null || wireSignals.isEmpty()) {
+            return List.of();
+        }
+        List<EventPeerSignal> mapped = new ArrayList<>(wireSignals.size());
+        for (ReconPeerSignal wire : wireSignals) {
+            String eventUid = wire.getEventUid();
+            if (eventUid == null || eventUid.isBlank()) {
+                // A signal without a join key cannot be matched to a forward outbox row — drop it (degrades that uid to
+                // "no signal" → FCB_LAG, safe), but surface the malformed reply rather than silently swallowing it.
+                log.warn("FCB recon-state returned a peer signal with no eventUid — dropping it");
+                continue;
+            }
+            mapped.add(new EventPeerSignal(
+                    eventUid,
+                    parseIdempotencyState(wire.getIdempotencyState()),
+                    "DEAD".equals(wire.getDltStatus()),
+                    wire.getDltCategory()));
+        }
+        return mapped;
+    }
+
+    private static EventPeerSignal.IdempotencyState parseIdempotencyState(@Nullable String wireState) {
+        if ("COMPLETED".equals(wireState)) {
+            return EventPeerSignal.IdempotencyState.COMPLETED;
+        }
+        if ("IN_PROGRESS".equals(wireState)) {
+            return EventPeerSignal.IdempotencyState.IN_PROGRESS;
+        }
+        return EventPeerSignal.IdempotencyState.ABSENT;
     }
 
     private static Result<ReconReemitOutcome> mapToReemitOutcome(ReemitOutboxResponse response) {

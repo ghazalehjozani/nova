@@ -62,7 +62,10 @@ public class FacilityDivergenceProbe implements DivergenceProbe {
         FacilityStatus novaStatus = novaRow.get().status();
         String applicationNumber = novaRow.get().applicationNumber();
 
-        Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId);
+        // State-only probe: the divergence VERDICT (ORPHAN/LAGGING/ALIGNED) needs only exists/fileStatus, not the
+        // per-event peer signals (those are gathered at classify/converge time). Pass no uids so FCB skips the signal
+        // gather (LN-59513).
+        Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId, null);
         if (fcbResult.isFailure()) {
             log.info(
                     "Recon probe {}: FCB recon-state read failed (novaStatus={}) — UNKNOWN(fcb-unreachable): {}",

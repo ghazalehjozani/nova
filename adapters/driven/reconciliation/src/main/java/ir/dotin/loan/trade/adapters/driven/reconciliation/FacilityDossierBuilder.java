@@ -5,8 +5,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -25,6 +27,7 @@ import ir.dotin.platform.pangaea.reconciliation.api.model.RemediationKind;
 import ir.dotin.platform.pangaea.reconciliation.api.model.RootCause;
 import ir.dotin.platform.pangaea.reconciliation.api.model.SafetyTier;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.EventPeerSignal;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.ReconLoanFileState;
 
 final class FacilityDossierBuilder {
@@ -37,7 +40,6 @@ final class FacilityDossierBuilder {
             ReconLoanFileState fcb,
             List<OutboxRecordView> forwardOutboxRows,
             @Nullable String workflowState,
-            boolean graceElapsed,
             FacilityClassification classification,
             @Nullable String fcbBusinessError) {
         Objects.requireNonNull(novaStatus, "novaStatus");
@@ -48,17 +50,19 @@ final class FacilityDossierBuilder {
         NovaSnapshot novaSnapshot = novaSnapshot(novaStatus, rows, workflowState);
         FcbSnapshot fcbSnapshot = new FcbSnapshot(fcb.reachable(), fcb.exists(), fcb.fileStatus(), fcbBusinessError);
 
-        ProposedRemediation recommended = recommendation(classification, fcb, rows, graceElapsed);
+        ProposedRemediation recommended = recommendation(classification, fcb, rows);
         List<ProposedRemediation> alternatives = alternatives(recommended.kind());
 
-        String hash = computeHash(classification.rootCause(), fcb, novaStatus, rows, graceElapsed, recommended.kind());
+        String hash = computeHash(classification.rootCause(), fcb, novaStatus, rows, recommended.kind());
 
+        // The legacy OperatorDossier "graceElapsed" flag is vestigial under signal-based classification (LN-59513) —
+        // classification no longer turns on elapsed time; pass false and carry the real evidence in the signal tokens.
         return new OperatorDossier(
                 classification.rootCause(),
                 classification.confidence(),
                 novaSnapshot,
                 fcbSnapshot,
-                graceElapsed,
+                false,
                 classification.evidence(),
                 recommended,
                 alternatives,
@@ -84,12 +88,9 @@ final class FacilityDossierBuilder {
     }
 
     private ProposedRemediation recommendation(
-            FacilityClassification classification,
-            ReconLoanFileState fcb,
-            List<OutboxRecordView> rows,
-            boolean graceElapsed) {
+            FacilityClassification classification, ReconLoanFileState fcb, List<OutboxRecordView> rows) {
         return switch (classification.recommendedKind()) {
-            case REPLAY_FORWARD -> replayForward(classification, fcb, rows, graceElapsed);
+            case REPLAY_FORWARD -> replayForward(classification, fcb, rows);
             case REVERSE_NOVA -> reverseNova(classification, fcb);
             case MANUAL_DATA_FIX -> manualDataFix(classification, fcb);
             case NONE -> ProposedRemediation.none();
@@ -97,19 +98,17 @@ final class FacilityDossierBuilder {
     }
 
     private ProposedRemediation replayForward(
-            FacilityClassification classification,
-            ReconLoanFileState fcb,
-            List<OutboxRecordView> rows,
-            boolean graceElapsed) {
+            FacilityClassification classification, ReconLoanFileState fcb, List<OutboxRecordView> rows) {
         List<String> keys = rows.stream()
                 .filter(row -> row.status() == MessageStatus.PROCESSED)
                 .sorted(Comparator.comparing(FacilityDossierBuilder::sequenceOf))
                 .map(FacilityDossierBuilder::eventIdOf)
                 .toList();
         int n = keys.size();
+        boolean fcbSaw = fcbSawForward(fcb, rows);
         List<Precondition> preconditions = List.of(
-                new Precondition("grace-elapsed", graceElapsed, "graceElapsed=" + graceElapsed),
-                new Precondition("fcb-absent", !fcb.exists(), "fcb.exists=" + fcb.exists()),
+                new Precondition("fcb-apply-confirmed", fcbSaw, "fcbSawForwardSignal=" + fcbSaw),
+                new Precondition("fcb-effect-absent", !fcb.exists(), "fcb.exists=" + fcb.exists()),
                 new Precondition("forward-outbox-processed", n > 0, "processed=" + n),
                 new Precondition(
                         "high-confidence",
@@ -185,22 +184,17 @@ final class FacilityDossierBuilder {
             ReconLoanFileState fcb,
             FacilityStatus novaStatus,
             List<OutboxRecordView> forwardOutboxRows,
-            boolean graceElapsed,
             RemediationKind recommendedKind) {
-        List<String> rowTokens = new ArrayList<>();
-        for (OutboxRecordView row : forwardOutboxRows) {
-            rowTokens.add(eventIdOf(row) + ":" + statusNameOf(row));
-        }
-        rowTokens.sort(Comparator.naturalOrder());
-
+        // Fold the per-uid peer SIGNAL (idempotency + dead-letter) into the maker-checker hash instead of a grace
+        // boolean (LN-59513): a signal flip between dossier issue and operator approval changes the hash, so the
+        // TOCTOU re-check in remediate() rejects a stale approval — strictly stronger than the old grace token.
         String payload = String.join(
                 SEP,
                 rootCause.name(),
                 Boolean.toString(fcb.exists()),
                 nullSafe(fcb.fileStatus()),
                 novaStatus.name(),
-                String.join(",", rowTokens),
-                Boolean.toString(graceElapsed),
+                signalFingerprint(fcb, forwardOutboxRows),
                 recommendedKind.name());
 
         try {
@@ -210,6 +204,50 @@ final class FacilityDossierBuilder {
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("SHA-256 unavailable", e);
         }
+    }
+
+    private static String signalFingerprint(ReconLoanFileState fcb, List<OutboxRecordView> forwardOutboxRows) {
+        Map<String, EventPeerSignal> byUid = signalsByUid(fcb);
+        List<String> tokens = new ArrayList<>();
+        for (OutboxRecordView row : forwardOutboxRows) {
+            String uid = eventIdOf(row);
+            tokens.add(uid + ":" + statusNameOf(row) + ":" + signalToken(byUid.get(uid)));
+        }
+        tokens.sort(Comparator.naturalOrder());
+        return String.join(",", tokens) + ";dltFacility=" + fcb.dltPresentForFacility();
+    }
+
+    private static String signalToken(@Nullable EventPeerSignal signal) {
+        if (signal == null) {
+            return "NONE";
+        }
+        return signal.idempotencyState().name() + "/" + (signal.dltDead() ? "DEAD" : "-") + "/"
+                + nullSafe(signal.dltCategory());
+    }
+
+    private static boolean fcbSawForward(ReconLoanFileState fcb, List<OutboxRecordView> rows) {
+        if (fcb.peerSignals().isEmpty()) {
+            return false;
+        }
+        Map<String, EventPeerSignal> byUid = signalsByUid(fcb);
+        for (OutboxRecordView row : rows) {
+            EventPeerSignal signal = byUid.get(eventIdOf(row));
+            if (signal != null
+                    && (signal.idempotencyState() == EventPeerSignal.IdempotencyState.COMPLETED || signal.dltDead())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static Map<String, EventPeerSignal> signalsByUid(ReconLoanFileState fcb) {
+        Map<String, EventPeerSignal> byUid = new HashMap<>();
+        for (EventPeerSignal signal : fcb.peerSignals()) {
+            if (signal.eventUid() != null) {
+                byUid.put(signal.eventUid(), signal);
+            }
+        }
+        return byUid;
     }
 
     private static String nullSafe(@Nullable String value) {

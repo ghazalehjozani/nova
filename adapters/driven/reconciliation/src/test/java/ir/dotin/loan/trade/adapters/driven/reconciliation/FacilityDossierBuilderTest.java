@@ -21,6 +21,8 @@ import ir.dotin.platform.pangaea.reconciliation.api.model.RemediationKind;
 import ir.dotin.platform.pangaea.reconciliation.api.model.RootCause;
 import ir.dotin.platform.pangaea.reconciliation.api.model.SafetyTier;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.EventPeerSignal;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.EventPeerSignal.IdempotencyState;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.ReconLoanFileState;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,12 +46,14 @@ class FacilityDossierBuilderTest {
                 RemediationKind.REPLAY_FORWARD,
                 List.of("fcb.exists=false", "money=true"));
 
-        OperatorDossier dossier = builder.build(
-                FacilityStatus.FULLY_DISBURSED, fcbAbsent(), rows, "DISBURSED", true, classification, null);
+        ReconLoanFileState fcb = fcbAbsentWithSignals(completed(id1), completed(id2));
+        OperatorDossier dossier =
+                builder.build(FacilityStatus.FULLY_DISBURSED, fcb, rows, "DISBURSED", classification, null);
 
         assertThat(dossier.rootCause()).isEqualTo(RootCause.FCB_APPLY_LOST);
         assertThat(dossier.confidence()).isEqualTo(Confidence.HIGH);
-        assertThat(dossier.graceElapsed()).isTrue();
+        // The legacy graceElapsed flag is vestigial under signal-based classification (always false).
+        assertThat(dossier.graceElapsed()).isFalse();
 
         ProposedRemediation recommended = dossier.recommended();
         assertThat(recommended.kind()).isEqualTo(RemediationKind.REPLAY_FORWARD);
@@ -71,9 +75,9 @@ class FacilityDossierBuilderTest {
         assertThat(nova.outboxRows()).extracting(OutboxRowSummary::sent).containsOnly(true);
         assertThat(nova.outboxRows()).extracting(OutboxRowSummary::consumed).containsOnly(false);
 
-        FcbSnapshot fcb = Objects.requireNonNull(dossier.fcbSnapshot());
-        assertThat(fcb.exists()).isFalse();
-        assertThat(fcb.reachable()).isTrue();
+        FcbSnapshot fcbSnapshot = Objects.requireNonNull(dossier.fcbSnapshot());
+        assertThat(fcbSnapshot.exists()).isFalse();
+        assertThat(fcbSnapshot.reachable()).isTrue();
 
         assertThat(dossier.alternatives())
                 .extracting(ProposedRemediation::kind)
@@ -92,7 +96,7 @@ class FacilityDossierBuilderTest {
                 List.of("fcb.exists=false"));
 
         OperatorDossier dossier =
-                builder.build(FacilityStatus.APPROVED, fcbAbsent(), List.of(), null, true, classification, null);
+                builder.build(FacilityStatus.APPROVED, fcbAbsent(), List.of(), null, classification, null);
 
         assertThat(dossier.recommended().kind()).isEqualTo(RemediationKind.REVERSE_NOVA);
         assertThat(dossier.recommended().safetyTier()).isEqualTo(SafetyTier.MANUAL_ONLY);
@@ -113,7 +117,6 @@ class FacilityDossierBuilderTest {
                 fcbAbsent(),
                 List.of(forward(UUID.randomUUID(), "TRADE_LOAN_FACILITY_APPROVED", MessageStatus.PROCESSED, 1L)),
                 null,
-                false,
                 classification,
                 null);
 
@@ -128,19 +131,9 @@ class FacilityDossierBuilderTest {
                 forward(UUID.fromString("00000000-0000-0000-0000-000000000002"), "E2", MessageStatus.PROCESSED, 2L));
 
         String a = FacilityDossierBuilder.computeHash(
-                RootCause.FCB_APPLY_LOST,
-                fcbAbsent(),
-                FacilityStatus.APPROVED,
-                rows,
-                true,
-                RemediationKind.REPLAY_FORWARD);
+                RootCause.FCB_APPLY_LOST, fcbAbsent(), FacilityStatus.APPROVED, rows, RemediationKind.REPLAY_FORWARD);
         String b = FacilityDossierBuilder.computeHash(
-                RootCause.FCB_APPLY_LOST,
-                fcbAbsent(),
-                FacilityStatus.APPROVED,
-                rows,
-                true,
-                RemediationKind.REPLAY_FORWARD);
+                RootCause.FCB_APPLY_LOST, fcbAbsent(), FacilityStatus.APPROVED, rows, RemediationKind.REPLAY_FORWARD);
 
         assertThat(a).isEqualTo(b);
         assertThat(a).matches("[0-9a-f]{64}");
@@ -150,33 +143,52 @@ class FacilityDossierBuilderTest {
     void hashIgnoresCosmeticFcbFields() {
         List<OutboxRecordView> rows = List.of(forward(UUID.randomUUID(), "E1", MessageStatus.PROCESSED, 1L));
 
-        ReconLoanFileState base = new ReconLoanFileState(false, "REQUEST_LOAN", "manual-A", 100L, true, "outbox-A");
+        ReconLoanFileState base =
+                new ReconLoanFileState(false, "REQUEST_LOAN", "manual-A", 100L, true, "outbox-A", List.of(), false);
         ReconLoanFileState cosmeticlyChanged =
-                new ReconLoanFileState(false, "REQUEST_LOAN", "manual-Z", 999999L, true, "outbox-Z");
+                new ReconLoanFileState(false, "REQUEST_LOAN", "manual-Z", 999999L, true, "outbox-Z", List.of(), false);
 
         String a = FacilityDossierBuilder.computeHash(
-                RootCause.FCB_APPLY_LOST, base, FacilityStatus.APPROVED, rows, true, RemediationKind.REPLAY_FORWARD);
+                RootCause.FCB_APPLY_LOST, base, FacilityStatus.APPROVED, rows, RemediationKind.REPLAY_FORWARD);
         String b = FacilityDossierBuilder.computeHash(
                 RootCause.FCB_APPLY_LOST,
                 cosmeticlyChanged,
                 FacilityStatus.APPROVED,
                 rows,
-                true,
                 RemediationKind.REPLAY_FORWARD);
 
         assertThat(a).isEqualTo(b);
     }
 
     @Test
+    void hashChangesWhenPeerSignalChanges() {
+        UUID id = UUID.fromString("00000000-0000-0000-0000-0000000000aa");
+        List<OutboxRecordView> rows = List.of(forward(id, "E1", MessageStatus.PROCESSED, 1L));
+
+        String absent = FacilityDossierBuilder.computeHash(
+                RootCause.FCB_APPLY_LOST, fcbAbsent(), FacilityStatus.APPROVED, rows, RemediationKind.REPLAY_FORWARD);
+        String completed = FacilityDossierBuilder.computeHash(
+                RootCause.FCB_APPLY_LOST,
+                fcbAbsentWithSignals(completed(id)),
+                FacilityStatus.APPROVED,
+                rows,
+                RemediationKind.REPLAY_FORWARD);
+
+        assertThat(absent).isNotEqualTo(completed);
+    }
+
+    @Test
     void hashChangesWhenFcbExistsFlips() {
         List<OutboxRecordView> rows = List.of(forward(UUID.randomUUID(), "E1", MessageStatus.PROCESSED, 1L));
-        ReconLoanFileState absent = new ReconLoanFileState(false, "REQUEST_LOAN", "manual", 1L, true, null);
-        ReconLoanFileState present = new ReconLoanFileState(true, "REQUEST_LOAN", "manual", 1L, true, null);
+        ReconLoanFileState absent =
+                new ReconLoanFileState(false, "REQUEST_LOAN", "manual", 1L, true, null, List.of(), false);
+        ReconLoanFileState present =
+                new ReconLoanFileState(true, "REQUEST_LOAN", "manual", 1L, true, null, List.of(), false);
 
         String a = FacilityDossierBuilder.computeHash(
-                RootCause.FCB_APPLY_LOST, absent, FacilityStatus.APPROVED, rows, true, RemediationKind.REPLAY_FORWARD);
+                RootCause.FCB_APPLY_LOST, absent, FacilityStatus.APPROVED, rows, RemediationKind.REPLAY_FORWARD);
         String b = FacilityDossierBuilder.computeHash(
-                RootCause.FCB_APPLY_LOST, present, FacilityStatus.APPROVED, rows, true, RemediationKind.REPLAY_FORWARD);
+                RootCause.FCB_APPLY_LOST, present, FacilityStatus.APPROVED, rows, RemediationKind.REPLAY_FORWARD);
 
         assertThat(a).isNotEqualTo(b);
     }
@@ -192,15 +204,9 @@ class FacilityDossierBuilderTest {
                 fcbAbsent(),
                 FacilityStatus.APPROVED,
                 processed,
-                true,
                 RemediationKind.REPLAY_FORWARD);
         String b = FacilityDossierBuilder.computeHash(
-                RootCause.FCB_APPLY_LOST,
-                fcbAbsent(),
-                FacilityStatus.APPROVED,
-                dead,
-                true,
-                RemediationKind.REPLAY_FORWARD);
+                RootCause.FCB_APPLY_LOST, fcbAbsent(), FacilityStatus.APPROVED, dead, RemediationKind.REPLAY_FORWARD);
 
         assertThat(a).isNotEqualTo(b);
     }
@@ -210,18 +216,12 @@ class FacilityDossierBuilderTest {
         List<OutboxRecordView> rows = List.of(forward(UUID.randomUUID(), "E1", MessageStatus.PROCESSED, 1L));
 
         String a = FacilityDossierBuilder.computeHash(
-                RootCause.FCB_APPLY_LOST,
-                fcbAbsent(),
-                FacilityStatus.APPROVED,
-                rows,
-                true,
-                RemediationKind.REPLAY_FORWARD);
+                RootCause.FCB_APPLY_LOST, fcbAbsent(), FacilityStatus.APPROVED, rows, RemediationKind.REPLAY_FORWARD);
         String b = FacilityDossierBuilder.computeHash(
                 RootCause.FCB_APPLY_LOST,
                 fcbAbsent(),
                 FacilityStatus.FULLY_DISBURSED,
                 rows,
-                true,
                 RemediationKind.REPLAY_FORWARD);
 
         assertThat(a).isNotEqualTo(b);
@@ -239,14 +239,12 @@ class FacilityDossierBuilderTest {
                 fcbAbsent(),
                 FacilityStatus.APPROVED,
                 List.of(r1, r2),
-                true,
                 RemediationKind.REPLAY_FORWARD);
         String b = FacilityDossierBuilder.computeHash(
                 RootCause.FCB_APPLY_LOST,
                 fcbAbsent(),
                 FacilityStatus.APPROVED,
                 List.of(r2, r1),
-                true,
                 RemediationKind.REPLAY_FORWARD);
 
         assertThat(a).isEqualTo(b);
@@ -257,25 +255,23 @@ class FacilityDossierBuilderTest {
         List<OutboxRecordView> rows = List.of(forward(UUID.randomUUID(), "E1", MessageStatus.PROCESSED, 1L));
 
         String a = FacilityDossierBuilder.computeHash(
-                RootCause.FCB_APPLY_LOST,
-                fcbAbsent(),
-                FacilityStatus.APPROVED,
-                rows,
-                true,
-                RemediationKind.REPLAY_FORWARD);
+                RootCause.FCB_APPLY_LOST, fcbAbsent(), FacilityStatus.APPROVED, rows, RemediationKind.REPLAY_FORWARD);
         String b = FacilityDossierBuilder.computeHash(
-                RootCause.FCB_APPLY_LOST,
-                fcbAbsent(),
-                FacilityStatus.APPROVED,
-                rows,
-                true,
-                RemediationKind.MANUAL_DATA_FIX);
+                RootCause.FCB_APPLY_LOST, fcbAbsent(), FacilityStatus.APPROVED, rows, RemediationKind.MANUAL_DATA_FIX);
 
         assertThat(a).isNotEqualTo(b);
     }
 
     private static ReconLoanFileState fcbAbsent() {
-        return new ReconLoanFileState(false, null, "manual", 1L, true, null);
+        return new ReconLoanFileState(false, null, "manual", 1L, true, null, List.of(), false);
+    }
+
+    private static ReconLoanFileState fcbAbsentWithSignals(EventPeerSignal... signals) {
+        return new ReconLoanFileState(false, null, "manual", 1L, true, null, List.of(signals), false);
+    }
+
+    private static EventPeerSignal completed(UUID eventId) {
+        return new EventPeerSignal(eventId.toString(), IdempotencyState.COMPLETED, false, null);
     }
 
     private static OutboxRecordView forward(UUID eventId, String eventType, MessageStatus status, long sequence) {

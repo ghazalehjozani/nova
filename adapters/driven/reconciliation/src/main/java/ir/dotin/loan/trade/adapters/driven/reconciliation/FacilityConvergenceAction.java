@@ -1,11 +1,10 @@
 package ir.dotin.loan.trade.adapters.driven.reconciliation;
 
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -47,6 +46,7 @@ import ir.dotin.platform.pangaea.workflow.api.admin.WorkflowAdminPort;
 import ir.dotin.platform.pangaea.workflow.api.admin.WorkflowRunView;
 import ir.dotin.platform.pangaea.workflow.api.model.RunState;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.EventPeerSignal;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FacilityReconReadPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FacilityReconRow;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FcbOutboxReemitPort;
@@ -93,7 +93,6 @@ public class FacilityConvergenceAction implements ConvergenceAction {
     private final FcbOutboxReemitPort fcbOutboxReemitPort;
     private final FacilityReconReadPort readPort;
     private final ReconciliationSourceProperties properties;
-    private final Clock clock;
 
     private final FacilityRootCauseClassifier classifier = new FacilityRootCauseClassifier();
     private final FacilityDossierBuilder dossierBuilder = new FacilityDossierBuilder();
@@ -192,9 +191,9 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             return ConvergeOutcome.retryLater("nova-missing");
         }
         FacilityStatus novaStatus = novaRow.get().status();
-        long novaModifiedAtEpochMs = novaRow.get().modifiedAtEpochMs();
+        List<String> forwardEventUids = forwardEventUids(facilityRows);
         if (FacilityReconMapping.isTerminal(novaStatus)) {
-            Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId);
+            Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId, forwardEventUids);
             if (fcbResult.isFailure()) {
                 return ConvergeOutcome.retryLater("fcb-unreachable");
             }
@@ -205,7 +204,7 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             boolean aligned = !fcb.exists() || FacilityReconMapping.isFcbRevoked(fcb.fileStatus());
             return aligned
                     ? ConvergeOutcome.notApplicable("terminal-aligned")
-                    : classifyDivergence(novaStatus, fcb, facilityRows, correlationIds, novaModifiedAtEpochMs);
+                    : classifyDivergence(novaStatus, fcb, facilityRows, correlationIds);
         }
 
         // Defense-in-depth (INV-15): re-assert the money gate locally on the freshly re-read status, so a money-moving
@@ -213,7 +212,7 @@ public class FacilityConvergenceAction implements ConvergenceAction {
         // auto-re-driven
         // even if it reached here via an operator-forced path or the driver gate were ever loosened.
         if (FacilityReconMapping.isMoneyState(novaStatus)) {
-            Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId);
+            Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId, forwardEventUids);
             if (fcbResult.isFailure()) {
                 return ConvergeOutcome.retryLater("fcb-unreachable");
             }
@@ -221,14 +220,13 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             if (!fcb.reachable()) {
                 return ConvergeOutcome.retryLater("fcb-unreachable");
             }
-            return classifyDivergence(novaStatus, fcb, facilityRows, correlationIds, novaModifiedAtEpochMs);
+            return classifyDivergence(novaStatus, fcb, facilityRows, correlationIds);
         }
 
         // (3) / (4) verdict-directed lever.
         return switch (divergence.verdict()) {
             case ORPHAN, LAGGING ->
-                convergeNovaToFcb(
-                        facilityId, facilityRows, novaStatus, novaModifiedAtEpochMs, correlationIds, operatorForced);
+                convergeNovaToFcb(facilityId, facilityRows, novaStatus, correlationIds, operatorForced);
             case ALIGNED, UNKNOWN -> ConvergeOutcome.notApplicable("not-divergent");
         };
     }
@@ -290,9 +288,10 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             return RemediateOutcome.rejected("nova-missing");
         }
         FacilityStatus novaStatus = novaRow.get().status();
-        long novaModifiedAtEpochMs = novaRow.get().modifiedAtEpochMs();
 
-        Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId);
+        List<OutboxRecordView> forwardRows = forwardRows(facilityRows);
+        Result<ReconLoanFileState> fcbResult =
+                fcbReconStatePort.loadReconState(facilityId, forwardEventUids(facilityRows));
         if (fcbResult.isFailure()) {
             return RemediateOutcome.rejected("fcb-unreachable");
         }
@@ -301,20 +300,12 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             return RemediateOutcome.rejected("fcb-unreachable");
         }
 
-        List<OutboxRecordView> forwardRows = facilityRows.stream()
-                .filter(row -> FacilityReconMapping.fcbRankForEvent(row.eventType()) >= 0)
-                .toList();
-        boolean graceElapsed = !fcb.exists()
-                && novaModifiedAtEpochMs > 0
-                && Duration.between(Instant.ofEpochMilli(novaModifiedAtEpochMs), clock.instant())
-                                .compareTo(properties.getGraceWindow())
-                        > 0;
+        FacilityClassification c = classifier.classify(classifierInput(fcb, novaStatus, forwardRows));
 
-        FacilityClassification c = classifier.classify(new FacilityRootCauseClassifier.ClassifierInput(
-                fcb.exists(), fcb.fileStatus(), novaStatus, forwardRows, graceElapsed, null));
-
-        String fresh = FacilityDossierBuilder.computeHash(
-                c.rootCause(), fcb, novaStatus, forwardRows, graceElapsed, c.recommendedKind());
+        // TOCTOU re-check under the lock: recompute the maker-checker hash from the FRESH signals and reject if it
+        // moved since the operator approved (the hash folds the per-uid peer signal, not a clock — LN-59513).
+        String fresh =
+                FacilityDossierBuilder.computeHash(c.rootCause(), fcb, novaStatus, forwardRows, c.recommendedKind());
         if (!fresh.equals(dossierHash)) {
             return RemediateOutcome.dossierStale("state-moved");
         }
@@ -355,20 +346,16 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             FacilityStatus novaStatus,
             ReconLoanFileState fcb,
             List<OutboxRecordView> facilityRows,
-            List<String> correlationIds,
-            long novaModifiedAtEpochMs) {
+            List<String> correlationIds) {
         List<OutboxRecordView> forwardRows = forwardRows(facilityRows);
-        boolean graceElapsed = graceElapsed(fcb, novaModifiedAtEpochMs);
-
-        FacilityClassification classification = classifier.classify(new FacilityRootCauseClassifier.ClassifierInput(
-                fcb.exists(), fcb.fileStatus(), novaStatus, forwardRows, graceElapsed, null));
+        FacilityClassification classification = classifier.classify(classifierInput(fcb, novaStatus, forwardRows));
 
         if (classification.rootCause() == RootCause.FCB_LAG) {
             return ConvergeOutcome.retryLater("fcb-lag");
         }
 
         return ConvergeOutcome.needsOperator(
-                buildDossier(novaStatus, fcb, forwardRows, correlationIds, graceElapsed, classification));
+                buildDossier(novaStatus, fcb, forwardRows, correlationIds, classification));
     }
 
     private OperatorDossier buildDossier(
@@ -376,10 +363,9 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             ReconLoanFileState fcb,
             List<OutboxRecordView> forwardRows,
             List<String> correlationIds,
-            boolean graceElapsed,
             FacilityClassification classification) {
         String workflowState = workflowStateSummary(correlationIds);
-        return dossierBuilder.build(novaStatus, fcb, forwardRows, workflowState, graceElapsed, classification, null);
+        return dossierBuilder.build(novaStatus, fcb, forwardRows, workflowState, classification, null);
     }
 
     private static List<OutboxRecordView> forwardRows(List<OutboxRecordView> facilityRows) {
@@ -388,12 +374,45 @@ public class FacilityConvergenceAction implements ConvergenceAction {
                 .toList();
     }
 
-    private boolean graceElapsed(ReconLoanFileState fcb, long novaModifiedAtEpochMs) {
-        return !fcb.exists()
-                && novaModifiedAtEpochMs > 0
-                && Duration.between(Instant.ofEpochMilli(novaModifiedAtEpochMs), clock.instant())
-                                .compareTo(properties.getGraceWindow())
-                        > 0;
+    /** Forward event uids (Nova outbox eventId = the wire {@code eventUid} = FCB idempotency/DLT key) for the probe. */
+    private static List<String> forwardEventUids(List<OutboxRecordView> facilityRows) {
+        return facilityRows.stream()
+                .filter(row -> FacilityReconMapping.fcbRankForEvent(row.eventType()) >= 0)
+                .map(OutboxRecordView::eventId)
+                .filter(Objects::nonNull)
+                .map(UUID::toString)
+                .toList();
+    }
+
+    private static FacilityRootCauseClassifier.ClassifierInput classifierInput(
+            ReconLoanFileState fcb, FacilityStatus novaStatus, List<OutboxRecordView> forwardRows) {
+        return new FacilityRootCauseClassifier.ClassifierInput(
+                fcb.exists(),
+                fcb.fileStatus(),
+                novaStatus,
+                forwardRows,
+                peerSignalMap(fcb),
+                fcb.dltPresentForFacility(),
+                null);
+    }
+
+    private static Map<String, EventPeerSignal> peerSignalMap(ReconLoanFileState fcb) {
+        Map<String, EventPeerSignal> byUid = new HashMap<>();
+        for (EventPeerSignal signal : fcb.peerSignals()) {
+            if (signal.eventUid() != null) {
+                byUid.put(signal.eventUid(), signal);
+            }
+        }
+        return byUid;
+    }
+
+    private static boolean anyForwardInFlight(List<OutboxRecordView> facilityRows) {
+        return facilityRows.stream()
+                .filter(row -> FacilityReconMapping.fcbRankForEvent(row.eventType()) >= 0)
+                .map(OutboxRecordView::status)
+                .anyMatch(status -> status == MessageStatus.PENDING
+                        || status == MessageStatus.RETRYING
+                        || status == MessageStatus.PROCESSING);
     }
 
     // ════════════════════════════════════════ Classify (no convergence) ════════════════════════════════════════
@@ -406,7 +425,9 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             if (novaRow.isEmpty()) {
                 return Optional.empty();
             }
-            Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId);
+            List<OutboxRecordView> facilityRows = loadFacilityOutboxRows(facilityId);
+            Result<ReconLoanFileState> fcbResult =
+                    fcbReconStatePort.loadReconState(facilityId, forwardEventUids(facilityRows));
             if (fcbResult.isFailure()) {
                 return Optional.empty();
             }
@@ -416,8 +437,6 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             }
 
             FacilityStatus novaStatus = novaRow.get().status();
-            long novaModifiedAtEpochMs = novaRow.get().modifiedAtEpochMs();
-            List<OutboxRecordView> facilityRows = loadFacilityOutboxRows(facilityId);
             List<String> correlationIds = facilityRows.stream()
                     .map(OutboxRecordView::correlationId)
                     .filter(Objects::nonNull)
@@ -425,12 +444,9 @@ public class FacilityConvergenceAction implements ConvergenceAction {
                     .distinct()
                     .toList();
             List<OutboxRecordView> forwardRows = forwardRows(facilityRows);
-            boolean graceElapsed = graceElapsed(fcb, novaModifiedAtEpochMs);
 
-            FacilityClassification classification = classifier.classify(new FacilityRootCauseClassifier.ClassifierInput(
-                    fcb.exists(), fcb.fileStatus(), novaStatus, forwardRows, graceElapsed, null));
-            return Optional.of(
-                    buildDossier(novaStatus, fcb, forwardRows, correlationIds, graceElapsed, classification));
+            FacilityClassification classification = classifier.classify(classifierInput(fcb, novaStatus, forwardRows));
+            return Optional.of(buildDossier(novaStatus, fcb, forwardRows, correlationIds, classification));
         } catch (RuntimeException e) {
             log.warn("classify() failed for facility {} — no dossier", facilityId, e);
             return Optional.empty();
@@ -470,14 +486,21 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             String facilityId,
             List<OutboxRecordView> facilityRows,
             FacilityStatus novaStatus,
-            long novaModifiedAtEpochMs,
             List<String> correlationIds,
             boolean operatorForced) {
 
+        // Detection-settle replacement (LN-59513): a facility whose forward outbox row is still in-flight on the Nova
+        // side (PENDING/RETRYING/PROCESSING — not yet broker-acked) is mid-publish, not a premature ORPHAN. Defer on
+        // the SIGNAL, not a wall-clock settling floor.
+        if (anyForwardInFlight(facilityRows)) {
+            return ConvergeOutcome.retryLater("outbox-in-flight");
+        }
+
         // Re-drive the EARLIEST forward event FCB has NOT yet applied (INV-5), judged against FCB's CURRENT file status
         // — not merely the earliest stored event (which FCB may already have → an idempotent no-op that never closes a
-        // LAGGING gap). So read FCB's current rank first.
-        Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId);
+        // LAGGING gap). So read FCB's current rank (and the peer signals) first.
+        Result<ReconLoanFileState> fcbResult =
+                fcbReconStatePort.loadReconState(facilityId, forwardEventUids(facilityRows));
         if (fcbResult.isFailure()) {
             return ConvergeOutcome.retryLater("fcb-unreachable");
         }
@@ -516,17 +539,14 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             }
         }
 
-        // FCB-absent orphan whose earliest-missing step is entirely PROCESSED = the forward event was already published
-        // once but FCB never materialized it (FCB_APPLY_LOST). Re-driving alone re-publishes every cycle and (since a
-        // re-drive returns retryLater, never incrementing the attempt budget) the row would loop forever without ever
-        // carrying a root cause or escalating. So classify it up front: while the apply-lost fair-chance window is open
-        // we still re-drive (the FCB effect-aware re-apply can converge it); once the window is exceeded we escalate to
-        // NEEDS_OPERATOR with the FCB_APPLY_LOST dossier instead of re-driving silently forever. An operator-forced
-        // converge IS the maker-checker authority deciding to re-drive: skip the fair-chance-window escalation so an
-        // aged apply-lost orphan re-drives instead of re-escalating (money/terminal gating above is untouched).
-        if (!operatorForced && !fcb.exists() && !anyDeadLetter && !anyInProgress && !processedIds.isEmpty()) {
-            ConvergeOutcome escalation =
-                    escalateIfApplyLostExhausted(novaStatus, fcb, facilityRows, correlationIds, novaModifiedAtEpochMs);
+        // The earliest-missing step is entirely PROCESSED on the Nova side (broker-acked) yet FCB has not applied it.
+        // Classify on FCB's peer signal: a NON-re-drivable terminal rejection (DLT BUSINESS/POISON/PERMANENT) must
+        // escalate to an operator immediately rather than re-drive a doomed event forever; a genuine apply-lost
+        // (COMPLETED/transient-exhausted) or a still-in-transit lag is re-driven below (the FCB effect-aware re-apply
+        // converges it, and a never-converging row is escalated by the generic sweep's divergent-age backstop, not a
+        // clock here). An operator-forced converge IS the maker-checker deciding to re-drive: skip the escalation.
+        if (!operatorForced && !anyInProgress && !processedIds.isEmpty()) {
+            ConvergeOutcome escalation = escalateIfTerminalReject(novaStatus, fcb, facilityRows, correlationIds);
             if (escalation != null) {
                 return escalation;
             }
@@ -559,41 +579,23 @@ public class FacilityConvergenceAction implements ConvergenceAction {
     }
 
     /**
-     * For an FCB-absent apply-lost orphan, decide whether the FCB re-apply has had a fair chance: classify the
-     * divergence and, only when it is {@code FCB_APPLY_LOST} (grace already elapsed) AND the Nova row last changed
-     * longer ago than {@code applyLostEscalateAfter}, escalate to {@code NeedsOperator} with the
-     * REPLAY_FORWARD-recommending dossier so the loop terminates. Returns {@code null} (keep re-driving) while still
-     * inside the fair-chance window, when grace has not yet elapsed (classifier yields {@code FCB_LAG}), or when the
-     * classification is anything other than {@code FCB_APPLY_LOST}. Side-effect-free.
+     * Escalate to {@code NEEDS_OPERATOR} ONLY when the forward step's peer signal is a non-re-drivable terminal FCB
+     * rejection ({@code FCB_BUSINESS_REJECT} — DLT BUSINESS/POISON/PERMANENT): a replay cannot fix it, so it must not
+     * re-drive forever. Returns {@code null} for an apply-lost or lag classification (the caller re-drives; a genuine
+     * never-converging row is escalated by the generic sweep's divergent-age backstop). Side-effect-free, no clock.
      */
-    private @Nullable ConvergeOutcome escalateIfApplyLostExhausted(
+    private @Nullable ConvergeOutcome escalateIfTerminalReject(
             FacilityStatus novaStatus,
             ReconLoanFileState fcb,
             List<OutboxRecordView> facilityRows,
-            List<String> correlationIds,
-            long novaModifiedAtEpochMs) {
-        boolean graceElapsed = graceElapsed(fcb, novaModifiedAtEpochMs);
-        if (!graceElapsed) {
-            return null;
-        }
+            List<String> correlationIds) {
         List<OutboxRecordView> forwardRows = forwardRows(facilityRows);
-        FacilityClassification classification = classifier.classify(new FacilityRootCauseClassifier.ClassifierInput(
-                fcb.exists(), fcb.fileStatus(), novaStatus, forwardRows, graceElapsed, null));
-        if (classification.rootCause() != RootCause.FCB_APPLY_LOST) {
-            return null;
-        }
-        if (!applyLostFairChanceElapsed(novaModifiedAtEpochMs)) {
+        FacilityClassification classification = classifier.classify(classifierInput(fcb, novaStatus, forwardRows));
+        if (classification.rootCause() != RootCause.FCB_BUSINESS_REJECT) {
             return null;
         }
         return ConvergeOutcome.needsOperator(
-                buildDossier(novaStatus, fcb, forwardRows, correlationIds, graceElapsed, classification));
-    }
-
-    private boolean applyLostFairChanceElapsed(long novaModifiedAtEpochMs) {
-        return novaModifiedAtEpochMs > 0
-                && Duration.between(Instant.ofEpochMilli(novaModifiedAtEpochMs), clock.instant())
-                                .compareTo(properties.getApplyLostEscalateAfter())
-                        > 0;
+                buildDossier(novaStatus, fcb, forwardRows, correlationIds, classification));
     }
 
     /**
@@ -631,8 +633,9 @@ public class FacilityConvergenceAction implements ConvergenceAction {
             return inboxOutcome;
         }
 
-        // (4b) Otherwise FCB never emitted the event Nova is waiting for → ask FCB to re-emit.
-        Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId);
+        // (4b) Otherwise FCB never emitted the event Nova is waiting for → ask FCB to re-emit. State-only probe (no
+        // forward-event signals needed for the FCB→Nova re-emit lever): pass no uids so FCB skips the signal gather.
+        Result<ReconLoanFileState> fcbResult = fcbReconStatePort.loadReconState(facilityId, null);
         if (fcbResult.isFailure()) {
             return ConvergeOutcome.retryLater("fcb-unreachable");
         }

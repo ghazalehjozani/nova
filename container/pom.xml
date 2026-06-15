@@ -31,11 +31,76 @@
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
-            <artifactId>starter-all</artifactId>
+            <artifactId>runtime-management</artifactId>
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform.pangaea</groupId>
             <artifactId>spring-boot-starter-runtime</artifactId>
+        </dependency>
+        <!-- CQRS Dispatcher -->
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>service-layer-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>workflow-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>protocol-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>audit-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>observability-starter</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Core Starters -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aspectj</artifactId>
+        </dependency>
+
+        <!-- Configuration Processing -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Logging -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+        </dependency>
+
+        <!-- Jackson -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-json</artifactId>
+        </dependency>
+
+        <!-- Test Support (scope: test) -->
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>test-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.platform.pangaea</groupId>
+            <artifactId>test-archunit</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ir.dotin.platform</groupId>

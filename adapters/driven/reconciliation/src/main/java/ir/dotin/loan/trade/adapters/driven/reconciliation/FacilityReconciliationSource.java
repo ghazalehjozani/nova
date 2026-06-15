@@ -1,6 +1,5 @@
 package ir.dotin.loan.trade.adapters.driven.reconciliation;
 
-import java.time.Instant;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
@@ -21,7 +20,9 @@ import lombok.RequiredArgsConstructor;
  * Nova facilities, keyset-paged by {@code (modifiedAt, id)} so a sweep resumes cleanly after a lost lease.
  *
  * <p>Side-effect-free and cheap, as the orchestrator pages it under a fleet-wide lock. Terminal facilities are excluded
- * because there is nothing left to converge forward.
+ * because there is nothing left to converge forward. There is no wall-clock detection-settle floor (LN-59513): a
+ * just-modified facility is emitted, and the convergence action defers it on a SIGNAL (forward outbox still in-flight)
+ * instead of a timer.
  */
 @Component
 @RequiredArgsConstructor
@@ -41,8 +42,7 @@ public class FacilityReconciliationSource implements ReconciliationSource {
     public KeyPage nextPage(@Nullable String cursor, int size) {
         // Cap the engine-requested size by the configured source page size (>=1 guards a misconfigured 0/negative).
         int effectiveSize = Math.clamp(properties.getSourceBatchSize(), 1, size);
-        Instant settleCutoff = Instant.now().minus(properties.getDetectionSettle());
-        List<FacilityReconRow> rows = readPort.pageNonTerminal(cursor, effectiveSize, settleCutoff);
+        List<FacilityReconRow> rows = readPort.pageNonTerminal(cursor, effectiveSize);
         if (rows.isEmpty()) {
             return KeyPage.empty(TYPE);
         }
