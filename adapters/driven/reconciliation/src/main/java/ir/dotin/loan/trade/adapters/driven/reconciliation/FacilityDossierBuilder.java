@@ -55,14 +55,11 @@ final class FacilityDossierBuilder {
 
         String hash = computeHash(classification.rootCause(), fcb, novaStatus, rows, recommended.kind());
 
-        // The legacy OperatorDossier "graceElapsed" flag is vestigial under signal-based classification (LN-59513) —
-        // classification no longer turns on elapsed time; pass false and carry the real evidence in the signal tokens.
         return new OperatorDossier(
                 classification.rootCause(),
                 classification.confidence(),
                 novaSnapshot,
                 fcbSnapshot,
-                false,
                 classification.evidence(),
                 recommended,
                 alternatives,

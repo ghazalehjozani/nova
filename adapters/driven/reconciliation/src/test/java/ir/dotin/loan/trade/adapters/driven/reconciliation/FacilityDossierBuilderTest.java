@@ -52,8 +52,6 @@ class FacilityDossierBuilderTest {
 
         assertThat(dossier.rootCause()).isEqualTo(RootCause.FCB_APPLY_LOST);
         assertThat(dossier.confidence()).isEqualTo(Confidence.HIGH);
-        // The legacy graceElapsed flag is vestigial under signal-based classification (always false).
-        assertThat(dossier.graceElapsed()).isFalse();
 
         ProposedRemediation recommended = dossier.recommended();
         assertThat(recommended.kind()).isEqualTo(RemediationKind.REPLAY_FORWARD);
