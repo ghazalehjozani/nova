@@ -84,9 +84,9 @@ Query DTOs (`TradeFacilityQueryDto`, `LoanFacilityQueryResult`, …) come from `
 
 ## REST contract (SWA-101)
 
-Company standard **SWA-101 v1.2**. This adapter inherits the contract from the platform — the authoritative wire rules
-(headers, status mapping, envelope, idempotency) live in the pangaea `pangaea-spring-boot-starter-protocol-rest`
-CLAUDE.md. Nova-relevant points:
+Company standard **SWA-101 v1.3**. This adapter inherits the contract from the platform — the authoritative wire rules
+(headers, status mapping, envelope, idempotency, data formatting, partial response) live in the pangaea
+`protocol-rest-support` CLAUDE.md (`protocol/protocol-rest-support`). Nova-relevant points:
 
 - **URL naming:** logical path starts at `/v{major}` (`context-name` is added by the API Gateway — never here).
   kebab-case (`loan-facilities`, `loan-types`), plural collections, **no verbs in paths** (RPC-action exception only
@@ -102,6 +102,13 @@ CLAUDE.md. Nova-relevant points:
 - **Errors:** nova has **no** `@RestControllerAdvice`. The platform `GlobalExceptionHandler` produces the SWA-101
   `ErrorResponse`; do not catch domain exceptions to remap them. **Success = empty `errorList []`**; a non-empty
   `errorList` is always paired with a 4xx/5xx (never 2xx). No `RsCode` / `IsSuccess` (legacy ESB) anywhere.
+- **Data formatting (v1.3) — get the temporal type right per field.** A field that means *a point in time*
+  (event/registration timestamp) is **date-time** (`Instant`, UTC `Z`). A field that means *a calendar day* —
+  installment due date, value date, maturity/sررسید, birth date — is **date-only** (`LocalDate`, `yyyy-MM-dd`, no
+  zone): never expose it as a zeroed date-time (`...T00:00:00Z`), or a TZ shift will move the day. Money/amount →
+  `string` (never `float`), ≤4 decimals. Enums → `{code,label}` object on responses, bare `string` code on requests.
+  These are inherited from the platform serializers; match the DTO/JSR-310 type to the business meaning of each field.
+  Partial response (`fields`/`view`/`expand`) is an optional GET-only platform capability — not wired in nova today.
 
 ## Dependency Rules (this module)
 
@@ -117,8 +124,8 @@ CLAUDE.md. Nova-relevant points:
   - `core/application/ports/outbound` (forbidden — driving adapters are read-only against the inbound side)
   - `core/application/service` (services are injected via the dispatcher, never directly)
   - `core/domain` (domain types never cross the REST boundary)
-  - any driven adapter (`adapters/driven/persistence`, `adapters/driven/fcb-messaging`)
-  - sibling driving adapters (`messaging-kafka`, `messaging-activemq`)
+  - any driven adapter (`adapters/driven/persistence`, `adapters/driven/fcb-messaging-*`, `adapters/driven/reconciliation`)
+  - sibling driving adapters (`messaging-kafka`, `mcp`)
 - Architecture compliance is enforced by ArchUnit in the root `architecture-tests` module.
 
 ## Swagger / OpenAPI

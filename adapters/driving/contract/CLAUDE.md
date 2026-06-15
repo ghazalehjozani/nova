@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Module: trade-loan-adapters-driving-contract
 
-Shared **driving-side contract** for the trade-loan service: external-facing request/message DTOs plus the MapStruct mappers that translate them into inbound `*Command` types from `core/application/ports/inbound`. Consumed by sibling driving adapters: `adapters/driving/rest`, `adapters/driving/messaging-kafka`, `adapters/driving/messaging-activemq`. This module owns no transport — no controllers, no listeners.
+Shared **driving-side contract** for the trade-loan service: external-facing request/message DTOs plus the MapStruct mappers that translate them into inbound `*Command` types from `core/application/ports/inbound`. Consumed by sibling driving adapters: `adapters/driving/rest`, `adapters/driving/messaging-kafka`. This module owns no transport — no controllers, no listeners.
 
 Maven artifact: `ir.dotin.loan:trade-loan-adapters-driving-contract`.
 
 ## See also
 
 - Command targets: [`core/application/ports/inbound`](../../../core/application/ports/inbound/CLAUDE.md), [`core/application/service`](../../../core/application/service/CLAUDE.md)
-- DTOs consumed by: [`adapters/driving/rest`](../rest/CLAUDE.md), [`adapters/driving/messaging-kafka`](../messaging-kafka/CLAUDE.md), [`adapters/driving/messaging-activemq`](../messaging-activemq/CLAUDE.md)
+- DTOs consumed by: [`adapters/driving/rest`](../rest/CLAUDE.md), [`adapters/driving/messaging-kafka`](../messaging-kafka/CLAUDE.md)
 
 ## Build / Test
 
@@ -33,10 +33,22 @@ One DTO file per use case (`OriginateLoanFacilityRequest`, `ApproveFacilityReque
 
 Pick the right base type when adding a new DTO:
 
-- **`ir.dotin.platform.protocol.api.request.BaseRequest`** — synchronous REST requests. Used by `adapters/driving/rest`. DTOs carry Swagger `@Schema` annotations (Persian descriptions are intentional — preserve them).
-- **`ir.dotin.platform.messaging.api.command.CommandPayload`** — asynchronous message payloads. Used by Kafka / ActiveMQ driving adapters. Plain records, usually `@Builder(toBuilder = true)`, no Swagger annotations.
+- **`ir.dotin.platform.pangaea.protocol.api.request.BaseRequest`** — synchronous REST requests. Used by `adapters/driving/rest`. DTOs carry Swagger `@Schema` annotations (Persian descriptions are intentional — preserve them).
+- **`ir.dotin.platform.pangaea.messaging.api.command.CommandPayload`** — asynchronous message payloads. Used by the Kafka driving adapter. Plain records, usually `@Builder(toBuilder = true)`, no Swagger annotations.
 
 Both flow through the same application service layer — the mapper's job is to erase that transport difference and produce the same `*Command` regardless of source.
+
+## SWA-101 field conventions (v1.3)
+
+DTO field shapes follow the SWA-101 wire contract (authoritative in pangaea `protocol-api`). When adding/editing a DTO:
+
+- Business fields sit at the **root** (no `payload` wrapper); optional `metadata` only for processing hints. camelCase names.
+- **Temporal type must match business meaning:** a calendar day (installment due date, value date, maturity/سررسید,
+  birth date) is **date-only** `LocalDate` (`yyyy-MM-dd`, no zone) — *not* a date-time; a true instant
+  (event/registration time) is **date-time** `Instant` (UTC). Sending a day as a zeroed `...T00:00:00Z` is a bug
+  (TZ shift moves the day).
+- Money/amount → `string` (never `float`/`double`), ≤4 decimals. Enums travel as a bare `string` `code` on the
+  request side (responses use the `{code,label}` object, rendered by the query side, not here).
 
 ## Mapper Conventions
 
