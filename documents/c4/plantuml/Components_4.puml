@@ -1,46 +1,130 @@
 @startuml
+title <size:24>Component View: Trade Loan Service - Trade Loan Application</size>\n<size:24>Components (page 4/4)</size>
+
 set separator none
-title Trade Loan Service - Trade Loan Application - Components
-
 top to bottom direction
-
-skinparam {
-  arrowFontSize 10
-  defaultTextAlignment center
-  wrapWidth 200
-  maxMessageSize 100
-}
-
+skinparam ranksep 60
+skinparam nodesep 30
 hide stereotype
 
-skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler>> {
-  BackgroundColor #66bb6a
-  FontColor #000000
-  BorderColor #47824a
-  shadowing false
-}
-skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler>> {
-  BackgroundColor #66bb6a
-  FontColor #000000
-  BorderColor #47824a
-  shadowing false
-}
-skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler>> {
-  BackgroundColor #66bb6a
-  FontColor #000000
-  BorderColor #47824a
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
-  BorderColor #2e6295
-  FontColor #2e6295
-  shadowing false
+<style>
+  root {
+    BackgroundColor: #ffffff;
+    FontColor: #444444;
+  }
+  // Element,Component,Domain,Aggregate
+  .Element-RWxlbWVudCxDb21wb25lbnQsRG9tYWluLEFnZ3JlZ2F0ZQ== {
+    BackgroundColor: #ff9800;
+    LineColor: #b26a00;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #000000;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Component,Domain,Service
+  .Element-RWxlbWVudCxDb21wb25lbnQsRG9tYWluLFNlcnZpY2U= {
+    BackgroundColor: #29b6f6;
+    LineColor: #1c7fac;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Component,Reconciliation
+  .Element-RWxlbWVudCxDb21wb25lbnQsUmVjb25jaWxpYXRpb24= {
+    BackgroundColor: #9575cd;
+    LineColor: #68518f;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Relationship
+  .Relationship-UmVsYXRpb25zaGlw {
+    LineThickness: 2;
+    LineStyle: 10-10;
+    LineColor: #707070;
+    FontColor: #707070;
+    FontSize: 24;
+  }
+  // Trade Loan Application
+  .Boundary-VHJhZGUgTG9hbiBBcHBsaWNhdGlvbg== {
+    BackgroundColor: #ffffff;
+    LineColor: #2e6295;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+  // Trade Loan Service
+  .Boundary-VHJhZGUgTG9hbiBTZXJ2aWNl {
+    BackgroundColor: #ffffff;
+    LineColor: #0b4884;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+</style>
+
+rectangle "Trade Loan Service\n<size:16>[Software System]</size>" <<Boundary-VHJhZGUgTG9hbiBTZXJ2aWNl>> {
+  rectangle "Trade Loan Application\n<size:16>[Container: Java 25, Spring Boot 4]</size>" <<Boundary-VHJhZGUgTG9hbiBBcHBsaWNhdGlvbg==>> {
+    rectangle "==Facility Reconciliation Source\n<size:16>[Component: Reconciliation engine]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVjb25jaWxpYXRpb24=>> as TradeLoanService.TradeLoanApplication.FacilityReconciliationSource
+    rectangle "==Facility Convergence Action $ 1\n<size:16>[Component: Reconciliation engine]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVjb25jaWxpYXRpb24=>> as TradeLoanService.TradeLoanApplication.FacilityConvergenceAction1
+    rectangle "==Facility Divergence Probe $ 1\n<size:16>[Component: Reconciliation engine]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVjb25jaWxpYXRpb24=>> as TradeLoanService.TradeLoanApplication.FacilityDivergenceProbe1
+    rectangle "==Facility Dossier Builder $ 1\n<size:16>[Component: Reconciliation engine]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVjb25jaWxpYXRpb24=>> as TradeLoanService.TradeLoanApplication.FacilityDossierBuilder1
+    rectangle "==Facility Dossier Builder\n<size:16>[Component: Reconciliation engine]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVjb25jaWxpYXRpb24=>> as TradeLoanService.TradeLoanApplication.FacilityDossierBuilder
+    rectangle "==Facility Root Cause Classifier $ 1\n<size:16>[Component: Reconciliation engine]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVjb25jaWxpYXRpb24=>> as TradeLoanService.TradeLoanApplication.FacilityRootCauseClassifier1
+    rectangle "==Facility Recon Mapping $ 1\n<size:16>[Component: Reconciliation engine]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVjb25jaWxpYXRpb24=>> as TradeLoanService.TradeLoanApplication.FacilityReconMapping1
+    rectangle "==Trade Loan Arrangement\n<size:16>[Component: DDD Aggregate Root]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsRG9tYWluLEFnZ3JlZ2F0ZQ==>> as TradeLoanService.TradeLoanApplication.TradeLoanArrangement
+    rectangle "==Trade Loan Type\n<size:16>[Component: DDD Aggregate Root]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsRG9tYWluLEFnZ3JlZ2F0ZQ==>> as TradeLoanService.TradeLoanApplication.TradeLoanType
+    rectangle "==Trade Loan Application\n<size:16>[Component: DDD Aggregate Root]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsRG9tYWluLEFnZ3JlZ2F0ZQ==>> as TradeLoanService.TradeLoanApplication.TradeLoanApplication
+    rectangle "==Trade Sanctioned Loan\n<size:16>[Component: DDD Aggregate Root]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsRG9tYWluLEFnZ3JlZ2F0ZQ==>> as TradeLoanService.TradeLoanApplication.TradeSanctionedLoan
+    rectangle "==Trade Loan Facility\n<size:16>[Component: DDD Aggregate Root]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsRG9tYWluLEFnZ3JlZ2F0ZQ==>> as TradeLoanService.TradeLoanApplication.TradeLoanFacility
+    rectangle "==Irregular Progressive Disbursement Transaction Service\n<size:16>[Component: Domain Service]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsRG9tYWluLFNlcnZpY2U=>> as TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementTransactionService
+    rectangle "==Trade Issue Contract Transaction Service\n<size:16>[Component: Domain Service]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsRG9tYWluLFNlcnZpY2U=>> as TradeLoanService.TradeLoanApplication.TradeIssueContractTransactionService
+    rectangle "==Trade Lump Sum Disbursement Transaction Service\n<size:16>[Component: Domain Service]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsRG9tYWluLFNlcnZpY2U=>> as TradeLoanService.TradeLoanApplication.TradeLumpSumDisbursementTransactionService
+    rectangle "==Trade Repayment Scheduling Service\n<size:16>[Component: Domain Service]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsRG9tYWluLFNlcnZpY2U=>> as TradeLoanService.TradeLoanApplication.TradeRepaymentSchedulingService
+    rectangle "==Trade Loan Type Validation Service\n<size:16>[Component: Domain Service]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsRG9tYWluLFNlcnZpY2U=>> as TradeLoanService.TradeLoanApplication.TradeLoanTypeValidationService
+    rectangle "==Trade Loan Facility Service\n<size:16>[Component: Domain Service]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsRG9tYWluLFNlcnZpY2U=>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityService
+    rectangle "==Trade Sanction Validation Service\n<size:16>[Component: Domain Service]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsRG9tYWluLFNlcnZpY2U=>> as TradeLoanService.TradeLoanApplication.TradeSanctionValidationService
+    rectangle "==Trade Loan Facility Validation Service\n<size:16>[Component: Domain Service]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsRG9tYWluLFNlcnZpY2U=>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityValidationService
+  }
+
 }
 
-rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>" <<TradeLoanService.TradeLoanApplication>> {
-  hexagon "==TradeLoanArrangementOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanArrangement outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler
-  hexagon "==TradeLoanFacilityOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanFacility outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler
-  hexagon "==TradeLoanTypeOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanType outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler
-}
+TradeLoanService.TradeLoanApplication.TradeLoanFacility --> TradeLoanService.TradeLoanApplication.TradeLoanApplication <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.TradeLoanFacility --> TradeLoanService.TradeLoanApplication.TradeSanctionedLoan <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementTransactionService --> TradeLoanService.TradeLoanApplication.TradeLoanApplication <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementTransactionService --> TradeLoanService.TradeLoanApplication.TradeLoanFacility <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementTransactionService --> TradeLoanService.TradeLoanApplication.TradeSanctionedLoan <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementTransactionService --> TradeLoanService.TradeLoanApplication.TradeLoanType <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.TradeIssueContractTransactionService --> TradeLoanService.TradeLoanApplication.TradeLoanApplication <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.TradeIssueContractTransactionService --> TradeLoanService.TradeLoanApplication.TradeLoanFacility <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.TradeIssueContractTransactionService --> TradeLoanService.TradeLoanApplication.TradeLoanType <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.TradeIssueContractTransactionService --> TradeLoanService.TradeLoanApplication.TradeSanctionedLoan <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.TradeLumpSumDisbursementTransactionService --> TradeLoanService.TradeLoanApplication.TradeLoanApplication <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.TradeLumpSumDisbursementTransactionService --> TradeLoanService.TradeLoanApplication.TradeLoanFacility <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.TradeLumpSumDisbursementTransactionService --> TradeLoanService.TradeLoanApplication.TradeLoanType <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.TradeLumpSumDisbursementTransactionService --> TradeLoanService.TradeLoanApplication.TradeSanctionedLoan <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.TradeLumpSumDisbursementTransactionService --> TradeLoanService.TradeLoanApplication.TradeLoanArrangement <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.TradeLoanTypeValidationService --> TradeLoanService.TradeLoanApplication.TradeLoanArrangement <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.TradeLoanFacilityService --> TradeLoanService.TradeLoanApplication.TradeLoanApplication <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.TradeLoanFacilityService --> TradeLoanService.TradeLoanApplication.TradeLoanFacility <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.TradeLoanFacilityService --> TradeLoanService.TradeLoanApplication.TradeSanctionedLoan <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.TradeLoanFacilityValidationService --> TradeLoanService.TradeLoanApplication.TradeLoanArrangement <<Relationship-UmVsYXRpb25zaGlw>> : ""
 
 @enduml

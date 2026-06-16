@@ -9,7 +9,7 @@ NOVA_CONFIG_DIR ?= ../nova-config
 VERSION := $(shell $(MVN) -q help:evaluate -Dexpression=revision -DforceStdout 2>/dev/null)
 JVM_ARGS ?= -XX:+UseZGC -XX:+ZGenerational -XX:+AlwaysPreTouch -Xmx4g -Xss512k --enable-native-access=ALL-UNNAMED
 
-.PHONY: help build test arch install run schema schema-check messages e2e e2e-one pool-test package clean
+.PHONY: help build test arch install run schema schema-check messages e2e e2e-one pool-test package clean c4 c4-view
 
 help: ## Show this help
 	@awk 'BEGIN {FS = ":.*##"; printf "Usage: make \033[36m<target>\033[0m\n\nTargets:\n"} \
@@ -59,6 +59,12 @@ pool-test: ## LN-59412 connection-pool pinning regression guard
 
 package: ## Executable Spring Boot jar (k8s profile)
 	$(MVN) clean package -Pk8s,spring-boot-application -pl :trade-loan-container -am -DskipTests
+
+c4: ## Regenerate the C4 model (Structurizr) — off the main build, profile-gated
+	$(MVN) -Pc4-docs -pl documents/c4/java -am -DskipTests process-classes
+
+c4-view: ## Serve the generated C4 workspace in Structurizr Lite (http://localhost:8090)
+	cd documents/c4 && ./run-structurizr.sh
 
 clean: ## Clean the reactor
 	$(MVN) clean

@@ -1,97 +1,95 @@
 @startuml
+title <size:24>Component View: Trade Loan Service - Trade Loan Application</size>\n<size:24>Repository adapters</size>
+
 set separator none
-title Trade Loan Service - Trade Loan Application - Components
-
 top to bottom direction
-
-skinparam {
-  arrowFontSize 10
-  defaultTextAlignment center
-  wrapWidth 200
-  maxMessageSize 100
-}
-
+skinparam ranksep 60
+skinparam nodesep 30
 hide stereotype
 
-skinparam database<<TradeLoanService.TradeLoanApplication.InstallmentScheduleRepositoryAdapter>> {
-  BackgroundColor #5c6bc0
-  FontColor #ffffff
-  BorderColor #404a86
-  shadowing false
-}
-skinparam database<<TradeLoanService.TradeLoanApplication.JpaFacilityQueryAdapter>> {
-  BackgroundColor #5c6bc0
-  FontColor #ffffff
-  BorderColor #404a86
-  shadowing false
-}
-skinparam database<<TradeLoanService.TradeLoanApplication.JpaTradeInstallmentScheduleQueryAdapter>> {
-  BackgroundColor #5c6bc0
-  FontColor #ffffff
-  BorderColor #404a86
-  shadowing false
-}
-skinparam database<<TradeLoanService.TradeLoanApplication.JpaTradeLoanArrangementQueryAdapter>> {
-  BackgroundColor #5c6bc0
-  FontColor #ffffff
-  BorderColor #404a86
-  shadowing false
-}
-skinparam database<<TradeLoanService.TradeLoanApplication.JpaTradeLoanTypeQueryAdapter>> {
-  BackgroundColor #5c6bc0
-  FontColor #ffffff
-  BorderColor #404a86
-  shadowing false
-}
-skinparam database<<TradeLoanService.PostgreSQLDatabase>> {
-  BackgroundColor #438dd5
-  FontColor #ffffff
-  BorderColor #2e6295
-  shadowing false
-}
-skinparam database<<TradeLoanService.TradeLoanApplication.TradeLoanArrangementRepositoryAdapter>> {
-  BackgroundColor #5c6bc0
-  FontColor #ffffff
-  BorderColor #404a86
-  shadowing false
-}
-skinparam database<<TradeLoanService.TradeLoanApplication.TradeLoanFacilityRepositoryAdapter>> {
-  BackgroundColor #5c6bc0
-  FontColor #ffffff
-  BorderColor #404a86
-  shadowing false
-}
-skinparam database<<TradeLoanService.TradeLoanApplication.TradeLoanTypeRepositoryAdapter>> {
-  BackgroundColor #5c6bc0
-  FontColor #ffffff
-  BorderColor #404a86
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
-  BorderColor #2e6295
-  FontColor #2e6295
-  shadowing false
+<style>
+  root {
+    BackgroundColor: #ffffff;
+    FontColor: #444444;
+  }
+  // Element,Component,Repository
+  .Element-RWxlbWVudCxDb21wb25lbnQsUmVwb3NpdG9yeQ== {
+    BackgroundColor: #5c6bc0;
+    LineColor: #404a86;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Container,Database
+  .Element-RWxlbWVudCxDb250YWluZXIsRGF0YWJhc2U= {
+    BackgroundColor: #438dd5;
+    LineColor: #2e6295;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Relationship
+  .Relationship-UmVsYXRpb25zaGlw {
+    LineThickness: 2;
+    LineStyle: 10-10;
+    LineColor: #707070;
+    FontColor: #707070;
+    FontSize: 24;
+  }
+  // Trade Loan Application
+  .Boundary-VHJhZGUgTG9hbiBBcHBsaWNhdGlvbg== {
+    BackgroundColor: #ffffff;
+    LineColor: #2e6295;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+  // Trade Loan Service
+  .Boundary-VHJhZGUgTG9hbiBTZXJ2aWNl {
+    BackgroundColor: #ffffff;
+    LineColor: #0b4884;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+</style>
+
+rectangle "Trade Loan Service\n<size:16>[Software System]</size>" <<Boundary-VHJhZGUgTG9hbiBTZXJ2aWNl>> {
+  rectangle "Trade Loan Application\n<size:16>[Container: Java 25, Spring Boot 4]</size>" <<Boundary-VHJhZGUgTG9hbiBBcHBsaWNhdGlvbg==>> {
+    database "==Trade Loan Arrangement Repository Adapter\n<size:16>[Component: Spring Data JPA]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVwb3NpdG9yeQ==>> as TradeLoanService.TradeLoanApplication.TradeLoanArrangementRepositoryAdapter
+    database "==Installment Schedule Repository Adapter\n<size:16>[Component: Spring Data JPA]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVwb3NpdG9yeQ==>> as TradeLoanService.TradeLoanApplication.InstallmentScheduleRepositoryAdapter
+    database "==Trade Loan Type Repository Adapter\n<size:16>[Component: Spring Data JPA]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVwb3NpdG9yeQ==>> as TradeLoanService.TradeLoanApplication.TradeLoanTypeRepositoryAdapter
+    database "==Trade Loan Facility Repository Adapter\n<size:16>[Component: Spring Data JPA]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVwb3NpdG9yeQ==>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityRepositoryAdapter
+    database "==Jpa Trade Loan Arrangement Query Adapter\n<size:16>[Component: Spring Data JPA]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVwb3NpdG9yeQ==>> as TradeLoanService.TradeLoanApplication.JpaTradeLoanArrangementQueryAdapter
+    database "==Jpa Trade Installment Schedule Query Adapter\n<size:16>[Component: Spring Data JPA]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVwb3NpdG9yeQ==>> as TradeLoanService.TradeLoanApplication.JpaTradeInstallmentScheduleQueryAdapter
+    database "==Jpa Trade Loan Type Query Adapter\n<size:16>[Component: Spring Data JPA]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVwb3NpdG9yeQ==>> as TradeLoanService.TradeLoanApplication.JpaTradeLoanTypeQueryAdapter
+    database "==Jpa Facility Query Adapter\n<size:16>[Component: Spring Data JPA]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVwb3NpdG9yeQ==>> as TradeLoanService.TradeLoanApplication.JpaFacilityQueryAdapter
+  }
+
+  database "==PostgreSQL Database\n<size:16>[Container: PostgreSQL 18]</size>\n\nLoan data, inbox/outbox, workflow state, audit, reconciliation" <<Element-RWxlbWVudCxDb250YWluZXIsRGF0YWJhc2U=>> as TradeLoanService.PostgreSQLDatabase
 }
 
-database "==PostgreSQL Database\n<size:10>[Container: PostgreSQL 18]</size>\n\nLoan data storage" <<TradeLoanService.PostgreSQLDatabase>> as TradeLoanService.PostgreSQLDatabase
+TradeLoanService.TradeLoanApplication.TradeLoanArrangementRepositoryAdapter --> TradeLoanService.PostgreSQLDatabase <<Relationship-UmVsYXRpb25zaGlw>> : "Reads/Writes\n<size:16>[JDBC/HikariCP]</size>"
+TradeLoanService.TradeLoanApplication.InstallmentScheduleRepositoryAdapter --> TradeLoanService.PostgreSQLDatabase <<Relationship-UmVsYXRpb25zaGlw>> : "Reads/Writes\n<size:16>[JDBC/HikariCP]</size>"
+TradeLoanService.TradeLoanApplication.TradeLoanTypeRepositoryAdapter --> TradeLoanService.PostgreSQLDatabase <<Relationship-UmVsYXRpb25zaGlw>> : "Reads/Writes\n<size:16>[JDBC/HikariCP]</size>"
+TradeLoanService.TradeLoanApplication.TradeLoanFacilityRepositoryAdapter --> TradeLoanService.PostgreSQLDatabase <<Relationship-UmVsYXRpb25zaGlw>> : "Reads/Writes\n<size:16>[JDBC/HikariCP]</size>"
+TradeLoanService.TradeLoanApplication.JpaTradeLoanArrangementQueryAdapter --> TradeLoanService.PostgreSQLDatabase <<Relationship-UmVsYXRpb25zaGlw>> : "Reads/Writes\n<size:16>[JDBC/HikariCP]</size>"
+TradeLoanService.TradeLoanApplication.JpaTradeInstallmentScheduleQueryAdapter --> TradeLoanService.PostgreSQLDatabase <<Relationship-UmVsYXRpb25zaGlw>> : "Reads/Writes\n<size:16>[JDBC/HikariCP]</size>"
+TradeLoanService.TradeLoanApplication.JpaTradeLoanTypeQueryAdapter --> TradeLoanService.PostgreSQLDatabase <<Relationship-UmVsYXRpb25zaGlw>> : "Reads/Writes\n<size:16>[JDBC/HikariCP]</size>"
+TradeLoanService.TradeLoanApplication.JpaFacilityQueryAdapter --> TradeLoanService.PostgreSQLDatabase <<Relationship-UmVsYXRpb25zaGlw>> : "Reads/Writes\n<size:16>[JDBC/HikariCP]</size>"
 
-rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>" <<TradeLoanService.TradeLoanApplication>> {
-  database "==InstallmentScheduleRepositoryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nInstallmentSchedule persistence adapter" <<TradeLoanService.TradeLoanApplication.InstallmentScheduleRepositoryAdapter>> as TradeLoanService.TradeLoanApplication.InstallmentScheduleRepositoryAdapter
-  database "==TradeLoanArrangementRepositoryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nTradeLoanArrangement persistence adapter" <<TradeLoanService.TradeLoanApplication.TradeLoanArrangementRepositoryAdapter>> as TradeLoanService.TradeLoanApplication.TradeLoanArrangementRepositoryAdapter
-  database "==TradeLoanFacilityRepositoryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nTradeLoanFacility persistence adapter" <<TradeLoanService.TradeLoanApplication.TradeLoanFacilityRepositoryAdapter>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityRepositoryAdapter
-  database "==TradeLoanTypeRepositoryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nTradeLoanType persistence adapter" <<TradeLoanService.TradeLoanApplication.TradeLoanTypeRepositoryAdapter>> as TradeLoanService.TradeLoanApplication.TradeLoanTypeRepositoryAdapter
-  database "==JpaTradeInstallmentScheduleQueryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nTradeInstallmentSchedule query adapter" <<TradeLoanService.TradeLoanApplication.JpaTradeInstallmentScheduleQueryAdapter>> as TradeLoanService.TradeLoanApplication.JpaTradeInstallmentScheduleQueryAdapter
-  database "==JpaTradeLoanArrangementQueryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nTradeLoanArrangement query adapter" <<TradeLoanService.TradeLoanApplication.JpaTradeLoanArrangementQueryAdapter>> as TradeLoanService.TradeLoanApplication.JpaTradeLoanArrangementQueryAdapter
-  database "==JpaFacilityQueryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nFacility query adapter" <<TradeLoanService.TradeLoanApplication.JpaFacilityQueryAdapter>> as TradeLoanService.TradeLoanApplication.JpaFacilityQueryAdapter
-  database "==JpaTradeLoanTypeQueryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nTradeLoanType query adapter" <<TradeLoanService.TradeLoanApplication.JpaTradeLoanTypeQueryAdapter>> as TradeLoanService.TradeLoanApplication.JpaTradeLoanTypeQueryAdapter
-}
-
-TradeLoanService.TradeLoanApplication.InstallmentScheduleRepositoryAdapter .[#707070,thickness=2].> TradeLoanService.PostgreSQLDatabase : "<color:#707070>Reads/Writes\n<color:#707070><size:8>[JDBC/HikariCP]</size>"
-TradeLoanService.TradeLoanApplication.TradeLoanArrangementRepositoryAdapter .[#707070,thickness=2].> TradeLoanService.PostgreSQLDatabase : "<color:#707070>Reads/Writes\n<color:#707070><size:8>[JDBC/HikariCP]</size>"
-TradeLoanService.TradeLoanApplication.TradeLoanFacilityRepositoryAdapter .[#707070,thickness=2].> TradeLoanService.PostgreSQLDatabase : "<color:#707070>Reads/Writes\n<color:#707070><size:8>[JDBC/HikariCP]</size>"
-TradeLoanService.TradeLoanApplication.TradeLoanTypeRepositoryAdapter .[#707070,thickness=2].> TradeLoanService.PostgreSQLDatabase : "<color:#707070>Reads/Writes\n<color:#707070><size:8>[JDBC/HikariCP]</size>"
-TradeLoanService.TradeLoanApplication.JpaTradeInstallmentScheduleQueryAdapter .[#707070,thickness=2].> TradeLoanService.PostgreSQLDatabase : "<color:#707070>Reads/Writes\n<color:#707070><size:8>[JDBC/HikariCP]</size>"
-TradeLoanService.TradeLoanApplication.JpaTradeLoanArrangementQueryAdapter .[#707070,thickness=2].> TradeLoanService.PostgreSQLDatabase : "<color:#707070>Reads/Writes\n<color:#707070><size:8>[JDBC/HikariCP]</size>"
-TradeLoanService.TradeLoanApplication.JpaFacilityQueryAdapter .[#707070,thickness=2].> TradeLoanService.PostgreSQLDatabase : "<color:#707070>Reads/Writes\n<color:#707070><size:8>[JDBC/HikariCP]</size>"
-TradeLoanService.TradeLoanApplication.JpaTradeLoanTypeQueryAdapter .[#707070,thickness=2].> TradeLoanService.PostgreSQLDatabase : "<color:#707070>Reads/Writes\n<color:#707070><size:8>[JDBC/HikariCP]</size>"
 @enduml

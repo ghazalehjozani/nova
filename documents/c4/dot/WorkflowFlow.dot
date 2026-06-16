@@ -1,9 +1,9 @@
 digraph {
   compound=true
-  graph [fontname="Arial", rankdir=TB, ranksep=1.0, nodesep=1.0]
+  graph [fontname="Arial", rankdir=LR, ranksep=1.0, nodesep=1.0]
   node [fontname="Arial", shape=box, margin="0.4,0.3"]
   edge [fontname="Arial"]
-  label=<<br /><font point-size="34">Component View: Trade Loan Service - Trade Loan Application</font><br /><font point-size="24">REST controllers</font>>
+  label=<<br /><font point-size="34">Component View: Trade Loan Service - Trade Loan Application</font><br /><font point-size="24">Workflow orchestration flow</font>>
 
   subgraph cluster_6 {
     margin=25
@@ -39,6 +39,18 @@ digraph {
       42 [id=42,shape=rect, label=<<font point-size="34">Irregular Progressive<br />Disbursement<br />Controller</font><br /><font point-size="19">[Component: Spring MVC Controller]</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
       43 [id=43,shape=rect, label=<<font point-size="34">Close Facility<br />Defaulted Controller</font><br /><font point-size="19">[Component: Spring MVC Controller]</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
       44 [id=44,shape=rect, label=<<font point-size="34">Close Facility Paid<br />Off Controller</font><br /><font point-size="19">[Component: Spring MVC Controller]</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+      45 [id=45,shape=rect, label=<<font point-size="34">Loan Facility<br />Restructuring Command<br />Handler</font><br /><font point-size="19">[Component: Command Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      46 [id=46,shape=rect, label=<<font point-size="34">Irregular Progressive<br />Disbursement Command<br />Handler</font><br /><font point-size="19">[Component: Command Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      47 [id=47,shape=rect, label=<<font point-size="34">Compensate Irregular<br />Disbursement Command<br />Handler</font><br /><font point-size="19">[Component: Command Handler]</font>>, style=filled, color="#a73a38", fillcolor="#ef5350", fontcolor="#ffffff"]
+      48 [id=48,shape=rect, label=<<font point-size="34">Plan Equal<br />Installment Schedule<br />Command Handler</font><br /><font point-size="19">[Component: Command Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      49 [id=49,shape=rect, label=<<font point-size="34">Regular Disbursement<br />Command Handler</font><br /><font point-size="19">[Component: Command Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      50 [id=50,shape=rect, label=<<font point-size="34">Reject Facility<br />Command Handler</font><br /><font point-size="19">[Component: Command Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      51 [id=51,shape=rect, label=<<font point-size="34">Define Loan Type<br />Command Handler</font><br /><font point-size="19">[Component: Command Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      52 [id=52,shape=rect, label=<<font point-size="34">Submit Facility For<br />Approval Command<br />Handler</font><br /><font point-size="19">[Component: Command Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      53 [id=53,shape=rect, label=<<font point-size="34">Compensate Approval<br />Submission Command<br />Handler</font><br /><font point-size="19">[Component: Command Handler]</font>>, style=filled, color="#a73a38", fillcolor="#ef5350", fontcolor="#ffffff"]
+      54 [id=54,shape=rect, label=<<font point-size="34">Update Facility<br />Collateral Command<br />Handler</font><br /><font point-size="19">[Component: Command Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      55 [id=55,shape=rect, label=<<font point-size="34">Cancel Facility<br />Command Handler</font><br /><font point-size="19">[Component: Command Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      56 [id=56,shape=rect, label=<<font point-size="34">Approve Facility<br />Command Handler</font><br /><font point-size="19">[Component: Command Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
     }
 
   }

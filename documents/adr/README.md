@@ -19,6 +19,7 @@
 | [ADR-0002](ADR-0002.morabaha-implementation.md) | پیاده‌سازی تسهیلات مبادله ای با گسترش هسته اشتراکی | 2025-04-29 | معماری دامنه | 🎯 اصلی     |
 | [ADR-0003](ADR-0003.actor-envelope-integrity.md) | یکپارچگی پاکت بازیگر با امضای JWS (Nova ↔ FCB) | 2026-05-11 | امنیت / یکپارچه‌سازی | 🔐 امنیت |
 | [ADR-0004](ADR-0004.optimistic-locking-version-contract.md) | قرارداد قفل خوش‌بینانه و میدان نسخه | 2026-06-03 | همزمانی / پایداری | 🎯 اصلی |
+| [ADR-0005](ADR-0005.c4-generation-via-structurizr-component.md) | تولید مدل C4 با structurizr-component و خارج‌کردن از چرخهٔ Maven | 2026-06-16 | مستندات / ابزار | 🏗️ زیرساخت |
 
 ### 🔄 تصمیمات در حال بررسی (پیشنهادی)
 

@@ -1,24 +1,24 @@
 {
   "configuration" : { },
-  "description" : "C4 Architecture for Morabehe Loans Microservice",
+  "description" : "C4 architecture for the Morabehe trade-loan microservice",
   "documentation" : {
     "decisions" : [ {
       "content" : "<div dir=\"rtl\" style=\"text-align: right; font-family: Tahoma, 'Vazir', sans-serif;\">\n\n# ADR-0001: ساختار مستندات معماری پروژه\n\n* **وضعیت**: پیشنهادی\n* **تاریخ**: ۲۰۲۵/۱۲/۱۱\n* **تصمیم گیرندگان**: تیم معماری پروژه trade-loan\n\n## زمینه و متن (Context)\n\nبا توجه به پیچیدگی پروژه trade-loan و نیاز به مستندسازی جامع معماری، تیم به یک ساختار منسجم برای مستندات معماری نیاز داشت. پروژه شامل میکروسرویس‌های متعدد با روابط پیچیده و استانداردهای بالای کیفیت کد است.\n\nنیازهای اصلی شامل موارد زیر بود:\n- مستندسازی تصمیمات معماری به زبان فارسی\n- نگهداری نمودارهای C4 برای نمایش معماری سیستم\n- مستندسازی API ها با استفاده از OpenAPI\n- مستندسازی پیام‌رسانی نامتقارن با AsyncAPI\n- مستندسازی مدل‌های دامنه و پایگاه داده\n- نمایش روابط بین بومی‌های دامنه (Context Mapping)\n\n## تصمیم (Decision)\n\nایجاد ساختار جامع مستندات معماری در مسیر `/documents/` با شش بخش اصلی:\n\n1. **C4 Model** (`c4/`): نمودارهای معماری در چهار سطح مختلف\n2. **Architecture Decision Records** (`adr/`): ثبت تصمیمات معماری\n3. **Context Mapping** (`cmap/`): نمایش روابط بین بومی‌های دامنه\n4. **OpenAPI** (`openapi/`): مستندسازی API های REST\n5. **AsyncAPI** (`asyncapi/`): مستندسازی پیام‌رسانی نامتقارن\n6. **Data Models** (`datamodels/`): مستندسازی مدل‌های داده و پایگاه داده\n\nهر بخش شامل فایل README.md با راهنمای کامل و الگوهای استاندارد است.\n\n## دلایل و نتایج (Consequences)\n\n### مزایا (Pros)\n\n- **یکپارچگی مستندات**: تمام مستندات معماری در یک مکان متمرکز\n- **استانداردسازی**: استفاده از فرمت‌های استاندارد صنعتی (MADR، OpenAPI، AsyncAPI، C4)\n- **زبان محلی**: مستندات به زبان فارسی برای درک بهتر تیم\n- **نگهداری آسان**: ساختار واضح برای به‌روزرسانی مداوم\n- **تکامل تدریجی**: امکان شروع با مستندات اولیه و تکامل آن‌ها\n- **همکاری تیمی**: ساختار مناسب برای کار گروهی و بازبینی\n\n### معایب (Cons)\n\n- **نیاز به یادگیری**: تیم باید با فرمت‌های جدید آشنا شود\n- **زمان اولیه**: ایجاد ساختار اولیه نیازمند زمان است\n- **نگهداری مستمر**: نیاز به به‌روزرسانی منظم مستندات\n- **پیچیدگی**: ساختار جامع ممکن است در ابتدا پیچیده به نظر برسد\n\n### نتایج مورد انتظار\n\n- **افزایش شفافیت**: درک بهتر معماری سیستم برای همه اعضای تیم\n- **کاهش وابستگی**: دانش معماری فقط به افراد خاص محدود نمی‌شود\n- **بهبود کیفیت**: مستندات جامع به طراحی‌های بهتر کمک می‌کند\n- **تسهیل آنبوردینگ**: اعضای جدید سریع‌تر با معماری آشنا می‌شوند\n\n## جایگزین‌های بررسی شده (Alternatives Considered)\n\n### ۱. استفاده فقط از Confluence\n**مزایا**: دسترسی آسان، قابلیت جستجوی خوب، ادیت همزمان\n**معایب**: وابستگی به ابزار خارجی، کنترل نسخه ضعیف، دشواری در ادیت کد\n**نتیجه**: رد شد چون کنترل نسخه و ادیت کد مهم است\n\n### ۲. مستندات پراکنده در خود کد\n**مزایا**: نزدیکی به کد، به‌روزرسانی همزمان\n**معایب**: عدم وجود دید کلی، جستجوی دشوار، ساختار نامنظم\n**نتیجه**: رد شد چون دید جامع معماری را فراهم نمی‌کند\n\n### ۳. استفاده از ابزارهای تخصصی معماری (مثل Structurizr)\n**مزایا**: ابزارهای پیشرفته برای معماری\n**معایب**: هزینه، نیاز به یادگیری ابزار جدید، وابستگی به vendor\n**نتیجه**: رد شد چون پیچیدگی را افزایش می‌دهد\n\n### ۴. ساختار ساده فقط برای ADRها\n**مزایا**: شروع آسان، پیچیدگی کم\n**معایب**: ناکامل بودن، پوشش ندادن جنبه‌های دیگر معماری\n**نتیجه**: رد شد چون جامع نیست\n\n## پیاده‌سازی\n\n### گام‌های اجرایی\n\n1. **ایجاد ساختار دایرکتوری**\n   ```bash\n   mkdir -p documents/{c4,adr,cmap,openapi,asyncapi,datamodels}\n   ```\n\n2. **ایجاد فایل‌های README**\n   - هر بخش یک README.md با راهنمای کامل\n   - شامل استانداردها، ابزارها، و بهترین شیوه‌ها\n\n3. **ایجاد اولین ADR**\n   - مستندسازی خود این تصمیم به عنوان ADR-0001\n   - استفاده از فرمت MADR فارسی\n\n4. **آموزش تیم**\n   - معرفی فرمت‌های جدید به تیم\n   - ایجاد دستورالعمل‌های نگهداری مستندات\n\n### ابزارهای پیشنهادی\n\n- **ویرایش**: VS Code با پلاگین‌های Markdown و PlantUML\n- **نمودارها**: PlantUML برای C4 و Context Mapping\n- **API**: Swagger/OpenAPI برای مستندسازی REST API\n- **مessaging**: AsyncAPI برای مستندسازی پیام‌رسانی\n- **نسخه**: Git برای کنترل نسخه مستندات\n\n### اندازه‌گیری موفقیت\n\n- **پوشش مستندات**: تمام جنبه‌های معماری مستند شوند\n- **به‌روزرسانی**: مستندات همزمان با تغییرات کد به‌روز شوند\n- **استفاده**: تیم به طور منظم از مستندات استفاده کند\n- **بازخورد**: دریافت بازخورد منظم از تیم برای بهبود\n\n---\n*تاریخ آخرین به‌روزرسانی: ۲۰۲۵/۱۲/۱۱*\n*نویسنده: تیم معماری پروژه*\n\n</div>",
-      "date" : "2026-06-16T15:43:19Z",
+      "date" : "2026-06-16T20:24:22Z",
       "format" : "Markdown",
       "id" : "0001",
       "status" : "پیشنهادی",
       "title" : "ساختار مستندات معماری پروژه"
     }, {
       "content" : "<div dir=\"rtl\" style=\"text-align: right; font-family: Tahoma, 'Vazir', sans-serif;\">\n\n# ADR-0002: پیاده‌سازی محصول تسهیلات مبادله ای با گسترش هسته اشتراکی تسهیلات پایه\n\n* **وضعیت**: تأیید شده\n* **تاریخ**: ۲۰۲۵/۰۴/۲۹\n* **تصمیم گیرندگان**: تیم معماری پروژه trade-loan\n\n## زمینه و متن (Context)\n\nما نیاز به پیاده‌سازی محصول تسهیلات \"مبادله ای\" داریم که اشتراکات قابل توجهی با سایر انواع تسهیلات دارد. معماری کلی ما از طراحی دامنه محور (DDD) و معماری شش‌ضلعی پیروی می‌کند و از ماژول `base-loan` به عنوان یک هسته اشتراکی (Shared Kernel) استفاده می‌کند که شامل اگریگیت‌های انتزاعی (abstract aggregates) و منطق دامنه مشترک برای چرخه عمر تسهیلات است. ما به یک استراتژی برای پیاده‌سازی محصول مبادله ای به صورت کارآمد و با حفظ ثبات و پایبندی به اصول معماری خود نیاز داریم.\n\n## تصمیم (Decision)\n\nما محصول `trade-loan` را به عنوان یک ماژول متمایز پیاده‌سازی خواهیم کرد که هسته اشتراکی `base-loan` را **گسترش می‌دهد (extends)**.\n\n1. **وراثت برای اگریگیت‌های اصلی:** ریشه‌های اگریگیت مشخص (Concrete aggregate roots) در دامنه `trade-loan` (`MorabeheLoanType`, `MorabeheLoanArrangement`, `MorabeheLoanFacility`) از کلاس‌های پایه انتزاعی مربوطه که در `base-loan` تعریف شده‌اند (مانند `AbstractLoanType`) ارث‌بری خواهند کرد.\n\n2. **تخصصی‌سازی:** فیلدها، منطق، قوانین اعتبارسنجی و رفتارهای بالقوه بازنویسی شده (overridden behaviors) مختص مبادله ای در این کلاس‌های اگریگیت مشخص و (value objects) یا سرویس‌های دامنه مرتبط آن‌ها در ماژول `trade-loan` پیاده‌سازی خواهند شد.\n\n3. **گسترش Builderها:** Builderهای مشخص در `trade-loan`، Builderهای پایه از `base-loan` را گسترش خواهند داد تا ایجاد و اعتبارسنجی ویژگی‌های مختص مبادله ای را مدیریت کنند.\n\n4. **وابستگی:** ماژول `trade-loan` وابستگی مستقیم به ماژول `base-loan` دارد.\n\n## دلایل و نتایج (Consequences)\n\n### مزایا (Pros)\n\n* **استفاده مجدد از کد:** استفاده مجدد از منطق مشترک چرخه عمر تسهیلات، و ساختارهای اگریگیت تعریف شده در `base-loan` را به حداکثر می‌رساند.\n* **ثبات:** از یک رویکرد ساختاری ثابت و استفاده از زبان فراگیر (Ubiquitous Language) در بین محصولات تسهیلاتی مختلف اطمینان حاصل می‌کند.\n* **پیاده‌سازی سریع‌تر:** تلاش مورد نیاز برای پیاده‌سازی محصولات تسهیلاتی جدید که با مدل پایه تثبیت شده مطابقت دارند را کاهش می‌دهد.\n* **منطق اصلی متمرکز:** تغییرات در منطق اساسی و مشترک تسهیلات فقط باید در `base-loan` انجام شود.\n\n### معایب و چالش‌ها (Cons/Challenges)\n\n* **وابستگی شدید به هسته اشتراکی:** `trade-loan` به شدت به ماژول `base-loan` وابسته می‌شود. تغییرات (به خصوص تغییرات breaking changes) در `base-loan` می‌تواند مستقیماً بر `trade-loan` تأثیر بگذارد و نیازمند به‌روزرسانی‌های هماهنگ باشد.\n* **پتانسیل حجیم شدن هسته (Kernel Bloat):** باید مراقب بود که منطق مختص محصول به هسته `base-loan` اضافه نشود؛ باید واقعاً عمومی باقی بماند.\n* **پیچیدگی در کلاس‌های پایه:** کلاس‌های پایه انتزاعی در `base-loan` ممکن است در صورت نیاز به تطبیق با تنوع بیش از حد در انواع مختلف تسهیلات، پیچیده شوند. نقاط انتزاعی و گسترش (extension points) واضح حیاتی هستند.\n* **سربار تست:** تست یکپارچه‌سازی ممکن است پیچیده‌تر شود زیرا تغییرات در `base-loan` نیازمند تست تأثیر بر تمام ماژول‌های محصول گسترش‌دهنده است.\n\n## جایگزین‌های بررسی شده (Alternatives Considered)\n\n### ۱. پیاده‌سازی کاملاً مجزا\n**توضیح**: پیاده‌سازی مبادله ای به عنوان یک ماژول مستقل بدون وابستگی به base-loan\n**مزایا**: استقلال کامل، عدم تأثیرپذیری از تغییرات base-loan\n**معایب**: تکرار کد، عدم یکپارچگی، نگهداری دو منطق مشابه\n**نتیجه**: رد شد به دلیل تکرار کد و پیچیدگی نگهداری\n\n### ۲. ترکیب به جای وراثت (Composition over Inheritance)\n**توضیح**: استفاده از الگوی ترکیب به جای وراثت مستقیم\n**مزایا**: انعطاف‌پذیری بیشتر، وابستگی شل‌تر\n**معایب**: پیچیدگی بیشتر در پیاده‌سازی، نیاز به پل زدن بین لایه‌ها\n**نتیجه**: رد شد به دلیل پیچیدگی غیرضروری\n\n### ۳. استفاده از پلاگین یا ماژولارization\n**توضیح**: طراحی base-loan به عنوان یک فریمورک با قابلیت پلاگین\n**مزایا**: انعطاف‌پذیری بالا، قابلیت توسعه آسان\n**معایب**: پیچیدگی طراحی فریمورک، overhead غیرضروری در حال حاضر\n**نتیجه**: برای آینده در نظر گرفته شد، اما فعلاً رد شد\n\n## استراتژی پیاده‌سازی\n\n### ساختار کد\n```\ntrade-loan/\n├── domain/\n│   ├── MorabeheLoanType.java           // extends AbstractLoanType\n│   ├── MorabeheLoanFacility.java       // extends AbstractLoanFacility\n│   ├── MorabeheLoanArrangement.java    // extends AbstractLoanArrangement\n│   └── value-objects/\n│       ├── MorabeheDocuments.java\n│       └── TradeSpecificRules.java\n└── application/\n    └── services/\n        └── MorabeheLoanService.java\n```\n\n### الگوهای طراحی\n- **Template Method Pattern**: برای تعریف اسکلت الگوریتم در base-loan و پیاده‌سازی مراحل مختص در trade-loan\n- **Strategy Pattern**: برای الگوریتم‌های محاسبه‌ای مختص مبادله ای\n- **Factory Pattern**: برای ایجاد اشیاء مختص مبادله ای\n\n### مدیریت وابستگی‌ها\n- **Version Alignment**: اطمینان از سازگاری نسخه‌های base-loan و trade-loan\n- **Contract Testing**: تست قرارداد بین ماژول‌ها\n- **Integration Testing**: تست یکپارچه‌سازی جامع بین ماژول‌ها\n\n---\n*تاریخ آخرین به‌روزرسانی: ۲۰۲۵/۱۲/۱۱*\n*نویسنده: تیم معماری پروژه*\n\n</div>",
-      "date" : "2026-06-16T15:43:19Z",
+      "date" : "2026-06-16T20:24:22Z",
       "format" : "Markdown",
       "id" : "0002",
       "status" : "تأیید شده",
       "title" : "پیاده‌سازی محصول تسهیلات مبادله ای با گسترش هسته اشتراکی تسهیلات پایه"
     }, {
       "content" : "<div dir=\"rtl\" style=\"text-align: right; font-family: Tahoma, 'Vazir', sans-serif;\">\n\n# ADR-0003: یکپارچگی پاکت بازیگر (Actor Envelope) با امضای JWS برای یکپارچه‌سازی Nova ↔ FCB\n\n* **وضعیت**: تأیید شده\n* **تاریخ**: ۲۰۲۶/۰۵/۱۱\n* **تصمیم گیرندگان**: تیم معماری trade-loan، تیم یکپارچه‌سازی هسته بانکی (FCB)\n\n## زمینه و متن (Context)\n\nدر معماری یکپارچه‌سازی فعلی بین Nova و FCB سه نگرانی متمایز در سطح سیم (wire) با یکدیگر مخلوط شده‌اند:\n\n1. **احراز هویت (Authentication)** — آیا فراخواننده یک سیستم مجاز است؟\n2. **مجوزدهی (Authorization)** — آیا این فراخواننده اجازه‌ی اجرای این عملیات را در این لحظه دارد؟\n3. **محل بازیگر / مسئولیت‌پذیری (Business Provenance)** — این کار به نمایندگی از چه کسی شروع شده، چه چیزی آن را راه‌اندازی کرده، و چه کسی نهایتاً مسئول است؟\n\nپیاده‌سازی فعلی این سه را به یک توکن دسترسی واحد (OAuth2 Access Token) فرو می‌کاهد و در مسیرهای ناهمگام (heartbeat probe, outbox flush, scheduled jobs) از `delegateToken()` که نیازمند `SecurityContext` زنده است سوءاستفاده می‌کند. علاوه بر این، در سمت FCB یک توکن استاتیک از پیش پخته‌شده (`auth_token`) از ZK خوانده می‌شود — بدون ضرب توکن زنده، بدون اعتبارسنجی JWT روی ورودی، و بدون داستان چرخش (rotation) کلید.\n\nنیاز است این سه نگرانی روی سیم تفکیک شوند:\n\n| نگرانی     | سازوکار                                                                    |\n|------------|----------------------------------------------------------------------------|\n| احراز هویت | توکن دسترسی OAuth2 (هدر `Authorization: Bearer …`) — هویت **سرویس**        |\n| مجوزدهی    | `scope` توکن + سیاست انتقال‌دهنده (endpoint policy)                        |\n| محل بازیگر | **پاکت بازیگر** (Actor Envelope) به‌صورت هدرهای Kafka — حامل اطلاعات تجاری |\n\n«پاکت بازیگر» ساختاری چندهدری است که چهار هویت مجزا را در خود نگه می‌دارد: Initiator (آغازگر اولیه کار)، Accountability (مسئول نهایی)، Execution (سرویس و حالت اجرای فعلی)، و EnvelopeId/IssuedAt برای ردیابی و انقضا.\n\nپیام‌های Kafka از نظر یکپارچگی پایان به پایان (end-to-end integrity) محافظت‌نشده‌اند؛ بنابراین برای آنکه گیرنده مطمئن شود که هدرهای پاکت دستکاری نشده‌اند، نیاز به یک سازوکار **اثبات‌گر یکپارچگی (tamper-evident)** است.\n\nعلاوه بر این، یک محدودیت سخت زیرساختی وجود دارد:\n**هیچ تماس REST بین Nova و FCB مجاز نیست** — این دو سیستم فقط از طریق Kafka با یکدیگر گفتگو می‌کنند. در نتیجه، هر سازوکاری که نیاز به یک endpoint REST برای توزیع کلید عمومی (مانند JWKS endpoint) داشته باشد، در سمت FCB قابل پیاده‌سازی نیست.\n\n## تصمیم (Decision)\n\nبرای امضای پاکت بازیگر از **JWS (JSON Web Signature) به‌صورت compact serialization** استفاده می‌کنیم (Option A از brief v2 §1.6)، با جزئیات زیر:\n\n### ۱. فرمت پاکت\n\nپاکت بازیگر به‌صورت JWS فشرده در یک هدر واحد Kafka با نام `X-Actor-Envelope` قرار می‌گیرد:\n\n```\nX-Actor-Envelope: <base64url(header)>.<base64url(payload)>.<base64url(signature)>\n```\n\n`payload` شامل JSON پاکت با کلیدهای مرتب (canonical) است:\n\n```json\n{\n  \"envelopeId\": \"7c1a1d3f-…\",\n  \"issuedAt\": 1715420000000,\n  \"initiator\":      { \"sub\": \"user_12345\", \"type\": \"HUMAN_USER\",         \"branchCode\": \"1024\", \"source\": \"OUTBOX_ROW\" },\n  \"accountability\": { \"sub\": \"user_12345\", \"type\": \"HUMAN_USER\" },\n  \"execution\":      { \"mode\": \"ASYNC\",  \"trigger\": \"OUTBOX_FLUSH\", \"service\": \"nova-loan-facility\", \"instance\": \"pod-7\" }\n}\n```\n\n`header` JWS شامل `alg`, `typ: \"actor-envelope+jws\"`, و `kid` فرستنده است.\n\n### ۲. الگوریتم‌های مجاز\n\nفقط الگوریتم‌های نامتقارن:\n\n| الگوریتم | کاربرد در FCB (`java.security.Signature`) |\n|---|---|\n| RS256 | `Signature.getInstance(\"SHA256withRSA\")` |\n| RS384 | `Signature.getInstance(\"SHA384withRSA\")` |\n| RS512 | `Signature.getInstance(\"SHA512withRSA\")` |\n| PS256 | `Signature.getInstance(\"RSASSA-PSS\")` + `PSSParameterSpec(\"SHA-256\",\"MGF1\",MGF1ParameterSpec.SHA256,32,1)` |\n| ES256 | `Signature.getInstance(\"SHA256withECDSA\")` (با تبدیل JOSE r‖s → DER) |\n| ES384 | `Signature.getInstance(\"SHA384withECDSA\")` (با تبدیل JOSE r‖s → DER) |\n\nالگوریتم‌های `none` و خانواده‌ی `HS*` صراحتاً رد می‌شوند.\n\n### ۳. توزیع کلید عمومی (نامتقارن: Nova REST + FCB Kafka req/reply)\n\nسمت FCB قادر به میزبانی هیچ endpoint REST جدیدی نیست، اما سمت Nova می‌تواند. هر جهت ساده‌ترین کانال در دسترس را به کار می‌برد:\n\n| جهت | کانال | نقطه پایان |\n|---|---|---|\n| **FCB کلید Nova را می‌خواهد** | REST (Nova میزبان، FCB outbound) | `GET https://<nova-host>/jwks` |\n| **Nova کلید FCB را می‌خواهد** | Kafka req/reply | یک جفت صف اختصاصی JWKS |\n\n#### الف) Nova REST `/jwks`\n\nNova یک `JwksController` ساده در `platform-envelope-impl-jws` ارائه می‌دهد:\n\n```\nGET /jwks\nContent-Type: application/json\nCache-Control: public, max-age=300\n\n{\"keys\":[{\"kty\":\"RSA\",\"kid\":\"nova-loan-facility-2026-01\",\"use\":\"sig\",\"alg\":\"RS256\",\"n\":\"…\",\"e\":\"AQAB\"}]}\n```\n\n* بدون احراز هویت — محتوای JWKS اطلاعات عمومی است.\n* FCB پاسخ را در Redis تحت کلید `nova:envelope:jwks:<kid>` با TTL = `SSO_NOVA_JWKS_CACHE_TTL_SECONDS` کش می‌کند.\n* محافظت در برابر replay از طریق اعتبارسنجی `kid` و امضای پیام‌های تجاری بعدی فراهم می‌شود.\n\n#### ب) Kafka JWKS — یک جفت صف برای جهت Nova → FCB\n\n| صف درخواست | صف پاسخ | نوع عملیات |\n|---|---|---|\n| `corridor.core.loan.nova.fcb-jwks.request.queue.v1` | `corridor.core.loan.nova.fcb-jwks.response.queue.v1` | `GET_FCB_JWKS` |\n\nنام‌گذاری از قرارداد موجود `corridor.core.loan.nova.<purpose>.<request|response>.queue.v<N>` پیروی می‌کند.\n\n#### ج) حل حلقه‌ی «مرغ و تخم» — حفاظت توکنی به‌تنهایی برای Kafka JWKS\n\nپاسخ JWKS از FCB یک پیام Kafka است؛ اما **این عملیات تنها با اعتبارسنجی توکن محافظت می‌شود، نه با اعتبارسنجی پاکت**:\n\n* درخواست شامل Bearer توکن صادرشده توسط SSO است که FCB در برابر `SSO_JWKS_URI` (سرور SSO، نه Nova و نه FCB — HTTPS خروجی به SSO مجاز است) اعتبارسنجی می‌کند.\n* مجوزدهی: `azp ∈ allowed-azp-csv` و `scope ⊇ jwks_read`.\n* اعتبارسنجی توکن کافی است چون: SSO مرجع اعتماد متمرکز است، توکن‌ها کوتاه‌عمر هستند، محتوای JWKS عمومی است.\n* تمام عملیات تجاری دیگر نیازمند اعتبارسنجی هر دو لایه (توکن + پاکت) هستند.\n\n`KafkaInboundAuthInterceptor` این سیاست را با نقشه‌ی `topic → policy` پیاده‌سازی می‌کند: صف JWKS فقط token-only را اعمال می‌کند؛ همه‌ی صف‌های دیگر نیازمند token + envelope هستند.\n\n#### د) دنباله‌ی گذر سرد (cold-start)\n\n۱. برنامه راه‌اندازی می‌شود → کش‌های JWKS در Redis خالی هستند.\n۲. اولین پیام تجاری در هر جهت می‌رسد → اعتبارسنج پاکت `UNKNOWN_KID` را راه‌اندازی می‌کند.\n۳. **Nova-side** (تأیید پاکت‌های دریافتی از FCB): `KafkaJwksFetcher` درخواست `GET_FCB_JWKS` را روی صف منتشر می‌کند (single-flight per kid). FCB پاسخ می‌دهد.\n   **FCB-side** (تأیید پاکت‌های دریافتی از Nova): `NovaJwksHttpClient` یک `GET /jwks` به Nova می‌زند.\n۴. درخواست‌کننده در Redis + L1 کش می‌کند، اعتبارسنجی پاکت را دوباره تلاش می‌کند → موفقیت → handler dispatch می‌شود.\n۵. پیام‌های تجاری بعدی مستقیماً به JWKS کش‌شده برخورد می‌کنند.\n\nهیچ فایل JWKS استاتیکی به `nova-config` ندارد. هیچ کلید `ENVELOPE_NOVA_BOOTSTRAP_JWKS` در ZK ندارد. تنها جایی که محتوای JWKS وجود دارد: keystore زنده در سمت امضاکننده، کش Redis + L1 در سمت تأییدکننده، پاسخ‌های REST/Kafka در حال انتقال.\n\n### ۴. کش (Cache)\n\nJWKSهای دریافت‌شده از Kafka req/reply در Redis در هر دو سمت کش می‌شوند:\n\n* **Nova:** کلید `envelope:jwks:fcb:<kid>`، TTL ≈ ۳۰۰ ثانیه، پیاده‌سازی روی `platform-redis`.\n* **FCB:** کلید `nova:envelope:jwks:<kid>`، TTL از ZK، پیاده‌سازی الگوی موجود `RedisIdempotencyStrategy` (در `subsystem/loan/.../eventbus/nova/common/idempotency/RedisIdempotencyStrategy.java`).\n\nیک کش L1 درون‌فرآیندی (in-process) به‌صورت `ConcurrentHashMap` با double-check synchronized در جلوی Redis قرار می‌گیرد تا مسیر اعتبارسنجی در حد زیر-میلی‌ثانیه باقی بماند. هر دو لایه به‌طور انحصاری از طریق پاسخ‌های Kafka req/reply پر می‌شوند؛ هیچ منبع استاتیکی (فایل، Consul، ZK) وجود ندارد.\n\n### ۵. اعتبار زمانی (Time validity)\n\n* هر پاکت دارای `issuedAt` (epoch-ms) است.\n* گیرنده پاکت‌هایی را که `issuedAt > now + clockSkew` یا `issuedAt < now − maxAgeSeconds − clockSkew` هستند رد می‌کند.\n* مقادیر پیش‌فرض: `clockSkew = 30s`, `maxAgeSeconds = 900s` (۱۵ دقیقه)، قابل پیکربندی از طریق ZK / Consul.\n\n### ۶. کدهای خطا\n\nاعتبارسنج پاکت در هنگام شکست استثنای `ActorEnvelopeException` با یکی از کدهای زیر پرتاب می‌کند: `INVALID_SIGNATURE`, `UNKNOWN_KID`, `EXPIRED`, `MALFORMED`, `UNTRUSTED_KID`, `MISSING_REQUIRED_FIELD`, `FUTURE_ISSUED_AT`.\n\n### ۷. کنترل ویژگی (Feature flags)\n\n* `ENVELOPE_VERIFICATION_ENABLED` (پیش‌فرض `true` در staging/prod، `false` در dev).\n* در حالت `false`، اعتبارسنج با یک رکورد WARN عبور می‌کند و یک پاکت ساختگی با `initiator.type=SECURITY_BYPASS` در `ActorEnvelopeHolder` می‌گذارد.\n\n## دلایل و نتایج (Consequences)\n\n### مزایا (Pros)\n\n* **بدون راز مشترک (No shared secret):** هر دو سمت کلید خصوصی خود را نگه می‌دارند؛ هیچ راز همگام‌سازی‌نیاز نیست.\n* **چرخش مستقل کلید (Independent key rotation):** هر سمت می‌تواند بدون هماهنگی همگام‌سازی، kid خود را چرخاند.\n* **مدل ذهنی هم‌راستا با JWT:** اعتبارسنجی توکن و اعتبارسنجی پاکت از خانواده‌ی الگوریتمی یکسانی استفاده می‌کنند؛ کد اعتبارسنج تقریباً مشابه است.\n* **سازگار با محدودیت Java 8 سمت FCB:** فقط با استفاده از `java.security.*` و `javax.crypto.*` قابل پیاده‌سازی است؛ بدون نیاز به وابستگی جدید.\n* **قابل ممیزی (Auditable):** تمام تبادل کلید از مسیر مشابه ترافیک تجاری عبور می‌کند و در همان log audit ثبت می‌شود.\n\n### معایب و چالش‌ها (Cons/Challenges)\n\n* **مدیریت گواهی / keystore:** هر دو سمت نیازمند یک keystore (PKCS12 یا JKS) با کلید خصوصی و معرفی شده‌اند که در deployment runbook باید به‌دقت مدیریت شود.\n* **حجم بیشتر هدر:** JWS فشرده برای یک پاکت معمولی حدود ۱.۲ تا ۱.۵ کیلوبایت است (در مقایسه با HMAC ≈ ۳۲۰ بایت).\n* **پیچیدگی بازیابی (recovery complexity):** اگر هر دو bootstrap kidها هم‌زمان رد شوند، چرخه‌ی recovery نیاز به deploy جدید با کلیدهای جدید دارد — قابل کاهش با حفظ ۲ kid معتبر در هر سمت (current + previous overlap).\n\n## جایگزین‌های بررسی شده (Alternatives Considered)\n\n### ۱. HMAC با راز مشترک (Symmetric HMAC)\n\n**توضیح:** استفاده از `HMAC-SHA256` با راز مشترک ذخیره‌شده در ZK (سمت FCB) و Consul (سمت Nova) برای امضای پاکت.\n\n**مزایا:**\n* حجم هدر بسیار کمتر (~۳۲۰ بایت).\n* رمزنگاری ساده‌تر؛ پشتیبانی بومی در `javax.crypto.Mac`.\n* بدون نیاز به distribution endpoint.\n\n**معایب:**\n* نیاز به **دو راز** (یکی برای هر جهت) که باید با پنجره دوگانه (dual-write window) چرخش داده شوند — پیچیدگی مدیریت چرخش.\n* هرگونه نشت راز در یک سمت کل امنیت را به خطر می‌اندازد.\n* canonicalization JSON باید دقیقاً بین دو سمت یکسان باشد — منبع رایج باگ.\n\n**نتیجه:** رد شد به دلیل ریسک نشت راز و پیچیدگی هماهنگی چرخش.\n\n### ۲. Reference-by-id با فراخوانی بازگشتی (Callback)\n\n**توضیح:** پاکت فقط شامل `envelopeId` است؛ گیرنده با یک تماس REST/Kafka به فرستنده JSON کامل پاکت را دریافت می‌کند.\n\n**مزایا:**\n* قوی‌ترین مدل ضد دستکاری (هیچ اعتماد in-band).\n* بدنه پیام کوچک می‌ماند.\n\n**معایب:**\n* یک hop شبکه‌ای **در هر پیام** اضافه می‌کند — برای heartbeat / outbox flush rates سنگین است.\n* در صورت محدودیت «بدون REST بین Nova و FCB»، callback نیز باید روی Kafka request/reply انجام شود — افزایش latency و coupling.\n* نیاز به یک provenance store اضافی برای نگه‌داری پاکت‌ها در زمان درخواست.\n\n**نتیجه:** رد شد به دلیل افزایش latency و افزایش coupling عملیاتی.\n\n### ۳. JWT با ادعای بازیگر تعبیه‌شده در توکن\n\n**توضیح:** اطلاعات بازیگر را به‌صورت ادعای سفارشی (`initiator`, `accountability`, `execution`) داخل خود JWT دسترسی قرار دهیم.\n\n**مزایا:**\n* یک artifact واحد روی سیم.\n* اعتبارسنجی توکن خودبه‌خود اعتبارسنجی بازیگر را هم انجام می‌دهد.\n\n**معایب:**\n* SSO باید توکن سفارشی هر بار با ادعاهای متفاوت صادر کند — توکن قابل کش نیست.\n* محل بازیگر یک نگرانی **تجاری** است، نه نگرانی هویت سرویس؛ مخلوط کردن آن‌ها در یک artifact باعث به هم خوردن مرز معماری می‌شود.\n* در مسیرهای ناهمگام (outbox flush) بازیگر در زمان ضرب توکن مشخص نیست؛ توکن باید در زمان flush ضرب شود و قابل کش‌سازی نیست — بار اضافی روی SSO.\n\n**نتیجه:** رد شد — تفکیک نگرانی‌ها (separation of concerns) برتر است.\n\n## استراتژی پیاده‌سازی\n\n### ساختار کد (Nova)\n\n```\nir.dotin.platform.envelope.api/\n├── ActorEnvelope.java                 // record(envelopeId, issuedAt, initiator, accountability, execution)\n├── ActorIdentity.java                 // record(sub, type, branchCode, source)\n├── ExecutionContext.java              // record(mode, trigger, service, instance)\n├── ActorEnvelopeFactory.java          // interface\n├── ActorEnvelopeSigner.java           // interface (sign → compact JWS)\n├── ActorEnvelopeVerifier.java         // interface (verify → ActorEnvelope)\n├── ActorEnvelopeCodec.java            // interface (read/write Kafka headers)\n└── ActorEnvelopeHolder.java           // ScopedValue<ActorEnvelope>\n\nir.dotin.platform.envelope.impl/\n├── JwsActorEnvelopeSigner.java        // RS256 / PS256 / ES256 امضا\n├── JwsActorEnvelopeVerifier.java      // اعتبارسنجی + lookup در TrustedKeyStore\n├── TrustedKeyStore.java               // BootstrapTrustedKeyStore + RedisTrustedKeyStore\n├── KafkaJwksFetcher.java              // single-flight per kid via ReplyingKafkaTemplate\n└── PackedJwsActorEnvelopeCodec.java\n```\n\n### ساختار کد (FCB — Java 8)\n\n```\nir.dotin.loan.business.eventbus.nova.security.envelope.api/\n├── NovaActorEnvelope.java             // final class با getter دستی\n├── NovaActorIdentity.java\n├── NovaExecutionContext.java\n├── NovaActorEnvelopeVerifier.java     // interface\n├── NovaActorEnvelopeSigner.java       // interface\n├── NovaActorEnvelopeBuilder.java      // interface (forReply: echo inbound)\n└── NovaActorEnvelopeCodec.java\n\nir.dotin.loan.business.eventbus.nova.security.envelope.impl/\n├── JwsNovaActorEnvelopeVerifier.java\n├── JwsNovaActorEnvelopeSigner.java\n├── JoseEcdsaToDerConverter.java       // pure stdlib، ~۳۰ خط\n├── DefaultNovaActorEnvelopeBuilder.java\n└── PackedNovaActorEnvelopeCodec.java\n```\n\n### الگوهای طراحی\n\n* **Strategy Pattern:** برای signer/verifier (در حال حاضر فقط JWS؛ HMAC/Reference به‌عنوان اختیار آینده).\n* **Decorator Pattern:** `RedisTrustedKeyStore` تزئین‌گر `BootstrapTrustedKeyStore`.\n* **Single-flight:** برای تماس‌های JWKS که توسط چندین thread هم‌زمان درخواست شده‌اند (synchronized double-check).\n* **ScopedValue (Java 25 Nova) / ThreadLocal (Java 8 FCB):** برای انتشار `ActorEnvelope` در طول chain درخواست — درست مشابه الگوی موجود `DispatchContextHolder` و `NovaHeaderContext`.\n\n## برنامه چرخش کلید (Key Rotation Runbook)\n\n1. تیم عملیات keypair جدید را تولید می‌کند (RSA-2048 یا EC-P256).\n2. کلید جدید به keystore در سمت امضاکننده اضافه می‌شود و **هر دو** kid قبلی و جدید به‌طور هم‌زمان فعال نگه داشته می‌شوند (پنجره overlap).\n3. سرویس امضاکننده در رکوردهای جدید با kid جدید امضا می‌کند.\n4. اولین پیام با kid جدید به سمت تأییدکننده می‌رسد → `UNKNOWN_KID` → بسته به جهت: Nova-side از `KafkaJwksFetcher` (Kafka req/reply به FCB)، FCB-side از `NovaJwksHttpClient` (GET REST به Nova) استفاده می‌کند → JWKS جدید دریافت و در Redis کش می‌شود.\n5. تأیید موفقیت‌آمیز پیام جدید نشان می‌دهد چرخش به سمت کامل شده است.\n6. (اختیاری) برای حذف فوری kid قدیمی از کش (به‌جای انتظار TTL): `POST /actuator/refresh-envelope-keys?kid=<old-kid>` روی pod‌های Nova.\n7. پس از پایان پنجره overlap، kid قدیمی از keystore حذف می‌شود.\n\n**هیچ مرحله‌ی تنظیم پیکربندی (nova-config، ZK، Consul) در runbook چرخش وجود ندارد** — کل چرخش از طریق Kafka req/reply و keystore انجام می‌شود.\n\n</div>",
-      "date" : "2026-06-16T15:43:19Z",
+      "date" : "2026-06-16T20:24:22Z",
       "format" : "Markdown",
       "id" : "0003",
       "status" : "تأیید شده",
@@ -30,1055 +30,1858 @@
       "id" : "0004",
       "status" : "یکنواخت، اما مسیرهای رویداد-محورِ FCB (که نسخهٔ `0L` به‌عنوان sentinel دارند) را با 409 می‌شکند.",
       "title" : ". قرارداد قفل خوش‌بینانه (Optimistic Locking) و میدان نسخه (version)"
+    }, {
+      "content" : "<div dir=\"rtl\" style=\"text-align: right; font-family: Tahoma, 'Vazir', sans-serif;\">\n\n# ADR-0005. تولید مدل C4 با structurizr-component و خارج‌کردن آن از چرخهٔ اصلی Maven\n\n- **وضعیت:** پذیرفته شده\n- **تاریخ:** 2026-06-16\n- **نویسندگان:** تیم معماری trade-loan / nova\n- **اسناد تحت تأثیر:** —\n\n## زمینه و شرح مسئله\n\nمدل C4 سرویس `trade-loan` به‌صورت خودکار توسط ماژول `documents/c4/java` (artifactId `architecture-docs`)\nتولید می‌شود. این ماژول دو مشکل داشت:\n\n1. **محتوای کهنه و ناقص.** مدل ثابت (`DefaultConfig`) چهار actor انسانی و نُه external system با ارتباط\n   `HTTP/REST` (از جمله FCB به‌صورت HTTP و شش «domain service» مجزا) را hard-code کرده بود؛ در حالی که\n   واقعیت فعلی فقط **دو actor** است (Operator/Admin روی endpointهای OPS، و ESB برای ترافیک تجاری) و FCB از\n   مسیر **corridor** (ActiveMQ Artemis اصلی / Kafka جایگزین) در دسترس است. هم‌چنین سه view خالی بودند\n   (`ExternalClients`، `Sagas`، `Components_4`): علت اصلی، نبودِ ماژول‌های sibling مربوط\n   (`fcb-messaging-*`، `mcp`، `reconciliation`) در `pom.xml` اسکنر و مهاجرت قبلی `saga → workflow` بود.\n2. **آلودگی هر build.** اجراکنندهٔ تولید به فاز `process-classes` متصل بود و روی هر\n   `mvn compile/package/install/verify` اجرا می‌شد و فایل‌های تولیدیِ commit‌شده را تغییر می‌داد.\n\nاسکنر قبلی، یک پیاده‌سازی دست‌نویس مبتنی بر ClassGraph بود که همین viewهای خالی را تولید می‌کرد.\nنسخهٔ Structurizr نیز قدیمی بود (`3.2.0` در برابر `5.0.3`).\n\n## محرکهای تصمیمگیری\n\n- بازتاب معماری **واقعی** runtime (Otel، Redis Sentinel HA، Kafka، Artemis، Consul، corridor).\n- مدل صحیح بازیگران: دقیقاً دو actor (OPS و ESB).\n- کاهش نگه‌داری کد سفارشی به‌نفع کتابخانهٔ رسمی.\n- تولید مستندات نباید بخشی از build معمول باشد (بدون churn).\n\n## گزینههای بررسیشده\n\n- **گزینه ۱ — فقط اصلاح محتوا روی همان اسکنر ClassGraph (Structurizr 3.2.0):** کم‌ریسک، اما کد سفارشیِ\n  مستعد خطا را نگه می‌داشت و از به‌روزرسانی کتابخانه صرف‌نظر می‌کرد.\n- **گزینه ۲ — متصل نگه‌داشتن تولید به lifecycle با یک property `skip`:** churn را کم می‌کرد ولی ماژول در\n  reactor باقی می‌ماند و flag به‌سادگی فراموش می‌شد.\n- **گزینه ۳ (انتخاب‌شده) — مهاجرت به `structurizr-component` (Structurizr 5.0.3) + خارج‌کردن ماژول از\n  reactor پیش‌فرض به profile `c4-docs`:** کشف خودکار component از bytecode با finder رسمی، و تولیدِ کاملاً\n  opt-in.\n\n## نتیجه تصمیم\n\nگزینهٔ ۳ انتخاب شد:\n\n1. **کشف component با `structurizr-component`.** کلاس `ComponentDiscovery` با `ComponentFinder` و یک\n   strategy به‌ازای هر concern (تطبیق با `NameSuffixTypeMatcher` / `RegexTypeMatcher`) componentها را از\n   `target/classes` ماژول‌های sibling کشف می‌کند؛ ارتباط component→component توسط خودِ finder استنتاج\n   می‌شود. tagهای C4 از روی technologyِ هر strategy مشتق می‌شوند. matcherها باید **متقابلاً انحصاری** باشند\n   چون finder روی اولین تکرار، کل `run()` را قطع می‌کند (matcherِ reconciliation به package\n   `adapters.driven.reconciliation` محدود شد و regexهای دامنه با `$` لنگر شدند).\n2. **مدل دو-actor + corridor** در `DefaultConfig`: Operator/Admin و ESB؛ downstreamها = FCB (corridor)،\n   TPS SSO (OAuth2/JWKS)، OpenTelemetry Collector (OTLP http/protobuf)، Consul؛ containerها = اپلیکیشن،\n   PostgreSQL 18، Redis 8.6 (Sentinel HA)، Kafka (SASL/SCRAM)، ActiveMQ Artemis 2.43. حذف Kafdrop و شش\n   domain service.\n3. **خارج از lifecycle.** ماژول فقط در `<profile>c4-docs</profile>` ریشهٔ `pom.xml` تعریف می‌شود؛\n   `mvn install/verify/package` آن را نه کامپایل و نه اجرا می‌کند. تولید با `make c4`\n   (`mvn -Pc4-docs -pl documents/c4/java -am process-classes`).\n4. viewهای جدید `Mcp`، `Reconciliation`، `WorkflowFlow` (جایگزین `SagaFlow`)؛ exporter فایل‌های کهنه را\n   پاک می‌کند تا viewهای حذف/تغییرنام‌یافته straggler نگذارند.\n\n### پیامدهای مثبت\n\n- مدل با runtime واقعی هم‌خوان است؛ viewهای پیش‌تر خالی (ExternalClients/Mcp/Reconciliation/DomainModel) پر شدند.\n- کد سفارشی کمتر؛ کشف component و استنتاج ارتباط بر عهدهٔ کتابخانهٔ رسمی.\n- buildهای معمول دیگر فایل‌های C4 را تغییر نمی‌دهند.\n\n### پیامدهای منفی\n\n- کشف به دایرکتوری‌های `target/classes` نیاز دارد؛ تولید باید با `-am` اجرا شود تا siblingها کامپایل شوند.\n- matcherها باید انحصاری بمانند؛ افزودن یک concern جدید بدون دقت می‌تواند به برخورد و قطع `run()` منجر شود.\n\n## پیوندها\n\n- `documents/c4/README.md` — راهنمای تولید/مشاهده و فهرست diagramها.\n- `documents/c4/java/CLAUDE.md` — جزئیات pipeline و قواعد توسعه.\n\n\n</div>",
+      "date" : "2026-06-15T20:30:00Z",
+      "format" : "Markdown",
+      "id" : "0005",
+      "status" : "پذیرفته شده",
+      "title" : ". تولید مدل C4 با structurizr-component و خارج‌کردن آن از چرخهٔ اصلی Maven"
     } ]
   },
   "id" : 0,
   "model" : {
     "people" : [ {
-      "description" : "Bank staff managing loans",
-      "id" : "38",
-      "location" : "Unspecified",
-      "name" : "Loan Officer",
+      "description" : "Bank operations / administrator — monitors and remediates the service",
+      "id" : "24",
+      "name" : "Operator / Admin",
       "relationships" : [ {
-        "description" : "Creates and manages loans",
-        "destinationId" : "11",
-        "id" : "39",
-        "sourceId" : "38",
+        "description" : "Operates via OPS endpoints (/v1/ops/*) and MCP ops tools",
+        "destinationId" : "7",
+        "id" : "25",
+        "sourceId" : "24",
         "tags" : "Relationship",
-        "technology" : "HTTPS/JWT"
+        "technology" : "HTTPS / JWT (sub-claim allowlist)"
       }, {
-        "description" : "Creates and manages loans",
-        "destinationId" : "10",
-        "id" : "40",
-        "linkedRelationshipId" : "39",
-        "sourceId" : "38",
-        "technology" : "HTTPS/JWT"
+        "description" : "Operates via OPS endpoints (/v1/ops/*) and MCP ops tools",
+        "destinationId" : "6",
+        "id" : "26",
+        "linkedRelationshipId" : "25",
+        "sourceId" : "24",
+        "technology" : "HTTPS / JWT (sub-claim allowlist)"
       } ],
-      "tags" : "Element,Person,Internal User"
-    }, {
-      "description" : "Branch level approval authority",
-      "id" : "41",
-      "location" : "Unspecified",
-      "name" : "Branch Manager",
-      "relationships" : [ {
-        "description" : "Approves facilities",
-        "destinationId" : "11",
-        "id" : "42",
-        "sourceId" : "41",
-        "tags" : "Relationship",
-        "technology" : "HTTPS/JWT"
-      }, {
-        "description" : "Approves facilities",
-        "destinationId" : "10",
-        "id" : "43",
-        "linkedRelationshipId" : "42",
-        "sourceId" : "41",
-        "technology" : "HTTPS/JWT"
-      } ],
-      "tags" : "Element,Person,Internal User"
-    }, {
-      "description" : "Technical staff",
-      "id" : "44",
-      "location" : "Unspecified",
-      "name" : "System Administrator",
-      "relationships" : [ {
-        "description" : "Monitors system",
-        "destinationId" : "11",
-        "id" : "45",
-        "sourceId" : "44",
-        "tags" : "Relationship",
-        "technology" : "HTTPS/JWT"
-      }, {
-        "description" : "Monitors system",
-        "destinationId" : "10",
-        "id" : "46",
-        "linkedRelationshipId" : "45",
-        "sourceId" : "44",
-        "technology" : "HTTPS/JWT"
-      }, {
-        "description" : "Monitors Kafka",
-        "destinationId" : "15",
-        "id" : "47",
-        "sourceId" : "44",
-        "tags" : "Relationship",
-        "technology" : "HTTP"
-      }, {
-        "description" : "Monitors Kafka",
-        "destinationId" : "10",
-        "id" : "48",
-        "linkedRelationshipId" : "47",
-        "sourceId" : "44",
-        "technology" : "HTTP"
-      } ],
-      "tags" : "Element,Person,Internal User,Admin"
-    }, {
-      "description" : "End users",
-      "id" : "49",
-      "location" : "Unspecified",
-      "name" : "Customer",
-      "tags" : "Element,Person,External User"
+      "tags" : "Element,Person,Admin"
     } ],
     "softwareSystems" : [ {
-      "description" : "OAuth2/OIDC provider",
+      "description" : "Enterprise Service Bus — routes business loan-lifecycle requests from upstream channels",
       "documentation" : { },
       "id" : "1",
-      "location" : "Unspecified",
+      "name" : "ESB",
+      "relationships" : [ {
+        "description" : "Business loan-lifecycle requests",
+        "destinationId" : "7",
+        "id" : "176",
+        "sourceId" : "1",
+        "tags" : "Relationship",
+        "technology" : "REST (SWA-101) / JWT"
+      }, {
+        "description" : "Business loan-lifecycle requests",
+        "destinationId" : "6",
+        "id" : "177",
+        "linkedRelationshipId" : "176",
+        "sourceId" : "1",
+        "technology" : "REST (SWA-101) / JWT"
+      } ],
+      "tags" : "Element,Software System,External System"
+    }, {
+      "description" : "OAuth2/OIDC identity provider (token validation + JWKS)",
+      "documentation" : { },
+      "id" : "2",
       "name" : "TPS SSO",
       "tags" : "Element,Software System,External System,Security"
     }, {
-      "description" : "Core Banking",
+      "description" : "Legacy core banking — accounts, postings, collateral, sanctions",
       "documentation" : { },
-      "id" : "2",
-      "location" : "Unspecified",
+      "id" : "3",
       "name" : "FCB Core Banking",
       "tags" : "Element,Software System,External System,Core Banking"
     }, {
-      "description" : "Observability backend",
+      "description" : "OpenTelemetry collector — traces, metrics, logs",
       "documentation" : { },
-      "id" : "3",
-      "location" : "Unspecified",
+      "id" : "4",
       "name" : "OpenTelemetry Collector",
       "tags" : "Element,Software System,External System,Observability"
     }, {
-      "description" : "Account management",
-      "documentation" : { },
-      "id" : "4",
-      "location" : "Unspecified",
-      "name" : "Account Service",
-      "tags" : "Element,Software System,External System,Domain Service"
-    }, {
-      "description" : "Customer data",
+      "description" : "Runtime configuration store (Consul KV, fed by GitOps)",
       "documentation" : { },
       "id" : "5",
-      "location" : "Unspecified",
-      "name" : "Customer Service",
-      "tags" : "Element,Software System,External System,Domain Service"
-    }, {
-      "description" : "Deposit operations",
-      "documentation" : { },
-      "id" : "6",
-      "location" : "Unspecified",
-      "name" : "Deposit Service",
-      "tags" : "Element,Software System,External System,Domain Service"
-    }, {
-      "description" : "Collateral management",
-      "documentation" : { },
-      "id" : "7",
-      "location" : "Unspecified",
-      "name" : "Collateral Service",
-      "tags" : "Element,Software System,External System,Domain Service"
-    }, {
-      "description" : "Cross-loan operations",
-      "documentation" : { },
-      "id" : "8",
-      "location" : "Unspecified",
-      "name" : "Loan Service",
-      "tags" : "Element,Software System,External System,Domain Service"
-    }, {
-      "description" : "Formula calculation",
-      "documentation" : { },
-      "id" : "9",
-      "location" : "Unspecified",
-      "name" : "Formula Evaluator Service",
-      "tags" : "Element,Software System,External System,Domain Service"
+      "name" : "Consul",
+      "tags" : "Element,Software System,External System,Config"
     }, {
       "containers" : [ {
         "components" : [ {
-          "description" : "REST API: /v{version}/dev/auth",
+          "documentation" : { },
+          "id" : "27",
+          "name" : "Reconciliation By Application Number Controller",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.rest.ops.reconciliation.ReconciliationByApplicationNumberController"
+          },
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring MVC Controller"
+        }, {
+          "documentation" : { },
+          "id" : "28",
+          "name" : "Dev Auth Callback Controller",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.rest.auth.DevAuthCallbackController"
+          },
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring MVC Controller"
+        }, {
+          "documentation" : { },
+          "id" : "29",
+          "name" : "Loan Arrangement Query Controller",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.rest.query.loanarrangement.LoanArrangementQueryController"
+          },
+          "tags" : "Element,Component,Controller,Query",
+          "technology" : "Spring MVC Controller"
+        }, {
+          "documentation" : { },
+          "id" : "30",
+          "name" : "Installment Schedule Query Controller",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.rest.query.installmentschedule.InstallmentScheduleQueryController"
+          },
+          "tags" : "Element,Component,Controller,Query",
+          "technology" : "Spring MVC Controller"
+        }, {
+          "documentation" : { },
+          "id" : "31",
+          "name" : "Loan Type Query Controller",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.rest.query.loantype.LoanTypeQueryController"
+          },
+          "tags" : "Element,Component,Controller,Query",
+          "technology" : "Spring MVC Controller"
+        }, {
+          "documentation" : { },
+          "id" : "32",
+          "name" : "Facility Query Controller",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.rest.query.loanfacility.FacilityQueryController"
+          },
+          "tags" : "Element,Component,Controller,Query",
+          "technology" : "Spring MVC Controller"
+        }, {
+          "documentation" : { },
+          "id" : "33",
+          "name" : "Approve Facility Controller",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.rest.command.controller.ApproveFacilityController"
+          },
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring MVC Controller"
+        }, {
+          "documentation" : { },
+          "id" : "34",
+          "name" : "Issue Facility Contract Controller",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.rest.command.controller.IssueFacilityContractController"
+          },
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring MVC Controller"
+        }, {
+          "documentation" : { },
+          "id" : "35",
+          "name" : "Add Facility Collateral Controller",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.rest.command.controller.AddFacilityCollateralController"
+          },
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring MVC Controller"
+        }, {
+          "documentation" : { },
+          "id" : "36",
+          "name" : "Define Loan Arrangement Controller",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.rest.command.controller.DefineLoanArrangementController"
+          },
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring MVC Controller"
+        }, {
+          "documentation" : { },
+          "id" : "37",
+          "name" : "Lump Sum Disbursement Controller",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.rest.command.controller.LumpSumDisbursementController"
+          },
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring MVC Controller"
+        }, {
+          "documentation" : { },
+          "id" : "38",
+          "name" : "Define Loan Type Controller",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.rest.command.controller.DefineLoanTypeController"
+          },
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring MVC Controller"
+        }, {
+          "documentation" : { },
+          "id" : "39",
+          "name" : "Submit Facility For Approval Controller",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.rest.command.controller.SubmitFacilityForApprovalController"
+          },
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring MVC Controller"
+        }, {
+          "documentation" : { },
+          "id" : "40",
+          "name" : "Reject Facility Controller",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.rest.command.controller.RejectFacilityController"
+          },
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring MVC Controller"
+        }, {
+          "documentation" : { },
+          "id" : "41",
+          "name" : "Open Facility Case Controller",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.rest.command.controller.OpenFacilityCaseController"
+          },
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring MVC Controller"
+        }, {
+          "documentation" : { },
+          "id" : "42",
+          "name" : "Irregular Progressive Disbursement Controller",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.rest.command.controller.IrregularProgressiveDisbursementController"
+          },
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring MVC Controller"
+        }, {
+          "documentation" : { },
+          "id" : "43",
+          "name" : "Close Facility Defaulted Controller",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.rest.command.controller.CloseFacilityDefaultedController"
+          },
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring MVC Controller"
+        }, {
+          "documentation" : { },
+          "id" : "44",
+          "name" : "Close Facility Paid Off Controller",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.rest.command.controller.CloseFacilityPaidOffController"
+          },
+          "tags" : "Element,Component,Controller,Command",
+          "technology" : "Spring MVC Controller"
+        }, {
+          "documentation" : { },
+          "id" : "45",
+          "name" : "Loan Facility Restructuring Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.loanfacilityrestructuring.commandhandler.LoanFacilityRestructuringCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "documentation" : { },
+          "id" : "46",
+          "name" : "Irregular Progressive Disbursement Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.commandhandler.IrregularProgressiveDisbursementCommandHandler"
+          },
+          "relationships" : [ {
+            "destinationId" : "128",
+            "id" : "137",
+            "sourceId" : "46",
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "127",
+            "id" : "138",
+            "sourceId" : "46",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "documentation" : { },
+          "id" : "47",
+          "name" : "Compensate Irregular Disbursement Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.compensation.commandhandler.CompensateIrregularDisbursementCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command,Compensation",
+          "technology" : "Command Handler"
+        }, {
+          "documentation" : { },
+          "id" : "48",
+          "name" : "Plan Equal Installment Schedule Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.planequalinstallmentschedule.commandhandler.PlanEqualInstallmentScheduleCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "documentation" : { },
+          "id" : "49",
+          "name" : "Regular Disbursement Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.regulardisbursement.commandhandler.RegularDisbursementCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
           "documentation" : { },
           "id" : "50",
-          "name" : "DevAuthCallbackController",
-          "tags" : "Element,Component,Controller,Command",
-          "technology" : "Spring REST Controller"
+          "name" : "Reject Facility Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.rejectfacility.commandhandler.RejectFacilityCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
         }, {
-          "description" : "REST API: /v{version}/loan-facilities/{facilityId}/collaterals",
           "documentation" : { },
           "id" : "51",
-          "name" : "AddFacilityCollateralController",
-          "tags" : "Element,Component,Controller,Command",
-          "technology" : "Spring REST Controller"
+          "name" : "Define Loan Type Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.defineloantype.commandhandler.DefineLoanTypeCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
         }, {
-          "description" : "REST API: /v{version}/loan-facilities/{facilityId}/approve",
           "documentation" : { },
           "id" : "52",
-          "name" : "ApproveFacilityController",
-          "tags" : "Element,Component,Controller,Command",
-          "technology" : "Spring REST Controller"
+          "name" : "Submit Facility For Approval Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.submitfacilityforapproval.commandhandler.SubmitFacilityForApprovalCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
         }, {
-          "description" : "REST API: /v{version}/loan-facilities/{facilityId}/close-defaulted",
           "documentation" : { },
           "id" : "53",
-          "name" : "CloseFacilityDefaultedController",
-          "tags" : "Element,Component,Controller,Command",
-          "technology" : "Spring REST Controller"
+          "name" : "Compensate Approval Submission Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.submitfacilityforapproval.compensation.commandhandler.CompensateApprovalSubmissionCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command,Compensation",
+          "technology" : "Command Handler"
         }, {
-          "description" : "REST API: /v{version}/loan-facilities/{facilityId}/close-paid-off",
           "documentation" : { },
           "id" : "54",
-          "name" : "CloseFacilityPaidOffController",
-          "tags" : "Element,Component,Controller,Command",
-          "technology" : "Spring REST Controller"
+          "name" : "Update Facility Collateral Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.updatefacilitycollateral.commandhandler.UpdateFacilityCollateralCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
         }, {
-          "description" : "REST API: /v{version}/loan-arrangements",
           "documentation" : { },
           "id" : "55",
-          "name" : "DefineLoanArrangementController",
-          "tags" : "Element,Component,Controller,Command",
-          "technology" : "Spring REST Controller"
+          "name" : "Cancel Facility Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.cancelfacility.commandhandler.CancelFacilityCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
         }, {
-          "description" : "REST API: /v{version}/loan-types",
           "documentation" : { },
           "id" : "56",
-          "name" : "DefineLoanTypeController",
-          "tags" : "Element,Component,Controller,Command",
-          "technology" : "Spring REST Controller"
+          "name" : "Approve Facility Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.approvefacility.commandhandler.ApproveFacilityCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
         }, {
-          "description" : "REST API: /v{version}/loan-facilities/{facilityId}/disburse/progressive-irregular",
           "documentation" : { },
           "id" : "57",
-          "name" : "IrregularProgressiveDisbursementController",
-          "tags" : "Element,Component,Controller,Command",
-          "technology" : "Spring REST Controller"
+          "name" : "Compensate Approval Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.approvefacility.compensation.commandhandler.CompensateApprovalCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command,Compensation",
+          "technology" : "Command Handler"
         }, {
-          "description" : "REST API: /v{version}/loan-facilities/{facilityId}/issue-contract",
           "documentation" : { },
           "id" : "58",
-          "name" : "IssueFacilityContractController",
-          "tags" : "Element,Component,Controller,Command",
-          "technology" : "Spring REST Controller"
+          "name" : "Originate Loan Facility Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.originateloanfacility.commandhandler.OriginateLoanFacilityCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
         }, {
-          "description" : "REST API: /v{version}/loan-facilities/{facilityId}/disburse/lump-sum",
           "documentation" : { },
           "id" : "59",
-          "name" : "LumpSumDisbursementController",
-          "tags" : "Element,Component,Controller,Command",
-          "technology" : "Spring REST Controller"
+          "name" : "Compensate Origination Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.originateloanfacility.compensation.commandhandler.CompensateOriginationCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command,Compensation",
+          "technology" : "Command Handler"
         }, {
-          "description" : "REST API: /v{version}/loan-facilities",
           "documentation" : { },
           "id" : "60",
-          "name" : "OpenFacilityCaseController",
-          "tags" : "Element,Component,Controller,Command",
-          "technology" : "Spring REST Controller"
+          "name" : "Close Facility Defaulted Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.closefacilitydefaulted.commandhandler.CloseFacilityDefaultedCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
         }, {
-          "description" : "REST API: /v{version}/loan-facilities/{facilityId}/reject",
           "documentation" : { },
           "id" : "61",
-          "name" : "RejectFacilityController",
-          "tags" : "Element,Component,Controller,Command",
-          "technology" : "Spring REST Controller"
+          "name" : "Close Facility Paid Off Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.closefacilitypaidoff.commandhandler.CloseFacilityPaidOffCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
         }, {
-          "description" : "REST API: /v{version}/loan-facilities/{facilityId}/submit-for-approval",
           "documentation" : { },
           "id" : "62",
-          "name" : "SubmitFacilityForApprovalController",
-          "tags" : "Element,Component,Controller,Command",
-          "technology" : "Spring REST Controller"
+          "name" : "Compensate Close Facility Paid Off Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.closefacilitypaidoff.compensation.commandhandler.CompensateCloseFacilityPaidOffCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command,Compensation",
+          "technology" : "Command Handler"
         }, {
-          "description" : "REST API: /v{version}/ops/reconciliation/facility-state",
           "documentation" : { },
           "id" : "63",
-          "name" : "ReconciliationByApplicationNumberController",
-          "tags" : "Element,Component,Controller,Command",
-          "technology" : "Spring REST Controller"
+          "name" : "Issue Facility Contract Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.issuefacilitycontract.commandhandler.IssueFacilityContractCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
         }, {
-          "description" : "REST API: /v{version}/installment-schedules",
           "documentation" : { },
           "id" : "64",
-          "name" : "InstallmentScheduleQueryController",
-          "tags" : "Element,Component,Controller,Query",
-          "technology" : "Spring REST Controller"
+          "name" : "Compensate Contract Issuance Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.issuefacilitycontract.compensation.commandhandler.CompensateContractIssuanceCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command,Compensation",
+          "technology" : "Command Handler"
         }, {
-          "description" : "REST API: /v{version}/loan-arrangements",
           "documentation" : { },
           "id" : "65",
-          "name" : "LoanArrangementQueryController",
-          "tags" : "Element,Component,Controller,Query",
-          "technology" : "Spring REST Controller"
+          "name" : "Define Trade Loan Arrangement Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.definetradeloanarrangement.commandhandler.DefineTradeLoanArrangementCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
         }, {
-          "description" : "REST API: /v{version}/loan-facilities",
           "documentation" : { },
           "id" : "66",
-          "name" : "FacilityQueryController",
-          "tags" : "Element,Component,Controller,Query",
-          "technology" : "Spring REST Controller"
+          "name" : "Lump Sum Disbursement Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.commandhandler.LumpSumDisbursementCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
         }, {
-          "description" : "REST API: /v{version}/loan-types",
           "documentation" : { },
           "id" : "67",
-          "name" : "LoanTypeQueryController",
-          "tags" : "Element,Component,Controller,Query",
-          "technology" : "Spring REST Controller"
+          "name" : "Compensate Lump Sum Disbursement Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.compensation.commandhandler.CompensateLumpSumDisbursementCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command,Compensation",
+          "technology" : "Command Handler"
         }, {
-          "description" : "Kafka consumer",
           "documentation" : { },
           "id" : "68",
-          "name" : "FcbEventConsumer",
+          "name" : "Add Facility Collateral Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.addfacilitycollateral.commandhandler.AddFacilityCollateralCommandHandler"
+          },
+          "relationships" : [ {
+            "destinationId" : "124",
+            "id" : "139",
+            "sourceId" : "68",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "documentation" : { },
+          "id" : "69",
+          "name" : "Compensate Collateral Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.addfacilitycollateral.compensation.commandhandler.CompensateCollateralCommandHandler"
+          },
+          "relationships" : [ {
+            "destinationId" : "126",
+            "id" : "140",
+            "sourceId" : "69",
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "128",
+            "id" : "141",
+            "sourceId" : "69",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component,Handler,Command,Compensation",
+          "technology" : "Command Handler"
+        }, {
+          "documentation" : { },
+          "id" : "70",
+          "name" : "Collect Installment Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.collectinstallment.commandhandler.CollectInstallmentCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command",
+          "technology" : "Command Handler"
+        }, {
+          "documentation" : { },
+          "id" : "71",
+          "name" : "Compensate Collect Installment Command Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.service.collectinstallment.compensation.commandhandler.CompensateCollectInstallmentCommandHandler"
+          },
+          "tags" : "Element,Component,Handler,Command,Compensation",
+          "technology" : "Command Handler"
+        }, {
+          "documentation" : { },
+          "id" : "72",
+          "name" : "Get Loan Arrangement By Code Query Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.query.loanarrangement.handler.GetLoanArrangementByCodeQueryHandler"
+          },
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "documentation" : { },
+          "id" : "73",
+          "name" : "Loan Type Arrangement Filter Query Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.query.loanarrangement.handler.LoanTypeArrangementFilterQueryHandler"
+          },
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "documentation" : { },
+          "id" : "74",
+          "name" : "Get Loan Arrangement By Id Query Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.query.loanarrangement.handler.GetLoanArrangementByIdQueryHandler"
+          },
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "documentation" : { },
+          "id" : "75",
+          "name" : "Find All Loan Arrangements Query Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.query.loanarrangement.handler.FindAllLoanArrangementsQueryHandler"
+          },
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "documentation" : { },
+          "id" : "76",
+          "name" : "Get Installment Schedule By Id Query Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.query.installmentschedule.handler.GetInstallmentScheduleByIdQueryHandler"
+          },
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "documentation" : { },
+          "id" : "77",
+          "name" : "Find All Loan Types Query Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.query.loantype.handler.FindAllLoanTypesQueryHandler"
+          },
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "documentation" : { },
+          "id" : "78",
+          "name" : "Get Loan Type By Id Query Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.query.loantype.handler.GetLoanTypeByIdQueryHandler"
+          },
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "documentation" : { },
+          "id" : "79",
+          "name" : "Loan Type Filter Query Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.query.loantype.handler.LoanTypeFilterQueryHandler"
+          },
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "documentation" : { },
+          "id" : "80",
+          "name" : "Get Loan Type By Code Query Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.query.loantype.handler.GetLoanTypeByCodeQueryHandler"
+          },
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "documentation" : { },
+          "id" : "81",
+          "name" : "Get Facility By Id Query Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.query.loanfacility.handler.GetFacilityByIdQueryHandler"
+          },
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "documentation" : { },
+          "id" : "82",
+          "name" : "Get Facility By Application Number Query Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.query.loanfacility.handler.GetFacilityByApplicationNumberQueryHandler"
+          },
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "documentation" : { },
+          "id" : "83",
+          "name" : "Find All Loan Facilities Query Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.query.loanfacility.handler.FindAllLoanFacilitiesQueryHandler"
+          },
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "documentation" : { },
+          "id" : "84",
+          "name" : "Resolve Facility Id By Application Number Query Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.query.loanfacility.handler.ResolveFacilityIdByApplicationNumberQueryHandler"
+          },
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "documentation" : { },
+          "id" : "85",
+          "name" : "Search Loan Facilities Query Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.application.query.loanfacility.handler.SearchLoanFacilitiesQueryHandler"
+          },
+          "tags" : "Element,Component,Handler,Query",
+          "technology" : "Query Handler"
+        }, {
+          "documentation" : { },
+          "id" : "86",
+          "name" : "Trade Loan Arrangement Repository Adapter",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.TradeLoanArrangementRepositoryAdapter"
+          },
+          "relationships" : [ {
+            "description" : "Reads/Writes",
+            "destinationId" : "8",
+            "id" : "178",
+            "sourceId" : "86",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          } ],
+          "tags" : "Element,Component,Repository,Persistence",
+          "technology" : "Spring Data JPA"
+        }, {
+          "documentation" : { },
+          "id" : "87",
+          "name" : "Installment Schedule Repository Adapter",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.persistence.installmentschedule.InstallmentScheduleRepositoryAdapter"
+          },
+          "relationships" : [ {
+            "description" : "Reads/Writes",
+            "destinationId" : "8",
+            "id" : "180",
+            "sourceId" : "87",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          } ],
+          "tags" : "Element,Component,Repository,Persistence",
+          "technology" : "Spring Data JPA"
+        }, {
+          "documentation" : { },
+          "id" : "88",
+          "name" : "Trade Loan Type Repository Adapter",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.persistence.loantype.TradeLoanTypeRepositoryAdapter"
+          },
+          "relationships" : [ {
+            "description" : "Reads/Writes",
+            "destinationId" : "8",
+            "id" : "181",
+            "sourceId" : "88",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          } ],
+          "tags" : "Element,Component,Repository,Persistence",
+          "technology" : "Spring Data JPA"
+        }, {
+          "documentation" : { },
+          "id" : "89",
+          "name" : "Trade Loan Facility Repository Adapter",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.TradeLoanFacilityRepositoryAdapter"
+          },
+          "relationships" : [ {
+            "description" : "Reads/Writes",
+            "destinationId" : "8",
+            "id" : "182",
+            "sourceId" : "89",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          } ],
+          "tags" : "Element,Component,Repository,Persistence",
+          "technology" : "Spring Data JPA"
+        }, {
+          "documentation" : { },
+          "id" : "90",
+          "name" : "Jpa Trade Loan Arrangement Query Adapter",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.query.JpaTradeLoanArrangementQueryAdapter"
+          },
+          "relationships" : [ {
+            "description" : "Reads/Writes",
+            "destinationId" : "8",
+            "id" : "183",
+            "sourceId" : "90",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          } ],
+          "tags" : "Element,Component,Repository,Persistence",
+          "technology" : "Spring Data JPA"
+        }, {
+          "documentation" : { },
+          "id" : "91",
+          "name" : "Jpa Trade Installment Schedule Query Adapter",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.persistence.installmentschedule.query.JpaTradeInstallmentScheduleQueryAdapter"
+          },
+          "relationships" : [ {
+            "description" : "Reads/Writes",
+            "destinationId" : "8",
+            "id" : "184",
+            "sourceId" : "91",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          } ],
+          "tags" : "Element,Component,Repository,Persistence",
+          "technology" : "Spring Data JPA"
+        }, {
+          "documentation" : { },
+          "id" : "92",
+          "name" : "Jpa Trade Loan Type Query Adapter",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.persistence.loantype.query.JpaTradeLoanTypeQueryAdapter"
+          },
+          "relationships" : [ {
+            "description" : "Reads/Writes",
+            "destinationId" : "8",
+            "id" : "185",
+            "sourceId" : "92",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          } ],
+          "tags" : "Element,Component,Repository,Persistence",
+          "technology" : "Spring Data JPA"
+        }, {
+          "documentation" : { },
+          "id" : "93",
+          "name" : "Jpa Facility Query Adapter",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.query.JpaFacilityQueryAdapter"
+          },
+          "relationships" : [ {
+            "description" : "Reads/Writes",
+            "destinationId" : "8",
+            "id" : "186",
+            "sourceId" : "93",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          } ],
+          "tags" : "Element,Component,Repository,Persistence",
+          "technology" : "Spring Data JPA"
+        }, {
+          "documentation" : { },
+          "id" : "94",
+          "name" : "Trade Loan Arrangement Outbox Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.TradeLoanArrangementOutboxHandler"
+          },
+          "relationships" : [ {
+            "description" : "Publishes events",
+            "destinationId" : "9",
+            "id" : "187",
+            "sourceId" : "94",
+            "tags" : "Relationship",
+            "technology" : "Kafka (SASL/SCRAM)"
+          } ],
+          "tags" : "Element,Component,Outbox,Messaging",
+          "technology" : "Outbox Publisher"
+        }, {
+          "documentation" : { },
+          "id" : "95",
+          "name" : "Installment Schedule Outbox Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.persistence.installmentschedule.InstallmentScheduleOutboxHandler"
+          },
+          "relationships" : [ {
+            "description" : "Publishes events",
+            "destinationId" : "9",
+            "id" : "189",
+            "sourceId" : "95",
+            "tags" : "Relationship",
+            "technology" : "Kafka (SASL/SCRAM)"
+          } ],
+          "tags" : "Element,Component,Outbox,Messaging",
+          "technology" : "Outbox Publisher"
+        }, {
+          "documentation" : { },
+          "id" : "96",
+          "name" : "Trade Loan Type Outbox Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.persistence.loantype.TradeLoanTypeOutboxHandler"
+          },
+          "relationships" : [ {
+            "description" : "Publishes events",
+            "destinationId" : "9",
+            "id" : "190",
+            "sourceId" : "96",
+            "tags" : "Relationship",
+            "technology" : "Kafka (SASL/SCRAM)"
+          } ],
+          "tags" : "Element,Component,Outbox,Messaging",
+          "technology" : "Outbox Publisher"
+        }, {
+          "documentation" : { },
+          "id" : "97",
+          "name" : "Trade Loan Facility Outbox Handler",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.TradeLoanFacilityOutboxHandler"
+          },
+          "relationships" : [ {
+            "description" : "Publishes events",
+            "destinationId" : "9",
+            "id" : "191",
+            "sourceId" : "97",
+            "tags" : "Relationship",
+            "technology" : "Kafka (SASL/SCRAM)"
+          } ],
+          "tags" : "Element,Component,Outbox,Messaging",
+          "technology" : "Outbox Publisher"
+        }, {
+          "documentation" : { },
+          "id" : "98",
+          "name" : "Fcb Event Consumer",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.messaging.kafka.consumer.FcbEventConsumer"
+          },
           "relationships" : [ {
             "description" : "Consumes from",
-            "destinationId" : "13",
-            "id" : "133",
-            "sourceId" : "68",
+            "destinationId" : "9",
+            "id" : "192",
+            "sourceId" : "98",
             "tags" : "Relationship",
-            "technology" : "Kafka Protocol"
+            "technology" : "Kafka (SASL/SCRAM)"
           } ],
           "tags" : "Element,Component,Consumer,Messaging",
           "technology" : "Spring Kafka Listener"
         }, {
-          "description" : "Handles add facility collateral",
-          "documentation" : { },
-          "id" : "69",
-          "name" : "AddFacilityCollateralCommandHandler",
-          "tags" : "Element,Component,Handler,Command",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles compensate collateral",
-          "documentation" : { },
-          "id" : "70",
-          "name" : "CompensateCollateralCommandHandler",
-          "tags" : "Element,Component,Handler,Command,Compensation",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles approve facility",
-          "documentation" : { },
-          "id" : "71",
-          "name" : "ApproveFacilityCommandHandler",
-          "tags" : "Element,Component,Handler,Command",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles compensate approval",
-          "documentation" : { },
-          "id" : "72",
-          "name" : "CompensateApprovalCommandHandler",
-          "tags" : "Element,Component,Handler,Command,Compensation",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles cancel facility",
-          "documentation" : { },
-          "id" : "73",
-          "name" : "CancelFacilityCommandHandler",
-          "tags" : "Element,Component,Handler,Command",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles close facility defaulted",
-          "documentation" : { },
-          "id" : "74",
-          "name" : "CloseFacilityDefaultedCommandHandler",
-          "tags" : "Element,Component,Handler,Command",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles close facility paid off",
-          "documentation" : { },
-          "id" : "75",
-          "name" : "CloseFacilityPaidOffCommandHandler",
-          "tags" : "Element,Component,Handler,Command",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles compensate close facility paid off",
-          "documentation" : { },
-          "id" : "76",
-          "name" : "CompensateCloseFacilityPaidOffCommandHandler",
-          "tags" : "Element,Component,Handler,Command,Compensation",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles collect installment",
-          "documentation" : { },
-          "id" : "77",
-          "name" : "CollectInstallmentCommandHandler",
-          "tags" : "Element,Component,Handler,Command",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles compensate collect installment",
-          "documentation" : { },
-          "id" : "78",
-          "name" : "CompensateCollectInstallmentCommandHandler",
-          "tags" : "Element,Component,Handler,Command,Compensation",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles define loan type",
-          "documentation" : { },
-          "id" : "79",
-          "name" : "DefineLoanTypeCommandHandler",
-          "tags" : "Element,Component,Handler,Command",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles define trade loan arrangement",
-          "documentation" : { },
-          "id" : "80",
-          "name" : "DefineTradeLoanArrangementCommandHandler",
-          "tags" : "Element,Component,Handler,Command",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles irregular progressive disbursement",
-          "documentation" : { },
-          "id" : "81",
-          "name" : "IrregularProgressiveDisbursementCommandHandler",
-          "tags" : "Element,Component,Handler,Command",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles compensate irregular disbursement",
-          "documentation" : { },
-          "id" : "82",
-          "name" : "CompensateIrregularDisbursementCommandHandler",
-          "tags" : "Element,Component,Handler,Command,Compensation",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles issue facility contract",
-          "documentation" : { },
-          "id" : "83",
-          "name" : "IssueFacilityContractCommandHandler",
-          "tags" : "Element,Component,Handler,Command",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles compensate contract issuance",
-          "documentation" : { },
-          "id" : "84",
-          "name" : "CompensateContractIssuanceCommandHandler",
-          "tags" : "Element,Component,Handler,Command,Compensation",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles loan facility restructuring",
-          "documentation" : { },
-          "id" : "85",
-          "name" : "LoanFacilityRestructuringCommandHandler",
-          "tags" : "Element,Component,Handler,Command",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles lump sum disbursement",
-          "documentation" : { },
-          "id" : "86",
-          "name" : "LumpSumDisbursementCommandHandler",
-          "tags" : "Element,Component,Handler,Command",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles compensate lump sum disbursement",
-          "documentation" : { },
-          "id" : "87",
-          "name" : "CompensateLumpSumDisbursementCommandHandler",
-          "tags" : "Element,Component,Handler,Command,Compensation",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles originate loan facility",
-          "documentation" : { },
-          "id" : "88",
-          "name" : "OriginateLoanFacilityCommandHandler",
-          "tags" : "Element,Component,Handler,Command",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles compensate origination",
-          "documentation" : { },
-          "id" : "89",
-          "name" : "CompensateOriginationCommandHandler",
-          "tags" : "Element,Component,Handler,Command,Compensation",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles plan equal installment schedule",
-          "documentation" : { },
-          "id" : "90",
-          "name" : "PlanEqualInstallmentScheduleCommandHandler",
-          "tags" : "Element,Component,Handler,Command",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles regular disbursement",
-          "documentation" : { },
-          "id" : "91",
-          "name" : "RegularDisbursementCommandHandler",
-          "tags" : "Element,Component,Handler,Command",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles reject facility",
-          "documentation" : { },
-          "id" : "92",
-          "name" : "RejectFacilityCommandHandler",
-          "tags" : "Element,Component,Handler,Command",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles submit facility for approval",
-          "documentation" : { },
-          "id" : "93",
-          "name" : "SubmitFacilityForApprovalCommandHandler",
-          "tags" : "Element,Component,Handler,Command",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles compensate approval submission",
-          "documentation" : { },
-          "id" : "94",
-          "name" : "CompensateApprovalSubmissionCommandHandler",
-          "tags" : "Element,Component,Handler,Command,Compensation",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles update facility collateral",
-          "documentation" : { },
-          "id" : "95",
-          "name" : "UpdateFacilityCollateralCommandHandler",
-          "tags" : "Element,Component,Handler,Command",
-          "technology" : "Command Handler"
-        }, {
-          "description" : "Handles get installment schedule by id queries",
-          "documentation" : { },
-          "id" : "96",
-          "name" : "GetInstallmentScheduleByIdQueryHandler",
-          "tags" : "Element,Component,Handler,Query",
-          "technology" : "Query Handler"
-        }, {
-          "description" : "Handles find all loan arrangements queries",
-          "documentation" : { },
-          "id" : "97",
-          "name" : "FindAllLoanArrangementsQueryHandler",
-          "tags" : "Element,Component,Handler,Query",
-          "technology" : "Query Handler"
-        }, {
-          "description" : "Handles get loan arrangement by code queries",
-          "documentation" : { },
-          "id" : "98",
-          "name" : "GetLoanArrangementByCodeQueryHandler",
-          "tags" : "Element,Component,Handler,Query",
-          "technology" : "Query Handler"
-        }, {
-          "description" : "Handles get loan arrangement by id queries",
           "documentation" : { },
           "id" : "99",
-          "name" : "GetLoanArrangementByIdQueryHandler",
-          "tags" : "Element,Component,Handler,Query",
-          "technology" : "Query Handler"
+          "name" : "Reconciliation Ops Mcp Tools",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.mcp.ReconciliationOpsMcpTools"
+          },
+          "tags" : "Element,Component,MCP",
+          "technology" : "MCP Tool"
         }, {
-          "description" : "Handles loan type arrangement filter queries",
           "documentation" : { },
           "id" : "100",
-          "name" : "LoanTypeArrangementFilterQueryHandler",
-          "tags" : "Element,Component,Handler,Query",
-          "technology" : "Query Handler"
+          "name" : "Loan Facility Mcp Tools",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.mcp.LoanFacilityMcpTools"
+          },
+          "tags" : "Element,Component,MCP",
+          "technology" : "MCP Tool"
         }, {
-          "description" : "Handles find all loan facilities queries",
           "documentation" : { },
           "id" : "101",
-          "name" : "FindAllLoanFacilitiesQueryHandler",
-          "tags" : "Element,Component,Handler,Query",
-          "technology" : "Query Handler"
+          "name" : "Loan Type Mcp Tools",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.mcp.LoanTypeMcpTools"
+          },
+          "tags" : "Element,Component,MCP",
+          "technology" : "MCP Tool"
         }, {
-          "description" : "Handles get facility by application number queries",
           "documentation" : { },
           "id" : "102",
-          "name" : "GetFacilityByApplicationNumberQueryHandler",
-          "tags" : "Element,Component,Handler,Query",
-          "technology" : "Query Handler"
+          "name" : "Loan Arrangement Mcp Tools",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.mcp.LoanArrangementMcpTools"
+          },
+          "tags" : "Element,Component,MCP",
+          "technology" : "MCP Tool"
         }, {
-          "description" : "Handles get facility by id queries",
           "documentation" : { },
           "id" : "103",
-          "name" : "GetFacilityByIdQueryHandler",
-          "tags" : "Element,Component,Handler,Query",
-          "technology" : "Query Handler"
+          "name" : "Installment Schedule Mcp Tools",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driving.mcp.InstallmentScheduleMcpTools"
+          },
+          "tags" : "Element,Component,MCP",
+          "technology" : "MCP Tool"
         }, {
-          "description" : "Handles resolve facility id by application number queries",
           "documentation" : { },
           "id" : "104",
-          "name" : "ResolveFacilityIdByApplicationNumberQueryHandler",
-          "tags" : "Element,Component,Handler,Query",
-          "technology" : "Query Handler"
+          "name" : "Artemis Fcb Request Reply Client",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.fcbmessaging.artemis.client.ArtemisFcbRequestReplyClient"
+          },
+          "relationships" : [ {
+            "description" : "Calls (corridor)",
+            "destinationId" : "3",
+            "id" : "194",
+            "sourceId" : "104",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
+          }, {
+            "description" : "Request/reply (primary)",
+            "destinationId" : "11",
+            "id" : "197",
+            "sourceId" : "104",
+            "tags" : "Relationship",
+            "technology" : "Jakarta JMS"
+          } ],
+          "tags" : "Element,Component,Client,External",
+          "technology" : "FCB corridor client"
         }, {
-          "description" : "Handles search loan facilities queries",
           "documentation" : { },
           "id" : "105",
-          "name" : "SearchLoanFacilitiesQueryHandler",
-          "tags" : "Element,Component,Handler,Query",
-          "technology" : "Query Handler"
+          "name" : "Fcb Request Reply Client",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.fcbmessaging.client.FcbRequestReplyClient"
+          },
+          "relationships" : [ {
+            "description" : "Calls (corridor)",
+            "destinationId" : "3",
+            "id" : "199",
+            "sourceId" : "105",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
+          } ],
+          "tags" : "Element,Component,Client,External",
+          "technology" : "FCB corridor client"
         }, {
-          "description" : "Handles find all loan types queries",
           "documentation" : { },
           "id" : "106",
-          "name" : "FindAllLoanTypesQueryHandler",
-          "tags" : "Element,Component,Handler,Query",
-          "technology" : "Query Handler"
+          "name" : "Fcb Kafka Client",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.fcbmessaging.service.FcbKafkaClient"
+          },
+          "relationships" : [ {
+            "description" : "Calls (corridor)",
+            "destinationId" : "3",
+            "id" : "200",
+            "sourceId" : "106",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
+          }, {
+            "description" : "Request/reply (fallback)",
+            "destinationId" : "9",
+            "id" : "201",
+            "sourceId" : "106",
+            "tags" : "Relationship",
+            "technology" : "Kafka (SASL/SCRAM)"
+          } ],
+          "tags" : "Element,Component,Client,External",
+          "technology" : "FCB corridor client"
         }, {
-          "description" : "Handles get loan type by code queries",
           "documentation" : { },
           "id" : "107",
-          "name" : "GetLoanTypeByCodeQueryHandler",
-          "tags" : "Element,Component,Handler,Query",
-          "technology" : "Query Handler"
+          "name" : "Routing Fcb Request Reply Client",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.config.fcb.RoutingFcbRequestReplyClient"
+          },
+          "relationships" : [ {
+            "destinationId" : "105",
+            "id" : "142",
+            "sourceId" : "107",
+            "tags" : "Relationship"
+          }, {
+            "description" : "Calls (corridor)",
+            "destinationId" : "3",
+            "id" : "203",
+            "sourceId" : "107",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
+          } ],
+          "tags" : "Element,Component,Client,External",
+          "technology" : "FCB corridor client"
         }, {
-          "description" : "Handles get loan type by id queries",
           "documentation" : { },
           "id" : "108",
-          "name" : "GetLoanTypeByIdQueryHandler",
-          "tags" : "Element,Component,Handler,Query",
-          "technology" : "Query Handler"
+          "name" : "Find Loan Arrangement By Id Client",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.domain.shared.intraction.FindLoanArrangementByIdClient"
+          },
+          "relationships" : [ {
+            "description" : "Calls (corridor)",
+            "destinationId" : "3",
+            "id" : "204",
+            "sourceId" : "108",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
+          } ],
+          "tags" : "Element,Component,Client,External",
+          "technology" : "FCB corridor client"
         }, {
-          "description" : "Handles loan type filter queries",
           "documentation" : { },
           "id" : "109",
-          "name" : "LoanTypeFilterQueryHandler",
-          "tags" : "Element,Component,Handler,Query",
-          "technology" : "Query Handler"
+          "name" : "Facility Root Cause Classifier",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.reconciliation.FacilityRootCauseClassifier"
+          },
+          "relationships" : [ {
+            "destinationId" : "113",
+            "id" : "143",
+            "sourceId" : "109",
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "111",
+            "id" : "144",
+            "sourceId" : "109",
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "115",
+            "id" : "145",
+            "sourceId" : "109",
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "114",
+            "id" : "146",
+            "sourceId" : "109",
+            "tags" : "Relationship"
+          }, {
+            "description" : "Reads reconciliation state",
+            "destinationId" : "8",
+            "id" : "205",
+            "sourceId" : "109",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          }, {
+            "description" : "Probes / converges",
+            "destinationId" : "3",
+            "id" : "207",
+            "sourceId" : "109",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
+          } ],
+          "tags" : "Element,Component,Reconciliation",
+          "technology" : "Reconciliation engine"
         }, {
-          "description" : "trade loan arrangement aggregate",
           "documentation" : { },
           "id" : "110",
-          "name" : "TradeLoanArrangement",
-          "tags" : "Element,Component,Domain,Aggregate",
-          "technology" : "DDD Aggregate Root"
+          "name" : "Facility Convergence Action",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.reconciliation.FacilityConvergenceAction"
+          },
+          "relationships" : [ {
+            "destinationId" : "121",
+            "id" : "147",
+            "sourceId" : "110",
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "116",
+            "id" : "148",
+            "sourceId" : "110",
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "113",
+            "id" : "149",
+            "sourceId" : "110",
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "115",
+            "id" : "150",
+            "sourceId" : "110",
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "114",
+            "id" : "151",
+            "sourceId" : "110",
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "109",
+            "id" : "152",
+            "sourceId" : "110",
+            "tags" : "Relationship"
+          }, {
+            "description" : "Reads reconciliation state",
+            "destinationId" : "8",
+            "id" : "210",
+            "sourceId" : "110",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          }, {
+            "description" : "Probes / converges",
+            "destinationId" : "3",
+            "id" : "211",
+            "sourceId" : "110",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
+          } ],
+          "tags" : "Element,Component,Reconciliation",
+          "technology" : "Reconciliation engine"
         }, {
-          "description" : "trade loan application aggregate",
           "documentation" : { },
           "id" : "111",
-          "name" : "TradeLoanApplication",
-          "tags" : "Element,Component,Domain,Aggregate",
-          "technology" : "DDD Aggregate Root"
+          "name" : "Facility Root Cause Classifier $ Signal Verdict",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.reconciliation.FacilityRootCauseClassifier$SignalVerdict"
+          },
+          "relationships" : [ {
+            "description" : "Reads reconciliation state",
+            "destinationId" : "8",
+            "id" : "212",
+            "sourceId" : "111",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          }, {
+            "description" : "Probes / converges",
+            "destinationId" : "3",
+            "id" : "213",
+            "sourceId" : "111",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
+          } ],
+          "tags" : "Element,Component,Reconciliation",
+          "technology" : "Reconciliation engine"
         }, {
-          "description" : "trade loan facility aggregate",
           "documentation" : { },
           "id" : "112",
-          "name" : "TradeLoanFacility",
-          "tags" : "Element,Component,Domain,Aggregate",
-          "technology" : "DDD Aggregate Root"
+          "name" : "Facility Divergence Probe",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.reconciliation.FacilityDivergenceProbe"
+          },
+          "relationships" : [ {
+            "destinationId" : "113",
+            "id" : "153",
+            "sourceId" : "112",
+            "tags" : "Relationship"
+          }, {
+            "description" : "Reads reconciliation state",
+            "destinationId" : "8",
+            "id" : "214",
+            "sourceId" : "112",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          }, {
+            "description" : "Probes / converges",
+            "destinationId" : "3",
+            "id" : "215",
+            "sourceId" : "112",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
+          } ],
+          "tags" : "Element,Component,Reconciliation",
+          "technology" : "Reconciliation engine"
         }, {
-          "description" : "trade loan facility event factory entity",
           "documentation" : { },
           "id" : "113",
-          "name" : "TradeLoanFacilityEventFactory",
-          "tags" : "Element,Component,Domain,Entity",
-          "technology" : "DDD Entity"
+          "name" : "Facility Recon Mapping",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.reconciliation.FacilityReconMapping"
+          },
+          "relationships" : [ {
+            "description" : "Reads reconciliation state",
+            "destinationId" : "8",
+            "id" : "216",
+            "sourceId" : "113",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          }, {
+            "description" : "Probes / converges",
+            "destinationId" : "3",
+            "id" : "217",
+            "sourceId" : "113",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
+          } ],
+          "tags" : "Element,Component,Reconciliation",
+          "technology" : "Reconciliation engine"
         }, {
-          "description" : "trade sanctioned loan aggregate",
           "documentation" : { },
           "id" : "114",
-          "name" : "TradeSanctionedLoan",
-          "tags" : "Element,Component,Domain,Aggregate",
-          "technology" : "DDD Aggregate Root"
+          "name" : "Facility Root Cause Classifier $ Classifier Input",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.reconciliation.FacilityRootCauseClassifier$ClassifierInput"
+          },
+          "relationships" : [ {
+            "description" : "Reads reconciliation state",
+            "destinationId" : "8",
+            "id" : "218",
+            "sourceId" : "114",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          }, {
+            "description" : "Probes / converges",
+            "destinationId" : "3",
+            "id" : "219",
+            "sourceId" : "114",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
+          } ],
+          "tags" : "Element,Component,Reconciliation",
+          "technology" : "Reconciliation engine"
         }, {
-          "description" : "trade loan type aggregate",
           "documentation" : { },
           "id" : "115",
-          "name" : "TradeLoanType",
-          "tags" : "Element,Component,Domain,Aggregate",
-          "technology" : "DDD Aggregate Root"
+          "name" : "Facility Classification",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.reconciliation.FacilityClassification"
+          },
+          "relationships" : [ {
+            "description" : "Reads reconciliation state",
+            "destinationId" : "8",
+            "id" : "220",
+            "sourceId" : "115",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          }, {
+            "description" : "Probes / converges",
+            "destinationId" : "3",
+            "id" : "221",
+            "sourceId" : "115",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
+          } ],
+          "tags" : "Element,Component,Reconciliation",
+          "technology" : "Reconciliation engine"
         }, {
-          "description" : "trade repayment scheduling service domain service",
           "documentation" : { },
           "id" : "116",
-          "name" : "TradeRepaymentSchedulingService",
-          "tags" : "Element,Component,Domain,Service",
-          "technology" : "Domain Service"
+          "name" : "Reconciliation Source Properties",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.reconciliation.ReconciliationSourceProperties"
+          },
+          "relationships" : [ {
+            "description" : "Reads reconciliation state",
+            "destinationId" : "8",
+            "id" : "222",
+            "sourceId" : "116",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          }, {
+            "description" : "Probes / converges",
+            "destinationId" : "3",
+            "id" : "223",
+            "sourceId" : "116",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
+          } ],
+          "tags" : "Element,Component,Reconciliation",
+          "technology" : "Reconciliation engine"
         }, {
-          "description" : "trade loan facility service domain service",
           "documentation" : { },
           "id" : "117",
-          "name" : "TradeLoanFacilityService",
-          "tags" : "Element,Component,Domain,Service",
-          "technology" : "Domain Service"
+          "name" : "Facility Reconciliation Source",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.reconciliation.FacilityReconciliationSource"
+          },
+          "relationships" : [ {
+            "destinationId" : "116",
+            "id" : "154",
+            "sourceId" : "117",
+            "tags" : "Relationship"
+          }, {
+            "description" : "Reads reconciliation state",
+            "destinationId" : "8",
+            "id" : "224",
+            "sourceId" : "117",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          }, {
+            "description" : "Probes / converges",
+            "destinationId" : "3",
+            "id" : "225",
+            "sourceId" : "117",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
+          } ],
+          "tags" : "Element,Component,Reconciliation",
+          "technology" : "Reconciliation engine"
         }, {
-          "description" : "trade loan facility validation service domain service",
           "documentation" : { },
           "id" : "118",
-          "name" : "TradeLoanFacilityValidationService",
-          "tags" : "Element,Component,Domain,Service",
-          "technology" : "Domain Service"
+          "name" : "Facility Convergence Action $ 1",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.reconciliation.FacilityConvergenceAction$1"
+          },
+          "relationships" : [ {
+            "description" : "Reads reconciliation state",
+            "destinationId" : "8",
+            "id" : "226",
+            "sourceId" : "118",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          }, {
+            "description" : "Probes / converges",
+            "destinationId" : "3",
+            "id" : "227",
+            "sourceId" : "118",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
+          } ],
+          "tags" : "Element,Component,Reconciliation",
+          "technology" : "Reconciliation engine"
         }, {
-          "description" : "trade sanction validation service domain service",
           "documentation" : { },
           "id" : "119",
-          "name" : "TradeSanctionValidationService",
-          "tags" : "Element,Component,Domain,Service",
-          "technology" : "Domain Service"
+          "name" : "Facility Divergence Probe $ 1",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.reconciliation.FacilityDivergenceProbe$1"
+          },
+          "relationships" : [ {
+            "description" : "Reads reconciliation state",
+            "destinationId" : "8",
+            "id" : "228",
+            "sourceId" : "119",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          }, {
+            "description" : "Probes / converges",
+            "destinationId" : "3",
+            "id" : "229",
+            "sourceId" : "119",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
+          } ],
+          "tags" : "Element,Component,Reconciliation",
+          "technology" : "Reconciliation engine"
         }, {
-          "description" : "trade loan type validation service domain service",
           "documentation" : { },
           "id" : "120",
-          "name" : "TradeLoanTypeValidationService",
-          "tags" : "Element,Component,Domain,Service",
-          "technology" : "Domain Service"
+          "name" : "Facility Dossier Builder $ 1",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.reconciliation.FacilityDossierBuilder$1"
+          },
+          "relationships" : [ {
+            "description" : "Reads reconciliation state",
+            "destinationId" : "8",
+            "id" : "230",
+            "sourceId" : "120",
+            "tags" : "Relationship",
+            "technology" : "JDBC/HikariCP"
+          }, {
+            "description" : "Probes / converges",
+            "destinationId" : "3",
+            "id" : "231",
+            "sourceId" : "120",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
+          } ],
+          "tags" : "Element,Component,Reconciliation",
+          "technology" : "Reconciliation engine"
         }, {
-          "description" : "InstallmentSchedule persistence adapter",
           "documentation" : { },
           "id" : "121",
-          "name" : "InstallmentScheduleRepositoryAdapter",
+          "name" : "Facility Dossier Builder",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.reconciliation.FacilityDossierBuilder"
+          },
           "relationships" : [ {
-            "description" : "Reads/Writes",
-            "destinationId" : "12",
-            "id" : "135",
+            "destinationId" : "115",
+            "id" : "155",
+            "sourceId" : "121",
+            "tags" : "Relationship"
+          }, {
+            "description" : "Reads reconciliation state",
+            "destinationId" : "8",
+            "id" : "232",
             "sourceId" : "121",
             "tags" : "Relationship",
             "technology" : "JDBC/HikariCP"
+          }, {
+            "description" : "Probes / converges",
+            "destinationId" : "3",
+            "id" : "233",
+            "sourceId" : "121",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
           } ],
-          "tags" : "Element,Component,Repository,Persistence",
-          "technology" : "Spring Data JPA"
+          "tags" : "Element,Component,Reconciliation",
+          "technology" : "Reconciliation engine"
         }, {
-          "description" : "TradeLoanArrangement persistence adapter",
           "documentation" : { },
           "id" : "122",
-          "name" : "TradeLoanArrangementRepositoryAdapter",
+          "name" : "Facility Root Cause Classifier $ 1",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.reconciliation.FacilityRootCauseClassifier$1"
+          },
           "relationships" : [ {
-            "description" : "Reads/Writes",
-            "destinationId" : "12",
-            "id" : "136",
+            "description" : "Reads reconciliation state",
+            "destinationId" : "8",
+            "id" : "234",
             "sourceId" : "122",
             "tags" : "Relationship",
             "technology" : "JDBC/HikariCP"
+          }, {
+            "description" : "Probes / converges",
+            "destinationId" : "3",
+            "id" : "235",
+            "sourceId" : "122",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
           } ],
-          "tags" : "Element,Component,Repository,Persistence",
-          "technology" : "Spring Data JPA"
+          "tags" : "Element,Component,Reconciliation",
+          "technology" : "Reconciliation engine"
         }, {
-          "description" : "TradeLoanFacility persistence adapter",
           "documentation" : { },
           "id" : "123",
-          "name" : "TradeLoanFacilityRepositoryAdapter",
+          "name" : "Facility Recon Mapping $ 1",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.adapters.driven.reconciliation.FacilityReconMapping$1"
+          },
           "relationships" : [ {
-            "description" : "Reads/Writes",
-            "destinationId" : "12",
-            "id" : "137",
+            "description" : "Reads reconciliation state",
+            "destinationId" : "8",
+            "id" : "236",
             "sourceId" : "123",
             "tags" : "Relationship",
             "technology" : "JDBC/HikariCP"
+          }, {
+            "description" : "Probes / converges",
+            "destinationId" : "3",
+            "id" : "237",
+            "sourceId" : "123",
+            "tags" : "Relationship",
+            "technology" : "Corridor (Artemis primary / Kafka fallback)"
           } ],
-          "tags" : "Element,Component,Repository,Persistence",
-          "technology" : "Spring Data JPA"
+          "tags" : "Element,Component,Reconciliation",
+          "technology" : "Reconciliation engine"
         }, {
-          "description" : "TradeLoanType persistence adapter",
           "documentation" : { },
           "id" : "124",
-          "name" : "TradeLoanTypeRepositoryAdapter",
-          "relationships" : [ {
-            "description" : "Reads/Writes",
-            "destinationId" : "12",
-            "id" : "138",
-            "sourceId" : "124",
-            "tags" : "Relationship",
-            "technology" : "JDBC/HikariCP"
-          } ],
-          "tags" : "Element,Component,Repository,Persistence",
-          "technology" : "Spring Data JPA"
+          "name" : "Trade Loan Arrangement",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement"
+          },
+          "tags" : "Element,Component,Domain,Aggregate",
+          "technology" : "DDD Aggregate Root"
         }, {
-          "description" : "TradeInstallmentSchedule query adapter",
           "documentation" : { },
           "id" : "125",
-          "name" : "JpaTradeInstallmentScheduleQueryAdapter",
-          "relationships" : [ {
-            "description" : "Reads/Writes",
-            "destinationId" : "12",
-            "id" : "139",
-            "sourceId" : "125",
-            "tags" : "Relationship",
-            "technology" : "JDBC/HikariCP"
-          } ],
-          "tags" : "Element,Component,Repository,Query",
-          "technology" : "Spring Data JPA"
+          "name" : "Trade Loan Type",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.domain.loantype.entity.TradeLoanType"
+          },
+          "tags" : "Element,Component,Domain,Aggregate",
+          "technology" : "DDD Aggregate Root"
         }, {
-          "description" : "TradeLoanArrangement query adapter",
           "documentation" : { },
           "id" : "126",
-          "name" : "JpaTradeLoanArrangementQueryAdapter",
-          "relationships" : [ {
-            "description" : "Reads/Writes",
-            "destinationId" : "12",
-            "id" : "140",
-            "sourceId" : "126",
-            "tags" : "Relationship",
-            "technology" : "JDBC/HikariCP"
-          } ],
-          "tags" : "Element,Component,Repository,Query",
-          "technology" : "Spring Data JPA"
+          "name" : "Trade Loan Application",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanApplication"
+          },
+          "tags" : "Element,Component,Domain,Aggregate",
+          "technology" : "DDD Aggregate Root"
         }, {
-          "description" : "Facility query adapter",
           "documentation" : { },
           "id" : "127",
-          "name" : "JpaFacilityQueryAdapter",
-          "relationships" : [ {
-            "description" : "Reads/Writes",
-            "destinationId" : "12",
-            "id" : "141",
-            "sourceId" : "127",
-            "tags" : "Relationship",
-            "technology" : "JDBC/HikariCP"
-          } ],
-          "tags" : "Element,Component,Repository,Query",
-          "technology" : "Spring Data JPA"
+          "name" : "Trade Sanctioned Loan",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeSanctionedLoan"
+          },
+          "tags" : "Element,Component,Domain,Aggregate",
+          "technology" : "DDD Aggregate Root"
         }, {
-          "description" : "TradeLoanType query adapter",
           "documentation" : { },
           "id" : "128",
-          "name" : "JpaTradeLoanTypeQueryAdapter",
+          "name" : "Trade Loan Facility",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility"
+          },
           "relationships" : [ {
-            "description" : "Reads/Writes",
-            "destinationId" : "12",
-            "id" : "142",
+            "destinationId" : "126",
+            "id" : "156",
             "sourceId" : "128",
-            "tags" : "Relationship",
-            "technology" : "JDBC/HikariCP"
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "127",
+            "id" : "157",
+            "sourceId" : "128",
+            "tags" : "Relationship"
           } ],
-          "tags" : "Element,Component,Repository,Query",
-          "technology" : "Spring Data JPA"
+          "tags" : "Element,Component,Domain,Aggregate",
+          "technology" : "DDD Aggregate Root"
         }, {
-          "description" : "InstallmentSchedule outbox handler",
           "documentation" : { },
           "id" : "129",
-          "name" : "InstallmentScheduleOutboxHandler",
+          "name" : "Irregular Progressive Disbursement Transaction Service",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.domain.shared.document.transaction.IrregularProgressiveDisbursementTransactionService"
+          },
           "relationships" : [ {
-            "description" : "Publishes events",
-            "destinationId" : "13",
-            "id" : "143",
+            "destinationId" : "126",
+            "id" : "158",
             "sourceId" : "129",
-            "tags" : "Relationship",
-            "technology" : "Kafka Protocol"
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "128",
+            "id" : "159",
+            "sourceId" : "129",
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "127",
+            "id" : "160",
+            "sourceId" : "129",
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "125",
+            "id" : "161",
+            "sourceId" : "129",
+            "tags" : "Relationship"
           } ],
-          "tags" : "Element,Component,Outbox,Messaging",
-          "technology" : "Outbox Pattern"
+          "tags" : "Element,Component,Domain,Service",
+          "technology" : "Domain Service"
         }, {
-          "description" : "TradeLoanArrangement outbox handler",
           "documentation" : { },
           "id" : "130",
-          "name" : "TradeLoanArrangementOutboxHandler",
+          "name" : "Trade Issue Contract Transaction Service",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.domain.shared.document.transaction.TradeIssueContractTransactionService"
+          },
           "relationships" : [ {
-            "description" : "Publishes events",
-            "destinationId" : "13",
-            "id" : "145",
+            "destinationId" : "126",
+            "id" : "162",
             "sourceId" : "130",
-            "tags" : "Relationship",
-            "technology" : "Kafka Protocol"
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "128",
+            "id" : "163",
+            "sourceId" : "130",
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "125",
+            "id" : "164",
+            "sourceId" : "130",
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "127",
+            "id" : "165",
+            "sourceId" : "130",
+            "tags" : "Relationship"
           } ],
-          "tags" : "Element,Component,Outbox,Messaging",
-          "technology" : "Outbox Pattern"
+          "tags" : "Element,Component,Domain,Service",
+          "technology" : "Domain Service"
         }, {
-          "description" : "TradeLoanFacility outbox handler",
           "documentation" : { },
           "id" : "131",
-          "name" : "TradeLoanFacilityOutboxHandler",
+          "name" : "Trade Lump Sum Disbursement Transaction Service",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.domain.shared.document.transaction.TradeLumpSumDisbursementTransactionService"
+          },
           "relationships" : [ {
-            "description" : "Publishes events",
-            "destinationId" : "13",
-            "id" : "146",
+            "destinationId" : "126",
+            "id" : "166",
             "sourceId" : "131",
-            "tags" : "Relationship",
-            "technology" : "Kafka Protocol"
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "128",
+            "id" : "167",
+            "sourceId" : "131",
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "125",
+            "id" : "168",
+            "sourceId" : "131",
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "127",
+            "id" : "169",
+            "sourceId" : "131",
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "124",
+            "id" : "170",
+            "sourceId" : "131",
+            "tags" : "Relationship"
           } ],
-          "tags" : "Element,Component,Outbox,Messaging",
-          "technology" : "Outbox Pattern"
+          "tags" : "Element,Component,Domain,Service",
+          "technology" : "Domain Service"
         }, {
-          "description" : "TradeLoanType outbox handler",
           "documentation" : { },
           "id" : "132",
-          "name" : "TradeLoanTypeOutboxHandler",
+          "name" : "Trade Repayment Scheduling Service",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.domain.installmentschedule.service.TradeRepaymentSchedulingService"
+          },
+          "tags" : "Element,Component,Domain,Service",
+          "technology" : "Domain Service"
+        }, {
+          "documentation" : { },
+          "id" : "133",
+          "name" : "Trade Loan Type Validation Service",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.domain.loantype.service.TradeLoanTypeValidationService"
+          },
           "relationships" : [ {
-            "description" : "Publishes events",
-            "destinationId" : "13",
-            "id" : "147",
-            "sourceId" : "132",
-            "tags" : "Relationship",
-            "technology" : "Kafka Protocol"
+            "destinationId" : "124",
+            "id" : "171",
+            "sourceId" : "133",
+            "tags" : "Relationship"
           } ],
-          "tags" : "Element,Component,Outbox,Messaging",
-          "technology" : "Outbox Pattern"
+          "tags" : "Element,Component,Domain,Service",
+          "technology" : "Domain Service"
+        }, {
+          "documentation" : { },
+          "id" : "134",
+          "name" : "Trade Loan Facility Service",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilityService"
+          },
+          "relationships" : [ {
+            "destinationId" : "126",
+            "id" : "172",
+            "sourceId" : "134",
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "128",
+            "id" : "173",
+            "sourceId" : "134",
+            "tags" : "Relationship"
+          }, {
+            "destinationId" : "127",
+            "id" : "174",
+            "sourceId" : "134",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component,Domain,Service",
+          "technology" : "Domain Service"
+        }, {
+          "documentation" : { },
+          "id" : "135",
+          "name" : "Trade Sanction Validation Service",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.domain.loanfacility.service.validator.TradeSanctionValidationService"
+          },
+          "tags" : "Element,Component,Domain,Service",
+          "technology" : "Domain Service"
+        }, {
+          "documentation" : { },
+          "id" : "136",
+          "name" : "Trade Loan Facility Validation Service",
+          "properties" : {
+            "component.type" : "ir.dotin.loan.trade.core.domain.loanfacility.service.validator.TradeLoanFacilityValidationService"
+          },
+          "relationships" : [ {
+            "destinationId" : "124",
+            "id" : "175",
+            "sourceId" : "136",
+            "tags" : "Relationship"
+          } ],
+          "tags" : "Element,Component,Domain,Service",
+          "technology" : "Domain Service"
         } ],
-        "description" : "Spring Boot Hexagonal Architecture",
+        "description" : "Spring Boot hexagonal application (driving + driven adapters)",
         "documentation" : { },
-        "id" : "11",
+        "id" : "7",
         "name" : "Trade Loan Application",
         "relationships" : [ {
-          "description" : "Reads/Writes",
-          "destinationId" : "12",
-          "id" : "16",
-          "sourceId" : "11",
+          "description" : "Aggregates, inbox/outbox, workflow, audit, reconciliation",
+          "destinationId" : "8",
+          "id" : "12",
+          "sourceId" : "7",
           "tags" : "Relationship",
           "technology" : "JDBC/HikariCP"
         }, {
-          "description" : "Publishes/Consumes",
-          "destinationId" : "13",
-          "id" : "17",
-          "sourceId" : "11",
+          "description" : "Query cache, idempotency, JWKS/token cache",
+          "destinationId" : "10",
+          "id" : "13",
+          "sourceId" : "7",
           "tags" : "Relationship",
-          "technology" : "Kafka Protocol"
+          "technology" : "RESP3 (Sentinel)"
         }, {
-          "description" : "Caches data",
-          "destinationId" : "14",
-          "id" : "18",
-          "sourceId" : "11",
-          "tags" : "Relationship",
-          "technology" : "Redis Protocol"
-        }, {
-          "description" : "Authenticates",
-          "destinationId" : "1",
-          "id" : "19",
-          "sourceId" : "11",
-          "tags" : "Relationship",
-          "technology" : "OAuth2/OIDC"
-        }, {
-          "description" : "Core banking",
-          "destinationId" : "2",
-          "id" : "21",
-          "sourceId" : "11",
-          "tags" : "Relationship",
-          "technology" : "HTTP/REST"
-        }, {
-          "description" : "Telemetry",
-          "destinationId" : "3",
-          "id" : "23",
-          "sourceId" : "11",
-          "tags" : "Relationship",
-          "technology" : "OTLP/gRPC"
-        }, {
-          "description" : "Calls",
-          "destinationId" : "4",
-          "id" : "25",
-          "sourceId" : "11",
-          "tags" : "Relationship",
-          "technology" : "HTTP/REST"
-        }, {
-          "description" : "Calls",
-          "destinationId" : "5",
-          "id" : "27",
-          "sourceId" : "11",
-          "tags" : "Relationship",
-          "technology" : "HTTP/REST"
-        }, {
-          "description" : "Calls",
-          "destinationId" : "6",
-          "id" : "29",
-          "sourceId" : "11",
-          "tags" : "Relationship",
-          "technology" : "HTTP/REST"
-        }, {
-          "description" : "Calls",
-          "destinationId" : "7",
-          "id" : "31",
-          "sourceId" : "11",
-          "tags" : "Relationship",
-          "technology" : "HTTP/REST"
-        }, {
-          "description" : "Calls",
-          "destinationId" : "8",
-          "id" : "33",
-          "sourceId" : "11",
-          "tags" : "Relationship",
-          "technology" : "HTTP/REST"
-        }, {
-          "description" : "Calls",
+          "description" : "Domain events (outbox) + request/reply fallback",
           "destinationId" : "9",
-          "id" : "35",
-          "sourceId" : "11",
+          "id" : "14",
+          "sourceId" : "7",
           "tags" : "Relationship",
-          "technology" : "HTTP/REST"
+          "technology" : "Kafka (SASL/SCRAM)"
         }, {
-          "description" : "Consumes from",
-          "destinationId" : "13",
-          "id" : "134",
-          "linkedRelationshipId" : "133",
-          "sourceId" : "11",
-          "technology" : "Kafka Protocol"
+          "description" : "FCB request/reply corridor (primary)",
+          "destinationId" : "11",
+          "id" : "15",
+          "sourceId" : "7",
+          "tags" : "Relationship",
+          "technology" : "Jakarta JMS"
+        }, {
+          "description" : "Loads runtime config",
+          "destinationId" : "5",
+          "id" : "16",
+          "sourceId" : "7",
+          "tags" : "Relationship",
+          "technology" : "Consul KV (watch / @RefreshScope)"
+        }, {
+          "description" : "Validates JWT / fetches JWKS",
+          "destinationId" : "2",
+          "id" : "18",
+          "sourceId" : "7",
+          "tags" : "Relationship",
+          "technology" : "OAuth2/OIDC + JWKS"
+        }, {
+          "description" : "Core banking operations via corridor",
+          "destinationId" : "3",
+          "id" : "20",
+          "sourceId" : "7",
+          "tags" : "Relationship",
+          "technology" : "Corridor (Artemis primary / Kafka fallback)"
+        }, {
+          "description" : "Exports traces / metrics / logs",
+          "destinationId" : "4",
+          "id" : "22",
+          "sourceId" : "7",
+          "tags" : "Relationship",
+          "technology" : "OTLP http/protobuf"
+        }, {
+          "description" : "Reads/Writes",
+          "destinationId" : "8",
+          "id" : "179",
+          "linkedRelationshipId" : "178",
+          "sourceId" : "7",
+          "technology" : "JDBC/HikariCP"
         }, {
           "description" : "Publishes events",
-          "destinationId" : "13",
-          "id" : "144",
-          "linkedRelationshipId" : "143",
-          "sourceId" : "11",
-          "technology" : "Kafka Protocol"
+          "destinationId" : "9",
+          "id" : "188",
+          "linkedRelationshipId" : "187",
+          "sourceId" : "7",
+          "technology" : "Kafka (SASL/SCRAM)"
+        }, {
+          "description" : "Consumes from",
+          "destinationId" : "9",
+          "id" : "193",
+          "linkedRelationshipId" : "192",
+          "sourceId" : "7",
+          "technology" : "Kafka (SASL/SCRAM)"
+        }, {
+          "description" : "Calls (corridor)",
+          "destinationId" : "3",
+          "id" : "195",
+          "linkedRelationshipId" : "194",
+          "sourceId" : "7",
+          "technology" : "Corridor (Artemis primary / Kafka fallback)"
+        }, {
+          "description" : "Request/reply (primary)",
+          "destinationId" : "11",
+          "id" : "198",
+          "linkedRelationshipId" : "197",
+          "sourceId" : "7",
+          "technology" : "Jakarta JMS"
+        }, {
+          "description" : "Request/reply (fallback)",
+          "destinationId" : "9",
+          "id" : "202",
+          "linkedRelationshipId" : "201",
+          "sourceId" : "7",
+          "technology" : "Kafka (SASL/SCRAM)"
+        }, {
+          "description" : "Reads reconciliation state",
+          "destinationId" : "8",
+          "id" : "206",
+          "linkedRelationshipId" : "205",
+          "sourceId" : "7",
+          "technology" : "JDBC/HikariCP"
+        }, {
+          "description" : "Probes / converges",
+          "destinationId" : "3",
+          "id" : "208",
+          "linkedRelationshipId" : "207",
+          "sourceId" : "7",
+          "technology" : "Corridor (Artemis primary / Kafka fallback)"
         } ],
         "tags" : "Element,Container,Application,Spring Boot",
         "technology" : "Java 25, Spring Boot 4"
       }, {
-        "description" : "Loan data storage",
+        "description" : "Loan data, inbox/outbox, workflow state, audit, reconciliation",
         "documentation" : { },
-        "id" : "12",
+        "id" : "8",
         "name" : "PostgreSQL Database",
         "tags" : "Element,Container,Database,Storage",
         "technology" : "PostgreSQL 18"
       }, {
-        "description" : "Event streaming",
+        "description" : "Event streaming + request/reply fallback transport",
         "documentation" : { },
-        "id" : "13",
+        "id" : "9",
         "name" : "Kafka",
         "tags" : "Element,Container,Message Broker,Messaging",
-        "technology" : "Confluent Kafka 7.9"
+        "technology" : "Apache Kafka (SASL_PLAINTEXT/SCRAM-SHA-256)"
       }, {
-        "description" : "Caching and locks",
+        "description" : "Cache + idempotency store (Sentinel HA)",
         "documentation" : { },
-        "id" : "14",
+        "id" : "10",
         "name" : "Redis",
         "tags" : "Element,Container,Cache,Storage",
-        "technology" : "Redis 8.2"
+        "technology" : "Redis 8.6 (Sentinel HA: 1 master / 2 replicas / 3 sentinels)"
       }, {
-        "description" : "Kafka monitoring",
+        "description" : "Primary FCB request/reply corridor broker",
         "documentation" : { },
-        "id" : "15",
-        "name" : "Kafdrop",
-        "relationships" : [ {
-          "description" : "Monitors",
-          "destinationId" : "13",
-          "id" : "37",
-          "sourceId" : "15",
-          "tags" : "Relationship",
-          "technology" : "Kafka Protocol"
-        } ],
-        "tags" : "Element,Container,Monitoring,Tool",
-        "technology" : "Kafdrop 4.2"
+        "id" : "11",
+        "name" : "ActiveMQ Artemis",
+        "tags" : "Element,Container,Message Broker,Messaging",
+        "technology" : "ActiveMQ Artemis 2.43 (Jakarta JMS)"
       } ],
-      "description" : "Morabehe loans with CQRS and Event Sourcing",
+      "description" : "Morabehe trade-loan microservice — hexagonal, DDD, CQRS, workflow orchestration",
       "documentation" : { },
-      "id" : "10",
-      "location" : "Unspecified",
+      "id" : "6",
       "name" : "Trade Loan Service",
       "relationships" : [ {
-        "description" : "Authenticates",
-        "destinationId" : "1",
-        "id" : "20",
-        "linkedRelationshipId" : "19",
-        "sourceId" : "10",
-        "technology" : "OAuth2/OIDC"
-      }, {
-        "description" : "Core banking",
-        "destinationId" : "2",
-        "id" : "22",
-        "linkedRelationshipId" : "21",
-        "sourceId" : "10",
-        "technology" : "HTTP/REST"
-      }, {
-        "description" : "Telemetry",
-        "destinationId" : "3",
-        "id" : "24",
-        "linkedRelationshipId" : "23",
-        "sourceId" : "10",
-        "technology" : "OTLP/gRPC"
-      }, {
-        "description" : "Calls",
-        "destinationId" : "4",
-        "id" : "26",
-        "linkedRelationshipId" : "25",
-        "sourceId" : "10",
-        "technology" : "HTTP/REST"
-      }, {
-        "description" : "Calls",
+        "description" : "Loads runtime config",
         "destinationId" : "5",
-        "id" : "28",
-        "linkedRelationshipId" : "27",
-        "sourceId" : "10",
-        "technology" : "HTTP/REST"
+        "id" : "17",
+        "linkedRelationshipId" : "16",
+        "sourceId" : "6",
+        "technology" : "Consul KV (watch / @RefreshScope)"
       }, {
-        "description" : "Calls",
-        "destinationId" : "6",
-        "id" : "30",
-        "linkedRelationshipId" : "29",
-        "sourceId" : "10",
-        "technology" : "HTTP/REST"
+        "description" : "Validates JWT / fetches JWKS",
+        "destinationId" : "2",
+        "id" : "19",
+        "linkedRelationshipId" : "18",
+        "sourceId" : "6",
+        "technology" : "OAuth2/OIDC + JWKS"
       }, {
-        "description" : "Calls",
-        "destinationId" : "7",
-        "id" : "32",
-        "linkedRelationshipId" : "31",
-        "sourceId" : "10",
-        "technology" : "HTTP/REST"
+        "description" : "Core banking operations via corridor",
+        "destinationId" : "3",
+        "id" : "21",
+        "linkedRelationshipId" : "20",
+        "sourceId" : "6",
+        "technology" : "Corridor (Artemis primary / Kafka fallback)"
       }, {
-        "description" : "Calls",
-        "destinationId" : "8",
-        "id" : "34",
-        "linkedRelationshipId" : "33",
-        "sourceId" : "10",
-        "technology" : "HTTP/REST"
+        "description" : "Exports traces / metrics / logs",
+        "destinationId" : "4",
+        "id" : "23",
+        "linkedRelationshipId" : "22",
+        "sourceId" : "6",
+        "technology" : "OTLP http/protobuf"
       }, {
-        "description" : "Calls",
-        "destinationId" : "9",
-        "id" : "36",
-        "linkedRelationshipId" : "35",
-        "sourceId" : "10",
-        "technology" : "HTTP/REST"
+        "description" : "Calls (corridor)",
+        "destinationId" : "3",
+        "id" : "196",
+        "linkedRelationshipId" : "194",
+        "sourceId" : "6",
+        "technology" : "Corridor (Artemis primary / Kafka fallback)"
+      }, {
+        "description" : "Probes / converges",
+        "destinationId" : "3",
+        "id" : "209",
+        "linkedRelationshipId" : "207",
+        "sourceId" : "6",
+        "technology" : "Corridor (Artemis primary / Kafka fallback)"
       } ],
       "tags" : "Element,Software System,Internal System"
     } ]
@@ -1095,9 +1898,101 @@
         "rankSeparation" : 300,
         "vertices" : false
       },
-      "containerId" : "11",
-      "description" : "Components (page 1/3)",
+      "containerId" : "7",
+      "description" : "Components (page 1/4)",
       "elements" : [ {
+        "id" : "27",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "28",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "29",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "30",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "31",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "32",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "33",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "34",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "35",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "36",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "37",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "38",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "39",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "40",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "41",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "42",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "43",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "44",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "45",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "46",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "47",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "48",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "49",
+        "x" : 0,
+        "y" : 0
+      }, {
         "id" : "50",
         "x" : 0,
         "y" : 0
@@ -1125,101 +2020,10 @@
         "id" : "56",
         "x" : 0,
         "y" : 0
-      }, {
-        "id" : "57",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "58",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "59",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "60",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "61",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "62",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "63",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "64",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "65",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "66",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "67",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "68",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "69",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "70",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "71",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "72",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "73",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "74",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "75",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "76",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "77",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "78",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "79",
-        "x" : 0,
-        "y" : 0
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Components",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 3,
       "paperSize" : "A3_Landscape"
     }, {
@@ -1232,9 +2036,101 @@
         "rankSeparation" : 300,
         "vertices" : false
       },
-      "containerId" : "11",
-      "description" : "Components (page 2/3)",
+      "containerId" : "7",
+      "description" : "Components (page 2/4)",
       "elements" : [ {
+        "id" : "57",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "58",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "59",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "60",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "61",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "62",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "63",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "64",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "65",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "66",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "67",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "68",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "69",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "70",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "71",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "72",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "73",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "74",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "75",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "76",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "77",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "78",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "79",
+        "x" : 0,
+        "y" : 0
+      }, {
         "id" : "80",
         "x" : 0,
         "y" : 0
@@ -1262,101 +2158,10 @@
         "id" : "86",
         "x" : 0,
         "y" : 0
-      }, {
-        "id" : "87",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "88",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "89",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "90",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "91",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "92",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "93",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "94",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "95",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "96",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "97",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "98",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "99",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "100",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "101",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "102",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "103",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "104",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "105",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "106",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "107",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "108",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "109",
-        "x" : 0,
-        "y" : 0
       } ],
       "externalContainerBoundariesVisible" : false,
       "key" : "Components_2",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
       "order" : 4,
       "paperSize" : "A3_Landscape"
     }, {
@@ -1369,279 +2174,9 @@
         "rankSeparation" : 300,
         "vertices" : false
       },
-      "containerId" : "11",
-      "description" : "Components (page 3/3)",
+      "containerId" : "7",
+      "description" : "Components (page 3/4)",
       "elements" : [ {
-        "id" : "110",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "111",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "112",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "113",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "114",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "115",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "116",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "117",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "118",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "119",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "120",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "121",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "122",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "123",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "124",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "125",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "126",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "127",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "128",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "129",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "130",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "131",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "132",
-        "x" : 0,
-        "y" : 0
-      } ],
-      "externalContainerBoundariesVisible" : false,
-      "key" : "Components_3",
-      "order" : 5,
-      "paperSize" : "A3_Landscape"
-    }, {
-      "automaticLayout" : {
-        "applied" : false,
-        "edgeSeparation" : 200,
-        "implementation" : "Dagre",
-        "nodeSeparation" : 300,
-        "rankDirection" : "TopBottom",
-        "rankSeparation" : 300,
-        "vertices" : false
-      },
-      "containerId" : "11",
-      "description" : "REST Controllers",
-      "elements" : [ {
-        "id" : "50",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "51",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "52",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "53",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "54",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "55",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "56",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "57",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "58",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "59",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "60",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "61",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "62",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "63",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "64",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "65",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "66",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "67",
-        "x" : 0,
-        "y" : 0
-      } ],
-      "externalContainerBoundariesVisible" : false,
-      "key" : "Controllers",
-      "order" : 6,
-      "paperSize" : "A4_Landscape"
-    }, {
-      "automaticLayout" : {
-        "applied" : false,
-        "edgeSeparation" : 200,
-        "implementation" : "Dagre",
-        "nodeSeparation" : 300,
-        "rankDirection" : "TopBottom",
-        "rankSeparation" : 300,
-        "vertices" : false
-      },
-      "containerId" : "11",
-      "description" : "Command and Query Handlers",
-      "elements" : [ {
-        "id" : "69",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "70",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "71",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "72",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "73",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "74",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "75",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "76",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "77",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "78",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "79",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "80",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "81",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "82",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "83",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "84",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "85",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "86",
-        "x" : 0,
-        "y" : 0
-      }, {
         "id" : "87",
         "x" : 0,
         "y" : 0
@@ -1675,403 +2210,6 @@
         "y" : 0
       }, {
         "id" : "95",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "96",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "97",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "98",
-        "x" : 0,
-        "y" : 0
-      } ],
-      "externalContainerBoundariesVisible" : false,
-      "key" : "Handlers",
-      "order" : 7,
-      "paperSize" : "A4_Landscape"
-    }, {
-      "automaticLayout" : {
-        "applied" : false,
-        "edgeSeparation" : 200,
-        "implementation" : "Dagre",
-        "nodeSeparation" : 300,
-        "rankDirection" : "TopBottom",
-        "rankSeparation" : 300,
-        "vertices" : false
-      },
-      "containerId" : "11",
-      "description" : "Saga Orchestrators",
-      "externalContainerBoundariesVisible" : false,
-      "key" : "Sagas",
-      "order" : 8,
-      "paperSize" : "A4_Landscape"
-    }, {
-      "automaticLayout" : {
-        "applied" : false,
-        "edgeSeparation" : 200,
-        "implementation" : "Dagre",
-        "nodeSeparation" : 300,
-        "rankDirection" : "TopBottom",
-        "rankSeparation" : 300,
-        "vertices" : false
-      },
-      "containerId" : "11",
-      "description" : "Domain Layer",
-      "elements" : [ {
-        "id" : "110",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "111",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "112",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "113",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "114",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "115",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "116",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "117",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "118",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "119",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "120",
-        "x" : 0,
-        "y" : 0
-      } ],
-      "externalContainerBoundariesVisible" : false,
-      "key" : "DomainModel",
-      "order" : 9,
-      "paperSize" : "A4_Landscape"
-    }, {
-      "automaticLayout" : {
-        "applied" : false,
-        "edgeSeparation" : 200,
-        "implementation" : "Dagre",
-        "nodeSeparation" : 300,
-        "rankDirection" : "TopBottom",
-        "rankSeparation" : 300,
-        "vertices" : false
-      },
-      "containerId" : "11",
-      "description" : "Repository adapters",
-      "elements" : [ {
-        "id" : "12",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "121",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "122",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "123",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "124",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "125",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "126",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "127",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "128",
-        "x" : 0,
-        "y" : 0
-      } ],
-      "externalContainerBoundariesVisible" : false,
-      "key" : "Repositories",
-      "order" : 10,
-      "paperSize" : "A4_Landscape",
-      "relationships" : [ {
-        "id" : "135"
-      }, {
-        "id" : "136"
-      }, {
-        "id" : "137"
-      }, {
-        "id" : "138"
-      }, {
-        "id" : "139"
-      }, {
-        "id" : "140"
-      }, {
-        "id" : "141"
-      }, {
-        "id" : "142"
-      } ]
-    }, {
-      "automaticLayout" : {
-        "applied" : false,
-        "edgeSeparation" : 200,
-        "implementation" : "Dagre",
-        "nodeSeparation" : 300,
-        "rankDirection" : "TopBottom",
-        "rankSeparation" : 300,
-        "vertices" : false
-      },
-      "containerId" : "11",
-      "description" : "External service clients",
-      "externalContainerBoundariesVisible" : false,
-      "key" : "ExternalClients",
-      "order" : 11,
-      "paperSize" : "A4_Landscape"
-    }, {
-      "automaticLayout" : {
-        "applied" : false,
-        "edgeSeparation" : 200,
-        "implementation" : "Dagre",
-        "nodeSeparation" : 300,
-        "rankDirection" : "TopBottom",
-        "rankSeparation" : 300,
-        "vertices" : false
-      },
-      "containerId" : "11",
-      "description" : "Kafka consumers and outbox handlers",
-      "elements" : [ {
-        "id" : "13",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "68",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "129",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "130",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "131",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "132",
-        "x" : 0,
-        "y" : 0
-      } ],
-      "externalContainerBoundariesVisible" : false,
-      "key" : "Messaging",
-      "order" : 12,
-      "paperSize" : "A4_Landscape",
-      "relationships" : [ {
-        "id" : "133"
-      }, {
-        "id" : "143"
-      }, {
-        "id" : "145"
-      }, {
-        "id" : "146"
-      }, {
-        "id" : "147"
-      } ]
-    }, {
-      "automaticLayout" : {
-        "applied" : false,
-        "edgeSeparation" : 200,
-        "implementation" : "Dagre",
-        "nodeSeparation" : 300,
-        "rankDirection" : "LeftRight",
-        "rankSeparation" : 400,
-        "vertices" : false
-      },
-      "containerId" : "11",
-      "description" : "CQRS Command flow",
-      "elements" : [ {
-        "id" : "50",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "51",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "52",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "53",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "54",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "55",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "56",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "57",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "58",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "59",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "60",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "61",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "62",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "63",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "69",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "70",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "71",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "72",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "73",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "74",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "75",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "76",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "77",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "78",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "79",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "80",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "81",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "82",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "83",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "84",
-        "x" : 0,
-        "y" : 0
-      } ],
-      "externalContainerBoundariesVisible" : false,
-      "key" : "CommandFlow",
-      "order" : 13,
-      "paperSize" : "A4_Landscape"
-    }, {
-      "automaticLayout" : {
-        "applied" : false,
-        "edgeSeparation" : 200,
-        "implementation" : "Dagre",
-        "nodeSeparation" : 300,
-        "rankDirection" : "LeftRight",
-        "rankSeparation" : 400,
-        "vertices" : false
-      },
-      "containerId" : "11",
-      "description" : "CQRS Query flow",
-      "elements" : [ {
-        "id" : "64",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "65",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "66",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "67",
         "x" : 0,
         "y" : 0
       }, {
@@ -2131,6 +2269,107 @@
         "x" : 0,
         "y" : 0
       }, {
+        "id" : "110",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "111",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "112",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "113",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "114",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "115",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "116",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Components_3",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
+      "order" : 5,
+      "paperSize" : "A3_Landscape",
+      "relationships" : [ {
+        "id" : "142"
+      }, {
+        "id" : "143"
+      }, {
+        "id" : "144"
+      }, {
+        "id" : "145"
+      }, {
+        "id" : "146"
+      }, {
+        "id" : "148"
+      }, {
+        "id" : "149"
+      }, {
+        "id" : "150"
+      }, {
+        "id" : "151"
+      }, {
+        "id" : "152"
+      }, {
+        "id" : "153"
+      } ]
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "containerId" : "7",
+      "description" : "Components (page 4/4)",
+      "elements" : [ {
+        "id" : "117",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "118",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "119",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "120",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "121",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "122",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "123",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "124",
+        "x" : 0,
+        "y" : 0
+      }, {
         "id" : "125",
         "x" : 0,
         "y" : 0
@@ -2146,10 +2385,174 @@
         "id" : "128",
         "x" : 0,
         "y" : 0
+      }, {
+        "id" : "129",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "130",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "131",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "132",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "133",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "134",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "135",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "136",
+        "x" : 0,
+        "y" : 0
       } ],
       "externalContainerBoundariesVisible" : false,
-      "key" : "QueryFlow",
-      "order" : 14,
+      "key" : "Components_4",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
+      "order" : 6,
+      "paperSize" : "A3_Landscape",
+      "relationships" : [ {
+        "id" : "156"
+      }, {
+        "id" : "157"
+      }, {
+        "id" : "158"
+      }, {
+        "id" : "159"
+      }, {
+        "id" : "160"
+      }, {
+        "id" : "161"
+      }, {
+        "id" : "162"
+      }, {
+        "id" : "163"
+      }, {
+        "id" : "164"
+      }, {
+        "id" : "165"
+      }, {
+        "id" : "166"
+      }, {
+        "id" : "167"
+      }, {
+        "id" : "168"
+      }, {
+        "id" : "169"
+      }, {
+        "id" : "170"
+      }, {
+        "id" : "171"
+      }, {
+        "id" : "172"
+      }, {
+        "id" : "173"
+      }, {
+        "id" : "174"
+      }, {
+        "id" : "175"
+      } ]
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "containerId" : "7",
+      "description" : "REST controllers",
+      "elements" : [ {
+        "id" : "27",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "28",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "29",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "30",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "31",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "32",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "33",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "34",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "35",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "36",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "37",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "38",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "39",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "40",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "41",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "42",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "43",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "44",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Controllers",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
+      "order" : 7,
       "paperSize" : "A4_Landscape"
     }, {
       "automaticLayout" : {
@@ -2157,13 +2560,33 @@
         "edgeSeparation" : 200,
         "implementation" : "Dagre",
         "nodeSeparation" : 300,
-        "rankDirection" : "LeftRight",
-        "rankSeparation" : 400,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
         "vertices" : false
       },
-      "containerId" : "11",
-      "description" : "Saga orchestration flow",
+      "containerId" : "7",
+      "description" : "Command and query handlers",
       "elements" : [ {
+        "id" : "45",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "46",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "47",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "48",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "49",
+        "x" : 0,
+        "y" : 0
+      }, {
         "id" : "50",
         "x" : 0,
         "y" : 0
@@ -2263,6 +2686,647 @@
         "id" : "74",
         "x" : 0,
         "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Handlers",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
+      "order" : 8,
+      "paperSize" : "A4_Landscape"
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "containerId" : "7",
+      "description" : "Domain layer",
+      "elements" : [ {
+        "id" : "124",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "125",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "126",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "127",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "128",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "129",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "130",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "131",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "132",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "133",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "134",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "135",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "136",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "DomainModel",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
+      "order" : 9,
+      "paperSize" : "A4_Landscape",
+      "relationships" : [ {
+        "id" : "156"
+      }, {
+        "id" : "157"
+      }, {
+        "id" : "158"
+      }, {
+        "id" : "159"
+      }, {
+        "id" : "160"
+      }, {
+        "id" : "161"
+      }, {
+        "id" : "162"
+      }, {
+        "id" : "163"
+      }, {
+        "id" : "164"
+      }, {
+        "id" : "165"
+      }, {
+        "id" : "166"
+      }, {
+        "id" : "167"
+      }, {
+        "id" : "168"
+      }, {
+        "id" : "169"
+      }, {
+        "id" : "170"
+      }, {
+        "id" : "171"
+      }, {
+        "id" : "172"
+      }, {
+        "id" : "173"
+      }, {
+        "id" : "174"
+      }, {
+        "id" : "175"
+      } ]
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "containerId" : "7",
+      "description" : "MCP driving adapter (read + ops tools)",
+      "elements" : [ {
+        "id" : "99",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "100",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "101",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "102",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "103",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Mcp",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
+      "order" : 10,
+      "paperSize" : "A4_Landscape"
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "containerId" : "7",
+      "description" : "Repository adapters",
+      "elements" : [ {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "86",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "87",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "88",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "89",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "90",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "91",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "92",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "93",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Repositories",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
+      "order" : 11,
+      "paperSize" : "A4_Landscape",
+      "relationships" : [ {
+        "id" : "178"
+      }, {
+        "id" : "180"
+      }, {
+        "id" : "181"
+      }, {
+        "id" : "182"
+      }, {
+        "id" : "183"
+      }, {
+        "id" : "184"
+      }, {
+        "id" : "185"
+      }, {
+        "id" : "186"
+      } ]
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "containerId" : "7",
+      "description" : "Nova ↔ FCB reconciliation engine",
+      "elements" : [ {
+        "id" : "8",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "109",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "110",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "111",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "112",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "113",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "114",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "115",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "116",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "117",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "118",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "119",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "120",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "121",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "122",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "123",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Reconciliation",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
+      "order" : 12,
+      "paperSize" : "A4_Landscape",
+      "relationships" : [ {
+        "id" : "143"
+      }, {
+        "id" : "144"
+      }, {
+        "id" : "145"
+      }, {
+        "id" : "146"
+      }, {
+        "id" : "147"
+      }, {
+        "id" : "148"
+      }, {
+        "id" : "149"
+      }, {
+        "id" : "150"
+      }, {
+        "id" : "151"
+      }, {
+        "id" : "152"
+      }, {
+        "id" : "153"
+      }, {
+        "id" : "154"
+      }, {
+        "id" : "155"
+      }, {
+        "id" : "205"
+      }, {
+        "id" : "210"
+      }, {
+        "id" : "212"
+      }, {
+        "id" : "214"
+      }, {
+        "id" : "216"
+      }, {
+        "id" : "218"
+      }, {
+        "id" : "220"
+      }, {
+        "id" : "222"
+      }, {
+        "id" : "224"
+      }, {
+        "id" : "226"
+      }, {
+        "id" : "228"
+      }, {
+        "id" : "230"
+      }, {
+        "id" : "232"
+      }, {
+        "id" : "234"
+      }, {
+        "id" : "236"
+      } ]
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "containerId" : "7",
+      "description" : "FCB corridor clients",
+      "elements" : [ {
+        "id" : "104",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "105",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "106",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "107",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "108",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "ExternalClients",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
+      "order" : 13,
+      "paperSize" : "A4_Landscape",
+      "relationships" : [ {
+        "id" : "142"
+      } ]
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "TopBottom",
+        "rankSeparation" : 300,
+        "vertices" : false
+      },
+      "containerId" : "7",
+      "description" : "Kafka consumers and outbox handlers",
+      "elements" : [ {
+        "id" : "9",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "11",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "94",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "95",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "96",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "97",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "98",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "Messaging",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
+      "order" : 14,
+      "paperSize" : "A4_Landscape",
+      "relationships" : [ {
+        "id" : "187"
+      }, {
+        "id" : "189"
+      }, {
+        "id" : "190"
+      }, {
+        "id" : "191"
+      }, {
+        "id" : "192"
+      } ]
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 400,
+        "vertices" : false
+      },
+      "containerId" : "7",
+      "description" : "CQRS Command flow",
+      "elements" : [ {
+        "id" : "27",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "28",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "33",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "34",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "35",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "36",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "37",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "38",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "39",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "40",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "41",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "42",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "43",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "44",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "45",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "46",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "47",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "48",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "49",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "50",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "51",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "52",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "53",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "54",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "55",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "56",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "57",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "58",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "59",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "60",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "CommandFlow",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
+      "order" : 15,
+      "paperSize" : "A4_Landscape"
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 400,
+        "vertices" : false
+      },
+      "containerId" : "7",
+      "description" : "CQRS Query flow",
+      "elements" : [ {
+        "id" : "29",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "30",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "31",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "32",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "72",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "73",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "74",
+        "x" : 0,
+        "y" : 0
       }, {
         "id" : "75",
         "x" : 0,
@@ -2283,113 +3347,295 @@
         "id" : "79",
         "x" : 0,
         "y" : 0
+      }, {
+        "id" : "80",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "81",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "82",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "83",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "84",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "85",
+        "x" : 0,
+        "y" : 0
       } ],
       "externalContainerBoundariesVisible" : false,
-      "key" : "SagaFlow",
-      "order" : 15,
+      "key" : "QueryFlow",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
+      "order" : 16,
+      "paperSize" : "A4_Landscape"
+    }, {
+      "automaticLayout" : {
+        "applied" : false,
+        "edgeSeparation" : 200,
+        "implementation" : "Dagre",
+        "nodeSeparation" : 300,
+        "rankDirection" : "LeftRight",
+        "rankSeparation" : 400,
+        "vertices" : false
+      },
+      "containerId" : "7",
+      "description" : "Workflow orchestration flow",
+      "elements" : [ {
+        "id" : "27",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "28",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "29",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "30",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "31",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "32",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "33",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "34",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "35",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "36",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "37",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "38",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "39",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "40",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "41",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "42",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "43",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "44",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "45",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "46",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "47",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "48",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "49",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "50",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "51",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "52",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "53",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "54",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "55",
+        "x" : 0,
+        "y" : 0
+      }, {
+        "id" : "56",
+        "x" : 0,
+        "y" : 0
+      } ],
+      "externalContainerBoundariesVisible" : false,
+      "key" : "WorkflowFlow",
+      "name" : "Component View: Trade Loan Service - Trade Loan Application",
+      "order" : 17,
       "paperSize" : "A4_Landscape"
     } ],
     "configuration" : {
       "branding" : { },
       "styles" : {
         "elements" : [ {
-          "background" : "#ab47bc",
-          "color" : "#ffffff",
-          "shape" : "Diamond",
-          "tag" : "Saga"
-        }, {
-          "background" : "#ef5350",
-          "color" : "#ffffff",
-          "tag" : "Compensation"
-        }, {
-          "background" : "#5c6bc0",
-          "color" : "#ffffff",
-          "shape" : "Cylinder",
-          "tag" : "Repository"
-        }, {
-          "background" : "#66bb6a",
-          "color" : "#000000",
-          "shape" : "Hexagon",
-          "tag" : "Outbox"
-        }, {
           "background" : "#5c3d6e",
-          "tag" : "Admin"
-        }, {
-          "background" : "#666666",
-          "tag" : "External User"
-        }, {
-          "background" : "#438dd5",
           "color" : "#ffffff",
-          "tag" : "Container"
-        }, {
-          "background" : "#e74c3c",
-          "shape" : "Cylinder",
-          "tag" : "Cache"
+          "shape" : "Person",
+          "tag" : "Admin"
         }, {
           "background" : "#ff9800",
           "color" : "#000000",
           "tag" : "Aggregate"
         }, {
-          "background" : "#ffb74d",
-          "color" : "#000000",
-          "tag" : "Entity"
-        }, {
-          "background" : "#08427b",
+          "background" : "#e74c3c",
           "color" : "#ffffff",
-          "shape" : "Person",
-          "tag" : "Person"
+          "shape" : "Cylinder",
+          "tag" : "Cache"
+        }, {
+          "background" : "#ec407a",
+          "color" : "#ffffff",
+          "tag" : "Client"
+        }, {
+          "background" : "#ef5350",
+          "color" : "#ffffff",
+          "tag" : "Compensation"
+        }, {
+          "background" : "#85bbf0",
+          "color" : "#000000",
+          "tag" : "Component"
+        }, {
+          "background" : "#6d4c41",
+          "color" : "#ffffff",
+          "tag" : "Config"
         }, {
           "background" : "#ff7043",
           "color" : "#ffffff",
           "shape" : "Hexagon",
           "tag" : "Consumer"
         }, {
-          "background" : "#1168bd",
+          "background" : "#438dd5",
           "color" : "#ffffff",
-          "tag" : "Software System"
-        }, {
-          "background" : "#42a5f5",
-          "color" : "#ffffff",
-          "tag" : "Handler"
-        }, {
-          "shape" : "Cylinder",
-          "tag" : "Database"
-        }, {
-          "background" : "#08427b",
-          "tag" : "Internal User"
-        }, {
-          "background" : "#999999",
-          "border" : "Dashed",
-          "tag" : "External System"
-        }, {
-          "background" : "#ffa726",
-          "color" : "#000000",
-          "tag" : "Domain"
-        }, {
-          "background" : "#29b6f6",
-          "color" : "#ffffff",
-          "tag" : "Service"
-        }, {
-          "background" : "#27ae60",
-          "shape" : "WebBrowser",
-          "tag" : "Monitoring"
-        }, {
-          "background" : "#ec407a",
-          "color" : "#ffffff",
-          "tag" : "Client"
+          "tag" : "Container"
         }, {
           "background" : "#7cb342",
           "color" : "#ffffff",
           "tag" : "Controller"
         }, {
-          "background" : "#85bbf0",
+          "background" : "#8d6e63",
+          "color" : "#ffffff",
+          "tag" : "Core Banking"
+        }, {
+          "shape" : "Cylinder",
+          "tag" : "Database"
+        }, {
+          "background" : "#ffa726",
           "color" : "#000000",
-          "tag" : "Component"
+          "tag" : "Domain"
+        }, {
+          "background" : "#ffb74d",
+          "color" : "#000000",
+          "tag" : "Entity"
+        }, {
+          "background" : "#999999",
+          "border" : "Dashed",
+          "color" : "#ffffff",
+          "tag" : "External System"
+        }, {
+          "background" : "#42a5f5",
+          "color" : "#ffffff",
+          "tag" : "Handler"
+        }, {
+          "background" : "#26a69a",
+          "color" : "#ffffff",
+          "shape" : "Robot",
+          "tag" : "MCP"
         }, {
           "background" : "#f5a623",
           "color" : "#000000",
           "shape" : "Pipe",
           "tag" : "Message Broker"
+        }, {
+          "background" : "#00897b",
+          "color" : "#ffffff",
+          "tag" : "Observability"
+        }, {
+          "background" : "#66bb6a",
+          "color" : "#000000",
+          "shape" : "Hexagon",
+          "tag" : "Outbox"
+        }, {
+          "background" : "#08427b",
+          "color" : "#ffffff",
+          "shape" : "Person",
+          "tag" : "Person"
+        }, {
+          "background" : "#9575cd",
+          "color" : "#ffffff",
+          "tag" : "Reconciliation"
+        }, {
+          "background" : "#5c6bc0",
+          "color" : "#ffffff",
+          "shape" : "Cylinder",
+          "tag" : "Repository"
+        }, {
+          "background" : "#b71c1c",
+          "color" : "#ffffff",
+          "tag" : "Security"
+        }, {
+          "background" : "#29b6f6",
+          "color" : "#ffffff",
+          "tag" : "Service"
+        }, {
+          "background" : "#1168bd",
+          "color" : "#ffffff",
+          "tag" : "Software System"
+        }, {
+          "background" : "#ab47bc",
+          "color" : "#ffffff",
+          "shape" : "Diamond",
+          "tag" : "Workflow"
         } ],
         "relationships" : [ {
           "color" : "#ff6600",
@@ -2436,10 +3682,6 @@
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "6",
-        "x" : 0,
-        "y" : 0
-      }, {
         "id" : "7",
         "x" : 0,
         "y" : 0
@@ -2452,86 +3694,61 @@
         "x" : 0,
         "y" : 0
       }, {
+        "id" : "10",
+        "x" : 0,
+        "y" : 0
+      }, {
         "id" : "11",
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "12",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "13",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "14",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "15",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "38",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "41",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "44",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "49",
+        "id" : "24",
         "x" : 0,
         "y" : 0
       } ],
       "externalSoftwareSystemBoundariesVisible" : false,
       "key" : "Containers",
+      "name" : "Container View: Trade Loan Service",
       "order" : 2,
       "paperSize" : "A4_Landscape",
       "relationships" : [ {
-        "id" : "134"
+        "id" : "12"
       }, {
-        "id" : "144"
+        "id" : "13"
+      }, {
+        "id" : "14"
+      }, {
+        "id" : "15"
       }, {
         "id" : "16"
       }, {
-        "id" : "17"
+        "id" : "176"
+      }, {
+        "id" : "179"
       }, {
         "id" : "18"
       }, {
-        "id" : "19"
+        "id" : "188"
       }, {
-        "id" : "21"
+        "id" : "193"
       }, {
-        "id" : "23"
+        "id" : "195"
+      }, {
+        "id" : "198"
+      }, {
+        "id" : "20"
+      }, {
+        "id" : "202"
+      }, {
+        "id" : "206"
+      }, {
+        "id" : "208"
+      }, {
+        "id" : "22"
       }, {
         "id" : "25"
-      }, {
-        "id" : "27"
-      }, {
-        "id" : "29"
-      }, {
-        "id" : "31"
-      }, {
-        "id" : "33"
-      }, {
-        "id" : "35"
-      }, {
-        "id" : "37"
-      }, {
-        "id" : "39"
-      }, {
-        "id" : "42"
-      }, {
-        "id" : "45"
-      }, {
-        "id" : "47"
       } ],
-      "softwareSystemId" : "10"
+      "softwareSystemId" : "6"
     } ],
     "systemContextViews" : [ {
       "automaticLayout" : {
@@ -2569,70 +3786,33 @@
         "x" : 0,
         "y" : 0
       }, {
-        "id" : "7",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "8",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "9",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "10",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "38",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "41",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "44",
-        "x" : 0,
-        "y" : 0
-      }, {
-        "id" : "49",
+        "id" : "24",
         "x" : 0,
         "y" : 0
       } ],
       "enterpriseBoundaryVisible" : true,
       "key" : "SystemContext",
+      "name" : "System Context View: Trade Loan Service",
       "order" : 1,
       "paperSize" : "A4_Landscape",
       "relationships" : [ {
-        "id" : "20"
+        "id" : "17"
       }, {
-        "id" : "22"
+        "id" : "177"
       }, {
-        "id" : "24"
+        "id" : "19"
+      }, {
+        "id" : "196"
+      }, {
+        "id" : "209"
+      }, {
+        "id" : "21"
+      }, {
+        "id" : "23"
       }, {
         "id" : "26"
-      }, {
-        "id" : "28"
-      }, {
-        "id" : "30"
-      }, {
-        "id" : "32"
-      }, {
-        "id" : "34"
-      }, {
-        "id" : "36"
-      }, {
-        "id" : "40"
-      }, {
-        "id" : "43"
-      }, {
-        "id" : "46"
-      }, {
-        "id" : "48"
       } ],
-      "softwareSystemId" : "10"
+      "softwareSystemId" : "6"
     } ]
   }
 }

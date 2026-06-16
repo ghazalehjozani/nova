@@ -3,156 +3,246 @@ workspace "Trade Loan Service" {
     !adrs adr
 
     model {
-        loan_officer = person "Loan Officer" "Bank staff managing loans"
-        branch_manager = person "Branch Manager" "Branch level approval authority"
-        system_administrator = person "System Administrator" "Technical staff"
-        customer = person "Customer" "End users"
+        operator_admin = person "Operator / Admin" "Bank operations / administrator — monitors and remediates the service"
 
-        tps_sso = softwareSystem "TPS SSO" "OAuth2/OIDC provider"
-        fcb_core_banking = softwareSystem "FCB Core Banking" "Core Banking"
-        opentelemetry_collector = softwareSystem "OpenTelemetry Collector" "Observability backend"
-        account_service = softwareSystem "Account Service" "Account management"
-        customer_service = softwareSystem "Customer Service" "Customer data"
-        deposit_service = softwareSystem "Deposit Service" "Deposit operations"
-        collateral_service = softwareSystem "Collateral Service" "Collateral management"
-        loan_service = softwareSystem "Loan Service" "Cross-loan operations"
-        formula_evaluator_service = softwareSystem "Formula Evaluator Service" "Formula calculation"
-        trade_loan_service = softwareSystem "Trade Loan Service" "Morabehe loans with CQRS and Event Sourcing" {
-            trade_loan_application = container "Trade Loan Application" "Spring Boot Hexagonal Architecture" "Java 25, Spring Boot 4" {
-                devauthcallbackcontroller = component "DevAuthCallbackController" "REST API: /v{version}/dev/auth" "Spring REST Controller"
-                addfacilitycollateralcontroller = component "AddFacilityCollateralController" "REST API: /v{version}/loan-facilities/{facilityId}/collaterals" "Spring REST Controller"
-                approvefacilitycontroller = component "ApproveFacilityController" "REST API: /v{version}/loan-facilities/{facilityId}/approve" "Spring REST Controller"
-                closefacilitydefaultedcontroller = component "CloseFacilityDefaultedController" "REST API: /v{version}/loan-facilities/{facilityId}/close-defaulted" "Spring REST Controller"
-                closefacilitypaidoffcontroller = component "CloseFacilityPaidOffController" "REST API: /v{version}/loan-facilities/{facilityId}/close-paid-off" "Spring REST Controller"
-                defineloanarrangementcontroller = component "DefineLoanArrangementController" "REST API: /v{version}/loan-arrangements" "Spring REST Controller"
-                defineloantypecontroller = component "DefineLoanTypeController" "REST API: /v{version}/loan-types" "Spring REST Controller"
-                irregularprogressivedisbursementcontroller = component "IrregularProgressiveDisbursementController" "REST API: /v{version}/loan-facilities/{facilityId}/disburse/progressive-irregular" "Spring REST Controller"
-                issuefacilitycontractcontroller = component "IssueFacilityContractController" "REST API: /v{version}/loan-facilities/{facilityId}/issue-contract" "Spring REST Controller"
-                lumpsumdisbursementcontroller = component "LumpSumDisbursementController" "REST API: /v{version}/loan-facilities/{facilityId}/disburse/lump-sum" "Spring REST Controller"
-                openfacilitycasecontroller = component "OpenFacilityCaseController" "REST API: /v{version}/loan-facilities" "Spring REST Controller"
-                rejectfacilitycontroller = component "RejectFacilityController" "REST API: /v{version}/loan-facilities/{facilityId}/reject" "Spring REST Controller"
-                submitfacilityforapprovalcontroller = component "SubmitFacilityForApprovalController" "REST API: /v{version}/loan-facilities/{facilityId}/submit-for-approval" "Spring REST Controller"
-                reconciliationbyapplicationnumbercontroller = component "ReconciliationByApplicationNumberController" "REST API: /v{version}/ops/reconciliation/facility-state" "Spring REST Controller"
-                installmentschedulequerycontroller = component "InstallmentScheduleQueryController" "REST API: /v{version}/installment-schedules" "Spring REST Controller"
-                loanarrangementquerycontroller = component "LoanArrangementQueryController" "REST API: /v{version}/loan-arrangements" "Spring REST Controller"
-                facilityquerycontroller = component "FacilityQueryController" "REST API: /v{version}/loan-facilities" "Spring REST Controller"
-                loantypequerycontroller = component "LoanTypeQueryController" "REST API: /v{version}/loan-types" "Spring REST Controller"
-                fcbeventconsumer = component "FcbEventConsumer" "Kafka consumer" "Spring Kafka Listener"
-                addfacilitycollateralcommandhandler = component "AddFacilityCollateralCommandHandler" "Handles add facility collateral" "Command Handler"
-                compensatecollateralcommandhandler = component "CompensateCollateralCommandHandler" "Handles compensate collateral" "Command Handler"
-                approvefacilitycommandhandler = component "ApproveFacilityCommandHandler" "Handles approve facility" "Command Handler"
-                compensateapprovalcommandhandler = component "CompensateApprovalCommandHandler" "Handles compensate approval" "Command Handler"
-                cancelfacilitycommandhandler = component "CancelFacilityCommandHandler" "Handles cancel facility" "Command Handler"
-                closefacilitydefaultedcommandhandler = component "CloseFacilityDefaultedCommandHandler" "Handles close facility defaulted" "Command Handler"
-                closefacilitypaidoffcommandhandler = component "CloseFacilityPaidOffCommandHandler" "Handles close facility paid off" "Command Handler"
-                compensateclosefacilitypaidoffcommandhandler = component "CompensateCloseFacilityPaidOffCommandHandler" "Handles compensate close facility paid off" "Command Handler"
-                collectinstallmentcommandhandler = component "CollectInstallmentCommandHandler" "Handles collect installment" "Command Handler"
-                compensatecollectinstallmentcommandhandler = component "CompensateCollectInstallmentCommandHandler" "Handles compensate collect installment" "Command Handler"
-                defineloantypecommandhandler = component "DefineLoanTypeCommandHandler" "Handles define loan type" "Command Handler"
-                definetradeloanarrangementcommandhandler = component "DefineTradeLoanArrangementCommandHandler" "Handles define trade loan arrangement" "Command Handler"
-                irregularprogressivedisbursementcommandhandler = component "IrregularProgressiveDisbursementCommandHandler" "Handles irregular progressive disbursement" "Command Handler"
-                compensateirregulardisbursementcommandhandler = component "CompensateIrregularDisbursementCommandHandler" "Handles compensate irregular disbursement" "Command Handler"
-                issuefacilitycontractcommandhandler = component "IssueFacilityContractCommandHandler" "Handles issue facility contract" "Command Handler"
-                compensatecontractissuancecommandhandler = component "CompensateContractIssuanceCommandHandler" "Handles compensate contract issuance" "Command Handler"
-                loanfacilityrestructuringcommandhandler = component "LoanFacilityRestructuringCommandHandler" "Handles loan facility restructuring" "Command Handler"
-                lumpsumdisbursementcommandhandler = component "LumpSumDisbursementCommandHandler" "Handles lump sum disbursement" "Command Handler"
-                compensatelumpsumdisbursementcommandhandler = component "CompensateLumpSumDisbursementCommandHandler" "Handles compensate lump sum disbursement" "Command Handler"
-                originateloanfacilitycommandhandler = component "OriginateLoanFacilityCommandHandler" "Handles originate loan facility" "Command Handler"
-                compensateoriginationcommandhandler = component "CompensateOriginationCommandHandler" "Handles compensate origination" "Command Handler"
-                planequalinstallmentschedulecommandhandler = component "PlanEqualInstallmentScheduleCommandHandler" "Handles plan equal installment schedule" "Command Handler"
-                regulardisbursementcommandhandler = component "RegularDisbursementCommandHandler" "Handles regular disbursement" "Command Handler"
-                rejectfacilitycommandhandler = component "RejectFacilityCommandHandler" "Handles reject facility" "Command Handler"
-                submitfacilityforapprovalcommandhandler = component "SubmitFacilityForApprovalCommandHandler" "Handles submit facility for approval" "Command Handler"
-                compensateapprovalsubmissioncommandhandler = component "CompensateApprovalSubmissionCommandHandler" "Handles compensate approval submission" "Command Handler"
-                updatefacilitycollateralcommandhandler = component "UpdateFacilityCollateralCommandHandler" "Handles update facility collateral" "Command Handler"
-                getinstallmentschedulebyidqueryhandler = component "GetInstallmentScheduleByIdQueryHandler" "Handles get installment schedule by id queries" "Query Handler"
-                findallloanarrangementsqueryhandler = component "FindAllLoanArrangementsQueryHandler" "Handles find all loan arrangements queries" "Query Handler"
-                getloanarrangementbycodequeryhandler = component "GetLoanArrangementByCodeQueryHandler" "Handles get loan arrangement by code queries" "Query Handler"
-                getloanarrangementbyidqueryhandler = component "GetLoanArrangementByIdQueryHandler" "Handles get loan arrangement by id queries" "Query Handler"
-                loantypearrangementfilterqueryhandler = component "LoanTypeArrangementFilterQueryHandler" "Handles loan type arrangement filter queries" "Query Handler"
-                findallloanfacilitiesqueryhandler = component "FindAllLoanFacilitiesQueryHandler" "Handles find all loan facilities queries" "Query Handler"
-                getfacilitybyapplicationnumberqueryhandler = component "GetFacilityByApplicationNumberQueryHandler" "Handles get facility by application number queries" "Query Handler"
-                getfacilitybyidqueryhandler = component "GetFacilityByIdQueryHandler" "Handles get facility by id queries" "Query Handler"
-                resolvefacilityidbyapplicationnumberqueryhandler = component "ResolveFacilityIdByApplicationNumberQueryHandler" "Handles resolve facility id by application number queries" "Query Handler"
-                searchloanfacilitiesqueryhandler = component "SearchLoanFacilitiesQueryHandler" "Handles search loan facilities queries" "Query Handler"
-                findallloantypesqueryhandler = component "FindAllLoanTypesQueryHandler" "Handles find all loan types queries" "Query Handler"
-                getloantypebycodequeryhandler = component "GetLoanTypeByCodeQueryHandler" "Handles get loan type by code queries" "Query Handler"
-                getloantypebyidqueryhandler = component "GetLoanTypeByIdQueryHandler" "Handles get loan type by id queries" "Query Handler"
-                loantypefilterqueryhandler = component "LoanTypeFilterQueryHandler" "Handles loan type filter queries" "Query Handler"
-                tradeloanarrangement = component "TradeLoanArrangement" "trade loan arrangement aggregate" "DDD Aggregate Root"
-                tradeloanapplication = component "TradeLoanApplication" "trade loan application aggregate" "DDD Aggregate Root"
-                tradeloanfacility = component "TradeLoanFacility" "trade loan facility aggregate" "DDD Aggregate Root"
-                tradeloanfacilityeventfactory = component "TradeLoanFacilityEventFactory" "trade loan facility event factory entity" "DDD Entity"
-                tradesanctionedloan = component "TradeSanctionedLoan" "trade sanctioned loan aggregate" "DDD Aggregate Root"
-                tradeloantype = component "TradeLoanType" "trade loan type aggregate" "DDD Aggregate Root"
-                traderepaymentschedulingservice = component "TradeRepaymentSchedulingService" "trade repayment scheduling service domain service" "Domain Service"
-                tradeloanfacilityservice = component "TradeLoanFacilityService" "trade loan facility service domain service" "Domain Service"
-                tradeloanfacilityvalidationservice = component "TradeLoanFacilityValidationService" "trade loan facility validation service domain service" "Domain Service"
-                tradesanctionvalidationservice = component "TradeSanctionValidationService" "trade sanction validation service domain service" "Domain Service"
-                tradeloantypevalidationservice = component "TradeLoanTypeValidationService" "trade loan type validation service domain service" "Domain Service"
-                installmentschedulerepositoryadapter = component "InstallmentScheduleRepositoryAdapter" "InstallmentSchedule persistence adapter" "Spring Data JPA"
-                tradeloanarrangementrepositoryadapter = component "TradeLoanArrangementRepositoryAdapter" "TradeLoanArrangement persistence adapter" "Spring Data JPA"
-                tradeloanfacilityrepositoryadapter = component "TradeLoanFacilityRepositoryAdapter" "TradeLoanFacility persistence adapter" "Spring Data JPA"
-                tradeloantyperepositoryadapter = component "TradeLoanTypeRepositoryAdapter" "TradeLoanType persistence adapter" "Spring Data JPA"
-                jpatradeinstallmentschedulequeryadapter = component "JpaTradeInstallmentScheduleQueryAdapter" "TradeInstallmentSchedule query adapter" "Spring Data JPA"
-                jpatradeloanarrangementqueryadapter = component "JpaTradeLoanArrangementQueryAdapter" "TradeLoanArrangement query adapter" "Spring Data JPA"
-                jpafacilityqueryadapter = component "JpaFacilityQueryAdapter" "Facility query adapter" "Spring Data JPA"
-                jpatradeloantypequeryadapter = component "JpaTradeLoanTypeQueryAdapter" "TradeLoanType query adapter" "Spring Data JPA"
-                installmentscheduleoutboxhandler = component "InstallmentScheduleOutboxHandler" "InstallmentSchedule outbox handler" "Outbox Pattern"
-                tradeloanarrangementoutboxhandler = component "TradeLoanArrangementOutboxHandler" "TradeLoanArrangement outbox handler" "Outbox Pattern"
-                tradeloanfacilityoutboxhandler = component "TradeLoanFacilityOutboxHandler" "TradeLoanFacility outbox handler" "Outbox Pattern"
-                tradeloantypeoutboxhandler = component "TradeLoanTypeOutboxHandler" "TradeLoanType outbox handler" "Outbox Pattern"
+        esb = softwareSystem "ESB" "Enterprise Service Bus — routes business loan-lifecycle requests from upstream channels"
+        tps_sso = softwareSystem "TPS SSO" "OAuth2/OIDC identity provider (token validation + JWKS)"
+        fcb_core_banking = softwareSystem "FCB Core Banking" "Legacy core banking — accounts, postings, collateral, sanctions"
+        opentelemetry_collector = softwareSystem "OpenTelemetry Collector" "OpenTelemetry collector — traces, metrics, logs"
+        consul = softwareSystem "Consul" "Runtime configuration store (Consul KV, fed by GitOps)"
+        trade_loan_service = softwareSystem "Trade Loan Service" "Morabehe trade-loan microservice — hexagonal, DDD, CQRS, workflow orchestration" {
+            trade_loan_application = container "Trade Loan Application" "Spring Boot hexagonal application (driving + driven adapters)" "Java 25, Spring Boot 4" {
+                reconciliation_by_application_number_controller = component "Reconciliation By Application Number Controller" "Spring MVC Controller"
+                dev_auth_callback_controller = component "Dev Auth Callback Controller" "Spring MVC Controller"
+                loan_arrangement_query_controller = component "Loan Arrangement Query Controller" "Spring MVC Controller"
+                installment_schedule_query_controller = component "Installment Schedule Query Controller" "Spring MVC Controller"
+                loan_type_query_controller = component "Loan Type Query Controller" "Spring MVC Controller"
+                facility_query_controller = component "Facility Query Controller" "Spring MVC Controller"
+                approve_facility_controller = component "Approve Facility Controller" "Spring MVC Controller"
+                issue_facility_contract_controller = component "Issue Facility Contract Controller" "Spring MVC Controller"
+                add_facility_collateral_controller = component "Add Facility Collateral Controller" "Spring MVC Controller"
+                define_loan_arrangement_controller = component "Define Loan Arrangement Controller" "Spring MVC Controller"
+                lump_sum_disbursement_controller = component "Lump Sum Disbursement Controller" "Spring MVC Controller"
+                define_loan_type_controller = component "Define Loan Type Controller" "Spring MVC Controller"
+                submit_facility_for_approval_controller = component "Submit Facility For Approval Controller" "Spring MVC Controller"
+                reject_facility_controller = component "Reject Facility Controller" "Spring MVC Controller"
+                open_facility_case_controller = component "Open Facility Case Controller" "Spring MVC Controller"
+                irregular_progressive_disbursement_controller = component "Irregular Progressive Disbursement Controller" "Spring MVC Controller"
+                close_facility_defaulted_controller = component "Close Facility Defaulted Controller" "Spring MVC Controller"
+                close_facility_paid_off_controller = component "Close Facility Paid Off Controller" "Spring MVC Controller"
+                loan_facility_restructuring_command_handler = component "Loan Facility Restructuring Command Handler" "Command Handler"
+                irregular_progressive_disbursement_command_handler = component "Irregular Progressive Disbursement Command Handler" "Command Handler"
+                compensate_irregular_disbursement_command_handler = component "Compensate Irregular Disbursement Command Handler" "Command Handler"
+                plan_equal_installment_schedule_command_handler = component "Plan Equal Installment Schedule Command Handler" "Command Handler"
+                regular_disbursement_command_handler = component "Regular Disbursement Command Handler" "Command Handler"
+                reject_facility_command_handler = component "Reject Facility Command Handler" "Command Handler"
+                define_loan_type_command_handler = component "Define Loan Type Command Handler" "Command Handler"
+                submit_facility_for_approval_command_handler = component "Submit Facility For Approval Command Handler" "Command Handler"
+                compensate_approval_submission_command_handler = component "Compensate Approval Submission Command Handler" "Command Handler"
+                update_facility_collateral_command_handler = component "Update Facility Collateral Command Handler" "Command Handler"
+                cancel_facility_command_handler = component "Cancel Facility Command Handler" "Command Handler"
+                approve_facility_command_handler = component "Approve Facility Command Handler" "Command Handler"
+                compensate_approval_command_handler = component "Compensate Approval Command Handler" "Command Handler"
+                originate_loan_facility_command_handler = component "Originate Loan Facility Command Handler" "Command Handler"
+                compensate_origination_command_handler = component "Compensate Origination Command Handler" "Command Handler"
+                close_facility_defaulted_command_handler = component "Close Facility Defaulted Command Handler" "Command Handler"
+                close_facility_paid_off_command_handler = component "Close Facility Paid Off Command Handler" "Command Handler"
+                compensate_close_facility_paid_off_command_handler = component "Compensate Close Facility Paid Off Command Handler" "Command Handler"
+                issue_facility_contract_command_handler = component "Issue Facility Contract Command Handler" "Command Handler"
+                compensate_contract_issuance_command_handler = component "Compensate Contract Issuance Command Handler" "Command Handler"
+                define_trade_loan_arrangement_command_handler = component "Define Trade Loan Arrangement Command Handler" "Command Handler"
+                lump_sum_disbursement_command_handler = component "Lump Sum Disbursement Command Handler" "Command Handler"
+                compensate_lump_sum_disbursement_command_handler = component "Compensate Lump Sum Disbursement Command Handler" "Command Handler"
+                add_facility_collateral_command_handler = component "Add Facility Collateral Command Handler" "Command Handler"
+                compensate_collateral_command_handler = component "Compensate Collateral Command Handler" "Command Handler"
+                collect_installment_command_handler = component "Collect Installment Command Handler" "Command Handler"
+                compensate_collect_installment_command_handler = component "Compensate Collect Installment Command Handler" "Command Handler"
+                get_loan_arrangement_by_code_query_handler = component "Get Loan Arrangement By Code Query Handler" "Query Handler"
+                loan_type_arrangement_filter_query_handler = component "Loan Type Arrangement Filter Query Handler" "Query Handler"
+                get_loan_arrangement_by_id_query_handler = component "Get Loan Arrangement By Id Query Handler" "Query Handler"
+                find_all_loan_arrangements_query_handler = component "Find All Loan Arrangements Query Handler" "Query Handler"
+                get_installment_schedule_by_id_query_handler = component "Get Installment Schedule By Id Query Handler" "Query Handler"
+                find_all_loan_types_query_handler = component "Find All Loan Types Query Handler" "Query Handler"
+                get_loan_type_by_id_query_handler = component "Get Loan Type By Id Query Handler" "Query Handler"
+                loan_type_filter_query_handler = component "Loan Type Filter Query Handler" "Query Handler"
+                get_loan_type_by_code_query_handler = component "Get Loan Type By Code Query Handler" "Query Handler"
+                get_facility_by_id_query_handler = component "Get Facility By Id Query Handler" "Query Handler"
+                get_facility_by_application_number_query_handler = component "Get Facility By Application Number Query Handler" "Query Handler"
+                find_all_loan_facilities_query_handler = component "Find All Loan Facilities Query Handler" "Query Handler"
+                resolve_facility_id_by_application_number_query_handler = component "Resolve Facility Id By Application Number Query Handler" "Query Handler"
+                search_loan_facilities_query_handler = component "Search Loan Facilities Query Handler" "Query Handler"
+                trade_loan_arrangement_repository_adapter = component "Trade Loan Arrangement Repository Adapter" "Spring Data JPA"
+                installment_schedule_repository_adapter = component "Installment Schedule Repository Adapter" "Spring Data JPA"
+                trade_loan_type_repository_adapter = component "Trade Loan Type Repository Adapter" "Spring Data JPA"
+                trade_loan_facility_repository_adapter = component "Trade Loan Facility Repository Adapter" "Spring Data JPA"
+                jpa_trade_loan_arrangement_query_adapter = component "Jpa Trade Loan Arrangement Query Adapter" "Spring Data JPA"
+                jpa_trade_installment_schedule_query_adapter = component "Jpa Trade Installment Schedule Query Adapter" "Spring Data JPA"
+                jpa_trade_loan_type_query_adapter = component "Jpa Trade Loan Type Query Adapter" "Spring Data JPA"
+                jpa_facility_query_adapter = component "Jpa Facility Query Adapter" "Spring Data JPA"
+                trade_loan_arrangement_outbox_handler = component "Trade Loan Arrangement Outbox Handler" "Outbox Publisher"
+                installment_schedule_outbox_handler = component "Installment Schedule Outbox Handler" "Outbox Publisher"
+                trade_loan_type_outbox_handler = component "Trade Loan Type Outbox Handler" "Outbox Publisher"
+                trade_loan_facility_outbox_handler = component "Trade Loan Facility Outbox Handler" "Outbox Publisher"
+                fcb_event_consumer = component "Fcb Event Consumer" "Spring Kafka Listener"
+                reconciliation_ops_mcp_tools = component "Reconciliation Ops Mcp Tools" "MCP Tool"
+                loan_facility_mcp_tools = component "Loan Facility Mcp Tools" "MCP Tool"
+                loan_type_mcp_tools = component "Loan Type Mcp Tools" "MCP Tool"
+                loan_arrangement_mcp_tools = component "Loan Arrangement Mcp Tools" "MCP Tool"
+                installment_schedule_mcp_tools = component "Installment Schedule Mcp Tools" "MCP Tool"
+                artemis_fcb_request_reply_client = component "Artemis Fcb Request Reply Client" "FCB corridor client"
+                fcb_request_reply_client = component "Fcb Request Reply Client" "FCB corridor client"
+                fcb_kafka_client = component "Fcb Kafka Client" "FCB corridor client"
+                routing_fcb_request_reply_client = component "Routing Fcb Request Reply Client" "FCB corridor client"
+                find_loan_arrangement_by_id_client = component "Find Loan Arrangement By Id Client" "FCB corridor client"
+                facility_root_cause_classifier = component "Facility Root Cause Classifier" "Reconciliation engine"
+                facility_convergence_action = component "Facility Convergence Action" "Reconciliation engine"
+                facility_root_cause_classifier_signal_verdict = component "Facility Root Cause Classifier $ Signal Verdict" "Reconciliation engine"
+                facility_divergence_probe = component "Facility Divergence Probe" "Reconciliation engine"
+                facility_recon_mapping = component "Facility Recon Mapping" "Reconciliation engine"
+                facility_root_cause_classifier_classifier_input = component "Facility Root Cause Classifier $ Classifier Input" "Reconciliation engine"
+                facility_classification = component "Facility Classification" "Reconciliation engine"
+                reconciliation_source_properties = component "Reconciliation Source Properties" "Reconciliation engine"
+                facility_reconciliation_source = component "Facility Reconciliation Source" "Reconciliation engine"
+                facility_convergence_action_1 = component "Facility Convergence Action $ 1" "Reconciliation engine"
+                facility_divergence_probe_1 = component "Facility Divergence Probe $ 1" "Reconciliation engine"
+                facility_dossier_builder_1 = component "Facility Dossier Builder $ 1" "Reconciliation engine"
+                facility_dossier_builder = component "Facility Dossier Builder" "Reconciliation engine"
+                facility_root_cause_classifier_1 = component "Facility Root Cause Classifier $ 1" "Reconciliation engine"
+                facility_recon_mapping_1 = component "Facility Recon Mapping $ 1" "Reconciliation engine"
+                trade_loan_arrangement = component "Trade Loan Arrangement" "DDD Aggregate Root"
+                trade_loan_type = component "Trade Loan Type" "DDD Aggregate Root"
+                trade_loan_application = component "Trade Loan Application" "DDD Aggregate Root"
+                trade_sanctioned_loan = component "Trade Sanctioned Loan" "DDD Aggregate Root"
+                trade_loan_facility = component "Trade Loan Facility" "DDD Aggregate Root"
+                irregular_progressive_disbursement_transaction_service = component "Irregular Progressive Disbursement Transaction Service" "Domain Service"
+                trade_issue_contract_transaction_service = component "Trade Issue Contract Transaction Service" "Domain Service"
+                trade_lump_sum_disbursement_transaction_service = component "Trade Lump Sum Disbursement Transaction Service" "Domain Service"
+                trade_repayment_scheduling_service = component "Trade Repayment Scheduling Service" "Domain Service"
+                trade_loan_type_validation_service = component "Trade Loan Type Validation Service" "Domain Service"
+                trade_loan_facility_service = component "Trade Loan Facility Service" "Domain Service"
+                trade_sanction_validation_service = component "Trade Sanction Validation Service" "Domain Service"
+                trade_loan_facility_validation_service = component "Trade Loan Facility Validation Service" "Domain Service"
             }
-            postgresql_database = container "PostgreSQL Database" "Loan data storage" "PostgreSQL 18"
-            kafka = container "Kafka" "Event streaming" "Confluent Kafka 7.9"
-            redis = container "Redis" "Caching and locks" "Redis 8.2"
-            kafdrop = container "Kafdrop" "Kafka monitoring" "Kafdrop 4.2"
+            postgresql_database = container "PostgreSQL Database" "Loan data, inbox/outbox, workflow state, audit, reconciliation" "PostgreSQL 18"
+            kafka = container "Kafka" "Event streaming + request/reply fallback transport" "Apache Kafka (SASL_PLAINTEXT/SCRAM-SHA-256)"
+            redis = container "Redis" "Cache + idempotency store (Sentinel HA)" "Redis 8.6 (Sentinel HA: 1 master / 2 replicas / 3 sentinels)"
+            activemq_artemis = container "ActiveMQ Artemis" "Primary FCB request/reply corridor broker" "ActiveMQ Artemis 2.43 (Jakarta JMS)"
         }
+        trade_loan_application -> postgresql_database "Aggregates, inbox/outbox, workflow, audit, reconciliation"
+        trade_loan_application -> redis "Query cache, idempotency, JWKS/token cache"
+        trade_loan_application -> kafka "Domain events (outbox) + request/reply fallback"
+        trade_loan_application -> activemq_artemis "FCB request/reply corridor (primary)"
+        trade_loan_application -> consul "Loads runtime config"
+        trade_loan_service -> consul "Loads runtime config"
+        trade_loan_application -> tps_sso "Validates JWT / fetches JWKS"
+        trade_loan_service -> tps_sso "Validates JWT / fetches JWKS"
+        trade_loan_application -> fcb_core_banking "Core banking operations via corridor"
+        trade_loan_service -> fcb_core_banking "Core banking operations via corridor"
+        trade_loan_application -> opentelemetry_collector "Exports traces / metrics / logs"
+        trade_loan_service -> opentelemetry_collector "Exports traces / metrics / logs"
+        operator_admin -> trade_loan_application "Operates via OPS endpoints (/v1/ops/*) and MCP ops tools"
+        operator_admin -> trade_loan_service "Operates via OPS endpoints (/v1/ops/*) and MCP ops tools"
+        irregular_progressive_disbursement_command_handler -> trade_loan_facility ""
+        irregular_progressive_disbursement_command_handler -> trade_sanctioned_loan ""
+        add_facility_collateral_command_handler -> trade_loan_arrangement ""
+        compensate_collateral_command_handler -> trade_loan_application ""
+        compensate_collateral_command_handler -> trade_loan_facility ""
+        routing_fcb_request_reply_client -> fcb_request_reply_client ""
+        facility_root_cause_classifier -> facility_recon_mapping ""
+        facility_root_cause_classifier -> facility_root_cause_classifier_signal_verdict ""
+        facility_root_cause_classifier -> facility_classification ""
+        facility_root_cause_classifier -> facility_root_cause_classifier_classifier_input ""
+        facility_convergence_action -> facility_dossier_builder ""
+        facility_convergence_action -> reconciliation_source_properties ""
+        facility_convergence_action -> facility_recon_mapping ""
+        facility_convergence_action -> facility_classification ""
+        facility_convergence_action -> facility_root_cause_classifier_classifier_input ""
+        facility_convergence_action -> facility_root_cause_classifier ""
+        facility_divergence_probe -> facility_recon_mapping ""
+        facility_reconciliation_source -> reconciliation_source_properties ""
+        facility_dossier_builder -> facility_classification ""
+        trade_loan_facility -> trade_loan_application ""
+        trade_loan_facility -> trade_sanctioned_loan ""
+        irregular_progressive_disbursement_transaction_service -> trade_loan_application ""
+        irregular_progressive_disbursement_transaction_service -> trade_loan_facility ""
+        irregular_progressive_disbursement_transaction_service -> trade_sanctioned_loan ""
+        irregular_progressive_disbursement_transaction_service -> trade_loan_type ""
+        trade_issue_contract_transaction_service -> trade_loan_application ""
+        trade_issue_contract_transaction_service -> trade_loan_facility ""
+        trade_issue_contract_transaction_service -> trade_loan_type ""
+        trade_issue_contract_transaction_service -> trade_sanctioned_loan ""
+        trade_lump_sum_disbursement_transaction_service -> trade_loan_application ""
+        trade_lump_sum_disbursement_transaction_service -> trade_loan_facility ""
+        trade_lump_sum_disbursement_transaction_service -> trade_loan_type ""
+        trade_lump_sum_disbursement_transaction_service -> trade_sanctioned_loan ""
+        trade_lump_sum_disbursement_transaction_service -> trade_loan_arrangement ""
+        trade_loan_type_validation_service -> trade_loan_arrangement ""
+        trade_loan_facility_service -> trade_loan_application ""
+        trade_loan_facility_service -> trade_loan_facility ""
+        trade_loan_facility_service -> trade_sanctioned_loan ""
+        trade_loan_facility_validation_service -> trade_loan_arrangement ""
+        esb -> trade_loan_application "Business loan-lifecycle requests"
+        esb -> trade_loan_service "Business loan-lifecycle requests"
+        trade_loan_arrangement_repository_adapter -> postgresql_database "Reads/Writes"
         trade_loan_application -> postgresql_database "Reads/Writes"
-        trade_loan_application -> kafka "Publishes/Consumes"
-        trade_loan_application -> redis "Caches data"
-        trade_loan_application -> tps_sso "Authenticates"
-        trade_loan_service -> tps_sso "Authenticates"
-        trade_loan_application -> fcb_core_banking "Core banking"
-        trade_loan_service -> fcb_core_banking "Core banking"
-        trade_loan_application -> opentelemetry_collector "Telemetry"
-        trade_loan_service -> opentelemetry_collector "Telemetry"
-        trade_loan_application -> account_service "Calls"
-        trade_loan_service -> account_service "Calls"
-        trade_loan_application -> customer_service "Calls"
-        trade_loan_service -> customer_service "Calls"
-        trade_loan_application -> deposit_service "Calls"
-        trade_loan_service -> deposit_service "Calls"
-        trade_loan_application -> collateral_service "Calls"
-        trade_loan_service -> collateral_service "Calls"
-        trade_loan_application -> loan_service "Calls"
-        trade_loan_service -> loan_service "Calls"
-        trade_loan_application -> formula_evaluator_service "Calls"
-        trade_loan_service -> formula_evaluator_service "Calls"
-        kafdrop -> kafka "Monitors"
-        loan_officer -> trade_loan_application "Creates and manages loans"
-        loan_officer -> trade_loan_service "Creates and manages loans"
-        branch_manager -> trade_loan_application "Approves facilities"
-        branch_manager -> trade_loan_service "Approves facilities"
-        system_administrator -> trade_loan_application "Monitors system"
-        system_administrator -> trade_loan_service "Monitors system"
-        system_administrator -> kafdrop "Monitors Kafka"
-        system_administrator -> trade_loan_service "Monitors Kafka"
-        fcbeventconsumer -> kafka "Consumes from"
-        trade_loan_application -> kafka "Consumes from"
-        installmentschedulerepositoryadapter -> postgresql_database "Reads/Writes"
-        tradeloanarrangementrepositoryadapter -> postgresql_database "Reads/Writes"
-        tradeloanfacilityrepositoryadapter -> postgresql_database "Reads/Writes"
-        tradeloantyperepositoryadapter -> postgresql_database "Reads/Writes"
-        jpatradeinstallmentschedulequeryadapter -> postgresql_database "Reads/Writes"
-        jpatradeloanarrangementqueryadapter -> postgresql_database "Reads/Writes"
-        jpafacilityqueryadapter -> postgresql_database "Reads/Writes"
-        jpatradeloantypequeryadapter -> postgresql_database "Reads/Writes"
-        installmentscheduleoutboxhandler -> kafka "Publishes events"
+        installment_schedule_repository_adapter -> postgresql_database "Reads/Writes"
+        trade_loan_type_repository_adapter -> postgresql_database "Reads/Writes"
+        trade_loan_facility_repository_adapter -> postgresql_database "Reads/Writes"
+        jpa_trade_loan_arrangement_query_adapter -> postgresql_database "Reads/Writes"
+        jpa_trade_installment_schedule_query_adapter -> postgresql_database "Reads/Writes"
+        jpa_trade_loan_type_query_adapter -> postgresql_database "Reads/Writes"
+        jpa_facility_query_adapter -> postgresql_database "Reads/Writes"
+        trade_loan_arrangement_outbox_handler -> kafka "Publishes events"
         trade_loan_application -> kafka "Publishes events"
-        tradeloanarrangementoutboxhandler -> kafka "Publishes events"
-        tradeloanfacilityoutboxhandler -> kafka "Publishes events"
-        tradeloantypeoutboxhandler -> kafka "Publishes events"
+        installment_schedule_outbox_handler -> kafka "Publishes events"
+        trade_loan_type_outbox_handler -> kafka "Publishes events"
+        trade_loan_facility_outbox_handler -> kafka "Publishes events"
+        fcb_event_consumer -> kafka "Consumes from"
+        trade_loan_application -> kafka "Consumes from"
+        artemis_fcb_request_reply_client -> fcb_core_banking "Calls (corridor)"
+        trade_loan_application -> fcb_core_banking "Calls (corridor)"
+        trade_loan_service -> fcb_core_banking "Calls (corridor)"
+        artemis_fcb_request_reply_client -> activemq_artemis "Request/reply (primary)"
+        trade_loan_application -> activemq_artemis "Request/reply (primary)"
+        fcb_request_reply_client -> fcb_core_banking "Calls (corridor)"
+        fcb_kafka_client -> fcb_core_banking "Calls (corridor)"
+        fcb_kafka_client -> kafka "Request/reply (fallback)"
+        trade_loan_application -> kafka "Request/reply (fallback)"
+        routing_fcb_request_reply_client -> fcb_core_banking "Calls (corridor)"
+        find_loan_arrangement_by_id_client -> fcb_core_banking "Calls (corridor)"
+        facility_root_cause_classifier -> postgresql_database "Reads reconciliation state"
+        trade_loan_application -> postgresql_database "Reads reconciliation state"
+        facility_root_cause_classifier -> fcb_core_banking "Probes / converges"
+        trade_loan_application -> fcb_core_banking "Probes / converges"
+        trade_loan_service -> fcb_core_banking "Probes / converges"
+        facility_convergence_action -> postgresql_database "Reads reconciliation state"
+        facility_convergence_action -> fcb_core_banking "Probes / converges"
+        facility_root_cause_classifier_signal_verdict -> postgresql_database "Reads reconciliation state"
+        facility_root_cause_classifier_signal_verdict -> fcb_core_banking "Probes / converges"
+        facility_divergence_probe -> postgresql_database "Reads reconciliation state"
+        facility_divergence_probe -> fcb_core_banking "Probes / converges"
+        facility_recon_mapping -> postgresql_database "Reads reconciliation state"
+        facility_recon_mapping -> fcb_core_banking "Probes / converges"
+        facility_root_cause_classifier_classifier_input -> postgresql_database "Reads reconciliation state"
+        facility_root_cause_classifier_classifier_input -> fcb_core_banking "Probes / converges"
+        facility_classification -> postgresql_database "Reads reconciliation state"
+        facility_classification -> fcb_core_banking "Probes / converges"
+        reconciliation_source_properties -> postgresql_database "Reads reconciliation state"
+        reconciliation_source_properties -> fcb_core_banking "Probes / converges"
+        facility_reconciliation_source -> postgresql_database "Reads reconciliation state"
+        facility_reconciliation_source -> fcb_core_banking "Probes / converges"
+        facility_convergence_action_1 -> postgresql_database "Reads reconciliation state"
+        facility_convergence_action_1 -> fcb_core_banking "Probes / converges"
+        facility_divergence_probe_1 -> postgresql_database "Reads reconciliation state"
+        facility_divergence_probe_1 -> fcb_core_banking "Probes / converges"
+        facility_dossier_builder_1 -> postgresql_database "Reads reconciliation state"
+        facility_dossier_builder_1 -> fcb_core_banking "Probes / converges"
+        facility_dossier_builder -> postgresql_database "Reads reconciliation state"
+        facility_dossier_builder -> fcb_core_banking "Probes / converges"
+        facility_root_cause_classifier_1 -> postgresql_database "Reads reconciliation state"
+        facility_root_cause_classifier_1 -> fcb_core_banking "Probes / converges"
+        facility_recon_mapping_1 -> postgresql_database "Reads reconciliation state"
+        facility_recon_mapping_1 -> fcb_core_banking "Probes / converges"
     }
 
     views {
@@ -181,6 +271,11 @@ workspace "Trade Loan Service" {
             autoLayout tb 300 300
         }
 
+        component trade_loan_application "Components_4" {
+            include *
+            autoLayout tb 300 300
+        }
+
         component trade_loan_application "Controllers" {
             include *
             autoLayout tb 300 300
@@ -191,17 +286,22 @@ workspace "Trade Loan Service" {
             autoLayout tb 300 300
         }
 
-        component trade_loan_application "Sagas" {
-            include *
-            autoLayout tb 300 300
-        }
-
         component trade_loan_application "DomainModel" {
             include *
             autoLayout tb 300 300
         }
 
+        component trade_loan_application "Mcp" {
+            include *
+            autoLayout tb 300 300
+        }
+
         component trade_loan_application "Repositories" {
+            include *
+            autoLayout tb 300 300
+        }
+
+        component trade_loan_application "Reconciliation" {
             include *
             autoLayout tb 300 300
         }
@@ -226,19 +326,104 @@ workspace "Trade Loan Service" {
             autoLayout lr 400 300
         }
 
-        component trade_loan_application "SagaFlow" {
+        component trade_loan_application "WorkflowFlow" {
             include *
             autoLayout lr 400 300
         }
 
         styles {
-            element "Saga" {
-                background #ab47bc
+            element "Admin" {
+                background #5c3d6e
                 color #ffffff
-                shape Diamond
+                shape Person
+            }
+            element "Aggregate" {
+                background #ff9800
+                color #000000
+            }
+            element "Cache" {
+                background #e74c3c
+                color #ffffff
+                shape Cylinder
+            }
+            element "Client" {
+                background #ec407a
+                color #ffffff
             }
             element "Compensation" {
                 background #ef5350
+                color #ffffff
+            }
+            element "Component" {
+                background #85bbf0
+                color #000000
+            }
+            element "Config" {
+                background #6d4c41
+                color #ffffff
+            }
+            element "Consumer" {
+                background #ff7043
+                color #ffffff
+                shape Hexagon
+            }
+            element "Container" {
+                background #438dd5
+                color #ffffff
+            }
+            element "Controller" {
+                background #7cb342
+                color #ffffff
+            }
+            element "Core Banking" {
+                background #8d6e63
+                color #ffffff
+            }
+            element "Database" {
+                shape Cylinder
+            }
+            element "Domain" {
+                background #ffa726
+                color #000000
+            }
+            element "Entity" {
+                background #ffb74d
+                color #000000
+            }
+            element "External System" {
+                background #999999
+                color #ffffff
+            }
+            element "Handler" {
+                background #42a5f5
+                color #ffffff
+            }
+            element "MCP" {
+                background #26a69a
+                color #ffffff
+                shape Robot
+            }
+            element "Message Broker" {
+                background #f5a623
+                color #000000
+                shape Pipe
+            }
+            element "Observability" {
+                background #00897b
+                color #ffffff
+            }
+            element "Outbox" {
+                background #66bb6a
+                color #000000
+                shape Hexagon
+            }
+            element "Person" {
+                background #08427b
+                color #ffffff
+                shape Person
+            }
+            element "Reconciliation" {
+                background #9575cd
                 color #ffffff
             }
             element "Repository" {
@@ -246,88 +431,22 @@ workspace "Trade Loan Service" {
                 color #ffffff
                 shape Cylinder
             }
-            element "Outbox" {
-                background #66bb6a
-                color #000000
-                shape Hexagon
-            }
-            element "Admin" {
-                background #5c3d6e
-            }
-            element "External User" {
-                background #666666
-            }
-            element "Container" {
-                background #438dd5
+            element "Security" {
+                background #b71c1c
                 color #ffffff
-            }
-            element "Cache" {
-                background #e74c3c
-                shape Cylinder
-            }
-            element "Aggregate" {
-                background #ff9800
-                color #000000
-            }
-            element "Entity" {
-                background #ffb74d
-                color #000000
-            }
-            element "Person" {
-                background #08427b
-                color #ffffff
-                shape Person
-            }
-            element "Consumer" {
-                background #ff7043
-                color #ffffff
-                shape Hexagon
-            }
-            element "Software System" {
-                background #1168bd
-                color #ffffff
-            }
-            element "Handler" {
-                background #42a5f5
-                color #ffffff
-            }
-            element "Database" {
-                shape Cylinder
-            }
-            element "Internal User" {
-                background #08427b
-            }
-            element "External System" {
-                background #999999
-            }
-            element "Domain" {
-                background #ffa726
-                color #000000
             }
             element "Service" {
                 background #29b6f6
                 color #ffffff
             }
-            element "Monitoring" {
-                background #27ae60
-                shape WebBrowser
-            }
-            element "Client" {
-                background #ec407a
+            element "Software System" {
+                background #1168bd
                 color #ffffff
             }
-            element "Controller" {
-                background #7cb342
+            element "Workflow" {
+                background #ab47bc
                 color #ffffff
-            }
-            element "Component" {
-                background #85bbf0
-                color #000000
-            }
-            element "Message Broker" {
-                background #f5a623
-                color #000000
-                shape Pipe
+                shape Diamond
             }
         }
     }

@@ -1,0 +1,33 @@
+digraph {
+  compound=true
+  graph [fontname="Arial", rankdir=TB, ranksep=1.0, nodesep=1.0]
+  node [fontname="Arial", shape=box, margin="0.4,0.3"]
+  edge [fontname="Arial"]
+  label=<<br /><font point-size="34">Component View: Trade Loan Service - Trade Loan Application</font><br /><font point-size="24">MCP driving adapter (read + ops tools)</font>>
+
+  subgraph cluster_6 {
+    margin=25
+    label=<<font point-size="24"><br />Trade Loan Service</font><br /><font point-size="19">[Software System]</font>>
+    labelloc=b
+    color="#444444"
+    fontcolor="#444444"
+    fillcolor="#444444"
+
+    subgraph cluster_7 {
+      margin=25
+      label=<<font point-size="24"><br />Trade Loan Application</font><br /><font point-size="19">[Container: Java 25, Spring Boot 4]</font>>
+      labelloc=b
+      color="#444444"
+      fontcolor="#444444"
+      fillcolor="#444444"
+
+      100 [id=100,shape=rect, label=<<font point-size="34">Loan Facility Mcp<br />Tools</font><br /><font point-size="19">[Component: MCP Tool]</font>>, style=filled, color="#1a746b", fillcolor="#26a69a", fontcolor="#ffffff"]
+      101 [id=101,shape=rect, label=<<font point-size="34">Loan Type Mcp Tools</font><br /><font point-size="19">[Component: MCP Tool]</font>>, style=filled, color="#1a746b", fillcolor="#26a69a", fontcolor="#ffffff"]
+      102 [id=102,shape=rect, label=<<font point-size="34">Loan Arrangement Mcp<br />Tools</font><br /><font point-size="19">[Component: MCP Tool]</font>>, style=filled, color="#1a746b", fillcolor="#26a69a", fontcolor="#ffffff"]
+      103 [id=103,shape=rect, label=<<font point-size="34">Installment Schedule<br />Mcp Tools</font><br /><font point-size="19">[Component: MCP Tool]</font>>, style=filled, color="#1a746b", fillcolor="#26a69a", fontcolor="#ffffff"]
+      99 [id=99,shape=rect, label=<<font point-size="34">Reconciliation Ops<br />Mcp Tools</font><br /><font point-size="19">[Component: MCP Tool]</font>>, style=filled, color="#1a746b", fillcolor="#26a69a", fontcolor="#ffffff"]
+    }
+
+  }
+
+}

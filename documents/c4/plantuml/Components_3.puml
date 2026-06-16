@@ -1,186 +1,167 @@
 @startuml
+title <size:24>Component View: Trade Loan Service - Trade Loan Application</size>\n<size:24>Components (page 3/4)</size>
+
 set separator none
-title Trade Loan Service - Trade Loan Application - Components
-
 top to bottom direction
-
-skinparam {
-  arrowFontSize 10
-  defaultTextAlignment center
-  wrapWidth 200
-  maxMessageSize 100
-}
-
+skinparam ranksep 60
+skinparam nodesep 30
 hide stereotype
 
-skinparam hexagon<<TradeLoanService.TradeLoanApplication.InstallmentScheduleOutboxHandler>> {
-  BackgroundColor #66bb6a
-  FontColor #000000
-  BorderColor #47824a
-  shadowing false
-}
-skinparam database<<TradeLoanService.TradeLoanApplication.InstallmentScheduleRepositoryAdapter>> {
-  BackgroundColor #5c6bc0
-  FontColor #ffffff
-  BorderColor #404a86
-  shadowing false
-}
-skinparam database<<TradeLoanService.TradeLoanApplication.JpaFacilityQueryAdapter>> {
-  BackgroundColor #5c6bc0
-  FontColor #ffffff
-  BorderColor #404a86
-  shadowing false
-}
-skinparam database<<TradeLoanService.TradeLoanApplication.JpaTradeInstallmentScheduleQueryAdapter>> {
-  BackgroundColor #5c6bc0
-  FontColor #ffffff
-  BorderColor #404a86
-  shadowing false
-}
-skinparam database<<TradeLoanService.TradeLoanApplication.JpaTradeLoanArrangementQueryAdapter>> {
-  BackgroundColor #5c6bc0
-  FontColor #ffffff
-  BorderColor #404a86
-  shadowing false
-}
-skinparam database<<TradeLoanService.TradeLoanApplication.JpaTradeLoanTypeQueryAdapter>> {
-  BackgroundColor #5c6bc0
-  FontColor #ffffff
-  BorderColor #404a86
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanApplication>> {
-  BackgroundColor #ff9800
-  FontColor #000000
-  BorderColor #b26a00
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanArrangement>> {
-  BackgroundColor #ff9800
-  FontColor #000000
-  BorderColor #b26a00
-  shadowing false
-}
-skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler>> {
-  BackgroundColor #66bb6a
-  FontColor #000000
-  BorderColor #47824a
-  shadowing false
-}
-skinparam database<<TradeLoanService.TradeLoanApplication.TradeLoanArrangementRepositoryAdapter>> {
-  BackgroundColor #5c6bc0
-  FontColor #ffffff
-  BorderColor #404a86
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanFacility>> {
-  BackgroundColor #ff9800
-  FontColor #000000
-  BorderColor #b26a00
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanFacilityEventFactory>> {
-  BackgroundColor #ffb74d
-  FontColor #000000
-  BorderColor #b28035
-  shadowing false
-}
-skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler>> {
-  BackgroundColor #66bb6a
-  FontColor #000000
-  BorderColor #47824a
-  shadowing false
-}
-skinparam database<<TradeLoanService.TradeLoanApplication.TradeLoanFacilityRepositoryAdapter>> {
-  BackgroundColor #5c6bc0
-  FontColor #ffffff
-  BorderColor #404a86
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanFacilityService>> {
-  BackgroundColor #29b6f6
-  FontColor #ffffff
-  BorderColor #1c7fac
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanFacilityValidationService>> {
-  BackgroundColor #29b6f6
-  FontColor #ffffff
-  BorderColor #1c7fac
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanType>> {
-  BackgroundColor #ff9800
-  FontColor #000000
-  BorderColor #b26a00
-  shadowing false
-}
-skinparam hexagon<<TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler>> {
-  BackgroundColor #66bb6a
-  FontColor #000000
-  BorderColor #47824a
-  shadowing false
-}
-skinparam database<<TradeLoanService.TradeLoanApplication.TradeLoanTypeRepositoryAdapter>> {
-  BackgroundColor #5c6bc0
-  FontColor #ffffff
-  BorderColor #404a86
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeLoanTypeValidationService>> {
-  BackgroundColor #29b6f6
-  FontColor #ffffff
-  BorderColor #1c7fac
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeRepaymentSchedulingService>> {
-  BackgroundColor #29b6f6
-  FontColor #ffffff
-  BorderColor #1c7fac
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeSanctionValidationService>> {
-  BackgroundColor #29b6f6
-  FontColor #ffffff
-  BorderColor #1c7fac
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication.TradeSanctionedLoan>> {
-  BackgroundColor #ff9800
-  FontColor #000000
-  BorderColor #b26a00
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
-  BorderColor #2e6295
-  FontColor #2e6295
-  shadowing false
+<style>
+  root {
+    BackgroundColor: #ffffff;
+    FontColor: #444444;
+  }
+  // Element,Component,Client
+  .Element-RWxlbWVudCxDb21wb25lbnQsQ2xpZW50 {
+    BackgroundColor: #ec407a;
+    LineColor: #a52c55;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Component,Consumer
+  .Element-RWxlbWVudCxDb21wb25lbnQsQ29uc3VtZXI= {
+    BackgroundColor: #ff7043;
+    LineColor: #b24e2e;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Component,MCP
+  .Element-RWxlbWVudCxDb21wb25lbnQsTUNQ {
+    BackgroundColor: #26a69a;
+    LineColor: #1a746b;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Component,Outbox
+  .Element-RWxlbWVudCxDb21wb25lbnQsT3V0Ym94 {
+    BackgroundColor: #66bb6a;
+    LineColor: #47824a;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #000000;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Component,Reconciliation
+  .Element-RWxlbWVudCxDb21wb25lbnQsUmVjb25jaWxpYXRpb24= {
+    BackgroundColor: #9575cd;
+    LineColor: #68518f;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Component,Repository
+  .Element-RWxlbWVudCxDb21wb25lbnQsUmVwb3NpdG9yeQ== {
+    BackgroundColor: #5c6bc0;
+    LineColor: #404a86;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Relationship
+  .Relationship-UmVsYXRpb25zaGlw {
+    LineThickness: 2;
+    LineStyle: 10-10;
+    LineColor: #707070;
+    FontColor: #707070;
+    FontSize: 24;
+  }
+  // Trade Loan Application
+  .Boundary-VHJhZGUgTG9hbiBBcHBsaWNhdGlvbg== {
+    BackgroundColor: #ffffff;
+    LineColor: #2e6295;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+  // Trade Loan Service
+  .Boundary-VHJhZGUgTG9hbiBTZXJ2aWNl {
+    BackgroundColor: #ffffff;
+    LineColor: #0b4884;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+</style>
+
+rectangle "Trade Loan Service\n<size:16>[Software System]</size>" <<Boundary-VHJhZGUgTG9hbiBTZXJ2aWNl>> {
+  rectangle "Trade Loan Application\n<size:16>[Container: Java 25, Spring Boot 4]</size>" <<Boundary-VHJhZGUgTG9hbiBBcHBsaWNhdGlvbg==>> {
+    person "==Loan Facility Mcp Tools\n<size:16>[Component: MCP Tool]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsTUNQ>> as TradeLoanService.TradeLoanApplication.LoanFacilityMcpTools
+    person "==Loan Type Mcp Tools\n<size:16>[Component: MCP Tool]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsTUNQ>> as TradeLoanService.TradeLoanApplication.LoanTypeMcpTools
+    person "==Loan Arrangement Mcp Tools\n<size:16>[Component: MCP Tool]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsTUNQ>> as TradeLoanService.TradeLoanApplication.LoanArrangementMcpTools
+    person "==Installment Schedule Mcp Tools\n<size:16>[Component: MCP Tool]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsTUNQ>> as TradeLoanService.TradeLoanApplication.InstallmentScheduleMcpTools
+    rectangle "==Artemis Fcb Request Reply Client\n<size:16>[Component: FCB corridor client]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsQ2xpZW50>> as TradeLoanService.TradeLoanApplication.ArtemisFcbRequestReplyClient
+    rectangle "==Fcb Request Reply Client\n<size:16>[Component: FCB corridor client]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsQ2xpZW50>> as TradeLoanService.TradeLoanApplication.FcbRequestReplyClient
+    rectangle "==Fcb Kafka Client\n<size:16>[Component: FCB corridor client]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsQ2xpZW50>> as TradeLoanService.TradeLoanApplication.FcbKafkaClient
+    rectangle "==Routing Fcb Request Reply Client\n<size:16>[Component: FCB corridor client]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsQ2xpZW50>> as TradeLoanService.TradeLoanApplication.RoutingFcbRequestReplyClient
+    rectangle "==Find Loan Arrangement By Id Client\n<size:16>[Component: FCB corridor client]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsQ2xpZW50>> as TradeLoanService.TradeLoanApplication.FindLoanArrangementByIdClient
+    rectangle "==Facility Root Cause Classifier\n<size:16>[Component: Reconciliation engine]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVjb25jaWxpYXRpb24=>> as TradeLoanService.TradeLoanApplication.FacilityRootCauseClassifier
+    rectangle "==Facility Convergence Action\n<size:16>[Component: Reconciliation engine]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVjb25jaWxpYXRpb24=>> as TradeLoanService.TradeLoanApplication.FacilityConvergenceAction
+    rectangle "==Facility Root Cause Classifier $ Signal Verdict\n<size:16>[Component: Reconciliation engine]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVjb25jaWxpYXRpb24=>> as TradeLoanService.TradeLoanApplication.FacilityRootCauseClassifierSignalVerdict
+    rectangle "==Facility Divergence Probe\n<size:16>[Component: Reconciliation engine]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVjb25jaWxpYXRpb24=>> as TradeLoanService.TradeLoanApplication.FacilityDivergenceProbe
+    rectangle "==Facility Recon Mapping\n<size:16>[Component: Reconciliation engine]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVjb25jaWxpYXRpb24=>> as TradeLoanService.TradeLoanApplication.FacilityReconMapping
+    rectangle "==Facility Root Cause Classifier $ Classifier Input\n<size:16>[Component: Reconciliation engine]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVjb25jaWxpYXRpb24=>> as TradeLoanService.TradeLoanApplication.FacilityRootCauseClassifierClassifierInput
+    rectangle "==Facility Classification\n<size:16>[Component: Reconciliation engine]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVjb25jaWxpYXRpb24=>> as TradeLoanService.TradeLoanApplication.FacilityClassification
+    rectangle "==Reconciliation Source Properties\n<size:16>[Component: Reconciliation engine]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVjb25jaWxpYXRpb24=>> as TradeLoanService.TradeLoanApplication.ReconciliationSourceProperties
+    database "==Installment Schedule Repository Adapter\n<size:16>[Component: Spring Data JPA]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVwb3NpdG9yeQ==>> as TradeLoanService.TradeLoanApplication.InstallmentScheduleRepositoryAdapter
+    database "==Trade Loan Type Repository Adapter\n<size:16>[Component: Spring Data JPA]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVwb3NpdG9yeQ==>> as TradeLoanService.TradeLoanApplication.TradeLoanTypeRepositoryAdapter
+    database "==Trade Loan Facility Repository Adapter\n<size:16>[Component: Spring Data JPA]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVwb3NpdG9yeQ==>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityRepositoryAdapter
+    database "==Jpa Trade Loan Arrangement Query Adapter\n<size:16>[Component: Spring Data JPA]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVwb3NpdG9yeQ==>> as TradeLoanService.TradeLoanApplication.JpaTradeLoanArrangementQueryAdapter
+    database "==Jpa Trade Installment Schedule Query Adapter\n<size:16>[Component: Spring Data JPA]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVwb3NpdG9yeQ==>> as TradeLoanService.TradeLoanApplication.JpaTradeInstallmentScheduleQueryAdapter
+    database "==Jpa Trade Loan Type Query Adapter\n<size:16>[Component: Spring Data JPA]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVwb3NpdG9yeQ==>> as TradeLoanService.TradeLoanApplication.JpaTradeLoanTypeQueryAdapter
+    database "==Jpa Facility Query Adapter\n<size:16>[Component: Spring Data JPA]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsUmVwb3NpdG9yeQ==>> as TradeLoanService.TradeLoanApplication.JpaFacilityQueryAdapter
+    hexagon "==Trade Loan Arrangement Outbox Handler\n<size:16>[Component: Outbox Publisher]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsT3V0Ym94>> as TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler
+    hexagon "==Installment Schedule Outbox Handler\n<size:16>[Component: Outbox Publisher]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsT3V0Ym94>> as TradeLoanService.TradeLoanApplication.InstallmentScheduleOutboxHandler
+    hexagon "==Trade Loan Type Outbox Handler\n<size:16>[Component: Outbox Publisher]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsT3V0Ym94>> as TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler
+    hexagon "==Trade Loan Facility Outbox Handler\n<size:16>[Component: Outbox Publisher]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsT3V0Ym94>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler
+    hexagon "==Fcb Event Consumer\n<size:16>[Component: Spring Kafka Listener]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsQ29uc3VtZXI=>> as TradeLoanService.TradeLoanApplication.FcbEventConsumer
+    person "==Reconciliation Ops Mcp Tools\n<size:16>[Component: MCP Tool]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsTUNQ>> as TradeLoanService.TradeLoanApplication.ReconciliationOpsMcpTools
+  }
+
 }
 
-rectangle "Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>" <<TradeLoanService.TradeLoanApplication>> {
-  rectangle "==TradeLoanArrangement\n<size:10>[Component: DDD Aggregate Root]</size>\n\ntrade loan arrangement aggregate" <<TradeLoanService.TradeLoanApplication.TradeLoanArrangement>> as TradeLoanService.TradeLoanApplication.TradeLoanArrangement
-  rectangle "==TradeLoanApplication\n<size:10>[Component: DDD Aggregate Root]</size>\n\ntrade loan application aggregate" <<TradeLoanService.TradeLoanApplication.TradeLoanApplication>> as TradeLoanService.TradeLoanApplication.TradeLoanApplication
-  rectangle "==TradeLoanFacility\n<size:10>[Component: DDD Aggregate Root]</size>\n\ntrade loan facility aggregate" <<TradeLoanService.TradeLoanApplication.TradeLoanFacility>> as TradeLoanService.TradeLoanApplication.TradeLoanFacility
-  rectangle "==TradeLoanFacilityEventFactory\n<size:10>[Component: DDD Entity]</size>\n\ntrade loan facility event factory entity" <<TradeLoanService.TradeLoanApplication.TradeLoanFacilityEventFactory>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityEventFactory
-  rectangle "==TradeSanctionedLoan\n<size:10>[Component: DDD Aggregate Root]</size>\n\ntrade sanctioned loan aggregate" <<TradeLoanService.TradeLoanApplication.TradeSanctionedLoan>> as TradeLoanService.TradeLoanApplication.TradeSanctionedLoan
-  rectangle "==TradeLoanType\n<size:10>[Component: DDD Aggregate Root]</size>\n\ntrade loan type aggregate" <<TradeLoanService.TradeLoanApplication.TradeLoanType>> as TradeLoanService.TradeLoanApplication.TradeLoanType
-  rectangle "==TradeRepaymentSchedulingService\n<size:10>[Component: Domain Service]</size>\n\ntrade repayment scheduling service domain service" <<TradeLoanService.TradeLoanApplication.TradeRepaymentSchedulingService>> as TradeLoanService.TradeLoanApplication.TradeRepaymentSchedulingService
-  rectangle "==TradeLoanFacilityService\n<size:10>[Component: Domain Service]</size>\n\ntrade loan facility service domain service" <<TradeLoanService.TradeLoanApplication.TradeLoanFacilityService>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityService
-  rectangle "==TradeLoanFacilityValidationService\n<size:10>[Component: Domain Service]</size>\n\ntrade loan facility validation service domain service" <<TradeLoanService.TradeLoanApplication.TradeLoanFacilityValidationService>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityValidationService
-  rectangle "==TradeSanctionValidationService\n<size:10>[Component: Domain Service]</size>\n\ntrade sanction validation service domain service" <<TradeLoanService.TradeLoanApplication.TradeSanctionValidationService>> as TradeLoanService.TradeLoanApplication.TradeSanctionValidationService
-  rectangle "==TradeLoanTypeValidationService\n<size:10>[Component: Domain Service]</size>\n\ntrade loan type validation service domain service" <<TradeLoanService.TradeLoanApplication.TradeLoanTypeValidationService>> as TradeLoanService.TradeLoanApplication.TradeLoanTypeValidationService
-  database "==InstallmentScheduleRepositoryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nInstallmentSchedule persistence adapter" <<TradeLoanService.TradeLoanApplication.InstallmentScheduleRepositoryAdapter>> as TradeLoanService.TradeLoanApplication.InstallmentScheduleRepositoryAdapter
-  database "==TradeLoanArrangementRepositoryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nTradeLoanArrangement persistence adapter" <<TradeLoanService.TradeLoanApplication.TradeLoanArrangementRepositoryAdapter>> as TradeLoanService.TradeLoanApplication.TradeLoanArrangementRepositoryAdapter
-  database "==TradeLoanFacilityRepositoryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nTradeLoanFacility persistence adapter" <<TradeLoanService.TradeLoanApplication.TradeLoanFacilityRepositoryAdapter>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityRepositoryAdapter
-  database "==TradeLoanTypeRepositoryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nTradeLoanType persistence adapter" <<TradeLoanService.TradeLoanApplication.TradeLoanTypeRepositoryAdapter>> as TradeLoanService.TradeLoanApplication.TradeLoanTypeRepositoryAdapter
-  database "==JpaTradeInstallmentScheduleQueryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nTradeInstallmentSchedule query adapter" <<TradeLoanService.TradeLoanApplication.JpaTradeInstallmentScheduleQueryAdapter>> as TradeLoanService.TradeLoanApplication.JpaTradeInstallmentScheduleQueryAdapter
-  database "==JpaTradeLoanArrangementQueryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nTradeLoanArrangement query adapter" <<TradeLoanService.TradeLoanApplication.JpaTradeLoanArrangementQueryAdapter>> as TradeLoanService.TradeLoanApplication.JpaTradeLoanArrangementQueryAdapter
-  database "==JpaFacilityQueryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nFacility query adapter" <<TradeLoanService.TradeLoanApplication.JpaFacilityQueryAdapter>> as TradeLoanService.TradeLoanApplication.JpaFacilityQueryAdapter
-  database "==JpaTradeLoanTypeQueryAdapter\n<size:10>[Component: Spring Data JPA]</size>\n\nTradeLoanType query adapter" <<TradeLoanService.TradeLoanApplication.JpaTradeLoanTypeQueryAdapter>> as TradeLoanService.TradeLoanApplication.JpaTradeLoanTypeQueryAdapter
-  hexagon "==InstallmentScheduleOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nInstallmentSchedule outbox handler" <<TradeLoanService.TradeLoanApplication.InstallmentScheduleOutboxHandler>> as TradeLoanService.TradeLoanApplication.InstallmentScheduleOutboxHandler
-  hexagon "==TradeLoanArrangementOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanArrangement outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanArrangementOutboxHandler
-  hexagon "==TradeLoanFacilityOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanFacility outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityOutboxHandler
-  hexagon "==TradeLoanTypeOutboxHandler\n<size:10>[Component: Outbox Pattern]</size>\n\nTradeLoanType outbox handler" <<TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler>> as TradeLoanService.TradeLoanApplication.TradeLoanTypeOutboxHandler
-}
+TradeLoanService.TradeLoanApplication.RoutingFcbRequestReplyClient --> TradeLoanService.TradeLoanApplication.FcbRequestReplyClient <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.FacilityRootCauseClassifier --> TradeLoanService.TradeLoanApplication.FacilityReconMapping <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.FacilityRootCauseClassifier --> TradeLoanService.TradeLoanApplication.FacilityRootCauseClassifierSignalVerdict <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.FacilityRootCauseClassifier --> TradeLoanService.TradeLoanApplication.FacilityClassification <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.FacilityRootCauseClassifier --> TradeLoanService.TradeLoanApplication.FacilityRootCauseClassifierClassifierInput <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.FacilityConvergenceAction --> TradeLoanService.TradeLoanApplication.ReconciliationSourceProperties <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.FacilityConvergenceAction --> TradeLoanService.TradeLoanApplication.FacilityReconMapping <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.FacilityConvergenceAction --> TradeLoanService.TradeLoanApplication.FacilityClassification <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.FacilityConvergenceAction --> TradeLoanService.TradeLoanApplication.FacilityRootCauseClassifierClassifierInput <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.FacilityConvergenceAction --> TradeLoanService.TradeLoanApplication.FacilityRootCauseClassifier <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.FacilityDivergenceProbe --> TradeLoanService.TradeLoanApplication.FacilityReconMapping <<Relationship-UmVsYXRpb25zaGlw>> : ""
 
 @enduml

@@ -15,7 +15,7 @@ public record ArchitectureConfig(
 
     public record PersonConfig(String name, String description, List<String> tags, List<UsesConfig> uses) {}
 
-    public record ExternalSystemConfig(String name, String description, List<String> tags) {}
+    public record ExternalSystemConfig(String name, String description, List<String> tags, List<UsesConfig> uses) {}
 
     public record SystemConfig(String name, String description, List<String> tags) {}
 

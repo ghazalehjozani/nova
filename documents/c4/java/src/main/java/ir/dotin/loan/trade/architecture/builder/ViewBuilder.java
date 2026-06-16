@@ -77,23 +77,29 @@ public class ViewBuilder {
     }
 
     private void buildLayerViews() {
-        createFilteredView(Views.CONTROLLERS, "REST Controllers", Set.of(ArchitectureConstants.Tags.CONTROLLER));
-        createFilteredView(Views.HANDLERS, "Command and Query Handlers", Set.of(ArchitectureConstants.Tags.HANDLER));
-        createFilteredView(Views.SAGAS, "Saga Orchestrators", Set.of(ArchitectureConstants.Tags.SAGA));
-        createFilteredView(Views.DOMAIN_MODEL, "Domain Layer", Set.of(ArchitectureConstants.Tags.DOMAIN));
+        createFilteredView(Views.CONTROLLERS, "REST controllers", Set.of(ArchitectureConstants.Tags.CONTROLLER));
+        createFilteredView(Views.HANDLERS, "Command and query handlers", Set.of(ArchitectureConstants.Tags.HANDLER));
+        createFilteredView(Views.DOMAIN_MODEL, "Domain layer", Set.of(ArchitectureConstants.Tags.DOMAIN));
+        createFilteredView(Views.MCP, "MCP driving adapter (read + ops tools)", Set.of(ArchitectureConstants.Tags.MCP));
 
         var repoView = createFilteredView(
                 Views.REPOSITORIES, "Repository adapters", Set.of(ArchitectureConstants.Tags.REPOSITORY));
         addContainer(repoView, Containers.POSTGRESQL_DATABASE);
 
-        createFilteredView(
-                Views.EXTERNAL_CLIENTS, "External service clients", Set.of(ArchitectureConstants.Tags.CLIENT));
+        var reconView = createFilteredView(
+                Views.RECONCILIATION,
+                "Nova ↔ FCB reconciliation engine",
+                Set.of(ArchitectureConstants.Tags.RECONCILIATION));
+        addContainer(reconView, Containers.POSTGRESQL_DATABASE);
+
+        createFilteredView(Views.EXTERNAL_CLIENTS, "FCB corridor clients", Set.of(ArchitectureConstants.Tags.CLIENT));
 
         var msgView = createFilteredView(
                 Views.MESSAGING,
                 "Kafka consumers and outbox handlers",
                 Set.of(ArchitectureConstants.Tags.CONSUMER, ArchitectureConstants.Tags.OUTBOX));
         addContainer(msgView, Containers.KAFKA);
+        addContainer(msgView, Containers.ARTEMIS);
     }
 
     private void buildFlowViews() {
@@ -117,12 +123,12 @@ public class ViewBuilder {
                 c -> c.getTagsAsSet().contains(ArchitectureConstants.Tags.QUERY));
 
         createFlowView(
-                Views.SAGA_FLOW,
-                "Saga orchestration flow",
+                Views.WORKFLOW_FLOW,
+                "Workflow orchestration flow",
                 Set.of(
                         ArchitectureConstants.Tags.CONTROLLER,
-                        ArchitectureConstants.Tags.SAGA,
                         ArchitectureConstants.Tags.HANDLER,
+                        ArchitectureConstants.Tags.CLIENT,
                         ArchitectureConstants.Tags.CONSUMER,
                         ArchitectureConstants.Tags.OUTBOX),
                 _ -> true);

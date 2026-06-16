@@ -1,8 +1,0 @@
-digraph {
-  compound=true
-  graph [fontname="Arial", rankdir=TB, ranksep=1.0, nodesep=1.0]
-  node [fontname="Arial", shape=box, margin="0.4,0.3"]
-  edge [fontname="Arial"]
-  label=<<br /><font point-size="34">Trade Loan Service - Trade Loan Application - Components</font><br /><font point-size="24">Saga Orchestrators</font>>
-
-}

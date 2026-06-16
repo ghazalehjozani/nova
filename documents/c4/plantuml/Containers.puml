@@ -1,171 +1,190 @@
 @startuml
+title <size:24>Container View: Trade Loan Service</size>\n<size:24>Container diagram showing application and infrastructure</size>
+
 set separator none
-title Trade Loan Service - Containers
-
 top to bottom direction
-
-skinparam {
-  arrowFontSize 10
-  defaultTextAlignment center
-  wrapWidth 200
-  maxMessageSize 100
-}
-
+skinparam ranksep 60
+skinparam nodesep 30
 hide stereotype
 
-skinparam rectangle<<AccountService>> {
-  BackgroundColor #999999
-  FontColor #ffffff
-  BorderColor #6b6b6b
-  shadowing false
-}
-skinparam person<<BranchManager>> {
-  BackgroundColor #08427b
-  FontColor #ffffff
-  BorderColor #052e56
-  shadowing false
-}
-skinparam rectangle<<CollateralService>> {
-  BackgroundColor #999999
-  FontColor #ffffff
-  BorderColor #6b6b6b
-  shadowing false
-}
-skinparam person<<Customer>> {
-  BackgroundColor #666666
-  FontColor #ffffff
-  BorderColor #474747
-  shadowing false
-}
-skinparam rectangle<<CustomerService>> {
-  BackgroundColor #999999
-  FontColor #ffffff
-  BorderColor #6b6b6b
-  shadowing false
-}
-skinparam rectangle<<DepositService>> {
-  BackgroundColor #999999
-  FontColor #ffffff
-  BorderColor #6b6b6b
-  shadowing false
-}
-skinparam rectangle<<FCBCoreBanking>> {
-  BackgroundColor #999999
-  FontColor #ffffff
-  BorderColor #6b6b6b
-  shadowing false
-}
-skinparam rectangle<<FormulaEvaluatorService>> {
-  BackgroundColor #999999
-  FontColor #ffffff
-  BorderColor #6b6b6b
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.Kafdrop>> {
-  BackgroundColor #27ae60
-  FontColor #ffffff
-  BorderColor #1b7943
-  shadowing false
-}
-skinparam queue<<TradeLoanService.Kafka>> {
-  BackgroundColor #f5a623
-  FontColor #000000
-  BorderColor #ab7418
-  shadowing false
-}
-skinparam person<<LoanOfficer>> {
-  BackgroundColor #08427b
-  FontColor #ffffff
-  BorderColor #052e56
-  shadowing false
-}
-skinparam rectangle<<LoanService>> {
-  BackgroundColor #999999
-  FontColor #ffffff
-  BorderColor #6b6b6b
-  shadowing false
-}
-skinparam rectangle<<OpenTelemetryCollector>> {
-  BackgroundColor #999999
-  FontColor #ffffff
-  BorderColor #6b6b6b
-  shadowing false
-}
-skinparam database<<TradeLoanService.PostgreSQLDatabase>> {
-  BackgroundColor #438dd5
-  FontColor #ffffff
-  BorderColor #2e6295
-  shadowing false
-}
-skinparam database<<TradeLoanService.Redis>> {
-  BackgroundColor #e74c3c
-  FontColor #ffffff
-  BorderColor #a1352a
-  shadowing false
-}
-skinparam person<<SystemAdministrator>> {
-  BackgroundColor #5c3d6e
-  FontColor #ffffff
-  BorderColor #402a4d
-  shadowing false
-}
-skinparam rectangle<<TPSSSO>> {
-  BackgroundColor #999999
-  FontColor #ffffff
-  BorderColor #6b6b6b
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService.TradeLoanApplication>> {
-  BackgroundColor #438dd5
-  FontColor #ffffff
-  BorderColor #2e6295
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService>> {
-  BorderColor #0b4884
-  FontColor #0b4884
-  shadowing false
+<style>
+  root {
+    BackgroundColor: #ffffff;
+    FontColor: #444444;
+  }
+  // Element,Container
+  .Element-RWxlbWVudCxDb250YWluZXI= {
+    BackgroundColor: #438dd5;
+    LineColor: #2e6295;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Container,Cache
+  .Element-RWxlbWVudCxDb250YWluZXIsQ2FjaGU= {
+    BackgroundColor: #e74c3c;
+    LineColor: #a1352a;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Container,Database
+  .Element-RWxlbWVudCxDb250YWluZXIsRGF0YWJhc2U= {
+    BackgroundColor: #438dd5;
+    LineColor: #2e6295;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Container,Message Broker
+  .Element-RWxlbWVudCxDb250YWluZXIsTWVzc2FnZSBCcm9rZXI= {
+    BackgroundColor: #f5a623;
+    LineColor: #ab7418;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #000000;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Person,Admin
+  .Element-RWxlbWVudCxQZXJzb24sQWRtaW4= {
+    BackgroundColor: #5c3d6e;
+    LineColor: #402a4d;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Software System,External System
+  .Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVt {
+    BackgroundColor: #999999;
+    LineColor: #6b6b6b;
+    LineStyle: 10-10;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Software System,External System,Config
+  .Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLENvbmZpZw== {
+    BackgroundColor: #6d4c41;
+    LineColor: #4c352d;
+    LineStyle: 10-10;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Software System,External System,Core Banking
+  .Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLENvcmUgQmFua2luZw== {
+    BackgroundColor: #8d6e63;
+    LineColor: #624d45;
+    LineStyle: 10-10;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Software System,External System,Observability
+  .Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLE9ic2VydmFiaWxpdHk= {
+    BackgroundColor: #00897b;
+    LineColor: #005f56;
+    LineStyle: 10-10;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Software System,External System,Security
+  .Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLFNlY3VyaXR5 {
+    BackgroundColor: #b71c1c;
+    LineColor: #801313;
+    LineStyle: 10-10;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Relationship
+  .Relationship-UmVsYXRpb25zaGlw {
+    LineThickness: 2;
+    LineStyle: 10-10;
+    LineColor: #707070;
+    FontColor: #707070;
+    FontSize: 24;
+  }
+  // Trade Loan Service
+  .Boundary-VHJhZGUgTG9hbiBTZXJ2aWNl {
+    BackgroundColor: #ffffff;
+    LineColor: #0b4884;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+</style>
+
+rectangle "==ESB\n<size:16>[Software System]</size>\n\nEnterprise Service Bus — routes business loan-lifecycle requests from upstream channels" <<Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVt>> as ESB
+rectangle "==TPS SSO\n<size:16>[Software System]</size>\n\nOAuth2/OIDC identity provider (token validation + JWKS)" <<Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLFNlY3VyaXR5>> as TPSSSO
+rectangle "==FCB Core Banking\n<size:16>[Software System]</size>\n\nLegacy core banking — accounts, postings, collateral, sanctions" <<Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLENvcmUgQmFua2luZw==>> as FCBCoreBanking
+rectangle "==OpenTelemetry Collector\n<size:16>[Software System]</size>\n\nOpenTelemetry collector — traces, metrics, logs" <<Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLE9ic2VydmFiaWxpdHk=>> as OpenTelemetryCollector
+rectangle "==Consul\n<size:16>[Software System]</size>\n\nRuntime configuration store (Consul KV, fed by GitOps)" <<Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLENvbmZpZw==>> as Consul
+person "==Operator / Admin\n<size:16>[Person]</size>\n\nBank operations / administrator — monitors and remediates the service" <<Element-RWxlbWVudCxQZXJzb24sQWRtaW4=>> as OperatorAdmin
+
+rectangle "Trade Loan Service\n<size:16>[Software System]</size>" <<Boundary-VHJhZGUgTG9hbiBTZXJ2aWNl>> {
+  database "==Redis\n<size:16>[Container: Redis 8.6 (Sentinel HA: 1 master / 2 replicas / 3 sentinels)]</size>\n\nCache + idempotency store (Sentinel HA)" <<Element-RWxlbWVudCxDb250YWluZXIsQ2FjaGU=>> as TradeLoanService.Redis
+  queue "==ActiveMQ Artemis\n<size:16>[Container: ActiveMQ Artemis 2.43 (Jakarta JMS)]</size>\n\nPrimary FCB request/reply corridor broker" <<Element-RWxlbWVudCxDb250YWluZXIsTWVzc2FnZSBCcm9rZXI=>> as TradeLoanService.ActiveMQArtemis
+  rectangle "==Trade Loan Application\n<size:16>[Container: Java 25, Spring Boot 4]</size>\n\nSpring Boot hexagonal application (driving + driven adapters)" <<Element-RWxlbWVudCxDb250YWluZXI=>> as TradeLoanService.TradeLoanApplication
+  database "==PostgreSQL Database\n<size:16>[Container: PostgreSQL 18]</size>\n\nLoan data, inbox/outbox, workflow state, audit, reconciliation" <<Element-RWxlbWVudCxDb250YWluZXIsRGF0YWJhc2U=>> as TradeLoanService.PostgreSQLDatabase
+  queue "==Kafka\n<size:16>[Container: Apache Kafka (SASL_PLAINTEXT/SCRAM-SHA-256)]</size>\n\nEvent streaming + request/reply fallback transport" <<Element-RWxlbWVudCxDb250YWluZXIsTWVzc2FnZSBCcm9rZXI=>> as TradeLoanService.Kafka
 }
 
-rectangle "==TPS SSO\n<size:10>[Software System]</size>\n\nOAuth2/OIDC provider" <<TPSSSO>> as TPSSSO
-rectangle "==FCB Core Banking\n<size:10>[Software System]</size>\n\nCore Banking" <<FCBCoreBanking>> as FCBCoreBanking
-rectangle "==OpenTelemetry Collector\n<size:10>[Software System]</size>\n\nObservability backend" <<OpenTelemetryCollector>> as OpenTelemetryCollector
-rectangle "==Account Service\n<size:10>[Software System]</size>\n\nAccount management" <<AccountService>> as AccountService
-rectangle "==Customer Service\n<size:10>[Software System]</size>\n\nCustomer data" <<CustomerService>> as CustomerService
-rectangle "==Deposit Service\n<size:10>[Software System]</size>\n\nDeposit operations" <<DepositService>> as DepositService
-rectangle "==Collateral Service\n<size:10>[Software System]</size>\n\nCollateral management" <<CollateralService>> as CollateralService
-rectangle "==Loan Service\n<size:10>[Software System]</size>\n\nCross-loan operations" <<LoanService>> as LoanService
-rectangle "==Formula Evaluator Service\n<size:10>[Software System]</size>\n\nFormula calculation" <<FormulaEvaluatorService>> as FormulaEvaluatorService
-person "==Loan Officer\n<size:10>[Person]</size>\n\nBank staff managing loans" <<LoanOfficer>> as LoanOfficer
-person "==Branch Manager\n<size:10>[Person]</size>\n\nBranch level approval authority" <<BranchManager>> as BranchManager
-person "==System Administrator\n<size:10>[Person]</size>\n\nTechnical staff" <<SystemAdministrator>> as SystemAdministrator
-person "==Customer\n<size:10>[Person]</size>\n\nEnd users" <<Customer>> as Customer
+TradeLoanService.TradeLoanApplication --> TradeLoanService.PostgreSQLDatabase <<Relationship-UmVsYXRpb25zaGlw>> : "Aggregates, inbox/outbox, workflow, audit, reconciliation\n<size:16>[JDBC/HikariCP]</size>"
+TradeLoanService.TradeLoanApplication --> TradeLoanService.Redis <<Relationship-UmVsYXRpb25zaGlw>> : "Query cache, idempotency, JWKS/token cache\n<size:16>[RESP3 (Sentinel)]</size>"
+TradeLoanService.TradeLoanApplication --> TradeLoanService.Kafka <<Relationship-UmVsYXRpb25zaGlw>> : "Domain events (outbox) + request/reply fallback\n<size:16>[Kafka (SASL/SCRAM)]</size>"
+TradeLoanService.TradeLoanApplication --> TradeLoanService.ActiveMQArtemis <<Relationship-UmVsYXRpb25zaGlw>> : "FCB request/reply corridor (primary)\n<size:16>[Jakarta JMS]</size>"
+TradeLoanService.TradeLoanApplication --> Consul <<Relationship-UmVsYXRpb25zaGlw>> : "Loads runtime config\n<size:16>[Consul KV (watch / @RefreshScope)]</size>"
+ESB --> TradeLoanService.TradeLoanApplication <<Relationship-UmVsYXRpb25zaGlw>> : "Business loan-lifecycle requests\n<size:16>[REST (SWA-101) / JWT]</size>"
+TradeLoanService.TradeLoanApplication --> TradeLoanService.PostgreSQLDatabase <<Relationship-UmVsYXRpb25zaGlw>> : "Reads/Writes\n<size:16>[JDBC/HikariCP]</size>"
+TradeLoanService.TradeLoanApplication --> TPSSSO <<Relationship-UmVsYXRpb25zaGlw>> : "Validates JWT / fetches JWKS\n<size:16>[OAuth2/OIDC + JWKS]</size>"
+TradeLoanService.TradeLoanApplication --> TradeLoanService.Kafka <<Relationship-UmVsYXRpb25zaGlw>> : "Publishes events\n<size:16>[Kafka (SASL/SCRAM)]</size>"
+TradeLoanService.TradeLoanApplication --> TradeLoanService.Kafka <<Relationship-UmVsYXRpb25zaGlw>> : "Consumes from\n<size:16>[Kafka (SASL/SCRAM)]</size>"
+TradeLoanService.TradeLoanApplication --> FCBCoreBanking <<Relationship-UmVsYXRpb25zaGlw>> : "Calls (corridor)\n<size:16>[Corridor (Artemis primary / Kafka fallback)]</size>"
+TradeLoanService.TradeLoanApplication --> TradeLoanService.ActiveMQArtemis <<Relationship-UmVsYXRpb25zaGlw>> : "Request/reply (primary)\n<size:16>[Jakarta JMS]</size>"
+TradeLoanService.TradeLoanApplication --> FCBCoreBanking <<Relationship-UmVsYXRpb25zaGlw>> : "Core banking operations via corridor\n<size:16>[Corridor (Artemis primary / Kafka fallback)]</size>"
+TradeLoanService.TradeLoanApplication --> TradeLoanService.Kafka <<Relationship-UmVsYXRpb25zaGlw>> : "Request/reply (fallback)\n<size:16>[Kafka (SASL/SCRAM)]</size>"
+TradeLoanService.TradeLoanApplication --> TradeLoanService.PostgreSQLDatabase <<Relationship-UmVsYXRpb25zaGlw>> : "Reads reconciliation state\n<size:16>[JDBC/HikariCP]</size>"
+TradeLoanService.TradeLoanApplication --> FCBCoreBanking <<Relationship-UmVsYXRpb25zaGlw>> : "Probes / converges\n<size:16>[Corridor (Artemis primary / Kafka fallback)]</size>"
+TradeLoanService.TradeLoanApplication --> OpenTelemetryCollector <<Relationship-UmVsYXRpb25zaGlw>> : "Exports traces / metrics / logs\n<size:16>[OTLP http/protobuf]</size>"
+OperatorAdmin --> TradeLoanService.TradeLoanApplication <<Relationship-UmVsYXRpb25zaGlw>> : "Operates via OPS endpoints (/v1/ops/*) and MCP ops tools\n<size:16>[HTTPS / JWT (sub-claim allowlist)]</size>"
 
-rectangle "Trade Loan Service\n<size:10>[Software System]</size>" <<TradeLoanService>> {
-  rectangle "==Trade Loan Application\n<size:10>[Container: Java 25, Spring Boot 4]</size>\n\nSpring Boot Hexagonal Architecture" <<TradeLoanService.TradeLoanApplication>> as TradeLoanService.TradeLoanApplication
-  database "==PostgreSQL Database\n<size:10>[Container: PostgreSQL 18]</size>\n\nLoan data storage" <<TradeLoanService.PostgreSQLDatabase>> as TradeLoanService.PostgreSQLDatabase
-  queue "==Kafka\n<size:10>[Container: Confluent Kafka 7.9]</size>\n\nEvent streaming" <<TradeLoanService.Kafka>> as TradeLoanService.Kafka
-  database "==Redis\n<size:10>[Container: Redis 8.2]</size>\n\nCaching and locks" <<TradeLoanService.Redis>> as TradeLoanService.Redis
-  rectangle "==Kafdrop\n<size:10>[Container: Kafdrop 4.2]</size>\n\nKafka monitoring" <<TradeLoanService.Kafdrop>> as TradeLoanService.Kafdrop
-}
-
-TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> TradeLoanService.Kafka : "<color:#707070>Consumes from\n<color:#707070><size:8>[Kafka Protocol]</size>"
-TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> TradeLoanService.Kafka : "<color:#707070>Publishes events\n<color:#707070><size:8>[Kafka Protocol]</size>"
-TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> TradeLoanService.PostgreSQLDatabase : "<color:#707070>Reads/Writes\n<color:#707070><size:8>[JDBC/HikariCP]</size>"
-TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> TradeLoanService.Kafka : "<color:#707070>Publishes/Consumes\n<color:#707070><size:8>[Kafka Protocol]</size>"
-TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> TradeLoanService.Redis : "<color:#707070>Caches data\n<color:#707070><size:8>[Redis Protocol]</size>"
-TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> TPSSSO : "<color:#707070>Authenticates\n<color:#707070><size:8>[OAuth2/OIDC]</size>"
-TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> FCBCoreBanking : "<color:#707070>Core banking\n<color:#707070><size:8>[HTTP/REST]</size>"
-TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> OpenTelemetryCollector : "<color:#707070>Telemetry\n<color:#707070><size:8>[OTLP/gRPC]</size>"
-TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> AccountService : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
-TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> CustomerService : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
-TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> DepositService : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
-TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> CollateralService : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
-TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> LoanService : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
-TradeLoanService.TradeLoanApplication .[#707070,thickness=2].> FormulaEvaluatorService : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
-TradeLoanService.Kafdrop .[#707070,thickness=2].> TradeLoanService.Kafka : "<color:#707070>Monitors\n<color:#707070><size:8>[Kafka Protocol]</size>"
-LoanOfficer .[#707070,thickness=2].> TradeLoanService.TradeLoanApplication : "<color:#707070>Creates and manages loans\n<color:#707070><size:8>[HTTPS/JWT]</size>"
-BranchManager .[#707070,thickness=2].> TradeLoanService.TradeLoanApplication : "<color:#707070>Approves facilities\n<color:#707070><size:8>[HTTPS/JWT]</size>"
-SystemAdministrator .[#707070,thickness=2].> TradeLoanService.TradeLoanApplication : "<color:#707070>Monitors system\n<color:#707070><size:8>[HTTPS/JWT]</size>"
-SystemAdministrator .[#707070,thickness=2].> TradeLoanService.Kafdrop : "<color:#707070>Monitors Kafka\n<color:#707070><size:8>[HTTP]</size>"
 @enduml

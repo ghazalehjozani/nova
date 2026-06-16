@@ -28,9 +28,23 @@
         <module>adapters</module>
         <module>container</module>
         <module>architecture-tests</module>
-        <!--  mvn -pl documents/c4/java process-classes-->
-        <module>documents/c4/java</module>
     </modules>
+
+    <!--
+      C4 architecture-docs generator is intentionally OUT of the default reactor.
+      It is a build-time documentation tool, not a deliverable, and regenerating it
+      churns committed artifacts under documents/c4/. It lives only in the `c4-docs`
+      profile, so `mvn install/verify/package` never compiles or runs it.
+      Regenerate with:  mvn -Pc4-docs -pl documents/c4/java -am package   (or: make c4)
+    -->
+    <profiles>
+        <profile>
+            <id>c4-docs</id>
+            <modules>
+                <module>documents/c4/java</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <properties>
         <loan.base-loan.version>2026.6.5-SNAPSHOT</loan.base-loan.version>

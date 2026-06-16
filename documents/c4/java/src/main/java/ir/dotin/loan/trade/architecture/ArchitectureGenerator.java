@@ -29,14 +29,18 @@ public class ArchitectureGenerator {
 
     public static void main(String[] args) {
         var outputDir = args.length > 0 ? args[0] : "documents/c4";
+        // outputDir is <reactor>/documents/c4 -> the reactor root is two levels up.
+        var reactorRoot = Path.of(outputDir).toAbsolutePath().normalize().getParent();
+        if (reactorRoot != null) reactorRoot = reactorRoot.getParent();
 
         System.out.println("🏗️  C4 Architecture Generation");
         System.out.println("   Current Working Directory: " + System.getProperty("user.dir"));
         System.out.println("   Output: " + outputDir);
+        System.out.println("   Reactor root: " + reactorRoot);
 
         try {
             var generator = new ArchitectureGenerator();
-            var workspace = generator.generate();
+            var workspace = generator.generate(reactorRoot);
             generator.export(workspace, Path.of(outputDir));
             System.out.println("✅ Done!");
         } catch (Exception e) {
@@ -46,7 +50,7 @@ public class ArchitectureGenerator {
         }
     }
 
-    public Workspace generate() {
+    public Workspace generate(Path reactorRoot) {
         var workspace =
                 new Workspace(config.workspace().name(), config.workspace().description());
 
@@ -58,11 +62,11 @@ public class ArchitectureGenerator {
             throw new IllegalStateException("Main container not found");
         }
 
-        var scanner = new ComponentScanner(config.workspace().basePackage());
-        var scannedComponents = scanner.scanComponents();
+        var discovery = new ComponentDiscovery(config.workspace().basePackage());
+        discovery.discover(mainContainer, reactorRoot);
 
-        modelBuilder.buildComponents(mainContainer, scannedComponents);
-        modelBuilder.buildComponentRelationships(mainContainer, scannedComponents);
+        modelBuilder.wireExternalSystemUsage();
+        modelBuilder.wireComponentInfrastructure(mainContainer);
 
         var mainSystem = modelBuilder.getMainSystem();
         if (mainSystem == null) {

@@ -3,28 +3,39 @@ digraph {
   graph [fontname="Arial", rankdir=TB, ranksep=1.0, nodesep=1.0]
   node [fontname="Arial", shape=box, margin="0.4,0.3"]
   edge [fontname="Arial"]
-  label=<<br /><font point-size="34">Trade Loan Service - Trade Loan Application - Components</font><br /><font point-size="24">Kafka consumers and outbox handlers</font>>
+  label=<<br /><font point-size="34">Component View: Trade Loan Service - Trade Loan Application</font><br /><font point-size="24">Kafka consumers and outbox handlers</font>>
 
-  13 [id=13,shape=rect, label=<<font point-size="34">Kafka</font><br /><font point-size="19">[Container: Confluent Kafka 7.9]</font><br /><br /><font point-size="24">Event streaming</font>>, style=filled, color="#ab7418", fillcolor="#f5a623", fontcolor="#000000"]
-
-  subgraph cluster_11 {
+  subgraph cluster_6 {
     margin=25
-    label=<<font point-size="24"><br />Trade Loan Application</font><br /><font point-size="19">[Container: Java 25, Spring Boot 4]</font>>
+    label=<<font point-size="24"><br />Trade Loan Service</font><br /><font point-size="19">[Software System]</font>>
     labelloc=b
     color="#444444"
     fontcolor="#444444"
     fillcolor="#444444"
 
-    129 [id=129,shape=hexagon, label=<<font point-size="34">InstallmentScheduleOutboxHandler</font><br /><font point-size="19">[Component: Outbox Pattern]</font><br /><br /><font point-size="24">InstallmentSchedule outbox<br />handler</font>>, style=filled, color="#47824a", fillcolor="#66bb6a", fontcolor="#000000"]
-    130 [id=130,shape=hexagon, label=<<font point-size="34">TradeLoanArrangementOutboxHandler</font><br /><font point-size="19">[Component: Outbox Pattern]</font><br /><br /><font point-size="24">TradeLoanArrangement outbox<br />handler</font>>, style=filled, color="#47824a", fillcolor="#66bb6a", fontcolor="#000000"]
-    131 [id=131,shape=hexagon, label=<<font point-size="34">TradeLoanFacilityOutboxHandler</font><br /><font point-size="19">[Component: Outbox Pattern]</font><br /><br /><font point-size="24">TradeLoanFacility outbox<br />handler</font>>, style=filled, color="#47824a", fillcolor="#66bb6a", fontcolor="#000000"]
-    132 [id=132,shape=hexagon, label=<<font point-size="34">TradeLoanTypeOutboxHandler</font><br /><font point-size="19">[Component: Outbox Pattern]</font><br /><br /><font point-size="24">TradeLoanType outbox handler</font>>, style=filled, color="#47824a", fillcolor="#66bb6a", fontcolor="#000000"]
-    68 [id=68,shape=hexagon, label=<<font point-size="34">FcbEventConsumer</font><br /><font point-size="19">[Component: Spring Kafka Listener]</font><br /><br /><font point-size="24">Kafka consumer</font>>, style=filled, color="#b24e2e", fillcolor="#ff7043", fontcolor="#ffffff"]
+    subgraph cluster_7 {
+      margin=25
+      label=<<font point-size="24"><br />Trade Loan Application</font><br /><font point-size="19">[Container: Java 25, Spring Boot 4]</font>>
+      labelloc=b
+      color="#444444"
+      fontcolor="#444444"
+      fillcolor="#444444"
+
+      94 [id=94,shape=hexagon, label=<<font point-size="34">Trade Loan<br />Arrangement Outbox<br />Handler</font><br /><font point-size="19">[Component: Outbox Publisher]</font>>, style=filled, color="#47824a", fillcolor="#66bb6a", fontcolor="#000000"]
+      95 [id=95,shape=hexagon, label=<<font point-size="34">Installment Schedule<br />Outbox Handler</font><br /><font point-size="19">[Component: Outbox Publisher]</font>>, style=filled, color="#47824a", fillcolor="#66bb6a", fontcolor="#000000"]
+      96 [id=96,shape=hexagon, label=<<font point-size="34">Trade Loan Type<br />Outbox Handler</font><br /><font point-size="19">[Component: Outbox Publisher]</font>>, style=filled, color="#47824a", fillcolor="#66bb6a", fontcolor="#000000"]
+      97 [id=97,shape=hexagon, label=<<font point-size="34">Trade Loan Facility<br />Outbox Handler</font><br /><font point-size="19">[Component: Outbox Publisher]</font>>, style=filled, color="#47824a", fillcolor="#66bb6a", fontcolor="#000000"]
+      98 [id=98,shape=hexagon, label=<<font point-size="34">Fcb Event Consumer</font><br /><font point-size="19">[Component: Spring Kafka Listener]</font>>, style=filled, color="#b24e2e", fillcolor="#ff7043", fontcolor="#ffffff"]
+    }
+
+    11 [id=11,shape=rect, label=<<font point-size="34">ActiveMQ Artemis</font><br /><font point-size="19">[Container: ActiveMQ Artemis 2.43 (Jakarta JMS)]</font><br /><br /><font point-size="24">Primary FCB request/reply<br />corridor broker</font>>, style=filled, color="#ab7418", fillcolor="#f5a623", fontcolor="#000000"]
+    9 [id=9,shape=rect, label=<<font point-size="34">Kafka</font><br /><font point-size="19">[Container: Apache Kafka (SASL_PLAINTEXT/SCRAM-SHA-256)]</font><br /><br /><font point-size="24">Event streaming +<br />request/reply fallback<br />transport</font>>, style=filled, color="#ab7418", fillcolor="#f5a623", fontcolor="#000000"]
   }
 
-  68 -> 13 [id=133, label=<<font point-size="24">Consumes from</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  129 -> 13 [id=143, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  130 -> 13 [id=145, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  131 -> 13 [id=146, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  132 -> 13 [id=147, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  94 -> 9 [id=187, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka (SASL/SCRAM)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  95 -> 9 [id=189, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka (SASL/SCRAM)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  96 -> 9 [id=190, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka (SASL/SCRAM)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  97 -> 9 [id=191, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka (SASL/SCRAM)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  98 -> 9 [id=192, label=<<font point-size="24">Consumes from</font><br /><font point-size="19">[Kafka (SASL/SCRAM)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+
 }

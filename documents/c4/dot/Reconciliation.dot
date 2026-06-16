@@ -1,0 +1,73 @@
+digraph {
+  compound=true
+  graph [fontname="Arial", rankdir=TB, ranksep=1.0, nodesep=1.0]
+  node [fontname="Arial", shape=box, margin="0.4,0.3"]
+  edge [fontname="Arial"]
+  label=<<br /><font point-size="34">Component View: Trade Loan Service - Trade Loan Application</font><br /><font point-size="24">Nova ↔ FCB reconciliation engine</font>>
+
+  subgraph cluster_6 {
+    margin=25
+    label=<<font point-size="24"><br />Trade Loan Service</font><br /><font point-size="19">[Software System]</font>>
+    labelloc=b
+    color="#444444"
+    fontcolor="#444444"
+    fillcolor="#444444"
+
+    subgraph cluster_7 {
+      margin=25
+      label=<<font point-size="24"><br />Trade Loan Application</font><br /><font point-size="19">[Container: Java 25, Spring Boot 4]</font>>
+      labelloc=b
+      color="#444444"
+      fontcolor="#444444"
+      fillcolor="#444444"
+
+      109 [id=109,shape=rect, label=<<font point-size="34">Facility Root Cause<br />Classifier</font><br /><font point-size="19">[Component: Reconciliation engine]</font>>, style=filled, color="#68518f", fillcolor="#9575cd", fontcolor="#ffffff"]
+      110 [id=110,shape=rect, label=<<font point-size="34">Facility Convergence<br />Action</font><br /><font point-size="19">[Component: Reconciliation engine]</font>>, style=filled, color="#68518f", fillcolor="#9575cd", fontcolor="#ffffff"]
+      111 [id=111,shape=rect, label=<<font point-size="34">Facility Root Cause<br />Classifier $ Signal<br />Verdict</font><br /><font point-size="19">[Component: Reconciliation engine]</font>>, style=filled, color="#68518f", fillcolor="#9575cd", fontcolor="#ffffff"]
+      112 [id=112,shape=rect, label=<<font point-size="34">Facility Divergence<br />Probe</font><br /><font point-size="19">[Component: Reconciliation engine]</font>>, style=filled, color="#68518f", fillcolor="#9575cd", fontcolor="#ffffff"]
+      113 [id=113,shape=rect, label=<<font point-size="34">Facility Recon<br />Mapping</font><br /><font point-size="19">[Component: Reconciliation engine]</font>>, style=filled, color="#68518f", fillcolor="#9575cd", fontcolor="#ffffff"]
+      114 [id=114,shape=rect, label=<<font point-size="34">Facility Root Cause<br />Classifier $<br />Classifier Input</font><br /><font point-size="19">[Component: Reconciliation engine]</font>>, style=filled, color="#68518f", fillcolor="#9575cd", fontcolor="#ffffff"]
+      115 [id=115,shape=rect, label=<<font point-size="34">Facility<br />Classification</font><br /><font point-size="19">[Component: Reconciliation engine]</font>>, style=filled, color="#68518f", fillcolor="#9575cd", fontcolor="#ffffff"]
+      116 [id=116,shape=rect, label=<<font point-size="34">Reconciliation Source<br />Properties</font><br /><font point-size="19">[Component: Reconciliation engine]</font>>, style=filled, color="#68518f", fillcolor="#9575cd", fontcolor="#ffffff"]
+      117 [id=117,shape=rect, label=<<font point-size="34">Facility<br />Reconciliation Source</font><br /><font point-size="19">[Component: Reconciliation engine]</font>>, style=filled, color="#68518f", fillcolor="#9575cd", fontcolor="#ffffff"]
+      118 [id=118,shape=rect, label=<<font point-size="34">Facility Convergence<br />Action $ 1</font><br /><font point-size="19">[Component: Reconciliation engine]</font>>, style=filled, color="#68518f", fillcolor="#9575cd", fontcolor="#ffffff"]
+      119 [id=119,shape=rect, label=<<font point-size="34">Facility Divergence<br />Probe $ 1</font><br /><font point-size="19">[Component: Reconciliation engine]</font>>, style=filled, color="#68518f", fillcolor="#9575cd", fontcolor="#ffffff"]
+      120 [id=120,shape=rect, label=<<font point-size="34">Facility Dossier<br />Builder $ 1</font><br /><font point-size="19">[Component: Reconciliation engine]</font>>, style=filled, color="#68518f", fillcolor="#9575cd", fontcolor="#ffffff"]
+      121 [id=121,shape=rect, label=<<font point-size="34">Facility Dossier<br />Builder</font><br /><font point-size="19">[Component: Reconciliation engine]</font>>, style=filled, color="#68518f", fillcolor="#9575cd", fontcolor="#ffffff"]
+      122 [id=122,shape=rect, label=<<font point-size="34">Facility Root Cause<br />Classifier $ 1</font><br /><font point-size="19">[Component: Reconciliation engine]</font>>, style=filled, color="#68518f", fillcolor="#9575cd", fontcolor="#ffffff"]
+      123 [id=123,shape=rect, label=<<font point-size="34">Facility Recon<br />Mapping $ 1</font><br /><font point-size="19">[Component: Reconciliation engine]</font>>, style=filled, color="#68518f", fillcolor="#9575cd", fontcolor="#ffffff"]
+    }
+
+    8 [id=8,shape=cylinder, label=<<font point-size="34">PostgreSQL Database</font><br /><font point-size="19">[Container: PostgreSQL 18]</font><br /><br /><font point-size="24">Loan data, inbox/outbox,<br />workflow state, audit,<br />reconciliation</font>>, style=filled, color="#2e6295", fillcolor="#438dd5", fontcolor="#ffffff"]
+  }
+
+  109 -> 113 [id=143, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  109 -> 111 [id=144, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  109 -> 115 [id=145, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  109 -> 114 [id=146, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  110 -> 121 [id=147, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  110 -> 116 [id=148, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  110 -> 113 [id=149, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  110 -> 115 [id=150, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  110 -> 114 [id=151, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  110 -> 109 [id=152, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  112 -> 113 [id=153, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  117 -> 116 [id=154, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  121 -> 115 [id=155, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  109 -> 8 [id=205, label=<<font point-size="24">Reads reconciliation state</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  110 -> 8 [id=210, label=<<font point-size="24">Reads reconciliation state</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  111 -> 8 [id=212, label=<<font point-size="24">Reads reconciliation state</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  112 -> 8 [id=214, label=<<font point-size="24">Reads reconciliation state</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  113 -> 8 [id=216, label=<<font point-size="24">Reads reconciliation state</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  114 -> 8 [id=218, label=<<font point-size="24">Reads reconciliation state</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  115 -> 8 [id=220, label=<<font point-size="24">Reads reconciliation state</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  116 -> 8 [id=222, label=<<font point-size="24">Reads reconciliation state</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  117 -> 8 [id=224, label=<<font point-size="24">Reads reconciliation state</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  118 -> 8 [id=226, label=<<font point-size="24">Reads reconciliation state</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  119 -> 8 [id=228, label=<<font point-size="24">Reads reconciliation state</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  120 -> 8 [id=230, label=<<font point-size="24">Reads reconciliation state</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  121 -> 8 [id=232, label=<<font point-size="24">Reads reconciliation state</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  122 -> 8 [id=234, label=<<font point-size="24">Reads reconciliation state</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  123 -> 8 [id=236, label=<<font point-size="24">Reads reconciliation state</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+
+}

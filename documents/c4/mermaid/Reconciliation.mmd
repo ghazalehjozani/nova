@@ -1,0 +1,78 @@
+graph TB
+  linkStyle default fill:#ffffff
+
+  subgraph diagram ["Component View: Trade Loan Service - Trade Loan Application"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    subgraph 6 ["Trade Loan Service"]
+      style 6 fill:#ffffff,stroke:#0b4884,color:#0b4884
+
+      subgraph 7 ["Trade Loan Application"]
+        style 7 fill:#ffffff,stroke:#2e6295,color:#2e6295
+
+        109["<div style='font-weight: bold'>Facility Root Cause Classifier</div><div style='font-size: 70%; margin-top: 0px'>[Component: Reconciliation engine]</div>"]
+        style 109 fill:#9575cd,stroke:#68518f,color:#ffffff
+        110["<div style='font-weight: bold'>Facility Convergence Action</div><div style='font-size: 70%; margin-top: 0px'>[Component: Reconciliation engine]</div>"]
+        style 110 fill:#9575cd,stroke:#68518f,color:#ffffff
+        111["<div style='font-weight: bold'>Facility Root Cause Classifier $ Signal Verdict</div><div style='font-size: 70%; margin-top: 0px'>[Component: Reconciliation engine]</div>"]
+        style 111 fill:#9575cd,stroke:#68518f,color:#ffffff
+        112["<div style='font-weight: bold'>Facility Divergence Probe</div><div style='font-size: 70%; margin-top: 0px'>[Component: Reconciliation engine]</div>"]
+        style 112 fill:#9575cd,stroke:#68518f,color:#ffffff
+        113["<div style='font-weight: bold'>Facility Recon Mapping</div><div style='font-size: 70%; margin-top: 0px'>[Component: Reconciliation engine]</div>"]
+        style 113 fill:#9575cd,stroke:#68518f,color:#ffffff
+        114["<div style='font-weight: bold'>Facility Root Cause Classifier $ Classifier Input</div><div style='font-size: 70%; margin-top: 0px'>[Component: Reconciliation engine]</div>"]
+        style 114 fill:#9575cd,stroke:#68518f,color:#ffffff
+        115["<div style='font-weight: bold'>Facility Classification</div><div style='font-size: 70%; margin-top: 0px'>[Component: Reconciliation engine]</div>"]
+        style 115 fill:#9575cd,stroke:#68518f,color:#ffffff
+        116["<div style='font-weight: bold'>Reconciliation Source Properties</div><div style='font-size: 70%; margin-top: 0px'>[Component: Reconciliation engine]</div>"]
+        style 116 fill:#9575cd,stroke:#68518f,color:#ffffff
+        117["<div style='font-weight: bold'>Facility Reconciliation Source</div><div style='font-size: 70%; margin-top: 0px'>[Component: Reconciliation engine]</div>"]
+        style 117 fill:#9575cd,stroke:#68518f,color:#ffffff
+        118["<div style='font-weight: bold'>Facility Convergence Action $ 1</div><div style='font-size: 70%; margin-top: 0px'>[Component: Reconciliation engine]</div>"]
+        style 118 fill:#9575cd,stroke:#68518f,color:#ffffff
+        119["<div style='font-weight: bold'>Facility Divergence Probe $ 1</div><div style='font-size: 70%; margin-top: 0px'>[Component: Reconciliation engine]</div>"]
+        style 119 fill:#9575cd,stroke:#68518f,color:#ffffff
+        120["<div style='font-weight: bold'>Facility Dossier Builder $ 1</div><div style='font-size: 70%; margin-top: 0px'>[Component: Reconciliation engine]</div>"]
+        style 120 fill:#9575cd,stroke:#68518f,color:#ffffff
+        121["<div style='font-weight: bold'>Facility Dossier Builder</div><div style='font-size: 70%; margin-top: 0px'>[Component: Reconciliation engine]</div>"]
+        style 121 fill:#9575cd,stroke:#68518f,color:#ffffff
+        122["<div style='font-weight: bold'>Facility Root Cause Classifier $ 1</div><div style='font-size: 70%; margin-top: 0px'>[Component: Reconciliation engine]</div>"]
+        style 122 fill:#9575cd,stroke:#68518f,color:#ffffff
+        123["<div style='font-weight: bold'>Facility Recon Mapping $ 1</div><div style='font-size: 70%; margin-top: 0px'>[Component: Reconciliation engine]</div>"]
+        style 123 fill:#9575cd,stroke:#68518f,color:#ffffff
+      end
+
+      8[("<div style='font-weight: bold'>PostgreSQL Database</div><div style='font-size: 70%; margin-top: 0px'>[Container: PostgreSQL 18]</div><div style='font-size: 80%; margin-top:10px'>Loan data, inbox/outbox,<br />workflow state, audit,<br />reconciliation</div>")]
+      style 8 fill:#438dd5,stroke:#2e6295,color:#ffffff
+    end
+
+    109-. "<div></div><div style='font-size: 70%'></div>" .->113
+    109-. "<div></div><div style='font-size: 70%'></div>" .->111
+    109-. "<div></div><div style='font-size: 70%'></div>" .->115
+    109-. "<div></div><div style='font-size: 70%'></div>" .->114
+    110-. "<div></div><div style='font-size: 70%'></div>" .->121
+    110-. "<div></div><div style='font-size: 70%'></div>" .->116
+    110-. "<div></div><div style='font-size: 70%'></div>" .->113
+    110-. "<div></div><div style='font-size: 70%'></div>" .->115
+    110-. "<div></div><div style='font-size: 70%'></div>" .->114
+    110-. "<div></div><div style='font-size: 70%'></div>" .->109
+    112-. "<div></div><div style='font-size: 70%'></div>" .->113
+    117-. "<div></div><div style='font-size: 70%'></div>" .->116
+    121-. "<div></div><div style='font-size: 70%'></div>" .->115
+    109-. "<div>Reads reconciliation state</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->8
+    110-. "<div>Reads reconciliation state</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->8
+    111-. "<div>Reads reconciliation state</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->8
+    112-. "<div>Reads reconciliation state</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->8
+    113-. "<div>Reads reconciliation state</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->8
+    114-. "<div>Reads reconciliation state</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->8
+    115-. "<div>Reads reconciliation state</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->8
+    116-. "<div>Reads reconciliation state</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->8
+    117-. "<div>Reads reconciliation state</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->8
+    118-. "<div>Reads reconciliation state</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->8
+    119-. "<div>Reads reconciliation state</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->8
+    120-. "<div>Reads reconciliation state</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->8
+    121-. "<div>Reads reconciliation state</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->8
+    122-. "<div>Reads reconciliation state</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->8
+    123-. "<div>Reads reconciliation state</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->8
+
+  end

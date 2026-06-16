@@ -1,56 +1,53 @@
 graph LR
   linkStyle default fill:#ffffff
 
-  subgraph diagram ["Trade Loan Service - Trade Loan Application - Components"]
+  subgraph diagram ["Component View: Trade Loan Service - Trade Loan Application"]
     style diagram fill:#ffffff,stroke:#ffffff
 
-    subgraph 11 ["Trade Loan Application"]
-      style 11 fill:#ffffff,stroke:#2e6295,color:#2e6295
+    subgraph 6 ["Trade Loan Service"]
+      style 6 fill:#ffffff,stroke:#0b4884,color:#0b4884
 
-      100["<div style='font-weight: bold'>LoanTypeArrangementFilterQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles loan type arrangement<br />filter queries</div>"]
-      style 100 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      101["<div style='font-weight: bold'>FindAllLoanFacilitiesQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles find all loan<br />facilities queries</div>"]
-      style 101 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      102["<div style='font-weight: bold'>GetFacilityByApplicationNumberQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get facility by<br />application number queries</div>"]
-      style 102 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      103["<div style='font-weight: bold'>GetFacilityByIdQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get facility by id<br />queries</div>"]
-      style 103 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      104["<div style='font-weight: bold'>ResolveFacilityIdByApplicationNumberQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles resolve facility id<br />by application number queries</div>"]
-      style 104 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      105["<div style='font-weight: bold'>SearchLoanFacilitiesQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles search loan<br />facilities queries</div>"]
-      style 105 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      106["<div style='font-weight: bold'>FindAllLoanTypesQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles find all loan types<br />queries</div>"]
-      style 106 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      107["<div style='font-weight: bold'>GetLoanTypeByCodeQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get loan type by code<br />queries</div>"]
-      style 107 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      108["<div style='font-weight: bold'>GetLoanTypeByIdQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get loan type by id<br />queries</div>"]
-      style 108 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      109["<div style='font-weight: bold'>LoanTypeFilterQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles loan type filter<br />queries</div>"]
-      style 109 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      125[("<div style='font-weight: bold'>JpaTradeInstallmentScheduleQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeInstallmentSchedule<br />query adapter</div>")]
-      style 125 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      126[("<div style='font-weight: bold'>JpaTradeLoanArrangementQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanArrangement query<br />adapter</div>")]
-      style 126 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      127[("<div style='font-weight: bold'>JpaFacilityQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>Facility query adapter</div>")]
-      style 127 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      128[("<div style='font-weight: bold'>JpaTradeLoanTypeQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanType query adapter</div>")]
-      style 128 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      64["<div style='font-weight: bold'>InstallmentScheduleQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/installment-schedules</div>"]
-      style 64 fill:#7cb342,stroke:#567d2e,color:#ffffff
-      65["<div style='font-weight: bold'>LoanArrangementQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/loan-arrangements</div>"]
-      style 65 fill:#7cb342,stroke:#567d2e,color:#ffffff
-      66["<div style='font-weight: bold'>FacilityQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/loan-facilities</div>"]
-      style 66 fill:#7cb342,stroke:#567d2e,color:#ffffff
-      67["<div style='font-weight: bold'>LoanTypeQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/loan-types</div>"]
-      style 67 fill:#7cb342,stroke:#567d2e,color:#ffffff
-      96["<div style='font-weight: bold'>GetInstallmentScheduleByIdQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get installment<br />schedule by id queries</div>"]
-      style 96 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      97["<div style='font-weight: bold'>FindAllLoanArrangementsQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles find all loan<br />arrangements queries</div>"]
-      style 97 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      98["<div style='font-weight: bold'>GetLoanArrangementByCodeQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get loan arrangement<br />by code queries</div>"]
-      style 98 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      99["<div style='font-weight: bold'>GetLoanArrangementByIdQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get loan arrangement<br />by id queries</div>"]
-      style 99 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      subgraph 7 ["Trade Loan Application"]
+        style 7 fill:#ffffff,stroke:#2e6295,color:#2e6295
+
+        29["<div style='font-weight: bold'>Loan Arrangement Query Controller</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring MVC Controller]</div>"]
+        style 29 fill:#7cb342,stroke:#567d2e,color:#ffffff
+        30["<div style='font-weight: bold'>Installment Schedule Query Controller</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring MVC Controller]</div>"]
+        style 30 fill:#7cb342,stroke:#567d2e,color:#ffffff
+        31["<div style='font-weight: bold'>Loan Type Query Controller</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring MVC Controller]</div>"]
+        style 31 fill:#7cb342,stroke:#567d2e,color:#ffffff
+        32["<div style='font-weight: bold'>Facility Query Controller</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring MVC Controller]</div>"]
+        style 32 fill:#7cb342,stroke:#567d2e,color:#ffffff
+        72["<div style='font-weight: bold'>Get Loan Arrangement By Code Query Handler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div>"]
+        style 72 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+        73["<div style='font-weight: bold'>Loan Type Arrangement Filter Query Handler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div>"]
+        style 73 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+        74["<div style='font-weight: bold'>Get Loan Arrangement By Id Query Handler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div>"]
+        style 74 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+        75["<div style='font-weight: bold'>Find All Loan Arrangements Query Handler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div>"]
+        style 75 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+        76["<div style='font-weight: bold'>Get Installment Schedule By Id Query Handler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div>"]
+        style 76 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+        77["<div style='font-weight: bold'>Find All Loan Types Query Handler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div>"]
+        style 77 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+        78["<div style='font-weight: bold'>Get Loan Type By Id Query Handler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div>"]
+        style 78 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+        79["<div style='font-weight: bold'>Loan Type Filter Query Handler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div>"]
+        style 79 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+        80["<div style='font-weight: bold'>Get Loan Type By Code Query Handler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div>"]
+        style 80 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+        81["<div style='font-weight: bold'>Get Facility By Id Query Handler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div>"]
+        style 81 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+        82["<div style='font-weight: bold'>Get Facility By Application Number Query Handler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div>"]
+        style 82 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+        83["<div style='font-weight: bold'>Find All Loan Facilities Query Handler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div>"]
+        style 83 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+        84["<div style='font-weight: bold'>Resolve Facility Id By Application Number Query Handler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div>"]
+        style 84 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+        85["<div style='font-weight: bold'>Search Loan Facilities Query Handler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div>"]
+        style 85 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      end
+
     end
 
   end

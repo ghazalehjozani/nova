@@ -16,8 +16,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <structurizr.version>3.2.0</structurizr.version>
-        <classgraph.version>4.8.184</classgraph.version>
+        <structurizr.version>5.0.3</structurizr.version>
     </properties>
 
     <dependencies>
@@ -36,13 +35,23 @@
             <artifactId>structurizr-export</artifactId>
             <version>${structurizr.version}</version>
         </dependency>
+        <!-- Official automatic component discovery (replaces the hand-rolled ClassGraph scanner) -->
         <dependency>
-            <groupId>io.github.classgraph</groupId>
-            <artifactId>classgraph</artifactId>
-            <version>${classgraph.version}</version>
+            <groupId>com.structurizr</groupId>
+            <artifactId>structurizr-component</artifactId>
+            <version>${structurizr.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.structurizr</groupId>
+            <artifactId>structurizr-annotation</artifactId>
+            <version>${structurizr.version}</version>
         </dependency>
 
-        <!-- ALL project modules - must be compiled scope (default) for classpath scanning -->
+        <!--
+          ALL trade-loan modules whose bytecode must be discoverable - default (compile) scope.
+          test scope hides the classes from structurizr-component and the scan silently yields 0.
+          When a new sibling adapter module is added to the build, ADD IT HERE too.
+        -->
         <dependency>
             <groupId>ir.dotin.loan</groupId>
             <artifactId>trade-loan-adapters-driving-rest</artifactId>
@@ -50,6 +59,10 @@
         <dependency>
             <groupId>ir.dotin.loan</groupId>
             <artifactId>trade-loan-adapters-driving-messaging-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>trade-loan-adapters-driving-mcp</artifactId>
         </dependency>
         <dependency>
             <groupId>ir.dotin.loan</groupId>
@@ -66,6 +79,22 @@
         <dependency>
             <groupId>ir.dotin.loan</groupId>
             <artifactId>trade-loan-adapters-driven-persistence</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>trade-loan-adapters-driven-fcb-messaging-contract</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>trade-loan-adapters-driven-fcb-messaging-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>trade-loan-adapters-driven-fcb-messaging-artemis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ir.dotin.loan</groupId>
+            <artifactId>trade-loan-adapters-driven-reconciliation</artifactId>
         </dependency>
         <dependency>
             <groupId>ir.dotin.loan</groupId>

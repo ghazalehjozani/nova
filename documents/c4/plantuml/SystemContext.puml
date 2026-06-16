@@ -1,129 +1,126 @@
 @startuml
+title <size:24>System Context View: Trade Loan Service</size>\n<size:24>System context showing Trade Loan Service and external dependencies</size>
+
 set separator none
-title Trade Loan Service - System Context
-
 top to bottom direction
-
-skinparam {
-  arrowFontSize 10
-  defaultTextAlignment center
-  wrapWidth 200
-  maxMessageSize 100
-}
-
+skinparam ranksep 60
+skinparam nodesep 30
 hide stereotype
 
-skinparam rectangle<<AccountService>> {
-  BackgroundColor #999999
-  FontColor #ffffff
-  BorderColor #6b6b6b
-  shadowing false
-}
-skinparam person<<BranchManager>> {
-  BackgroundColor #08427b
-  FontColor #ffffff
-  BorderColor #052e56
-  shadowing false
-}
-skinparam rectangle<<CollateralService>> {
-  BackgroundColor #999999
-  FontColor #ffffff
-  BorderColor #6b6b6b
-  shadowing false
-}
-skinparam person<<Customer>> {
-  BackgroundColor #666666
-  FontColor #ffffff
-  BorderColor #474747
-  shadowing false
-}
-skinparam rectangle<<CustomerService>> {
-  BackgroundColor #999999
-  FontColor #ffffff
-  BorderColor #6b6b6b
-  shadowing false
-}
-skinparam rectangle<<DepositService>> {
-  BackgroundColor #999999
-  FontColor #ffffff
-  BorderColor #6b6b6b
-  shadowing false
-}
-skinparam rectangle<<FCBCoreBanking>> {
-  BackgroundColor #999999
-  FontColor #ffffff
-  BorderColor #6b6b6b
-  shadowing false
-}
-skinparam rectangle<<FormulaEvaluatorService>> {
-  BackgroundColor #999999
-  FontColor #ffffff
-  BorderColor #6b6b6b
-  shadowing false
-}
-skinparam person<<LoanOfficer>> {
-  BackgroundColor #08427b
-  FontColor #ffffff
-  BorderColor #052e56
-  shadowing false
-}
-skinparam rectangle<<LoanService>> {
-  BackgroundColor #999999
-  FontColor #ffffff
-  BorderColor #6b6b6b
-  shadowing false
-}
-skinparam rectangle<<OpenTelemetryCollector>> {
-  BackgroundColor #999999
-  FontColor #ffffff
-  BorderColor #6b6b6b
-  shadowing false
-}
-skinparam person<<SystemAdministrator>> {
-  BackgroundColor #5c3d6e
-  FontColor #ffffff
-  BorderColor #402a4d
-  shadowing false
-}
-skinparam rectangle<<TPSSSO>> {
-  BackgroundColor #999999
-  FontColor #ffffff
-  BorderColor #6b6b6b
-  shadowing false
-}
-skinparam rectangle<<TradeLoanService>> {
-  BackgroundColor #1168bd
-  FontColor #ffffff
-  BorderColor #0b4884
-  shadowing false
-}
+<style>
+  root {
+    BackgroundColor: #ffffff;
+    FontColor: #444444;
+  }
+  // Element,Person,Admin
+  .Element-RWxlbWVudCxQZXJzb24sQWRtaW4= {
+    BackgroundColor: #5c3d6e;
+    LineColor: #402a4d;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Software System
+  .Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0= {
+    BackgroundColor: #1168bd;
+    LineColor: #0b4884;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Software System,External System
+  .Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVt {
+    BackgroundColor: #999999;
+    LineColor: #6b6b6b;
+    LineStyle: 10-10;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Software System,External System,Config
+  .Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLENvbmZpZw== {
+    BackgroundColor: #6d4c41;
+    LineColor: #4c352d;
+    LineStyle: 10-10;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Software System,External System,Core Banking
+  .Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLENvcmUgQmFua2luZw== {
+    BackgroundColor: #8d6e63;
+    LineColor: #624d45;
+    LineStyle: 10-10;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Software System,External System,Observability
+  .Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLE9ic2VydmFiaWxpdHk= {
+    BackgroundColor: #00897b;
+    LineColor: #005f56;
+    LineStyle: 10-10;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Software System,External System,Security
+  .Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLFNlY3VyaXR5 {
+    BackgroundColor: #b71c1c;
+    LineColor: #801313;
+    LineStyle: 10-10;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Relationship
+  .Relationship-UmVsYXRpb25zaGlw {
+    LineThickness: 2;
+    LineStyle: 10-10;
+    LineColor: #707070;
+    FontColor: #707070;
+    FontSize: 24;
+  }
+</style>
 
-rectangle "==TPS SSO\n<size:10>[Software System]</size>\n\nOAuth2/OIDC provider" <<TPSSSO>> as TPSSSO
-rectangle "==Trade Loan Service\n<size:10>[Software System]</size>\n\nMorabehe loans with CQRS and Event Sourcing" <<TradeLoanService>> as TradeLoanService
-rectangle "==FCB Core Banking\n<size:10>[Software System]</size>\n\nCore Banking" <<FCBCoreBanking>> as FCBCoreBanking
-rectangle "==OpenTelemetry Collector\n<size:10>[Software System]</size>\n\nObservability backend" <<OpenTelemetryCollector>> as OpenTelemetryCollector
-person "==Loan Officer\n<size:10>[Person]</size>\n\nBank staff managing loans" <<LoanOfficer>> as LoanOfficer
-rectangle "==Account Service\n<size:10>[Software System]</size>\n\nAccount management" <<AccountService>> as AccountService
-person "==Branch Manager\n<size:10>[Person]</size>\n\nBranch level approval authority" <<BranchManager>> as BranchManager
-person "==System Administrator\n<size:10>[Person]</size>\n\nTechnical staff" <<SystemAdministrator>> as SystemAdministrator
-person "==Customer\n<size:10>[Person]</size>\n\nEnd users" <<Customer>> as Customer
-rectangle "==Customer Service\n<size:10>[Software System]</size>\n\nCustomer data" <<CustomerService>> as CustomerService
-rectangle "==Deposit Service\n<size:10>[Software System]</size>\n\nDeposit operations" <<DepositService>> as DepositService
-rectangle "==Collateral Service\n<size:10>[Software System]</size>\n\nCollateral management" <<CollateralService>> as CollateralService
-rectangle "==Loan Service\n<size:10>[Software System]</size>\n\nCross-loan operations" <<LoanService>> as LoanService
-rectangle "==Formula Evaluator Service\n<size:10>[Software System]</size>\n\nFormula calculation" <<FormulaEvaluatorService>> as FormulaEvaluatorService
+rectangle "==ESB\n<size:16>[Software System]</size>\n\nEnterprise Service Bus — routes business loan-lifecycle requests from upstream channels" <<Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVt>> as ESB
+rectangle "==TPS SSO\n<size:16>[Software System]</size>\n\nOAuth2/OIDC identity provider (token validation + JWKS)" <<Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLFNlY3VyaXR5>> as TPSSSO
+person "==Operator / Admin\n<size:16>[Person]</size>\n\nBank operations / administrator — monitors and remediates the service" <<Element-RWxlbWVudCxQZXJzb24sQWRtaW4=>> as OperatorAdmin
+rectangle "==FCB Core Banking\n<size:16>[Software System]</size>\n\nLegacy core banking — accounts, postings, collateral, sanctions" <<Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLENvcmUgQmFua2luZw==>> as FCBCoreBanking
+rectangle "==OpenTelemetry Collector\n<size:16>[Software System]</size>\n\nOpenTelemetry collector — traces, metrics, logs" <<Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLE9ic2VydmFiaWxpdHk=>> as OpenTelemetryCollector
+rectangle "==Consul\n<size:16>[Software System]</size>\n\nRuntime configuration store (Consul KV, fed by GitOps)" <<Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLENvbmZpZw==>> as Consul
+rectangle "==Trade Loan Service\n<size:16>[Software System]</size>\n\nMorabehe trade-loan microservice — hexagonal, DDD, CQRS, workflow orchestration" <<Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0=>> as TradeLoanService
 
-TradeLoanService .[#707070,thickness=2].> TPSSSO : "<color:#707070>Authenticates\n<color:#707070><size:8>[OAuth2/OIDC]</size>"
-TradeLoanService .[#707070,thickness=2].> FCBCoreBanking : "<color:#707070>Core banking\n<color:#707070><size:8>[HTTP/REST]</size>"
-TradeLoanService .[#707070,thickness=2].> OpenTelemetryCollector : "<color:#707070>Telemetry\n<color:#707070><size:8>[OTLP/gRPC]</size>"
-TradeLoanService .[#707070,thickness=2].> AccountService : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
-TradeLoanService .[#707070,thickness=2].> CustomerService : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
-TradeLoanService .[#707070,thickness=2].> DepositService : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
-TradeLoanService .[#707070,thickness=2].> CollateralService : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
-TradeLoanService .[#707070,thickness=2].> LoanService : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
-TradeLoanService .[#707070,thickness=2].> FormulaEvaluatorService : "<color:#707070>Calls\n<color:#707070><size:8>[HTTP/REST]</size>"
-LoanOfficer .[#707070,thickness=2].> TradeLoanService : "<color:#707070>Creates and manages loans\n<color:#707070><size:8>[HTTPS/JWT]</size>"
-BranchManager .[#707070,thickness=2].> TradeLoanService : "<color:#707070>Approves facilities\n<color:#707070><size:8>[HTTPS/JWT]</size>"
-SystemAdministrator .[#707070,thickness=2].> TradeLoanService : "<color:#707070>Monitors system\n<color:#707070><size:8>[HTTPS/JWT]</size>"
-SystemAdministrator .[#707070,thickness=2].> TradeLoanService : "<color:#707070>Monitors Kafka\n<color:#707070><size:8>[HTTP]</size>"
+TradeLoanService --> Consul <<Relationship-UmVsYXRpb25zaGlw>> : "Loads runtime config\n<size:16>[Consul KV (watch / @RefreshScope)]</size>"
+ESB --> TradeLoanService <<Relationship-UmVsYXRpb25zaGlw>> : "Business loan-lifecycle requests\n<size:16>[REST (SWA-101) / JWT]</size>"
+TradeLoanService --> TPSSSO <<Relationship-UmVsYXRpb25zaGlw>> : "Validates JWT / fetches JWKS\n<size:16>[OAuth2/OIDC + JWKS]</size>"
+TradeLoanService --> FCBCoreBanking <<Relationship-UmVsYXRpb25zaGlw>> : "Calls (corridor)\n<size:16>[Corridor (Artemis primary / Kafka fallback)]</size>"
+TradeLoanService --> FCBCoreBanking <<Relationship-UmVsYXRpb25zaGlw>> : "Probes / converges\n<size:16>[Corridor (Artemis primary / Kafka fallback)]</size>"
+TradeLoanService --> FCBCoreBanking <<Relationship-UmVsYXRpb25zaGlw>> : "Core banking operations via corridor\n<size:16>[Corridor (Artemis primary / Kafka fallback)]</size>"
+TradeLoanService --> OpenTelemetryCollector <<Relationship-UmVsYXRpb25zaGlw>> : "Exports traces / metrics / logs\n<size:16>[OTLP http/protobuf]</size>"
+OperatorAdmin --> TradeLoanService <<Relationship-UmVsYXRpb25zaGlw>> : "Operates via OPS endpoints (/v1/ops/*) and MCP ops tools\n<size:16>[HTTPS / JWT (sub-claim allowlist)]</size>"
+
 @enduml

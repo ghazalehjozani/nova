@@ -3,38 +3,44 @@ digraph {
   graph [fontname="Arial", rankdir=LR, ranksep=1.0, nodesep=1.0]
   node [fontname="Arial", shape=box, margin="0.4,0.3"]
   edge [fontname="Arial"]
-  label=<<br /><font point-size="34">Trade Loan Service - Trade Loan Application - Components</font><br /><font point-size="24">CQRS Query flow</font>>
+  label=<<br /><font point-size="34">Component View: Trade Loan Service - Trade Loan Application</font><br /><font point-size="24">CQRS Query flow</font>>
 
-  subgraph cluster_11 {
+  subgraph cluster_6 {
     margin=25
-    label=<<font point-size="24"><br />Trade Loan Application</font><br /><font point-size="19">[Container: Java 25, Spring Boot 4]</font>>
+    label=<<font point-size="24"><br />Trade Loan Service</font><br /><font point-size="19">[Software System]</font>>
     labelloc=b
     color="#444444"
     fontcolor="#444444"
     fillcolor="#444444"
 
-    100 [id=100,shape=rect, label=<<font point-size="34">LoanTypeArrangementFilterQueryHandler</font><br /><font point-size="19">[Component: Query Handler]</font><br /><br /><font point-size="24">Handles loan type arrangement<br />filter queries</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
-    101 [id=101,shape=rect, label=<<font point-size="34">FindAllLoanFacilitiesQueryHandler</font><br /><font point-size="19">[Component: Query Handler]</font><br /><br /><font point-size="24">Handles find all loan<br />facilities queries</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
-    102 [id=102,shape=rect, label=<<font point-size="34">GetFacilityByApplicationNumberQueryHandler</font><br /><font point-size="19">[Component: Query Handler]</font><br /><br /><font point-size="24">Handles get facility by<br />application number queries</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
-    103 [id=103,shape=rect, label=<<font point-size="34">GetFacilityByIdQueryHandler</font><br /><font point-size="19">[Component: Query Handler]</font><br /><br /><font point-size="24">Handles get facility by id<br />queries</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
-    104 [id=104,shape=rect, label=<<font point-size="34">ResolveFacilityIdByApplicationNumberQueryHandler</font><br /><font point-size="19">[Component: Query Handler]</font><br /><br /><font point-size="24">Handles resolve facility id by<br />application number queries</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
-    105 [id=105,shape=rect, label=<<font point-size="34">SearchLoanFacilitiesQueryHandler</font><br /><font point-size="19">[Component: Query Handler]</font><br /><br /><font point-size="24">Handles search loan facilities<br />queries</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
-    106 [id=106,shape=rect, label=<<font point-size="34">FindAllLoanTypesQueryHandler</font><br /><font point-size="19">[Component: Query Handler]</font><br /><br /><font point-size="24">Handles find all loan types<br />queries</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
-    107 [id=107,shape=rect, label=<<font point-size="34">GetLoanTypeByCodeQueryHandler</font><br /><font point-size="19">[Component: Query Handler]</font><br /><br /><font point-size="24">Handles get loan type by code<br />queries</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
-    108 [id=108,shape=rect, label=<<font point-size="34">GetLoanTypeByIdQueryHandler</font><br /><font point-size="19">[Component: Query Handler]</font><br /><br /><font point-size="24">Handles get loan type by id<br />queries</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
-    109 [id=109,shape=rect, label=<<font point-size="34">LoanTypeFilterQueryHandler</font><br /><font point-size="19">[Component: Query Handler]</font><br /><br /><font point-size="24">Handles loan type filter<br />queries</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
-    125 [id=125,shape=cylinder, label=<<font point-size="34">JpaTradeInstallmentScheduleQueryAdapter</font><br /><font point-size="19">[Component: Spring Data JPA]</font><br /><br /><font point-size="24">TradeInstallmentSchedule query<br />adapter</font>>, style=filled, color="#404a86", fillcolor="#5c6bc0", fontcolor="#ffffff"]
-    126 [id=126,shape=cylinder, label=<<font point-size="34">JpaTradeLoanArrangementQueryAdapter</font><br /><font point-size="19">[Component: Spring Data JPA]</font><br /><br /><font point-size="24">TradeLoanArrangement query<br />adapter</font>>, style=filled, color="#404a86", fillcolor="#5c6bc0", fontcolor="#ffffff"]
-    127 [id=127,shape=cylinder, label=<<font point-size="34">JpaFacilityQueryAdapter</font><br /><font point-size="19">[Component: Spring Data JPA]</font><br /><br /><font point-size="24">Facility query adapter</font>>, style=filled, color="#404a86", fillcolor="#5c6bc0", fontcolor="#ffffff"]
-    128 [id=128,shape=cylinder, label=<<font point-size="34">JpaTradeLoanTypeQueryAdapter</font><br /><font point-size="19">[Component: Spring Data JPA]</font><br /><br /><font point-size="24">TradeLoanType query adapter</font>>, style=filled, color="#404a86", fillcolor="#5c6bc0", fontcolor="#ffffff"]
-    64 [id=64,shape=rect, label=<<font point-size="34">InstallmentScheduleQueryController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/v{version}/installment-schedules</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
-    65 [id=65,shape=rect, label=<<font point-size="34">LoanArrangementQueryController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/v{version}/loan-arrangements</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
-    66 [id=66,shape=rect, label=<<font point-size="34">FacilityQueryController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/v{version}/loan-facilities</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
-    67 [id=67,shape=rect, label=<<font point-size="34">LoanTypeQueryController</font><br /><font point-size="19">[Component: Spring REST Controller]</font><br /><br /><font point-size="24">REST API:<br />/v{version}/loan-types</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
-    96 [id=96,shape=rect, label=<<font point-size="34">GetInstallmentScheduleByIdQueryHandler</font><br /><font point-size="19">[Component: Query Handler]</font><br /><br /><font point-size="24">Handles get installment<br />schedule by id queries</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
-    97 [id=97,shape=rect, label=<<font point-size="34">FindAllLoanArrangementsQueryHandler</font><br /><font point-size="19">[Component: Query Handler]</font><br /><br /><font point-size="24">Handles find all loan<br />arrangements queries</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
-    98 [id=98,shape=rect, label=<<font point-size="34">GetLoanArrangementByCodeQueryHandler</font><br /><font point-size="19">[Component: Query Handler]</font><br /><br /><font point-size="24">Handles get loan arrangement<br />by code queries</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
-    99 [id=99,shape=rect, label=<<font point-size="34">GetLoanArrangementByIdQueryHandler</font><br /><font point-size="19">[Component: Query Handler]</font><br /><br /><font point-size="24">Handles get loan arrangement<br />by id queries</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+    subgraph cluster_7 {
+      margin=25
+      label=<<font point-size="24"><br />Trade Loan Application</font><br /><font point-size="19">[Container: Java 25, Spring Boot 4]</font>>
+      labelloc=b
+      color="#444444"
+      fontcolor="#444444"
+      fillcolor="#444444"
+
+      29 [id=29,shape=rect, label=<<font point-size="34">Loan Arrangement<br />Query Controller</font><br /><font point-size="19">[Component: Spring MVC Controller]</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+      30 [id=30,shape=rect, label=<<font point-size="34">Installment Schedule<br />Query Controller</font><br /><font point-size="19">[Component: Spring MVC Controller]</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+      31 [id=31,shape=rect, label=<<font point-size="34">Loan Type Query<br />Controller</font><br /><font point-size="19">[Component: Spring MVC Controller]</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+      32 [id=32,shape=rect, label=<<font point-size="34">Facility Query<br />Controller</font><br /><font point-size="19">[Component: Spring MVC Controller]</font>>, style=filled, color="#567d2e", fillcolor="#7cb342", fontcolor="#ffffff"]
+      72 [id=72,shape=rect, label=<<font point-size="34">Get Loan Arrangement<br />By Code Query Handler</font><br /><font point-size="19">[Component: Query Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      73 [id=73,shape=rect, label=<<font point-size="34">Loan Type Arrangement<br />Filter Query Handler</font><br /><font point-size="19">[Component: Query Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      74 [id=74,shape=rect, label=<<font point-size="34">Get Loan Arrangement<br />By Id Query Handler</font><br /><font point-size="19">[Component: Query Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      75 [id=75,shape=rect, label=<<font point-size="34">Find All Loan<br />Arrangements Query<br />Handler</font><br /><font point-size="19">[Component: Query Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      76 [id=76,shape=rect, label=<<font point-size="34">Get Installment<br />Schedule By Id Query<br />Handler</font><br /><font point-size="19">[Component: Query Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      77 [id=77,shape=rect, label=<<font point-size="34">Find All Loan Types<br />Query Handler</font><br /><font point-size="19">[Component: Query Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      78 [id=78,shape=rect, label=<<font point-size="34">Get Loan Type By Id<br />Query Handler</font><br /><font point-size="19">[Component: Query Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      79 [id=79,shape=rect, label=<<font point-size="34">Loan Type Filter<br />Query Handler</font><br /><font point-size="19">[Component: Query Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      80 [id=80,shape=rect, label=<<font point-size="34">Get Loan Type By Code<br />Query Handler</font><br /><font point-size="19">[Component: Query Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      81 [id=81,shape=rect, label=<<font point-size="34">Get Facility By Id<br />Query Handler</font><br /><font point-size="19">[Component: Query Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      82 [id=82,shape=rect, label=<<font point-size="34">Get Facility By<br />Application Number<br />Query Handler</font><br /><font point-size="19">[Component: Query Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      83 [id=83,shape=rect, label=<<font point-size="34">Find All Loan<br />Facilities Query<br />Handler</font><br /><font point-size="19">[Component: Query Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      84 [id=84,shape=rect, label=<<font point-size="34">Resolve Facility Id<br />By Application Number<br />Query Handler</font><br /><font point-size="19">[Component: Query Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+      85 [id=85,shape=rect, label=<<font point-size="34">Search Loan<br />Facilities Query<br />Handler</font><br /><font point-size="19">[Component: Query Handler]</font>>, style=filled, color="#2e73ab", fillcolor="#42a5f5", fontcolor="#ffffff"]
+    }
+
   }
 
 }

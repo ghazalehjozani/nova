@@ -1,7 +1,29 @@
 graph TB
   linkStyle default fill:#ffffff
 
-  subgraph diagram ["Trade Loan Service - Trade Loan Application - Components"]
+  subgraph diagram ["Component View: Trade Loan Service - Trade Loan Application"]
     style diagram fill:#ffffff,stroke:#ffffff
+
+    subgraph 6 ["Trade Loan Service"]
+      style 6 fill:#ffffff,stroke:#0b4884,color:#0b4884
+
+      subgraph 7 ["Trade Loan Application"]
+        style 7 fill:#ffffff,stroke:#2e6295,color:#2e6295
+
+        104["<div style='font-weight: bold'>Artemis Fcb Request Reply Client</div><div style='font-size: 70%; margin-top: 0px'>[Component: FCB corridor client]</div>"]
+        style 104 fill:#ec407a,stroke:#a52c55,color:#ffffff
+        105["<div style='font-weight: bold'>Fcb Request Reply Client</div><div style='font-size: 70%; margin-top: 0px'>[Component: FCB corridor client]</div>"]
+        style 105 fill:#ec407a,stroke:#a52c55,color:#ffffff
+        106["<div style='font-weight: bold'>Fcb Kafka Client</div><div style='font-size: 70%; margin-top: 0px'>[Component: FCB corridor client]</div>"]
+        style 106 fill:#ec407a,stroke:#a52c55,color:#ffffff
+        107["<div style='font-weight: bold'>Routing Fcb Request Reply Client</div><div style='font-size: 70%; margin-top: 0px'>[Component: FCB corridor client]</div>"]
+        style 107 fill:#ec407a,stroke:#a52c55,color:#ffffff
+        108["<div style='font-weight: bold'>Find Loan Arrangement By Id Client</div><div style='font-size: 70%; margin-top: 0px'>[Component: FCB corridor client]</div>"]
+        style 108 fill:#ec407a,stroke:#a52c55,color:#ffffff
+      end
+
+    end
+
+    107-. "<div></div><div style='font-size: 70%'></div>" .->105
 
   end

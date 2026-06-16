@@ -1,9 +1,9 @@
 @startuml
-title <size:24>Component View: Trade Loan Service - Trade Loan Application</size>\n<size:24>Components (page 1/4)</size>
+title <size:24>Component View: Trade Loan Service - Trade Loan Application</size>\n<size:24>Workflow orchestration flow</size>
 
 set separator none
-top to bottom direction
-skinparam ranksep 60
+left to right direction
+skinparam ranksep 80
 skinparam nodesep 30
 hide stereotype
 

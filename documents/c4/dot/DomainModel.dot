@@ -3,27 +3,60 @@ digraph {
   graph [fontname="Arial", rankdir=TB, ranksep=1.0, nodesep=1.0]
   node [fontname="Arial", shape=box, margin="0.4,0.3"]
   edge [fontname="Arial"]
-  label=<<br /><font point-size="34">Trade Loan Service - Trade Loan Application - Components</font><br /><font point-size="24">Domain Layer</font>>
+  label=<<br /><font point-size="34">Component View: Trade Loan Service - Trade Loan Application</font><br /><font point-size="24">Domain layer</font>>
 
-  subgraph cluster_11 {
+  subgraph cluster_6 {
     margin=25
-    label=<<font point-size="24"><br />Trade Loan Application</font><br /><font point-size="19">[Container: Java 25, Spring Boot 4]</font>>
+    label=<<font point-size="24"><br />Trade Loan Service</font><br /><font point-size="19">[Software System]</font>>
     labelloc=b
     color="#444444"
     fontcolor="#444444"
     fillcolor="#444444"
 
-    110 [id=110,shape=rect, label=<<font point-size="34">TradeLoanArrangement</font><br /><font point-size="19">[Component: DDD Aggregate Root]</font><br /><br /><font point-size="24">trade loan arrangement<br />aggregate</font>>, style=filled, color="#b26a00", fillcolor="#ff9800", fontcolor="#000000"]
-    111 [id=111,shape=rect, label=<<font point-size="34">TradeLoanApplication</font><br /><font point-size="19">[Component: DDD Aggregate Root]</font><br /><br /><font point-size="24">trade loan application<br />aggregate</font>>, style=filled, color="#b26a00", fillcolor="#ff9800", fontcolor="#000000"]
-    112 [id=112,shape=rect, label=<<font point-size="34">TradeLoanFacility</font><br /><font point-size="19">[Component: DDD Aggregate Root]</font><br /><br /><font point-size="24">trade loan facility aggregate</font>>, style=filled, color="#b26a00", fillcolor="#ff9800", fontcolor="#000000"]
-    113 [id=113,shape=rect, label=<<font point-size="34">TradeLoanFacilityEventFactory</font><br /><font point-size="19">[Component: DDD Entity]</font><br /><br /><font point-size="24">trade loan facility event<br />factory entity</font>>, style=filled, color="#b28035", fillcolor="#ffb74d", fontcolor="#000000"]
-    114 [id=114,shape=rect, label=<<font point-size="34">TradeSanctionedLoan</font><br /><font point-size="19">[Component: DDD Aggregate Root]</font><br /><br /><font point-size="24">trade sanctioned loan<br />aggregate</font>>, style=filled, color="#b26a00", fillcolor="#ff9800", fontcolor="#000000"]
-    115 [id=115,shape=rect, label=<<font point-size="34">TradeLoanType</font><br /><font point-size="19">[Component: DDD Aggregate Root]</font><br /><br /><font point-size="24">trade loan type aggregate</font>>, style=filled, color="#b26a00", fillcolor="#ff9800", fontcolor="#000000"]
-    116 [id=116,shape=rect, label=<<font point-size="34">TradeRepaymentSchedulingService</font><br /><font point-size="19">[Component: Domain Service]</font><br /><br /><font point-size="24">trade repayment scheduling<br />service domain service</font>>, style=filled, color="#1c7fac", fillcolor="#29b6f6", fontcolor="#ffffff"]
-    117 [id=117,shape=rect, label=<<font point-size="34">TradeLoanFacilityService</font><br /><font point-size="19">[Component: Domain Service]</font><br /><br /><font point-size="24">trade loan facility service<br />domain service</font>>, style=filled, color="#1c7fac", fillcolor="#29b6f6", fontcolor="#ffffff"]
-    118 [id=118,shape=rect, label=<<font point-size="34">TradeLoanFacilityValidationService</font><br /><font point-size="19">[Component: Domain Service]</font><br /><br /><font point-size="24">trade loan facility validation<br />service domain service</font>>, style=filled, color="#1c7fac", fillcolor="#29b6f6", fontcolor="#ffffff"]
-    119 [id=119,shape=rect, label=<<font point-size="34">TradeSanctionValidationService</font><br /><font point-size="19">[Component: Domain Service]</font><br /><br /><font point-size="24">trade sanction validation<br />service domain service</font>>, style=filled, color="#1c7fac", fillcolor="#29b6f6", fontcolor="#ffffff"]
-    120 [id=120,shape=rect, label=<<font point-size="34">TradeLoanTypeValidationService</font><br /><font point-size="19">[Component: Domain Service]</font><br /><br /><font point-size="24">trade loan type validation<br />service domain service</font>>, style=filled, color="#1c7fac", fillcolor="#29b6f6", fontcolor="#ffffff"]
+    subgraph cluster_7 {
+      margin=25
+      label=<<font point-size="24"><br />Trade Loan Application</font><br /><font point-size="19">[Container: Java 25, Spring Boot 4]</font>>
+      labelloc=b
+      color="#444444"
+      fontcolor="#444444"
+      fillcolor="#444444"
+
+      124 [id=124,shape=rect, label=<<font point-size="34">Trade Loan<br />Arrangement</font><br /><font point-size="19">[Component: DDD Aggregate Root]</font>>, style=filled, color="#b26a00", fillcolor="#ff9800", fontcolor="#000000"]
+      125 [id=125,shape=rect, label=<<font point-size="34">Trade Loan Type</font><br /><font point-size="19">[Component: DDD Aggregate Root]</font>>, style=filled, color="#b26a00", fillcolor="#ff9800", fontcolor="#000000"]
+      126 [id=126,shape=rect, label=<<font point-size="34">Trade Loan<br />Application</font><br /><font point-size="19">[Component: DDD Aggregate Root]</font>>, style=filled, color="#b26a00", fillcolor="#ff9800", fontcolor="#000000"]
+      127 [id=127,shape=rect, label=<<font point-size="34">Trade Sanctioned Loan</font><br /><font point-size="19">[Component: DDD Aggregate Root]</font>>, style=filled, color="#b26a00", fillcolor="#ff9800", fontcolor="#000000"]
+      128 [id=128,shape=rect, label=<<font point-size="34">Trade Loan Facility</font><br /><font point-size="19">[Component: DDD Aggregate Root]</font>>, style=filled, color="#b26a00", fillcolor="#ff9800", fontcolor="#000000"]
+      129 [id=129,shape=rect, label=<<font point-size="34">Irregular Progressive<br />Disbursement<br />Transaction Service</font><br /><font point-size="19">[Component: Domain Service]</font>>, style=filled, color="#1c7fac", fillcolor="#29b6f6", fontcolor="#ffffff"]
+      130 [id=130,shape=rect, label=<<font point-size="34">Trade Issue Contract<br />Transaction Service</font><br /><font point-size="19">[Component: Domain Service]</font>>, style=filled, color="#1c7fac", fillcolor="#29b6f6", fontcolor="#ffffff"]
+      131 [id=131,shape=rect, label=<<font point-size="34">Trade Lump Sum<br />Disbursement<br />Transaction Service</font><br /><font point-size="19">[Component: Domain Service]</font>>, style=filled, color="#1c7fac", fillcolor="#29b6f6", fontcolor="#ffffff"]
+      132 [id=132,shape=rect, label=<<font point-size="34">Trade Repayment<br />Scheduling Service</font><br /><font point-size="19">[Component: Domain Service]</font>>, style=filled, color="#1c7fac", fillcolor="#29b6f6", fontcolor="#ffffff"]
+      133 [id=133,shape=rect, label=<<font point-size="34">Trade Loan Type<br />Validation Service</font><br /><font point-size="19">[Component: Domain Service]</font>>, style=filled, color="#1c7fac", fillcolor="#29b6f6", fontcolor="#ffffff"]
+      134 [id=134,shape=rect, label=<<font point-size="34">Trade Loan Facility<br />Service</font><br /><font point-size="19">[Component: Domain Service]</font>>, style=filled, color="#1c7fac", fillcolor="#29b6f6", fontcolor="#ffffff"]
+      135 [id=135,shape=rect, label=<<font point-size="34">Trade Sanction<br />Validation Service</font><br /><font point-size="19">[Component: Domain Service]</font>>, style=filled, color="#1c7fac", fillcolor="#29b6f6", fontcolor="#ffffff"]
+      136 [id=136,shape=rect, label=<<font point-size="34">Trade Loan Facility<br />Validation Service</font><br /><font point-size="19">[Component: Domain Service]</font>>, style=filled, color="#1c7fac", fillcolor="#29b6f6", fontcolor="#ffffff"]
+    }
+
   }
+
+  128 -> 126 [id=156, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  128 -> 127 [id=157, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  129 -> 126 [id=158, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  129 -> 128 [id=159, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  129 -> 127 [id=160, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  129 -> 125 [id=161, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  130 -> 126 [id=162, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  130 -> 128 [id=163, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  130 -> 125 [id=164, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  130 -> 127 [id=165, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  131 -> 126 [id=166, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  131 -> 128 [id=167, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  131 -> 125 [id=168, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  131 -> 127 [id=169, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  131 -> 124 [id=170, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  133 -> 124 [id=171, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  134 -> 126 [id=172, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  134 -> 128 [id=173, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  134 -> 127 [id=174, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  136 -> 124 [id=175, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
 
 }

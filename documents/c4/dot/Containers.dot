@@ -3,23 +3,16 @@ digraph {
   graph [fontname="Arial", rankdir=TB, ranksep=1.0, nodesep=1.0]
   node [fontname="Arial", shape=box, margin="0.4,0.3"]
   edge [fontname="Arial"]
-  label=<<br /><font point-size="34">Trade Loan Service - Containers</font><br /><font point-size="24">Container diagram showing application and infrastructure</font>>
+  label=<<br /><font point-size="34">Container View: Trade Loan Service</font><br /><font point-size="24">Container diagram showing application and infrastructure</font>>
 
-  1 [id=1,shape=rect, label=<<font point-size="34">TPS SSO</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">OAuth2/OIDC provider</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
-  2 [id=2,shape=rect, label=<<font point-size="34">FCB Core Banking</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Core Banking</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
-  3 [id=3,shape=rect, label=<<font point-size="34">OpenTelemetry<br />Collector</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Observability backend</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
-  4 [id=4,shape=rect, label=<<font point-size="34">Account Service</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Account management</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
-  5 [id=5,shape=rect, label=<<font point-size="34">Customer Service</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Customer data</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
-  6 [id=6,shape=rect, label=<<font point-size="34">Deposit Service</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Deposit operations</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
-  7 [id=7,shape=rect, label=<<font point-size="34">Collateral Service</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Collateral management</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
-  8 [id=8,shape=rect, label=<<font point-size="34">Loan Service</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Cross-loan operations</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
-  9 [id=9,shape=rect, label=<<font point-size="34">Formula Evaluator<br />Service</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Formula calculation</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
-  38 [id=38,shape=rect, label=<<font point-size="34">Loan Officer</font><br /><font point-size="19">[Person]</font><br /><br /><font point-size="24">Bank staff managing loans</font>>, style=filled, color="#052e56", fillcolor="#08427b", fontcolor="#ffffff"]
-  41 [id=41,shape=rect, label=<<font point-size="34">Branch Manager</font><br /><font point-size="19">[Person]</font><br /><br /><font point-size="24">Branch level approval<br />authority</font>>, style=filled, color="#052e56", fillcolor="#08427b", fontcolor="#ffffff"]
-  44 [id=44,shape=rect, label=<<font point-size="34">System<br />Administrator</font><br /><font point-size="19">[Person]</font><br /><br /><font point-size="24">Technical staff</font>>, style=filled, color="#402a4d", fillcolor="#5c3d6e", fontcolor="#ffffff"]
-  49 [id=49,shape=rect, label=<<font point-size="34">Customer</font><br /><font point-size="19">[Person]</font><br /><br /><font point-size="24">End users</font>>, style=filled, color="#474747", fillcolor="#666666", fontcolor="#ffffff"]
+  1 [id=1,shape=rect, label=<<font point-size="34">ESB</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Enterprise Service Bus —<br />routes business loan-lifecycle<br />requests from upstream<br />channels</font>>, style=filled, color="#6b6b6b", fillcolor="#999999", fontcolor="#ffffff"]
+  2 [id=2,shape=rect, label=<<font point-size="34">TPS SSO</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">OAuth2/OIDC identity provider<br />(token validation + JWKS)</font>>, style=filled, color="#801313", fillcolor="#b71c1c", fontcolor="#ffffff"]
+  3 [id=3,shape=rect, label=<<font point-size="34">FCB Core Banking</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Legacy core banking —<br />accounts, postings,<br />collateral, sanctions</font>>, style=filled, color="#624d45", fillcolor="#8d6e63", fontcolor="#ffffff"]
+  4 [id=4,shape=rect, label=<<font point-size="34">OpenTelemetry<br />Collector</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">OpenTelemetry collector —<br />traces, metrics, logs</font>>, style=filled, color="#005f56", fillcolor="#00897b", fontcolor="#ffffff"]
+  5 [id=5,shape=rect, label=<<font point-size="34">Consul</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Runtime configuration store<br />(Consul KV, fed by GitOps)</font>>, style=filled, color="#4c352d", fillcolor="#6d4c41", fontcolor="#ffffff"]
+  24 [id=24,shape=rect, label=<<font point-size="34">Operator / Admin</font><br /><font point-size="19">[Person]</font><br /><br /><font point-size="24">Bank operations /<br />administrator — monitors and<br />remediates the service</font>>, style=filled, color="#402a4d", fillcolor="#5c3d6e", fontcolor="#ffffff"]
 
-  subgraph cluster_10 {
+  subgraph cluster_6 {
     margin=25
     label=<<font point-size="24"><br />Trade Loan Service</font><br /><font point-size="19">[Software System]</font>>
     labelloc=b
@@ -27,30 +20,30 @@ digraph {
     fontcolor="#444444"
     fillcolor="#444444"
 
-    11 [id=11,shape=rect, label=<<font point-size="34">Trade Loan<br />Application</font><br /><font point-size="19">[Container: Java 25, Spring Boot 4]</font><br /><br /><font point-size="24">Spring Boot Hexagonal<br />Architecture</font>>, style=filled, color="#2e6295", fillcolor="#438dd5", fontcolor="#ffffff"]
-    12 [id=12,shape=cylinder, label=<<font point-size="34">PostgreSQL Database</font><br /><font point-size="19">[Container: PostgreSQL 18]</font><br /><br /><font point-size="24">Loan data storage</font>>, style=filled, color="#2e6295", fillcolor="#438dd5", fontcolor="#ffffff"]
-    13 [id=13,shape=rect, label=<<font point-size="34">Kafka</font><br /><font point-size="19">[Container: Confluent Kafka 7.9]</font><br /><br /><font point-size="24">Event streaming</font>>, style=filled, color="#ab7418", fillcolor="#f5a623", fontcolor="#000000"]
-    14 [id=14,shape=cylinder, label=<<font point-size="34">Redis</font><br /><font point-size="19">[Container: Redis 8.2]</font><br /><br /><font point-size="24">Caching and locks</font>>, style=filled, color="#a1352a", fillcolor="#e74c3c", fontcolor="#ffffff"]
-    15 [id=15,shape=rect, label=<<font point-size="34">Kafdrop</font><br /><font point-size="19">[Container: Kafdrop 4.2]</font><br /><br /><font point-size="24">Kafka monitoring</font>>, style=filled, color="#1b7943", fillcolor="#27ae60", fontcolor="#ffffff"]
+    10 [id=10,shape=cylinder, label=<<font point-size="34">Redis</font><br /><font point-size="19">[Container: Redis 8.6 (Sentinel HA: 1 master / 2 replicas / 3 sentinels)]</font><br /><br /><font point-size="24">Cache + idempotency store<br />(Sentinel HA)</font>>, style=filled, color="#a1352a", fillcolor="#e74c3c", fontcolor="#ffffff"]
+    11 [id=11,shape=rect, label=<<font point-size="34">ActiveMQ Artemis</font><br /><font point-size="19">[Container: ActiveMQ Artemis 2.43 (Jakarta JMS)]</font><br /><br /><font point-size="24">Primary FCB request/reply<br />corridor broker</font>>, style=filled, color="#ab7418", fillcolor="#f5a623", fontcolor="#000000"]
+    7 [id=7,shape=rect, label=<<font point-size="34">Trade Loan<br />Application</font><br /><font point-size="19">[Container: Java 25, Spring Boot 4]</font><br /><br /><font point-size="24">Spring Boot hexagonal<br />application (driving + driven<br />adapters)</font>>, style=filled, color="#2e6295", fillcolor="#438dd5", fontcolor="#ffffff"]
+    8 [id=8,shape=cylinder, label=<<font point-size="34">PostgreSQL Database</font><br /><font point-size="19">[Container: PostgreSQL 18]</font><br /><br /><font point-size="24">Loan data, inbox/outbox,<br />workflow state, audit,<br />reconciliation</font>>, style=filled, color="#2e6295", fillcolor="#438dd5", fontcolor="#ffffff"]
+    9 [id=9,shape=rect, label=<<font point-size="34">Kafka</font><br /><font point-size="19">[Container: Apache Kafka (SASL_PLAINTEXT/SCRAM-SHA-256)]</font><br /><br /><font point-size="24">Event streaming +<br />request/reply fallback<br />transport</font>>, style=filled, color="#ab7418", fillcolor="#f5a623", fontcolor="#000000"]
   }
 
-  11 -> 13 [id=134, label=<<font point-size="24">Consumes from</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  11 -> 13 [id=144, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  11 -> 12 [id=16, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  11 -> 13 [id=17, label=<<font point-size="24">Publishes/Consumes</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  11 -> 14 [id=18, label=<<font point-size="24">Caches data</font><br /><font point-size="19">[Redis Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  11 -> 1 [id=19, label=<<font point-size="24">Authenticates</font><br /><font point-size="19">[OAuth2/OIDC]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  11 -> 2 [id=21, label=<<font point-size="24">Core banking</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  11 -> 3 [id=23, label=<<font point-size="24">Telemetry</font><br /><font point-size="19">[OTLP/gRPC]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  11 -> 4 [id=25, label=<<font point-size="24">Calls</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  11 -> 5 [id=27, label=<<font point-size="24">Calls</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  11 -> 6 [id=29, label=<<font point-size="24">Calls</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  11 -> 7 [id=31, label=<<font point-size="24">Calls</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  11 -> 8 [id=33, label=<<font point-size="24">Calls</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  11 -> 9 [id=35, label=<<font point-size="24">Calls</font><br /><font point-size="19">[HTTP/REST]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  15 -> 13 [id=37, label=<<font point-size="24">Monitors</font><br /><font point-size="19">[Kafka Protocol]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  38 -> 11 [id=39, label=<<font point-size="24">Creates and manages loans</font><br /><font point-size="19">[HTTPS/JWT]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  41 -> 11 [id=42, label=<<font point-size="24">Approves facilities</font><br /><font point-size="19">[HTTPS/JWT]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  44 -> 11 [id=45, label=<<font point-size="24">Monitors system</font><br /><font point-size="19">[HTTPS/JWT]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
-  44 -> 15 [id=47, label=<<font point-size="24">Monitors Kafka</font><br /><font point-size="19">[HTTP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 8 [id=12, label=<<font point-size="24">Aggregates, inbox/outbox,<br />workflow, audit,<br />reconciliation</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 10 [id=13, label=<<font point-size="24">Query cache, idempotency,<br />JWKS/token cache</font><br /><font point-size="19">[RESP3 (Sentinel)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 9 [id=14, label=<<font point-size="24">Domain events (outbox) +<br />request/reply fallback</font><br /><font point-size="19">[Kafka (SASL/SCRAM)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 11 [id=15, label=<<font point-size="24">FCB request/reply corridor<br />(primary)</font><br /><font point-size="19">[Jakarta JMS]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 5 [id=16, label=<<font point-size="24">Loads runtime config</font><br /><font point-size="19">[Consul KV (watch / @RefreshScope)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  1 -> 7 [id=176, label=<<font point-size="24">Business loan-lifecycle<br />requests</font><br /><font point-size="19">[REST (SWA-101) / JWT]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 8 [id=179, label=<<font point-size="24">Reads/Writes</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 2 [id=18, label=<<font point-size="24">Validates JWT / fetches<br />JWKS</font><br /><font point-size="19">[OAuth2/OIDC + JWKS]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 9 [id=188, label=<<font point-size="24">Publishes events</font><br /><font point-size="19">[Kafka (SASL/SCRAM)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 9 [id=193, label=<<font point-size="24">Consumes from</font><br /><font point-size="19">[Kafka (SASL/SCRAM)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 3 [id=195, label=<<font point-size="24">Calls (corridor)</font><br /><font point-size="19">[Corridor (Artemis primary / Kafka fallback)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 11 [id=198, label=<<font point-size="24">Request/reply (primary)</font><br /><font point-size="19">[Jakarta JMS]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 3 [id=20, label=<<font point-size="24">Core banking operations<br />via corridor</font><br /><font point-size="19">[Corridor (Artemis primary / Kafka fallback)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 9 [id=202, label=<<font point-size="24">Request/reply (fallback)</font><br /><font point-size="19">[Kafka (SASL/SCRAM)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 8 [id=206, label=<<font point-size="24">Reads reconciliation state</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 3 [id=208, label=<<font point-size="24">Probes / converges</font><br /><font point-size="19">[Corridor (Artemis primary / Kafka fallback)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 4 [id=22, label=<<font point-size="24">Exports traces / metrics /<br />logs</font><br /><font point-size="19">[OTLP http/protobuf]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  24 -> 7 [id=25, label=<<font point-size="24">Operates via OPS endpoints<br />(/v1/ops/*) and MCP ops<br />tools</font><br /><font point-size="19">[HTTPS / JWT (sub-claim allowlist)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+
 }

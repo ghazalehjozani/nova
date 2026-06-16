@@ -25,6 +25,7 @@ public class WorkspaceExporter {
 
     public void exportMermaid(Workspace workspace, Path outputDir) throws IOException {
         Files.createDirectories(outputDir);
+        clearDir(outputDir, ".mmd");
         var exporter = new MermaidDiagramExporter();
         Collection<Diagram> diagrams = exporter.export(workspace);
         for (var diagram : diagrams) {
@@ -35,6 +36,7 @@ public class WorkspaceExporter {
 
     public void exportPlantUML(Workspace workspace, Path outputDir) throws IOException {
         Files.createDirectories(outputDir);
+        clearDir(outputDir, ".puml");
         var exporter = new StructurizrPlantUMLExporter();
         Collection<Diagram> diagrams = exporter.export(workspace);
         for (var diagram : diagrams) {
@@ -45,12 +47,27 @@ public class WorkspaceExporter {
 
     public void exportDot(Workspace workspace, Path outputDir) throws IOException {
         Files.createDirectories(outputDir);
+        clearDir(outputDir, ".dot");
         var exporter = new DOTExporter();
         Collection<Diagram> diagrams = exporter.export(workspace);
         for (var diagram : diagrams) {
             Files.writeString(outputDir.resolve(diagram.getKey() + ".dot"), diagram.getDefinition());
         }
         log.info("\n 📐 DOT: {} ({} diagrams)", outputDir, diagrams.size());
+    }
+
+    /** Remove previously generated files with the given extension so renamed/removed views leave no stragglers. */
+    private void clearDir(Path dir, String extension) throws IOException {
+        if (!Files.isDirectory(dir)) return;
+        try (var entries = Files.list(dir)) {
+            entries.filter(p -> p.getFileName().toString().endsWith(extension)).forEach(p -> {
+                try {
+                    Files.deleteIfExists(p);
+                } catch (IOException e) {
+                    log.warn("Could not delete stale diagram {}: {}", p, e.getMessage());
+                }
+            });
+        }
     }
 
     public void exportDsl(Workspace workspace, Path outputPath) throws IOException {
