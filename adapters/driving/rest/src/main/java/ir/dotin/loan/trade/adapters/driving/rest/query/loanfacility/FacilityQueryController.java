@@ -19,6 +19,7 @@ import ir.dotin.platform.pangaea.protocol.api.response.BaseResponse;
 import ir.dotin.platform.pangaea.protocol.core.util.PagedResponseUtils;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
 import ir.dotin.platform.pangaea.protocol.rest.pagination.CursorPaginationHelper;
+import ir.dotin.platform.pangaea.protocol.rest.partial.PartialResponse;
 import ir.dotin.platform.pangaea.security.api.AuthenticationContextHolder;
 import ir.dotin.platform.pangaea.security.api.MissingSecurityContextException;
 import ir.dotin.platform.pangaea.servicelayer.api.dispatcher.QueryDispatcher;
@@ -46,7 +47,8 @@ class FacilityQueryController extends BaseController {
 
     @GetMapping(value = "/{facilityId}", version = "1")
     @Operation(summary = "دریافت تسهیلات بر اساس شناسه")
-    public ResponseEntity<BaseResponse<TradeFacilityQueryDto>> getById(@PathVariable UUID facilityId) {
+    public ResponseEntity<BaseResponse<TradeFacilityQueryDto>> getById(
+            @PathVariable UUID facilityId, PartialResponse partial) {
         GetFacilityByIdQuery query = GetFacilityByIdQuery.builder()
                 .loanFacilityId(facilityId)
                 .callerBranchCode(authenticationContextHolder
@@ -60,7 +62,7 @@ class FacilityQueryController extends BaseController {
     @GetMapping(params = "applicationNumber", version = "1")
     @Operation(summary = "دریافت تسهیلات بر اساس شماره درخواست")
     public ResponseEntity<BaseResponse<TradeFacilityQueryDto>> getByApplicationNumber(
-            @RequestParam("applicationNumber") String applicationNumber) {
+            @RequestParam("applicationNumber") String applicationNumber, PartialResponse partial) {
         GetFacilityByApplicationNumberQuery query = GetFacilityByApplicationNumberQuery.builder()
                 .applicationNumber(applicationNumber)
                 .callerBranchCode(authenticationContextHolder
@@ -75,7 +77,8 @@ class FacilityQueryController extends BaseController {
     @Operation(summary = "دریافت لیست تمام تسهیلات")
     public ResponseEntity<BaseResponse<List<TradeFacilityQueryDto>>> findAll(
             @RequestParam(required = false) String cursor,
-            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int pageSize) {
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int pageSize,
+            PartialResponse partial) {
 
         FindAllLoanFacilitiesQuery query = FindAllLoanFacilitiesQuery.builder()
                 .cursor(cursor)
@@ -99,7 +102,8 @@ class FacilityQueryController extends BaseController {
             @RequestParam(required = false) BigDecimal requestAmountMax,
             @RequestParam(required = false) FacilityStatus status,
             @RequestParam(defaultValue = "0") @Min(0) int page,
-            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int pageSize) {
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int pageSize,
+            PartialResponse partial) {
 
         LoanFacilityFilterQuery query = LoanFacilityFilterQuery.of(
                 loanTypeId,

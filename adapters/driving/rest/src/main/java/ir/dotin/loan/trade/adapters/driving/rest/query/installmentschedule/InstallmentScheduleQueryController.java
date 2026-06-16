@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ir.dotin.platform.pangaea.protocol.api.response.BaseResponse;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
+import ir.dotin.platform.pangaea.protocol.rest.partial.PartialResponse;
 import ir.dotin.platform.pangaea.servicelayer.api.dispatcher.QueryDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.query.installmentschedule.dto.TradeInstallmentScheduleQueryDto;
@@ -30,7 +31,7 @@ class InstallmentScheduleQueryController extends BaseController {
     @GetMapping(value = "/{installmentScheduleId}", version = "1")
     @Operation(summary = "دریافت برنامه اقساط بر اساس شناسه")
     public ResponseEntity<BaseResponse<TradeInstallmentScheduleQueryDto>> getById(
-            @PathVariable UUID installmentScheduleId) {
+            @PathVariable UUID installmentScheduleId, PartialResponse partial) {
         GetInstallmentScheduleByIdQuery query = GetInstallmentScheduleByIdQuery.builder()
                 .installmentScheduleId(installmentScheduleId)
                 .build();

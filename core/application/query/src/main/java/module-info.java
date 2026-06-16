@@ -13,6 +13,7 @@ open module ir.dotin.loan.trade.core.application.query {
     requires transitive ir.dotin.loan.trade.core.domain;
     requires transitive ir.dotin.loan.baseloan.core.domain;
     requires transitive ir.dotin.platform.pangaea.commons.core;
+    requires ir.dotin.platform.pangaea.protocol.projection.api;
     requires transitive ir.dotin.platform.pangaea.servicelayer.api;
     requires transitive ir.dotin.platform.pangaea.servicelayer.cache;
     requires ir.dotin.platform.accounting.document.api;

@@ -16,6 +16,7 @@ import ir.dotin.platform.pangaea.protocol.api.response.BaseResponse;
 import ir.dotin.platform.pangaea.protocol.core.util.PagedResponseUtils;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
 import ir.dotin.platform.pangaea.protocol.rest.pagination.CursorPaginationHelper;
+import ir.dotin.platform.pangaea.protocol.rest.partial.PartialResponse;
 import ir.dotin.platform.pangaea.servicelayer.api.dispatcher.QueryDispatcher;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.query.loantype.dto.LoanTypeQueryResult;
@@ -39,7 +40,8 @@ class LoanTypeQueryController extends BaseController {
 
     @GetMapping(value = "/{loanTypeId}", version = "1")
     @Operation(summary = "دریافت نوع تسهیلات بر اساس شناسه")
-    public ResponseEntity<BaseResponse<TradeLoanTypeQueryDto>> getById(@PathVariable UUID loanTypeId) {
+    public ResponseEntity<BaseResponse<TradeLoanTypeQueryDto>> getById(
+            @PathVariable UUID loanTypeId, PartialResponse partial) {
         GetLoanTypeByIdQuery query =
                 GetLoanTypeByIdQuery.builder().loanTypeId(loanTypeId).build();
         return ResponseEntity.ok(BaseResponse.success(dispatcher.dispatch(query)));
@@ -47,7 +49,8 @@ class LoanTypeQueryController extends BaseController {
 
     @GetMapping(params = "code", version = "1")
     @Operation(summary = "دریافت نوع تسهیلات بر اساس کد")
-    public ResponseEntity<BaseResponse<TradeLoanTypeQueryDto>> getByCode(@RequestParam String code) {
+    public ResponseEntity<BaseResponse<TradeLoanTypeQueryDto>> getByCode(
+            @RequestParam String code, PartialResponse partial) {
         GetLoanTypeByCodeQuery query =
                 GetLoanTypeByCodeQuery.builder().code(code).build();
         return ResponseEntity.ok(BaseResponse.success(dispatcher.dispatch(query)));
@@ -57,7 +60,8 @@ class LoanTypeQueryController extends BaseController {
     @Operation(summary = "Get all loan types with cursor-based pagination")
     public ResponseEntity<BaseResponse<List<TradeLoanTypeQueryDto>>> findAll(
             @RequestParam(required = false) String cursor,
-            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int pageSize) {
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int pageSize,
+            PartialResponse partial) {
 
         FindAllLoanTypesQuery query = FindAllLoanTypesQuery.builder()
                 .cursor(cursor)
@@ -76,7 +80,8 @@ class LoanTypeQueryController extends BaseController {
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String title,
             @RequestParam(defaultValue = "0") @Min(0) int page,
-            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int pageSize) {
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int pageSize,
+            PartialResponse partial) {
 
         LoanTypeFilterQuery query = LoanTypeFilterQuery.of(code, title, page, pageSize);
         LoanTypeQueryResult result = dispatcher.dispatch(query);

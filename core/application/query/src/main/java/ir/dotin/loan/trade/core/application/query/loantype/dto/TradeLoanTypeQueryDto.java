@@ -7,10 +7,16 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import ir.dotin.platform.pangaea.protocol.projection.api.ProjectableResource;
 import ir.dotin.platform.pangaea.servicelayer.api.query.QueryResult;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.GatewayType;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 
+@ProjectableResource(
+        views =
+                @ProjectableResource.View(
+                        name = "SUMMARY",
+                        fields = {"id", "code", "title", "gatewayType", "active"}))
 public record TradeLoanTypeQueryDto(
         UUID id,
         Long version,

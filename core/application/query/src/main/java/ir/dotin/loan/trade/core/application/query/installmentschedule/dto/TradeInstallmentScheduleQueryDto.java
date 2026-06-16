@@ -7,11 +7,18 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import ir.dotin.platform.pangaea.protocol.projection.api.ProjectableResource;
 import ir.dotin.platform.pangaea.servicelayer.api.query.QueryResult;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleStatus;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleType;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentStatus;
 
+@ProjectableResource(
+        views =
+                @ProjectableResource.View(
+                        name = "SUMMARY",
+                        fields = {"id", "loanFacilityId", "status", "totalLoanAmount", "currency", "interestRate"}),
+        expandable = {"installments.payments"})
 public record TradeInstallmentScheduleQueryDto(
         UUID id,
         Long version,

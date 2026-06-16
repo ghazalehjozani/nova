@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import ir.dotin.platform.pangaea.protocol.projection.api.ProjectableResource;
 import ir.dotin.platform.pangaea.servicelayer.api.query.QueryResult;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LifeInsurancePaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.LoanSecondaryType;
@@ -16,6 +17,11 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.SectionType;
 
 import lombok.Builder;
 
+@ProjectableResource(
+        views =
+                @ProjectableResource.View(
+                        name = "SUMMARY",
+                        fields = {"id", "code", "title", "currencyType", "amountRange", "active"}))
 public record TradeLoanArrangementQueryDto(
         UUID id,
         Long version,

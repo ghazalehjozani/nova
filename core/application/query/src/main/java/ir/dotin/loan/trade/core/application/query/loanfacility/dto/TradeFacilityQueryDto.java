@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.accounting.document.api.enumeration.TransactionStatus;
+import ir.dotin.platform.pangaea.protocol.projection.api.ProjectableResource;
 import ir.dotin.platform.pangaea.servicelayer.api.query.QueryResult;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisburseDestinationType;
@@ -21,6 +22,18 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.SanctionType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 
+@ProjectableResource(
+        views =
+                @ProjectableResource.View(
+                        name = "SUMMARY",
+                        fields = {
+                            "id",
+                            "currentState",
+                            "totalDisbursedAmount",
+                            "totalDisbursedAmountCurrency",
+                            "loanTypeId",
+                            "disbursementDate"
+                        }))
 public record TradeFacilityQueryDto(
         UUID id,
         Long version,
