@@ -23,17 +23,41 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 
 @ProjectableResource(
-        views =
-                @ProjectableResource.View(
-                        name = "SUMMARY",
-                        fields = {
-                            "id",
-                            "currentState",
-                            "totalDisbursedAmount",
-                            "totalDisbursedAmountCurrency",
-                            "loanTypeId",
-                            "disbursementDate"
-                        }))
+        views = {
+            @ProjectableResource.View(
+                    name = "SUMMARY",
+                    fields = {
+                        "id",
+                        "currentState",
+                        "totalDisbursedAmount",
+                        "totalDisbursedAmountCurrency",
+                        "loanTypeId",
+                        "disbursementDate"
+                    }),
+            @ProjectableResource.View(
+                    name = "DISBURSEMENT",
+                    fields = {
+                        "id",
+                        "loanTypeId",
+                        "loanArrangementId",
+                        "installmentScheduleId",
+                        "totalDisbursedAmount",
+                        "totalDisbursedAmountCurrency",
+                        "disbursementDate",
+                        "accountInfoMap",
+                        "loanApplication",
+                        "sanctionedLoan.approvedAmount",
+                        "sanctionedLoan.currency",
+                        "sanctionedLoan.sanctionSerial",
+                        "sanctionedLoan.loanDurationMonths",
+                        "sanctionedLoan.gracePeriodDays",
+                        "sanctionedLoan.installmentCount",
+                        "sanctionedLoan.confirmType",
+                        "collaterals",
+                        "issueContractTransactionNumbers",
+                        "disbursementTransactionNumbers"
+                    })
+        })
 public record TradeFacilityQueryDto(
         UUID id,
         Long version,
