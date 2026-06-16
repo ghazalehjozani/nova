@@ -9,6 +9,7 @@ import org.mapstruct.ReportingPolicy;
 
 @MapperConfig(
         componentModel = MappingConstants.ComponentModel.SPRING,
+        uses = TemporalMapper.class,
         unmappedTargetPolicy = ReportingPolicy.ERROR,
         unmappedSourcePolicy = ReportingPolicy.WARN,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL,

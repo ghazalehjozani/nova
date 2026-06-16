@@ -50,11 +50,13 @@ public class IssueFacilityContractCommandHandler
 
     @Override
     public Result<ContractData> seed(IssueFacilityContractCommand command) {
-        return dependencyLoader.loadDependencies(command).flatMap(context -> facilityValidator
-                .callAndValidateServices(command, context)
-                .flatMap(ignored -> facilityContractValidation.validateForContractIssuance(
-                        context.facility(), context.arrangement()))
-                .map(ignored -> buildData(command)));
+        return dependencyLoader
+                .loadDependencies(command)
+                .flatMap(context -> facilityValidator
+                        .callAndValidateServices(command, context)
+                        .flatMap(ignored -> facilityContractValidation.validateForContractIssuance(
+                                context.facility(), context.arrangement()))
+                        .map(ignored -> buildData(command)));
     }
 
     private ContractData buildData(IssueFacilityContractCommand command) {

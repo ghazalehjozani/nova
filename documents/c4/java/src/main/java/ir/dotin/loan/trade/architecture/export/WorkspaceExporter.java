@@ -81,13 +81,14 @@ public class WorkspaceExporter {
             var model = ws.getModel();
 
             // 1. People
-            model.getPeople().forEach(p -> sb.append("        ")
-                    .append(id(p.getName()))
-                    .append(" = person \"")
-                    .append(esc(p.getName()))
-                    .append("\"")
-                    .append(p.getDescription() != null ? " \"" + esc(p.getDescription()) + "\"" : "")
-                    .append("\n"));
+            model.getPeople()
+                    .forEach(p -> sb.append("        ")
+                            .append(id(p.getName()))
+                            .append(" = person \"")
+                            .append(esc(p.getName()))
+                            .append("\"")
+                            .append(p.getDescription() != null ? " \"" + esc(p.getDescription()) + "\"" : "")
+                            .append("\n"));
 
             if (!model.getPeople().isEmpty()) {
                 sb.append("\n");
@@ -117,20 +118,21 @@ public class WorkspaceExporter {
 
                         if (!c.getComponents().isEmpty()) {
                             sb.append(" {\n");
-                            c.getComponents().forEach(comp -> sb.append("                ")
-                                    .append(id(comp.getName()))
-                                    .append(" = component \"")
-                                    .append(esc(comp.getName()))
-                                    .append("\"")
-                                    .append(
-                                            comp.getDescription() != null
-                                                    ? " \"" + esc(comp.getDescription()) + "\""
-                                                    : "")
-                                    .append(
-                                            comp.getTechnology() != null
-                                                    ? " \"" + esc(comp.getTechnology()) + "\""
-                                                    : "")
-                                    .append("\n"));
+                            c.getComponents()
+                                    .forEach(comp -> sb.append("                ")
+                                            .append(id(comp.getName()))
+                                            .append(" = component \"")
+                                            .append(esc(comp.getName()))
+                                            .append("\"")
+                                            .append(
+                                                    comp.getDescription() != null
+                                                            ? " \"" + esc(comp.getDescription()) + "\""
+                                                            : "")
+                                            .append(
+                                                    comp.getTechnology() != null
+                                                            ? " \"" + esc(comp.getTechnology()) + "\""
+                                                            : "")
+                                            .append("\n"));
                             sb.append("            }\n");
                         } else {
                             sb.append("\n");

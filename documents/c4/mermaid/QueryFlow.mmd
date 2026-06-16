@@ -7,47 +7,49 @@ graph LR
     subgraph 11 ["Trade Loan Application"]
       style 11 fill:#ffffff,stroke:#2e6295,color:#2e6295
 
-      100["<div style='font-weight: bold'>FindAllLoanFacilitiesQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles find all loan<br />facilities queries</div>"]
+      100["<div style='font-weight: bold'>LoanTypeArrangementFilterQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles loan type arrangement<br />filter queries</div>"]
       style 100 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      101["<div style='font-weight: bold'>GetFacilityByApplicationNumberQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get facility by<br />application number queries</div>"]
+      101["<div style='font-weight: bold'>FindAllLoanFacilitiesQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles find all loan<br />facilities queries</div>"]
       style 101 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      102["<div style='font-weight: bold'>GetFacilityByIdQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get facility by id<br />queries</div>"]
+      102["<div style='font-weight: bold'>GetFacilityByApplicationNumberQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get facility by<br />application number queries</div>"]
       style 102 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      103["<div style='font-weight: bold'>SearchLoanFacilitiesQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles search loan<br />facilities queries</div>"]
+      103["<div style='font-weight: bold'>GetFacilityByIdQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get facility by id<br />queries</div>"]
       style 103 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      104["<div style='font-weight: bold'>FindAllLoanTypesQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles find all loan types<br />queries</div>"]
+      104["<div style='font-weight: bold'>ResolveFacilityIdByApplicationNumberQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles resolve facility id<br />by application number queries</div>"]
       style 104 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      105["<div style='font-weight: bold'>GetLoanTypeByCodeQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get loan type by code<br />queries</div>"]
+      105["<div style='font-weight: bold'>SearchLoanFacilitiesQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles search loan<br />facilities queries</div>"]
       style 105 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      106["<div style='font-weight: bold'>GetLoanTypeByIdQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get loan type by id<br />queries</div>"]
+      106["<div style='font-weight: bold'>FindAllLoanTypesQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles find all loan types<br />queries</div>"]
       style 106 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      107["<div style='font-weight: bold'>LoanTypeFilterQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles loan type filter<br />queries</div>"]
+      107["<div style='font-weight: bold'>GetLoanTypeByCodeQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get loan type by code<br />queries</div>"]
       style 107 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      123[("<div style='font-weight: bold'>JpaTradeInstallmentScheduleQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeInstallmentSchedule<br />query adapter</div>")]
-      style 123 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      124[("<div style='font-weight: bold'>JpaTradeLoanArrangementQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanArrangement query<br />adapter</div>")]
-      style 124 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      125[("<div style='font-weight: bold'>JpaFacilityQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>Facility query adapter</div>")]
+      108["<div style='font-weight: bold'>GetLoanTypeByIdQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get loan type by id<br />queries</div>"]
+      style 108 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      109["<div style='font-weight: bold'>LoanTypeFilterQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles loan type filter<br />queries</div>"]
+      style 109 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      125[("<div style='font-weight: bold'>JpaTradeInstallmentScheduleQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeInstallmentSchedule<br />query adapter</div>")]
       style 125 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      126[("<div style='font-weight: bold'>JpaTradeLoanTypeQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanType query adapter</div>")]
+      126[("<div style='font-weight: bold'>JpaTradeLoanArrangementQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanArrangement query<br />adapter</div>")]
       style 126 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      63["<div style='font-weight: bold'>InstallmentScheduleQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/installment-schedules</div>"]
-      style 63 fill:#7cb342,stroke:#567d2e,color:#ffffff
-      64["<div style='font-weight: bold'>LoanArrangementQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/loan-arrangements</div>"]
+      127[("<div style='font-weight: bold'>JpaFacilityQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>Facility query adapter</div>")]
+      style 127 fill:#5c6bc0,stroke:#404a86,color:#ffffff
+      128[("<div style='font-weight: bold'>JpaTradeLoanTypeQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanType query adapter</div>")]
+      style 128 fill:#5c6bc0,stroke:#404a86,color:#ffffff
+      64["<div style='font-weight: bold'>InstallmentScheduleQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/installment-schedules</div>"]
       style 64 fill:#7cb342,stroke:#567d2e,color:#ffffff
-      65["<div style='font-weight: bold'>FacilityQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/loan-facilities</div>"]
+      65["<div style='font-weight: bold'>LoanArrangementQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/loan-arrangements</div>"]
       style 65 fill:#7cb342,stroke:#567d2e,color:#ffffff
-      66["<div style='font-weight: bold'>LoanTypeQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/loan-types</div>"]
+      66["<div style='font-weight: bold'>FacilityQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/loan-facilities</div>"]
       style 66 fill:#7cb342,stroke:#567d2e,color:#ffffff
-      95["<div style='font-weight: bold'>GetInstallmentScheduleByIdQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get installment<br />schedule by id queries</div>"]
-      style 95 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      96["<div style='font-weight: bold'>FindAllLoanArrangementsQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles find all loan<br />arrangements queries</div>"]
+      67["<div style='font-weight: bold'>LoanTypeQueryController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/loan-types</div>"]
+      style 67 fill:#7cb342,stroke:#567d2e,color:#ffffff
+      96["<div style='font-weight: bold'>GetInstallmentScheduleByIdQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get installment<br />schedule by id queries</div>"]
       style 96 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      97["<div style='font-weight: bold'>GetLoanArrangementByCodeQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get loan arrangement<br />by code queries</div>"]
+      97["<div style='font-weight: bold'>FindAllLoanArrangementsQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles find all loan<br />arrangements queries</div>"]
       style 97 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      98["<div style='font-weight: bold'>GetLoanArrangementByIdQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get loan arrangement<br />by id queries</div>"]
+      98["<div style='font-weight: bold'>GetLoanArrangementByCodeQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get loan arrangement<br />by code queries</div>"]
       style 98 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      99["<div style='font-weight: bold'>LoanTypeArrangementFilterQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles loan type arrangement<br />filter queries</div>"]
+      99["<div style='font-weight: bold'>GetLoanArrangementByIdQueryHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Query Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles get loan arrangement<br />by id queries</div>"]
       style 99 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
     end
 

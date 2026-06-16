@@ -50,16 +50,17 @@ public class RestructureFacilityStep implements PublishingWriteActivity<LoanFaci
     public StepResult<List<DomainEvent<?>>> execute(WorkflowContext<LoanFacilityRestructuringCommandHandler.Data> ctx) {
         LoanFacilityRestructuringCommand command = ctx.data().command();
 
-        var result = resolveIdentifier(command).flatMap(this::loadFacility).flatMap(facility -> loadDependencies(
-                        facility, command)
-                .flatMap(context -> validateAll(facility, context)
-                        .flatMap(ignored -> processRestructuring(context))
-                        .flatMap(this::persistAndCollectEvents)
-                        .onSuccess(schedule -> log.info(
-                                "Loan facility restructuring completed: applicationNumber={}, ref={}",
-                                command.applicationNumber(),
-                                command.transactionReference()))
-                        .map(RestructuringResult::events)));
+        var result = resolveIdentifier(command)
+                .flatMap(this::loadFacility)
+                .flatMap(facility -> loadDependencies(facility, command)
+                        .flatMap(context -> validateAll(facility, context)
+                                .flatMap(ignored -> processRestructuring(context))
+                                .flatMap(this::persistAndCollectEvents)
+                                .onSuccess(schedule -> log.info(
+                                        "Loan facility restructuring completed: applicationNumber={}, ref={}",
+                                        command.applicationNumber(),
+                                        command.transactionReference()))
+                                .map(RestructuringResult::events)));
 
         return StepResult.fromWriteResult(result);
     }
@@ -127,9 +128,11 @@ public class RestructureFacilityStep implements PublishingWriteActivity<LoanFaci
     }
 
     private Result<RestructuringOperationResult> processRestructuring(ProcessingContext context) {
-        return recalculateSchedule(context).flatMap(recalculatedInstallments -> restructureAndActivateSchedule(
-                        context.facility(), context, recalculatedInstallments)
-                .flatMap(newSchedule -> performRestructuringOperations(context.facility(), context, newSchedule)));
+        return recalculateSchedule(context)
+                .flatMap(recalculatedInstallments -> restructureAndActivateSchedule(
+                                context.facility(), context, recalculatedInstallments)
+                        .flatMap(newSchedule ->
+                                performRestructuringOperations(context.facility(), context, newSchedule)));
     }
 
     private Result<RestructuringOperationResult> performRestructuringOperations(

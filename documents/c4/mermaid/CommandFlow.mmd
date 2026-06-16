@@ -7,7 +7,7 @@ graph LR
     subgraph 11 ["Trade Loan Application"]
       style 11 fill:#ffffff,stroke:#2e6295,color:#2e6295
 
-      50["<div style='font-weight: bold'>DevAuthCallbackController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/api/{version}/dev/auth</div>"]
+      50["<div style='font-weight: bold'>DevAuthCallbackController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/dev/auth</div>"]
       style 50 fill:#7cb342,stroke:#567d2e,color:#ffffff
       51["<div style='font-weight: bold'>AddFacilityCollateralController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/loan-facilities/{facilityId}/collaterals</div>"]
       style 51 fill:#7cb342,stroke:#567d2e,color:#ffffff
@@ -33,40 +33,40 @@ graph LR
       style 61 fill:#7cb342,stroke:#567d2e,color:#ffffff
       62["<div style='font-weight: bold'>SubmitFacilityForApprovalController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/loan-facilities/{facilityId}/submit-for-approval</div>"]
       style 62 fill:#7cb342,stroke:#567d2e,color:#ffffff
-      68["<div style='font-weight: bold'>AddFacilityCollateralCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles add facility<br />collateral</div>"]
-      style 68 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      69["<div style='font-weight: bold'>CompensateCollateralCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles compensate collateral</div>"]
-      style 69 fill:#ef5350,stroke:#a73a38,color:#ffffff
-      70["<div style='font-weight: bold'>ApproveFacilityCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles approve facility</div>"]
-      style 70 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      71["<div style='font-weight: bold'>CompensateApprovalCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles compensate approval</div>"]
-      style 71 fill:#ef5350,stroke:#a73a38,color:#ffffff
-      72["<div style='font-weight: bold'>CancelFacilityCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles cancel facility</div>"]
-      style 72 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      73["<div style='font-weight: bold'>CloseFacilityDefaultedCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles close facility<br />defaulted</div>"]
+      63["<div style='font-weight: bold'>ReconciliationByApplicationNumberController</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring REST Controller]</div><div style='font-size: 80%; margin-top:10px'>REST API:<br />/v{version}/ops/reconciliation/facility-state</div>"]
+      style 63 fill:#7cb342,stroke:#567d2e,color:#ffffff
+      69["<div style='font-weight: bold'>AddFacilityCollateralCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles add facility<br />collateral</div>"]
+      style 69 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      70["<div style='font-weight: bold'>CompensateCollateralCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles compensate collateral</div>"]
+      style 70 fill:#ef5350,stroke:#a73a38,color:#ffffff
+      71["<div style='font-weight: bold'>ApproveFacilityCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles approve facility</div>"]
+      style 71 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      72["<div style='font-weight: bold'>CompensateApprovalCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles compensate approval</div>"]
+      style 72 fill:#ef5350,stroke:#a73a38,color:#ffffff
+      73["<div style='font-weight: bold'>CancelFacilityCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles cancel facility</div>"]
       style 73 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      74["<div style='font-weight: bold'>CloseFacilityPaidOffCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles close facility paid<br />off</div>"]
+      74["<div style='font-weight: bold'>CloseFacilityDefaultedCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles close facility<br />defaulted</div>"]
       style 74 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      75["<div style='font-weight: bold'>CompensateCloseFacilityPaidOffCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles compensate close<br />facility paid off</div>"]
-      style 75 fill:#ef5350,stroke:#a73a38,color:#ffffff
-      76["<div style='font-weight: bold'>CollectInstallmentCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles collect installment</div>"]
-      style 76 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      77["<div style='font-weight: bold'>CompensateCollectInstallmentCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles compensate collect<br />installment</div>"]
-      style 77 fill:#ef5350,stroke:#a73a38,color:#ffffff
-      78["<div style='font-weight: bold'>DefineLoanTypeCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles define loan type</div>"]
-      style 78 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      79["<div style='font-weight: bold'>DefineTradeLoanArrangementCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles define trade loan<br />arrangement</div>"]
+      75["<div style='font-weight: bold'>CloseFacilityPaidOffCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles close facility paid<br />off</div>"]
+      style 75 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      76["<div style='font-weight: bold'>CompensateCloseFacilityPaidOffCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles compensate close<br />facility paid off</div>"]
+      style 76 fill:#ef5350,stroke:#a73a38,color:#ffffff
+      77["<div style='font-weight: bold'>CollectInstallmentCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles collect installment</div>"]
+      style 77 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      78["<div style='font-weight: bold'>CompensateCollectInstallmentCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles compensate collect<br />installment</div>"]
+      style 78 fill:#ef5350,stroke:#a73a38,color:#ffffff
+      79["<div style='font-weight: bold'>DefineLoanTypeCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles define loan type</div>"]
       style 79 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      80["<div style='font-weight: bold'>IrregularProgressiveDisbursementCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles irregular progressive<br />disbursement</div>"]
+      80["<div style='font-weight: bold'>DefineTradeLoanArrangementCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles define trade loan<br />arrangement</div>"]
       style 80 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      81["<div style='font-weight: bold'>CompensateIrregularDisbursementCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles compensate irregular<br />disbursement</div>"]
-      style 81 fill:#ef5350,stroke:#a73a38,color:#ffffff
-      82["<div style='font-weight: bold'>IssueFacilityContractCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles issue facility<br />contract</div>"]
-      style 82 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
-      83["<div style='font-weight: bold'>CompensateContractIssuanceCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles compensate contract<br />issuance</div>"]
-      style 83 fill:#ef5350,stroke:#a73a38,color:#ffffff
-      84["<div style='font-weight: bold'>LoanFacilityRestructuringCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles loan facility<br />restructuring</div>"]
-      style 84 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      81["<div style='font-weight: bold'>IrregularProgressiveDisbursementCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles irregular progressive<br />disbursement</div>"]
+      style 81 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      82["<div style='font-weight: bold'>CompensateIrregularDisbursementCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles compensate irregular<br />disbursement</div>"]
+      style 82 fill:#ef5350,stroke:#a73a38,color:#ffffff
+      83["<div style='font-weight: bold'>IssueFacilityContractCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles issue facility<br />contract</div>"]
+      style 83 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+      84["<div style='font-weight: bold'>CompensateContractIssuanceCommandHandler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div><div style='font-size: 80%; margin-top:10px'>Handles compensate contract<br />issuance</div>"]
+      style 84 fill:#ef5350,stroke:#a73a38,color:#ffffff
     end
 
   end

@@ -50,13 +50,20 @@ public class PostTransactionsStep implements RemoteActivity<LumpSumData>, Compen
 
         var transactionsResult = dependencyLoader
                 .loadFacility(LoanFacilityId.of(data.facilityId()))
-                .flatMap(facility -> dependencyLoader.loadLoanType(facility).flatMap(loanType -> dependencyLoader
-                        .loadLoanArrangement(facility)
-                        .flatMap(arrangement -> dependencyLoader
-                                .loadInstallmentSchedule(facility)
-                                .flatMap(schedule -> schedule.activateSchedule(clock)
-                                        .flatMap(ignored -> createTransactions(
-                                                facility, loanType, arrangement, schedule, data, resolvedAccounts))))));
+                .flatMap(facility -> dependencyLoader
+                        .loadLoanType(facility)
+                        .flatMap(loanType -> dependencyLoader
+                                .loadLoanArrangement(facility)
+                                .flatMap(arrangement -> dependencyLoader
+                                        .loadInstallmentSchedule(facility)
+                                        .flatMap(schedule -> schedule.activateSchedule(clock)
+                                                .flatMap(ignored -> createTransactions(
+                                                        facility,
+                                                        loanType,
+                                                        arrangement,
+                                                        schedule,
+                                                        data,
+                                                        resolvedAccounts))))));
 
         if (transactionsResult.isFailure()) {
             return StepResult.failure(transactionsResult.err().orElseThrow());
@@ -115,22 +122,23 @@ public class PostTransactionsStep implements RemoteActivity<LumpSumData>, Compen
             LumpSumData data,
             ResolvedAccounts resolvedAccounts) {
 
-        return createBranchCode(data).flatMap(branchCode -> createPostTitle(facility)
-                .flatMap(postTitle -> DocumentMetadataUtils.createBaseArticleMetadata(
-                                facility,
-                                loanType,
-                                branchCode,
-                                data.transactionConfig(),
-                                DocumentMetadataType.DISBURSEMENT)
-                        .flatMap(metadata -> transactionService.createTransactions(
-                                facility,
-                                arrangement,
-                                loanType,
-                                branchCode,
-                                postTitle,
-                                metadata,
-                                schedule,
-                                resolvedAccounts))));
+        return createBranchCode(data)
+                .flatMap(branchCode -> createPostTitle(facility)
+                        .flatMap(postTitle -> DocumentMetadataUtils.createBaseArticleMetadata(
+                                        facility,
+                                        loanType,
+                                        branchCode,
+                                        data.transactionConfig(),
+                                        DocumentMetadataType.DISBURSEMENT)
+                                .flatMap(metadata -> transactionService.createTransactions(
+                                        facility,
+                                        arrangement,
+                                        loanType,
+                                        branchCode,
+                                        postTitle,
+                                        metadata,
+                                        schedule,
+                                        resolvedAccounts))));
     }
 
     private Result<BranchCode> createBranchCode(LumpSumData data) {

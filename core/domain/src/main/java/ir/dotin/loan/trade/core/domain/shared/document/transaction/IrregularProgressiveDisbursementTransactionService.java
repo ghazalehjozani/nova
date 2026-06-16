@@ -254,7 +254,8 @@ public class IrregularProgressiveDisbursementTransactionService {
     private Money sumInterestAmount(List<Installment> installments, CurrencyType currency) {
         return installments.stream()
                 .map(installment -> installment.getScheduledAmount().interestAmount())
-                .reduce(Money.zero(currency).unwrap(), (sum, next) -> sum.add(next)
-                        .unwrap());
+                .reduce(
+                        Money.zero(currency).unwrap(),
+                        (sum, next) -> sum.add(next).unwrap());
     }
 }

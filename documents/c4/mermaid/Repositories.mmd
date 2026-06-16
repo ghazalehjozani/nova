@@ -10,30 +10,30 @@ graph TB
     subgraph 11 ["Trade Loan Application"]
       style 11 fill:#ffffff,stroke:#2e6295,color:#2e6295
 
-      119[("<div style='font-weight: bold'>InstallmentScheduleRepositoryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>InstallmentSchedule<br />persistence adapter</div>")]
-      style 119 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      120[("<div style='font-weight: bold'>TradeLoanArrangementRepositoryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanArrangement<br />persistence adapter</div>")]
-      style 120 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      121[("<div style='font-weight: bold'>TradeLoanFacilityRepositoryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanFacility persistence<br />adapter</div>")]
+      121[("<div style='font-weight: bold'>InstallmentScheduleRepositoryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>InstallmentSchedule<br />persistence adapter</div>")]
       style 121 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      122[("<div style='font-weight: bold'>TradeLoanTypeRepositoryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanType persistence<br />adapter</div>")]
+      122[("<div style='font-weight: bold'>TradeLoanArrangementRepositoryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanArrangement<br />persistence adapter</div>")]
       style 122 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      123[("<div style='font-weight: bold'>JpaTradeInstallmentScheduleQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeInstallmentSchedule<br />query adapter</div>")]
+      123[("<div style='font-weight: bold'>TradeLoanFacilityRepositoryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanFacility persistence<br />adapter</div>")]
       style 123 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      124[("<div style='font-weight: bold'>JpaTradeLoanArrangementQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanArrangement query<br />adapter</div>")]
+      124[("<div style='font-weight: bold'>TradeLoanTypeRepositoryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanType persistence<br />adapter</div>")]
       style 124 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      125[("<div style='font-weight: bold'>JpaFacilityQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>Facility query adapter</div>")]
+      125[("<div style='font-weight: bold'>JpaTradeInstallmentScheduleQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeInstallmentSchedule<br />query adapter</div>")]
       style 125 fill:#5c6bc0,stroke:#404a86,color:#ffffff
-      126[("<div style='font-weight: bold'>JpaTradeLoanTypeQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanType query adapter</div>")]
+      126[("<div style='font-weight: bold'>JpaTradeLoanArrangementQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanArrangement query<br />adapter</div>")]
       style 126 fill:#5c6bc0,stroke:#404a86,color:#ffffff
+      127[("<div style='font-weight: bold'>JpaFacilityQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>Facility query adapter</div>")]
+      style 127 fill:#5c6bc0,stroke:#404a86,color:#ffffff
+      128[("<div style='font-weight: bold'>JpaTradeLoanTypeQueryAdapter</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Data JPA]</div><div style='font-size: 80%; margin-top:10px'>TradeLoanType query adapter</div>")]
+      style 128 fill:#5c6bc0,stroke:#404a86,color:#ffffff
     end
 
-    119-. "<div>Reads/Writes</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->12
-    120-. "<div>Reads/Writes</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->12
     121-. "<div>Reads/Writes</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->12
     122-. "<div>Reads/Writes</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->12
     123-. "<div>Reads/Writes</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->12
     124-. "<div>Reads/Writes</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->12
     125-. "<div>Reads/Writes</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->12
     126-. "<div>Reads/Writes</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->12
+    127-. "<div>Reads/Writes</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->12
+    128-. "<div>Reads/Writes</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->12
   end

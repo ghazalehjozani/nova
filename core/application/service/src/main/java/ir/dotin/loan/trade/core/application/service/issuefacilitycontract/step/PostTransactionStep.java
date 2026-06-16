@@ -54,9 +54,10 @@ public class PostTransactionStep implements RemoteActivity<ContractData>, Compen
         ResolvedAccounts resolvedAccounts = data.getResolvedAccounts();
 
         var transactionResult = loadFacility(LoanFacilityId.of(data.facilityId()))
-                .flatMap(facility -> loadLoanType(facility).flatMap(loanType -> createPostTitle(facility)
-                        .flatMap(postTitle -> createTransaction(
-                                facility, loanType, postTitle, data.transactionConfig(), resolvedAccounts))));
+                .flatMap(facility -> loadLoanType(facility)
+                        .flatMap(loanType -> createPostTitle(facility)
+                                .flatMap(postTitle -> createTransaction(
+                                        facility, loanType, postTitle, data.transactionConfig(), resolvedAccounts))));
 
         if (transactionResult.isFailure()) {
             return StepResult.failure(transactionResult.err().orElseThrow());

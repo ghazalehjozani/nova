@@ -51,19 +51,20 @@ public class OpenAccountsStep implements RemoteActivity<ContractData>, Compensab
     public StepResult<Void> execute(WorkflowContext<ContractData> ctx) {
         var data = ctx.data();
 
-        var result = loadFacility(LoanFacilityId.of(data.facilityId())).flatMap(facility -> loadLoanType(facility)
-                .flatMap(loanType -> loadLoanArrangement(facility).flatMap(arrangement -> {
-                    Set<TradeRelationType> requiredRelationTypes =
-                            new HashSet<>(issueContractStrategy.getRequiredRelationTypes());
+        var result = loadFacility(LoanFacilityId.of(data.facilityId()))
+                .flatMap(facility -> loadLoanType(facility)
+                        .flatMap(loanType -> loadLoanArrangement(facility).flatMap(arrangement -> {
+                            Set<TradeRelationType> requiredRelationTypes =
+                                    new HashSet<>(issueContractStrategy.getRequiredRelationTypes());
 
-                    Set<LoanTopic> requiredTopics = loanTopicResolver.resolveTopics(
-                            loanType, facility.getLoanApplication().getEconomicSector(), requiredRelationTypes);
+                            Set<LoanTopic> requiredTopics = loanTopicResolver.resolveTopics(
+                                    loanType, facility.getLoanApplication().getEconomicSector(), requiredRelationTypes);
 
-                    return accountResolutionService.resolveAccounts(
-                            requiredTopics,
-                            facility.getAccountInfoMap(),
-                            arrangement.getCurrencyType().getCode());
-                })));
+                            return accountResolutionService.resolveAccounts(
+                                    requiredTopics,
+                                    facility.getAccountInfoMap(),
+                                    arrangement.getCurrencyType().getCode());
+                        })));
 
         if (result.isFailure()) {
             return StepResult.failure(result.err().orElseThrow());

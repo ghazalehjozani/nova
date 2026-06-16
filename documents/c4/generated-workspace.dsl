@@ -19,7 +19,7 @@ workspace "Trade Loan Service" {
         formula_evaluator_service = softwareSystem "Formula Evaluator Service" "Formula calculation"
         trade_loan_service = softwareSystem "Trade Loan Service" "Morabehe loans with CQRS and Event Sourcing" {
             trade_loan_application = container "Trade Loan Application" "Spring Boot Hexagonal Architecture" "Java 25, Spring Boot 4" {
-                devauthcallbackcontroller = component "DevAuthCallbackController" "REST API: /api/{version}/dev/auth" "Spring REST Controller"
+                devauthcallbackcontroller = component "DevAuthCallbackController" "REST API: /v{version}/dev/auth" "Spring REST Controller"
                 addfacilitycollateralcontroller = component "AddFacilityCollateralController" "REST API: /v{version}/loan-facilities/{facilityId}/collaterals" "Spring REST Controller"
                 approvefacilitycontroller = component "ApproveFacilityController" "REST API: /v{version}/loan-facilities/{facilityId}/approve" "Spring REST Controller"
                 closefacilitydefaultedcontroller = component "CloseFacilityDefaultedController" "REST API: /v{version}/loan-facilities/{facilityId}/close-defaulted" "Spring REST Controller"
@@ -32,6 +32,7 @@ workspace "Trade Loan Service" {
                 openfacilitycasecontroller = component "OpenFacilityCaseController" "REST API: /v{version}/loan-facilities" "Spring REST Controller"
                 rejectfacilitycontroller = component "RejectFacilityController" "REST API: /v{version}/loan-facilities/{facilityId}/reject" "Spring REST Controller"
                 submitfacilityforapprovalcontroller = component "SubmitFacilityForApprovalController" "REST API: /v{version}/loan-facilities/{facilityId}/submit-for-approval" "Spring REST Controller"
+                reconciliationbyapplicationnumbercontroller = component "ReconciliationByApplicationNumberController" "REST API: /v{version}/ops/reconciliation/facility-state" "Spring REST Controller"
                 installmentschedulequerycontroller = component "InstallmentScheduleQueryController" "REST API: /v{version}/installment-schedules" "Spring REST Controller"
                 loanarrangementquerycontroller = component "LoanArrangementQueryController" "REST API: /v{version}/loan-arrangements" "Spring REST Controller"
                 facilityquerycontroller = component "FacilityQueryController" "REST API: /v{version}/loan-facilities" "Spring REST Controller"
@@ -72,6 +73,7 @@ workspace "Trade Loan Service" {
                 findallloanfacilitiesqueryhandler = component "FindAllLoanFacilitiesQueryHandler" "Handles find all loan facilities queries" "Query Handler"
                 getfacilitybyapplicationnumberqueryhandler = component "GetFacilityByApplicationNumberQueryHandler" "Handles get facility by application number queries" "Query Handler"
                 getfacilitybyidqueryhandler = component "GetFacilityByIdQueryHandler" "Handles get facility by id queries" "Query Handler"
+                resolvefacilityidbyapplicationnumberqueryhandler = component "ResolveFacilityIdByApplicationNumberQueryHandler" "Handles resolve facility id by application number queries" "Query Handler"
                 searchloanfacilitiesqueryhandler = component "SearchLoanFacilitiesQueryHandler" "Handles search loan facilities queries" "Query Handler"
                 findallloantypesqueryhandler = component "FindAllLoanTypesQueryHandler" "Handles find all loan types queries" "Query Handler"
                 getloantypebycodequeryhandler = component "GetLoanTypeByCodeQueryHandler" "Handles get loan type by code queries" "Query Handler"
@@ -230,102 +232,102 @@ workspace "Trade Loan Service" {
         }
 
         styles {
-            element "Repository" {
-                background #5c6bc0
-                color #ffffff
-                shape Cylinder
-            }
-            element "Compensation" {
-                background #ef5350
-                color #ffffff
-            }
             element "Saga" {
                 background #ab47bc
                 color #ffffff
                 shape Diamond
             }
-            element "Message Broker" {
-                background #f5a623
-                color #000000
-                shape Pipe
-            }
-            element "Component" {
-                background #85bbf0
-                color #000000
-            }
-            element "Controller" {
-                background #7cb342
+            element "Compensation" {
+                background #ef5350
                 color #ffffff
             }
-            element "Client" {
-                background #ec407a
+            element "Repository" {
+                background #5c6bc0
                 color #ffffff
-            }
-            element "Monitoring" {
-                background #27ae60
-                shape WebBrowser
-            }
-            element "Service" {
-                background #29b6f6
-                color #ffffff
-            }
-            element "Domain" {
-                background #ffa726
-                color #000000
-            }
-            element "External System" {
-                background #999999
-            }
-            element "Internal User" {
-                background #08427b
-            }
-            element "Database" {
                 shape Cylinder
             }
-            element "Handler" {
-                background #42a5f5
-                color #ffffff
-            }
-            element "Software System" {
-                background #1168bd
-                color #ffffff
-            }
-            element "Consumer" {
-                background #ff7043
-                color #ffffff
+            element "Outbox" {
+                background #66bb6a
+                color #000000
                 shape Hexagon
+            }
+            element "Admin" {
+                background #5c3d6e
+            }
+            element "External User" {
+                background #666666
+            }
+            element "Container" {
+                background #438dd5
+                color #ffffff
+            }
+            element "Cache" {
+                background #e74c3c
+                shape Cylinder
+            }
+            element "Aggregate" {
+                background #ff9800
+                color #000000
+            }
+            element "Entity" {
+                background #ffb74d
+                color #000000
             }
             element "Person" {
                 background #08427b
                 color #ffffff
                 shape Person
             }
-            element "Entity" {
-                background #ffb74d
-                color #000000
+            element "Consumer" {
+                background #ff7043
+                color #ffffff
+                shape Hexagon
             }
-            element "Aggregate" {
-                background #ff9800
-                color #000000
-            }
-            element "Cache" {
-                background #e74c3c
-                shape Cylinder
-            }
-            element "Container" {
-                background #438dd5
+            element "Software System" {
+                background #1168bd
                 color #ffffff
             }
-            element "External User" {
-                background #666666
+            element "Handler" {
+                background #42a5f5
+                color #ffffff
             }
-            element "Admin" {
-                background #5c3d6e
+            element "Database" {
+                shape Cylinder
             }
-            element "Outbox" {
-                background #66bb6a
+            element "Internal User" {
+                background #08427b
+            }
+            element "External System" {
+                background #999999
+            }
+            element "Domain" {
+                background #ffa726
                 color #000000
-                shape Hexagon
+            }
+            element "Service" {
+                background #29b6f6
+                color #ffffff
+            }
+            element "Monitoring" {
+                background #27ae60
+                shape WebBrowser
+            }
+            element "Client" {
+                background #ec407a
+                color #ffffff
+            }
+            element "Controller" {
+                background #7cb342
+                color #ffffff
+            }
+            element "Component" {
+                background #85bbf0
+                color #000000
+            }
+            element "Message Broker" {
+                background #f5a623
+                color #000000
+                shape Pipe
             }
         }
     }

@@ -53,12 +53,14 @@ public class PostTransactionsStep
 
         var transactionsResult = dependencyLoader
                 .loadFacility(LoanFacilityId.of(data.facilityId()))
-                .flatMap(facility -> dependencyLoader.loadLoanType(facility).flatMap(loanType -> dependencyLoader
-                        .loadInstallmentSchedule(facility)
-                        .flatMap(schedule -> planRecalculator
-                                .recalculateAndVerify(facility, schedule, data)
-                                .flatMap(installments ->
-                                        createTransactions(facility, loanType, schedule, installments, data)))));
+                .flatMap(facility -> dependencyLoader
+                        .loadLoanType(facility)
+                        .flatMap(loanType -> dependencyLoader
+                                .loadInstallmentSchedule(facility)
+                                .flatMap(schedule -> planRecalculator
+                                        .recalculateAndVerify(facility, schedule, data)
+                                        .flatMap(installments -> createTransactions(
+                                                facility, loanType, schedule, installments, data)))));
 
         if (transactionsResult.isFailure()) {
             return StepResult.failure(transactionsResult.err().orElseThrow());
@@ -116,23 +118,24 @@ public class PostTransactionsStep
             List<Installment> recalculatedInstallments,
             IrregularDisbursementData data) {
 
-        return createBranchCode(data).flatMap(branchCode -> createPostTitle(facility, data)
-                .flatMap(postTitle -> DocumentMetadataUtils.createBaseArticleMetadata(
-                                facility,
-                                loanType,
-                                branchCode,
-                                data.transactionConfig(),
-                                DocumentMetadataType.DISBURSEMENT)
-                        .flatMap(metadata -> transactionService.createTransactions(
-                                facility,
-                                loanType,
-                                branchCode,
-                                postTitle,
-                                metadata,
-                                schedule,
-                                recalculatedInstallments,
-                                planRecalculator.trancheMoney(data),
-                                data.getResolvedAccounts()))));
+        return createBranchCode(data)
+                .flatMap(branchCode -> createPostTitle(facility, data)
+                        .flatMap(postTitle -> DocumentMetadataUtils.createBaseArticleMetadata(
+                                        facility,
+                                        loanType,
+                                        branchCode,
+                                        data.transactionConfig(),
+                                        DocumentMetadataType.DISBURSEMENT)
+                                .flatMap(metadata -> transactionService.createTransactions(
+                                        facility,
+                                        loanType,
+                                        branchCode,
+                                        postTitle,
+                                        metadata,
+                                        schedule,
+                                        recalculatedInstallments,
+                                        planRecalculator.trancheMoney(data),
+                                        data.getResolvedAccounts()))));
     }
 
     private Map<String, String> extractAccountIds(List<LoanTransaction> transactions) {

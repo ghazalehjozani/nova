@@ -74,8 +74,9 @@ public class AddFacilityCollateralCommandHandler
 
         Money totalNewCollateralAmount = collaterals.stream()
                 .map(Collateral::usedAmount)
-                .reduce(Money.zero(context.arrangement().getCurrencyType()).unwrap(), (a, b) -> a.add(b)
-                        .unwrap());
+                .reduce(
+                        Money.zero(context.arrangement().getCurrencyType()).unwrap(),
+                        (a, b) -> a.add(b).unwrap());
 
         Result<Unit> valueValidationResult =
                 CollateralAdequacyValidator.validateTotalCollateralValue(totalNewCollateralAmount, requiredAmount);

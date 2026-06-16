@@ -26,12 +26,14 @@ public class ResolveAccountsStep implements RemoteActivity<LumpSumData>, Compens
 
         var result = dependencyLoader
                 .loadFacility(LoanFacilityId.of(data.facilityId()))
-                .flatMap(facility -> dependencyLoader.loadLoanType(facility).flatMap(loanType -> dependencyLoader
-                        .loadLoanArrangement(facility)
-                        .flatMap(arrangement -> accountResolutionSupport.resolveAccounts(
-                                facility,
-                                loanType,
-                                arrangement.getCurrencyType().getCode()))));
+                .flatMap(facility -> dependencyLoader
+                        .loadLoanType(facility)
+                        .flatMap(loanType -> dependencyLoader
+                                .loadLoanArrangement(facility)
+                                .flatMap(arrangement -> accountResolutionSupport.resolveAccounts(
+                                        facility,
+                                        loanType,
+                                        arrangement.getCurrencyType().getCode()))));
 
         if (result.isFailure()) {
             return StepResult.failure(result.err().orElseThrow());

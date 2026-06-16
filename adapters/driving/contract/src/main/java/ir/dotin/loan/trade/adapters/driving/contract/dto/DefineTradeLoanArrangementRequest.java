@@ -7,7 +7,6 @@ import java.util.Set;
 import jakarta.validation.Valid;
 
 import ir.dotin.platform.pangaea.protocol.api.request.BaseRequest;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.validation.Money;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.CollateralCalculationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.InstallmentPaymentType;
@@ -16,6 +15,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.LoanSecondaryType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PenaltyPaymentType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.SectionType;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.validation.Money;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -30,8 +30,7 @@ public record DefineTradeLoanArrangementRequest(
         @Schema(description = "نوع ارز", requiredMode = Schema.RequiredMode.REQUIRED)
         String currencyType,
 
-        @Schema(description = "بازه مبلغی", requiredMode = Schema.RequiredMode.REQUIRED)
-        @Valid
+        @Schema(description = "بازه مبلغی", requiredMode = Schema.RequiredMode.REQUIRED) @Valid
         AmountRangeDto amountRange,
 
         @Schema(description = "بازه مدت زمان تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED)
