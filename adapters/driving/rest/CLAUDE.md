@@ -108,7 +108,15 @@ Company standard **SWA-101 v1.3**. This adapter inherits the contract from the p
   zone): never expose it as a zeroed date-time (`...T00:00:00Z`), or a TZ shift will move the day. Money/amount →
   `string` (never `float`), ≤4 decimals. Enums → `{code,label}` object on responses, bare `string` code on requests.
   These are inherited from the platform serializers; match the DTO/JSR-310 type to the business meaning of each field.
-  Partial response (`fields`/`view`/`expand`) is an optional GET-only platform capability — not wired in nova today.
+  Partial response (`fields`/`view`/`expand`, SWA-101 §3.1.4) is **wired** on all four query controllers (LN-59515):
+  opt-in = declare a `PartialResponse` parameter on the GET method; named views + expandable branches are declared via
+  the transport-neutral `@ProjectableResource` on the query DTOs in `core/application/query` (NOT a REST annotation —
+  app layer stays adapter-free), realized in pangaea `protocol-rest-support`. Only `installments.payments` is
+  default-absent so far. **Gotcha:** a `GroupedOpenApi` with an explicit `.addOperationCustomizer(...)` list does NOT
+  inherit other global `OperationCustomizer` beans — `SwaggerConfig.publicApiV1()` must add
+  `partialResponseOperationCustomizer` too, else the three params show only on the default `/v3/api-docs`, not the `v1`
+  group the UI renders. `expand` is serialization-strip only today (payload lever); DB fetch-graph push-down is the
+  next step (`swa101-partial-response-expand-pushdown-prompt.md`).
 
 ## Dependency Rules (this module)
 
