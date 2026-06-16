@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.contract.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -25,5 +26,5 @@ public record LoanFacilityRestructuringMessage(
         implements CommandPayload {
 
     public record InstallmentDetailsDTO(
-            int installmentSequenceNumber, BigDecimal principalAmount, BigDecimal interestAmount, String dueDate) {}
+            int installmentSequenceNumber, BigDecimal principalAmount, BigDecimal interestAmount, LocalDate dueDate) {}
 }

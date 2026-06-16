@@ -4,8 +4,10 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import jakarta.validation.Valid;
 
 import ir.dotin.platform.pangaea.protocol.api.request.BaseRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.validation.Money;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.CollateralCalculationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.InstallmentPaymentType;
@@ -29,6 +31,7 @@ public record DefineTradeLoanArrangementRequest(
         String currencyType,
 
         @Schema(description = "بازه مبلغی", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Valid
         AmountRangeDto amountRange,
 
         @Schema(description = "بازه مدت زمان تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -138,8 +141,8 @@ public record DefineTradeLoanArrangementRequest(
 
     @Schema(name = "AmountRangeDto", description = "بازه مبلغی")
     public record AmountRangeDto(
-            @Schema(description = "حداقل مبلغ") BigDecimal min,
-            @Schema(description = "حداکثر مبلغ") BigDecimal max) {}
+            @Schema(description = "حداقل مبلغ") @Money BigDecimal min,
+            @Schema(description = "حداکثر مبلغ") @Money BigDecimal max) {}
 
     @Schema(name = "LoanDurationRangeDto", description = "بازه مدت زمان تسهیلات")
     public record LoanDurationRangeDto(

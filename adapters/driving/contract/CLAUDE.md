@@ -27,7 +27,7 @@ ir.dotin.loan.trade.adapters.driving.contract
 └── mapper/     # MapStruct @Mapper interfaces — DTO → inbound Command
 ```
 
-One DTO file per use case (`OriginateLoanFacilityRequest`, `ApproveFacilityRequest`, `CancelFacilityRequest`, …). Mapper filename mirrors the DTO: `XxxRequestToCommandMapper.java` for sync requests; `XxxMessageMapper.java` for async messages. Keep this 1-DTO / 1-mapper convention — sibling adapters discover mappers by Spring component scan over this package.
+One DTO file per use case (`OriginateLoanFacilityRequest`, `ApproveFacilityRequest`, `CancelFacilityMessage`, …). Mapper filename mirrors the DTO: `XxxRequestToCommandMapper.java` for **sync REST requests** (`BaseRequest`); `XxxMessageMapper.java` for **async FCB→nova messages** (`CommandPayload`) — name async DTOs `Xxx*Message`, not `*Request`. Keep this 1-DTO / 1-mapper convention — sibling adapters discover mappers by Spring component scan over this package.
 
 ## Two Payload Families
 
@@ -47,8 +47,15 @@ DTO field shapes follow the SWA-101 wire contract (authoritative in pangaea `pro
   birth date) is **date-only** `LocalDate` (`yyyy-MM-dd`, no zone) — *not* a date-time; a true instant
   (event/registration time) is **date-time** `Instant` (UTC). Sending a day as a zeroed `...T00:00:00Z` is a bug
   (TZ shift moves the day).
-- Money/amount → `string` (never `float`/`double`), ≤4 decimals. Enums travel as a bare `string` `code` on the
+- Money/amount → `string` (never `float`/`double`), ≤4 decimals. On **sync REST request DTOs** enforce the
+  ≤4-decimal rule with the `dto/validation/Money` constraint (composed `@Digits(fraction=4)`) — money fields only,
+  **not** interest rates/percentages (they may carry more precision). Enums travel as a bare `string` `code` on the
   request side (responses use the `{code,label}` object, rendered by the query side, not here).
+- **Period/term/grace are unitless `Integer` with the unit in the field name** (`requestedLoanDurationMonths`,
+  `gracePeriodDays`, `installmentPeriodMonths`, regulatory `*Months`) — the mapper wraps them to `java.time.Period`
+  at the seam (`OriginateLoanFacilityRequestMapper`, `DefineTradeLoanArrangementRequestToCommandMapper`). This is the
+  accepted convention (SAW.101 §3): do **not** put `Period`/ISO-8601 duration strings on the wire. State the unit in
+  each field's `@Schema` description (e.g. `(ماه)` / `(روز)`).
 
 ## Mapper Conventions
 
@@ -87,5 +94,5 @@ This module **is** the anti-corruption layer for inbound traffic. Per root rules
 
 - Adding a field to a command in `core/application/ports/inbound` without updating the corresponding mapper will fail the build (`unmappedTargetPolicy = ERROR`). That is intentional — fix the mapper, do not relax the policy.
 - Do not enrich DTOs with computed/derived fields. The DTO is a faithful wire-format record; derivation belongs in the mapper or downstream.
-- Do not add JSR-303 (`@NotNull`, `@Valid`) constraints here. Request validation is the REST adapter's concern; message validation is policy in the messaging adapters. Keeping contract DTOs annotation-light keeps them reusable across transports.
+- JSR-303 constraints (`@NotNull`, `@Valid`, `dto/validation/Money`) belong on **sync REST request DTOs** (the `BaseRequest` family) — the REST controller triggers them with `@Valid @RequestBody`, and `@Valid` must cascade onto nested DTOs/collections for the constraints to fire. Keep **async message DTOs** (the `CommandPayload` family) annotation-light — message validation is policy in the messaging adapters, and those DTOs are reused across transports.
 - `embdeddable` typo in the persistence module is a separate concern — do not "fix" identifiers here to match it.

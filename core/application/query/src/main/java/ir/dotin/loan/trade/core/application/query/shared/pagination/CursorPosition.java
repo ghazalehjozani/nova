@@ -22,6 +22,9 @@ public record CursorPosition(@NotNull UUID id) {
         return new CursorPosition(id);
     }
 
+    // NOTE: kept LocalDateTime (UTC) deliberately — this value is opaque cursor-internal (base64-encoded, never a
+    // visible response field) and is bound by AbstractCursorPagingAdapter into a keyset ScrollPosition compared against
+    // the entity's LocalDateTime `createdAt` column. Retyping to Instant would break that keyset comparison at runtime.
     @JsonProperty("timestamp")
     @NotNull
     public LocalDateTime timestamp() {

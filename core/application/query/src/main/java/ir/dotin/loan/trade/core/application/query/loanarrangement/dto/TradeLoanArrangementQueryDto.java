@@ -2,7 +2,7 @@ package ir.dotin.loan.trade.core.application.query.loanarrangement.dto;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
@@ -25,7 +25,7 @@ import lombok.Builder;
 public record TradeLoanArrangementQueryDto(
         UUID id,
         Long version,
-        @JsonIgnore LocalDateTime createdAt,
+        @JsonIgnore Instant createdAt,
         String code,
         TitleEmbDto title,
         boolean active,

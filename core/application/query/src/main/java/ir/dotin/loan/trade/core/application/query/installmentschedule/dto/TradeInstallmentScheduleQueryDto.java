@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import ir.dotin.platform.pangaea.protocol.projection.api.ProjectableResource;
 import ir.dotin.platform.pangaea.servicelayer.api.query.QueryResult;
 import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleStatus;
@@ -30,7 +32,7 @@ public record TradeInstallmentScheduleQueryDto(
         InstallmentScheduleType scheduleType,
         InstallmentScheduleStatus status,
         Instant initiatedAt,
-        Instant lastModifiedAt,
+        @JsonIgnore Instant lastModifiedAt,
         Integer gracePeriodDays,
         BigDecimal interestRate,
         RestructuringRecordDto restructuringRecord)

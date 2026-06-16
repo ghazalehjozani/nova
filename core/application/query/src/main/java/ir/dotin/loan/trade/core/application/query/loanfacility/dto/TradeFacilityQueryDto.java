@@ -11,6 +11,8 @@ import java.util.UUID;
 
 import org.jspecify.annotations.Nullable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import ir.dotin.platform.accounting.document.api.enumeration.TransactionStatus;
 import ir.dotin.platform.pangaea.protocol.projection.api.ProjectableResource;
 import ir.dotin.platform.pangaea.servicelayer.api.query.QueryResult;
@@ -148,7 +150,8 @@ public record TradeFacilityQueryDto(
                 implements Serializable {}
     }
 
-    public record TransactionNumberEmbDto(String value, Instant createdAt, String trackingId, TransactionStatus status)
+    public record TransactionNumberEmbDto(
+            String value, @JsonIgnore Instant createdAt, String trackingId, TransactionStatus status)
             implements Serializable {}
 
     public record CollateralEmbDto(

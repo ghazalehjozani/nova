@@ -1,7 +1,7 @@
 package ir.dotin.loan.trade.core.application.query.loantype.dto;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,8 +20,8 @@ import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 public record TradeLoanTypeQueryDto(
         UUID id,
         Long version,
-        @JsonIgnore LocalDateTime createdAt,
-        @JsonIgnore LocalDateTime modifiedAt,
+        @JsonIgnore Instant createdAt,
+        @JsonIgnore Instant modifiedAt,
         @JsonIgnore String createdBy,
         @JsonIgnore String modifiedBy,
         LoanTypeCodeEmbDto code,

@@ -4,9 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
-import net.time4j.PlainDate;
-import net.time4j.calendar.PersianCalendar;
 
 import ir.dotin.loan.trade.adapters.driving.contract.dto.LoanFacilityRestructuringMessage;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.LoanFacilityRestructuringCommand;
@@ -42,23 +41,11 @@ public class LoanFacilityRestructuringMessageMapper {
                 dto.installmentSequenceNumber(),
                 AmountDto.builder().value(dto.principalAmount()).build(),
                 AmountDto.builder().value(dto.interestAmount()).build(),
-                parseDate(dto.dueDate()));
+                orToday(dto.dueDate()));
     }
 
-    private LocalDate parseDate(String date) {
-        if (date == null || date.isBlank()) {
-            return LocalDate.now();
-        }
-
-        String[] parts = date.split("/");
-        if (parts.length != 3) {
-            throw new IllegalArgumentException("Invalid date format. Expected yyyy/MM/dd");
-        }
-
-        PlainDate gregorian = PersianCalendar.of(
-                        Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]))
-                .transform(PlainDate.class);
-
-        return LocalDate.of(gregorian.getYear(), gregorian.getMonth(), gregorian.getDayOfMonth());
+    // dueDate arrives as a canonical Gregorian LocalDate (yyyy-MM-dd) on the FCB→nova event wire (SAW.101 §3).
+    private LocalDate orToday(@Nullable LocalDate date) {
+        return date != null ? date : LocalDate.now();
     }
 }

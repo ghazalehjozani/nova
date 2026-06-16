@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driving.contract.dto;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Map;
 
@@ -7,7 +8,7 @@ import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.pangaea.messaging.api.command.CommandPayload;
 
-public record CancelFacilityRequest(
+public record CancelFacilityMessage(
         String producerCode,
         String eventUid,
         @Nullable Date dateTime,
@@ -16,7 +17,7 @@ public record CancelFacilityRequest(
         @Nullable String[] tags,
         String operationType,
         String fileNumber,
-        String revokeDate,
+        LocalDate revokeDate,
         String revokeReason,
         String revokeDescription,
         @Nullable String revokeTransactionNumber,

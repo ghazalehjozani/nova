@@ -6,8 +6,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import jakarta.validation.Valid;
 
 import ir.dotin.platform.pangaea.protocol.api.request.BaseRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.validation.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.ApplicantChannel;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 
@@ -22,9 +24,11 @@ public record OriginateLoanFacilityRequest(
         String loanArrangementCode,
 
         @Schema(description = "درخواست تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Valid
         LoanApplicationDto loanApplication,
 
         @Schema(description = "برنامه اقساط", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        @Valid
         InstallmentSchedulePlanDto installmentSchedulePlan,
 
         Map<String, String> metadata)
@@ -38,6 +42,7 @@ public record OriginateLoanFacilityRequest(
             Set<PartyRequestDto> parties,
 
             @Schema(description = "مبلغ درخواستی", requiredMode = Schema.RequiredMode.REQUIRED)
+            @Money
             BigDecimal requestedAmount,
 
             @Schema(description = "روش پرداخت تسهیلات", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -105,6 +110,7 @@ public record OriginateLoanFacilityRequest(
     @Schema(name = "InstallmentSchedulePlanDto", description = "برنامه اقساط")
     public record InstallmentSchedulePlanDto(
             @Schema(description = "اطلاعات اقساط", requiredMode = Schema.RequiredMode.REQUIRED)
+            @Valid
             List<InstallmentSpecDto> installments) {}
 
     @Schema(name = "InstallmentSpecDto", description = "مشخصات قسط")
@@ -116,14 +122,18 @@ public record OriginateLoanFacilityRequest(
             LocalDate dueDate,
 
             @Schema(description = "مبلغ اصل", requiredMode = Schema.RequiredMode.REQUIRED)
+            @Money
             BigDecimal principalAmount,
 
             @Schema(description = "مبلغ سود", requiredMode = Schema.RequiredMode.REQUIRED)
+            @Money
             BigDecimal interestAmount,
 
             @Schema(description = "مبلغ جریمه", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+            @Money
             BigDecimal penaltyAmount,
 
             @Schema(description = "مبلغ کارمزد", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+            @Money
             BigDecimal feeAmount) {}
 }

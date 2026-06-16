@@ -13,9 +13,9 @@ import ir.dotin.platform.pangaea.inbox.api.InboxMessageHandler;
 import ir.dotin.platform.pangaea.messaging.api.inbound.InboundMessage;
 import ir.dotin.platform.pangaea.servicelayer.api.dispatcher.CommandDispatcher;
 import ir.dotin.platform.pangaea.servicelayer.api.execution.ExecutionResult;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.CancelFacilityRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.CancelFacilityMessage;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.FcbEventOperationType;
-import ir.dotin.loan.trade.adapters.driving.contract.mapper.CancelFacilityRequestToCommandMapper;
+import ir.dotin.loan.trade.adapters.driving.contract.mapper.CancelFacilityMessageMapper;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CancelFacilityCommand;
 
 import lombok.RequiredArgsConstructor;
@@ -29,16 +29,16 @@ public class CancelLoanFacilityHandler implements InboxMessageHandler {
 
     private final ObjectMapper objectMapper;
     private final CommandDispatcher dispatcher;
-    private final CancelFacilityRequestToCommandMapper messageMapper;
+    private final CancelFacilityMessageMapper messageMapper;
 
     @Override
     public @NonNull HandlerResult handle(@NonNull InboundMessage message) {
         {
             UUID eventUid = message.headers().eventUid();
-            CancelFacilityRequest cancelFacilityMessage;
+            CancelFacilityMessage cancelFacilityMessage;
 
             try {
-                cancelFacilityMessage = objectMapper.readValue(message.payload(), CancelFacilityRequest.class);
+                cancelFacilityMessage = objectMapper.readValue(message.payload(), CancelFacilityMessage.class);
             } catch (Exception e) {
                 LOG.error("Malformed CANCELLATION_LOAN_FACILITY message [eventUid={}]", eventUid, e);
                 return HandlerResult.permanent(e);

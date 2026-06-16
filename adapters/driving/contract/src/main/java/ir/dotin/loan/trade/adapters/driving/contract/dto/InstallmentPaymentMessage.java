@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.contract.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ public record InstallmentPaymentMessage(
             BigDecimal interestAmount,
             @Nullable BigDecimal penaltyAmount,
             BigDecimal totalAmount,
-            @Nullable String valueDate,
-            @Nullable String paymentDate,
+            @Nullable LocalDate valueDate,
+            @Nullable LocalDate paymentDate,
             boolean fullySettled) {}
 }
