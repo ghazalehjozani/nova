@@ -18,6 +18,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.StringUtils;
 
 import ir.dotin.platform.pangaea.protocol.rest.config.RestAdapterProperties;
+import ir.dotin.platform.pangaea.protocol.rest.partial.PartialResponseOperationCustomizer;
 import ir.dotin.platform.pangaea.protocol.rest.swagger.BaseSwaggerConfig;
 import ir.dotin.platform.pangaea.protocol.rest.swagger.HeaderOperationCustomizer;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.DefineLoanTypeRequest;
@@ -48,17 +49,20 @@ public class SwaggerConfig extends BaseSwaggerConfig {
     private final ObjectMapper objectMapper;
     private final ResourceLoader resourceLoader;
     private final HeaderOperationCustomizer headerOperationCustomizer;
+    private final PartialResponseOperationCustomizer partialResponseOperationCustomizer;
 
     public SwaggerConfig(
             RestAdapterProperties restAdapterProperties,
             ObjectMapper objectMapper,
             ResourceLoader resourceLoader,
-            HeaderOperationCustomizer headerOperationCustomizer) {
+            HeaderOperationCustomizer headerOperationCustomizer,
+            PartialResponseOperationCustomizer partialResponseOperationCustomizer) {
         super(restAdapterProperties.getSwagger());
         this.restAdapterProperties = restAdapterProperties;
         this.objectMapper = objectMapper;
         this.resourceLoader = resourceLoader;
         this.headerOperationCustomizer = headerOperationCustomizer;
+        this.partialResponseOperationCustomizer = partialResponseOperationCustomizer;
     }
 
     // Two tags per aggregate: a Commands (write) and a Queries (read) tag. Controllers reference the granular
@@ -154,6 +158,10 @@ public class SwaggerConfig extends BaseSwaggerConfig {
                 // (and the /v1/mcp/* sub-paths the stateless transport registers) from the business v1 group.
                 .pathsToExclude("/v1/mcp", "/v1/mcp/**", "/v1/ops/mcp", "/v1/ops/mcp/**")
                 .addOperationCustomizer(headerOperationCustomizer)
+                // A GroupedOpenApi with an explicit operation-customizer list does NOT inherit other global
+                // OperationCustomizer beans, so the platform partial-response customizer must be added here too —
+                // otherwise fields/view/expand show only on the default /v3/api-docs, never on this v1 group.
+                .addOperationCustomizer(partialResponseOperationCustomizer)
                 .addOpenApiCustomizer(tagsCustomizer())
                 .addOpenApiCustomizer(externalDocsCustomizer())
                 .addOpenApiCustomizer(pathProcessingCustomizer("1"))
