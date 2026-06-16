@@ -332,9 +332,19 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>ir.dotin.platform</groupId>
+                <!-- version resolved from pangaea-parent pluginManagement (${revision}); tracks the pangaea
+                     platform version pinned by this repo's parent, not a hardcoded standalone version. -->
+                <groupId>ir.dotin.platform.pangaea</groupId>
                 <artifactId>i18n-extractor-maven-plugin</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <id>extract-i18n</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>extract</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
                     <basePackage>ir.dotin</basePackage>
                     <outputDirectory>${project.basedir}/src/main/resources/i18n</outputDirectory>

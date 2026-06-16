@@ -1,0 +1,6 @@
+
+# i18n-extractor sidecar outputs (regenerated each build; not the runtime contract).
+# The runtime artifacts (messages*.properties + i18n-catalog.json) ARE committed.
+src/main/resources/i18n/gaps-*.json
+src/main/resources/i18n/i18n-validation-report.txt
+src/main/resources/i18n/i18n-key-migration.properties

@@ -74,6 +74,23 @@ container/
 
 When something doesn't take effect, check Consul KV first; only fall back to looking inside this module if the key is genuinely absent from `nova-config`.
 
+## i18n message bundles (`src/main/resources/i18n/`)
+
+- `messages.properties` (base/`en`) + `messages_fa.properties` + `i18n-catalog.json` are **generated** by the
+  [`i18n-extractor-maven-plugin`](../../pangaea/plugins/i18n-extractor-maven-plugin/CLAUDE.md), bound to
+  `generate-resources` in `container/pom.xml` (`extract-i18n` execution). Raw UTF-8 (no `\uXXXX`). Two key families:
+  `error.{issuer-lc}.{code}` (issuer `LOAN`) and `enum.{Simple}.{CONST}` display-enum labels (base-loan + accounting
+  `LocalizedEnum` enums, scanned from dependency JARs). Error/message enums never produce `enum.*` keys.
+- **Regenerate** after adding an enum constant / error code: `mvn -pl :trade-loan-container -am generate-resources`
+  (add `-Denforcer.skip=true` only if a pre-existing dependency-convergence enforcer error blocks it). New base keys get
+  a humanized English value; new `fa` keys get a BLANK skeleton; existing `fa` translations are preserved; stale keys are
+  pruned. Then translate the new blank `fa` values.
+- **Boot fails on an untranslated or parameter-drifted key** — pangaea's `I18nValidationAutoConfiguration`
+  (`platform.i18n.fail-fast`, default ON) validates every `fa` key against `i18n-catalog.json` at startup. Set
+  `platform.i18n.fail-fast=false` in a dev `nova-config` context to boot with a half-translated bundle locally.
+- **Add a language**: add a `<locale>xx</locale>` to the plugin's `<locales>` in `container/pom.xml`, regenerate,
+  translate the new `messages_xx.properties` blanks; the catalog + runtime validator pick it up automatically.
+
 ## E2E Test Infrastructure
 
 `E2ETestConfiguration` starts a `ComposeContainer` (Testcontainers, Docker Compose v2 — **not** the deprecated `DockerComposeContainer`) from `src/test/resources/e2e/docker-compose-e2e.yml`, exposing:
