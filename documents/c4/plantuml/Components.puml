@@ -1,5 +1,5 @@
 @startuml
-title <size:24>Component View: Trade Loan Service - Trade Loan Application</size>\n<size:24>Components (page 1/4)</size>
+title <size:24>Component View: Trade Loan Service - Trade Loan Application</size>\n<size:24>Components (page 1/5)</size>
 
 set separator none
 top to bottom direction
@@ -47,6 +47,14 @@ hide stereotype
     HorizontalAlignment: center;
     Shadowing: 0;
     MaximumWidth: 450;
+  }
+  // Relationship
+  .Relationship-UmVsYXRpb25zaGlw {
+    LineThickness: 2;
+    LineStyle: 10-10;
+    LineColor: #707070;
+    FontColor: #707070;
+    FontSize: 24;
   }
   // Trade Loan Application
   .Boundary-VHJhZGUgTG9hbiBBcHBsaWNhdGlvbg== {
@@ -107,5 +115,7 @@ rectangle "Trade Loan Service\n<size:16>[Software System]</size>" <<Boundary-VHJ
   }
 
 }
+
+TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementCommandHandler --> TradeLoanService.TradeLoanApplication.CompensateIrregularDisbursementCommandHandler <<Relationship-UmVsYXRpb25zaGlw>> : "Compensates on failure"
 
 @enduml

@@ -89,6 +89,12 @@ public final class ArchitectureConstants {
         public static final String COMMAND_HANDLER = "Command Handler";
         public static final String QUERY_HANDLER = "Query Handler";
         public static final String WORKFLOW_ORCHESTRATOR = "Workflow orchestration";
+        public static final String WF_READ_STEP = "Workflow read step";
+        public static final String WF_REMOTE_STEP = "Workflow remote step (FCB corridor)";
+        public static final String WF_WRITE_STEP = "Workflow write step";
+        public static final String WF_PUBLISH_STEP = "Workflow publishing-write step";
+        public static final String WF_COMPENSATION_STEP = "Workflow compensation step";
+        public static final String WF_DURABLE_STATE = "Durable workflow state (workflow_run, workflow_compensation)";
         public static final String DDD_AGGREGATE = "DDD Aggregate Root";
         public static final String DDD_ENTITY = "DDD Entity";
         public static final String DDD_SERVICE = "Domain Service";

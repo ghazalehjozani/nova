@@ -10,12 +10,13 @@ public final class DefaultConfig {
     private DefaultConfig() {}
 
     public static ArchitectureConfig load() {
-        return new ArchitectureConfig(workspace(), persons(), externalSystems(), mainSystem(), containers(), styles());
+        return new ArchitectureConfig(
+                workspace(), persons(), externalSystems(), mainSystem(), containers(), styles(), workflows());
     }
 
     private static WorkspaceConfig workspace() {
         return new WorkspaceConfig(
-                Systems.TRADE_LOAN_SERVICE, "C4 architecture for the Morabehe trade-loan microservice", Packages.BASE);
+                Systems.TRADE_LOAN_SERVICE, "C4 architecture for the trade-loan microservice", Packages.BASE);
     }
 
     /**
@@ -72,7 +73,7 @@ public final class DefaultConfig {
     private static SystemConfig mainSystem() {
         return new SystemConfig(
                 Systems.TRADE_LOAN_SERVICE,
-                "Morabehe trade-loan microservice — hexagonal, DDD, CQRS, workflow orchestration",
+                "trade-loan microservice — hexagonal, DDD, CQRS, workflow orchestration",
                 List.of(Tags.INTERNAL_SYSTEM));
     }
 
@@ -135,6 +136,112 @@ public final class DefaultConfig {
                         Technologies.ARTEMIS,
                         List.of(Tags.MESSAGE_BROKER, Tags.MESSAGING),
                         List.of()));
+    }
+
+    /**
+     * Curated durable workflows (saga orchestration). Orchestrator + compensation handlers are discovered
+     * automatically; the ordered steps below are added explicitly because the step classes share simple names
+     * across use cases (so bytecode auto-discovery would collide). Mirrors the pangaea workflow-api definitions
+     * in {@code core/application/service/<usecase>}.
+     */
+    private static List<WorkflowConfig> workflows() {
+        return List.of(
+                new WorkflowConfig(
+                        "Issue Facility Contract",
+                        "Issue Contract",
+                        "IssueContractWorkflow",
+                        "IssueFacilityContractCommandHandler",
+                        "CompensateContractIssuanceCommandHandler",
+                        true,
+                        List.of(
+                                new WorkflowStepConfig(
+                                        "Validate Facility",
+                                        "Read-side validation that the facility can issue a contract",
+                                        StepKind.READ,
+                                        false),
+                                new WorkflowStepConfig(
+                                        "Open Accounts",
+                                        "Resolve/open FCB loan accounts per relation type",
+                                        StepKind.REMOTE,
+                                        true),
+                                new WorkflowStepConfig(
+                                        "Post Transaction",
+                                        "Post the contract-issuance transaction to FCB",
+                                        StepKind.REMOTE,
+                                        true),
+                                new WorkflowStepConfig(
+                                        "Update Facility State",
+                                        "Apply issueContract to the aggregate, persist + publish events",
+                                        StepKind.PUBLISH,
+                                        true))),
+                new WorkflowConfig(
+                        "Lump-Sum Disbursement",
+                        "Lump-Sum",
+                        "LumpSumDisbursementWorkflow",
+                        "LumpSumDisbursementCommandHandler",
+                        "CompensateLumpSumDisbursementCommandHandler",
+                        true,
+                        List.of(
+                                new WorkflowStepConfig(
+                                        "Validate Facility",
+                                        "Validate method == LUMP_SUM and disbursement date",
+                                        StepKind.READ,
+                                        false),
+                                new WorkflowStepConfig(
+                                        "Resolve Accounts",
+                                        "Resolve/open FCB accounts for the disbursement",
+                                        StepKind.REMOTE,
+                                        true),
+                                new WorkflowStepConfig(
+                                        "Post Transactions",
+                                        "Post the disbursement transactions to FCB",
+                                        StepKind.REMOTE,
+                                        true),
+                                new WorkflowStepConfig(
+                                        "Apply Disbursement",
+                                        "Activate schedule + apply lump-sum disbursement, persist + publish",
+                                        StepKind.PUBLISH,
+                                        true))),
+                new WorkflowConfig(
+                        "Irregular-Progressive Disbursement",
+                        "Irregular Disb.",
+                        "IrregularDisbursementWorkflow",
+                        "IrregularProgressiveDisbursementCommandHandler",
+                        "CompensateIrregularDisbursementCommandHandler",
+                        true,
+                        List.of(
+                                new WorkflowStepConfig(
+                                        "Validate Facility",
+                                        "Validate method == IRREGULAR_PROGRESSIVE",
+                                        StepKind.READ,
+                                        false),
+                                new WorkflowStepConfig(
+                                        "Resolve Accounts",
+                                        "Resolve/open FCB accounts for the disbursement",
+                                        StepKind.REMOTE,
+                                        true),
+                                new WorkflowStepConfig(
+                                        "Post Transactions",
+                                        "Post the disbursement transactions to FCB",
+                                        StepKind.REMOTE,
+                                        true),
+                                new WorkflowStepConfig(
+                                        "Apply Disbursement",
+                                        "Apply irregular-progressive disbursement, persist + publish",
+                                        StepKind.PUBLISH,
+                                        true))),
+                new WorkflowConfig(
+                        "Regular Disbursement (single-write)",
+                        "Regular Disb.",
+                        "RegularDisbursementWorkflow",
+                        "RegularDisbursementCommandHandler",
+                        null,
+                        false,
+                        List.of(new WorkflowStepConfig(
+                                "Apply Regular Disbursement",
+                                "Single atomic write (ephemeral workflow, no durable run row)",
+                                StepKind.PUBLISH,
+                                false))));
     }
 
     private static StyleConfig styles() {

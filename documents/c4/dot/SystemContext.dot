@@ -11,7 +11,7 @@ digraph {
   3 [id=3,shape=rect, label=<<font point-size="34">FCB Core Banking</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Legacy core banking —<br />accounts, postings,<br />collateral, sanctions</font>>, style=filled, color="#624d45", fillcolor="#8d6e63", fontcolor="#ffffff"]
   4 [id=4,shape=rect, label=<<font point-size="34">OpenTelemetry<br />Collector</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">OpenTelemetry collector —<br />traces, metrics, logs</font>>, style=filled, color="#005f56", fillcolor="#00897b", fontcolor="#ffffff"]
   5 [id=5,shape=rect, label=<<font point-size="34">Consul</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Runtime configuration store<br />(Consul KV, fed by GitOps)</font>>, style=filled, color="#4c352d", fillcolor="#6d4c41", fontcolor="#ffffff"]
-  6 [id=6,shape=rect, label=<<font point-size="34">Trade Loan Service</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">Morabehe trade-loan<br />microservice — hexagonal, DDD,<br />CQRS, workflow orchestration</font>>, style=filled, color="#0b4884", fillcolor="#1168bd", fontcolor="#ffffff"]
+  6 [id=6,shape=rect, label=<<font point-size="34">Trade Loan Service</font><br /><font point-size="19">[Software System]</font><br /><br /><font point-size="24">trade-loan microservice —<br />hexagonal, DDD, CQRS, workflow<br />orchestration</font>>, style=filled, color="#0b4884", fillcolor="#1168bd", fontcolor="#ffffff"]
 
   6 -> 5 [id=17, label=<<font point-size="24">Loads runtime config</font><br /><font point-size="19">[Consul KV (watch / @RefreshScope)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
   1 -> 6 [id=177, label=<<font point-size="24">Business loan-lifecycle<br />requests</font><br /><font point-size="19">[REST (SWA-101) / JWT]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
@@ -20,6 +20,7 @@ digraph {
   6 -> 3 [id=209, label=<<font point-size="24">Probes / converges</font><br /><font point-size="19">[Corridor (Artemis primary / Kafka fallback)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
   6 -> 3 [id=21, label=<<font point-size="24">Core banking operations<br />via corridor</font><br /><font point-size="19">[Corridor (Artemis primary / Kafka fallback)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
   6 -> 4 [id=23, label=<<font point-size="24">Exports traces / metrics /<br />logs</font><br /><font point-size="19">[OTLP http/protobuf]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  6 -> 3 [id=244, label=<<font point-size="24">Calls</font><br /><font point-size="19">[Corridor (Artemis primary / Kafka fallback)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
   24 -> 6 [id=26, label=<<font point-size="24">Operates via OPS endpoints<br />(/v1/ops/*) and MCP ops<br />tools</font><br /><font point-size="19">[HTTPS / JWT (sub-claim allowlist)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
 
 }

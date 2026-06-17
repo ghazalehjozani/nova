@@ -1,13 +1,17 @@
 package ir.dotin.loan.trade.architecture.builder;
 
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
 import com.structurizr.model.*;
 import com.structurizr.view.*;
 
+import ir.dotin.loan.trade.architecture.config.ArchitectureConfig.WorkflowConfig;
+import ir.dotin.loan.trade.architecture.config.ArchitectureConfig.WorkflowStepConfig;
 import ir.dotin.loan.trade.architecture.config.ArchitectureConstants;
 import ir.dotin.loan.trade.architecture.config.ArchitectureConstants.Containers;
+import ir.dotin.loan.trade.architecture.config.ArchitectureConstants.Systems;
 import ir.dotin.loan.trade.architecture.config.ArchitectureConstants.Views;
 
 public class ViewBuilder {
@@ -17,11 +21,14 @@ public class ViewBuilder {
     private final ViewSet views;
     private final SoftwareSystem mainSystem;
     private final Container mainContainer;
+    private final List<WorkflowConfig> workflows;
 
-    public ViewBuilder(ViewSet views, SoftwareSystem mainSystem, Container mainContainer) {
+    public ViewBuilder(
+            ViewSet views, SoftwareSystem mainSystem, Container mainContainer, List<WorkflowConfig> workflows) {
         this.views = views;
         this.mainSystem = mainSystem;
         this.mainContainer = mainContainer;
+        this.workflows = workflows == null ? List.of() : workflows;
     }
 
     public void buildAllViews() {
@@ -30,6 +37,7 @@ public class ViewBuilder {
         buildComponentViews();
         buildLayerViews();
         buildFlowViews();
+        buildWorkflowViews();
     }
 
     private void buildSystemContextView() {
@@ -132,6 +140,54 @@ public class ViewBuilder {
                         ArchitectureConstants.Tags.CONSUMER,
                         ArchitectureConstants.Tags.OUTBOX),
                 _ -> true);
+    }
+
+    private void buildWorkflowViews() {
+        // Combined: every workflow step (WORKFLOW-tagged) + the orchestrators + compensation handlers + durable store.
+        var combined = views.createComponentView(
+                mainContainer,
+                Views.WORKFLOW,
+                "Durable workflow orchestration — orchestrators, steps, compensation and persistent state");
+        mainContainer.getComponents().stream()
+                .filter(c -> c.getTagsAsSet().contains(ArchitectureConstants.Tags.WORKFLOW))
+                .limit(MAX_ELEMENTS_PER_VIEW)
+                .forEach(combined::add);
+        for (WorkflowConfig wf : workflows) {
+            addComponentByType(combined, wf.orchestratorType());
+            addComponentByType(combined, wf.compensationType());
+        }
+        addContainer(combined, Containers.POSTGRESQL_DATABASE);
+        addExternalSystem(combined, Systems.FCB_CORE_BANKING);
+        combined.enableAutomaticLayout(AutomaticLayout.RankDirection.TopBottom, 300, 300, 200, false);
+        combined.setPaperSize(PaperSize.A3_Landscape);
+
+        // Per-workflow detail views (issue-contract + the disbursements), each showing the ordered steps.
+        for (WorkflowConfig wf : workflows) {
+            var view = views.createComponentView(
+                    mainContainer,
+                    wf.viewKey(),
+                    wf.name() + (wf.durable() ? " — durable workflow" : " — single-write workflow"));
+            addComponentByType(view, wf.orchestratorType());
+            for (WorkflowStepConfig step : wf.steps()) {
+                var stepComponent = mainContainer.getComponentWithName(ModelBuilder.stepComponentName(wf, step));
+                if (stepComponent != null) view.add(stepComponent);
+            }
+            addComponentByType(view, wf.compensationType());
+            addContainer(view, Containers.POSTGRESQL_DATABASE);
+            addExternalSystem(view, Systems.FCB_CORE_BANKING);
+            view.enableAutomaticLayout(AutomaticLayout.RankDirection.LeftRight, 400, 300, 200, false);
+            view.setPaperSize(PaperSize.A4_Landscape);
+        }
+    }
+
+    private void addComponentByType(ComponentView view, String type) {
+        var component = ModelBuilder.findComponentByType(mainContainer, type);
+        if (component != null) view.add(component);
+    }
+
+    private void addExternalSystem(ComponentView view, String systemName) {
+        var system = mainSystem.getModel().getSoftwareSystemWithName(systemName);
+        if (system != null) view.add(system);
     }
 
     private ComponentView createFilteredView(String key, String description, Set<String> requiredTags) {

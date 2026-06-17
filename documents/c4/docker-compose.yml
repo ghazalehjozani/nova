@@ -1,0 +1,22 @@
+# C4 architecture viewer — Structurizr Lite serving the generated workspace.json.
+#
+# Runs anywhere the documents/c4 directory is present: a developer workstation
+# (`docker compose up` from this dir) or the Nova deploy host (shipped + started
+# by the `deploy-c4-viewer` CI job).
+#
+#   STRUCTURIZR_PORT   host port (default 8090)
+#   STRUCTURIZR_IMAGE  image     (default structurizr/structurizr:2026.05.22-noble)
+#
+# NOTE: Structurizr Lite writes the .structurizr/ cache back into the mounted
+# directory, so the directory must be writable by the container user. The
+# run-structurizr.sh script and the CI deploy job `chmod -R a+rwX` it first.
+services:
+  structurizr:
+    image: ${STRUCTURIZR_IMAGE:-structurizr/structurizr:2026.05.22-noble}
+    command: ["local"]
+    container_name: nova-c4
+    ports:
+      - "${STRUCTURIZR_PORT:-8090}:8080"
+    volumes:
+      - ./:/usr/local/structurizr
+    restart: unless-stopped

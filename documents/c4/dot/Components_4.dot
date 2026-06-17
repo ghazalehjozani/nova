@@ -3,7 +3,7 @@ digraph {
   graph [fontname="Arial", rankdir=TB, ranksep=1.0, nodesep=1.0]
   node [fontname="Arial", shape=box, margin="0.4,0.3"]
   edge [fontname="Arial"]
-  label=<<br /><font point-size="34">Component View: Trade Loan Service - Trade Loan Application</font><br /><font point-size="24">Components (page 4/4)</font>>
+  label=<<br /><font point-size="34">Component View: Trade Loan Service - Trade Loan Application</font><br /><font point-size="24">Components (page 4/5)</font>>
 
   subgraph cluster_6 {
     margin=25
@@ -41,6 +41,16 @@ digraph {
       134 [id=134,shape=rect, label=<<font point-size="34">Trade Loan Facility<br />Service</font><br /><font point-size="19">[Component: Domain Service]</font>>, style=filled, color="#1c7fac", fillcolor="#29b6f6", fontcolor="#ffffff"]
       135 [id=135,shape=rect, label=<<font point-size="34">Trade Sanction<br />Validation Service</font><br /><font point-size="19">[Component: Domain Service]</font>>, style=filled, color="#1c7fac", fillcolor="#29b6f6", fontcolor="#ffffff"]
       136 [id=136,shape=rect, label=<<font point-size="34">Trade Loan Facility<br />Validation Service</font><br /><font point-size="19">[Component: Domain Service]</font>>, style=filled, color="#1c7fac", fillcolor="#29b6f6", fontcolor="#ffffff"]
+      238 [id=238,shape=diamond, label=<<font point-size="34">Issue Contract —<br />Validate Facility</font><br /><font point-size="19">[Component: Workflow read step]</font><br /><br /><font point-size="24">Read-side validation that the<br />facility can issue a contract</font>>, style=filled, color="#773183", fillcolor="#ab47bc", fontcolor="#ffffff"]
+      240 [id=240,shape=diamond, label=<<font point-size="34">Issue Contract — Open<br />Accounts</font><br /><font point-size="19">[Component: Workflow remote step (FCB corridor)]</font><br /><br /><font point-size="24">Resolve/open FCB loan accounts<br />per relation type</font>>, style=filled, color="#a73a38", fillcolor="#ef5350", fontcolor="#ffffff"]
+      245 [id=245,shape=diamond, label=<<font point-size="34">Issue Contract — Post<br />Transaction</font><br /><font point-size="19">[Component: Workflow remote step (FCB corridor)]</font><br /><br /><font point-size="24">Post the contract-issuance<br />transaction to FCB</font>>, style=filled, color="#a73a38", fillcolor="#ef5350", fontcolor="#ffffff"]
+      248 [id=248,shape=diamond, label=<<font point-size="34">Issue Contract —<br />Update Facility State</font><br /><font point-size="19">[Component: Workflow publishing-write step]</font><br /><br /><font point-size="24">Apply issueContract to the<br />aggregate, persist + publish<br />events</font>>, style=filled, color="#a73a38", fillcolor="#ef5350", fontcolor="#ffffff"]
+      257 [id=257,shape=diamond, label=<<font point-size="34">Lump-Sum — Validate<br />Facility</font><br /><font point-size="19">[Component: Workflow read step]</font><br /><br /><font point-size="24">Validate method == LUMP_SUM<br />and disbursement date</font>>, style=filled, color="#773183", fillcolor="#ab47bc", fontcolor="#ffffff"]
+      259 [id=259,shape=diamond, label=<<font point-size="34">Lump-Sum — Resolve<br />Accounts</font><br /><font point-size="19">[Component: Workflow remote step (FCB corridor)]</font><br /><br /><font point-size="24">Resolve/open FCB accounts for<br />the disbursement</font>>, style=filled, color="#a73a38", fillcolor="#ef5350", fontcolor="#ffffff"]
+      262 [id=262,shape=diamond, label=<<font point-size="34">Lump-Sum — Post<br />Transactions</font><br /><font point-size="19">[Component: Workflow remote step (FCB corridor)]</font><br /><br /><font point-size="24">Post the disbursement<br />transactions to FCB</font>>, style=filled, color="#a73a38", fillcolor="#ef5350", fontcolor="#ffffff"]
+      265 [id=265,shape=diamond, label=<<font point-size="34">Lump-Sum — Apply<br />Disbursement</font><br /><font point-size="19">[Component: Workflow publishing-write step]</font><br /><br /><font point-size="24">Activate schedule + apply<br />lump-sum disbursement, persist<br />+ publish</font>>, style=filled, color="#a73a38", fillcolor="#ef5350", fontcolor="#ffffff"]
+      271 [id=271,shape=diamond, label=<<font point-size="34">Irregular Disb. —<br />Validate Facility</font><br /><font point-size="19">[Component: Workflow read step]</font><br /><br /><font point-size="24">Validate method ==<br />IRREGULAR_PROGRESSIVE</font>>, style=filled, color="#773183", fillcolor="#ab47bc", fontcolor="#ffffff"]
+      273 [id=273,shape=diamond, label=<<font point-size="34">Irregular Disb. —<br />Resolve Accounts</font><br /><font point-size="19">[Component: Workflow remote step (FCB corridor)]</font><br /><br /><font point-size="24">Resolve/open FCB accounts for<br />the disbursement</font>>, style=filled, color="#a73a38", fillcolor="#ef5350", fontcolor="#ffffff"]
     }
 
   }
@@ -65,5 +75,12 @@ digraph {
   134 -> 128 [id=173, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
   134 -> 127 [id=174, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
   136 -> 124 [id=175, label=<>, style="dashed", color="#707070", fontcolor="#707070"]
+  238 -> 240 [id=241, label=<<font point-size="24">Then</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  240 -> 245 [id=246, label=<<font point-size="24">Then</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  245 -> 248 [id=249, label=<<font point-size="24">Then</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  257 -> 259 [id=260, label=<<font point-size="24">Then</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  259 -> 262 [id=263, label=<<font point-size="24">Then</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  262 -> 265 [id=266, label=<<font point-size="24">Then</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  271 -> 273 [id=274, label=<<font point-size="24">Then</font>>, style="dashed", color="#707070", fontcolor="#707070"]
 
 }

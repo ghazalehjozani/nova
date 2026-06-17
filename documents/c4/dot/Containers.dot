@@ -44,6 +44,10 @@ digraph {
   7 -> 8 [id=206, label=<<font point-size="24">Reads reconciliation state</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
   7 -> 3 [id=208, label=<<font point-size="24">Probes / converges</font><br /><font point-size="19">[Corridor (Artemis primary / Kafka fallback)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
   7 -> 4 [id=22, label=<<font point-size="24">Exports traces / metrics /<br />logs</font><br /><font point-size="19">[OTLP http/protobuf]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 3 [id=243, label=<<font point-size="24">Calls</font><br /><font point-size="19">[Corridor (Artemis primary / Kafka fallback)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
   24 -> 7 [id=25, label=<<font point-size="24">Operates via OPS endpoints<br />(/v1/ops/*) and MCP ops<br />tools</font><br /><font point-size="19">[HTTPS / JWT (sub-claim allowlist)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 8 [id=251, label=<<font point-size="24">Persists</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 9 [id=253, label=<<font point-size="24">Emits events (outbox)</font><br /><font point-size="19">[Kafka (SASL/SCRAM)]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  7 -> 8 [id=255, label=<<font point-size="24">Durable workflow state<br />(workflow_run,<br />workflow_compensation)</font><br /><font point-size="19">[JDBC/HikariCP]</font>>, style="dashed", color="#707070", fontcolor="#707070"]
 
 }

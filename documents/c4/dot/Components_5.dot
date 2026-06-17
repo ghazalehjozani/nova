@@ -1,0 +1,33 @@
+digraph {
+  compound=true
+  graph [fontname="Arial", rankdir=TB, ranksep=1.0, nodesep=1.0]
+  node [fontname="Arial", shape=box, margin="0.4,0.3"]
+  edge [fontname="Arial"]
+  label=<<br /><font point-size="34">Component View: Trade Loan Service - Trade Loan Application</font><br /><font point-size="24">Components (page 5/5)</font>>
+
+  subgraph cluster_6 {
+    margin=25
+    label=<<font point-size="24"><br />Trade Loan Service</font><br /><font point-size="19">[Software System]</font>>
+    labelloc=b
+    color="#444444"
+    fontcolor="#444444"
+    fillcolor="#444444"
+
+    subgraph cluster_7 {
+      margin=25
+      label=<<font point-size="24"><br />Trade Loan Application</font><br /><font point-size="19">[Container: Java 25, Spring Boot 4]</font>>
+      labelloc=b
+      color="#444444"
+      fontcolor="#444444"
+      fillcolor="#444444"
+
+      276 [id=276,shape=diamond, label=<<font point-size="34">Irregular Disb. —<br />Post Transactions</font><br /><font point-size="19">[Component: Workflow remote step (FCB corridor)]</font><br /><br /><font point-size="24">Post the disbursement<br />transactions to FCB</font>>, style=filled, color="#a73a38", fillcolor="#ef5350", fontcolor="#ffffff"]
+      279 [id=279,shape=diamond, label=<<font point-size="34">Irregular Disb. —<br />Apply Disbursement</font><br /><font point-size="19">[Component: Workflow publishing-write step]</font><br /><br /><font point-size="24">Apply irregular-progressive<br />disbursement, persist +<br />publish</font>>, style=filled, color="#a73a38", fillcolor="#ef5350", fontcolor="#ffffff"]
+      285 [id=285,shape=diamond, label=<<font point-size="34">Regular Disb. — Apply<br />Regular Disbursement</font><br /><font point-size="19">[Component: Workflow publishing-write step]</font><br /><br /><font point-size="24">Single atomic write (ephemeral<br />workflow, no durable run row)</font>>, style=filled, color="#773183", fillcolor="#ab47bc", fontcolor="#ffffff"]
+    }
+
+  }
+
+  276 -> 279 [id=280, label=<<font point-size="24">Then</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+
+}

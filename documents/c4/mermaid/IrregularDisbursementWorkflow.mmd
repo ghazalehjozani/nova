@@ -1,0 +1,44 @@
+graph LR
+  linkStyle default fill:#ffffff
+
+  subgraph diagram ["Component View: Trade Loan Service - Trade Loan Application"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    3["<div style='font-weight: bold'>FCB Core Banking</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Legacy core banking —<br />accounts, postings,<br />collateral, sanctions</div>"]
+    style 3 fill:#8d6e63,stroke:#624d45,color:#ffffff
+
+    subgraph 6 ["Trade Loan Service"]
+      style 6 fill:#ffffff,stroke:#0b4884,color:#0b4884
+
+      subgraph 7 ["Trade Loan Application"]
+        style 7 fill:#ffffff,stroke:#2e6295,color:#2e6295
+
+        271["<div style='font-weight: bold'>Irregular Disb. — Validate Facility</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow read step]</div><div style='font-size: 80%; margin-top:10px'>Validate method ==<br />IRREGULAR_PROGRESSIVE</div>"]
+        style 271 fill:#ab47bc,stroke:#773183,color:#ffffff
+        273["<div style='font-weight: bold'>Irregular Disb. — Resolve Accounts</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow remote step (FCB corridor)]</div><div style='font-size: 80%; margin-top:10px'>Resolve/open FCB accounts for<br />the disbursement</div>"]
+        style 273 fill:#ef5350,stroke:#a73a38,color:#ffffff
+        276["<div style='font-weight: bold'>Irregular Disb. — Post Transactions</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow remote step (FCB corridor)]</div><div style='font-size: 80%; margin-top:10px'>Post the disbursement<br />transactions to FCB</div>"]
+        style 276 fill:#ef5350,stroke:#a73a38,color:#ffffff
+        279["<div style='font-weight: bold'>Irregular Disb. — Apply Disbursement</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow publishing-write step]</div><div style='font-size: 80%; margin-top:10px'>Apply irregular-progressive<br />disbursement, persist +<br />publish</div>"]
+        style 279 fill:#ef5350,stroke:#a73a38,color:#ffffff
+        46["<div style='font-weight: bold'>Irregular Progressive Disbursement Command Handler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div>"]
+        style 46 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+        47["<div style='font-weight: bold'>Compensate Irregular Disbursement Command Handler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div>"]
+        style 47 fill:#ef5350,stroke:#a73a38,color:#ffffff
+      end
+
+      8[("<div style='font-weight: bold'>PostgreSQL Database</div><div style='font-size: 70%; margin-top: 0px'>[Container: PostgreSQL 18]</div><div style='font-size: 80%; margin-top:10px'>Loan data, inbox/outbox,<br />workflow state, audit,<br />reconciliation</div>")]
+      style 8 fill:#438dd5,stroke:#2e6295,color:#ffffff
+    end
+
+    46-. "<div>Starts</div><div style='font-size: 70%'></div>" .->271
+    271-. "<div>Then</div><div style='font-size: 70%'></div>" .->273
+    273-. "<div>Calls</div><div style='font-size: 70%'>[Corridor (Artemis primary / Kafka fallback)]</div>" .->3
+    273-. "<div>Then</div><div style='font-size: 70%'></div>" .->276
+    276-. "<div>Calls</div><div style='font-size: 70%'>[Corridor (Artemis primary / Kafka fallback)]</div>" .->3
+    276-. "<div>Then</div><div style='font-size: 70%'></div>" .->279
+    279-. "<div>Persists</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->8
+    46-. "<div>Durable workflow state<br />(workflow_run,<br />workflow_compensation)</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->8
+    46-. "<div>Compensates on failure</div><div style='font-size: 70%'></div>" .->47
+
+  end

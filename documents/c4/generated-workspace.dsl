@@ -10,7 +10,7 @@ workspace "Trade Loan Service" {
         fcb_core_banking = softwareSystem "FCB Core Banking" "Legacy core banking — accounts, postings, collateral, sanctions"
         opentelemetry_collector = softwareSystem "OpenTelemetry Collector" "OpenTelemetry collector — traces, metrics, logs"
         consul = softwareSystem "Consul" "Runtime configuration store (Consul KV, fed by GitOps)"
-        trade_loan_service = softwareSystem "Trade Loan Service" "Morabehe trade-loan microservice — hexagonal, DDD, CQRS, workflow orchestration" {
+        trade_loan_service = softwareSystem "Trade Loan Service" "trade-loan microservice — hexagonal, DDD, CQRS, workflow orchestration" {
             trade_loan_application = container "Trade Loan Application" "Spring Boot hexagonal application (driving + driven adapters)" "Java 25, Spring Boot 4" {
                 reconciliation_by_application_number_controller = component "Reconciliation By Application Number Controller" "Spring MVC Controller"
                 dev_auth_callback_controller = component "Dev Auth Callback Controller" "Spring MVC Controller"
@@ -122,6 +122,19 @@ workspace "Trade Loan Service" {
                 trade_loan_facility_service = component "Trade Loan Facility Service" "Domain Service"
                 trade_sanction_validation_service = component "Trade Sanction Validation Service" "Domain Service"
                 trade_loan_facility_validation_service = component "Trade Loan Facility Validation Service" "Domain Service"
+                issue_contract_validate_facility = component "Issue Contract — Validate Facility" "Read-side validation that the facility can issue a contract" "Workflow read step"
+                issue_contract_open_accounts = component "Issue Contract — Open Accounts" "Resolve/open FCB loan accounts per relation type" "Workflow remote step (FCB corridor)"
+                issue_contract_post_transaction = component "Issue Contract — Post Transaction" "Post the contract-issuance transaction to FCB" "Workflow remote step (FCB corridor)"
+                issue_contract_update_facility_state = component "Issue Contract — Update Facility State" "Apply issueContract to the aggregate, persist + publish events" "Workflow publishing-write step"
+                lump_sum_validate_facility = component "Lump-Sum — Validate Facility" "Validate method == LUMP_SUM and disbursement date" "Workflow read step"
+                lump_sum_resolve_accounts = component "Lump-Sum — Resolve Accounts" "Resolve/open FCB accounts for the disbursement" "Workflow remote step (FCB corridor)"
+                lump_sum_post_transactions = component "Lump-Sum — Post Transactions" "Post the disbursement transactions to FCB" "Workflow remote step (FCB corridor)"
+                lump_sum_apply_disbursement = component "Lump-Sum — Apply Disbursement" "Activate schedule + apply lump-sum disbursement, persist + publish" "Workflow publishing-write step"
+                irregular_disb_validate_facility = component "Irregular Disb. — Validate Facility" "Validate method == IRREGULAR_PROGRESSIVE" "Workflow read step"
+                irregular_disb_resolve_accounts = component "Irregular Disb. — Resolve Accounts" "Resolve/open FCB accounts for the disbursement" "Workflow remote step (FCB corridor)"
+                irregular_disb_post_transactions = component "Irregular Disb. — Post Transactions" "Post the disbursement transactions to FCB" "Workflow remote step (FCB corridor)"
+                irregular_disb_apply_disbursement = component "Irregular Disb. — Apply Disbursement" "Apply irregular-progressive disbursement, persist + publish" "Workflow publishing-write step"
+                regular_disb_apply_regular_disbursement = component "Regular Disb. — Apply Regular Disbursement" "Single atomic write (ephemeral workflow, no durable run row)" "Workflow publishing-write step"
             }
             postgresql_database = container "PostgreSQL Database" "Loan data, inbox/outbox, workflow state, audit, reconciliation" "PostgreSQL 18"
             kafka = container "Kafka" "Event streaming + request/reply fallback transport" "Apache Kafka (SASL_PLAINTEXT/SCRAM-SHA-256)"
@@ -243,6 +256,44 @@ workspace "Trade Loan Service" {
         facility_root_cause_classifier_1 -> fcb_core_banking "Probes / converges"
         facility_recon_mapping_1 -> postgresql_database "Reads reconciliation state"
         facility_recon_mapping_1 -> fcb_core_banking "Probes / converges"
+        issue_facility_contract_command_handler -> issue_contract_validate_facility "Starts"
+        issue_contract_validate_facility -> issue_contract_open_accounts "Then"
+        issue_contract_open_accounts -> fcb_core_banking "Calls"
+        trade_loan_application -> fcb_core_banking "Calls"
+        trade_loan_service -> fcb_core_banking "Calls"
+        issue_contract_open_accounts -> issue_contract_post_transaction "Then"
+        issue_contract_post_transaction -> fcb_core_banking "Calls"
+        issue_contract_post_transaction -> issue_contract_update_facility_state "Then"
+        issue_contract_update_facility_state -> postgresql_database "Persists"
+        trade_loan_application -> postgresql_database "Persists"
+        issue_contract_update_facility_state -> kafka "Emits events (outbox)"
+        trade_loan_application -> kafka "Emits events (outbox)"
+        issue_facility_contract_command_handler -> postgresql_database "Durable workflow state (workflow_run, workflow_compensation)"
+        trade_loan_application -> postgresql_database "Durable workflow state (workflow_run, workflow_compensation)"
+        issue_facility_contract_command_handler -> compensate_contract_issuance_command_handler "Compensates on failure"
+        lump_sum_disbursement_command_handler -> lump_sum_validate_facility "Starts"
+        lump_sum_validate_facility -> lump_sum_resolve_accounts "Then"
+        lump_sum_resolve_accounts -> fcb_core_banking "Calls"
+        lump_sum_resolve_accounts -> lump_sum_post_transactions "Then"
+        lump_sum_post_transactions -> fcb_core_banking "Calls"
+        lump_sum_post_transactions -> lump_sum_apply_disbursement "Then"
+        lump_sum_apply_disbursement -> postgresql_database "Persists"
+        lump_sum_apply_disbursement -> kafka "Emits events (outbox)"
+        lump_sum_disbursement_command_handler -> postgresql_database "Durable workflow state (workflow_run, workflow_compensation)"
+        lump_sum_disbursement_command_handler -> compensate_lump_sum_disbursement_command_handler "Compensates on failure"
+        irregular_progressive_disbursement_command_handler -> irregular_disb_validate_facility "Starts"
+        irregular_disb_validate_facility -> irregular_disb_resolve_accounts "Then"
+        irregular_disb_resolve_accounts -> fcb_core_banking "Calls"
+        irregular_disb_resolve_accounts -> irregular_disb_post_transactions "Then"
+        irregular_disb_post_transactions -> fcb_core_banking "Calls"
+        irregular_disb_post_transactions -> irregular_disb_apply_disbursement "Then"
+        irregular_disb_apply_disbursement -> postgresql_database "Persists"
+        irregular_disb_apply_disbursement -> kafka "Emits events (outbox)"
+        irregular_progressive_disbursement_command_handler -> postgresql_database "Durable workflow state (workflow_run, workflow_compensation)"
+        irregular_progressive_disbursement_command_handler -> compensate_irregular_disbursement_command_handler "Compensates on failure"
+        regular_disbursement_command_handler -> regular_disb_apply_regular_disbursement "Starts"
+        regular_disb_apply_regular_disbursement -> postgresql_database "Persists"
+        regular_disb_apply_regular_disbursement -> kafka "Emits events (outbox)"
     }
 
     views {
@@ -272,6 +323,11 @@ workspace "Trade Loan Service" {
         }
 
         component trade_loan_application "Components_4" {
+            include *
+            autoLayout tb 300 300
+        }
+
+        component trade_loan_application "Components_5" {
             include *
             autoLayout tb 300 300
         }
@@ -329,6 +385,31 @@ workspace "Trade Loan Service" {
         component trade_loan_application "WorkflowFlow" {
             include *
             autoLayout lr 400 300
+        }
+
+        component trade_loan_application "Workflow" {
+            include *
+            autoLayout tb 300 300
+        }
+
+        component trade_loan_application "IssueContractWorkflow" {
+            include *
+            autoLayout tb 300 300
+        }
+
+        component trade_loan_application "LumpSumDisbursementWorkflow" {
+            include *
+            autoLayout tb 300 300
+        }
+
+        component trade_loan_application "IrregularDisbursementWorkflow" {
+            include *
+            autoLayout tb 300 300
+        }
+
+        component trade_loan_application "RegularDisbursementWorkflow" {
+            include *
+            autoLayout tb 300 300
         }
 
         styles {

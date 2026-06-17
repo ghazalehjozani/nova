@@ -1,0 +1,44 @@
+graph LR
+  linkStyle default fill:#ffffff
+
+  subgraph diagram ["Component View: Trade Loan Service - Trade Loan Application"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    3["<div style='font-weight: bold'>FCB Core Banking</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Legacy core banking —<br />accounts, postings,<br />collateral, sanctions</div>"]
+    style 3 fill:#8d6e63,stroke:#624d45,color:#ffffff
+
+    subgraph 6 ["Trade Loan Service"]
+      style 6 fill:#ffffff,stroke:#0b4884,color:#0b4884
+
+      subgraph 7 ["Trade Loan Application"]
+        style 7 fill:#ffffff,stroke:#2e6295,color:#2e6295
+
+        257["<div style='font-weight: bold'>Lump-Sum — Validate Facility</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow read step]</div><div style='font-size: 80%; margin-top:10px'>Validate method == LUMP_SUM<br />and disbursement date</div>"]
+        style 257 fill:#ab47bc,stroke:#773183,color:#ffffff
+        259["<div style='font-weight: bold'>Lump-Sum — Resolve Accounts</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow remote step (FCB corridor)]</div><div style='font-size: 80%; margin-top:10px'>Resolve/open FCB accounts for<br />the disbursement</div>"]
+        style 259 fill:#ef5350,stroke:#a73a38,color:#ffffff
+        262["<div style='font-weight: bold'>Lump-Sum — Post Transactions</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow remote step (FCB corridor)]</div><div style='font-size: 80%; margin-top:10px'>Post the disbursement<br />transactions to FCB</div>"]
+        style 262 fill:#ef5350,stroke:#a73a38,color:#ffffff
+        265["<div style='font-weight: bold'>Lump-Sum — Apply Disbursement</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow publishing-write step]</div><div style='font-size: 80%; margin-top:10px'>Activate schedule + apply<br />lump-sum disbursement,<br />persist + publish</div>"]
+        style 265 fill:#ef5350,stroke:#a73a38,color:#ffffff
+        66["<div style='font-weight: bold'>Lump Sum Disbursement Command Handler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div>"]
+        style 66 fill:#42a5f5,stroke:#2e73ab,color:#ffffff
+        67["<div style='font-weight: bold'>Compensate Lump Sum Disbursement Command Handler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Command Handler]</div>"]
+        style 67 fill:#ef5350,stroke:#a73a38,color:#ffffff
+      end
+
+      8[("<div style='font-weight: bold'>PostgreSQL Database</div><div style='font-size: 70%; margin-top: 0px'>[Container: PostgreSQL 18]</div><div style='font-size: 80%; margin-top:10px'>Loan data, inbox/outbox,<br />workflow state, audit,<br />reconciliation</div>")]
+      style 8 fill:#438dd5,stroke:#2e6295,color:#ffffff
+    end
+
+    66-. "<div>Starts</div><div style='font-size: 70%'></div>" .->257
+    257-. "<div>Then</div><div style='font-size: 70%'></div>" .->259
+    259-. "<div>Calls</div><div style='font-size: 70%'>[Corridor (Artemis primary / Kafka fallback)]</div>" .->3
+    259-. "<div>Then</div><div style='font-size: 70%'></div>" .->262
+    262-. "<div>Calls</div><div style='font-size: 70%'>[Corridor (Artemis primary / Kafka fallback)]</div>" .->3
+    262-. "<div>Then</div><div style='font-size: 70%'></div>" .->265
+    265-. "<div>Persists</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->8
+    66-. "<div>Durable workflow state<br />(workflow_run,<br />workflow_compensation)</div><div style='font-size: 70%'>[JDBC/HikariCP]</div>" .->8
+    66-. "<div>Compensates on failure</div><div style='font-size: 70%'></div>" .->67
+
+  end

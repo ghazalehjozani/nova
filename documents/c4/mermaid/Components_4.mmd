@@ -50,6 +50,26 @@ graph TB
         style 135 fill:#29b6f6,stroke:#1c7fac,color:#ffffff
         136["<div style='font-weight: bold'>Trade Loan Facility Validation Service</div><div style='font-size: 70%; margin-top: 0px'>[Component: Domain Service]</div>"]
         style 136 fill:#29b6f6,stroke:#1c7fac,color:#ffffff
+        238["<div style='font-weight: bold'>Issue Contract — Validate Facility</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow read step]</div><div style='font-size: 80%; margin-top:10px'>Read-side validation that the<br />facility can issue a contract</div>"]
+        style 238 fill:#ab47bc,stroke:#773183,color:#ffffff
+        240["<div style='font-weight: bold'>Issue Contract — Open Accounts</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow remote step (FCB corridor)]</div><div style='font-size: 80%; margin-top:10px'>Resolve/open FCB loan<br />accounts per relation type</div>"]
+        style 240 fill:#ef5350,stroke:#a73a38,color:#ffffff
+        245["<div style='font-weight: bold'>Issue Contract — Post Transaction</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow remote step (FCB corridor)]</div><div style='font-size: 80%; margin-top:10px'>Post the contract-issuance<br />transaction to FCB</div>"]
+        style 245 fill:#ef5350,stroke:#a73a38,color:#ffffff
+        248["<div style='font-weight: bold'>Issue Contract — Update Facility State</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow publishing-write step]</div><div style='font-size: 80%; margin-top:10px'>Apply issueContract to the<br />aggregate, persist + publish<br />events</div>"]
+        style 248 fill:#ef5350,stroke:#a73a38,color:#ffffff
+        257["<div style='font-weight: bold'>Lump-Sum — Validate Facility</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow read step]</div><div style='font-size: 80%; margin-top:10px'>Validate method == LUMP_SUM<br />and disbursement date</div>"]
+        style 257 fill:#ab47bc,stroke:#773183,color:#ffffff
+        259["<div style='font-weight: bold'>Lump-Sum — Resolve Accounts</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow remote step (FCB corridor)]</div><div style='font-size: 80%; margin-top:10px'>Resolve/open FCB accounts for<br />the disbursement</div>"]
+        style 259 fill:#ef5350,stroke:#a73a38,color:#ffffff
+        262["<div style='font-weight: bold'>Lump-Sum — Post Transactions</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow remote step (FCB corridor)]</div><div style='font-size: 80%; margin-top:10px'>Post the disbursement<br />transactions to FCB</div>"]
+        style 262 fill:#ef5350,stroke:#a73a38,color:#ffffff
+        265["<div style='font-weight: bold'>Lump-Sum — Apply Disbursement</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow publishing-write step]</div><div style='font-size: 80%; margin-top:10px'>Activate schedule + apply<br />lump-sum disbursement,<br />persist + publish</div>"]
+        style 265 fill:#ef5350,stroke:#a73a38,color:#ffffff
+        271["<div style='font-weight: bold'>Irregular Disb. — Validate Facility</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow read step]</div><div style='font-size: 80%; margin-top:10px'>Validate method ==<br />IRREGULAR_PROGRESSIVE</div>"]
+        style 271 fill:#ab47bc,stroke:#773183,color:#ffffff
+        273["<div style='font-weight: bold'>Irregular Disb. — Resolve Accounts</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow remote step (FCB corridor)]</div><div style='font-size: 80%; margin-top:10px'>Resolve/open FCB accounts for<br />the disbursement</div>"]
+        style 273 fill:#ef5350,stroke:#a73a38,color:#ffffff
       end
 
     end
@@ -74,5 +94,12 @@ graph TB
     134-. "<div></div><div style='font-size: 70%'></div>" .->128
     134-. "<div></div><div style='font-size: 70%'></div>" .->127
     136-. "<div></div><div style='font-size: 70%'></div>" .->124
+    238-. "<div>Then</div><div style='font-size: 70%'></div>" .->240
+    240-. "<div>Then</div><div style='font-size: 70%'></div>" .->245
+    245-. "<div>Then</div><div style='font-size: 70%'></div>" .->248
+    257-. "<div>Then</div><div style='font-size: 70%'></div>" .->259
+    259-. "<div>Then</div><div style='font-size: 70%'></div>" .->262
+    262-. "<div>Then</div><div style='font-size: 70%'></div>" .->265
+    271-. "<div>Then</div><div style='font-size: 70%'></div>" .->273
 
   end

@@ -93,3 +93,48 @@ integration-test:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_BRANCH == "develop"'
+
+# =============================================================================
+# Publish the C4 architecture viewer (Structurizr Lite) onto the Nova deploy
+# host, in the SAME deploy directory as the service, serving the committed
+# documents/c4/workspace.json. Reuses the shared deploy SSH vars
+# (DEPLOY_SSH_HOST/USER/KEY, DEPLOY_PATH). Manual + allow_failure so it never
+# blocks the build/deploy pipeline.
+#
+# Conflict-safety with Nova's own .env + docker-compose.yml in $DEPLOY_PATH:
+#   - the C4 content is isolated in the `c4/` SUBDIR of the deploy path, so
+#     rsync --delete only ever touches that subdir, never Nova's root files;
+#   - it runs as a SEPARATE compose project (`nova-c4`) with its own
+#     container_name + port (8090), so it cannot collide with Nova's compose
+#     project, container, or .env;
+#   - a guard refuses to run if the dest ever resolves to the deploy root.
+# Optional vars: C4_DEPLOY_PATH (default $DEPLOY_PATH/c4), C4_VIEWER_PORT (8090).
+# The C4 model is generated/committed via `make c4`, NOT in CI.
+# =============================================================================
+deploy-c4-viewer:
+  stage: deploy
+  needs: []
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      when: manual
+      allow_failure: true
+    - if: '$CI_COMMIT_TAG'
+      when: manual
+      allow_failure: true
+  before_script:
+    - command -v rsync >/dev/null || (apt-get update && apt-get install -y --no-install-recommends openssh-client rsync)
+    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    - printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
+    - ssh-keyscan -H "$DEPLOY_SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+  script:
+    - DEST="${C4_DEPLOY_PATH:-${DEPLOY_PATH%/}/c4}"
+    # Never write/delete at the Nova deploy root — the viewer must stay in its own subdir.
+    - test "${DEST%/}" != "${DEPLOY_PATH%/}" || { echo "refusing: C4 dest must be a SUBDIR of DEPLOY_PATH, not the Nova root"; exit 1; }
+    - SSH="ssh -i ~/.ssh/id_deploy -o StrictHostKeyChecking=accept-new"
+    - $SSH "${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}" "mkdir -p '${DEST}'"
+    # --delete is safe: it only affects the dedicated c4 subdir, not Nova's .env / docker-compose.yml.
+    - rsync -az --delete -e "$SSH" documents/c4/ "${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}:${DEST}/"
+    # Distinct compose project (`nova-c4`) so it never touches Nova's compose stack in $DEPLOY_PATH.
+    - >-
+      $SSH "${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}"
+      "cd '${DEST}' && chmod -R a+rwX . && STRUCTURIZR_PORT='${C4_VIEWER_PORT:-8090}' docker compose -p nova-c4 up -d"

@@ -67,13 +67,14 @@ public class ArchitectureGenerator {
 
         modelBuilder.wireExternalSystemUsage();
         modelBuilder.wireComponentInfrastructure(mainContainer);
+        modelBuilder.wireWorkflows(mainContainer);
 
         var mainSystem = modelBuilder.getMainSystem();
         if (mainSystem == null) {
             throw new IllegalStateException("Main system not found");
         }
 
-        var viewBuilder = new ViewBuilder(workspace.getViews(), mainSystem, mainContainer);
+        var viewBuilder = new ViewBuilder(workspace.getViews(), mainSystem, mainContainer, config.workflows());
         viewBuilder.buildAllViews();
 
         var styleBuilder = new StyleBuilder(workspace.getViews(), config.styles());

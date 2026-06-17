@@ -16,7 +16,7 @@ graph TB
     style 4 fill:#00897b,stroke:#005f56,color:#ffffff
     5["<div style='font-weight: bold'>Consul</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Runtime configuration store<br />(Consul KV, fed by GitOps)</div>"]
     style 5 fill:#6d4c41,stroke:#4c352d,color:#ffffff
-    6["<div style='font-weight: bold'>Trade Loan Service</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Morabehe trade-loan<br />microservice — hexagonal,<br />DDD, CQRS, workflow<br />orchestration</div>"]
+    6["<div style='font-weight: bold'>Trade Loan Service</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>trade-loan microservice —<br />hexagonal, DDD, CQRS,<br />workflow orchestration</div>"]
     style 6 fill:#1168bd,stroke:#0b4884,color:#ffffff
 
     6-. "<div>Loads runtime config</div><div style='font-size: 70%'>[Consul KV (watch / @RefreshScope)]</div>" .->5
@@ -26,6 +26,7 @@ graph TB
     6-. "<div>Probes / converges</div><div style='font-size: 70%'>[Corridor (Artemis primary / Kafka fallback)]</div>" .->3
     6-. "<div>Core banking operations via<br />corridor</div><div style='font-size: 70%'>[Corridor (Artemis primary / Kafka fallback)]</div>" .->3
     6-. "<div>Exports traces / metrics /<br />logs</div><div style='font-size: 70%'>[OTLP http/protobuf]</div>" .->4
+    6-. "<div>Calls</div><div style='font-size: 70%'>[Corridor (Artemis primary / Kafka fallback)]</div>" .->3
     24-. "<div>Operates via OPS endpoints<br />(/v1/ops/*) and MCP ops tools</div><div style='font-size: 70%'>[HTTPS / JWT (sub-claim allowlist)]</div>" .->6
 
   end

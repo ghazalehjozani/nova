@@ -185,6 +185,10 @@ TradeLoanService.TradeLoanApplication --> TradeLoanService.Kafka <<Relationship-
 TradeLoanService.TradeLoanApplication --> TradeLoanService.PostgreSQLDatabase <<Relationship-UmVsYXRpb25zaGlw>> : "Reads reconciliation state\n<size:16>[JDBC/HikariCP]</size>"
 TradeLoanService.TradeLoanApplication --> FCBCoreBanking <<Relationship-UmVsYXRpb25zaGlw>> : "Probes / converges\n<size:16>[Corridor (Artemis primary / Kafka fallback)]</size>"
 TradeLoanService.TradeLoanApplication --> OpenTelemetryCollector <<Relationship-UmVsYXRpb25zaGlw>> : "Exports traces / metrics / logs\n<size:16>[OTLP http/protobuf]</size>"
+TradeLoanService.TradeLoanApplication --> FCBCoreBanking <<Relationship-UmVsYXRpb25zaGlw>> : "Calls\n<size:16>[Corridor (Artemis primary / Kafka fallback)]</size>"
 OperatorAdmin --> TradeLoanService.TradeLoanApplication <<Relationship-UmVsYXRpb25zaGlw>> : "Operates via OPS endpoints (/v1/ops/*) and MCP ops tools\n<size:16>[HTTPS / JWT (sub-claim allowlist)]</size>"
+TradeLoanService.TradeLoanApplication --> TradeLoanService.PostgreSQLDatabase <<Relationship-UmVsYXRpb25zaGlw>> : "Persists\n<size:16>[JDBC/HikariCP]</size>"
+TradeLoanService.TradeLoanApplication --> TradeLoanService.Kafka <<Relationship-UmVsYXRpb25zaGlw>> : "Emits events (outbox)\n<size:16>[Kafka (SASL/SCRAM)]</size>"
+TradeLoanService.TradeLoanApplication --> TradeLoanService.PostgreSQLDatabase <<Relationship-UmVsYXRpb25zaGlw>> : "Durable workflow state (workflow_run, workflow_compensation)\n<size:16>[JDBC/HikariCP]</size>"
 
 @enduml

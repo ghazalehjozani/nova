@@ -79,9 +79,13 @@ ArchitectureGenerator.main(outputDir = documents/c4)        # arg = ${project.ba
   ├─ ModelBuilder.wireExternalSystemUsage()       # ESB → Trade Loan Application
   ├─ ModelBuilder.wireComponentInfrastructure()   # tag-based: repo→PG, outbox/consumer→Kafka,
   │                                                # recon→PG/FCB, client→FCB+Artemis/Kafka
+  ├─ ModelBuilder.wireWorkflows()                  # CURATED: adds workflow steps (DefaultConfig.workflows()),
+  │                                                # sequences them, wires REMOTE→FCB / WRITE|PUBLISH→PG,
+  │                                                # orchestrator→PG durable state, →compensation handler
   ├─ ViewBuilder.buildAllViews()    # SystemContext, Containers, Components(_2.._4), Controllers,
   │                                 # Handlers, DomainModel, Repositories, ExternalClients, Messaging,
-  │                                 # Mcp, Reconciliation, CommandFlow, QueryFlow, WorkflowFlow
+  │                                 # Mcp, Reconciliation, CommandFlow, QueryFlow, WorkflowFlow,
+  │                                 # Workflow (+ per-workflow: IssueContract/LumpSum/Irregular/Regular)
   ├─ StyleBuilder.applyAllStyles()
   └─ AdrImporter.importAdrs(workspace, adrPath)   # walks up to 5 parents for documents/adr/
 
@@ -120,6 +124,31 @@ When extending:
 5. **Verify after change**: `make c4`, then read the stdout (`📦 Class directories scanned: N`,
    `🔍 Total discovered: N`). A category dropping to 0 means a naming convention broke, a module dep was
    missed/test-scoped, or two matchers collided (look for `⚠️ Component discovery error: … already exists`).
+
+## Curated workflows (the `WORKFLOW` tag)
+
+Workflow orchestration (issue-contract, the disbursements) is modelled **explicitly**, not auto-discovered:
+the pangaea workflow-api step classes (`*Step` implementing `ReadActivity`/`RemoteActivity`/`WriteActivity`/
+`PublishingWriteActivity`) share simple names across use cases (three different `ValidateFacilityStep`), so
+bytecode discovery would collide and abort the finder. Instead:
+
+- `DefaultConfig.workflows()` declares each workflow: orchestrator type, compensation type, `durable` flag,
+  and the ordered `WorkflowStepConfig` steps (`READ`/`REMOTE`/`WRITE`/`PUBLISH` + `compensable`).
+- `ModelBuilder.wireWorkflows()` reuses the auto-discovered orchestrator + compensation handlers (by type),
+  adds each step as a component (name `"<short> — <label>"`, tagged `WORKFLOW`, `COMPENSATION` if a revert/
+  compensable step), sequences them, and wires `REMOTE→FCB`, `WRITE|PUBLISH→PostgreSQL`, `PUBLISH→Kafka`,
+  plus orchestrator→PostgreSQL `Durable workflow state (workflow_run, workflow_compensation)`.
+- `ViewBuilder` emits a combined `Workflow` view + one detail view per workflow.
+
+To add/change a workflow, edit `DefaultConfig.workflows()` to mirror `core/application/service/<usecase>`.
+Step component names must stay unique (the `<short>` prefix per workflow keeps them so).
+
+## Viewing / deploying the model
+
+`../run-structurizr.sh` (Structurizr Lite) fixes the bind-mount permissions before launch and honours
+`STRUCTURIZR_PORT` / `STRUCTURIZR_IMAGE` / `DETACH=1`. `../docker-compose.yml` runs the same viewer as a
+long-running service. The `deploy-c4-viewer` CI job (manual, `allow_failure`) ships `documents/c4/` to the
+Nova deploy host and starts that compose file. See `../README.md`.
 
 ## ADR Import
 

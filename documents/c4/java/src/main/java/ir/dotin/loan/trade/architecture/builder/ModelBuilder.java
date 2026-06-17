@@ -3,8 +3,12 @@ package ir.dotin.loan.trade.architecture.builder;
 import com.structurizr.model.*;
 
 import ir.dotin.loan.trade.architecture.config.ArchitectureConfig;
+import ir.dotin.loan.trade.architecture.config.ArchitectureConfig.StepKind;
 import ir.dotin.loan.trade.architecture.config.ArchitectureConfig.UsesConfig;
+import ir.dotin.loan.trade.architecture.config.ArchitectureConfig.WorkflowConfig;
+import ir.dotin.loan.trade.architecture.config.ArchitectureConfig.WorkflowStepConfig;
 import ir.dotin.loan.trade.architecture.config.ArchitectureConstants.Containers;
+import ir.dotin.loan.trade.architecture.config.ArchitectureConstants.Systems;
 import ir.dotin.loan.trade.architecture.config.ArchitectureConstants.Tags;
 import ir.dotin.loan.trade.architecture.config.ArchitectureConstants.Technologies;
 
@@ -173,6 +177,90 @@ public class ModelBuilder {
         if (lower.contains("kafka") && kafka != null && !hasRelationship(component, kafka)) {
             component.uses(kafka, "Request/reply (fallback)", Technologies.KAFKA_PROTOCOL);
         }
+    }
+
+    /**
+     * Adds the curated workflow internals: ordered step components, their sequence, infra touch-points, durable
+     * workflow state, and the compensation handler link. The orchestrator + compensation handlers are reused from
+     * auto-discovery (reused by type, not re-added, to avoid duplicate-name collisions).
+     */
+    public void wireWorkflows(Container container) {
+        if (config.workflows() == null) return;
+        var system = container.getSoftwareSystem();
+        var postgres = system.getContainerWithName(Containers.POSTGRESQL_DATABASE);
+        var kafka = system.getContainerWithName(Containers.KAFKA);
+        var fcb = model.getSoftwareSystemWithName(Systems.FCB_CORE_BANKING);
+
+        config.workflows().forEach(wf -> {
+            var orchestrator = findComponentByType(container, wf.orchestratorType());
+            Component previous = orchestrator;
+
+            for (WorkflowStepConfig step : wf.steps()) {
+                var name = stepComponentName(wf, step);
+                var stepComponent = container.getComponentWithName(name);
+                if (stepComponent == null) {
+                    stepComponent = container.addComponent(name, step.description(), technologyFor(step.kind()));
+                }
+                if (stepComponent == null) continue;
+
+                stepComponent.addTags(Tags.WORKFLOW);
+                if (step.compensable() || step.kind() == StepKind.COMPENSATION) {
+                    stepComponent.addTags(Tags.COMPENSATION);
+                }
+
+                if (previous != null && !hasRelationship(previous, stepComponent)) {
+                    previous.uses(stepComponent, previous == orchestrator ? "Starts" : "Then");
+                }
+
+                if (step.kind() == StepKind.REMOTE && fcb != null && !hasRelationship(stepComponent, fcb)) {
+                    stepComponent.uses(fcb, "Calls", Technologies.CORRIDOR);
+                }
+                if ((step.kind() == StepKind.WRITE || step.kind() == StepKind.PUBLISH)
+                        && postgres != null
+                        && !hasRelationship(stepComponent, postgres)) {
+                    stepComponent.uses(postgres, "Persists", Technologies.JDBC);
+                }
+                if (step.kind() == StepKind.PUBLISH && kafka != null && !hasRelationship(stepComponent, kafka)) {
+                    stepComponent.uses(kafka, "Emits events (outbox)", Technologies.KAFKA_PROTOCOL);
+                }
+                previous = stepComponent;
+            }
+
+            if (wf.durable() && orchestrator != null && postgres != null && !hasRelationship(orchestrator, postgres)) {
+                orchestrator.uses(postgres, Technologies.WF_DURABLE_STATE, Technologies.JDBC);
+            }
+            if (wf.compensationType() != null && orchestrator != null) {
+                var compensation = findComponentByType(container, wf.compensationType());
+                if (compensation != null && !hasRelationship(orchestrator, compensation)) {
+                    orchestrator.uses(compensation, "Compensates on failure");
+                }
+            }
+        });
+    }
+
+    /** Stable display name for a curated workflow step — must match what ViewBuilder looks up. */
+    public static String stepComponentName(WorkflowConfig wf, WorkflowStepConfig step) {
+        return wf.shortName() + " — " + step.label();
+    }
+
+    /** Find an auto-discovered component by its source simple type name (component names are humanized). */
+    public static Component findComponentByType(Container container, String simpleType) {
+        if (simpleType == null) return null;
+        return container.getComponents().stream()
+                .filter(c -> c.getName() != null
+                        && c.getName().replace(" ", "").equalsIgnoreCase(simpleType))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private static String technologyFor(StepKind kind) {
+        return switch (kind) {
+            case READ -> Technologies.WF_READ_STEP;
+            case REMOTE -> Technologies.WF_REMOTE_STEP;
+            case WRITE -> Technologies.WF_WRITE_STEP;
+            case PUBLISH -> Technologies.WF_PUBLISH_STEP;
+            case COMPENSATION -> Technologies.WF_COMPENSATION_STEP;
+        };
     }
 
     private void addOutboundRelationship(SoftwareSystem mainSystem, StaticStructureElement source, UsesConfig uses) {

@@ -1,0 +1,25 @@
+graph TB
+  linkStyle default fill:#ffffff
+
+  subgraph diagram ["Component View: Trade Loan Service - Trade Loan Application"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    subgraph 6 ["Trade Loan Service"]
+      style 6 fill:#ffffff,stroke:#0b4884,color:#0b4884
+
+      subgraph 7 ["Trade Loan Application"]
+        style 7 fill:#ffffff,stroke:#2e6295,color:#2e6295
+
+        276["<div style='font-weight: bold'>Irregular Disb. — Post Transactions</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow remote step (FCB corridor)]</div><div style='font-size: 80%; margin-top:10px'>Post the disbursement<br />transactions to FCB</div>"]
+        style 276 fill:#ef5350,stroke:#a73a38,color:#ffffff
+        279["<div style='font-weight: bold'>Irregular Disb. — Apply Disbursement</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow publishing-write step]</div><div style='font-size: 80%; margin-top:10px'>Apply irregular-progressive<br />disbursement, persist +<br />publish</div>"]
+        style 279 fill:#ef5350,stroke:#a73a38,color:#ffffff
+        285["<div style='font-weight: bold'>Regular Disb. — Apply Regular Disbursement</div><div style='font-size: 70%; margin-top: 0px'>[Component: Workflow publishing-write step]</div><div style='font-size: 80%; margin-top:10px'>Single atomic write<br />(ephemeral workflow, no<br />durable run row)</div>"]
+        style 285 fill:#ab47bc,stroke:#773183,color:#ffffff
+      end
+
+    end
+
+    276-. "<div>Then</div><div style='font-size: 70%'></div>" .->279
+
+  end

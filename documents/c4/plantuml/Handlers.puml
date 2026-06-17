@@ -36,6 +36,14 @@ hide stereotype
     Shadowing: 0;
     MaximumWidth: 450;
   }
+  // Relationship
+  .Relationship-UmVsYXRpb25zaGlw {
+    LineThickness: 2;
+    LineStyle: 10-10;
+    LineColor: #707070;
+    FontColor: #707070;
+    FontSize: 24;
+  }
   // Trade Loan Application
   .Boundary-VHJhZGUgTG9hbiBBcHBsaWNhdGlvbg== {
     BackgroundColor: #ffffff;
@@ -95,5 +103,9 @@ rectangle "Trade Loan Service\n<size:16>[Software System]</size>" <<Boundary-VHJ
   }
 
 }
+
+TradeLoanService.TradeLoanApplication.IssueFacilityContractCommandHandler --> TradeLoanService.TradeLoanApplication.CompensateContractIssuanceCommandHandler <<Relationship-UmVsYXRpb25zaGlw>> : "Compensates on failure"
+TradeLoanService.TradeLoanApplication.LumpSumDisbursementCommandHandler --> TradeLoanService.TradeLoanApplication.CompensateLumpSumDisbursementCommandHandler <<Relationship-UmVsYXRpb25zaGlw>> : "Compensates on failure"
+TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementCommandHandler --> TradeLoanService.TradeLoanApplication.CompensateIrregularDisbursementCommandHandler <<Relationship-UmVsYXRpb25zaGlw>> : "Compensates on failure"
 
 @enduml

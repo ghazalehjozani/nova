@@ -112,7 +112,7 @@ person "==Operator / Admin\n<size:16>[Person]</size>\n\nBank operations / admini
 rectangle "==FCB Core Banking\n<size:16>[Software System]</size>\n\nLegacy core banking — accounts, postings, collateral, sanctions" <<Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLENvcmUgQmFua2luZw==>> as FCBCoreBanking
 rectangle "==OpenTelemetry Collector\n<size:16>[Software System]</size>\n\nOpenTelemetry collector — traces, metrics, logs" <<Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLE9ic2VydmFiaWxpdHk=>> as OpenTelemetryCollector
 rectangle "==Consul\n<size:16>[Software System]</size>\n\nRuntime configuration store (Consul KV, fed by GitOps)" <<Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLENvbmZpZw==>> as Consul
-rectangle "==Trade Loan Service\n<size:16>[Software System]</size>\n\nMorabehe trade-loan microservice — hexagonal, DDD, CQRS, workflow orchestration" <<Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0=>> as TradeLoanService
+rectangle "==Trade Loan Service\n<size:16>[Software System]</size>\n\ntrade-loan microservice — hexagonal, DDD, CQRS, workflow orchestration" <<Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0=>> as TradeLoanService
 
 TradeLoanService --> Consul <<Relationship-UmVsYXRpb25zaGlw>> : "Loads runtime config\n<size:16>[Consul KV (watch / @RefreshScope)]</size>"
 ESB --> TradeLoanService <<Relationship-UmVsYXRpb25zaGlw>> : "Business loan-lifecycle requests\n<size:16>[REST (SWA-101) / JWT]</size>"
@@ -121,6 +121,7 @@ TradeLoanService --> FCBCoreBanking <<Relationship-UmVsYXRpb25zaGlw>> : "Calls (
 TradeLoanService --> FCBCoreBanking <<Relationship-UmVsYXRpb25zaGlw>> : "Probes / converges\n<size:16>[Corridor (Artemis primary / Kafka fallback)]</size>"
 TradeLoanService --> FCBCoreBanking <<Relationship-UmVsYXRpb25zaGlw>> : "Core banking operations via corridor\n<size:16>[Corridor (Artemis primary / Kafka fallback)]</size>"
 TradeLoanService --> OpenTelemetryCollector <<Relationship-UmVsYXRpb25zaGlw>> : "Exports traces / metrics / logs\n<size:16>[OTLP http/protobuf]</size>"
+TradeLoanService --> FCBCoreBanking <<Relationship-UmVsYXRpb25zaGlw>> : "Calls\n<size:16>[Corridor (Artemis primary / Kafka fallback)]</size>"
 OperatorAdmin --> TradeLoanService <<Relationship-UmVsYXRpb25zaGlw>> : "Operates via OPS endpoints (/v1/ops/*) and MCP ops tools\n<size:16>[HTTPS / JWT (sub-claim allowlist)]</size>"
 
 @enduml

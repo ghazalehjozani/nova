@@ -105,29 +105,23 @@ public class ComponentDiscovery {
             String tech = c.getTechnology() == null ? "" : c.getTechnology();
             String name = c.getName() == null ? "" : c.getName();
 
-            if (Technologies.SPRING_REST.equals(tech)) {
-                c.addTags(Tags.CONTROLLER, name.toLowerCase().contains("query") ? Tags.QUERY : Tags.COMMAND);
-            } else if (Technologies.COMMAND_HANDLER.equals(tech)) {
-                c.addTags(Tags.HANDLER, Tags.COMMAND);
-                if (name.startsWith("Compensate")) c.addTags(Tags.COMPENSATION);
-            } else if (Technologies.QUERY_HANDLER.equals(tech)) {
-                c.addTags(Tags.HANDLER, Tags.QUERY);
-            } else if (Technologies.SPRING_DATA_JPA.equals(tech)) {
-                c.addTags(Tags.REPOSITORY, name.endsWith("QueryAdapter") ? Tags.QUERY : Tags.PERSISTENCE);
-            } else if (Technologies.OUTBOX_PATTERN.equals(tech)) {
-                c.addTags(Tags.OUTBOX, Tags.MESSAGING);
-            } else if (Technologies.SPRING_KAFKA.equals(tech)) {
-                c.addTags(Tags.CONSUMER, Tags.MESSAGING);
-            } else if (Technologies.MCP_TOOL.equals(tech)) {
-                c.addTags(Tags.MCP);
-            } else if (Technologies.FCB_CLIENT.equals(tech)) {
-                c.addTags(Tags.CLIENT, Tags.EXTERNAL);
-            } else if (Technologies.RECON_COMPONENT.equals(tech)) {
-                c.addTags(Tags.RECONCILIATION);
-            } else if (Technologies.DDD_AGGREGATE.equals(tech)) {
-                c.addTags(Tags.DOMAIN, Tags.AGGREGATE);
-            } else if (Technologies.DDD_SERVICE.equals(tech)) {
-                c.addTags(Tags.DOMAIN, Tags.SERVICE);
+            switch (tech) {
+                case Technologies.SPRING_REST ->
+                        c.addTags(Tags.CONTROLLER, name.toLowerCase().contains("query") ? Tags.QUERY : Tags.COMMAND);
+                case Technologies.COMMAND_HANDLER -> {
+                    c.addTags(Tags.HANDLER, Tags.COMMAND);
+                    if (name.startsWith("Compensate")) c.addTags(Tags.COMPENSATION);
+                }
+                case Technologies.QUERY_HANDLER -> c.addTags(Tags.HANDLER, Tags.QUERY);
+                case Technologies.SPRING_DATA_JPA ->
+                        c.addTags(Tags.REPOSITORY, name.endsWith("QueryAdapter") ? Tags.QUERY : Tags.PERSISTENCE);
+                case Technologies.OUTBOX_PATTERN -> c.addTags(Tags.OUTBOX, Tags.MESSAGING);
+                case Technologies.SPRING_KAFKA -> c.addTags(Tags.CONSUMER, Tags.MESSAGING);
+                case Technologies.MCP_TOOL -> c.addTags(Tags.MCP);
+                case Technologies.FCB_CLIENT -> c.addTags(Tags.CLIENT, Tags.EXTERNAL);
+                case Technologies.RECON_COMPONENT -> c.addTags(Tags.RECONCILIATION);
+                case Technologies.DDD_AGGREGATE -> c.addTags(Tags.DOMAIN, Tags.AGGREGATE);
+                case Technologies.DDD_SERVICE -> c.addTags(Tags.DOMAIN, Tags.SERVICE);
             }
         }
     }

@@ -3,7 +3,7 @@ digraph {
   graph [fontname="Arial", rankdir=TB, ranksep=1.0, nodesep=1.0]
   node [fontname="Arial", shape=box, margin="0.4,0.3"]
   edge [fontname="Arial"]
-  label=<<br /><font point-size="34">Component View: Trade Loan Service - Trade Loan Application</font><br /><font point-size="24">Components (page 2/4)</font>>
+  label=<<br /><font point-size="34">Component View: Trade Loan Service - Trade Loan Application</font><br /><font point-size="24">Components (page 2/5)</font>>
 
   subgraph cluster_6 {
     margin=25
@@ -54,5 +54,8 @@ digraph {
     }
 
   }
+
+  63 -> 64 [id=256, label=<<font point-size="24">Compensates on failure</font>>, style="dashed", color="#707070", fontcolor="#707070"]
+  66 -> 67 [id=270, label=<<font point-size="24">Compensates on failure</font>>, style="dashed", color="#707070", fontcolor="#707070"]
 
 }

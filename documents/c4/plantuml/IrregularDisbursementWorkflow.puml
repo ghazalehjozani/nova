@@ -1,0 +1,144 @@
+@startuml
+title <size:24>Component View: Trade Loan Service - Trade Loan Application</size>\n<size:24>Irregular-Progressive Disbursement — durable workflow</size>
+
+set separator none
+left to right direction
+skinparam ranksep 80
+skinparam nodesep 30
+hide stereotype
+
+<style>
+  root {
+    BackgroundColor: #ffffff;
+    FontColor: #444444;
+  }
+  // Element,Component,Handler
+  .Element-RWxlbWVudCxDb21wb25lbnQsSGFuZGxlcg== {
+    BackgroundColor: #42a5f5;
+    LineColor: #2e73ab;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Component,Handler,Compensation
+  .Element-RWxlbWVudCxDb21wb25lbnQsSGFuZGxlcixDb21wZW5zYXRpb24= {
+    BackgroundColor: #ef5350;
+    LineColor: #a73a38;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Component,Workflow
+  .Element-RWxlbWVudCxDb21wb25lbnQsV29ya2Zsb3c= {
+    BackgroundColor: #ab47bc;
+    LineColor: #773183;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Component,Workflow,Compensation
+  .Element-RWxlbWVudCxDb21wb25lbnQsV29ya2Zsb3csQ29tcGVuc2F0aW9u {
+    BackgroundColor: #ef5350;
+    LineColor: #a73a38;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Container,Database
+  .Element-RWxlbWVudCxDb250YWluZXIsRGF0YWJhc2U= {
+    BackgroundColor: #438dd5;
+    LineColor: #2e6295;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Software System,External System,Core Banking
+  .Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLENvcmUgQmFua2luZw== {
+    BackgroundColor: #8d6e63;
+    LineColor: #624d45;
+    LineStyle: 10-10;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Relationship
+  .Relationship-UmVsYXRpb25zaGlw {
+    LineThickness: 2;
+    LineStyle: 10-10;
+    LineColor: #707070;
+    FontColor: #707070;
+    FontSize: 24;
+  }
+  // Trade Loan Application
+  .Boundary-VHJhZGUgTG9hbiBBcHBsaWNhdGlvbg== {
+    BackgroundColor: #ffffff;
+    LineColor: #2e6295;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+  // Trade Loan Service
+  .Boundary-VHJhZGUgTG9hbiBTZXJ2aWNl {
+    BackgroundColor: #ffffff;
+    LineColor: #0b4884;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+  }
+</style>
+
+rectangle "==FCB Core Banking\n<size:16>[Software System]</size>\n\nLegacy core banking — accounts, postings, collateral, sanctions" <<Element-RWxlbWVudCxTb2Z0d2FyZSBTeXN0ZW0sRXh0ZXJuYWwgU3lzdGVtLENvcmUgQmFua2luZw==>> as FCBCoreBanking
+
+rectangle "Trade Loan Service\n<size:16>[Software System]</size>" <<Boundary-VHJhZGUgTG9hbiBTZXJ2aWNl>> {
+  rectangle "Trade Loan Application\n<size:16>[Container: Java 25, Spring Boot 4]</size>" <<Boundary-VHJhZGUgTG9hbiBBcHBsaWNhdGlvbg==>> {
+    rectangle "==Irregular Disb. — Validate Facility\n<size:16>[Component: Workflow read step]</size>\n\nValidate method == IRREGULAR_PROGRESSIVE" <<Element-RWxlbWVudCxDb21wb25lbnQsV29ya2Zsb3c=>> as TradeLoanService.TradeLoanApplication.IrregularDisbValidateFacility
+    rectangle "==Irregular Disb. — Resolve Accounts\n<size:16>[Component: Workflow remote step (FCB corridor)]</size>\n\nResolve/open FCB accounts for the disbursement" <<Element-RWxlbWVudCxDb21wb25lbnQsV29ya2Zsb3csQ29tcGVuc2F0aW9u>> as TradeLoanService.TradeLoanApplication.IrregularDisbResolveAccounts
+    rectangle "==Irregular Disb. — Post Transactions\n<size:16>[Component: Workflow remote step (FCB corridor)]</size>\n\nPost the disbursement transactions to FCB" <<Element-RWxlbWVudCxDb21wb25lbnQsV29ya2Zsb3csQ29tcGVuc2F0aW9u>> as TradeLoanService.TradeLoanApplication.IrregularDisbPostTransactions
+    rectangle "==Irregular Disb. — Apply Disbursement\n<size:16>[Component: Workflow publishing-write step]</size>\n\nApply irregular-progressive disbursement, persist + publish" <<Element-RWxlbWVudCxDb21wb25lbnQsV29ya2Zsb3csQ29tcGVuc2F0aW9u>> as TradeLoanService.TradeLoanApplication.IrregularDisbApplyDisbursement
+    rectangle "==Irregular Progressive Disbursement Command Handler\n<size:16>[Component: Command Handler]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsSGFuZGxlcg==>> as TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementCommandHandler
+    rectangle "==Compensate Irregular Disbursement Command Handler\n<size:16>[Component: Command Handler]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsSGFuZGxlcixDb21wZW5zYXRpb24=>> as TradeLoanService.TradeLoanApplication.CompensateIrregularDisbursementCommandHandler
+  }
+
+  database "==PostgreSQL Database\n<size:16>[Container: PostgreSQL 18]</size>\n\nLoan data, inbox/outbox, workflow state, audit, reconciliation" <<Element-RWxlbWVudCxDb250YWluZXIsRGF0YWJhc2U=>> as TradeLoanService.PostgreSQLDatabase
+}
+
+TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementCommandHandler --> TradeLoanService.TradeLoanApplication.IrregularDisbValidateFacility <<Relationship-UmVsYXRpb25zaGlw>> : "Starts"
+TradeLoanService.TradeLoanApplication.IrregularDisbValidateFacility --> TradeLoanService.TradeLoanApplication.IrregularDisbResolveAccounts <<Relationship-UmVsYXRpb25zaGlw>> : "Then"
+TradeLoanService.TradeLoanApplication.IrregularDisbResolveAccounts --> FCBCoreBanking <<Relationship-UmVsYXRpb25zaGlw>> : "Calls\n<size:16>[Corridor (Artemis primary / Kafka fallback)]</size>"
+TradeLoanService.TradeLoanApplication.IrregularDisbResolveAccounts --> TradeLoanService.TradeLoanApplication.IrregularDisbPostTransactions <<Relationship-UmVsYXRpb25zaGlw>> : "Then"
+TradeLoanService.TradeLoanApplication.IrregularDisbPostTransactions --> FCBCoreBanking <<Relationship-UmVsYXRpb25zaGlw>> : "Calls\n<size:16>[Corridor (Artemis primary / Kafka fallback)]</size>"
+TradeLoanService.TradeLoanApplication.IrregularDisbPostTransactions --> TradeLoanService.TradeLoanApplication.IrregularDisbApplyDisbursement <<Relationship-UmVsYXRpb25zaGlw>> : "Then"
+TradeLoanService.TradeLoanApplication.IrregularDisbApplyDisbursement --> TradeLoanService.PostgreSQLDatabase <<Relationship-UmVsYXRpb25zaGlw>> : "Persists\n<size:16>[JDBC/HikariCP]</size>"
+TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementCommandHandler --> TradeLoanService.PostgreSQLDatabase <<Relationship-UmVsYXRpb25zaGlw>> : "Durable workflow state (workflow_run, workflow_compensation)\n<size:16>[JDBC/HikariCP]</size>"
+TradeLoanService.TradeLoanApplication.IrregularProgressiveDisbursementCommandHandler --> TradeLoanService.TradeLoanApplication.CompensateIrregularDisbursementCommandHandler <<Relationship-UmVsYXRpb25zaGlw>> : "Compensates on failure"
+
+@enduml

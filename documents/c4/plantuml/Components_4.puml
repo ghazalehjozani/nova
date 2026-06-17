@@ -1,5 +1,5 @@
 @startuml
-title <size:24>Component View: Trade Loan Service - Trade Loan Application</size>\n<size:24>Components (page 4/4)</size>
+title <size:24>Component View: Trade Loan Service - Trade Loan Application</size>\n<size:24>Components (page 4/5)</size>
 
 set separator none
 top to bottom direction
@@ -40,6 +40,30 @@ hide stereotype
   .Element-RWxlbWVudCxDb21wb25lbnQsUmVjb25jaWxpYXRpb24= {
     BackgroundColor: #9575cd;
     LineColor: #68518f;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Component,Workflow
+  .Element-RWxlbWVudCxDb21wb25lbnQsV29ya2Zsb3c= {
+    BackgroundColor: #ab47bc;
+    LineColor: #773183;
+    LineStyle: 0;
+    LineThickness: 2;
+    FontColor: #ffffff;
+    FontSize: 24;
+    HorizontalAlignment: center;
+    Shadowing: 0;
+    MaximumWidth: 450;
+  }
+  // Element,Component,Workflow,Compensation
+  .Element-RWxlbWVudCxDb21wb25lbnQsV29ya2Zsb3csQ29tcGVuc2F0aW9u {
+    BackgroundColor: #ef5350;
+    LineColor: #a73a38;
     LineStyle: 0;
     LineThickness: 2;
     FontColor: #ffffff;
@@ -102,6 +126,16 @@ rectangle "Trade Loan Service\n<size:16>[Software System]</size>" <<Boundary-VHJ
     rectangle "==Trade Loan Facility Service\n<size:16>[Component: Domain Service]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsRG9tYWluLFNlcnZpY2U=>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityService
     rectangle "==Trade Sanction Validation Service\n<size:16>[Component: Domain Service]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsRG9tYWluLFNlcnZpY2U=>> as TradeLoanService.TradeLoanApplication.TradeSanctionValidationService
     rectangle "==Trade Loan Facility Validation Service\n<size:16>[Component: Domain Service]</size>" <<Element-RWxlbWVudCxDb21wb25lbnQsRG9tYWluLFNlcnZpY2U=>> as TradeLoanService.TradeLoanApplication.TradeLoanFacilityValidationService
+    rectangle "==Issue Contract — Validate Facility\n<size:16>[Component: Workflow read step]</size>\n\nRead-side validation that the facility can issue a contract" <<Element-RWxlbWVudCxDb21wb25lbnQsV29ya2Zsb3c=>> as TradeLoanService.TradeLoanApplication.IssueContractValidateFacility
+    rectangle "==Issue Contract — Open Accounts\n<size:16>[Component: Workflow remote step (FCB corridor)]</size>\n\nResolve/open FCB loan accounts per relation type" <<Element-RWxlbWVudCxDb21wb25lbnQsV29ya2Zsb3csQ29tcGVuc2F0aW9u>> as TradeLoanService.TradeLoanApplication.IssueContractOpenAccounts
+    rectangle "==Issue Contract — Post Transaction\n<size:16>[Component: Workflow remote step (FCB corridor)]</size>\n\nPost the contract-issuance transaction to FCB" <<Element-RWxlbWVudCxDb21wb25lbnQsV29ya2Zsb3csQ29tcGVuc2F0aW9u>> as TradeLoanService.TradeLoanApplication.IssueContractPostTransaction
+    rectangle "==Issue Contract — Update Facility State\n<size:16>[Component: Workflow publishing-write step]</size>\n\nApply issueContract to the aggregate, persist + publish events" <<Element-RWxlbWVudCxDb21wb25lbnQsV29ya2Zsb3csQ29tcGVuc2F0aW9u>> as TradeLoanService.TradeLoanApplication.IssueContractUpdateFacilityState
+    rectangle "==Lump-Sum — Validate Facility\n<size:16>[Component: Workflow read step]</size>\n\nValidate method == LUMP_SUM and disbursement date" <<Element-RWxlbWVudCxDb21wb25lbnQsV29ya2Zsb3c=>> as TradeLoanService.TradeLoanApplication.LumpSumValidateFacility
+    rectangle "==Lump-Sum — Resolve Accounts\n<size:16>[Component: Workflow remote step (FCB corridor)]</size>\n\nResolve/open FCB accounts for the disbursement" <<Element-RWxlbWVudCxDb21wb25lbnQsV29ya2Zsb3csQ29tcGVuc2F0aW9u>> as TradeLoanService.TradeLoanApplication.LumpSumResolveAccounts
+    rectangle "==Lump-Sum — Post Transactions\n<size:16>[Component: Workflow remote step (FCB corridor)]</size>\n\nPost the disbursement transactions to FCB" <<Element-RWxlbWVudCxDb21wb25lbnQsV29ya2Zsb3csQ29tcGVuc2F0aW9u>> as TradeLoanService.TradeLoanApplication.LumpSumPostTransactions
+    rectangle "==Lump-Sum — Apply Disbursement\n<size:16>[Component: Workflow publishing-write step]</size>\n\nActivate schedule + apply lump-sum disbursement, persist + publish" <<Element-RWxlbWVudCxDb21wb25lbnQsV29ya2Zsb3csQ29tcGVuc2F0aW9u>> as TradeLoanService.TradeLoanApplication.LumpSumApplyDisbursement
+    rectangle "==Irregular Disb. — Validate Facility\n<size:16>[Component: Workflow read step]</size>\n\nValidate method == IRREGULAR_PROGRESSIVE" <<Element-RWxlbWVudCxDb21wb25lbnQsV29ya2Zsb3c=>> as TradeLoanService.TradeLoanApplication.IrregularDisbValidateFacility
+    rectangle "==Irregular Disb. — Resolve Accounts\n<size:16>[Component: Workflow remote step (FCB corridor)]</size>\n\nResolve/open FCB accounts for the disbursement" <<Element-RWxlbWVudCxDb21wb25lbnQsV29ya2Zsb3csQ29tcGVuc2F0aW9u>> as TradeLoanService.TradeLoanApplication.IrregularDisbResolveAccounts
   }
 
 }
@@ -126,5 +160,12 @@ TradeLoanService.TradeLoanApplication.TradeLoanFacilityService --> TradeLoanServ
 TradeLoanService.TradeLoanApplication.TradeLoanFacilityService --> TradeLoanService.TradeLoanApplication.TradeLoanFacility <<Relationship-UmVsYXRpb25zaGlw>> : ""
 TradeLoanService.TradeLoanApplication.TradeLoanFacilityService --> TradeLoanService.TradeLoanApplication.TradeSanctionedLoan <<Relationship-UmVsYXRpb25zaGlw>> : ""
 TradeLoanService.TradeLoanApplication.TradeLoanFacilityValidationService --> TradeLoanService.TradeLoanApplication.TradeLoanArrangement <<Relationship-UmVsYXRpb25zaGlw>> : ""
+TradeLoanService.TradeLoanApplication.IssueContractValidateFacility --> TradeLoanService.TradeLoanApplication.IssueContractOpenAccounts <<Relationship-UmVsYXRpb25zaGlw>> : "Then"
+TradeLoanService.TradeLoanApplication.IssueContractOpenAccounts --> TradeLoanService.TradeLoanApplication.IssueContractPostTransaction <<Relationship-UmVsYXRpb25zaGlw>> : "Then"
+TradeLoanService.TradeLoanApplication.IssueContractPostTransaction --> TradeLoanService.TradeLoanApplication.IssueContractUpdateFacilityState <<Relationship-UmVsYXRpb25zaGlw>> : "Then"
+TradeLoanService.TradeLoanApplication.LumpSumValidateFacility --> TradeLoanService.TradeLoanApplication.LumpSumResolveAccounts <<Relationship-UmVsYXRpb25zaGlw>> : "Then"
+TradeLoanService.TradeLoanApplication.LumpSumResolveAccounts --> TradeLoanService.TradeLoanApplication.LumpSumPostTransactions <<Relationship-UmVsYXRpb25zaGlw>> : "Then"
+TradeLoanService.TradeLoanApplication.LumpSumPostTransactions --> TradeLoanService.TradeLoanApplication.LumpSumApplyDisbursement <<Relationship-UmVsYXRpb25zaGlw>> : "Then"
+TradeLoanService.TradeLoanApplication.IrregularDisbValidateFacility --> TradeLoanService.TradeLoanApplication.IrregularDisbResolveAccounts <<Relationship-UmVsYXRpb25zaGlw>> : "Then"
 
 @enduml
