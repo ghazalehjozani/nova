@@ -145,10 +145,12 @@ Step component names must stay unique (the `<short>` prefix per workflow keeps t
 
 ## Viewing / deploying the model
 
-`../run-structurizr.sh` (Structurizr Lite) fixes the bind-mount permissions before launch and honours
-`STRUCTURIZR_PORT` / `STRUCTURIZR_IMAGE` / `DETACH=1`. `../docker-compose.yml` runs the same viewer as a
-long-running service. The `deploy-c4-viewer` CI job (manual, `allow_failure`) ships `documents/c4/` to the
-Nova deploy host and starts that compose file. See `../README.md`.
+`../run-structurizr.sh` (Structurizr Lite) is the single source of the container lifecycle — no
+docker-compose. It `chmod`s the bind-mount first and honours `STRUCTURIZR_PORT` / `STRUCTURIZR_IMAGE`;
+`DETACH=1` runs it in the background (`docker rm -f nova-c4` then `docker run -d`). The `deploy-c4-viewer`
+CI job (manual, `allow_failure`) rsyncs `documents/c4/` into a `c4/` subdir of the Nova deploy path and runs
+the script there (standalone `docker run`, never touching Nova's `.env` / `docker-compose.yml`). See
+`../README.md`.
 
 ## ADR Import
 

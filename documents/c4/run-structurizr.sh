@@ -23,6 +23,9 @@ chmod -R a+rwX "$C4_DIR" 2>/dev/null || true
 
 if [[ "${DETACH:-0}" == "1" ]]; then
   RUN_FLAGS=(-d --restart unless-stopped --name nova-c4)
+  # Stop + remove any existing instance and recreate, so a redeploy onto an
+  # already-running viewer always serves the updated workspace.json (Structurizr
+  # Lite loads the workspace at container startup).
   docker rm -f nova-c4 >/dev/null 2>&1 || true
 else
   RUN_FLAGS=(-it --rm)

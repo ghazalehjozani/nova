@@ -619,8 +619,7 @@ public class FacilityConvergenceAction implements ConvergenceAction {
         return rows.stream()
                 .filter(r -> r.status() != null && r.eventId() != null)
                 .filter(r -> FacilityReconMapping.fcbRankForEvent(r.eventType()) == step)
-                .sorted(Comparator.comparingLong(
-                        r -> r.sequenceNumber() == null ? Long.MAX_VALUE : r.sequenceNumber()))
+                .sorted(Comparator.comparingLong(r -> r.sequenceNumber() == null ? Long.MAX_VALUE : r.sequenceNumber()))
                 .toList();
     }
 

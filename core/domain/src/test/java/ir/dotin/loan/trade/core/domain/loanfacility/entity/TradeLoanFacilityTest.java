@@ -95,8 +95,7 @@ class TradeLoanFacilityTest {
 
         @DisplayName("should fail when facility ID is null")
         @Test
-        void shouldFailWhenFacilityIdIsNull(
-                @Mock TradeLoanApplication application) {
+        void shouldFailWhenFacilityIdIsNull(@Mock TradeLoanApplication application) {
             // when & then
             assertThatThrownBy(() -> TradeLoanFacility.create(
                             null,
@@ -129,8 +128,7 @@ class TradeLoanFacilityTest {
 
         @DisplayName("should fail when loan arrangement id is null")
         @Test
-        void shouldFailWhenLoanArrangementIdIsNull(
-                @Mock TradeLoanApplication application) {
+        void shouldFailWhenLoanArrangementIdIsNull(@Mock TradeLoanApplication application) {
             // given
             var facilityId = LoanFacilityId.of(randomUUID());
 

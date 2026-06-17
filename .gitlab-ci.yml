@@ -104,9 +104,10 @@ integration-test:
 # Conflict-safety with Nova's own .env + docker-compose.yml in $DEPLOY_PATH:
 #   - the C4 content is isolated in the `c4/` SUBDIR of the deploy path, so
 #     rsync --delete only ever touches that subdir, never Nova's root files;
-#   - it runs as a SEPARATE compose project (`nova-c4`) with its own
-#     container_name + port (8090), so it cannot collide with Nova's compose
-#     project, container, or .env;
+#   - it is a standalone container `nova-c4` started with plain `docker run`
+#     (run-structurizr.sh DETACH=1 = `docker rm -f nova-c4` then `docker run -d`),
+#     its own port (8090) — NO docker-compose, so it cannot touch Nova's compose
+#     stack, container, or .env;
 #   - a guard refuses to run if the dest ever resolves to the deploy root.
 # Optional vars: C4_DEPLOY_PATH (default $DEPLOY_PATH/c4), C4_VIEWER_PORT (8090).
 # The C4 model is generated/committed via `make c4`, NOT in CI.
@@ -134,7 +135,7 @@ deploy-c4-viewer:
     - $SSH "${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}" "mkdir -p '${DEST}'"
     # --delete is safe: it only affects the dedicated c4 subdir, not Nova's .env / docker-compose.yml.
     - rsync -az --delete -e "$SSH" documents/c4/ "${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}:${DEST}/"
-    # Distinct compose project (`nova-c4`) so it never touches Nova's compose stack in $DEPLOY_PATH.
+    # Plain docker lifecycle (no compose): the script does `docker rm -f nova-c4` then `docker run -d`.
     - >-
       $SSH "${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}"
-      "cd '${DEST}' && chmod -R a+rwX . && STRUCTURIZR_PORT='${C4_VIEWER_PORT:-8090}' docker compose -p nova-c4 up -d"
+      "cd '${DEST}' && chmod -R a+rwX . && DETACH=1 STRUCTURIZR_PORT='${C4_VIEWER_PORT:-8090}' ./run-structurizr.sh"

@@ -31,19 +31,21 @@ Or open any `mermaid/*.mmd` in a Mermaid viewer, or `plantuml/*.puml` in a Plant
 
 ### Serving the viewer on a server
 
-`run-structurizr.sh` (configurable via `STRUCTURIZR_PORT` / `STRUCTURIZR_IMAGE`, `DETACH=1` for background)
-fixes the bind-mount permissions before launching. For a long-running viewer use the compose file:
+`run-structurizr.sh` is the single source of the container lifecycle — no docker-compose. With `DETACH=1`
+it runs the viewer in the background as a named container (`docker rm -f nova-c4` then `docker run -d`), and
+it `chmod`s the bind-mount first. Configurable via `STRUCTURIZR_PORT` / `STRUCTURIZR_IMAGE`:
 
 ```bash
-cd documents/c4 && docker compose up -d      # → http://<host>:8090
+cd documents/c4 && DETACH=1 STRUCTURIZR_PORT=8090 ./run-structurizr.sh   # → http://<host>:8090
+docker rm -f nova-c4                                                     # stop it
 ```
 
 In CI, the **`deploy-c4-viewer`** job (manual, non-blocking — `.gitlab-ci.yml`) rsyncs `documents/c4/` into
-the **same deploy directory as Nova** (reusing `DEPLOY_SSH_*` / `DEPLOY_PATH`) and starts the viewer there,
-so it lives next to the deployed service. It stays clear of Nova's own `.env` and `docker-compose.yml`: the
-C4 content goes in the dedicated `c4/` subdir, runs as a **separate compose project** (`nova-c4`) with its
-own container + port (8090), and a guard refuses to write at the deploy root. The model itself is generated
-and committed via `make c4`, not in CI.
+the **same deploy directory as Nova** (reusing `DEPLOY_SSH_*` / `DEPLOY_PATH`) and runs the script there, so
+the viewer lives next to the deployed service. It stays clear of Nova's own `.env` and `docker-compose.yml`:
+the C4 content goes in a dedicated `c4/` subdir, runs as a standalone `docker run` container (`nova-c4`, own
+port 8090, no compose), and a guard refuses to write at the deploy root. The model itself is generated and
+committed via `make c4`, not in CI.
 
 ## Diagram index
 

@@ -79,11 +79,7 @@ public class LoanFacilityTestFixture {
     }
 
     private TradeLoanApplicationEntity createApplication(
-            UUID applicationId,
-            String loanTypeCode,
-            String derivedValue,
-            String branchCode,
-            String customerNumber) {
+            UUID applicationId, String loanTypeCode, String derivedValue, String branchCode, String customerNumber) {
 
         TradeLoanApplicationEntity app = new TradeLoanApplicationEntity();
         app.setId(applicationId);

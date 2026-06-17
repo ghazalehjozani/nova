@@ -16,9 +16,7 @@ import ir.dotin.platform.pangaea.archunit.config.ArchUnitConfiguration;
  * truly bespoke adapter invariants stay in their own tests ({@code McpDrivingAdapterArchitectureTest},
  * {@code ReconciliationAdapterArchitectureTest}).
  */
-@AnalyzeClasses(
-        packages = "ir.dotin.loan.trade.adapters",
-        importOptions = ImportOption.DoNotIncludeTests.class)
+@AnalyzeClasses(packages = "ir.dotin.loan.trade.adapters", importOptions = ImportOption.DoNotIncludeTests.class)
 public class TradeLoanAdapterArchitectureTest extends BaseAdapterArchitectureTest {
 
     @Override

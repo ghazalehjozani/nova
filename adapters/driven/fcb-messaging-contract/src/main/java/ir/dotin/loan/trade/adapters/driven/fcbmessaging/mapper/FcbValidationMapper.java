@@ -474,7 +474,8 @@ public class FcbValidationMapper {
             int months = Integer.parseInt(value);
             return Period.ofMonths(months);
         } catch (NumberFormatException ignored) {
-            // neither ISO-8601 nor a plain month count -> unparseable, return null (caller guards as FCB_INVALID_RESPONSE)
+            // neither ISO-8601 nor a plain month count -> unparseable, return null (caller guards as
+            // FCB_INVALID_RESPONSE)
         }
         return null;
     }
