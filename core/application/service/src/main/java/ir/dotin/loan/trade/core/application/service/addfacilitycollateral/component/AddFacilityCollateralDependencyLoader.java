@@ -73,8 +73,7 @@ public class AddFacilityCollateralDependencyLoader {
                 CompletableFuture.supplyAsync(() -> loadSchedule(facility), ContextSnapshot.wrap(VIRTUAL_EXECUTOR));
 
         List<Supplier<Result<CollateralDetails>>> collateralTasks = collaterals.stream()
-                .map(c -> (Supplier<Result<CollateralDetails>>)
-                        () -> loadCollateralDetails(c.collateralSerial(), facility))
+                .map(c -> (Supplier<Result<CollateralDetails>>) () -> loadCollateralDetails(c.collateralSerial()))
                 .toList();
         CompletableFuture<Result<List<CollateralDetails>>> collateralDetailsFuture = CompletableFuture.supplyAsync(
                 () -> ParallelFanout.allOf(collateralTasks), ContextSnapshot.wrap(VIRTUAL_EXECUTOR));
@@ -155,7 +154,7 @@ public class AddFacilityCollateralDependencyLoader {
         return Result.success(facility.getInstallmentScheduleId().flatMap(installmentScheduleRepository::findById));
     }
 
-    private Result<CollateralDetails> loadCollateralDetails(CollateralSerial serial, TradeLoanFacility facility) {
+    private Result<CollateralDetails> loadCollateralDetails(CollateralSerial serial) {
         return collateralReadPort.loadCollateral(serial.value(), "");
     }
 

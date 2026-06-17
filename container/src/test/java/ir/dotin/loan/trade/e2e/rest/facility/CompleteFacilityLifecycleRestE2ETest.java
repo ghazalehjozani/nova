@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.e2e.rest.facility;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -103,7 +104,8 @@ class CompleteFacilityLifecycleRestE2ETest extends AbstractRestE2E {
         assertSuccess(contractResponse, objectMapper);
 
         // Step 5: Disburse (lump sum)
-        LumpSumDisbursementRequest disburseRequest = new LumpSumDisbursementRequest(4L, LocalDate.now(), Map.of());
+        LumpSumDisbursementRequest disburseRequest =
+                new LumpSumDisbursementRequest(4L, LocalDate.now(ZoneOffset.UTC), Map.of());
         ResponseEntity<String> disburseResponse =
                 postJson("/facilities/" + facilityId + "/disburse/lump-sum", disburseRequest);
         assertSuccess(disburseResponse, objectMapper);
@@ -161,9 +163,7 @@ class CompleteFacilityLifecycleRestE2ETest extends AbstractRestE2E {
                     return node.get(field).asText();
                 }
             }
-            var fields = node.fields();
-            while (fields.hasNext()) {
-                var entry = fields.next();
+            for (var entry : node.properties()) {
                 String result = findFacilityIdDeep(entry.getValue());
                 if (result != null) return result;
             }
@@ -202,21 +202,21 @@ class CompleteFacilityLifecycleRestE2ETest extends AbstractRestE2E {
                 new InstallmentSchedulePlanDto(List.of(
                         new InstallmentSpecDto(
                                 1,
-                                LocalDate.now().plusMonths(1),
+                                LocalDate.now(ZoneOffset.UTC).plusMonths(1),
                                 new BigDecimal("16666667"),
                                 new BigDecimal("750000"),
                                 null,
                                 null),
                         new InstallmentSpecDto(
                                 2,
-                                LocalDate.now().plusMonths(2),
+                                LocalDate.now(ZoneOffset.UTC).plusMonths(2),
                                 new BigDecimal("16666667"),
                                 new BigDecimal("625000"),
                                 null,
                                 null),
                         new InstallmentSpecDto(
                                 3,
-                                LocalDate.now().plusMonths(3),
+                                LocalDate.now(ZoneOffset.UTC).plusMonths(3),
                                 new BigDecimal("16666666"),
                                 new BigDecimal("500000"),
                                 null,

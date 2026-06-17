@@ -33,6 +33,7 @@ public class ApproveFacilityStep implements PublishingWriteActivity<ApproveFacil
     private final TradeLoanArrangementRepository loanArrangementRepository;
     private final ApprovalStrategyFactory strategyFactory;
 
+    @Override
     public StepResult<List<DomainEvent<?>>> execute(WorkflowContext<ApproveFacilityCommandHandler.Data> ctx) {
         ApproveFacilityCommand command = ctx.data().command();
         ApprovalPreparation prepared = ctx.data().prepared();

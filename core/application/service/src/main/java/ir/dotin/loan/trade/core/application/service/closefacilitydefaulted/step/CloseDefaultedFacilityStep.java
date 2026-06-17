@@ -30,6 +30,7 @@ public class CloseDefaultedFacilityStep implements PublishingWriteActivity<Close
     private final TradeLoanFacilityRepository repository;
     private final TradeLoanFacilityService domainService;
 
+    @Override
     public StepResult<List<DomainEvent<?>>> execute(WorkflowContext<CloseFacilityDefaultedCommandHandler.Data> ctx) {
         CloseFacilityDefaultedCommand command = ctx.data().command();
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());

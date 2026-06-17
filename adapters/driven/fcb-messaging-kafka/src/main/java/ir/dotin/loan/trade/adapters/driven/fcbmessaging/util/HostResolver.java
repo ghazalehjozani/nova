@@ -43,6 +43,7 @@ public class HostResolver {
                 return h.trim();
             }
         } catch (UnknownHostException ignored) {
+            // why: local-hostname lookup failed; fall through to the JVM runtime-name fallback below
         }
         try {
             String name = ManagementFactory.getRuntimeMXBean().getName();
@@ -51,6 +52,7 @@ public class HostResolver {
                 return name.substring(at + 1);
             }
         } catch (Throwable ignored) {
+            // why: runtime MXBean name unavailable/malformed; fall through to the UNKNOWN sentinel below
         }
         return UNKNOWN;
     }

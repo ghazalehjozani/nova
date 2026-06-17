@@ -9,7 +9,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import ir.dotin.platform.pangaea.commons.domain.annotation.DomainService;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.service.validator.SanctionValidationService;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Sanction;
 import ir.dotin.loan.trade.core.domain.loanarrangement.entity.TradeLoanArrangement;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
@@ -29,9 +28,6 @@ final class TradeSanctionValidationServiceTest {
 
     @Mock
     private Sanction mockSanction;
-
-    @Mock
-    private Collateral mockCollateral;
 
     private TradeSanctionValidationService validationService;
 

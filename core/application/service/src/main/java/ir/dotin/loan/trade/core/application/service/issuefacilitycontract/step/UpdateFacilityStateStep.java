@@ -32,6 +32,7 @@ public class UpdateFacilityStateStep implements PublishingWriteActivity<Contract
     private final TradeLoanFacilityRepository facilityRepository;
     private final Clock clock;
 
+    @Override
     public StepResult<List<DomainEvent<?>>> execute(WorkflowContext<ContractData> ctx) {
         var data = ctx.data();
 
@@ -54,6 +55,7 @@ public class UpdateFacilityStateStep implements PublishingWriteActivity<Contract
         return StepResult.fromWriteResult(result);
     }
 
+    @Override
     public StepResult<Void> compensate(WorkflowContext<ContractData> ctx) {
         var data = ctx.data();
 

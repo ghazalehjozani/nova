@@ -19,12 +19,10 @@ import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
-import ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.configuration.LumpSumDisbursementConfiguration;
 import ir.dotin.loan.trade.core.application.service.lumpsumdisbursement.workflow.LumpSumData;
 import ir.dotin.loan.trade.core.application.service.shared.disbursement.FacilityDependencyLoader;
 import ir.dotin.loan.trade.core.application.service.shared.disbursement.TransactionPostingSupport;
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
-import ir.dotin.loan.trade.core.domain.shared.document.transaction.TradeLumpSumDisbursementTransactionService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -41,15 +39,6 @@ class PostTransactionsStepTest {
 
     @Mock
     private TransactionPostingSupport transactionPostingSupport;
-
-    @Mock
-    private TradeLumpSumDisbursementTransactionService transactionService;
-
-    @Mock
-    private LumpSumDisbursementConfiguration configuration;
-
-    @Mock
-    private Clock clock;
 
     @InjectMocks
     private PostTransactionsStep step;

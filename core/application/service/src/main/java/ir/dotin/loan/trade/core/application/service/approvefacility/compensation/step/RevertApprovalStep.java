@@ -28,6 +28,7 @@ public class RevertApprovalStep implements PublishingWriteActivity<CompensateApp
     private final TradeLoanFacilityRepository repository;
     private final Clock clock;
 
+    @Override
     public StepResult<List<DomainEvent<?>>> execute(WorkflowContext<CompensateApprovalCommandHandler.Data> ctx) {
         CompensateApprovalCommand command = ctx.data().command();
 

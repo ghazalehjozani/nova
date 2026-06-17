@@ -30,6 +30,7 @@ public class RejectFacilityStep implements PublishingWriteActivity<RejectFacilit
     private final TradeLoanFacilityRepository repository;
     private final Clock clock;
 
+    @Override
     public StepResult<List<DomainEvent<?>>> execute(WorkflowContext<RejectFacilityCommandHandler.Data> ctx) {
         RejectFacilityCommand command = ctx.data().command();
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());

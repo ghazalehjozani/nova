@@ -23,6 +23,8 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
+// why: Error Prone 2.50.0 UnrecognisedJavadocTag is a false positive — it flags valid inline {@code}/{@link} tags in @ConfigurationProperties field javadoc under JDK 25; tags are well-formed.
+@SuppressWarnings("UnrecognisedJavadocTag")
 public final class ReconStateRequest extends FcbBaseRequest {
 
     @Builder.Default

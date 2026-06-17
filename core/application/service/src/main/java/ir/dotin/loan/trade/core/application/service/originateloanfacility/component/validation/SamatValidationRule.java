@@ -36,14 +36,13 @@ public class SamatValidationRule {
             return null;
         }
 
-        String trackingNumber = null;
         String isicEconomicSector = null;
         String subIsicEconomicSector = null;
         String useType = null;
         String exceptionCode = null;
         String consumptionPlaceCode = null;
 
-        trackingNumber = samatDto.trackingNumber();
+        String trackingNumber = samatDto.trackingNumber();
         if (samatDto.isicEconomicSector() != null) {
             isicEconomicSector = samatDto.isicEconomicSector();
         }

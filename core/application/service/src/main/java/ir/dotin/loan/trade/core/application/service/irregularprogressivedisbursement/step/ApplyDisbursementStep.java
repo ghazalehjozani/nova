@@ -44,6 +44,7 @@ public class ApplyDisbursementStep
     private final InstallmentScheduleRepository installmentScheduleRepository;
     private final Clock clock;
 
+    @Override
     public StepResult<List<DomainEvent<?>>> execute(WorkflowContext<IrregularDisbursementData> ctx) {
         var data = ctx.data();
 
@@ -74,6 +75,7 @@ public class ApplyDisbursementStep
         return StepResult.fromWriteResult(result);
     }
 
+    @Override
     public StepResult<Void> compensate(WorkflowContext<IrregularDisbursementData> ctx) {
         var data = ctx.data();
 

@@ -69,7 +69,7 @@ final class FacilityDossierBuilder {
     private NovaSnapshot novaSnapshot(
             FacilityStatus novaStatus, List<OutboxRecordView> rows, @Nullable String workflowState) {
         List<String> lastForwardEvents = rows.stream()
-                .sorted(Comparator.comparing(FacilityDossierBuilder::sequenceOf))
+                .sorted(Comparator.comparingLong(FacilityDossierBuilder::sequenceOf))
                 .map(row -> nullSafe(row.eventType()))
                 .toList();
         List<OutboxRowSummary> outboxRows = rows.stream()
@@ -89,7 +89,7 @@ final class FacilityDossierBuilder {
         return switch (classification.recommendedKind()) {
             case REPLAY_FORWARD -> replayForward(classification, fcb, rows);
             case REVERSE_NOVA -> reverseNova(classification, fcb);
-            case MANUAL_DATA_FIX -> manualDataFix(classification, fcb);
+            case MANUAL_DATA_FIX -> manualDataFix(classification);
             case NONE -> ProposedRemediation.none();
         };
     }
@@ -98,7 +98,7 @@ final class FacilityDossierBuilder {
             FacilityClassification classification, ReconLoanFileState fcb, List<OutboxRecordView> rows) {
         List<String> keys = rows.stream()
                 .filter(row -> row.status() == MessageStatus.PROCESSED)
-                .sorted(Comparator.comparing(FacilityDossierBuilder::sequenceOf))
+                .sorted(Comparator.comparingLong(FacilityDossierBuilder::sequenceOf))
                 .map(FacilityDossierBuilder::eventIdOf)
                 .toList();
         int n = keys.size();
@@ -137,7 +137,7 @@ final class FacilityDossierBuilder {
                 preconditions);
     }
 
-    private ProposedRemediation manualDataFix(FacilityClassification classification, ReconLoanFileState fcb) {
+    private ProposedRemediation manualDataFix(FacilityClassification classification) {
         List<Precondition> preconditions = List.of(new Precondition(
                 preconditionNameFor(classification.rootCause()),
                 false,

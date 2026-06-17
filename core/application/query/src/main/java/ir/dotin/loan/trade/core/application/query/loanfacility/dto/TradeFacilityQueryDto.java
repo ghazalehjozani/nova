@@ -81,7 +81,7 @@ public record TradeFacilityQueryDto(
         List<CollateralEmbDto> collaterals,
         ClosePaidOffDto closePaidOff)
         implements Serializable, QueryResult {
-    /** */
+    /** Read-side projection of the loan application associated with a trade facility. */
     public record TradeLoanApplicationDto(
             UUID id,
             Long version,

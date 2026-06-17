@@ -1,11 +1,13 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.config;
 
 import java.time.Duration;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.google.common.base.Splitter;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -84,16 +86,16 @@ public class RedisConfig implements CachingConfigurer {
             sentinelConfig.setPassword(pw);
             sentinelConfig.setSentinelPassword(pw);
         }
-        for (String node : sentinelNodesCsv.split(",")) {
-            String[] hp = node.trim().split(":");
-            sentinelConfig.addSentinel(new RedisNode(hp[0], Integer.parseInt(hp[1])));
+        for (String node : Splitter.on(',').trimResults().omitEmptyStrings().split(sentinelNodesCsv)) {
+            List<String> hp = Splitter.on(':').splitToList(node);
+            sentinelConfig.addSentinel(new RedisNode(hp.get(0), Integer.parseInt(hp.get(1))));
         }
 
         Duration commandTimeout =
-                redisProperties.getTimeout() != null ? redisProperties.getTimeout() : Duration.ofMillis(3000);
+                redisProperties.getTimeout() != null ? redisProperties.getTimeout() : Duration.ofSeconds(3);
 
         SocketOptions socketOptions = SocketOptions.builder()
-                .connectTimeout(Duration.ofMillis(2000))
+                .connectTimeout(Duration.ofSeconds(2))
                 .keepAlive(true)
                 .tcpNoDelay(true)
                 .build();
@@ -114,7 +116,7 @@ public class RedisConfig implements CachingConfigurer {
         poolConfig.setMaxTotal(32);
         poolConfig.setMaxIdle(16);
         poolConfig.setMinIdle(4);
-        poolConfig.setMaxWait(Duration.ofMillis(2000));
+        poolConfig.setMaxWait(Duration.ofSeconds(2));
         poolConfig.setTestOnBorrow(true);
         poolConfig.setTestWhileIdle(true);
 

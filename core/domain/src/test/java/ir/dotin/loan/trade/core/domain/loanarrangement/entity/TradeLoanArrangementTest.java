@@ -14,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import ir.dotin.platform.pangaea.commons.core.feature.FeatureConfig;
 import ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType;
 import ir.dotin.platform.pangaea.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementType;
@@ -51,9 +50,6 @@ class TradeLoanArrangementTest {
 
     private TradeLoanArrangement.Builder builder;
 
-    @Mock
-    private FeatureConfig mockFeatureConfig;
-
     @BeforeEach
     void setUp() {
         builder = TradeLoanArrangement.builder();
@@ -67,7 +63,6 @@ class TradeLoanArrangementTest {
         @Test
         @DisplayName("should create successfully and register created event")
         void shouldCreateSuccessfullyWithValidBuilder(
-                @Mock FeatureConfig featureConfig,
                 @Mock InterestPolicy interestPolicy,
                 @Mock PenaltyPolicy penaltyPolicy,
                 @Mock InstallmentPolicy installmentPolicy,
@@ -77,7 +72,6 @@ class TradeLoanArrangementTest {
                 @Mock CollateralPolicy collateralPolicy) {
             // given
             var validBuilder = createValidBuilder(
-                    featureConfig,
                     interestPolicy,
                     penaltyPolicy,
                     installmentPolicy,
@@ -107,7 +101,6 @@ class TradeLoanArrangementTest {
         @Test
         @DisplayName("should reconstitute successfully from a complete builder")
         void shouldReconstituteSuccessfully(
-                @Mock FeatureConfig featureConfig,
                 @Mock InterestPolicy interestPolicy,
                 @Mock PenaltyPolicy penaltyPolicy,
                 @Mock InstallmentPolicy installmentPolicy,
@@ -118,7 +111,6 @@ class TradeLoanArrangementTest {
             // given: A builder representing data from a persistent source
             var id = LoanArrangementId.of(randomUUID());
             var validBuilder = createValidBuilder(
-                            featureConfig,
                             interestPolicy,
                             penaltyPolicy,
                             installmentPolicy,
@@ -175,7 +167,6 @@ class TradeLoanArrangementTest {
     }
 
     private TradeLoanArrangement.Builder createValidBuilder(
-            FeatureConfig featureConfig,
             InterestPolicy interestPolicy,
             PenaltyPolicy penaltyPolicy,
             InstallmentPolicy installmentPolicy,

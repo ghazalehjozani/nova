@@ -35,6 +35,7 @@ public class RevertInstallmentCollectionStep
     private final InstallmentScheduleRepository installmentScheduleRepository;
     private final Clock clock;
 
+    @Override
     public StepResult<List<DomainEvent<?>>> execute(
             WorkflowContext<CompensateCollectInstallmentCommandHandler.Data> ctx) {
         CompensateCollectInstallmentCommand command = ctx.data().command();

@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.contract.mapper;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 import org.jspecify.annotations.Nullable;
@@ -28,6 +29,6 @@ public class CancelFacilityMessageMapper {
     }
 
     private LocalDate orToday(@Nullable LocalDate date) {
-        return date != null ? date : LocalDate.now();
+        return date != null ? date : LocalDate.now(ZoneOffset.UTC);
     }
 }

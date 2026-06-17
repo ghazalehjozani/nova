@@ -1,6 +1,5 @@
 package ir.dotin.loan.trade.core.application.service.loanfacilityrestructuring.step;
 
-import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,14 +14,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
-import ir.dotin.loan.baseloan.core.domain.installmentschedule.service.InstallmentRecalculationService;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.LoanFacilityRestructuringCommand;
-import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.InstallmentScheduleRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.query.ApplicationNumberResolver;
 import ir.dotin.loan.trade.core.application.service.loanfacilityrestructuring.commandhandler.LoanFacilityRestructuringCommandHandler;
-import ir.dotin.loan.trade.core.application.service.loanfacilityrestructuring.mapper.LoanFacilityRestructuringInstallmentSchedulePlanMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
@@ -37,19 +33,7 @@ class RestructureFacilityStepTest {
     private TradeLoanFacilityRepository tradeLoanFacilityRepository;
 
     @Mock
-    private InstallmentScheduleRepository installmentScheduleRepository;
-
-    @Mock
     private ApplicationNumberResolver applicationNumberResolver;
-
-    @Mock
-    private LoanFacilityRestructuringInstallmentSchedulePlanMapper schedulePlanMapper;
-
-    @Mock
-    private InstallmentRecalculationService recalculationService;
-
-    @Mock
-    private Clock clock;
 
     @InjectMocks
     private RestructureFacilityStep step;

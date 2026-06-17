@@ -45,12 +45,13 @@ public class ClosePaidOffFacilityStep implements PublishingWriteActivity<CloseFa
     private final ApplicationNumberResolver applicationNumberResolver;
     private final Clock clock;
 
+    @Override
     public StepResult<List<DomainEvent<?>>> execute(WorkflowContext<CloseFacilityPaidOffCommandHandler.Data> ctx) {
         CloseFacilityPaidOffCommand command = ctx.data().command();
         List<DomainEvent<?>> allEvents = new ArrayList<>();
 
         var result = resolveIdentifiers(command)
-                .flatMap(ids -> loadSchedule(ids, command)
+                .flatMap(ids -> loadSchedule(ids)
                         .flatMap(schedule -> applyClosePaidOffPayments(schedule, command))
                         .onSuccess(schedule -> {
                             allEvents.addAll(schedule.domainEvents());
@@ -61,7 +62,7 @@ public class ClosePaidOffFacilityStep implements PublishingWriteActivity<CloseFa
                                 command.applicationNumber(),
                                 command.payments().size(),
                                 command.transactionReference()))
-                        .flatMap(__ -> loadFacility(ids, command))
+                        .flatMap(__ -> loadFacility(ids))
                         .flatMap(facility -> closeFacility(facility, command))
                         .onSuccess(facility -> {
                             allEvents.addAll(facility.domainEvents());
@@ -75,8 +76,7 @@ public class ClosePaidOffFacilityStep implements PublishingWriteActivity<CloseFa
         return StepResult.fromWriteResult(result);
     }
 
-    private Result<TradeLoanFacility> loadFacility(
-            ApplicationNumberResolver.LoanIdentifiers ids, CloseFacilityPaidOffCommand command) {
+    private Result<TradeLoanFacility> loadFacility(ApplicationNumberResolver.LoanIdentifiers ids) {
         return Result.fromOptional(
                 repository.findById(LoanFacilityId.of(ids.loanFacilityId())),
                 () -> FailureCause.notFound(Notification.ofError(
@@ -90,8 +90,7 @@ public class ClosePaidOffFacilityStep implements PublishingWriteActivity<CloseFa
                         TradeLoanApplicationServiceErrors.APPLICATION_NUMBER_MISSING, command.applicationNumber())));
     }
 
-    private Result<InstallmentSchedule> loadSchedule(
-            ApplicationNumberResolver.LoanIdentifiers ids, CloseFacilityPaidOffCommand command) {
+    private Result<InstallmentSchedule> loadSchedule(ApplicationNumberResolver.LoanIdentifiers ids) {
         return Result.fromOptional(
                 installmentScheduleRepository.findById(
                         InstallmentScheduleId.of(ids.installmentScheduleId()).unwrap()),
@@ -118,7 +117,7 @@ public class ClosePaidOffFacilityStep implements PublishingWriteActivity<CloseFa
 
         for (CloseFacilityPaidOffCommand.InstallmentPaymentItem item : command.payments()) {
             Result<CloseInstallmentSchedulePaidOff.CloseInstallmentSchedulePaidOffItem> itemResult =
-                    buildCloseInstallmentSchedulePaidOffItem(item, command, currency);
+                    buildCloseInstallmentSchedulePaidOffItem(item, currency);
 
             if (itemResult.isFailure()) {
                 return Result.failure(itemResult.err().orElseThrow());
@@ -137,9 +136,7 @@ public class ClosePaidOffFacilityStep implements PublishingWriteActivity<CloseFa
 
     private Result<CloseInstallmentSchedulePaidOff.CloseInstallmentSchedulePaidOffItem>
             buildCloseInstallmentSchedulePaidOffItem(
-                    CloseFacilityPaidOffCommand.InstallmentPaymentItem item,
-                    CloseFacilityPaidOffCommand command,
-                    CurrencyType currency) {
+                    CloseFacilityPaidOffCommand.InstallmentPaymentItem item, CurrencyType currency) {
 
         Result<Money> principalResult = Money.valueOf(item.principalAmount(), currency);
 

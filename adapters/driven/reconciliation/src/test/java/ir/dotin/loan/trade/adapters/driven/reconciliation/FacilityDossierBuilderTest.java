@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.adapters.driven.reconciliation;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -290,8 +291,8 @@ class FacilityDossierBuilderTest {
                 (String) null,
                 UUID.randomUUID(),
                 UUID.randomUUID(),
-                LocalDateTime.now(),
-                LocalDateTime.now(),
+                LocalDateTime.now(ZoneOffset.UTC),
+                LocalDateTime.now(ZoneOffset.UTC),
                 (Instant) null,
                 (Instant) null,
                 (String) null);

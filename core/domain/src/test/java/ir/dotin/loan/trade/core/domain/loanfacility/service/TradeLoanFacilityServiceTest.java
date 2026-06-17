@@ -22,7 +22,6 @@ import ir.dotin.platform.pangaea.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
@@ -47,9 +46,6 @@ class TradeLoanFacilityServiceTest {
 
     @Mock
     private TradeLoanApplication mockLoanApplication;
-
-    @Mock
-    private CollateralSerial mockCollateralSerial;
 
     @Mock
     private List<Collateral> mockCollateralSerials;

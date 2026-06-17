@@ -327,7 +327,7 @@ public class FacilityConvergenceAction implements ConvergenceAction {
                 .filter(row -> row.status() == MessageStatus.PROCESSED)
                 .filter(row -> row.eventId() != null)
                 .filter(row -> FacilityReconMapping.fcbRankForEvent(row.eventType()) > currentRank)
-                .sorted(Comparator.comparing(
+                .sorted(Comparator.comparingLong(
                         row -> row.sequenceNumber() == null ? Long.MAX_VALUE : row.sequenceNumber()))
                 .map(OutboxRecordView::eventId)
                 .toList();
@@ -619,7 +619,8 @@ public class FacilityConvergenceAction implements ConvergenceAction {
         return rows.stream()
                 .filter(r -> r.status() != null && r.eventId() != null)
                 .filter(r -> FacilityReconMapping.fcbRankForEvent(r.eventType()) == step)
-                .sorted(Comparator.comparing(r -> r.sequenceNumber() == null ? Long.MAX_VALUE : r.sequenceNumber()))
+                .sorted(Comparator.comparingLong(
+                        r -> r.sequenceNumber() == null ? Long.MAX_VALUE : r.sequenceNumber()))
                 .toList();
     }
 

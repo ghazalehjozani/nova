@@ -39,6 +39,7 @@ public class ReserveCollateralsStep implements RemoteActivity<CollateralData>, C
     private final CollateralServicePort collateralServicePort;
     private final CollateralReservationReleaser collateralReservationReleaser;
 
+    @Override
     public StepResult<Void> execute(WorkflowContext<CollateralData> ctx) {
         var data = ctx.data();
 
@@ -78,6 +79,7 @@ public class ReserveCollateralsStep implements RemoteActivity<CollateralData>, C
         return new StepResult.Success<>(null);
     }
 
+    @Override
     public StepResult<Void> compensate(WorkflowContext<CollateralData> ctx) {
         var data = ctx.data();
         List<String> reservedSerials = data.reservedSerials() == null ? List.of() : data.reservedSerials();

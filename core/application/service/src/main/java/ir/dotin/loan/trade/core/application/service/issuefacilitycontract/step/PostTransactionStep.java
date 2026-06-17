@@ -49,6 +49,7 @@ public class PostTransactionStep implements RemoteActivity<ContractData>, Compen
     private final IssueFacilityContractConfiguration configuration;
     private final Clock clock;
 
+    @Override
     public StepResult<Void> execute(WorkflowContext<ContractData> ctx) {
         var data = ctx.data();
         ResolvedAccounts resolvedAccounts = data.getResolvedAccounts();
@@ -78,6 +79,7 @@ public class PostTransactionStep implements RemoteActivity<ContractData>, Compen
         return new StepResult.Success<>(null);
     }
 
+    @Override
     public StepResult<Void> compensate(WorkflowContext<ContractData> ctx) {
         var data = ctx.data();
         log.warn("Reversing transaction: {}", data.postedTransactionNumber());

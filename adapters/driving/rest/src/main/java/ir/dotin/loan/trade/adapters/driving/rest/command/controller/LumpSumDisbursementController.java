@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -63,7 +64,8 @@ class LumpSumDisbursementController extends BaseController {
                 .terminalIp(authenticationContextHolder.ipAddress().orElseThrow())
                 .terminalType(metadata.get("terminalType"))
                 .toolSource(metadata.get("toolSource"))
-                .disbursementDate(Objects.requireNonNullElse(requestBody.disbursementDate(), LocalDate.now()))
+                .disbursementDate(
+                        Objects.requireNonNullElse(requestBody.disbursementDate(), LocalDate.now(ZoneOffset.UTC)))
                 .userId(authenticationContextHolder.userIdOrThrow())
                 .build();
         var result = dispatcher.dispatch(lumpSumDisbursementCommand);

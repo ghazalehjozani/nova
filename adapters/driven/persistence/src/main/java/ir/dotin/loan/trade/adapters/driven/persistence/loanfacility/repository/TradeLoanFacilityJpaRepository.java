@@ -139,7 +139,9 @@ public interface TradeLoanFacilityJpaRepository extends PersistentRepository<Tra
             return Optional.empty();
         }
 
-        String[] parts = applicationNumber.split("-");
+        // Limit 0 keeps the existing semantics (trailing empty segments dropped) so a malformed number with a
+        // missing trailing component still fails the strict 4-part check below; using -1 would alter that.
+        String[] parts = applicationNumber.split("-", 0);
 
         if (parts.length != 4) {
             throw new IllegalArgumentException(

@@ -16,7 +16,6 @@ import ir.dotin.loan.trade.e2e.fixture.FormulaTestFixture;
 import ir.dotin.loan.trade.e2e.fixture.KafkaTestHelper;
 import ir.dotin.loan.trade.e2e.fixture.LoanArrangementTestFixture;
 import ir.dotin.loan.trade.e2e.fixture.LoanFacilityTestFixture;
-import ir.dotin.loan.trade.e2e.fixture.LoanFacilityTestFixture.DisbursedFacilityResult;
 import ir.dotin.loan.trade.e2e.fixture.LoanTypeTestFixture;
 import ir.dotin.loan.trade.e2e.orchestrator.MockPortConfigurator;
 
@@ -24,8 +23,6 @@ import static java.util.Objects.requireNonNull;
 
 class InstallmentCollectionE2ETest extends AbstractMessagingE2E {
 
-    private static final String INSTALLMENT_OPERATION_TOPIC =
-            "corridor.core.loan.nova.installment-operation.request.queue.v1";
     private static final String RESPONSE_TOPIC = "corridor.core.loan.nova.installment-operation.response.queue.v1.e2e";
 
     @Autowired
@@ -46,7 +43,6 @@ class InstallmentCollectionE2ETest extends AbstractMessagingE2E {
     @Value("${platform.messaging.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    private DisbursedFacilityResult facilityResult;
     private KafkaConsumer<String, byte[]> responseConsumer;
 
     @BeforeAll
@@ -57,7 +53,7 @@ class InstallmentCollectionE2ETest extends AbstractMessagingE2E {
         TradeLoanTypeEntity loanType =
                 loanTypeFixture.createDefaultLoanType(requireNonNull(arrangement.getId(), "arrangement id after save"));
 
-        facilityResult = facilityFixture.createDisbursedFacilityForCollection(
+        var _ = facilityFixture.createDisbursedFacilityForCollection(
                 requireNonNull(loanType.getId(), "loan type id after save"),
                 requireNonNull(
                         requireNonNull(loanType.getCode(), "loan type code after save")

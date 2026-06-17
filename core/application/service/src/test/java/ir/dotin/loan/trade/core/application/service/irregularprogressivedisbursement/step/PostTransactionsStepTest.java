@@ -21,13 +21,11 @@ import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
-import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.configuration.IrregularProgressiveDisbursementConfiguration;
 import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.workflow.IrregularDisbursementData;
 import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.workflow.IrregularDisbursementData.PostedTransactionData;
 import ir.dotin.loan.trade.core.application.service.shared.disbursement.FacilityDependencyLoader;
 import ir.dotin.loan.trade.core.application.service.shared.disbursement.TransactionPostingSupport;
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
-import ir.dotin.loan.trade.core.domain.shared.document.transaction.IrregularProgressiveDisbursementTransactionService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -44,15 +42,6 @@ class PostTransactionsStepTest {
 
     @Mock
     private TransactionPostingSupport transactionPostingSupport;
-
-    @Mock
-    private IrregularPlanRecalculator planRecalculator;
-
-    @Mock
-    private IrregularProgressiveDisbursementTransactionService transactionService;
-
-    @Mock
-    private IrregularProgressiveDisbursementConfiguration configuration;
 
     @InjectMocks
     private PostTransactionsStep step;

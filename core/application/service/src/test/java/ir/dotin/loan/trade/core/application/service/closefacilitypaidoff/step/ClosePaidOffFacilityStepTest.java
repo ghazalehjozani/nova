@@ -1,6 +1,5 @@
 package ir.dotin.loan.trade.core.application.service.closefacilitypaidoff.step;
 
-import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,7 +20,6 @@ import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.Tr
 import ir.dotin.loan.trade.core.application.ports.outbound.query.ApplicationNumberResolver;
 import ir.dotin.loan.trade.core.application.ports.outbound.query.ApplicationNumberResolver.LoanIdentifiers;
 import ir.dotin.loan.trade.core.application.service.closefacilitypaidoff.commandhandler.CloseFacilityPaidOffCommandHandler;
-import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilityService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
@@ -33,9 +31,6 @@ import static org.mockito.Mockito.when;
 class ClosePaidOffFacilityStepTest {
 
     @Mock
-    private TradeLoanFacilityService domainService;
-
-    @Mock
     private TradeLoanFacilityRepository repository;
 
     @Mock
@@ -43,9 +38,6 @@ class ClosePaidOffFacilityStepTest {
 
     @Mock
     private ApplicationNumberResolver applicationNumberResolver;
-
-    @Mock
-    private Clock clock;
 
     @InjectMocks
     private ClosePaidOffFacilityStep step;

@@ -228,6 +228,9 @@ class ConnectionPoolPinningE2ETest extends AbstractPerformanceE2E {
                 .build();
     }
 
+    // why: intentional identity comparison — guards against a self-referential cause cycle
+    // (a Throwable that reports itself as its own cause); value equality would not stop the loop.
+    @SuppressWarnings("ReferenceEquality")
     private static Throwable rootCause(Throwable t) {
         Throwable cause = t;
         while (cause.getCause() != null && cause.getCause() != cause) {

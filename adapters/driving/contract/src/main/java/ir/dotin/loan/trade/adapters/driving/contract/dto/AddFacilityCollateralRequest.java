@@ -28,22 +28,22 @@ public record AddFacilityCollateralRequest(
 
     @Schema(description = "Collateral details")
     public record CollateralDto(
-            @Schema(description = "Collateral type code", example = "ESTATE", required = true)
+            @Schema(description = "Collateral type code", example = "ESTATE", requiredMode = Schema.RequiredMode.REQUIRED)
             String collateralTypeCode,
 
-            @Schema(description = "Collateral description", example = "Property deed", required = true)
+            @Schema(description = "Collateral description", example = "Property deed", requiredMode = Schema.RequiredMode.REQUIRED)
             String description,
 
-            @Schema(description = "Collateral serial number", example = "COLL-2025-001", required = true)
+            @Schema(description = "Collateral serial number", example = "COLL-2025-001", requiredMode = Schema.RequiredMode.REQUIRED)
             String collateralSerial,
 
-            @Schema(description = "Used amount from collateral", required = true)
+            @Schema(description = "Used amount from collateral", requiredMode = Schema.RequiredMode.REQUIRED)
             MoneyDto usedAmount) {}
 
     public record MoneyDto(
-            @Schema(description = "Amount", example = "1000000", required = true)
+            @Schema(description = "Amount", example = "1000000", requiredMode = Schema.RequiredMode.REQUIRED)
             BigDecimal value,
 
-            @Schema(description = "Currency code", example = "IRR", required = true)
+            @Schema(description = "Currency code", example = "IRR", requiredMode = Schema.RequiredMode.REQUIRED)
             String currency) {}
 }

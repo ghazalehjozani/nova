@@ -1,6 +1,5 @@
 package ir.dotin.loan.trade.core.application.service.closefacilitypaidoff.compensation.step;
 
-import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,9 +38,6 @@ class RevertClosePaidOffStepTest {
 
     @Mock
     private ApplicationNumberResolver applicationNumberResolver;
-
-    @Mock
-    private Clock clock;
 
     @InjectMocks
     private RevertClosePaidOffStep step;

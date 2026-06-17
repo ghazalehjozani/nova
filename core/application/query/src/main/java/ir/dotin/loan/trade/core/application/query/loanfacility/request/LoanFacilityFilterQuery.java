@@ -91,7 +91,7 @@ public record LoanFacilityFilterQuery(
 
     public boolean hasFilters() {
         return loanTypeId != null
-                || customerNumber != null && !customerNumber.isBlank()
+                || (customerNumber != null && !customerNumber.isBlank())
                 || createDateFrom != null
                 || createDateTo != null
                 || requestAmountMin != null

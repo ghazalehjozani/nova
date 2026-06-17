@@ -14,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import ir.dotin.platform.pangaea.commons.core.feature.FeatureConfig;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.EconomicSectorCurrency;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.LoanApplicationStatus;
@@ -33,9 +32,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DisplayName("TradeLoanType")
 @SuppressWarnings("NullAway")
 final class TradeLoanTypeTest {
-
-    @Mock
-    private FeatureConfig mockFeatureConfig;
 
     @Mock
     private LoanTypeCode mockLoanTypeCode;

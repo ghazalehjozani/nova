@@ -41,6 +41,7 @@ public class AddCollateralStep implements PublishingWriteActivity<CollateralData
     private final AbstractCollateralValidationService collateralValidationService;
     private final Clock clock;
 
+    @Override
     public StepResult<List<DomainEvent<?>>> execute(WorkflowContext<CollateralData> ctx) {
         var data = ctx.data();
 
@@ -63,6 +64,7 @@ public class AddCollateralStep implements PublishingWriteActivity<CollateralData
         return StepResult.fromWriteResult(result);
     }
 
+    @Override
     public StepResult<Void> compensate(WorkflowContext<CollateralData> ctx) {
         var data = ctx.data();
 

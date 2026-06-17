@@ -64,8 +64,7 @@ class TradeLoanFacilityTest {
                 @Mock InstallmentCount installmentCount,
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
-                @Mock RequestReason requestReason,
-                @Mock Money totalDisbursementAmount) {
+                @Mock RequestReason requestReason) {
             // given
             CustomerName customerName = new CustomerName("John", "Doe", "Test");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
@@ -97,7 +96,7 @@ class TradeLoanFacilityTest {
         @DisplayName("should fail when facility ID is null")
         @Test
         void shouldFailWhenFacilityIdIsNull(
-                @Mock TradeLoanApplication application, @Mock Money totalDisbursementAmount) {
+                @Mock TradeLoanApplication application) {
             // when & then
             assertThatThrownBy(() -> TradeLoanFacility.create(
                             null,
@@ -112,7 +111,7 @@ class TradeLoanFacilityTest {
 
         @DisplayName("should fail when application is null")
         @Test
-        void shouldFailWhenApplicationIsNull(@Mock Money totalDisbursementAmount) {
+        void shouldFailWhenApplicationIsNull() {
             // given
             var facilityId = LoanFacilityId.of(randomUUID());
 
@@ -131,7 +130,7 @@ class TradeLoanFacilityTest {
         @DisplayName("should fail when loan arrangement id is null")
         @Test
         void shouldFailWhenLoanArrangementIdIsNull(
-                @Mock TradeLoanApplication application, @Mock Money totalDisbursementAmount) {
+                @Mock TradeLoanApplication application) {
             // given
             var facilityId = LoanFacilityId.of(randomUUID());
 
@@ -154,8 +153,7 @@ class TradeLoanFacilityTest {
                 @Mock InstallmentCount installmentCount,
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
-                @Mock RequestReason requestReason,
-                @Mock Money totalDisbursementAmount) {
+                @Mock RequestReason requestReason) {
             // given
             CustomerName customerName = new CustomerName("John", "Doe", "Test");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
@@ -199,8 +197,7 @@ class TradeLoanFacilityTest {
                 @Mock InstallmentCount installmentCount,
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
-                @Mock RequestReason requestReason,
-                @Mock Money totalDisbursementAmount) {
+                @Mock RequestReason requestReason) {
             // given
             CustomerName customerName = new CustomerName("John", "Doe", "Test");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
@@ -234,8 +231,7 @@ class TradeLoanFacilityTest {
                 @Mock InstallmentCount installmentCount,
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
-                @Mock RequestReason requestReason,
-                @Mock Money totalDisbursementAmount) {
+                @Mock RequestReason requestReason) {
             // given
             CustomerName customerName = new CustomerName("John", "Doe", "Test");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
@@ -269,8 +265,7 @@ class TradeLoanFacilityTest {
                 @Mock InstallmentCount installmentCount,
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
-                @Mock RequestReason requestReason,
-                @Mock Money totalDisbursementAmount) {
+                @Mock RequestReason requestReason) {
             // given
             CustomerName customerName = new CustomerName("John", "Doe", "Test");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
@@ -309,8 +304,7 @@ class TradeLoanFacilityTest {
                 @Mock InstallmentCount installmentCount,
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
-                @Mock RequestReason requestReason,
-                @Mock Money totalDisbursementAmount) {
+                @Mock RequestReason requestReason) {
             // given
             CustomerName customerName = new CustomerName("John", "Doe", "Test");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);
@@ -344,8 +338,7 @@ class TradeLoanFacilityTest {
                 @Mock InstallmentCount installmentCount,
                 @Mock EconomicSector economicSector,
                 @Mock Branch branch,
-                @Mock RequestReason requestReason,
-                @Mock Money totalDisbursementAmount) {
+                @Mock RequestReason requestReason) {
             // given
             CustomerName customerName = new CustomerName("John", "Doe", "Test");
             ApplicantParty customer = new ApplicantParty("12345", PartyType.REAL, customerName);

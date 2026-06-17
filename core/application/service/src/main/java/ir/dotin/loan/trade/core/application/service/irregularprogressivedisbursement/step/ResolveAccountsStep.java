@@ -21,6 +21,7 @@ public class ResolveAccountsStep
     private final FacilityDependencyLoader dependencyLoader;
     private final AccountResolutionSupport accountResolutionSupport;
 
+    @Override
     public StepResult<Void> execute(WorkflowContext<IrregularDisbursementData> ctx) {
         var data = ctx.data();
 
@@ -44,6 +45,7 @@ public class ResolveAccountsStep
         return new StepResult.Success<>(null);
     }
 
+    @Override
     public StepResult<Void> compensate(WorkflowContext<IrregularDisbursementData> ctx) {
         accountResolutionSupport.closeAccounts(ctx.data().resolvedAccounts());
         return new StepResult.Success<>(null);

@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.contract.mapper;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,6 +48,6 @@ public class InstallmentCollectionMessageMapper {
 
     // Dates arrive as canonical Gregorian LocalDate (yyyy-MM-dd) on the FCB→nova event wire (SAW.101 §3).
     private LocalDate orToday(@Nullable LocalDate date) {
-        return date != null ? date : LocalDate.now();
+        return date != null ? date : LocalDate.now(ZoneOffset.UTC);
     }
 }

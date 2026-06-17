@@ -26,6 +26,7 @@ public class ValidateFacilityStep implements ReadActivity<IrregularDisbursementD
 
     private final FacilityDependencyLoader dependencyLoader;
 
+    @Override
     public StepResult<Void> execute(WorkflowContext<IrregularDisbursementData> ctx) {
         var data = ctx.data();
 

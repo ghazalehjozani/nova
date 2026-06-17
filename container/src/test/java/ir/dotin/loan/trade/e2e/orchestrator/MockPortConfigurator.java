@@ -129,13 +129,11 @@ public class MockPortConfigurator {
                 .thenReturn(Result.success(new AccountId("ACC-E2E-001")));
         when(accountValidationPort.validateAccountNumber(any()))
                 .thenReturn(Result.success(new AccountNumber("1.10.1357.60")));
-        when(findAccountByIdPort.findAccountById(any())).thenAnswer(invocation -> {
-            AccountId id = invocation.getArgument(0);
-            return Result.failure(ir.dotin.platform.pangaea.commons.core.Notification.ofError(
-                    ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors
-                            .FCB_INVALID_RESPONSE,
-                    "findAccountById-stub"));
-        });
+        when(findAccountByIdPort.findAccountById(any())).thenAnswer(invocation -> Result.failure(
+                ir.dotin.platform.pangaea.commons.core.Notification.ofError(
+                        ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors
+                                .FCB_INVALID_RESPONSE,
+                        "findAccountById-stub")));
     }
 
     private void configureTransactionPostingDefaults() {

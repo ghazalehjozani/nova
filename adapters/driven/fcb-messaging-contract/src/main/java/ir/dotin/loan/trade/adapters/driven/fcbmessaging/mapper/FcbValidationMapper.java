@@ -145,7 +145,7 @@ public class FcbValidationMapper {
         }
         String fileNumber = response.getFileNumber();
 
-        String[] parts = fileNumber.split("-");
+        String[] parts = fileNumber.split("-", 0);
 
         if (parts.length < 2) {
             throw new IllegalArgumentException("Invalid fileNumber format: " + fileNumber);
@@ -379,6 +379,7 @@ public class FcbValidationMapper {
             try {
                 sanctionType = SanctionType.valueOf(response.getSanctionType());
             } catch (IllegalArgumentException ignored) {
+                // unknown/mis-encoded sanction type from FCB -> leave null; guarded below as FCB_INVALID_RESPONSE
             }
         }
 
@@ -398,6 +399,7 @@ public class FcbValidationMapper {
             try {
                 disbursementMethod = DisbursementMethod.valueOf(response.getDisbursementMethod());
             } catch (IllegalArgumentException ignored) {
+                // unknown/mis-encoded disbursement method from FCB -> leave null; guarded below as FCB_INVALID_RESPONSE
             }
         }
 
@@ -466,11 +468,13 @@ public class FcbValidationMapper {
         try {
             return Period.parse(value);
         } catch (Exception ignored) {
+            // not an ISO-8601 period -> fall through and try the bare-month-count encoding below
         }
         try {
             int months = Integer.parseInt(value);
             return Period.ofMonths(months);
         } catch (NumberFormatException ignored) {
+            // neither ISO-8601 nor a plain month count -> unparseable, return null (caller guards as FCB_INVALID_RESPONSE)
         }
         return null;
     }

@@ -138,6 +138,7 @@ public class ArtemisFcbRequestReplyClient implements FcbRequestReplyClient, Auto
             try {
                 closeable.close();
             } catch (Exception ignored) {
+                // best-effort shutdown: nothing actionable if the underlying client fails to close
             }
         }
     }

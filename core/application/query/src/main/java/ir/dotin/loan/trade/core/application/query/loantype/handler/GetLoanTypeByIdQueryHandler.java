@@ -19,6 +19,7 @@ public class GetLoanTypeByIdQueryHandler implements QueryHandler<GetLoanTypeById
 
     private final TradeLoanTypeQueryRepository tradeLoanTypeRepository;
 
+    @Override
     public TradeLoanTypeQueryDto handle(GetLoanTypeByIdQuery query) {
         return tradeLoanTypeRepository.findById(query.loanTypeId()).orElseThrow(() -> {
             var notification = Notification.ofError(LoanTypeQueryErrorCodes.LOAN_TYPE_NOT_FOUND, query.loanTypeId());

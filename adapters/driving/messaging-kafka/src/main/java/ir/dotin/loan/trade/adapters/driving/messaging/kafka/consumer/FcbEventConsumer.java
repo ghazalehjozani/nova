@@ -134,7 +134,7 @@ public class FcbEventConsumer {
         if (corr.length() != TRACEPARENT_LENGTH) {
             return;
         }
-        String[] parts = corr.split("-");
+        String[] parts = corr.split("-", 0);
         if (parts.length != 4
                 || parts[1].length() != 32
                 || parts[2].length() != 16

@@ -48,6 +48,7 @@ public class OpenAccountsStep implements RemoteActivity<ContractData>, Compensab
     private final LoanTopicResolver loanTopicResolver;
     private final AccountResolutionService accountResolutionService;
 
+    @Override
     public StepResult<Void> execute(WorkflowContext<ContractData> ctx) {
         var data = ctx.data();
 
@@ -80,6 +81,7 @@ public class OpenAccountsStep implements RemoteActivity<ContractData>, Compensab
         return new StepResult.Success<>(null);
     }
 
+    @Override
     public StepResult<Void> compensate(WorkflowContext<ContractData> ctx) {
         Map<String, String> openedAccounts = ctx.data().resolvedAccounts();
         if (openedAccounts == null || openedAccounts.isEmpty()) {

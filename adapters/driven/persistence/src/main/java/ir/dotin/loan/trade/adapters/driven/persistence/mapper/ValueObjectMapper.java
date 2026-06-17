@@ -558,6 +558,9 @@ public abstract class ValueObjectMapper {
     }
 
     @Named("mapInstallmentPolicyToEmb")
+    // why: the Period day-component is intentional — it is stored as a day count and round-tripped via
+    // Period.ofDays(...) in mapInstallmentPolicyEmbToPolicy; ChronoUnit.DAYS.between is inapplicable (no date range).
+    @SuppressWarnings("JavaPeriodGetDays")
     public @Nullable InstallmentPolicyEmb mapInstallmentPolicyToEmb(InstallmentPolicy policy) {
         if (policy == null) return null;
         InstallmentPolicyEmb emb = new InstallmentPolicyEmb();
@@ -569,6 +572,9 @@ public abstract class ValueObjectMapper {
     }
 
     @Named("mapGracePeriodPolicyToEmb")
+    // why: the Period day-component is intentional — grace periods are stored as a day count and round-tripped via
+    // Period.ofDays(...) in mapGracePeriodPolicyEmbToPolicy; ChronoUnit.DAYS.between is inapplicable (no date range).
+    @SuppressWarnings("JavaPeriodGetDays")
     public @Nullable GracePeriodPolicyEmb mapGracePeriodPolicyToEmb(GracePeriodPolicy policy) {
         if (policy == null) return null;
         GracePeriodPolicyEmb emb = new GracePeriodPolicyEmb();
@@ -857,6 +863,10 @@ public abstract class ValueObjectMapper {
         return LoanDuration.of(period).unwrap();
     }
 
+    // why: the Period day-component is intentional — years/months/days are decomposed into separate columns and
+    // reassembled with Period.of(years, months, days) in mapPeriodEmbToLoanDuration; collapsing to total elapsed
+    // days would double-count the year/month components and break the round-trip.
+    @SuppressWarnings("JavaPeriodGetDays")
     public @Nullable PeriodEmb mapLoanDurationToPeriodEmb(LoanDuration loanDuration) {
         if (loanDuration == null) return null;
         PeriodEmb emb = new PeriodEmb();

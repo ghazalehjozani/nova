@@ -47,13 +47,14 @@ public class RestructureFacilityStep implements PublishingWriteActivity<LoanFaci
     private final InstallmentRecalculationService recalculationService;
     private final Clock clock;
 
+    @Override
     public StepResult<List<DomainEvent<?>>> execute(WorkflowContext<LoanFacilityRestructuringCommandHandler.Data> ctx) {
         LoanFacilityRestructuringCommand command = ctx.data().command();
 
         var result = resolveIdentifier(command)
                 .flatMap(this::loadFacility)
                 .flatMap(facility -> loadDependencies(facility, command)
-                        .flatMap(context -> validateAll(facility, context)
+                        .flatMap(context -> validateAll()
                                 .flatMap(ignored -> processRestructuring(context))
                                 .flatMap(this::persistAndCollectEvents)
                                 .onSuccess(schedule -> log.info(
@@ -123,7 +124,7 @@ public class RestructureFacilityStep implements PublishingWriteActivity<LoanFaci
                         facility.getId().value())));
     }
 
-    private Result<Unit> validateAll(TradeLoanFacility facility, ProcessingContext context) {
+    private Result<Unit> validateAll() {
         return Result.success();
     }
 

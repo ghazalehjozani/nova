@@ -48,6 +48,7 @@ public class PostTransactionsStep
     private final IrregularProgressiveDisbursementTransactionService transactionService;
     private final IrregularProgressiveDisbursementConfiguration configuration;
 
+    @Override
     public StepResult<Void> execute(WorkflowContext<IrregularDisbursementData> ctx) {
         var data = ctx.data();
 
@@ -89,6 +90,7 @@ public class PostTransactionsStep
         return new StepResult.Success<>(null);
     }
 
+    @Override
     public StepResult<Void> compensate(WorkflowContext<IrregularDisbursementData> ctx) {
         var data = ctx.data();
         log.warn("Reversing transactions for facility {}", data.facilityId());

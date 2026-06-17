@@ -64,7 +64,7 @@ public class FcbLegacyAttributesFilter extends OncePerRequestFilter {
             LOG.debug("FCB-LEGACY: ignoring malformed correlation-traceparent length={}", trimmed.length());
             return;
         }
-        String[] parts = trimmed.split("-");
+        String[] parts = trimmed.split("-", 0);
         if (parts.length != 4
                 || parts[1].length() != 32
                 || parts[2].length() != 16

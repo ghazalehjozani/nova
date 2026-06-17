@@ -15,6 +15,8 @@ import lombok.Data;
  */
 @Data
 @ConfigurationProperties(prefix = "nova.fcb.documents")
+// why: Error Prone 2.50.0 UnrecognisedJavadocTag is a false positive — it flags valid inline {@code}/{@link} tags in @ConfigurationProperties field javadoc under JDK 25; tags are well-formed.
+@SuppressWarnings("UnrecognisedJavadocTag")
 public class FcbDocumentProperties {
 
     /** SAFE DEFAULT = no metadata sent (FCB not ready). Flipped to {@code true} via Consul once FCB consumes it. */

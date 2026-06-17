@@ -75,6 +75,9 @@ public class InstallmentPaymentEmb {
     private String remarks;
 
     @Override
+    // why: getClass()-based identity is intentional for this @Embeddable value object (exact-type equality
+    // preserves the equals symmetry/transitivity contract for a non-final type); instanceof would change semantics.
+    @SuppressWarnings("EqualsGetClass")
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

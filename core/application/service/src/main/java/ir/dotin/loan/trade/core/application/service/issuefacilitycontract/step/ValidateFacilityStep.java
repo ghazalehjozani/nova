@@ -22,6 +22,7 @@ public class ValidateFacilityStep implements ReadActivity<ContractData> {
 
     private final TradeLoanFacilityRepository facilityRepository;
 
+    @Override
     public StepResult<Void> execute(WorkflowContext<ContractData> ctx) {
         var data = ctx.data();
 

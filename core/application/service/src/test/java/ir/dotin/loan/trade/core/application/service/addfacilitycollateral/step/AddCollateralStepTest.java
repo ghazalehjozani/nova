@@ -55,6 +55,8 @@ class AddCollateralStepTest {
     @Mock
     private AbstractCollateralValidationService collateralValidationService;
 
+    // why: injected into the SUT via @InjectMocks (reflective use EP cannot see)
+    @SuppressWarnings("UnusedVariable")
     @Mock
     private Clock clock;
 

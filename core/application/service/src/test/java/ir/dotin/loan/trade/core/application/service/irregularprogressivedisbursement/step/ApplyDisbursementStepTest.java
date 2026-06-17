@@ -20,11 +20,9 @@ import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
-import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.InstallmentScheduleRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.workflow.IrregularDisbursementData;
 import ir.dotin.loan.trade.core.application.service.shared.disbursement.FacilityDependencyLoader;
-import ir.dotin.loan.trade.core.application.service.shared.disbursement.TransactionPostingSupport;
 import ir.dotin.loan.trade.core.application.service.shared.error.TradeLoanApplicationServiceErrors;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
@@ -40,16 +38,7 @@ class ApplyDisbursementStepTest {
     private FacilityDependencyLoader dependencyLoader;
 
     @Mock
-    private TransactionPostingSupport transactionPostingSupport;
-
-    @Mock
-    private IrregularPlanRecalculator planRecalculator;
-
-    @Mock
     private TradeLoanFacilityRepository facilityRepository;
-
-    @Mock
-    private InstallmentScheduleRepository installmentScheduleRepository;
 
     @Mock
     private Clock clock;

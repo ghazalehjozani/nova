@@ -2,7 +2,6 @@ package ir.dotin.loan.trade.core.application.service.updatefacilitycollateral.st
 
 import java.time.Clock;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -61,7 +60,7 @@ public class UpdateCollateralStep implements PublishingWriteActivity<UpdateColla
     private List<Collateral> buildCollateral(
             List<UpdateFacilityCollateralCommand.CollateralItem> collateralItems, CurrencyType currencyType) {
         if (collateralItems == null) {
-            return Collections.emptyList();
+            return new ArrayList<>();
         }
 
         List<Collateral> list = new ArrayList<>(collateralItems.size());

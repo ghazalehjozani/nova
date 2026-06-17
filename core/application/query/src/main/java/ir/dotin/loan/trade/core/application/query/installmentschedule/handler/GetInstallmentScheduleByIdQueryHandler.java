@@ -19,6 +19,7 @@ public class GetInstallmentScheduleByIdQueryHandler
         implements QueryHandler<GetInstallmentScheduleByIdQuery, TradeInstallmentScheduleQueryDto> {
     private final TradeInstallmentScheduleQueryRepository tradeInstallmentScheduleRepository;
 
+    @Override
     public TradeInstallmentScheduleQueryDto handle(GetInstallmentScheduleByIdQuery query) {
         return tradeInstallmentScheduleRepository
                 .findById(query.installmentScheduleId())

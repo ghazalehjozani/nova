@@ -1,6 +1,5 @@
 package ir.dotin.loan.trade.core.application.service.regulardisbursement.step;
 
-import java.time.Clock;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -29,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 public class ApplyRegularDisbursementStep implements PublishingWriteActivity<RegularDisbursementData> {
 
     private final TradeLoanFacilityRepository repository;
-    private final Clock clock;
 
     @Override
     public StepResult<List<DomainEvent<?>>> execute(WorkflowContext<RegularDisbursementData> ctx) {

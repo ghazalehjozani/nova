@@ -156,14 +156,17 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
     private DisbursementMethod disbursementMethod;
 
     @Override
+    // why: getClass()-based identity is intentional for JPA entity equality (Hibernate proxy safety) — the
+    // effective class is resolved via the lazy initializer so a proxy and its target compare equal.
+    @SuppressWarnings("EqualsGetClass")
     public final boolean equals(Object o) {
         if (this == o) return true;
         if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy
-                ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
+        Class<?> oEffectiveClass = o instanceof HibernateProxy proxy
+                ? proxy.getHibernateLazyInitializer().getPersistentClass()
                 : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy
-                ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy thisProxy
+                ? thisProxy.getHibernateLazyInitializer().getPersistentClass()
                 : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
         TradeLoanApplicationEntity that = (TradeLoanApplicationEntity) o;
@@ -172,11 +175,8 @@ public class TradeLoanApplicationEntity extends PersistentEntity {
 
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy
-                ? ((HibernateProxy) this)
-                        .getHibernateLazyInitializer()
-                        .getPersistentClass()
-                        .hashCode()
+        return this instanceof HibernateProxy thisProxy
+                ? thisProxy.getHibernateLazyInitializer().getPersistentClass().hashCode()
                 : getClass().hashCode();
     }
 }

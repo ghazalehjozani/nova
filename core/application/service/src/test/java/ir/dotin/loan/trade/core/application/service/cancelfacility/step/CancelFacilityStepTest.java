@@ -1,6 +1,5 @@
 package ir.dotin.loan.trade.core.application.service.cancelfacility.step;
 
-import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -17,12 +16,10 @@ import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CancelFacilityCommand;
-import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.InstallmentScheduleRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.query.ApplicationNumberResolver;
 import ir.dotin.loan.trade.core.application.ports.outbound.query.ApplicationNumberResolver.LoanIdentifiers;
 import ir.dotin.loan.trade.core.application.service.cancelfacility.commandhandler.CancelFacilityCommandHandler;
-import ir.dotin.loan.trade.core.domain.loanfacility.service.TradeLoanFacilityService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
@@ -37,16 +34,7 @@ class CancelFacilityStepTest {
     private TradeLoanFacilityRepository facilityRepository;
 
     @Mock
-    private InstallmentScheduleRepository scheduleRepository;
-
-    @Mock
-    private TradeLoanFacilityService domainService;
-
-    @Mock
     private ApplicationNumberResolver applicationNumberResolver;
-
-    @Mock
-    private Clock clock;
 
     @InjectMocks
     private CancelFacilityStep step;

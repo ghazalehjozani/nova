@@ -3,6 +3,7 @@ package ir.dotin.loan.trade.e2e.fixture;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -62,8 +63,8 @@ public class LoanFacilityTestFixture {
         String derivedValue = UUID.randomUUID().toString().substring(0, 8);
         String applicationNumber = branchCode + "-" + loanTypeCode + "-" + customerNumber + "-" + derivedValue;
 
-        TradeLoanApplicationEntity application = createApplication(
-                applicationId, loanTypeCode, applicationNumber, derivedValue, branchCode, customerNumber);
+        TradeLoanApplicationEntity application =
+                createApplication(applicationId, loanTypeCode, derivedValue, branchCode, customerNumber);
 
         TradeLoanFacilityEntity facility =
                 createFacility(facilityId, application, loanTypeId, loanArrangementId, scheduleId);
@@ -80,7 +81,6 @@ public class LoanFacilityTestFixture {
     private TradeLoanApplicationEntity createApplication(
             UUID applicationId,
             String loanTypeCode,
-            String applicationNumber,
             String derivedValue,
             String branchCode,
             String customerNumber) {
@@ -173,7 +173,7 @@ public class LoanFacilityTestFixture {
         facility.setLoanArrangementId(loanArrangementId);
         facility.setInstallmentScheduleId(scheduleId);
         facility.setCurrentState(FacilityStatus.FULLY_DISBURSED);
-        facility.setDisbursementDate(LocalDate.now().minusDays(30));
+        facility.setDisbursementDate(LocalDate.now(ZoneOffset.UTC).minusDays(30));
         facility.setFacilityType("TRADE");
 
         MoneyEmb disbursedAmount = new MoneyEmb();
@@ -223,7 +223,7 @@ public class LoanFacilityTestFixture {
             InstallmentEntity installment = new InstallmentEntity();
             installment.setId(UUID.randomUUID());
             installment.setSequenceNumber(i);
-            installment.setDueDate(LocalDate.now().plusMonths(i));
+            installment.setDueDate(LocalDate.now(ZoneOffset.UTC).plusMonths(i));
             installment.setStatus(InstallmentStatus.SCHEDULED);
             installment.setInstallmentSchedule(schedule);
 

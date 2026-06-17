@@ -40,6 +40,7 @@ public class CancelFacilityStep implements PublishingWriteActivity<CancelFacilit
     private final ApplicationNumberResolver applicationNumberResolver;
     private final Clock clock;
 
+    @Override
     public StepResult<List<DomainEvent<?>>> execute(WorkflowContext<CancelFacilityCommandHandler.Data> ctx) {
         CancelFacilityCommand command = ctx.data().command();
         List<DomainEvent<?>> domainEvents = new ArrayList<>();
@@ -48,7 +49,7 @@ public class CancelFacilityStep implements PublishingWriteActivity<CancelFacilit
                 .flatMap(this::loadTradeLoanFacility)
                 .flatMap(facility -> cancelFacility(facility, command, domainEvents))
                 .flatMap(facility -> cancelInstallmentSchedule(facility, command, domainEvents))
-                .map(unused -> domainEvents);
+                .map(_ -> domainEvents);
 
         return StepResult.fromWriteResult(result);
     }

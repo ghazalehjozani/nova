@@ -18,7 +18,6 @@ import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateIrregularDisbursementCommand;
-import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.InstallmentScheduleRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
@@ -33,9 +32,6 @@ class RevertIrregularDisbursementStepTest {
 
     @Mock
     private TradeLoanFacilityRepository facilityRepository;
-
-    @Mock
-    private InstallmentScheduleRepository scheduleRepository;
 
     @Mock
     private Clock clock;

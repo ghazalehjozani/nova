@@ -63,7 +63,7 @@ final class ConsulReplyPartitionLease implements ReplyPartitionLease {
             return t;
         });
         long periodSeconds = Math.max(1L, renewInterval.toSeconds());
-        renewer.scheduleWithFixedDelay(this::renew, periodSeconds, periodSeconds, TimeUnit.SECONDS);
+        var _ = renewer.scheduleWithFixedDelay(this::renew, periodSeconds, periodSeconds, TimeUnit.SECONDS);
     }
 
     @Override

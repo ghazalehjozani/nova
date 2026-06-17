@@ -38,6 +38,7 @@ public class RevertClosePaidOffStep
     private final ApplicationNumberResolver applicationNumberResolver;
     private final Clock clock;
 
+    @Override
     public StepResult<List<DomainEvent<?>>> execute(
             WorkflowContext<CompensateCloseFacilityPaidOffCommandHandler.Data> ctx) {
         CompensateCloseFacilityPaidOffCommand command = ctx.data().command();

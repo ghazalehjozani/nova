@@ -29,6 +29,7 @@ public class RevertApprovalSubmissionStep
     private final TradeLoanFacilityRepository repository;
     private final Clock clock;
 
+    @Override
     public StepResult<List<DomainEvent<?>>> execute(
             WorkflowContext<CompensateApprovalSubmissionCommandHandler.Data> ctx) {
         CompensateApprovalSubmissionCommand command = ctx.data().command();

@@ -38,11 +38,12 @@ public class CollectInstallmentStep implements PublishingWriteActivity<CollectIn
     private final ApplicationNumberResolver applicationNumberResolver;
     private final Clock clock;
 
+    @Override
     public StepResult<List<DomainEvent<?>>> execute(WorkflowContext<CollectInstallmentCommandHandler.Data> ctx) {
         CollectInstallmentCommand command = ctx.data().command();
 
         var result = resolveIdentifiers(command)
-                .flatMap(ids -> loadSchedule(ids, command))
+                .flatMap(ids -> loadSchedule(ids))
                 .flatMap(schedule -> collectAllPayments(schedule, command))
                 .onSuccess(installmentScheduleRepository::save)
                 .onSuccess(schedule -> log.info(
@@ -62,7 +63,7 @@ public class CollectInstallmentStep implements PublishingWriteActivity<CollectIn
                         TradeLoanApplicationServiceErrors.APPLICATION_NUMBER_MISSING, command.applicationNumber())));
     }
 
-    private Result<InstallmentSchedule> loadSchedule(LoanIdentifiers ids, CollectInstallmentCommand command) {
+    private Result<InstallmentSchedule> loadSchedule(LoanIdentifiers ids) {
         return Result.fromOptional(
                 installmentScheduleRepository.findById(
                         InstallmentScheduleId.of(ids.installmentScheduleId()).unwrap()),

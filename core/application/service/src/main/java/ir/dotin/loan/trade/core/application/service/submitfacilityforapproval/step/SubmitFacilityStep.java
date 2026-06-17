@@ -30,6 +30,7 @@ public class SubmitFacilityStep implements PublishingWriteActivity<SubmitFacilit
     private final TradeLoanFacilityRepository repository;
     private final TradeLoanFacilityService domainService;
 
+    @Override
     public StepResult<List<DomainEvent<?>>> execute(WorkflowContext<SubmitFacilityForApprovalCommandHandler.Data> ctx) {
         SubmitFacilityForApprovalCommand command = ctx.data().command();
         LoanFacilityId loanFacilityId = LoanFacilityId.of(command.loanFacilityId());

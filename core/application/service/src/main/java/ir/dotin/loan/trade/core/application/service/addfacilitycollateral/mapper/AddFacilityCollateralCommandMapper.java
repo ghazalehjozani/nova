@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.core.application.service.addfacilitycollateral.mapper;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 import org.jspecify.annotations.Nullable;
@@ -47,7 +48,7 @@ public interface AddFacilityCollateralCommandMapper {
             throw new IllegalArgumentException("Currency code is required in MoneyDto");
         }
         try {
-            return CurrencyType.valueOf(currencyCode.toUpperCase()).unwrap();
+            return CurrencyType.valueOf(currencyCode.toUpperCase(Locale.ROOT)).unwrap();
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid currency code: " + currencyCode);
         }

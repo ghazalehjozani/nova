@@ -15,11 +15,9 @@ import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.ApproveFacilityCommand;
-import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanFacilityRepository;
 import ir.dotin.loan.trade.core.application.service.approvefacility.commandhandler.ApproveFacilityCommandHandler;
 import ir.dotin.loan.trade.core.application.service.approvefacility.commandhandler.ApproveFacilityCommandHandler.ApprovalPreparation;
-import ir.dotin.loan.trade.core.application.service.approvefacility.factory.ApprovalStrategyFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.never;
@@ -32,12 +30,6 @@ class ApproveFacilityStepTest {
 
     @Mock
     private TradeLoanFacilityRepository loanFacilityRepository;
-
-    @Mock
-    private TradeLoanArrangementRepository loanArrangementRepository;
-
-    @Mock
-    private ApprovalStrategyFactory strategyFactory;
 
     @InjectMocks
     private ApproveFacilityStep step;

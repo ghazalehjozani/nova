@@ -1,6 +1,5 @@
 package ir.dotin.loan.trade.core.application.service.collectinstallment.step;
 
-import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,9 +32,6 @@ class CollectInstallmentStepTest {
 
     @Mock
     private ApplicationNumberResolver applicationNumberResolver;
-
-    @Mock
-    private Clock clock;
 
     @InjectMocks
     private CollectInstallmentStep step;
