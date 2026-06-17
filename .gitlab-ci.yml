@@ -69,7 +69,7 @@ publish-release:
 architecture-test:
   stage: test
   script:
-    - mvn -B -P"architecture-test,${MVN_BUILD_PROFILES}" test
+    - mvn $MAVEN_CLI_OPTS -s "$MAVEN_SETTINGS" test -P "architecture-test,${MVN_BUILD_PROFILES}"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_BRANCH == "develop"'
@@ -89,7 +89,7 @@ integration-test:
     TESTCONTAINERS_HOST_OVERRIDE: "docker"
     TESTCONTAINERS_RYUK_DISABLED: "true"
   script:
-    - mvn -B -P"integration-test,${MVN_BUILD_PROFILES}" verify
+    - mvn $MAVEN_CLI_OPTS -s "$MAVEN_SETTINGS" verify -P "integration-test,${MVN_BUILD_PROFILES}"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_BRANCH == "develop"'
