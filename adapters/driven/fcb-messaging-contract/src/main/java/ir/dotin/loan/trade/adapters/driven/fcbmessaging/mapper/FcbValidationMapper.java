@@ -435,7 +435,6 @@ public class FcbValidationMapper {
                 disbursementMethod,
                 response.getLifeInsuranceId(),
                 response.getCollateralSerial(),
-                response.getRevocationReason(),
                 confirmType));
     }
 

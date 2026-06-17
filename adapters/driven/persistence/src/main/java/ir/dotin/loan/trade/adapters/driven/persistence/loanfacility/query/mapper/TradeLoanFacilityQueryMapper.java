@@ -26,10 +26,7 @@ public interface TradeLoanFacilityQueryMapper {
 
     @Mapping(target = "totalDisbursedAmountCurrency", source = "totalDisbursedAmount.currency")
     @Mapping(target = "totalDisbursedAmount", source = "totalDisbursedAmount.amount")
-    @Mapping(target = "sanctionedLoan.revocationReason", source = "sanctionedLoan.revocationReason.text")
-    @Mapping(
-            target = "sanctionedLoan.disbursementHistoryRecords",
-            source = "sanctionedLoan.disbursementHistory.records")
+    @Mapping(target = "disbursementHistoryRecords", source = "disbursementHistory.records")
     @Mapping(
             target = "sanctionedLoan.disbursementScheduleTranches",
             source = "sanctionedLoan.disbursementSchedule.tranches")

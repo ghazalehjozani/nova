@@ -24,10 +24,8 @@ import ir.dotin.platform.pangaea.persistence.jpa.entity.PersistentEntity;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ConfirmTypeEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CurrencyTypeEmb;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.DisbursementHistoryEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.GracePeriodEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.InstallmentCountEmb;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RevocationReasonEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.SanctionSerialEmb;
 
 import lombok.Getter;
@@ -89,14 +87,6 @@ public class TradeSanctionedLoanEntity extends PersistentEntity {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "disbursement_schedule_id")
     private DisbursementScheduleEntity disbursementSchedule;
-
-    @Nullable
-    @Embedded
-    private DisbursementHistoryEmb disbursementHistory;
-
-    @Nullable
-    @Embedded
-    private RevocationReasonEmb revocationReason;
 
     @Nullable
     @Enumerated(EnumType.STRING)

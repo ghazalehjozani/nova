@@ -28,11 +28,13 @@ import org.hibernate.proxy.HibernateProxy;
 import org.jspecify.annotations.Nullable;
 
 import ir.dotin.platform.pangaea.persistence.jpa.embeddable.MoneyEmb;
+import ir.dotin.platform.pangaea.persistence.jpa.embeddable.PeriodEmb;
 import ir.dotin.platform.pangaea.persistence.jpa.entity.PersistentEntity;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CancellationDataEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CloseFacilityPaidOffInfoEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.CollateralEmb;
+import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.DisbursementHistoryEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.TransactionNumberEmb;
 
 import lombok.Getter;
@@ -110,8 +112,7 @@ public class TradeLoanFacilityEntity extends PersistentEntity {
             name = "loan_facility_restructuring_transaction_numbers",
             joinColumns = @JoinColumn(name = "loan_facility_id"),
             indexes = @Index(name = "idx_trade_loan_facility_restructuring", columnList = "loan_facility_id"))
-    @Column(name = "restructuringـtransaction_number")
-    private List<String> restructuringTransactionNumbers = new ArrayList<>();
+    private List<TransactionNumberEmb> restructuringTransactionNumbers = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
@@ -142,6 +143,19 @@ public class TradeLoanFacilityEntity extends PersistentEntity {
     @Nullable
     @Embedded
     private CloseFacilityPaidOffInfoEmb closeFacilityPaidOffInfo;
+
+    @Nullable
+    @Embedded
+    private DisbursementHistoryEmb disbursementHistory;
+
+    @Nullable
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "years", column = @Column(name = "effective_loan_duration_years")),
+        @AttributeOverride(name = "months", column = @Column(name = "effective_loan_duration_months")),
+        @AttributeOverride(name = "days", column = @Column(name = "effective_loan_duration_days"))
+    })
+    private PeriodEmb effectiveLoanDuration;
 
     @Override
     // why: getClass()-based identity is intentional for JPA entity equality (Hibernate proxy safety) — the

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <!--
+        CS-2 (base-loan 2026.6.8 refactor): LoanFacility now carries an @Embedded PeriodEmb effectiveLoanDuration
+        mapped to effective_loan_duration_{years,months,days}. Column types mirror the sanctioned_loans
+        loan_duration_{years,months,days} PeriodEmb columns (INT). PeriodEmb fields are boxed Integer (@Nullable),
+        so INT (no NOT NULL) is correct.
+
+        NO BACKFILL - leave NULL for every existing row. Rationale (verified against base-loan domain):
+          * AbstractLoanFacility.getEffectiveLoanDuration() returns Optional.ofNullable(effectiveLoanDuration), so a
+            null column reads back as Optional.empty().
+          * AbstractRepaymentSchedulingService computes the tenor as
+            loanFacility.getEffectiveLoanDuration().orElseGet(sanctionedLoan::getLoanDuration) - i.e. it FALLS BACK to
+            the sanctioned loan's loan_duration when the effective value is absent.
+          * In the OLD model, restructuring mutated sanctioned_loans.loan_duration IN PLACE, so for legacy rows that
+            column already holds the (restructured) tenor. The fallback therefore yields the CORRECT effective tenor
+            with no backfill needed.
+          * The only unrecoverable item is the *original approved* tenor of legacy-restructured rows; accepted and
+            documented here.
+          * An all-null @Embedded PeriodEmb rehydrates as a null embeddable in Hibernate, which the persistence mapper
+            (optionalLoanDurationToPeriodEmb / periodEmbToLoanDuration) handles. We must NOT write zero-valued rows:
+            LoanDuration.of(Period.ZERO) fails validation and would throw on rehydrate.
+    -->
+
+    <changeSet id="tl-2026.6.9-014-add-facility-effective-loan-duration" author="DOTIN\m.amirabdollahi">
+        <comment>Add nullable effective_loan_duration_{years,months,days} (PeriodEmb) to loan_facilities - no backfill</comment>
+        <addColumn tableName="loan_facilities">
+            <column name="effective_loan_duration_years" type="INT"/>
+            <column name="effective_loan_duration_months" type="INT"/>
+            <column name="effective_loan_duration_days" type="INT"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="loan_facilities" columnName="effective_loan_duration_years"/>
+            <dropColumn tableName="loan_facilities" columnName="effective_loan_duration_months"/>
+            <dropColumn tableName="loan_facilities" columnName="effective_loan_duration_days"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

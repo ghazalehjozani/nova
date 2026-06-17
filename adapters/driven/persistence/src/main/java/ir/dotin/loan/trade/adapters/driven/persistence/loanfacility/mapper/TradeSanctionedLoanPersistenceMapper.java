@@ -19,16 +19,11 @@ public interface TradeSanctionedLoanPersistenceMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "modifiedBy", ignore = true)
     @Mapping(target = "disbursementSchedule", ignore = true)
-    @Mapping(
-            target = "disbursementHistory",
-            source = "disbursementHistory",
-            qualifiedByName = "toDisbursementHistoryEmb")
     TradeSanctionedLoanEntity map(TradeSanctionedLoan domain);
 
     default @Nullable TradeSanctionedLoanEntity map(Optional<TradeSanctionedLoan> domainOpt) {
         return domainOpt.map(this::map).orElse(null);
     }
 
-    @Mapping(target = "disbursementHistory", source = "disbursementHistory", qualifiedByName = "toDisbursementHistory")
     TradeSanctionedLoan map(TradeSanctionedLoanEntity entity);
 }

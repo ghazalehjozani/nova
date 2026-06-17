@@ -20,7 +20,7 @@ import lombok.Setter;
 public class DisbursementHistoryEmb {
 
     @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "loan_disbursement_records", joinColumns = @JoinColumn(name = "sanctioned_loan_id"))
+    @CollectionTable(name = "loan_disbursement_records", joinColumns = @JoinColumn(name = "loan_facility_id"))
     @OrderColumn(name = "record_order")
     private List<DisbursementRecordEmb> records = new ArrayList<>();
 }

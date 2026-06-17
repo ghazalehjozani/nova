@@ -59,10 +59,7 @@ public class IrregularProgressiveDisbursementTransactionService {
             @NonNull Money trancheAmount,
             ResolvedAccounts resolvedAccounts) {
 
-        return calculateIncrementalInterest(
-                        facility.getSanctionedLoan().orElseThrow().isFirstDisbursement(),
-                        currentSchedule,
-                        recalculatedInstallments)
+        return calculateIncrementalInterest(facility.isFirstDisbursement(), currentSchedule, recalculatedInstallments)
                 .flatMap(incrementalInterest -> {
                     List<Result<LoanTransaction>> results = List.of(
                             createBankCommitmentTransaction(

@@ -73,7 +73,6 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.RequestReason;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.RevocationReason;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Samat;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.loantype.vo.EconomicSectorCurrency;
@@ -141,7 +140,6 @@ import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RelationTypeL
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RequestReasonEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RespiteSerialEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RestructuringRecordEmb;
-import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.RevocationReasonEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.SamatEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.SanctionSerialEmb;
 import ir.dotin.loan.trade.adapters.driven.persistence.embdeddable.ScheduleHistoryEmb;
@@ -434,10 +432,6 @@ public abstract class ValueObjectMapper {
     public abstract EditReasonEmb toEditReasonEmb(EditReason editReason);
 
     public abstract EditReason toEditReason(EditReasonEmb embeddable);
-
-    public abstract RevocationReasonEmb toRevocationReasonEmb(RevocationReason editReason);
-
-    public abstract RevocationReason toRevocationReason(RevocationReasonEmb embeddable);
 
     public PartyEmb toPartyEmb(Party party) {
         PartyEmb emb = new PartyEmb();
@@ -861,6 +855,16 @@ public abstract class ValueObjectMapper {
                 emb.getMonths() != null ? emb.getMonths() : 0,
                 emb.getDays() != null ? emb.getDays() : 0);
         return LoanDuration.of(period).unwrap();
+    }
+
+    @Named("optionalLoanDurationToPeriodEmb")
+    public @Nullable PeriodEmb mapOptionalLoanDurationToPeriodEmb(Optional<LoanDuration> loanDuration) {
+        return loanDuration.map(this::mapLoanDurationToPeriodEmb).orElse(null);
+    }
+
+    @Named("periodEmbToLoanDuration")
+    public @Nullable LoanDuration mapPeriodEmbToLoanDurationNamed(PeriodEmb emb) {
+        return mapPeriodEmbToLoanDuration(emb);
     }
 
     // why: the Period day-component is intentional — years/months/days are decomposed into separate columns and

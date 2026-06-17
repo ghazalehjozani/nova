@@ -73,7 +73,7 @@ public class IrregularDisbursementSeedAssembler {
                 command.branchCode(),
                 DocumentMetadataUtils.orEmpty(command.channel()));
 
-        int trancheNumber = facility.getSanctionedLoan().orElseThrow().getDisbursementCount() + 1;
+        int trancheNumber = facility.getDisbursementCount() + 1;
 
         return IrregularDisbursementData.initial(
                 command.loanFacilityId(),

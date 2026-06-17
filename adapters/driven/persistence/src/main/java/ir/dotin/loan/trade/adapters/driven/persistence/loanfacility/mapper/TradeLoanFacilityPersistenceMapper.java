@@ -40,10 +40,22 @@ public interface TradeLoanFacilityPersistenceMapper {
                 target = "cancelLoanTransactionNumbers",
                 source = "cancelLoanTransactionNumbers",
                 qualifiedByName = "toTransactionNumberEmbList"),
+        @Mapping(
+                target = "restructuringTransactionNumbers",
+                source = "restructuringTransactionNumbers",
+                qualifiedByName = "toTransactionNumberEmbList"),
         @Mapping(target = "accountInfoMap", source = "accountInfoMap", qualifiedByName = "toAccountInfoMapEmb"),
         @Mapping(target = "disbursementDate", source = "disbursementDate"),
         @Mapping(target = "collaterals", source = "collaterals"),
         @Mapping(target = "cancellationDataEmb", source = "cancellationData"),
+        @Mapping(
+                target = "disbursementHistory",
+                source = "disbursementHistory",
+                qualifiedByName = "toDisbursementHistoryEmb"),
+        @Mapping(
+                target = "effectiveLoanDuration",
+                source = "effectiveLoanDuration",
+                qualifiedByName = "optionalLoanDurationToPeriodEmb"),
         @Mapping(
                 target = "closeFacilityPaidOffInfo",
                 source = "closeFacilityPaidOffInfo",
@@ -54,6 +66,11 @@ public interface TradeLoanFacilityPersistenceMapper {
     @Mapping(target = "accountInfoMap", source = "accountInfoMap", qualifiedByName = "fromAccountInfoMapEmb")
     @Mapping(target = "collaterals", source = "collaterals")
     @Mapping(target = "cancellationData", source = "cancellationDataEmb")
+    @Mapping(target = "disbursementHistory", source = "disbursementHistory", qualifiedByName = "toDisbursementHistory")
+    @Mapping(
+            target = "effectiveLoanDuration",
+            source = "effectiveLoanDuration",
+            qualifiedByName = "periodEmbToLoanDuration")
     @Mapping(
             target = "closeFacilityPaidOffInfo",
             source = "closeFacilityPaidOffInfo",

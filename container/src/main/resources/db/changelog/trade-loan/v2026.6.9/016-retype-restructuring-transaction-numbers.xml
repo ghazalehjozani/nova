@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <!--
+        CS-4 (base-loan 2026.6.8 refactor): loan_facility_restructuring_transaction_numbers now stores a
+        List<TransactionNumberEmb> (mirroring loan_facility_disbursement_transaction_numbers) instead of a single
+        String. Retype the table: add the four TransactionNumberEmb columns, backfill from the legacy single-String
+        column, enforce NOT NULL, then drop the legacy column.
+
+        WARNING: the LEGACY column name contains a non-ASCII ARABIC TATWEEL (U+0640, bytes 0xD9 0x80) between
+        "restructuring" and "transaction_number": restructuringـtransaction_number (the T here is the tatweel).
+        It is copied byte-for-byte below; a mismatch would make dropColumn silently no-op.
+
+        Backfill values:
+          * transaction_number_value = the legacy tatweel column (the only real datum we have).
+          * status = 'POSTED' - these are already-applied restructuring transactions. POSTED is a valid
+            ir.dotin.platform.accounting.document.api.enumeration.TransactionStatus constant (PENDING/POSTED/FAILED/REVERSED).
+          * tracking_id = 'LEGACY' sentinel (no tracking id existed in the old single-String model).
+          * created_at = now() (no historical timestamp existed).
+
+        Keep the FK fk_facility_restructuring_txns_on_facilities (untouched). The entity's @CollectionTable declares
+        an index idx_trade_loan_facility_restructuring on loan_facility_id; it was never created by the original 010
+        changeset, so this changeset also creates it to bring the schema in line with the entity (Hibernate schema
+        validation does not check indexes, so this is for parity/performance, not validation).
+    -->
+
+    <changeSet id="tl-2026.6.9-016a-add-restructuring-txn-columns" author="DOTIN\m.amirabdollahi">
+        <comment>Add the four TransactionNumberEmb columns to loan_facility_restructuring_transaction_numbers (nullable initially)</comment>
+        <addColumn tableName="loan_facility_restructuring_transaction_numbers">
+            <column name="transaction_number_value" type="VARCHAR(255)"/>
+            <column name="created_at" type="DATETIME"/>
+            <column name="tracking_id" type="VARCHAR(255)"/>
+            <column name="status" type="VARCHAR(255)"/>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="loan_facility_restructuring_transaction_numbers" columnName="transaction_number_value"/>
+            <dropColumn tableName="loan_facility_restructuring_transaction_numbers" columnName="created_at"/>
+            <dropColumn tableName="loan_facility_restructuring_transaction_numbers" columnName="tracking_id"/>
+            <dropColumn tableName="loan_facility_restructuring_transaction_numbers" columnName="status"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-2026.6.9-016b-backfill-restructuring-txn-columns" author="DOTIN\m.amirabdollahi">
+        <comment>Backfill TransactionNumberEmb columns from the legacy single-String tatweel column</comment>
+        <sql>
+            UPDATE loan_facility_restructuring_transaction_numbers
+            SET transaction_number_value = "restructuringـtransaction_number",
+                status                    = 'POSTED',
+                tracking_id               = 'LEGACY',
+                created_at                = now();
+        </sql>
+        <rollback>
+            <empty/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-2026.6.9-016c-restructuring-txn-columns-not-null" author="DOTIN\m.amirabdollahi">
+        <comment>Enforce NOT NULL on all four TransactionNumberEmb columns now that they are backfilled</comment>
+        <addNotNullConstraint tableName="loan_facility_restructuring_transaction_numbers"
+                              columnName="transaction_number_value" columnDataType="VARCHAR(255)"/>
+        <addNotNullConstraint tableName="loan_facility_restructuring_transaction_numbers"
+                              columnName="created_at" columnDataType="DATETIME"/>
+        <addNotNullConstraint tableName="loan_facility_restructuring_transaction_numbers"
+                              columnName="tracking_id" columnDataType="VARCHAR(255)"/>
+        <addNotNullConstraint tableName="loan_facility_restructuring_transaction_numbers"
+                              columnName="status" columnDataType="VARCHAR(255)"/>
+        <rollback>
+            <dropNotNullConstraint tableName="loan_facility_restructuring_transaction_numbers"
+                                   columnName="transaction_number_value" columnDataType="VARCHAR(255)"/>
+            <dropNotNullConstraint tableName="loan_facility_restructuring_transaction_numbers"
+                                   columnName="created_at" columnDataType="DATETIME"/>
+            <dropNotNullConstraint tableName="loan_facility_restructuring_transaction_numbers"
+                                   columnName="tracking_id" columnDataType="VARCHAR(255)"/>
+            <dropNotNullConstraint tableName="loan_facility_restructuring_transaction_numbers"
+                                   columnName="status" columnDataType="VARCHAR(255)"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-2026.6.9-016d-drop-legacy-restructuring-column" author="DOTIN\m.amirabdollahi">
+        <comment>Drop the legacy single-String tatweel column (name copied byte-for-byte)</comment>
+        <dropColumn tableName="loan_facility_restructuring_transaction_numbers"
+                    columnName="restructuringـtransaction_number"/>
+        <rollback>
+            <addColumn tableName="loan_facility_restructuring_transaction_numbers">
+                <column name="restructuringـtransaction_number" type="VARCHAR(255)"/>
+            </addColumn>
+            <sql>
+                UPDATE loan_facility_restructuring_transaction_numbers
+                SET "restructuringـtransaction_number" = transaction_number_value;
+            </sql>
+            <addNotNullConstraint tableName="loan_facility_restructuring_transaction_numbers"
+                                  columnName="restructuringـtransaction_number" columnDataType="VARCHAR(255)"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="tl-2026.6.9-016e-create-restructuring-txn-index" author="DOTIN\m.amirabdollahi">
+        <comment>Create idx_trade_loan_facility_restructuring declared on the entity @CollectionTable (never created by 010)</comment>
+        <createIndex tableName="loan_facility_restructuring_transaction_numbers"
+                     indexName="idx_trade_loan_facility_restructuring">
+            <column name="loan_facility_id"/>
+        </createIndex>
+        <rollback>
+            <dropIndex tableName="loan_facility_restructuring_transaction_numbers"
+                       indexName="idx_trade_loan_facility_restructuring"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

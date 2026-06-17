@@ -241,7 +241,6 @@ public class MockPortConfigurator {
                                 ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod.LUMP_SUM,
                                 null,
                                 null,
-                                null,
                                 new ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType("1"))));
     }
 }

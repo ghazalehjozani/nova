@@ -44,4 +44,14 @@
     <!-- LN-59394: partial dispatch index for the outbox poller on all loan_*_outbox_events tables -->
     <include file="db/changelog/trade-loan/v2026.5.57/012-add-outbox-poller-index.xml"/>
 
+    <!--
+        base-loan 2026.6.8 refactor: align schema with the Phase 2/3 entity changes. Ordered AFTER every table
+        these changesets alter (sanctioned_loans=004, loan_facilities=005, loan_disbursement_records=006,
+        loan_facility_restructuring_transaction_numbers=010).
+    -->
+    <include file="db/changelog/trade-loan/v2026.6.9/013-drop-sanctioned-loan-revocation-reason.xml"/>
+    <include file="db/changelog/trade-loan/v2026.6.9/014-add-facility-effective-loan-duration.xml"/>
+    <include file="db/changelog/trade-loan/v2026.6.9/015-repoint-disbursement-records-to-facility.xml"/>
+    <include file="db/changelog/trade-loan/v2026.6.9/016-retype-restructuring-transaction-numbers.xml"/>
+
 </databaseChangeLog>

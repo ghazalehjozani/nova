@@ -21,5 +21,4 @@ public record SanctionDetails(
         DisbursementMethod disbursementMethod,
         @Nullable String lifeInsuranceId,
         @Nullable String collateralSerial,
-        @Nullable String revocationReason,
         ConfirmType confirmType) {}

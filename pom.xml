@@ -47,7 +47,7 @@
     </profiles>
 
     <properties>
-        <loan.base-loan.version>2026.6.7-SNAPSHOT</loan.base-loan.version>
+        <loan.base-loan.version>2026.6.8-SNAPSHOT</loan.base-loan.version>
         <loan.trade-loan.version>${project.version}</loan.trade-loan.version>
         <sonar.projectVersion>${project.version}</sonar.projectVersion>
         <platform.accounting.document.version>2026.6.6-SNAPSHOT</platform.accounting.document.version>

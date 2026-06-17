@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatorVersion": "2026.6.8-SNAPSHOT",
+  "generatorVersion": "2026.6.9-SNAPSHOT",
   "baseLocale": "en",
   "locales": [
     "en",
     "fa"
   ],
-  "keyCount": 865,
+  "keyCount": 1026,
   "entries": {
     "documentCommentMessageCodes.account.creditor": {
       "family": "message",
@@ -53,6 +53,14 @@
       "args": []
     },
     "enum.ApplicantChannel.INTERNET_BANK": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.ApplicationNumberGenerationType.FCB_VALIDATION": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.ApplicationNumberGenerationType.INTERNAL_GENERATION": {
       "family": "enum",
       "args": []
     },
@@ -616,6 +624,102 @@
       "family": "enum",
       "args": []
     },
+    "enum.TradeRelationType.ACCRUED_DEFERRED_INTEREST": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.ACCRUED_INTEREST": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.ACCRUED_PENALTY": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.BANK_COMMITMENTS": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.BANK_COMMITMENTS_CONTRA": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.CURRENT_DEBT_RECEIVABLES": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.DEFERRED_INTEREST": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.DISBURSEMENT_TRANSACTION_CONTEXT": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.DISCOUNT": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.FUTURE_INTEREST": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.INTEREST_SHORTFALL_PROVISION": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.PENALTY": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.PRINCIPAL": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.RECEIVABLES_ACCRUED_DEFERRED_INTEREST": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.RECEIVABLES_ACCRUED_PENALTY": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.RECEIVABLES_DEFERRED_INTEREST": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.RECEIVABLES_DOUBTFUL": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.RECEIVABLES_FUTURE_INTEREST": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.RECEIVABLES_OVERDUE": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.RECEIVABLES_PAST_DUE": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.RECEIVABLES_PENALTY": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.RECEIVABLES_SUBSTANDARD": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.RECEIVABLES_WRITTEN_OFF": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.TradeRelationType.RECEIVED_INTEREST": {
+      "family": "enum",
+      "args": []
+    },
     "enum.TransactionStatus.FAILED": {
       "family": "enum",
       "args": []
@@ -1031,23 +1135,6 @@
       "family": "error",
       "args": []
     },
-    "error.loan.1168": {
-      "family": "error",
-      "args": [
-        "0"
-      ]
-    },
-    "error.loan.1169": {
-      "family": "error",
-      "args": []
-    },
-    "error.loan.1170": {
-      "family": "error",
-      "args": [
-        "0",
-        "1"
-      ]
-    },
     "error.loan.1171": {
       "family": "error",
       "args": [
@@ -1107,6 +1194,78 @@
     "error.loan.1197": {
       "family": "error",
       "args": []
+    },
+    "error.loan.1271": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.1272": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.1273": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.1274": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.1275": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.1276": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.1277": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.1278": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.1291": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.1292": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.1293": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.1294": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.1295": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.1296": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.1297": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
     },
     "error.loan.18001": {
       "family": "error",
@@ -2221,9 +2380,40 @@
       "family": "error",
       "args": []
     },
+    "error.loan.3001": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.3002": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.3003": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.3004": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
     "error.loan.301": {
       "family": "error",
       "args": []
+    },
+    "error.loan.3011": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
     },
     "error.loan.302": {
       "family": "error",
@@ -2385,6 +2575,52 @@
     "error.loan.31036": {
       "family": "error",
       "args": []
+    },
+    "error.loan.31061": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.31062": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.31063": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.31064": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.31081": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.31082": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.31083": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.31084": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
     },
     "error.loan.32001": {
       "family": "error",
@@ -2771,6 +3007,39 @@
         "0"
       ]
     },
+    "error.loan.35011": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.35012": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.35013": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.35014": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.35015": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.35016": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
     "error.loan.36001": {
       "family": "error",
       "args": [
@@ -2830,6 +3099,39 @@
         "0",
         "1"
       ]
+    },
+    "error.loan.36031": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.36032": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.36033": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.36034": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.36035": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.36036": {
+      "family": "error",
+      "args": []
     },
     "error.loan.37001": {
       "family": "error",
@@ -2892,6 +3194,51 @@
     "error.loan.37010": {
       "family": "error",
       "args": []
+    },
+    "error.loan.37021": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.37022": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.37023": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.37024": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.37025": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.37026": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.37027": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.37028": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
     },
     "error.loan.38001": {
       "family": "error",
@@ -3415,6 +3762,32 @@
       "family": "error",
       "args": []
     },
+    "error.loan.39096": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.39097": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.39098": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.39099": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.39100": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.39101": {
+      "family": "error",
+      "args": []
+    },
     "error.loan.40001": {
       "family": "error",
       "args": []
@@ -3924,6 +4297,430 @@
       "family": "error",
       "args": []
     },
+    "error.loan.51001": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.51002": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.51003": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.51004": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.51005": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.51006": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.51007": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.51008": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.51009": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.51010": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.51011": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.51012": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.51013": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.51014": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.51015": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.51016": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.51017": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.51018": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.51019": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.51020": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.51021": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.51022": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.51023": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.51024": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.51025": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.51026": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.51027": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.51028": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.51029": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.51030": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.51031": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.52001": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.52002": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.52003": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.52004": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.52005": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.52006": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.52007": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.52008": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.53001": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.53002": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.53003": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.53004": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54001": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54002": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54003": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54004": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54005": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54006": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.54007": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54008": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.54009": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54010": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54011": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54012": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54013": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54014": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54015": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.54016": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54017": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54018": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54019": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.54020": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.54021": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54022": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54023": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54026": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54027": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54028": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.54029": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.54030": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.54031": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.54032": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
     "error.loan.5901": {
       "family": "error",
       "args": []
@@ -3937,6 +4734,24 @@
       "args": []
     },
     "error.loan.6001": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.6006": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.6007": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.6008": {
       "family": "error",
       "args": [
         "0"
@@ -4173,6 +4988,54 @@
       ]
     },
     "error.loan.8050": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.8056": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.8057": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.8058": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.8059": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.8060": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.8061": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.8062": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.8063": {
       "family": "error",
       "args": [
         "0"

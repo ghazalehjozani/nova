@@ -79,6 +79,7 @@ public record TradeFacilityQueryDto(
         LocalDate disbursementDate,
         String facilityType,
         List<CollateralEmbDto> collaterals,
+        List<TradeSanctionedLoanEntityDto.DisbursementRecordEmbDto> disbursementHistoryRecords,
         ClosePaidOffDto closePaidOff)
         implements Serializable, QueryResult {
     /** Read-side projection of the loan application associated with a trade facility. */
@@ -136,8 +137,6 @@ public record TradeFacilityQueryDto(
             Integer loanDurationMonths,
             String lifeInsuranceId,
             List<ScheduledTrancheEmbDto> disbursementScheduleTranches,
-            List<DisbursementRecordEmbDto> disbursementHistoryRecords,
-            String revocationReason,
             DisbursementMethod disbursementMethod,
             String confirmType)
             implements Serializable {

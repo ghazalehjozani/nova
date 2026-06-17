@@ -12,7 +12,6 @@ import ir.dotin.platform.pangaea.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.GracePeriod;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanDuration;
-import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.RevocationReason;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LifeInsuranceId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionSerial;
@@ -88,11 +87,6 @@ public class ManualApprovalStrategy implements ApprovalStrategy {
             if (details.lifeInsuranceId() != null) {
                 builder.lifeInsuranceId(
                         LifeInsuranceId.of(details.lifeInsuranceId()).unwrap());
-            }
-
-            if (details.revocationReason() != null) {
-                builder.revocationReason(
-                        RevocationReason.of(details.revocationReason()).unwrap());
             }
 
             return Result.success(builder);
