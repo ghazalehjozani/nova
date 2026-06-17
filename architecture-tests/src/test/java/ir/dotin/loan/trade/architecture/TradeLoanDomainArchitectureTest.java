@@ -12,7 +12,13 @@ public class TradeLoanDomainArchitectureTest extends BaseDomainArchitectureTest 
     @Override
     protected ArchUnitConfiguration getConfiguration() {
         return ArchUnitConfiguration.builder("ir.dotin.loan.trade")
+                // Shared kernel: trade domain specializes base-loan abstractions.
                 .withAdditionalAllowedPackage("ir.dotin.loan.baseloan.core.domain..")
+                // Sanctioned generic-subdomain dependency (ADR-0001): the trade document strategies/factories
+                // build on the platform accounting-document model (api + core), as base-loan's shared/document does.
+                .withAdditionalAllowedPackage("ir.dotin.platform.accounting.document..")
+                // Sanctioned formula evaluation dependency (ADR-0005): trade formula bindings use expression-kit.
+                .withAdditionalAllowedPackage("ir.dotin.platform.formula.api..")
                 .build();
     }
 }
