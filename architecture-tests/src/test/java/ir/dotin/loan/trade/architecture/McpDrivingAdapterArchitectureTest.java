@@ -10,11 +10,11 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
- * Structural gate for the MCP driving adapter ({@code adapters/driving/mcp}). It extends the standing "driving adapters
- * MUST NOT depend on outbound ports" invariant to cover the {@code ..adapters.driving.mcp..} package, and adds one rule
- * pinning the adapter's allowed dependencies to the read path only: the query slice, the platform query dispatcher, and
- * the inert MCP contract. The MCP adapter is a read-only driving adapter — it must never reach the command/write side,
- * a driven adapter, or a sibling driving adapter.
+ * Structural gate for the MCP driving adapter ({@code adapters/driving/mcp}). The generic "driving adapters MUST NOT
+ * depend on outbound ports" invariant is enforced for every driving adapter (mcp included) by the platform
+ * {@code BaseAdapterArchitectureTest} (see {@code TradeLoanAdapterArchitectureTest}); this class keeps only the
+ * MCP-specific rule pinning the adapter's allowed dependencies to the read path: it must never reach the command/write
+ * side, a driven adapter, a sibling driving adapter, or the MCP transport runtime — the MCP adapter is read-only.
  *
  * <p>Scoped to {@code ir.dotin.loan.trade.adapters.driving.mcp} only (the architecture-tests POM puts that module's
  * bytecode on the test classpath). A missing dependency would make these rules pass vacuously; the assertion below that
@@ -33,19 +33,6 @@ class McpDrivingAdapterArchitectureTest {
         // Guard against a vacuous pass: if the module is absent from the test classpath, the rules below see zero
         // classes and "succeed" silently. Fail loudly instead.
         assertFalse(MCP_CLASSES.isEmpty(), "MCP driving-adapter bytecode must be on the architecture-tests classpath");
-    }
-
-    @Test
-    void mcpAdapterMustNotDependOnOutboundPorts() {
-        ArchRule rule = noClasses()
-                .that()
-                .resideInAPackage(MCP_PACKAGE + "..")
-                .should()
-                .dependOnClassesThat()
-                .resideInAPackage("ir.dotin.loan.trade.core.application.ports.outbound..")
-                .because(
-                        "driving adapters read through the query slice and inbound ports — never outbound write ports");
-        rule.check(MCP_CLASSES);
     }
 
     @Test

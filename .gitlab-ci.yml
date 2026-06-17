@@ -52,3 +52,44 @@ scan-secrets:
 publish-release:
   rules:
     - when: never
+
+# =============================================================================
+# ArchUnit structural gate + Testcontainers integration tests.
+# The shared `service.gitlab-ci.yml` builds + unit-tests only; these jobs add
+# the hexagonal-architecture enforcement and the DB-backed integration suites.
+# Assumptions to confirm against platform/ci-templates: a `test` stage exists,
+# the inherited image is JDK 25 + Maven with Nexus settings, and (for the IT
+# job) the runner allows Docker-in-Docker.
+#
+# NOTE: `architecture-test` enforces the trade-loan domain/adapter rules. The
+# domain rules currently surface pre-existing violations in core/domain
+# (allowlist gaps + entity/factory validation debt) — this job will stay RED
+# until those are resolved; that is the gate doing its job, not a misconfig.
+# =============================================================================
+architecture-test:
+  stage: test
+  script:
+    - mvn -B -P"architecture-test,${MVN_BUILD_PROFILES}" test
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+integration-test:
+  stage: test
+  services:
+    - name: docker:27-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: "tcp://docker:2376"
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: "1"
+    DOCKER_CERT_PATH: "/certs/client"
+    # Testcontainers in dind: mapped ports are reachable at the `docker` service
+    # host; Ryuk is disabled only here because the dind daemon is ephemeral.
+    TESTCONTAINERS_HOST_OVERRIDE: "docker"
+    TESTCONTAINERS_RYUK_DISABLED: "true"
+  script:
+    - mvn -B -P"integration-test,${MVN_BUILD_PROFILES}" verify
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
