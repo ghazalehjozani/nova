@@ -11,6 +11,7 @@ import org.jspecify.annotations.NullMarked;
 open module ir.dotin.loan.trade.adapters.driving.rest {
     requires transitive ir.dotin.loan.trade.adapters.driving.contract;
     requires transitive ir.dotin.loan.trade.core.application.query;
+    requires expression.kit.service;
     requires ir.dotin.loan.baseloan.core.domain;
     requires ir.dotin.platform.pangaea.protocol.rest;
     requires ir.dotin.platform.pangaea.protocol.api;
@@ -45,6 +46,7 @@ open module ir.dotin.loan.trade.adapters.driving.rest {
     exports ir.dotin.loan.trade.adapters.driving.rest.filter;
     exports ir.dotin.loan.trade.adapters.driving.rest.query.installmentschedule;
     exports ir.dotin.loan.trade.adapters.driving.rest.ops.reconciliation;
+    exports ir.dotin.loan.trade.adapters.driving.rest.query.formula;
     exports ir.dotin.loan.trade.adapters.driving.rest.query.loanarrangement;
     exports ir.dotin.loan.trade.adapters.driving.rest.query.loanfacility;
     exports ir.dotin.loan.trade.adapters.driving.rest.query.loantype;

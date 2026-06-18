@@ -76,12 +76,15 @@ public class SwaggerConfig extends BaseSwaggerConfig {
     public static final String TAG_LOAN_FACILITIES_COMMANDS = "Loan Facilities · Commands";
     public static final String TAG_LOAN_FACILITIES_QUERIES = "Loan Facilities · Queries";
     public static final String TAG_INSTALLMENT_SCHEDULES_QUERIES = "Installment Schedules · Queries";
+    public static final String TAG_FORMULAS_COMMANDS = "Formulas · Commands";
+    public static final String TAG_FORMULAS_QUERIES = "Formulas · Queries";
     public static final String TAG_RECONCILIATION_OPS = "Reconciliation · Ops";
 
     private static final String GROUP_LOAN_TYPES = "Loan Types";
     private static final String GROUP_LOAN_ARRANGEMENTS = "Loan Arrangements";
     private static final String GROUP_LOAN_FACILITIES = "Loan Facilities";
     private static final String GROUP_INSTALLMENT_SCHEDULES = "Installment Schedules";
+    private static final String GROUP_FORMULAS = "Formulas";
     private static final String GROUP_RECONCILIATION = "Reconciliation";
 
     // ---- Aliases referenced by controllers (value-only mapping onto the eight canonical tags) ----
@@ -181,6 +184,8 @@ public class SwaggerConfig extends BaseSwaggerConfig {
                     tag(TAG_LOAN_FACILITIES_COMMANDS, "Write operations (commands) for loan facilities."),
                     tag(TAG_LOAN_FACILITIES_QUERIES, "Read operations (queries) for loan facilities."),
                     tag(TAG_INSTALLMENT_SCHEDULES_QUERIES, "Read operations (queries) for installment schedules."),
+                    tag(TAG_FORMULAS_COMMANDS, "Write operations (commands) for formulas."),
+                    tag(TAG_FORMULAS_QUERIES, "Read operations (queries) for formulas."),
                     tag(TAG_RECONCILIATION_OPS, "Reconciliation ops: discrepancy lookup, convergence, remediation.")));
 
             openApi.addExtension(
@@ -194,6 +199,7 @@ public class SwaggerConfig extends BaseSwaggerConfig {
                                     GROUP_LOAN_FACILITIES,
                                     List.of(TAG_LOAN_FACILITIES_COMMANDS, TAG_LOAN_FACILITIES_QUERIES)),
                             tagGroup(GROUP_INSTALLMENT_SCHEDULES, List.of(TAG_INSTALLMENT_SCHEDULES_QUERIES)),
+                            tagGroup(GROUP_FORMULAS, List.of(TAG_FORMULAS_COMMANDS, TAG_FORMULAS_QUERIES)),
                             tagGroup(GROUP_RECONCILIATION, List.of(TAG_RECONCILIATION_OPS))));
         };
     }
@@ -272,6 +278,9 @@ public class SwaggerConfig extends BaseSwaggerConfig {
         }
         if (path.contains("/installment-schedules")) {
             return 3;
+        }
+        if (path.contains("/formulas")) {
+            return 4;
         }
         return 9;
     }

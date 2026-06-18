@@ -35,7 +35,7 @@
       </dependency>
       <dependency>
           <groupId>ir.dotin.platform</groupId>
-          <artifactId>expression-kit-rest</artifactId>
+          <artifactId>expression-kit-service</artifactId>
       </dependency>
       <dependency>
           <groupId>ir.dotin.loan</groupId>

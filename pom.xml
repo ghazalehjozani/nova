@@ -176,11 +176,6 @@
             </dependency>
             <dependency>
                 <groupId>ir.dotin.platform</groupId>
-                <artifactId>expression-kit-rest</artifactId>
-                <version>${platform.formula.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ir.dotin.platform</groupId>
                 <artifactId>expression-kit-spring-boot-starter</artifactId>
                 <version>${platform.formula.version}</version>
             </dependency>

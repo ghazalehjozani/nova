@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.core.application.service.shared.formula;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -9,13 +10,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import ir.dotin.platform.formula.api.EvaluationResult;
 import ir.dotin.platform.formula.api.Formula;
 import ir.dotin.platform.formula.api.FormulaExpression;
 import ir.dotin.platform.formula.api.FormulaId;
 import ir.dotin.platform.formula.api.ProviderRegistry;
 import ir.dotin.platform.formula.api.binding.FieldBinding;
 import ir.dotin.platform.formula.api.spi.FormulaRegistry;
-import ir.dotin.platform.formula.core.FormulaService;
+import ir.dotin.platform.formula.service.FormulaEvaluationCoordinator;
+import ir.dotin.platform.formula.service.FormulaEvaluationCoordinator.ResolvedFormula;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBankingErrors;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.formula.EvaluateFormulaViaFcbPort;
@@ -42,10 +45,10 @@ class TradeLoanFormulaEvaluationServiceTest {
     private static final FormulaId FORMULA_ID = FormulaId.of("interest");
 
     @Mock
-    private FormulaService formulaService;
+    private FormulaRegistry formulaRegistry;
 
     @Mock
-    private FormulaRegistry formulaRegistry;
+    private FormulaEvaluationCoordinator coordinator;
 
     @Mock
     private EvaluateFormulaViaFcbPort evaluateFormulaViaFcbPort;
@@ -63,7 +66,7 @@ class TradeLoanFormulaEvaluationServiceTest {
     @BeforeEach
     void setUp() {
         service = new TradeLoanFormulaEvaluationService(
-                formulaService, formulaRegistry, evaluateFormulaViaFcbPort, properties, meterRegistry);
+                formulaRegistry, coordinator, evaluateFormulaViaFcbPort, properties, meterRegistry);
 
         formula = FormulaExpression.builder("approvedAmount * rate", TradeLoanParameterProvider.class)
                 .id(FORMULA_ID)
@@ -75,10 +78,9 @@ class TradeLoanFormulaEvaluationServiceTest {
     }
 
     @Test
-    void flagOffSkipsFcbAndReturnsPrimary() {
+    void crossCheckOffSkipsFcbAndReturnsPrimary() {
         properties.setCrossCheckEnabled(false);
-        when(formulaService.evaluate(eq(formula), any(ProviderRegistry.class), any()))
-                .thenReturn(new BigDecimal("42"));
+        when(coordinator.computeLocal(any(ResolvedFormula.class), anyMap())).thenReturn(localResult("42"));
 
         BigDecimal result = service.evaluate(FORMULA_ID, providers);
 
@@ -89,8 +91,7 @@ class TradeLoanFormulaEvaluationServiceTest {
     @Test
     void crossCheckMatchReturnsPrimaryNoDivergenceMetric() {
         properties.setCrossCheckEnabled(true);
-        when(formulaService.evaluate(eq(formula), any(ProviderRegistry.class), any()))
-                .thenReturn(new BigDecimal("42"));
+        when(coordinator.computeLocal(any(ResolvedFormula.class), anyMap())).thenReturn(localResult("42"));
         when(evaluateFormulaViaFcbPort.evaluateViaFcb(eq("interest"), anyMap()))
                 .thenReturn(Result.success(new BigDecimal("42.00000")));
 
@@ -104,8 +105,7 @@ class TradeLoanFormulaEvaluationServiceTest {
     @Test
     void crossCheckDivergenceLogsCountsButReturnsPrimary() {
         properties.setCrossCheckEnabled(true);
-        when(formulaService.evaluate(eq(formula), any(ProviderRegistry.class), any()))
-                .thenReturn(new BigDecimal("42"));
+        when(coordinator.computeLocal(any(ResolvedFormula.class), anyMap())).thenReturn(localResult("42"));
         when(evaluateFormulaViaFcbPort.evaluateViaFcb(eq("interest"), anyMap()))
                 .thenReturn(Result.success(new BigDecimal("99")));
 
@@ -119,8 +119,7 @@ class TradeLoanFormulaEvaluationServiceTest {
     @Test
     void crossCheckFcbFailureCountsErrorButReturnsPrimary() {
         properties.setCrossCheckEnabled(true);
-        when(formulaService.evaluate(eq(formula), any(ProviderRegistry.class), any()))
-                .thenReturn(new BigDecimal("42"));
+        when(coordinator.computeLocal(any(ResolvedFormula.class), anyMap())).thenReturn(localResult("42"));
         when(evaluateFormulaViaFcbPort.evaluateViaFcb(eq("interest"), anyMap()))
                 .thenReturn(Result.failure(CoreBankingErrors.FORMULA_EVALUATION_FAILED_IN_FCB, "interest"));
 
@@ -133,8 +132,7 @@ class TradeLoanFormulaEvaluationServiceTest {
     @Test
     void crossCheckTransportErrorCountsErrorButReturnsPrimary() {
         properties.setCrossCheckEnabled(true);
-        when(formulaService.evaluate(eq(formula), any(ProviderRegistry.class), any()))
-                .thenReturn(new BigDecimal("42"));
+        when(coordinator.computeLocal(any(ResolvedFormula.class), anyMap())).thenReturn(localResult("42"));
         when(evaluateFormulaViaFcbPort.evaluateViaFcb(eq("interest"), anyMap()))
                 .thenThrow(new RuntimeException("transport down"));
 
@@ -147,8 +145,7 @@ class TradeLoanFormulaEvaluationServiceTest {
     @Test
     void crossCheckExtractsFriendlyVarsFromFieldBindings() {
         properties.setCrossCheckEnabled(true);
-        when(formulaService.evaluate(eq(formula), any(ProviderRegistry.class), any()))
-                .thenReturn(new BigDecimal("42"));
+        when(coordinator.computeLocal(any(ResolvedFormula.class), anyMap())).thenReturn(localResult("42"));
         when(evaluateFormulaViaFcbPort.evaluateViaFcb(eq("interest"), anyMap()))
                 .thenReturn(Result.success(new BigDecimal("42")));
 
@@ -158,5 +155,9 @@ class TradeLoanFormulaEvaluationServiceTest {
                 .evaluateViaFcb(
                         eq("interest"),
                         argThat(map -> new BigDecimal("1000").compareTo(map.get("approvedAmount")) == 0));
+    }
+
+    private static EvaluationResult localResult(String value) {
+        return new EvaluationResult(new BigDecimal(value), FORMULA_ID, Duration.ZERO, 0, false);
     }
 }

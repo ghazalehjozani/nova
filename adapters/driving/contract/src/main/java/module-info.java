@@ -13,6 +13,7 @@ open module ir.dotin.loan.trade.adapters.driving.contract {
     requires transitive ir.dotin.loan.baseloan.core.domain;
     requires ir.dotin.platform.pangaea.protocol.api;
     requires ir.dotin.platform.pangaea.messaging.api;
+    requires transitive expression.kit.service;
     requires com.fasterxml.jackson.annotation;
     requires net.time4j.base;
     requires io.swagger.v3.oas.annotations;

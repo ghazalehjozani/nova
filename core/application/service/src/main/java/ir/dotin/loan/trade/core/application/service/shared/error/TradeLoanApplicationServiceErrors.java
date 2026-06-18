@@ -33,6 +33,7 @@ public enum TradeLoanApplicationServiceErrors implements ProductErrorCode<TradeL
     INSTALLMENT_SCHEDULE_NOT_FOUND(
             LoanErrorCategory.FACILITY_LIFECYCLE, 83, "Installment schedule with ID {0} not found"),
     LOAN_TYPE_NOT_FOUND(LoanErrorCategory.FACILITY_LIFECYCLE, 84, "Loan type with ID {0} not found"),
+    FORMULA_NOT_FOUND(LoanErrorCategory.FACILITY_LIFECYCLE, 85, "Formula with code {0} not found"),
 
     // ── COLLATERAL (36) — add-facility-collateral ───────────────────────────────
 
@@ -91,6 +92,8 @@ public enum TradeLoanApplicationServiceErrors implements ProductErrorCode<TradeL
     DUPLICATE_LOAN_TYPE(PlatformErrorCategory.DATA_ACCESS, 7, "Loan Type {0} already exists for facility"),
     DUPLICATE_LOAN_ARRANGEMENT(
             PlatformErrorCategory.DATA_ACCESS, 8, "Loan Arrangement {0} already exists for facility"),
+    FORMULA_ALREADY_EXISTS(PlatformErrorCategory.DATA_ACCESS, 9, "Formula with code {0} already exists"),
+    FORMULA_HAS_DEPENDENTS(PlatformErrorCategory.DATA_ACCESS, 10, "Formula {0} cannot be removed: dependent formulas exist"),
 
     // ── VALIDATION (01) ─────────────────────────────────────────────────────────
 
@@ -103,6 +106,8 @@ public enum TradeLoanApplicationServiceErrors implements ProductErrorCode<TradeL
             PlatformErrorCategory.VALIDATION, 295, "Current method: {0} in not valid for disbursement"),
     INVALID_BRANCH_CODE(PlatformErrorCategory.VALIDATION, 296, "Branch code {0} is not valid"),
     FORMULA_NOT_EXIST(PlatformErrorCategory.VALIDATION, 297, "Formula with id {0} not exist"),
+    INVALID_FORMULA(PlatformErrorCategory.VALIDATION, 298, "Formula {0} is invalid: {1}"),
+    FORMULA_EVALUATION_FAILED(PlatformErrorCategory.VALIDATION, 299, "Formula {0} evaluation failed: {1}"),
 
     // ── INTEGRATION (03) ────────────────────────────────────────────────────────
 

@@ -6,7 +6,7 @@
     "en",
     "fa"
   ],
-  "keyCount": 1028,
+  "keyCount": 1045,
   "entries": {
     "documentCommentMessageCodes.account.creditor": {
       "family": "message",
@@ -1267,6 +1267,20 @@
         "0"
       ]
     },
+    "error.loan.1298": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.1299": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
     "error.loan.18001": {
       "family": "error",
       "args": []
@@ -2372,6 +2386,66 @@
         "1"
       ]
     },
+    "error.loan.23501": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.23502": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.23503": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.23504": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.23505": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.23506": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.23507": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.23508": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.23509": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.23510": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
     "error.loan.24001": {
       "family": "error",
       "args": []
@@ -2617,6 +2691,12 @@
       ]
     },
     "error.loan.31084": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.31085": {
       "family": "error",
       "args": [
         "0"
@@ -4554,6 +4634,18 @@
         "0"
       ]
     },
+    "error.loan.53005": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.53006": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
     "error.loan.54001": {
       "family": "error",
       "args": [
@@ -4770,9 +4862,21 @@
         "0"
       ]
     },
+    "error.loan.6009": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
     "error.loan.601": {
       "family": "error",
       "args": []
+    },
+    "error.loan.6010": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
     },
     "error.loan.602": {
       "family": "error",

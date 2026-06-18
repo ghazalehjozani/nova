@@ -17,6 +17,10 @@ open module ir.dotin.loan.trade.core.application.query {
     requires transitive ir.dotin.platform.pangaea.servicelayer.api;
     requires transitive ir.dotin.platform.pangaea.servicelayer.cache;
     requires ir.dotin.platform.accounting.document.api;
+    requires expression.kit.service;
+    requires ir.dotin.platform.formula.core;
+    requires ir.dotin.platform.formula.api;
+    requires spring.data.commons;
     requires tools.jackson.databind;
     requires com.fasterxml.jackson.annotation;
     requires org.jspecify;
@@ -26,6 +30,10 @@ open module ir.dotin.loan.trade.core.application.query {
     requires spring.beans;
     requires spring.context;
 
+    exports ir.dotin.loan.trade.core.application.query.formula.dto;
+    exports ir.dotin.loan.trade.core.application.query.formula.handler;
+    exports ir.dotin.loan.trade.core.application.query.formula.i18n;
+    exports ir.dotin.loan.trade.core.application.query.formula.request;
     exports ir.dotin.loan.trade.core.application.query.installmentschedule.dto;
     exports ir.dotin.loan.trade.core.application.query.installmentschedule.handler;
     exports ir.dotin.loan.trade.core.application.query.installmentschedule.i18n;

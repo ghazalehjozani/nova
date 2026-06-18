@@ -34,6 +34,18 @@
       <artifactId>trade-loan-core-application-ports-outbound</artifactId>
     </dependency>
     <dependency>
+        <groupId>ir.dotin.platform</groupId>
+        <artifactId>expression-kit-service</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>ir.dotin.platform</groupId>
+        <artifactId>expression-kit-core</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>ir.dotin.platform</groupId>
+        <artifactId>expression-kit-api</artifactId>
+    </dependency>
+    <dependency>
         <groupId>tools.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
     </dependency>
