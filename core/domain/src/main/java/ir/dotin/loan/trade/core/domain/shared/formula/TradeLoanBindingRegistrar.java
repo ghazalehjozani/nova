@@ -32,6 +32,7 @@ public class TradeLoanBindingRegistrar implements BindingRegistrar {
         this.bindings = Map.copyOf(map);
 
         this.providerInfo = ProviderInfo.builder(TradeLoanParameterProvider.class)
+                .code("LOAN_FACILITY")
                 .name("TradeLoan")
                 .displayName("Trade Loan Facility")
                 .description("Parameters specific to Trade Loan facilities")

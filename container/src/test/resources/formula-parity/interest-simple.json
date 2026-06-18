@@ -1,0 +1,13 @@
+{
+  "name": "interest-simple",
+  "expression": "approvedAmount * interestRate / 100 * durationMonths / 12",
+  "inputs": {
+    "approvedAmount": "500000000",
+    "interestRate": "18",
+    "durationMonths": "12"
+  },
+  "expectedResult": "90000000",
+  "tolerance": "0.000001",
+  "divergenceExpected": false,
+  "note": "Safe arithmetic subset (* / only). 500000000 * 18 / 100 * 12 / 12 = 90000000. FCB BigDecimal engine and expression-kit/EvalEx agree exactly."
+}

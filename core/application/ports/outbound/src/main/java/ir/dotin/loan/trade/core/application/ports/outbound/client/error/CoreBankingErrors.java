@@ -70,6 +70,10 @@ public enum CoreBankingErrors implements ProductErrorCode<CoreBankingErrors> {
     SAMAT_UNKNOWN_VIOLATION(
             TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 30, "Unknown Samat violation with code {0}: {1}"),
     BRANCH_CODE_MISSING(TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 31, "Branch code not found"),
+    FORMULA_INVALID_IN_FCB(
+            TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 32, "Formula with code {0} is not valid in FCB: {1}"),
+    FORMULA_EVALUATION_FAILED_IN_FCB(
+            TradeLoanErrorCategory.CORE_BANKING_INTEGRATION, 33, "FCB returned no result for formula code {0}"),
 
     FCB_REPLY_TIMEOUT(PlatformErrorCategory.INTEGRATION, 1, "FCB reply timed out for operation {0} after {1}ms"),
     FCB_COMMUNICATION_ERROR(PlatformErrorCategory.INTEGRATION, 2, "FCB messaging communication error: {0}"),

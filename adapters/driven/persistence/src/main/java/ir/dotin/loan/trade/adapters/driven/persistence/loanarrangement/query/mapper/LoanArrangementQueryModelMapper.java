@@ -18,6 +18,6 @@ public abstract class LoanArrangementQueryModelMapper {
     protected abstract TradeLoanArrangementQueryDto.CollateralPolicyEmbDto.CollateralTypeEmbDto mapCollateralType(
             CollateralType type);
 
-    @Mapping(target = "formulaId", source = "value")
+    @Mapping(target = "code", source = "value")
     protected abstract TradeLoanArrangementQueryDto.FormulaDto mapFormula(FormulaIdRefEmb formulaIdRefEmb);
 }

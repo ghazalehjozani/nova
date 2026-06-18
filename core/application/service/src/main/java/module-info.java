@@ -31,7 +31,9 @@ open module ir.dotin.loan.trade.core.application.service {
     requires spring.context;
     requires spring.beans;
     requires spring.boot;
+    requires spring.cloud.context;
     requires spring.tx;
+    requires micrometer.core;
     requires org.slf4j;
     requires org.mapstruct;
 

@@ -112,5 +112,5 @@ public record TradeLoanArrangementQueryDto(
     }
 
     @Builder
-    public record FormulaDto(String formulaId) {}
+    public record FormulaDto(String code) {}
 }

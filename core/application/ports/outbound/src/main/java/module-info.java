@@ -22,6 +22,7 @@ open module ir.dotin.loan.trade.core.application.ports.outbound {
     exports ir.dotin.loan.trade.core.application.ports.outbound.client.customerservice;
     exports ir.dotin.loan.trade.core.application.ports.outbound.client.depositservice;
     exports ir.dotin.loan.trade.core.application.ports.outbound.client.error;
+    exports ir.dotin.loan.trade.core.application.ports.outbound.client.formula;
     exports ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice;
     exports ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice;
     exports ir.dotin.loan.trade.core.application.ports.outbound.client.request;

@@ -1,0 +1,12 @@
+{
+  "name": "divergence-gt-as-max",
+  "expression": "a > b",
+  "inputs": {
+    "a": "8",
+    "b": "2"
+  },
+  "expectedResult": "1",
+  "tolerance": "0.000001",
+  "divergenceExpected": true,
+  "note": "FCB-ONLY SEMANTICS: in FCB's bespoke engine '>' means MAX, so MAX(8,2) = 8. expression-kit/EvalEx treats '>' as a boolean greater-than comparison: 8 > 2 is TRUE, coerced to 1 by EvaluationValue.getNumberValue(). EvalEx returns 1, NOT FCB's 8. This fixture asserts EvalEx's ACTUAL behavior to DOCUMENT the divergence; expectedResult=1 records the EvalEx-observed value, not the FCB value (which would be 8)."
+}

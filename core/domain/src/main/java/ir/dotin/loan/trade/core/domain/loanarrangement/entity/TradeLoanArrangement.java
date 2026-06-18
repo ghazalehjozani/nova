@@ -14,10 +14,12 @@ import ir.dotin.loan.trade.core.domain.loanarrangement.event.NewTradeLoanArrange
 import ir.dotin.loan.trade.core.domain.loanarrangement.event.TradeLoanArrangementActivated;
 import ir.dotin.loan.trade.core.domain.loanarrangement.event.TradeLoanArrangementCreated;
 import ir.dotin.loan.trade.core.domain.loanarrangement.event.TradeLoanArrangementDeactivated;
+import ir.dotin.loan.trade.core.domain.shared.formula.TradeLoanArrangementParameterProvider;
 
 import static java.util.Objects.requireNonNull;
 
-public final class TradeLoanArrangement extends AbstractLoanArrangement {
+public final class TradeLoanArrangement extends AbstractLoanArrangement
+        implements TradeLoanArrangementParameterProvider {
 
     private TradeLoanArrangement(Builder builder) {
         super(builder);

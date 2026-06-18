@@ -21,6 +21,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.DepositClosedR
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.DepositInfoResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.EcoSectorValidationResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.EconomicSectorResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.EvaluateFormulaViaFcbResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ReasonTypeResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ReconStateResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ReemitOutboxResponse;
@@ -29,6 +30,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.SanctionDetail
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.SimpleSuccessResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.TopicInfoListResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.TransactionResultResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ValidateFormulaResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ValidateSamatResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ValidationResultResponse;
 
@@ -72,7 +74,9 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ValidationResu
     @JsonSubTypes.Type(value = TransactionResultResponse.class, name = "issue-general-document"),
     @JsonSubTypes.Type(value = SimpleSuccessResponse.class, name = "cancel-transfer-money-loan"),
     @JsonSubTypes.Type(value = BatchOpenAccountResponse.class, name = "nova-batch-open-accounts"),
-    @JsonSubTypes.Type(value = BatchCloseAccountResponse.class, name = "nova-batch-close-accounts")
+    @JsonSubTypes.Type(value = BatchCloseAccountResponse.class, name = "nova-batch-close-accounts"),
+    @JsonSubTypes.Type(value = ValidateFormulaResponse.class, name = "validate-formula"),
+    @JsonSubTypes.Type(value = EvaluateFormulaViaFcbResponse.class, name = "evaluate-formula")
 })
 public abstract class FcbBaseResponse {
 

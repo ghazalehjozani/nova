@@ -1,0 +1,12 @@
+{
+  "name": "divergence-lt-as-min",
+  "expression": "a < b",
+  "inputs": {
+    "a": "3",
+    "b": "5"
+  },
+  "expectedResult": "1",
+  "tolerance": "0.000001",
+  "divergenceExpected": true,
+  "note": "FCB-ONLY SEMANTICS: in FCB's bespoke engine '<' means MIN, so MIN(3,5) = 3. expression-kit/EvalEx treats '<' as a boolean less-than comparison: 3 < 5 is TRUE, and DefaultFormulaEngine coerces the BOOLEAN result to a number via EvaluationValue.getNumberValue() (TRUE -> 1). So EvalEx returns 1, NOT FCB's 3. This fixture asserts EvalEx's ACTUAL behavior (evaluates without error, yields 1) to DOCUMENT the divergence; it does NOT assert FCB parity. expectedResult=1 here records the EvalEx-observed value, not the FCB value (which would be 3)."
+}

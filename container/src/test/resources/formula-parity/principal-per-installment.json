@@ -1,0 +1,12 @@
+{
+  "name": "principal-per-installment",
+  "expression": "approvedAmount / installmentCount",
+  "inputs": {
+    "approvedAmount": "600000000",
+    "installmentCount": "24"
+  },
+  "expectedResult": "25000000",
+  "tolerance": "0.000001",
+  "divergenceExpected": false,
+  "note": "Safe arithmetic subset (single division, exact). 600000000 / 24 = 25000000. Even principal split per installment. FCB and EvalEx agree exactly."
+}

@@ -1,0 +1,12 @@
+{
+  "name": "penalty-amount",
+  "expression": "approvedAmount * penaltyRate / 100",
+  "inputs": {
+    "approvedAmount": "250000000",
+    "penaltyRate": "6"
+  },
+  "expectedResult": "15000000",
+  "tolerance": "0.000001",
+  "divergenceExpected": false,
+  "note": "Safe arithmetic subset (penalty base). 250000000 * 6 / 100 = 15000000. FCB and EvalEx agree exactly."
+}

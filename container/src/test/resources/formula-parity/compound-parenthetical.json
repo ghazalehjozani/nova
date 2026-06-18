@@ -1,0 +1,12 @@
+{
+  "name": "compound-parenthetical",
+  "expression": "approvedAmount * (1 + interestRate / 100) ^ 2",
+  "inputs": {
+    "approvedAmount": "1000000",
+    "interestRate": "10"
+  },
+  "expectedResult": "1210000",
+  "tolerance": "0.000001",
+  "divergenceExpected": false,
+  "note": "Safe arithmetic subset with parentheses and integer power. (1 + 10/100) = 1.1; 1.1 ^ 2 = 1.21 (exact BigDecimal for integer exponent); 1000000 * 1.21 = 1210000. The '^' here is the EvalEx native power OPERATOR with a literal integer exponent (exact), NOT the custom pow(base,exponent) function which routes through Math.pow on doubles. FCB and EvalEx agree exactly for this case."
+}
