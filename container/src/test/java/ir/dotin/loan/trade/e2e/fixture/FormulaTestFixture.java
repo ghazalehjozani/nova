@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.TestComponent;
 
 import ir.dotin.platform.formula.infrastructure.persistence.entity.FormulaEntity;
 import ir.dotin.platform.formula.infrastructure.persistence.repository.FormulaJpaRepository;
+import ir.dotin.platform.pangaea.commons.domain.entity.Identity;
 
 import lombok.RequiredArgsConstructor;
 
@@ -45,9 +46,11 @@ public class FormulaTestFixture {
                 Set.of("totalInterest", "installmentCount"));
     }
 
-    private void createFormulaIfAbsent(String id, String expression, String description, Set<String> variables) {
-        if (formulaRepository.findById(id).isEmpty()) {
-            FormulaEntity entity = new FormulaEntity(id, expression);
+    // expression-kit 2026.6.10: FormulaEntity now carries a UUID v7 surrogate id with `code` as the business key
+    // (lookup via findByCode/existsByCode). Construct with a generated v7 id; keep the old numeric strings as the code.
+    private void createFormulaIfAbsent(String code, String expression, String description, Set<String> variables) {
+        if (!formulaRepository.existsByCode(code)) {
+            FormulaEntity entity = new FormulaEntity(Identity.generateV7(), code, expression);
             entity.setDescription(description);
             entity.setVariables(variables);
             formulaRepository.save(entity);

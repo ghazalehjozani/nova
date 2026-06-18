@@ -398,4 +398,70 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!--
+            Operational Liquibase tooling — INACTIVE in normal builds and CI.
+            Activate only for command-line DB operations: `mvn -Pliquibase-ops liquibase:<goal>`,
+            or via the repo-root Makefile (`make db-status`, `make db-update`, ...).
+
+            Plugin↔runtime lockstep: liquibase-core is pinned to EXACTLY the version the app
+            uses at startup (5.0.3, managed by Spring Boot 4.1 / pangaea dependencies). A drift
+            between the plugin's Liquibase and the runtime Liquibase produces different
+            checksum/parse behaviour between `mvn liquibase:*` and Spring Boot startup.
+
+            changeLogFile resolves from this module's classpath: the master + per-release
+            changelogs live in container/src/main/resources/db/changelog/, and the framework
+            changelogs are pulled from the *-data-jpa dependency jars already on the project
+            classpath — so no extra <searchPath> is required.
+
+            stage/prod migration policy (dedicated runner Job, NOT in-app) lives in
+            documents/runbooks/RB-0004.liquibase-prod-migrations.md.
+        -->
+        <profile>
+            <id>liquibase-ops</id>
+            <properties>
+                <!-- DB connection: -Dliquibase.url=... wins; otherwise derived from DB_* env vars. -->
+                <liquibase.url>jdbc:postgresql://${env.DB_HOST}:${env.DB_PORT}/${env.DB_NAME}</liquibase.url>
+                <liquibase.username>${env.DB_USERNAME}</liquibase.username>
+                <liquibase.password>${env.DB_PASSWORD}</liquibase.password>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.liquibase</groupId>
+                        <artifactId>liquibase-maven-plugin</artifactId>
+                        <!-- Pinned to match the runtime liquibase-core (lockstep). NOT managed by the Boot BOM. -->
+                        <version>5.0.3</version>
+                        <dependencies>
+                            <!-- The plugin's OWN Liquibase runtime — must equal the app's 5.0.3. -->
+                            <dependency>
+                                <groupId>org.liquibase</groupId>
+                                <artifactId>liquibase-core</artifactId>
+                                <version>5.0.3</version>
+                            </dependency>
+                            <!-- JDBC driver on the plugin classpath. Plugin <dependencies> do NOT inherit the
+                                 project's dependencyManagement, so pin explicitly to the Boot-4.1-managed
+                                 runtime driver version (org.postgresql:postgresql in the app classpath). -->
+                            <dependency>
+                                <groupId>org.postgresql</groupId>
+                                <artifactId>postgresql</artifactId>
+                                <version>42.7.11</version>
+                            </dependency>
+                        </dependencies>
+                        <configuration>
+                            <!-- Classpath-resolved master — the SAME one Spring Boot runs at startup. -->
+                            <changeLogFile>db/changelog/db.changelog-master.xml</changeLogFile>
+                            <url>${liquibase.url}</url>
+                            <username>${liquibase.username}</username>
+                            <password>${liquibase.password}</password>
+                            <!-- -D system properties override the values above (e.g. -Dliquibase.url=...). -->
+                            <propertyFileWillOverride>false</propertyFileWillOverride>
+                            <!-- No Liquibase Hub (decommissioned). -->
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

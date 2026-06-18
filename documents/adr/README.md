@@ -20,6 +20,7 @@
 | [ADR-0003](ADR-0003.actor-envelope-integrity.md) | یکپارچگی پاکت بازیگر با امضای JWS (Nova ↔ FCB) | 2026-05-11 | امنیت / یکپارچه‌سازی | 🔐 امنیت |
 | [ADR-0004](ADR-0004.optimistic-locking-version-contract.md) | قرارداد قفل خوش‌بینانه و میدان نسخه | 2026-06-03 | همزمانی / پایداری | 🎯 اصلی |
 | [ADR-0005](ADR-0005.c4-generation-via-structurizr-component.md) | تولید مدل C4 با structurizr-component و خارج‌کردن از چرخهٔ Maven | 2026-06-16 | مستندات / ابزار | 🏗️ زیرساخت |
+| [ADR-0006](ADR-0006.trade-loan-greenfield-schema-baseline.md) | baselineِ greenfieldِ schema برای trade-loan + UUID v7 + سیاستِ runnerِ مهاجرت | 2026-06-18 | معماری داده / استقرار | 🏗️ زیرساخت |
 
 ### 🔄 تصمیمات در حال بررسی (پیشنهادی)
 
@@ -68,6 +69,6 @@
 - **Confluence**: مستندات نهایی و بازبینی
 
 ---
-*آخرین به‌روزرسانی: 2026-05-11 | نسخه: 1.1 | توسط: تیم معماری*
+*آخرین به‌روزرسانی: 2026-06-18 | نسخه: 1.2 | توسط: تیم معماری*
 
 </div>

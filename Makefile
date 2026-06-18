@@ -9,7 +9,13 @@ NOVA_CONFIG_DIR ?= ../nova-config
 VERSION := $(shell $(MVN) -q help:evaluate -Dexpression=revision -DforceStdout 2>/dev/null)
 JVM_ARGS ?= -XX:+UseZGC -XX:+ZGenerational -XX:+AlwaysPreTouch -Xmx4g -Xss512k --enable-native-access=ALL-UNNAMED
 
-.PHONY: help build test arch install run schema schema-check messages e2e e2e-one pool-test package clean c4 c4-view
+# Liquibase ops (profile-gated; see container/pom.xml -Pliquibase-ops). DB creds come from $(ENV_FILE)/env.
+REVISION ?= 2026.6.9-SNAPSHOT
+LB := $(MVN) -pl container -Pliquibase-ops -Drevision=$(REVISION)
+DB_SQL_OUT ?= container/target/liquibase-updateSQL.sql
+
+.PHONY: help build test arch install run schema schema-check messages e2e e2e-one pool-test package clean c4 c4-view \
+	db-status db-validate db-update db-sql db-tag db-rollback db-rollback-count db-history db-release-locks
 
 help: ## Show this help
 	@awk 'BEGIN {FS = ":.*##"; printf "Usage: make \033[36m<target>\033[0m\n\nTargets:\n"} \
@@ -68,3 +74,50 @@ c4-view: ## Serve the generated C4 workspace in Structurizr Lite (http://localho
 
 clean: ## Clean the reactor
 	$(MVN) clean
+
+# ---------------------------------------------------------------------------
+# Liquibase operations (profile -Pliquibase-ops). stage/prod policy: RB-0004.
+# Each target sources $(ENV_FILE) (if present) for DB_* then guards the vars,
+# matching the `run` target's env pattern.
+# ---------------------------------------------------------------------------
+# $(call lb,<goal> [extra args]) — source .env, guard DB creds, run the goal.
+define lb
+	@if [[ -f $(ENV_FILE) ]]; then set -a; source $(ENV_FILE); set +a; fi; \
+	: "$${DB_HOST:?DB_HOST unset — populate $(ENV_FILE) (copy container/.env.example) or export DB_*}"; \
+	: "$${DB_PORT:?DB_PORT unset — populate $(ENV_FILE) or export DB_*}"; \
+	: "$${DB_NAME:?DB_NAME unset — populate $(ENV_FILE) or export DB_*}"; \
+	: "$${DB_USERNAME:?DB_USERNAME unset — populate $(ENV_FILE) or export DB_*}"; \
+	: "$${DB_PASSWORD:?DB_PASSWORD unset — populate $(ENV_FILE) or export DB_*}"; \
+	$(LB) $(1)
+endef
+
+db-status: ## Liquibase: list changesets not yet applied
+	$(call lb,liquibase:status)
+
+db-validate: ## Liquibase: validate the changelog (no DB writes)
+	$(call lb,liquibase:validate)
+
+db-update: ## Liquibase: apply pending changesets to the target DB
+	$(call lb,liquibase:update)
+
+db-sql: ## Liquibase: dry-run — write pending SQL to $(DB_SQL_OUT) for review (no DB writes)
+	$(call lb,liquibase:updateSQL -Dliquibase.migrationSqlOutputFile=$(DB_SQL_OUT))
+	@echo "wrote dry-run SQL → $(DB_SQL_OUT)"
+
+db-tag: ## Liquibase: tag the current DB state (requires TAG=<name>)
+	@[[ -n "$(TAG)" ]] || { echo "usage: make db-tag TAG=<name>"; exit 1; }
+	$(call lb,liquibase:tag -Dliquibase.tag=$(TAG))
+
+db-rollback: ## Liquibase: roll back to a tag (requires TAG=<name>)
+	@[[ -n "$(TAG)" ]] || { echo "usage: make db-rollback TAG=<name>"; exit 1; }
+	$(call lb,liquibase:rollback -Dliquibase.rollbackTag=$(TAG))
+
+db-rollback-count: ## Liquibase: roll back the last N changesets (requires N=<count>)
+	@[[ -n "$(N)" ]] || { echo "usage: make db-rollback-count N=<count>"; exit 1; }
+	$(call lb,liquibase:rollback -Dliquibase.rollbackCount=$(N))
+
+db-history: ## Liquibase: show deployment history of the target DB
+	$(call lb,liquibase:history)
+
+db-release-locks: ## Liquibase: force-release a stuck changelog lock
+	$(call lb,liquibase:releaseLocks)

@@ -133,7 +133,15 @@ Use `Result.success()` (no-arg); `Result.success(null)` throws NPE.
 
 ## Liquibase
 
-Master: `src/main/resources/db/changelog/db.changelog-master.xml` → includes `framework/db.changelog-framework.xml` and `trade-loan/db.changelog-trade-loan.xml`. **Every** new changelog file must be referenced from the appropriate `db.changelog-*.xml`; orphaned files compile but produce `column does not exist` failures at runtime. Per-release directories follow `trade-loan/vYYYY.M.N/NNN-description.xml`.
+Greenfield baseline (nova ADR-0006, pangaea ADR-0030 / ADR-0028 / ADR-0029 / ADR-0031). Master: `src/main/resources/db/changelog/db.changelog-master.xml` → includes `framework/db.changelog-framework.xml` and `trade-loan/db.changelog-trade-loan.xml`. The **framework** master explicit-`<include>`s the per-module pangaea/expression-kit masters (`db/changelog/db.changelog-{persistence,inbox,audit,reconciliation,workflow,expression-kit}.xml`) that ship as classpath root resources in the `*-data-jpa`/starter dependency jars, in dependency order (`persistence` first — it carries ShedLock — then the rest). The **trade-loan** master explicit-`<include>`s the domain's own formatted-SQL leaves under `trade-loan/changes/YYYYMMDDTHHMMSS_*.sql` (one changeset/file, explicit `--rollback`, stable `logicalFilePath`, append-only timestamp ordering; PK ids are UUID v7). No `includeAll` anywhere. **Every** new SQL leaf must be `<include>`d from its module master; orphaned files compile but produce `column does not exist` failures at runtime.
+
+### Operational tooling (`-Pliquibase-ops`)
+
+`container/pom.xml` carries a **profile-gated** `liquibase-maven-plugin` (id `liquibase-ops`, INACTIVE in normal builds/CI) for running migrations from the command line against any environment. The plugin's own `liquibase-core` is **pinned to 5.0.3** to match the app's runtime Liquibase (drift changes checksum/parse behaviour between `mvn liquibase:*` and Spring Boot startup). `changeLogFile=db/changelog/db.changelog-master.xml` resolves from the module classpath — the framework changelogs ship in the `*-data-jpa` dependency jars, so **`make install` (reactor → `.m2`) must run first** or the plugin can't resolve those changelog jars. DB connection comes from `-Dliquibase.url=...` overriding env-var defaults (`jdbc:postgresql://${env.DB_HOST}:${env.DB_PORT}/${env.DB_NAME}`, `${env.DB_USERNAME}`/`${env.DB_PASSWORD}`); never hardcode secrets.
+
+Operator entrypoint is the repo-root [`Makefile`](../Makefile): `make db-status | db-validate | db-update | db-sql` (dry-run `updateSQL` → `container/target/`) `| db-tag TAG=… | db-rollback TAG=… | db-rollback-count N=… | db-history | db-release-locks`. Each target sources `$(ENV_FILE)` (`container/.env`) and guards `DB_*`. Raw form: `mvn -pl container -Pliquibase-ops liquibase:<goal>`.
+
+**stage/prod migration policy** (dedicated runner Job, NOT in-app) lives in [`documents/runbooks/RB-0004.liquibase-prod-migrations.md`](../documents/runbooks/RB-0004.liquibase-prod-migrations.md).
 
 ## Spring Boot 4.x / Test stack notes
 

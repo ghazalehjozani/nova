@@ -127,7 +127,7 @@ public class TradeLoanFacilityEntity extends PersistentEntity {
     private Map<String, String> accountInfoMap = new HashMap<>();
 
     @Nullable
-    @Column(name = "disbursement_date", nullable = false)
+    @Column(name = "disbursement_date")
     private LocalDate disbursementDate;
 
     @Column(name = "facility_type")

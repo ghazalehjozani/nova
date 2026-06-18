@@ -24,8 +24,8 @@ config, client, and adapter). Without that profile, the adapter is dormant and n
 implementations exist.
 
 **Scope today: request/reply outbound + active health probe only.** No event publishing,
-no event consumption, no outbox publisher live in this module. A Nova outbox table is
-created by `container/.../db/changelog/.../008-create-outbox-events.xml`, but no
+no event consumption, no outbox publisher live in this module. The Nova outbox tables are
+created by the trade-loan changelog leaves `container/src/main/resources/db/changelog/trade-loan/changes/*_create_*_outbox.sql`, but no
 publisher has been wired here. Do **not** add `@KafkaListener` event consumers or outbox
 pollers here without first confirming whether a separate adapter module is being created
 for them — the FCB-side CLAUDE.md describes outbox/event flows that on the Nova side do

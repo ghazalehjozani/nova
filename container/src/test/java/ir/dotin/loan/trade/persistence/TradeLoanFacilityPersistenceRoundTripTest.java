@@ -160,16 +160,14 @@ class TradeLoanFacilityPersistenceRoundTripTest {
         // Let Liquibase own the schema; Hibernate must only validate against the migrated schema, never create it.
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "none");
         registry.add("spring.liquibase.enabled", () -> "true");
-        // Run the REAL trade-loan domain changelog (the production changesets 001-016, including this change's
-        // v2026.6.9 013-016). We point at the trade-loan changelog rather than db.changelog-master.xml on purpose:
-        // the master also pulls the framework changelog, whose framework/v2026.3.0/006-delete-suspended-sagas.xml
-        // does an unconditional `DELETE FROM saga_compensation` that fails on a *fresh* DB (the saga tables were
-        // never created by this repo's changelog — they came from a now-removed pangaea jar; the later
-        // v2026.6.4/005-drop-saga-tables.xml is precondition-guarded, but 006 is not). That is a pre-existing
-        // framework-changelog fresh-DB defect, orthogonal to this change; the trade-loan changelog owns every table
-        // the entities under test touch, so this slice exercises exactly the migrated v2026.6.9 schema.
-        registry.add(
-                "spring.liquibase.change-log", () -> "classpath:db/changelog/trade-loan/db.changelog-trade-loan.xml");
+        // Run the REAL, FULL master changelog (framework module masters from the pangaea/expression-kit jars +
+        // the trade-loan greenfield baseline). Post-rewrite the framework changelog includes only the new per-module
+        // master changelogs (persistence/inbox/audit/reconciliation/workflow/expression-kit) and the trade-loan
+        // changelog is a clean create-only baseline — the old saga drop/delete leaves that broke on a fresh DB are
+        // gone, so the whole master applies cleanly on an EMPTY PostgreSQL 18 (this is the end-to-end proof that the
+        // squash is correct AND the saga-delete-on-fresh-DB defect is fixed). Hibernate then validates the entities
+        // against the Liquibase-owned schema (ddl-auto=none) before the domain round-trip runs.
+        registry.add("spring.liquibase.change-log", () -> "classpath:db/changelog/db.changelog-master.xml");
         // Belt-and-braces: keep the Spring Cloud bootstrap/Consul/Kubernetes machinery out of this slice so the
         // pre-existing ${CONSUL_PORT} gap cannot block the test.
         registry.add("spring.cloud.consul.enabled", () -> "false");

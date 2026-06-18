@@ -3,55 +3,47 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd"
+        logicalFilePath="trade-loan/db.changelog-trade-loan.xml">
 
     <!--
-        Trade Loan module changelog: INCLUDES ONLY.
-        Contains all domain tables for trade loan origination, sanctioning,
-        disbursement, installment scheduling, and event outboxes.
-        !!!! FILES EXECUTED WITH ORDERS !!!!
+        Trade-loan domain changelog: INCLUDES ONLY (thin master). EXPLICIT, ordered includes of the formatted-SQL
+        leaves under changes/. ONE changeSet per leaf. This is a GREENFIELD baseline: every leaf translates the
+        CURRENT end-state schema the JPA entities under adapters/driven/persistence validate against. All historical
+        add-column / alter / repoint / retype migrations are FOLDED into the create-leaf for the table they touched:
+          * actor-envelope (8 cols) + W3C traceparent/tracestate -> folded into each outbox-events create.
+          * close-paid-off + cancellation columns + effective_loan_duration (PeriodEmb) -> folded into loan_facilities.
+          * loan_disbursement_records created already keyed on (loan_facility_id, record_order) (the base-loan 6.8
+            repoint end state), FK to loan_facilities, no sanctioned_loan_id.
+          * loan_facility_restructuring_transaction_numbers created with the 4 TransactionNumberEmb columns + index
+            (the base-loan 6.8 retype end state); the legacy single-String tatweel column never exists.
+          * sanctioned_loans created WITHOUT revocation_reason (dropped in base-loan 6.8); loan_facility_collaterals
+            created WITHOUT percent (money-based coverage, LN-59405).
+        The retired saga_* tables are NEVER created (saga->workflow, LN-59501), so no drop/delete changeset exists.
+
+        FUTURE OPTION (not applied here): the largest append-only event tables — the four *_outbox_events tables —
+        are candidates for native PostgreSQL RANGE partitioning by created_at (monthly), with the partial dispatch
+        index and BRIN(created_at) defined per-partition, once retention/volume justify it. Left as a single
+        physical table in this baseline.
     -->
 
-    <!-- Core reference data -->
-    <include file="db/changelog/trade-loan/v2026.3.0/001-create-loan-types.xml"/>
-    <include file="db/changelog/trade-loan/v2026.3.0/002-create-loan-arrangements.xml"/>
+    <!-- Reference / configuration data -->
+    <include file="changes/20260301T000000_create_loan_types.sql" relativeToChangelogFile="true"/>
+    <include file="changes/20260301T000010_create_loan_arrangements.sql" relativeToChangelogFile="true"/>
 
-    <!-- Loan lifecycle: application → sanction → facility -->
-    <include file="db/changelog/trade-loan/v2026.3.0/003-create-loan-applications.xml"/>
-    <include file="db/changelog/trade-loan/v2026.3.0/004-create-sanctioned-loans.xml"/>
-    <include file="db/changelog/trade-loan/v2026.3.0/005-create-loan-facilities.xml"/>
-    <include file="/db/changelog/trade-loan/v2026.5.0/001-create-cancellation-data.xml"/>
+    <!-- Loan lifecycle: application -> disbursement schedule -> sanction -> facility -->
+    <include file="changes/20260301T000020_create_loan_applications.sql" relativeToChangelogFile="true"/>
+    <include file="changes/20260301T000030_create_disbursement_schedules.sql" relativeToChangelogFile="true"/>
+    <include file="changes/20260301T000040_create_sanctioned_loans.sql" relativeToChangelogFile="true"/>
+    <include file="changes/20260301T000050_create_loan_facilities.sql" relativeToChangelogFile="true"/>
 
-    <!-- Financial operations -->
-    <include file="db/changelog/trade-loan/v2026.3.0/006-create-disbursement-tables.xml"/>
-    <include file="db/changelog/trade-loan/v2026.3.0/007-create-installment-tables.xml"/>
+    <!-- Repayment: installment schedules + installments + payments -->
+    <include file="changes/20260301T000060_create_installment_schedules.sql" relativeToChangelogFile="true"/>
 
-    <!-- Event-driven outbox -->
-    <include file="db/changelog/trade-loan/v2026.3.0/008-create-outbox-events.xml"/>
-    <include file="db/changelog/trade-loan/v2026.3.0/009-add-close-paid-off-fields.xml"/>
-    <include file="/db/changelog/trade-loan/v2026.5.41/010-create-restructuring-events.xml"/>
-    <include file="/db/changelog/trade-loan/v2026.5.41/011-drop-collateral-percent-column.xml"/>
-
-    <!-- Updates/Patches -->
-    <include file="/db/changelog/trade-loan/v2026.5.32/002-update-close-paid-off-data.xml"/>
-
-    <!-- Actor envelope columns on outbox tables (ADR-0003) -->
-    <include file="db/changelog/trade-loan/v2026.5.0/002-add-actor-envelope-columns.xml"/>
-
-    <!-- Originating W3C trace context (traceparent/tracestate) on outbox tables -->
-    <include file="db/changelog/trade-loan/v2026.5.0/003-add-outbox-traceparent-columns.xml"/>
-
-    <!-- LN-59394: partial dispatch index for the outbox poller on all loan_*_outbox_events tables -->
-    <include file="db/changelog/trade-loan/v2026.5.57/012-add-outbox-poller-index.xml"/>
-
-    <!--
-        base-loan 2026.6.8 refactor: align schema with the Phase 2/3 entity changes. Ordered AFTER every table
-        these changesets alter (sanctioned_loans=004, loan_facilities=005, loan_disbursement_records=006,
-        loan_facility_restructuring_transaction_numbers=010).
-    -->
-    <include file="db/changelog/trade-loan/v2026.6.9/013-drop-sanctioned-loan-revocation-reason.xml"/>
-    <include file="db/changelog/trade-loan/v2026.6.9/014-add-facility-effective-loan-duration.xml"/>
-    <include file="db/changelog/trade-loan/v2026.6.9/015-repoint-disbursement-records-to-facility.xml"/>
-    <include file="db/changelog/trade-loan/v2026.6.9/016-retype-restructuring-transaction-numbers.xml"/>
+    <!-- Transactional outbox (one table per aggregate type) -->
+    <include file="changes/20260301T000070_create_loan_arrangement_outbox.sql" relativeToChangelogFile="true"/>
+    <include file="changes/20260301T000080_create_loan_facility_outbox.sql" relativeToChangelogFile="true"/>
+    <include file="changes/20260301T000090_create_loan_type_outbox.sql" relativeToChangelogFile="true"/>
+    <include file="changes/20260301T000100_create_installment_schedule_outbox.sql" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

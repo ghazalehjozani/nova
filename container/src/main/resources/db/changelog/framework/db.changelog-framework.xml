@@ -7,26 +7,32 @@
 
     <!--
         Framework module changelog: INCLUDES ONLY.
-        Contains infrastructure and platform-level tables
-        (ShedLock, Dead-Letter Queue, Workflow, Command Audit).
+
+        Greenfield baseline. Each line below pulls a per-module MASTER changelog that ships as a classpath-root
+        resource inside the corresponding pangaea / expression-kit dependency jar (resolved from the classpath, NOT
+        relativeToChangelogFile — these are cross-jar `db/changelog/db.changelog-<module>.xml` resources). Every
+        module master is self-contained: it owns the EXPLICIT, ordered includes of its own formatted-SQL leaves
+        (relativeToChangelogFile inside the jar), so this file only orders the modules.
+
+        Order = framework-infrastructure-first:
+          1. persistence  : ShedLock coordination table (single canonical owner) + dead-letter message store.
+                            ShedLock MUST precede workflow (workflow reuses this one shedlock table).
+          2. inbox        : transactional inbox (idempotent consume).
+          3. audit        : command_audit.
+          4. reconciliation: reconciliation_discrepancy (Nova<->FCB recon state).
+          5. workflow     : workflow_run / workflow_compensation / workflow_resume_key (durable orchestration).
+          6. expression-kit: formula_definitions.
+
+        The old nova framework leaves (the saga drop/cleanup 005/006 and the per-version shedlock/dead-letter/
+        workflow/audit copies that referenced now-deleted pangaea paths) are GONE: this is a fresh baseline that
+        never creates the retired saga_* tables, so there is nothing to drop or delete-from on an empty DB.
     -->
 
-    <include file="db/changelog/framework/v2026.3.0/001-create-shedlock.xml"/>
-    <include file="db/changelog/framework/v2026.3.0/002-create-dead-letter-tables.xml"/>
-    <!-- LN-59501: saga→workflow rewire — pangaea-workflow-starter jar (2026.6.4) -->
-    <include file="db/changelog/framework/v2026.6.4/001-create-workflow-run.xml"/>
-    <include file="db/changelog/framework/v2026.6.4/002-create-workflow-compensation.xml"/>
-    <include file="db/changelog/framework/v2026.6.4/003-create-workflow-resume-key.xml"/>
-    <include file="db/changelog/framework/v2026.6.4/004-create-shedlock-table.xml"/>
-    <include file="db/changelog/framework/v2026.3.0/004-create-command-audit.xml"/>
-    <!-- LN-59395: drop redundant idx_audit_command_id (covered by command_audit_command_id_key) — pangaea-audit-starter jar -->
-    <include file="db/changelog/framework/v2026.5.41/005-drop-duplicate-command-audit-index.xml"/>
-    <include file="db/changelog/framework/v2026.3.0/006-delete-suspended-sagas.xml"/>
-    <!-- LN-59501: drop retired saga tables once drained (nova-owned, forward-only) -->
-    <include file="db/changelog/framework/v2026.6.4/005-drop-saga-tables.xml"/>
-    <include file="db/changelog/changes/001-create-formula-definitions.xml"/>
+    <include file="db/changelog/db.changelog-persistence.xml"/>
     <include file="db/changelog/db.changelog-inbox.xml"/>
-    <!-- LN-59442: generic reconciliation discrepancy table (pangaea reconciliation-data-jpa jar) -->
+    <include file="db/changelog/db.changelog-audit.xml"/>
     <include file="db/changelog/db.changelog-reconciliation.xml"/>
+    <include file="db/changelog/db.changelog-workflow.xml"/>
+    <include file="db/changelog/db.changelog-expression-kit.xml"/>
 
 </databaseChangeLog>
