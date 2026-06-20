@@ -93,7 +93,8 @@ public enum TradeLoanApplicationServiceErrors implements ProductErrorCode<TradeL
     DUPLICATE_LOAN_ARRANGEMENT(
             PlatformErrorCategory.DATA_ACCESS, 8, "Loan Arrangement {0} already exists for facility"),
     FORMULA_ALREADY_EXISTS(PlatformErrorCategory.DATA_ACCESS, 9, "Formula with code {0} already exists"),
-    FORMULA_HAS_DEPENDENTS(PlatformErrorCategory.DATA_ACCESS, 10, "Formula {0} cannot be removed: dependent formulas exist"),
+    FORMULA_HAS_DEPENDENTS(
+            PlatformErrorCategory.DATA_ACCESS, 10, "Formula {0} cannot be removed: dependent formulas exist"),
 
     // ── VALIDATION (01) ─────────────────────────────────────────────────────────
 

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import ir.dotin.platform.pangaea.persistence.jpa.repository.PersistentRepository;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.entity.TradeLoanFacilityEntity;
+import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.projection.FacilityGuarantorProjection;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.projection.FacilityReconStateProjection;
 
 @Repository
@@ -75,6 +76,20 @@ public interface TradeLoanFacilityJpaRepository extends PersistentRepository<Tra
             WHERE t.id = :id
             """)
     Optional<FacilityReconStateProjection> findReconStateById(@Param("id") UUID id);
+
+    /**
+     * Narrow projection of a facility's current GUARANTOR parties (customer number + guarantee percentage) for the
+     * reconciliation guarantor-drift detector. Reads straight from the persisted guarantor parties without loading the
+     * full facility graph or touching the command aggregate.
+     */
+    @Query("""
+            SELECT p.customerNumber AS customerNumber, p.guaranteePercentage AS guaranteePercentage
+            FROM TradeLoanFacilityEntity t
+            JOIN t.loanApplication.parties p
+            WHERE t.id = :id
+            AND p.partyRole = 'GUARANTOR'
+            """)
+    List<FacilityGuarantorProjection> findGuarantorsById(@Param("id") UUID id);
 
     @Query("""
             SELECT count(t)

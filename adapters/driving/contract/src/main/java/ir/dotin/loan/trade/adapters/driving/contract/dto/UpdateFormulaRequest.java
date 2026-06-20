@@ -12,18 +12,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(name = "UpdateFormulaRequest", description = "ویرایش فرمول")
 public record UpdateFormulaRequest(
-        @Schema(description = "عبارت فرمول", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotBlank @Size(max = 2000)
+        @Schema(description = "عبارت فرمول", requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank @Size(max = 2000)
         String expression,
 
-        @Schema(description = "توضیحات")
-        String description,
+        @Schema(description = "توضیحات") String description,
 
-        @Schema(description = "اتصالات متغیرها")
-        List<@Valid BindingRequest> bindings,
+        @Schema(description = "اتصالات متغیرها") List<@Valid BindingRequest> bindings,
 
-        @Schema(description = "اطلاعات پردازشی")
-        Map<String, String> metadata)
+        @Schema(description = "اطلاعات پردازشی") Map<String, String> metadata)
         implements BaseRequest {
 
     public UpdateFormulaRequest {

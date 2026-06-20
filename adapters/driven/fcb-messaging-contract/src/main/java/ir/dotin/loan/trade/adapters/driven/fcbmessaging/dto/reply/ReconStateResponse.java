@@ -29,6 +29,8 @@ public final class ReconStateResponse extends FcbBaseResponse {
 
     private boolean dltPresentForFacility;
 
+    private @Nullable List<ReconGuarantorReply> guarantors;
+
     public boolean isExists() {
         return exists;
     }
@@ -91,5 +93,13 @@ public final class ReconStateResponse extends FcbBaseResponse {
 
     public void setDltPresentForFacility(boolean dltPresentForFacility) {
         this.dltPresentForFacility = dltPresentForFacility;
+    }
+
+    public @Nullable List<ReconGuarantorReply> getGuarantors() {
+        return guarantors;
+    }
+
+    public void setGuarantors(@Nullable List<ReconGuarantorReply> guarantors) {
+        this.guarantors = guarantors;
     }
 }

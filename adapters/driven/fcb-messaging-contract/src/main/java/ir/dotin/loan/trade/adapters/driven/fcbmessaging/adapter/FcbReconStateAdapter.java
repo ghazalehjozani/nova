@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.fcbmessaging.adapter;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -12,6 +13,7 @@ import ir.dotin.loan.trade.adapters.driven.fcbmessaging.client.FcbRequestReplyCl
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.config.FcbReconStateProperties;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbBaseRequest;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.FcbBaseResponse;
+import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ReconGuarantorReply;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ReconPeerSignal;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ReconStateResponse;
 import ir.dotin.loan.trade.adapters.driven.fcbmessaging.dto.reply.ReemitOutboxResponse;
@@ -21,6 +23,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.error.CoreBank
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.EventPeerSignal;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FcbOutboxReemitPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FcbReconStatePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.ReconGuarantor;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.ReconLoanFileState;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.ReconReemitOutcome;
 
@@ -83,7 +86,41 @@ public class FcbReconStateAdapter implements FcbReconStatePort, FcbOutboxReemitP
                 response.isReachable(),
                 response.getOutboxRef(),
                 mapPeerSignals(response.getPeerSignals()),
-                response.isDltPresentForFacility()));
+                response.isDltPresentForFacility(),
+                mapGuarantors(response.getGuarantors())));
+    }
+
+    private static List<ReconGuarantor> mapGuarantors(@Nullable List<ReconGuarantorReply> wireGuarantors) {
+        if (wireGuarantors == null || wireGuarantors.isEmpty()) {
+            return List.of();
+        }
+        List<ReconGuarantor> mapped = new ArrayList<>(wireGuarantors.size());
+        for (ReconGuarantorReply wire : wireGuarantors) {
+            String customerNumber = wire.getCustomerNumber();
+            if (customerNumber == null || customerNumber.isBlank()) {
+                // A guarantor without a customer number cannot be joined to a Nova guarantor — drop it (the detector
+                // treats a missing side as "unknown" and never flags drift), but surface the malformed reply.
+                log.warn("FCB recon-state returned a guarantor with no customerNumber — dropping it");
+                continue;
+            }
+            mapped.add(new ReconGuarantor(customerNumber, parsePercent(wire.getGuaranteePercent())));
+        }
+        return mapped;
+    }
+
+    private static @Nullable BigDecimal parsePercent(@Nullable String wirePercent) {
+        if (wirePercent == null || wirePercent.isBlank()) {
+            return null;
+        }
+        try {
+            return new BigDecimal(wirePercent.trim());
+        } catch (NumberFormatException e) {
+            // A non-numeric percentage on the wire degrades that guarantor to "unknown percentage" rather than crashing
+            // the whole recon read; the drift detector treats an unknown side as not-a-drift (never false-positive).
+            log.warn(
+                    "FCB recon-state returned an unparseable guaranteePercent '{}' — treating as unknown", wirePercent);
+            return null;
+        }
     }
 
     private static List<EventPeerSignal> mapPeerSignals(@Nullable List<ReconPeerSignal> wireSignals) {

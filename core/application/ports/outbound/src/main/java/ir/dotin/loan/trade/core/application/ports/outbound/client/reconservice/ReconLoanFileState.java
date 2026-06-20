@@ -22,6 +22,8 @@ import org.jspecify.annotations.Nullable;
  *     clock (LN-59513).
  * @param dltPresentForFacility whether FCB holds ANY {@code DEAD} dead-letter row for this facility (a coarse signal
  *     covering dead rows whose uid the probe did not ask about, e.g. keyed by topic.partition.offset).
+ * @param guarantors FCB's current guarantor set for the facility (customer number + guarantee percentage), used by the
+ *     guarantor-drift detector; empty when FCB returned none (or an older FCB build that predates the field).
  */
 public record ReconLoanFileState(
         boolean exists,
@@ -31,9 +33,33 @@ public record ReconLoanFileState(
         boolean reachable,
         @Nullable String outboxRef,
         List<EventPeerSignal> peerSignals,
-        boolean dltPresentForFacility) {
+        boolean dltPresentForFacility,
+        List<ReconGuarantor> guarantors) {
 
     public ReconLoanFileState {
         peerSignals = peerSignals == null ? List.of() : List.copyOf(peerSignals);
+        guarantors = guarantors == null ? List.of() : List.copyOf(guarantors);
+    }
+
+    /** Convenience for the state-only probe path that never inspects guarantors: defaults to an empty guarantor set. */
+    public ReconLoanFileState(
+            boolean exists,
+            @Nullable String fileStatus,
+            String manualId,
+            @Nullable Long lastModifiedEpochMs,
+            boolean reachable,
+            @Nullable String outboxRef,
+            List<EventPeerSignal> peerSignals,
+            boolean dltPresentForFacility) {
+        this(
+                exists,
+                fileStatus,
+                manualId,
+                lastModifiedEpochMs,
+                reachable,
+                outboxRef,
+                peerSignals,
+                dltPresentForFacility,
+                List.of());
     }
 }

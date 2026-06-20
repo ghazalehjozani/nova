@@ -18,14 +18,13 @@ public record EvaluateFormulaRequest(
         Map<
                         String,
                         @Digits(
-                                        integer = NumericInputBounds.MAX_INTEGER_DIGITS,
-                                        fraction = NumericInputBounds.MAX_FRACTION_DIGITS,
-                                        message = NumericInputBounds.MESSAGE)
+                                integer = NumericInputBounds.MAX_INTEGER_DIGITS,
+                                fraction = NumericInputBounds.MAX_FRACTION_DIGITS,
+                                message = NumericInputBounds.MESSAGE)
                         BigDecimal>
                 overrides,
 
-        @Schema(description = "اطلاعات پردازشی")
-        Map<String, String> metadata)
+        @Schema(description = "اطلاعات پردازشی") Map<String, String> metadata)
         implements BaseRequest {
 
     public EvaluateFormulaRequest {

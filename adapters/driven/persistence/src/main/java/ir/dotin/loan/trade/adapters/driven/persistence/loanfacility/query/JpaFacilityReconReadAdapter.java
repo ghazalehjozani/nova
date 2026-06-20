@@ -20,6 +20,7 @@ import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.projection.F
 import ir.dotin.loan.trade.adapters.driven.persistence.loanfacility.repository.TradeLoanFacilityJpaRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FacilityReconReadPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FacilityReconRow;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.ReconGuarantor;
 
 import lombok.RequiredArgsConstructor;
 
@@ -52,21 +53,36 @@ public class JpaFacilityReconReadAdapter implements FacilityReconReadPort {
         } else {
             page = repository.pageNonTerminalAfter(TERMINAL_STATES, decoded.modifiedAt(), decoded.id(), limit);
         }
-        return page.stream().map(JpaFacilityReconReadAdapter::toRow).toList();
+        return page.stream().map(p -> toRow(p)).toList();
     }
 
     @Override
-    public Optional<FacilityReconRow> findById(String facilityId) {
+    public Optional<FacilityReconRow> findById(String facilityId, boolean includeGuarantors) {
         UUID id;
         try {
             id = UUID.fromString(facilityId);
         } catch (IllegalArgumentException e) {
             return Optional.empty();
         }
-        return repository.findReconStateById(id).map(JpaFacilityReconReadAdapter::toRow);
+        // Guarantor set is projected ONLY when asked (the guarantor-drift probe path). When the feature is dark the
+        // probe passes includeGuarantors=false, so the extra findGuarantorsById query is never issued — zero cost for a
+        // disabled feature. Reads the persisted guarantor parties without loading the full graph or command aggregate.
+        return repository.findReconStateById(id).map(p -> toRow(p, includeGuarantors ? readGuarantors(id) : List.of()));
+    }
+
+    private List<ReconGuarantor> readGuarantors(UUID id) {
+        return repository.findGuarantorsById(id).stream()
+                .map(g -> new ReconGuarantor(
+                        Objects.requireNonNull(g.getCustomerNumber(), "guarantor customerNumber"),
+                        g.getGuaranteePercentage()))
+                .toList();
     }
 
     private static FacilityReconRow toRow(FacilityReconStateProjection p) {
+        return toRow(p, List.of());
+    }
+
+    private static FacilityReconRow toRow(FacilityReconStateProjection p, List<ReconGuarantor> guarantors) {
         UUID id = Objects.requireNonNull(p.getId(), "facility id");
         FacilityStatus status = Objects.requireNonNull(p.getCurrentState(), "facility currentState");
         long epochMs = toEpochMs(p.getModifiedAt());
@@ -75,7 +91,7 @@ public class JpaFacilityReconReadAdapter implements FacilityReconReadPort {
                 p.getApplicationLoanTypeCode(),
                 p.getApplicationCustomerNumber(),
                 p.getApplicationDerivedValue());
-        return new FacilityReconRow(id.toString(), status, epochMs, applicationNumber);
+        return new FacilityReconRow(id.toString(), status, epochMs, applicationNumber, guarantors);
     }
 
     private static @Nullable String formatApplicationNumber(

@@ -1,5 +1,8 @@
 package ir.dotin.loan.trade.adapters.driven.reconciliation;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -13,11 +16,13 @@ import ir.dotin.platform.pangaea.reconciliation.api.model.Direction;
 import ir.dotin.platform.pangaea.reconciliation.api.model.Divergence;
 import ir.dotin.platform.pangaea.reconciliation.api.model.OpaqueKey;
 import ir.dotin.platform.pangaea.reconciliation.api.model.ReconciliationType;
+import ir.dotin.platform.pangaea.reconciliation.api.model.Verdict;
 import ir.dotin.platform.pangaea.reconciliation.api.spi.DivergenceProbe;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FacilityReconReadPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FacilityReconRow;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.FcbReconStatePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.ReconGuarantor;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.ReconLoanFileState;
 
 import lombok.RequiredArgsConstructor;
@@ -40,8 +45,12 @@ public class FacilityDivergenceProbe implements DivergenceProbe {
 
     private static final Logger log = LoggerFactory.getLogger(FacilityDivergenceProbe.class);
 
+    /** Reason code carried on a guarantor-drift {@link Divergence} (a LAGGING-style divergence). */
+    static final String GUARANTOR_DRIFT_REASON = "guarantor-drift";
+
     private final FacilityReconReadPort readPort;
     private final FcbReconStatePort fcbReconStatePort;
+    private final ReconciliationSourceProperties properties;
 
     @Override
     public ReconciliationType type() {
@@ -52,7 +61,9 @@ public class FacilityDivergenceProbe implements DivergenceProbe {
     public Divergence probe(OpaqueKey key) {
         String facilityId = key.value();
 
-        Optional<FacilityReconRow> novaRow = readPort.findById(facilityId);
+        // Only pay for the (extra-query) guarantor projection when the guarantor-drift feature is enabled — flag off =>
+        // no findGuarantorsById query at all.
+        Optional<FacilityReconRow> novaRow = readPort.findById(facilityId, properties.isGuarantorDriftEnabled());
         if (novaRow.isEmpty()) {
             // Abnormal: the source aggregate vanished (Nova does not hard-delete facilities in normal ops). Surface
             // it (INV-13 will age the resulting UNKNOWN row to NEEDS_OPERATOR). reasonCode + detail both carry "why".
@@ -84,8 +95,86 @@ public class FacilityDivergenceProbe implements DivergenceProbe {
         }
 
         Divergence verdict = classify(novaStatus, fcb, applicationNumber);
+
+        // Guarantor-drift overlay (dark-launch, flag-gated): only meaningful when the status axis is otherwise ALIGNED
+        // (a non-terminal facility whose FCB file is at the expected rank). A status divergence already wins — never
+        // mask a LAGGING/ORPHAN status verdict with a guarantor verdict.
+        if (verdict.verdict() == Verdict.ALIGNED
+                && properties.isGuarantorDriftEnabled()
+                && !FacilityReconMapping.isTerminal(novaStatus)
+                && fcb.exists()) {
+            Divergence driftVerdict =
+                    detectGuarantorDrift(novaRow.get().guarantors(), fcb, novaStatus, applicationNumber);
+            if (driftVerdict != null) {
+                logVerdict(facilityId, novaStatus, fcb, driftVerdict);
+                return driftVerdict;
+            }
+        }
+
         logVerdict(facilityId, novaStatus, fcb, verdict);
         return verdict;
+    }
+
+    /**
+     * Compares Nova's current guarantor set against FCB's by {@code Map<customerNumber, percentage>}: the
+     * customer-number keysets must match AND each percentage must be equal by {@link BigDecimal#compareTo} (ignoring
+     * scale — FCB sends "100.0000", Nova "100"). A mismatch yields a {@code guarantor-drift} LAGGING divergence (Nova
+     * is the source of truth for guarantors, so {@code SOURCE_AHEAD}). Returns {@code null} (no drift) when the sets
+     * match OR when either side's guarantor data is unusable (FCB returned none, or any percentage is unknown) — a
+     * missing side is treated as unknown and never flagged, so the detector can never false-positive.
+     */
+    private static @Nullable Divergence detectGuarantorDrift(
+            List<ReconGuarantor> novaGuarantors,
+            ReconLoanFileState fcb,
+            FacilityStatus novaStatus,
+            @Nullable String applicationNumber) {
+        List<ReconGuarantor> fcbGuarantors = fcb.guarantors();
+        if (fcbGuarantors.isEmpty()) {
+            // FCB returned no guarantor data (or an older FCB build predating the field) → unknown, never flag.
+            return null;
+        }
+
+        Map<String, BigDecimal> novaByCustomer = indexByCustomer(novaGuarantors);
+        Map<String, BigDecimal> fcbByCustomer = indexByCustomer(fcbGuarantors);
+        if (novaByCustomer == null || fcbByCustomer == null) {
+            // A null/blank customer number or an unknown percentage on either side → unknown, never flag.
+            return null;
+        }
+
+        if (!novaByCustomer.keySet().equals(fcbByCustomer.keySet())) {
+            return guarantorDriftDivergence(novaStatus, fcb, applicationNumber);
+        }
+        for (Map.Entry<String, BigDecimal> entry : novaByCustomer.entrySet()) {
+            BigDecimal fcbPercent = fcbByCustomer.get(entry.getKey());
+            if (fcbPercent == null || entry.getValue().compareTo(fcbPercent) != 0) {
+                return guarantorDriftDivergence(novaStatus, fcb, applicationNumber);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Indexes a guarantor list by customer number → percentage, or returns {@code null} when any element has a
+     * null/blank customer number or an unknown ({@code null}) percentage (so the caller treats the side as unknown and
+     * never flags drift).
+     */
+    private static @Nullable Map<String, BigDecimal> indexByCustomer(List<ReconGuarantor> guarantors) {
+        Map<String, BigDecimal> byCustomer = new HashMap<>();
+        for (ReconGuarantor guarantor : guarantors) {
+            String customerNumber = guarantor.customerNumber();
+            BigDecimal percentage = guarantor.guaranteePercentage();
+            if (customerNumber == null || customerNumber.isBlank() || percentage == null) {
+                return null;
+            }
+            byCustomer.put(customerNumber, percentage);
+        }
+        return byCustomer;
+    }
+
+    private static Divergence guarantorDriftDivergence(
+            FacilityStatus novaStatus, ReconLoanFileState fcb, @Nullable String applicationNumber) {
+        return Divergence.lagging(Direction.SOURCE_AHEAD, GUARANTOR_DRIFT_REASON)
+                .withDetail(FacilityReconMapping.observedDetail(novaStatus, fcb.fileStatus(), applicationNumber));
     }
 
     private static Map<String, String> unreachableDetail(

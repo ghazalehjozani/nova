@@ -22,4 +22,12 @@ public class ReconciliationSourceProperties {
      * remediation flag admits the request, the replay does not execute unless this is true.
      */
     private boolean replayForwardEnabled = false;
+
+    /**
+     * Nova-side gate for guarantor-drift detection and auto-convergence (dark launch). When false (default) the probe
+     * never compares guarantor sets (so guarantor drift is never flagged) and the convergence action never republishes
+     * a guarantors-changed event. Gates BOTH the probe comparison and the converge branch; leave unset in config to
+     * keep the feature off.
+     */
+    private boolean guarantorDriftEnabled = false;
 }

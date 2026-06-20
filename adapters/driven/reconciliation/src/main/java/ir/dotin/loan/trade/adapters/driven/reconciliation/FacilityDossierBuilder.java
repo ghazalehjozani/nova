@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
@@ -28,6 +29,7 @@ import ir.dotin.platform.pangaea.reconciliation.api.model.RootCause;
 import ir.dotin.platform.pangaea.reconciliation.api.model.SafetyTier;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.FacilityStatus;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.EventPeerSignal;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.ReconGuarantor;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.ReconLoanFileState;
 
 final class FacilityDossierBuilder {
@@ -64,6 +66,56 @@ final class FacilityDossierBuilder {
                 recommended,
                 alternatives,
                 hash);
+    }
+
+    /**
+     * Dossier for a guarantor-drift divergence that has no PROCESSED guarantors-changed event to auto-re-drive (so it
+     * escalates to an operator). Surfaces both guarantor sets in the evidence so the operator can see Nova's vs FCB's
+     * view. Rooted at {@code UNKNOWN} (the recon-api {@code RootCause} enum has no dedicated guarantor-drift value)
+     * with a {@code MANUAL_DATA_FIX} recommendation, since there is no stored event to replay.
+     */
+    OperatorDossier buildGuarantorDriftDossier(
+            FacilityStatus novaStatus,
+            ReconLoanFileState fcb,
+            List<ReconGuarantor> novaGuarantors,
+            @Nullable String workflowState) {
+        Objects.requireNonNull(novaStatus, "novaStatus");
+        Objects.requireNonNull(fcb, "fcb");
+
+        List<String> evidence = new ArrayList<>();
+        evidence.add("divergence=guarantor-drift");
+        evidence.add("nova.guarantors=" + renderGuarantors(novaGuarantors));
+        evidence.add("fcb.guarantors=" + renderGuarantors(fcb.guarantors()));
+
+        NovaSnapshot novaSnapshot = new NovaSnapshot(novaStatus.name(), List.of(), List.of(), workflowState);
+        FcbSnapshot fcbSnapshot = new FcbSnapshot(fcb.reachable(), fcb.exists(), fcb.fileStatus(), null);
+
+        ProposedRemediation recommended = new ProposedRemediation(
+                RemediationKind.MANUAL_DATA_FIX,
+                SafetyTier.MANUAL_ONLY,
+                false,
+                List.of(),
+                "no stored guarantors-changed event to re-drive — reconcile guarantors manually",
+                false,
+                BLAST_RADIUS,
+                List.of(new Precondition(
+                        "guarantors-changed-event-present", false, "no PROCESSED guarantors-changed")));
+
+        return new OperatorDossier(
+                RootCause.UNKNOWN, Confidence.LOW, novaSnapshot, fcbSnapshot, evidence, recommended, List.of(), "");
+    }
+
+    private static String renderGuarantors(List<ReconGuarantor> guarantors) {
+        if (guarantors.isEmpty()) {
+            return "[]";
+        }
+        return guarantors.stream()
+                .map(g -> g.customerNumber() + "="
+                        + (g.guaranteePercentage() == null
+                                ? "?"
+                                : g.guaranteePercentage().toPlainString()))
+                .sorted()
+                .collect(Collectors.joining(",", "[", "]"));
     }
 
     private NovaSnapshot novaSnapshot(

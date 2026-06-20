@@ -10,14 +10,10 @@ public record BindingRequest(
         @Schema(description = "نوع اتصال", requiredMode = Schema.RequiredMode.REQUIRED)
         String type,
 
-        @Schema(description = "مقدار ثابت")
-        String literalValue,
+        @Schema(description = "مقدار ثابت") String literalValue,
 
-        @Schema(description = "نام فیلد منبع")
-        String fieldName,
+        @Schema(description = "نام فیلد منبع") String fieldName,
 
-        @Schema(description = "کد فرمول ارجاع‌شده")
-        String referencedFormulaId,
+        @Schema(description = "کد فرمول ارجاع‌شده") String referencedFormulaId,
 
-        @Schema(description = "نام مقدار محاسبه‌شده")
-        String computedName) {}
+        @Schema(description = "نام مقدار محاسبه‌شده") String computedName) {}

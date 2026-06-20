@@ -30,11 +30,11 @@ public final class FormulaFailureTranslator {
                 FailureCause.conflict(
                         Notification.ofError(TradeLoanApplicationServiceErrors.FORMULA_HAS_DEPENDENTS, code));
             case InvalidFormulaException invalid ->
-                FailureCause.validation(Notification.ofError(
-                        TradeLoanApplicationServiceErrors.INVALID_FORMULA, code, reason(invalid)));
+                FailureCause.validation(
+                        Notification.ofError(TradeLoanApplicationServiceErrors.INVALID_FORMULA, code, reason(invalid)));
             case ParseException parse ->
-                FailureCause.validation(Notification.ofError(
-                        TradeLoanApplicationServiceErrors.INVALID_FORMULA, code, reason(parse)));
+                FailureCause.validation(
+                        Notification.ofError(TradeLoanApplicationServiceErrors.INVALID_FORMULA, code, reason(parse)));
             case ProviderResolutionException provider -> providerFailure(code, provider);
             case CyclicReferenceException cyclic ->
                 FailureCause.businessRule(Notification.ofError(
@@ -49,8 +49,8 @@ public final class FormulaFailureTranslator {
                 FailureCause.businessRule(Notification.ofError(
                         TradeLoanApplicationServiceErrors.FORMULA_EVALUATION_FAILED, code, reason(formula)));
             case IllegalArgumentException illegal ->
-                FailureCause.validation(Notification.ofError(
-                        TradeLoanApplicationServiceErrors.INVALID_FORMULA, code, reason(illegal)));
+                FailureCause.validation(
+                        Notification.ofError(TradeLoanApplicationServiceErrors.INVALID_FORMULA, code, reason(illegal)));
             default -> FailureCause.technical(exception, false);
         };
     }

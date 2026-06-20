@@ -32,7 +32,8 @@ public class TradeLoanProviderInstanceResolver implements ProviderInstanceResolv
             return Optional.empty();
         }
         return switch (providerCode) {
-            case LOAN_FACILITY -> facilityRepository.findById(LoanFacilityId.of(id)).map(f -> (FormulaParameterSource) f);
+            case LOAN_FACILITY ->
+                facilityRepository.findById(LoanFacilityId.of(id)).map(f -> (FormulaParameterSource) f);
             case LOAN_ARRANGEMENT ->
                 arrangementRepository.findById(LoanArrangementId.of(id)).map(a -> (FormulaParameterSource) a);
             default -> Optional.empty();

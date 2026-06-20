@@ -20,16 +20,21 @@ class ReconciliationSourcePropertiesTest {
             ReconciliationSourceProperties props = context.getBean(ReconciliationSourceProperties.class);
             assertThat(props.getSourceBatchSize()).isEqualTo(200);
             assertThat(props.isReplayForwardEnabled()).isFalse();
+            assertThat(props.isGuarantorDriftEnabled()).isFalse();
         });
     }
 
     @Test
     void bindsOverrides() {
-        runner.withPropertyValues("reconciliation.source-batch-size=50", "reconciliation.replay-forward-enabled=true")
+        runner.withPropertyValues(
+                        "reconciliation.source-batch-size=50",
+                        "reconciliation.replay-forward-enabled=true",
+                        "reconciliation.guarantor-drift-enabled=true")
                 .run(context -> {
                     ReconciliationSourceProperties props = context.getBean(ReconciliationSourceProperties.class);
                     assertThat(props.getSourceBatchSize()).isEqualTo(50);
                     assertThat(props.isReplayForwardEnabled()).isTrue();
+                    assertThat(props.isGuarantorDriftEnabled()).isTrue();
                 });
     }
 

@@ -24,6 +24,19 @@ public interface FacilityReconReadPort {
      */
     List<FacilityReconRow> pageNonTerminal(@Nullable String cursor, int size);
 
-    /** Resolves a single facility's reconciliation row by its id string, if present. */
-    Optional<FacilityReconRow> findById(String facilityId);
+    /**
+     * Resolves a single facility's reconciliation row by its id string, if present, WITHOUT the (extra-query) guarantor
+     * set. Equivalent to {@link #findById(String, boolean)} with {@code includeGuarantors=false}.
+     */
+    default Optional<FacilityReconRow> findById(String facilityId) {
+        return findById(facilityId, false);
+    }
+
+    /**
+     * Resolves a single facility's reconciliation row by its id string, if present. When
+     * {@code includeGuarantors=true}, the row also carries Nova's current guarantor set (an extra read used only by the
+     * guarantor-drift detector); when {@code false}, the guarantor set is left empty and the extra query is skipped, so
+     * a recon probe pays nothing for the guarantor-drift feature while it is dark.
+     */
+    Optional<FacilityReconRow> findById(String facilityId, boolean includeGuarantors);
 }

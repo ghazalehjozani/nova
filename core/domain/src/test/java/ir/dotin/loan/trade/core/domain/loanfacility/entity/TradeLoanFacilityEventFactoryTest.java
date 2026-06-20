@@ -33,6 +33,7 @@ import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityColla
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityContractIssued;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCreated;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityDisbursementFailed;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityGuarantorsChanged;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityLumpSumDisbursed;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityPaidOffClosed;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityRejected;
@@ -207,6 +208,14 @@ final class TradeLoanFacilityEventFactoryTest {
             var event = factory.createCreatedEvent(mockFacilityId, mockApplicationNumber, fixedClock);
 
             assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityCreated.class);
+        }
+
+        @Test
+        @DisplayName("should create guarantors changed event")
+        void shouldCreateGuarantorsChangedEvent() {
+            var event = factory.createGuarantorsChangedEvent(mockFacilityId, List.of(), fixedClock);
+
+            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityGuarantorsChanged.class);
         }
     }
 }

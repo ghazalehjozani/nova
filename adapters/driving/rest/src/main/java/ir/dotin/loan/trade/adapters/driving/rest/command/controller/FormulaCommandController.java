@@ -45,7 +45,8 @@ class FormulaCommandController extends BaseController {
     public ResponseEntity<Void> createFormula(@RequestBody @Valid CreateFormulaRequest request) {
         CreateFormulaCommand command = createMapper.toCommand(request, getIdempotencyKey());
         dispatcher.dispatch(command);
-        return ResponseEntity.created(URI.create("/v1/formulas/" + command.code())).build();
+        return ResponseEntity.created(URI.create("/v1/formulas/" + command.code()))
+                .build();
     }
 
     @PutMapping(value = "/{code}", version = "1+")

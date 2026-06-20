@@ -86,6 +86,15 @@ public class FacilityConvergenceAction implements ConvergenceAction {
     private static final int OUTBOX_SCAN_PAGE = 200;
     private static final int INBOX_SCAN_PAGE = 200;
 
+    /** Reason code the probe stamps on a guarantor-drift divergence (must match {@code FacilityDivergenceProbe}). */
+    private static final String GUARANTOR_DRIFT_REASON = "guarantor-drift";
+
+    /**
+     * Canonical outbox event-type of a guarantors-changed event (the row re-driven to converge guarantor drift) —
+     * {@code TradeLoanFacilityEventType.GUARANTORS_CHANGED.getFullType()}. Matched exactly (equals), not by substring.
+     */
+    private static final String GUARANTORS_CHANGED_EVENT_TYPE = "TRADE_LOAN_FACILITY_GUARANTORS_CHANGED";
+
     private final OutboxAdminPort outboxAdminPort;
     private final InboxAdminPort inboxAdminPort;
     private final WorkflowAdminPort workflowAdminPort;
@@ -221,6 +230,18 @@ public class FacilityConvergenceAction implements ConvergenceAction {
                 return ConvergeOutcome.retryLater("fcb-unreachable");
             }
             return classifyDivergence(novaStatus, fcb, facilityRows, correlationIds);
+        }
+
+        // Guarantor-drift lever (dark-launch, flag-gated): a guarantor-drift divergence is NOT a forward-status lag, so
+        // it must NOT go through the rank-based forward lever (guarantor events have fcbRankForEvent == -1 and would be
+        // mis-routed to the FCB→Nova path). Intercept on the reason code and re-drive the stored guarantors-changed
+        // event instead. Reached only for a non-terminal, non-money facility (the terminal/money gates above already
+        // returned), matching the probe which raises guarantor-drift only for non-terminal facilities.
+        if (GUARANTOR_DRIFT_REASON.equals(divergence.reasonCode())) {
+            if (!properties.isGuarantorDriftEnabled()) {
+                return ConvergeOutcome.notApplicable("guarantor-drift-disabled");
+            }
+            return convergeGuarantorDrift(facilityId, novaRow.get(), facilityRows, correlationIds);
         }
 
         // (3) / (4) verdict-directed lever.
@@ -596,6 +617,94 @@ public class FacilityConvergenceAction implements ConvergenceAction {
         }
         return ConvergeOutcome.needsOperator(
                 buildDossier(novaStatus, fcb, forwardRows, correlationIds, classification));
+    }
+
+    // ════════════════════════════════════════ Guarantor-drift lever (dark-launch) ════════════════════════════════
+
+    /**
+     * Converges a guarantor-drift divergence by re-driving the latest PROCESSED {@code GUARANTORS_CHANGED} outbox row —
+     * the same stored-row republish as the forward path, never a minted event or a re-run of
+     * {@code ChangeGuarantorStep} (INV-4). The guarantors-changed event does NOT advance the FCB file status
+     * ({@code fcbRankForEvent == -1}), so the row is selected by event-type token, bypassing the rank-based forward
+     * filter. Honours the in-flight defer (a guarantors-changed row still publishing on the Nova side); the
+     * saga/correlation guard and the recency defer are already applied by the caller. Returns {@code retryLater} after
+     * a successful republish (async re-drive, D12) and escalates to the operator when there is no PROCESSED
+     * guarantors-changed row to re-drive (drift with nothing to republish must never silently converge).
+     */
+    private ConvergeOutcome convergeGuarantorDrift(
+            String facilityId,
+            FacilityReconRow novaRow,
+            List<OutboxRecordView> facilityRows,
+            List<String> correlationIds) {
+        // Defer if a guarantors-changed row is still mid-publish on the Nova side (PENDING/RETRYING/PROCESSING): it is
+        // not yet broker-acked, so FCB has not had a chance to apply it — re-driving now would be premature.
+        if (anyGuarantorsChangedInFlight(facilityRows)) {
+            return ConvergeOutcome.retryLater("guarantors-changed-in-flight");
+        }
+
+        Optional<UUID> latestProcessed = latestProcessedGuarantorsChanged(facilityRows);
+        if (latestProcessed.isEmpty()) {
+            // Drift detected but Nova holds no PROCESSED guarantors-changed event to re-drive (e.g. the change predates
+            // the outbox, or every such row is dead-lettered): do NOT auto-act — escalate to an operator with a dossier
+            // that surfaces both guarantor sets.
+            return ConvergeOutcome.needsOperator(guarantorDriftDossier(facilityId, novaRow, correlationIds));
+        }
+
+        UUID eventId = latestProcessed.get();
+        long republished = outboxAdminPort.republish(
+                new OutboxRepublishCommand(List.of(eventId), AGGREGATE_TYPE, null, null, null, null, 1));
+        if (republished > 0) {
+            // D12: async corridor — republish only re-enqueues the stored event; FCB applies it out-of-band. Defer and
+            // let the next sweep confirm ALIGNED (returning Converged would mislabel the in-flight re-drive as a
+            // failure).
+            return ConvergeOutcome.retryLater("re-driven-guarantors-changed:" + eventId);
+        }
+        return ConvergeOutcome.retryLater("guarantors-changed-republish-noop");
+    }
+
+    /**
+     * Builds the operator dossier for a guarantor-drift with no re-drivable event. Re-reads FCB state (best-effort) so
+     * the dossier can show FCB's guarantor view next to Nova's; on an FCB read failure it still escalates with Nova's
+     * side only (a drift with nothing to re-drive must reach an operator either way).
+     */
+    private OperatorDossier guarantorDriftDossier(
+            String facilityId, FacilityReconRow novaRow, List<String> correlationIds) {
+        ReconLoanFileState fcb = fcbReconStatePort
+                .loadReconState(facilityId, null)
+                .ok()
+                .filter(ReconLoanFileState::reachable)
+                .orElseGet(() -> new ReconLoanFileState(false, null, facilityId, null, false, null, List.of(), false));
+        String workflowState = workflowStateSummary(correlationIds);
+        return dossierBuilder.buildGuarantorDriftDossier(novaRow.status(), fcb, novaRow.guarantors(), workflowState);
+    }
+
+    /** Whether any guarantors-changed outbox row is still in-flight (not yet broker-acked) on the Nova side. */
+    private static boolean anyGuarantorsChangedInFlight(List<OutboxRecordView> facilityRows) {
+        return facilityRows.stream()
+                .filter(row -> isGuarantorsChanged(row.eventType()))
+                .map(OutboxRecordView::status)
+                .anyMatch(status -> status == MessageStatus.PENDING
+                        || status == MessageStatus.RETRYING
+                        || status == MessageStatus.PROCESSING);
+    }
+
+    /**
+     * The eventId of the LATEST broker-acked ({@code PROCESSED}) guarantors-changed outbox row — the one to re-deliver
+     * so FCB applies Nova's current guarantor set. "Latest" = highest sequence number (the most recent guarantor
+     * change). Bypasses the {@code fcbRankForEvent >= 0} forward filter (guarantors-changed has rank -1).
+     */
+    private static Optional<UUID> latestProcessedGuarantorsChanged(List<OutboxRecordView> facilityRows) {
+        return facilityRows.stream()
+                .filter(row -> isGuarantorsChanged(row.eventType()))
+                .filter(row -> row.status() == MessageStatus.PROCESSED)
+                .filter(row -> row.eventId() != null)
+                .max(Comparator.comparingLong(
+                        row -> row.sequenceNumber() == null ? Long.MIN_VALUE : row.sequenceNumber()))
+                .map(OutboxRecordView::eventId);
+    }
+
+    private static boolean isGuarantorsChanged(@Nullable String eventType) {
+        return GUARANTORS_CHANGED_EVENT_TYPE.equals(eventType);
     }
 
     /**

@@ -55,8 +55,7 @@ public class TradeLoanFormulaEvaluationService {
         this.meterRegistry = meterRegistry;
     }
 
-    public BigDecimal evaluate(
-            String code, Map<String, String> providerRefs, Map<String, BigDecimal> overrides) {
+    public BigDecimal evaluate(String code, Map<String, String> providerRefs, Map<String, BigDecimal> overrides) {
         ResolvedFormula resolved = coordinator.resolve(code, providerRefs);
         return runEngine(resolved.formula(), resolved.providers(), overrides);
     }

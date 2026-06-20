@@ -33,11 +33,7 @@ public class FindFormulasQueryHandler implements QueryHandler<FindFormulasQuery,
                 };
 
         return FormulaPageView.of(
-                page.getContent(),
-                page.getNumber(),
-                page.getSize(),
-                page.getTotalElements(),
-                page.getTotalPages());
+                page.getContent(), page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages());
     }
 
     private static String orEmpty(@Nullable String value) {

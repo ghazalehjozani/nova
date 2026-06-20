@@ -17,6 +17,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanApplicationId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.SanctionedLoanId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.TrackedTransactionNumber;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuarantorParty;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.*;
 
 final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<TradeLoanFacilityEvents<?>> {
@@ -196,5 +197,11 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
             Integer newDuration,
             Clock clock) {
         return TradeLoanFacilityRestructuring.of(facilityId, restructuringTransaction, scheduleId, newDuration, clock);
+    }
+
+    @Override
+    public TradeLoanFacilityGuarantorsChanged createGuarantorsChangedEvent(
+            LoanFacilityId facilityId, List<GuarantorParty> guarantors, Clock clock) {
+        return TradeLoanFacilityGuarantorsChanged.of(facilityId, guarantors, clock);
     }
 }

@@ -10,12 +10,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(name = "ValidateExpressionRequest", description = "اعتبارسنجی عبارت فرمول")
 public record ValidateExpressionRequest(
-        @Schema(description = "عبارت فرمول", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotBlank @Size(max = 2000)
+        @Schema(description = "عبارت فرمول", requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank @Size(max = 2000)
         String expression,
 
-        @Schema(description = "اطلاعات پردازشی")
-        Map<String, String> metadata)
+        @Schema(description = "اطلاعات پردازشی") Map<String, String> metadata)
         implements BaseRequest {
 
     public ValidateExpressionRequest {
