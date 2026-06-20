@@ -54,8 +54,6 @@ public class FcbKafkaConfig {
     private static final int REPLY_FETCH_MIN_BYTES = 1;
     private static final int REPLY_FETCH_MAX_WAIT_MS = 50;
     private static final int REPLY_AUTO_COMMIT_INTERVAL_MS = 1_000;
-    private static final int PRODUCER_DELIVERY_TIMEOUT_MS = 120_000;
-    private static final int PRODUCER_REQUEST_TIMEOUT_MS = 30_000;
     private static final Duration REPLY_PARTITION_METADATA_TIMEOUT = Duration.ofSeconds(10);
 
     @Bean(FCB_PRODUCER_FACTORY)
@@ -73,8 +71,16 @@ public class FcbKafkaConfig {
         configs.put(ProducerConfig.BATCH_SIZE_CONFIG, PRODUCER_BATCH_SIZE_BYTES);
         configs.put(ProducerConfig.LINGER_MS_CONFIG, PRODUCER_LINGER_MS);
         configs.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "lz4");
-        configs.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, PRODUCER_DELIVERY_TIMEOUT_MS);
-        configs.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, PRODUCER_REQUEST_TIMEOUT_MS);
+        // Request + delivery timeouts come from the operator-tuned producer config (same source as the outbox
+        // producer), not a 120s hardcode. FcbKafkaClient blocks on future.get(reply-timeout) (default 10s / txn 60s);
+        // a delivery budget that outlives that wait abandons an in-flight request the producer still delivers in the
+        // background, so a Nova-side retry double-sends to FCB (FCB dedups by Idempotency-Key/eventUid, but the orphan
+        // reply + wasted retry are avoidable). kafka-clients enforces delivery-timeout >= request-timeout + linger.
+        var producer = messagingProperties.getKafka().getProducer();
+        configs.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, (int)
+                producer.getRequestTimeout().toMillis());
+        configs.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, (int)
+                producer.getDeliveryTimeout().toMillis());
         applySecurity(configs, messagingProperties);
         return new DefaultKafkaProducerFactory<>(configs);
     }
