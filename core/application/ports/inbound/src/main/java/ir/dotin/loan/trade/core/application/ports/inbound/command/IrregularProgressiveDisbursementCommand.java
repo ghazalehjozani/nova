@@ -34,7 +34,7 @@ public record IrregularProgressiveDisbursementCommand(
         implements Command {
 
     @Builder(toBuilder = true)
-    public record InstallmentSchedulePlanDto(@NotNull @Valid List<@Valid InstallmentSpecDto> installments) {}
+    public record InstallmentSchedulePlanDto(@NotNull List<@Valid InstallmentSpecDto> installments) {}
 
     @Builder(toBuilder = true)
     public record InstallmentSpecDto(

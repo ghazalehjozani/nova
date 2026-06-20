@@ -106,8 +106,8 @@ public record OriginateLoanFacilityRequest(
 
     @Schema(name = "InstallmentSchedulePlanDto", description = "برنامه اقساط")
     public record InstallmentSchedulePlanDto(
-            @Schema(description = "اطلاعات اقساط", requiredMode = Schema.RequiredMode.REQUIRED) @Valid
-            List<InstallmentSpecDto> installments) {}
+            @Schema(description = "اطلاعات اقساط", requiredMode = Schema.RequiredMode.REQUIRED)
+            List<@Valid InstallmentSpecDto> installments) {}
 
     @Schema(name = "InstallmentSpecDto", description = "مشخصات قسط")
     public record InstallmentSpecDto(

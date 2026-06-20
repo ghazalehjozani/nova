@@ -24,7 +24,7 @@ public record LoanFacilityRestructuringCommand(
         implements Command {
 
     @Builder(toBuilder = true)
-    public record InstallmentSchedulePlanDto(@NotNull @Valid List<@Valid InstallmentDetailsItem> installments) {}
+    public record InstallmentSchedulePlanDto(@NotNull List<@Valid InstallmentDetailsItem> installments) {}
 
     public record InstallmentDetailsItem(
             int sequenceNumber, AmountDto principalAmount, AmountDto interestAmount, LocalDate dueDate) {}

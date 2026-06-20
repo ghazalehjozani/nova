@@ -19,7 +19,7 @@ public record ChangeGuarantorCommand(
         @NotNull Long version,
         @NotNull UUID loanFacilityId,
         @Nullable String branchCode,
-        @NotEmpty @Valid List<GuarantorInput> guarantors)
+        @NotEmpty List<@Valid GuarantorInput> guarantors)
         implements Command {
 
     @Builder

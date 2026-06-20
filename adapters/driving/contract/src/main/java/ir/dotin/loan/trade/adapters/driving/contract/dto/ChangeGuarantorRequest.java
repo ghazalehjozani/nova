@@ -16,8 +16,8 @@ public record ChangeGuarantorRequest(
         @Schema(description = "نسخه عملیات", example = "1", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
         Long version,
 
-        @Schema(description = "فهرست ضامنین جدید", requiredMode = Schema.RequiredMode.REQUIRED) @NotEmpty @Valid
-        List<GuarantorDto> guarantors,
+        @Schema(description = "فهرست ضامنین جدید", requiredMode = Schema.RequiredMode.REQUIRED) @NotEmpty
+        List<@Valid GuarantorDto> guarantors,
 
         Map<String, String> metadata)
         implements BaseRequest {

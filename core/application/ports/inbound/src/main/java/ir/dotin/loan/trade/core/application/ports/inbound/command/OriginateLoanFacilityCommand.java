@@ -33,7 +33,7 @@ public record OriginateLoanFacilityCommand(
     @Builder(toBuilder = true)
     public record LoanApplicationDto(
             @NotNull Instant requestDate,
-            @Valid @NotNull @NotEmpty Set<PartyDto> parties,
+            @NotNull @NotEmpty Set<@Valid PartyDto> parties,
             @Valid @NotNull AmountDto requestedAmount,
             @Valid @NotNull CurrencyTypeDto currency,
             @Valid @NotNull LoanDurationDto requestedLoanDuration,
@@ -55,8 +55,7 @@ public record OriginateLoanFacilityCommand(
             @Valid @Nullable CredibilityRankDto credibilityRank) {}
 
     @Builder(toBuilder = true)
-    public record InstallmentSchedulePlanDto(
-            @NotEmpty @Valid List<@Valid InstallmentSpecDto> installments) {}
+    public record InstallmentSchedulePlanDto(@NotEmpty List<@Valid InstallmentSpecDto> installments) {}
 
     @Builder(toBuilder = true)
     public record InstallmentSpecDto(

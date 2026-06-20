@@ -29,8 +29,7 @@ public record IrregularProgressiveDisbursementRequest(
 
     @Schema(description = "برنامه زمانبندی اقساط")
     public record InstallmentSchedulePlanDto(
-            @Schema(description = "لیست اقساط") @NotNull @Valid
-            List<InstallmentSpecDto> installments) {}
+            @Schema(description = "لیست اقساط") @NotNull List<@Valid InstallmentSpecDto> installments) {}
 
     @Schema(description = "مشخصات قسط")
     public record InstallmentSpecDto(

@@ -23,20 +23,20 @@ public record DefineLoanTypeCommand(
         @NotNull @Valid TitleDto title,
         @NotNull @Valid GatewayType gatewayType,
         @NotNull @Valid LoanApplicationStatusDto loanApplicationAllowed,
-        @NotNull @Valid Set<EconomicSectorCurrencyDto> economicSectorCurrencies,
-        @NotNull @Valid Set<LoanArrangementCodeDto> loanArrangementCodes,
-        @NotNull @Valid List<RelationTypeLoanTopicDto> relationTypeLoanTopics)
+        @NotNull Set<@Valid EconomicSectorCurrencyDto> economicSectorCurrencies,
+        @NotNull Set<@Valid LoanArrangementCodeDto> loanArrangementCodes,
+        @NotNull List<@Valid RelationTypeLoanTopicDto> relationTypeLoanTopics)
         implements Command {
 
     public record LoanApplicationStatusDto(boolean isAllowed) {}
 
     public record EconomicSectorCurrencyDto(
             @NotNull @Valid EconomicSectorDto economicSector,
-            @Valid @NotNull Set<@NotNull CurrencyTypeDto> currencyTypes) {}
+            @NotNull Set<@Valid @NotNull CurrencyTypeDto> currencyTypes) {}
 
     public record RelationTypeLoanTopicDto(
             @NotNull TradeRelationType relationType,
             @NotBlank String topicName,
             @NotBlank String topicCode,
-            @NotNull @Valid Set<@NotNull EconomicSectorDto> economicSectors) {}
+            @NotNull Set<@Valid @NotNull EconomicSectorDto> economicSectors) {}
 }

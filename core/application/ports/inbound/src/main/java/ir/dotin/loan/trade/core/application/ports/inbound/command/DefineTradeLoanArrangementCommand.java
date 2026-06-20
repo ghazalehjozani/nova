@@ -37,7 +37,7 @@ public record DefineTradeLoanArrangementCommand(
         @NotNull @Valid AmountRangeDto amountRange,
         @NotNull @Valid LoanDurationRangeDto durationRange,
         @NotNull @Valid PartyType partyType,
-        @NotNull @Valid List<@NotNull ConfirmTypeDto> confirmTypes,
+        @NotNull List<@Valid @NotNull ConfirmTypeDto> confirmTypes,
         @NotNull Integer guarantorCount,
         @NotNull Boolean hasInstallmentCard,
         @NotNull @Valid LifeInsurancePaymentType lifeInsurancePaymentType,
@@ -95,7 +95,7 @@ public record DefineTradeLoanArrangementCommand(
 
     public record CollateralPolicyDto(
             @NotNull @Min(0) Integer totalPercent,
-            @NotNull @Valid Set<CollateralTypeDto> collateralTypes,
+            @NotNull Set<@Valid CollateralTypeDto> collateralTypes,
             @NotNull CollateralCalculationType collateralCalculationType) {}
 
     public record CollateralTypeDto(@NotNull @Valid CollateralType type) {}
