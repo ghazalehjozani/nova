@@ -4,8 +4,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,16 +26,16 @@ import ir.dotin.platform.formula.service.dto.RegisteredBindingDto;
 import ir.dotin.platform.formula.service.dto.ValidationResultDto;
 import ir.dotin.platform.pangaea.protocol.api.response.BaseResponse;
 import ir.dotin.platform.pangaea.protocol.core.util.PagedResponseUtils;
+import ir.dotin.platform.pangaea.protocol.rest.annotation.SafeReadMapping;
 import ir.dotin.platform.pangaea.protocol.rest.controller.BaseController;
 import ir.dotin.platform.pangaea.servicelayer.api.dispatcher.QueryDispatcher;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.EvaluateFormulaRequest;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.ValidateExpressionRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.mapper.EvaluateFormulaRequestToQueryMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.query.formula.dto.FormulaExistsView;
 import ir.dotin.loan.trade.core.application.query.formula.dto.FormulaPageView;
-import ir.dotin.loan.trade.core.application.query.formula.dto.RegisteredBindingsView;
 import ir.dotin.loan.trade.core.application.query.formula.dto.ProviderTypesView;
+import ir.dotin.loan.trade.core.application.query.formula.dto.RegisteredBindingsView;
 import ir.dotin.loan.trade.core.application.query.formula.dto.ValidationView;
 import ir.dotin.loan.trade.core.application.query.formula.request.FindFormulasQuery;
 import ir.dotin.loan.trade.core.application.query.formula.request.FormulaExistsQuery;
@@ -47,12 +50,14 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/v{version}/formulas")
 @Tag(name = SwaggerConfig.TAG_FORMULAS_QUERIES, description = "استعلام و ارزیابی فرمول‌ها")
+@Validated
 @RequiredArgsConstructor
 class FormulaQueryController extends BaseController {
 
     private final QueryDispatcher dispatcher;
     private final EvaluateFormulaRequestToQueryMapper evaluateMapper;
 
+    @SafeReadMapping
     @PostMapping(value = "/{code}/evaluate", version = "1")
     @Operation(summary = "ارزیابی فرمول")
     public ResponseEntity<BaseResponse<EvaluateFormulaResult>> evaluate(
@@ -116,11 +121,11 @@ class FormulaQueryController extends BaseController {
         return ResponseEntity.ok(BaseResponse.success(view.exists()));
     }
 
-    @PostMapping(value = "/validate", version = "1")
+    @GetMapping(value = "/validate", version = "1")
     @Operation(summary = "اعتبارسنجی نحوی عبارت فرمول")
     public ResponseEntity<BaseResponse<ValidationResultDto>> validate(
-            @RequestBody @Valid ValidateExpressionRequest request) {
-        ValidationView view = dispatcher.dispatch(new ValidateExpressionQuery(request.expression()));
+            @RequestParam @NotBlank @Size(max = 2000) String expression) {
+        ValidationView view = dispatcher.dispatch(new ValidateExpressionQuery(expression));
         return ResponseEntity.ok(BaseResponse.success(view.result()));
     }
 
@@ -154,7 +159,7 @@ class FormulaQueryController extends BaseController {
     }
 
     private static ResponseEntity<BaseResponse<List<FormulaDto>>> page(FormulaPageView view) {
-        return ResponseEntity.ok(PagedResponseUtils.offset(
-                view.formulas(), view.currentPage(), view.pageSize(), view.totalElements()));
+        return ResponseEntity.ok(
+                PagedResponseUtils.offset(view.formulas(), view.currentPage(), view.pageSize(), view.totalElements()));
     }
 }

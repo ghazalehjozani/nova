@@ -114,7 +114,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
             "spring.config.import="
         })
 @DisplayName("TradeLoanFacility persistence round-trip (migrated v2026.6.9 schema)")
-class TradeLoanFacilityPersistenceRoundTripTest {
+class TradeLoanFacilityPersistenceRoundTripIT {
 
     /**
      * Narrow Spring slice: datasource + Hibernate JPA + transactions + Liquibase, the persistence config (entity scan +
