@@ -49,7 +49,7 @@ class LumpSumDisbursementController extends BaseController {
                             required = true)
                     @PathVariable
                     UUID facilityId,
-            @Parameter(description = "جزئیات درخواست پرداخت یکجا", required = true) @RequestBody
+            @Parameter(description = "جزئیات درخواست پرداخت یکجا", required = true) @RequestBody @Valid
                     LumpSumDisbursementRequest requestBody) {
         Map<String, String> metadata = requestBody.metadata() == null ? Map.of() : requestBody.metadata();
         var lumpSumDisbursementCommand = LumpSumDisbursementCommand.builder()

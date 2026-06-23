@@ -1,6 +1,8 @@
 package ir.dotin.loan.trade.adapters.driving.contract.dto;
 
 import java.math.BigDecimal;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -24,20 +26,24 @@ public sealed interface PartyRequestDto
 
     PartyRole role();
 
-    record ApplicantDto(String customerNumber, PartyRole role) implements PartyRequestDto {
+    record ApplicantDto(
+            @NotBlank String customerNumber, @NotNull PartyRole role) implements PartyRequestDto {
         public ApplicantDto(String customerNumber) {
             this(customerNumber, PartyRole.PRIMARY_APPLICANT);
         }
     }
 
-    record CoApplicantDto(String customerNumber, PartyRole role) implements PartyRequestDto {
+    record CoApplicantDto(
+            @NotBlank String customerNumber, @NotNull PartyRole role) implements PartyRequestDto {
         public CoApplicantDto(String customerNumber) {
             this(customerNumber, PartyRole.CO_APPLICANT);
         }
     }
 
-    record GuarantorDto(String customerNumber, BigDecimal guaranteePercentage, PartyRole role)
-            implements PartyRequestDto {
+    record GuarantorDto(
+            @NotBlank String customerNumber,
+            @NotNull BigDecimal guaranteePercentage,
+            @NotNull PartyRole role) implements PartyRequestDto {
         public GuarantorDto(String customerNumber, BigDecimal guaranteePercentage) {
             this(customerNumber, guaranteePercentage, PartyRole.GUARANTOR);
         }

@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
 import java.util.UUID;
+import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +39,7 @@ class CloseFacilityPaidOffController extends BaseController {
                             required = true)
                     @PathVariable
                     UUID facilityId,
-            @Parameter(description = "جزئیات بستن تسهیلات پرداخت شده", required = true) @RequestBody
+            @Parameter(description = "جزئیات بستن تسهیلات پرداخت شده", required = true) @RequestBody @Valid
                     CloseFacilityPaidOffRequest request) {
         var command = mapper.toCommand(facilityId, request).toBuilder()
                 .uid(getIdempotencyKey())

@@ -41,7 +41,7 @@ class IssueFacilityContractController extends BaseController {
                             required = true)
                     @PathVariable
                     UUID facilityId,
-            @Parameter(description = "جزئیات صدور قرارداد تسهیلات", required = true) @RequestBody
+            @Parameter(description = "جزئیات صدور قرارداد تسهیلات", required = true) @RequestBody @Valid
                     IssueFacilityContractRequest request) {
 
         Map<String, String> metadata = request.metadata() == null ? Map.of() : request.metadata();

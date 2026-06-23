@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
 import java.util.UUID;
+import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,7 +44,7 @@ class ChangeGuarantorController extends BaseController {
                             required = true)
                     @PathVariable
                     UUID facilityId,
-            @Parameter(description = "فهرست ضامنین جدید", required = true) @RequestBody
+            @Parameter(description = "فهرست ضامنین جدید", required = true) @RequestBody @Valid
                     ChangeGuarantorRequest request) {
 
         ChangeGuarantorCommand command = mapper.toCommand(facilityId, request).toBuilder()

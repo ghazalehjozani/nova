@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
 import java.util.UUID;
+import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,7 +43,7 @@ class AddFacilityCollateralController extends BaseController {
                             required = true)
                     @PathVariable
                     UUID facilityId,
-            @Parameter(description = "جزئیات افزودن وثیقه به تسهیلات", required = true) @RequestBody
+            @Parameter(description = "جزئیات افزودن وثیقه به تسهیلات", required = true) @RequestBody @Valid
                     AddFacilityCollateralRequest request) {
         var command = mapper.toCommand(facilityId, request).toBuilder()
                 .uid(getIdempotencyKey())
@@ -55,7 +56,7 @@ class AddFacilityCollateralController extends BaseController {
     @Operation(summary = "جبران‌سازی افزودن وثایق")
     public ResponseEntity<Void> compensateAddCollaterals(
             @Parameter(description = "شناسه تسهیلات", required = true) @PathVariable UUID facilityId,
-            @Parameter(description = "جزئیات وثایق برای جبران‌سازی", required = true) @RequestBody
+            @Parameter(description = "جزئیات وثایق برای جبران‌سازی", required = true) @RequestBody @Valid
                     CompensateCollateralRequest request) {
 
         var command = CompensateCollateralCommand.builder()

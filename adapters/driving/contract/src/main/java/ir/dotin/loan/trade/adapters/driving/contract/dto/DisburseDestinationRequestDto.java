@@ -1,5 +1,8 @@
 package ir.dotin.loan.trade.adapters.driving.contract.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -20,14 +23,16 @@ public sealed interface DisburseDestinationRequestDto
 
     DisburseDestinationType type();
 
-    record DepositDestinationDto(String depositNumber, DisburseDestinationType type)
+    record DepositDestinationDto(
+            @NotBlank String depositNumber, @NotNull DisburseDestinationType type)
             implements DisburseDestinationRequestDto {
         public DepositDestinationDto(String depositNumber) {
             this(depositNumber, DisburseDestinationType.DEPOSIT);
         }
     }
 
-    record AccountDestinationDto(String accountNumber, DisburseDestinationType type)
+    record AccountDestinationDto(
+            @NotBlank String accountNumber, @NotNull DisburseDestinationType type)
             implements DisburseDestinationRequestDto {
         public AccountDestinationDto(String accountNumber) {
             this(accountNumber, DisburseDestinationType.ACCOUNT);

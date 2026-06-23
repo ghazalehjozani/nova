@@ -47,7 +47,7 @@ class ApproveFacilityController extends BaseController {
                             required = true)
                     @PathVariable
                     UUID facilityId,
-            @Parameter(description = "جزئیات تصویب مصوبه", required = true) @RequestBody
+            @Parameter(description = "جزئیات تصویب مصوبه", required = true) @RequestBody @Valid
                     ApproveFacilityRequest request) {
 
         var command = mapper.toCommand(facilityId, getIdempotencyKey(), null, request).toBuilder()
@@ -70,7 +70,7 @@ class ApproveFacilityController extends BaseController {
                     @NotBlank
                     @PathVariable
                     String sanctionSerial,
-            @Parameter(description = "جزئیات تصویب مصوبه", required = true) @RequestBody
+            @Parameter(description = "جزئیات تصویب مصوبه", required = true) @RequestBody @Valid
                     ApproveFacilityRequest request) {
         ApproveFacilityCommand command =
                 mapper.toCommand(facilityId, getIdempotencyKey(), sanctionSerial, request).toBuilder()

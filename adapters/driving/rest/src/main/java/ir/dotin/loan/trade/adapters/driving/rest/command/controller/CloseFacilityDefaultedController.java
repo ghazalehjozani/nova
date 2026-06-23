@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.adapters.driving.rest.command.controller;
 
 import java.util.UUID;
+import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +40,7 @@ class CloseFacilityDefaultedController extends BaseController {
                             required = true)
                     @PathVariable
                     UUID facilityId,
-            @Parameter(description = "جزئیات عملیات بستن تسهیلات", required = true) @RequestBody
+            @Parameter(description = "جزئیات عملیات بستن تسهیلات", required = true) @RequestBody @Valid
                     CloseFacilityDefaultedRequest request) {
         // Idempotency/correlation key comes from the filter-populated InvocationContext (X-Correlation-ID /
         // Idempotency-Key), never from the request body, so it is consistent across every command controller.
