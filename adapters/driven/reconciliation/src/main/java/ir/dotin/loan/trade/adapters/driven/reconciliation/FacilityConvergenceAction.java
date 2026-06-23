@@ -90,10 +90,14 @@ public class FacilityConvergenceAction implements ConvergenceAction {
     private static final String GUARANTOR_DRIFT_REASON = "guarantor-drift";
 
     /**
-     * Canonical outbox event-type of a guarantors-changed event (the row re-driven to converge guarantor drift) —
-     * {@code TradeLoanFacilityEventType.GUARANTORS_CHANGED.getFullType()}. Matched exactly (equals), not by substring.
+     * Canonical outbox event-types of a guarantor change (the row re-driven to converge guarantor drift) —
+     * {@code TradeLoanFacilityEventType.GUARANTOR_ADDED/REMOVED.getFullType()}. Each carries the full resulting
+     * guarantor snapshot, so re-driving the single latest row (of either type, by sequence) converges FCB. Matched
+     * exactly (equals), not by substring.
      */
-    private static final String GUARANTORS_CHANGED_EVENT_TYPE = "TRADE_LOAN_FACILITY_GUARANTORS_CHANGED";
+    private static final String GUARANTOR_ADDED_EVENT_TYPE = "TRADE_LOAN_FACILITY_GUARANTOR_ADDED";
+
+    private static final String GUARANTOR_REMOVED_EVENT_TYPE = "TRADE_LOAN_FACILITY_GUARANTOR_REMOVED";
 
     private final OutboxAdminPort outboxAdminPort;
     private final InboxAdminPort inboxAdminPort;
@@ -681,7 +685,7 @@ public class FacilityConvergenceAction implements ConvergenceAction {
     /** Whether any guarantors-changed outbox row is still in-flight (not yet broker-acked) on the Nova side. */
     private static boolean anyGuarantorsChangedInFlight(List<OutboxRecordView> facilityRows) {
         return facilityRows.stream()
-                .filter(row -> isGuarantorsChanged(row.eventType()))
+                .filter(row -> isGuarantorEvent(row.eventType()))
                 .map(OutboxRecordView::status)
                 .anyMatch(status -> status == MessageStatus.PENDING
                         || status == MessageStatus.RETRYING
@@ -695,7 +699,7 @@ public class FacilityConvergenceAction implements ConvergenceAction {
      */
     private static Optional<UUID> latestProcessedGuarantorsChanged(List<OutboxRecordView> facilityRows) {
         return facilityRows.stream()
-                .filter(row -> isGuarantorsChanged(row.eventType()))
+                .filter(row -> isGuarantorEvent(row.eventType()))
                 .filter(row -> row.status() == MessageStatus.PROCESSED)
                 .filter(row -> row.eventId() != null)
                 .max(Comparator.comparingLong(
@@ -703,8 +707,8 @@ public class FacilityConvergenceAction implements ConvergenceAction {
                 .map(OutboxRecordView::eventId);
     }
 
-    private static boolean isGuarantorsChanged(@Nullable String eventType) {
-        return GUARANTORS_CHANGED_EVENT_TYPE.equals(eventType);
+    private static boolean isGuarantorEvent(@Nullable String eventType) {
+        return GUARANTOR_ADDED_EVENT_TYPE.equals(eventType) || GUARANTOR_REMOVED_EVENT_TYPE.equals(eventType);
     }
 
     /**

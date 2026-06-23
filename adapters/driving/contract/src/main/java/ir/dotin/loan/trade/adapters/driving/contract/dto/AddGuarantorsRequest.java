@@ -11,12 +11,12 @@ import ir.dotin.platform.pangaea.protocol.api.request.BaseRequest;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(name = "ChangeGuarantorRequest", description = "عملیات تغییر ضامنین تسهیلات")
-public record ChangeGuarantorRequest(
+@Schema(name = "AddGuarantorsRequest", description = "عملیات افزودن ضامن/ضامنین تسهیلات")
+public record AddGuarantorsRequest(
         @Schema(description = "نسخه عملیات", example = "1", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull
         Long version,
 
-        @Schema(description = "فهرست ضامنین جدید", requiredMode = Schema.RequiredMode.REQUIRED) @NotEmpty
+        @Schema(description = "فهرست ضامنین برای افزودن", requiredMode = Schema.RequiredMode.REQUIRED) @NotEmpty
         List<@Valid GuarantorDto> guarantors,
 
         Map<String, String> metadata)

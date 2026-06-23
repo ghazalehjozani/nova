@@ -200,8 +200,20 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
     }
 
     @Override
-    public TradeLoanFacilityGuarantorsChanged createGuarantorsChangedEvent(
-            LoanFacilityId facilityId, List<GuarantorParty> guarantors, Clock clock) {
-        return TradeLoanFacilityGuarantorsChanged.of(facilityId, guarantors, clock);
+    public TradeLoanFacilityGuarantorAdded createGuarantorAddedEvent(
+            LoanFacilityId facilityId,
+            List<GuarantorParty> added,
+            List<GuarantorParty> resultingSnapshot,
+            Clock clock) {
+        return TradeLoanFacilityGuarantorAdded.of(facilityId, added, resultingSnapshot, clock);
+    }
+
+    @Override
+    public TradeLoanFacilityGuarantorRemoved createGuarantorRemovedEvent(
+            LoanFacilityId facilityId,
+            String removedCustomerNumber,
+            List<GuarantorParty> resultingSnapshot,
+            Clock clock) {
+        return TradeLoanFacilityGuarantorRemoved.of(facilityId, removedCustomerNumber, resultingSnapshot, clock);
     }
 }

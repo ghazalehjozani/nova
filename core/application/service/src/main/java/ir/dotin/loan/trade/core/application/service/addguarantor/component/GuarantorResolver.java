@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.core.application.service.changeguarantor.component;
+package ir.dotin.loan.trade.core.application.service.addguarantor.component;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuarantorParty;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.ChangeGuarantorCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.AddGuarantorsCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.customerservice.CustomerServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CustomerInfoLoadOptions;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfoResponse;
@@ -24,11 +24,11 @@ public class GuarantorResolver {
 
     private final CustomerServicePort customerServicePort;
 
-    public Result<List<GuarantorParty>> resolve(List<ChangeGuarantorCommand.GuarantorInput> guarantors) {
+    public Result<List<GuarantorParty>> resolve(List<AddGuarantorsCommand.GuarantorInput> guarantors) {
         log.debug("Resolving customer-info for {} guarantor(s)", guarantors.size());
 
         List<GuarantorParty> resolved = new ArrayList<>(guarantors.size());
-        for (ChangeGuarantorCommand.GuarantorInput input : guarantors) {
+        for (AddGuarantorsCommand.GuarantorInput input : guarantors) {
             BigDecimal percentage = BigDecimal.valueOf(input.guaranteePercentage());
             Result<PartyInfoResponse> infoResult = customerServicePort.loadCustomerInfo(
                     input.customerNumber(), PartyRole.GUARANTOR, percentage, CustomerInfoLoadOptions.baseInfoOnly());

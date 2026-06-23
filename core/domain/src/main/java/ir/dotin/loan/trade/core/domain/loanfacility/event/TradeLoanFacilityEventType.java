@@ -23,7 +23,8 @@ public enum TradeLoanFacilityEventType {
     ADD_COLLATERAL_REVERTED,
     CLOSED_PAID_OFF_REVERTED,
     RESTRUCTURING,
-    GUARANTORS_CHANGED;
+    GUARANTOR_ADDED,
+    GUARANTOR_REMOVED;
 
     private static final String PREFIX = "TRADE_LOAN_FACILITY_";
 

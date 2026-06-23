@@ -33,7 +33,8 @@ import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityColla
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityContractIssued;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityCreated;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityDisbursementFailed;
-import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityGuarantorsChanged;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityGuarantorAdded;
+import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityGuarantorRemoved;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityLumpSumDisbursed;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityPaidOffClosed;
 import ir.dotin.loan.trade.core.domain.loanfacility.event.TradeLoanFacilityRejected;
@@ -211,11 +212,19 @@ final class TradeLoanFacilityEventFactoryTest {
         }
 
         @Test
-        @DisplayName("should create guarantors changed event")
-        void shouldCreateGuarantorsChangedEvent() {
-            var event = factory.createGuarantorsChangedEvent(mockFacilityId, List.of(), fixedClock);
+        @DisplayName("should create guarantor added event")
+        void shouldCreateGuarantorAddedEvent() {
+            var event = factory.createGuarantorAddedEvent(mockFacilityId, List.of(), List.of(), fixedClock);
 
-            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityGuarantorsChanged.class);
+            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityGuarantorAdded.class);
+        }
+
+        @Test
+        @DisplayName("should create guarantor removed event")
+        void shouldCreateGuarantorRemovedEvent() {
+            var event = factory.createGuarantorRemovedEvent(mockFacilityId, "111", List.of(), fixedClock);
+
+            assertThat(event).isNotNull().isInstanceOf(TradeLoanFacilityGuarantorRemoved.class);
         }
     }
 }

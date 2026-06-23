@@ -100,8 +100,10 @@ class FacilityConvergenceActionGuarantorDriftTest {
     @Test
     void republishesLatestProcessedGuarantorsChangedRow() {
         stubOutbox(List.of(
-                guarantorsChanged(GUARANTORS_EVENT_OLD, MessageStatus.PROCESSED, 10L),
-                guarantorsChanged(GUARANTORS_EVENT_NEW, MessageStatus.PROCESSED, 20L)));
+                guarantorEvent(
+                        GUARANTORS_EVENT_OLD, "TRADE_LOAN_FACILITY_GUARANTOR_ADDED", MessageStatus.PROCESSED, 10L),
+                guarantorEvent(
+                        GUARANTORS_EVENT_NEW, "TRADE_LOAN_FACILITY_GUARANTOR_REMOVED", MessageStatus.PROCESSED, 20L)));
         when(outboxAdminPort.republish(any())).thenReturn(1L);
 
         ConvergeOutcome outcome = action.converge(key(), driftDivergence(), CORRELATION.toString(), false);
@@ -116,7 +118,8 @@ class FacilityConvergenceActionGuarantorDriftTest {
     @Test
     void noProcessedRowEscalatesToOperator() {
         // Only a dead-lettered guarantors-changed row exists → nothing to re-drive → needs operator.
-        stubOutbox(List.of(guarantorsChanged(GUARANTORS_EVENT_OLD, MessageStatus.DEAD_LETTER, 10L)));
+        stubOutbox(List.of(guarantorEvent(
+                GUARANTORS_EVENT_OLD, "TRADE_LOAN_FACILITY_GUARANTOR_ADDED", MessageStatus.DEAD_LETTER, 10L)));
         // The escalation builds a dossier by re-reading FCB state — answer reachably so the dossier shows both sides.
         when(fcbReconStatePort.loadReconState(eq(FACILITY.toString()), isNull()))
                 .thenReturn(Result.success(
@@ -131,7 +134,8 @@ class FacilityConvergenceActionGuarantorDriftTest {
 
     @Test
     void inFlightGuarantorsChangedRowDefers() {
-        stubOutbox(List.of(guarantorsChanged(GUARANTORS_EVENT_NEW, MessageStatus.PENDING, 20L)));
+        stubOutbox(List.of(guarantorEvent(
+                GUARANTORS_EVENT_NEW, "TRADE_LOAN_FACILITY_GUARANTOR_REMOVED", MessageStatus.PENDING, 20L)));
 
         ConvergeOutcome outcome = action.converge(key(), driftDivergence(), CORRELATION.toString(), false);
 
@@ -143,7 +147,8 @@ class FacilityConvergenceActionGuarantorDriftTest {
     @Test
     void flagOffIsNotApplicableAndNeverRepublishes() {
         properties.setGuarantorDriftEnabled(false);
-        stubOutbox(List.of(guarantorsChanged(GUARANTORS_EVENT_NEW, MessageStatus.PROCESSED, 20L)));
+        stubOutbox(List.of(guarantorEvent(
+                GUARANTORS_EVENT_NEW, "TRADE_LOAN_FACILITY_GUARANTOR_ADDED", MessageStatus.PROCESSED, 20L)));
 
         ConvergeOutcome outcome = action.converge(key(), driftDivergence(), CORRELATION.toString(), false);
 
@@ -194,14 +199,15 @@ class FacilityConvergenceActionGuarantorDriftTest {
         return Divergence.lagging(Direction.SOURCE_AHEAD, "guarantor-drift");
     }
 
-    private static OutboxRecordView guarantorsChanged(UUID eventId, MessageStatus status, long sequence) {
+    private static OutboxRecordView guarantorEvent(
+            UUID eventId, String eventType, MessageStatus status, long sequence) {
         return new OutboxRecordView(
                 UUID.randomUUID(),
                 eventId,
                 "idem-" + eventId,
                 FACILITY,
                 "TradeLoanFacility",
-                "TRADE_LOAN_FACILITY_GUARANTORS_CHANGED",
+                eventType,
                 1,
                 sequence,
                 "trade-loan.facility.events",

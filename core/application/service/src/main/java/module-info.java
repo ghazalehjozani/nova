@@ -44,6 +44,9 @@ open module ir.dotin.loan.trade.core.application.service {
     exports ir.dotin.loan.trade.core.application.service.addfacilitycollateral.mapper;
     exports ir.dotin.loan.trade.core.application.service.addfacilitycollateral.step;
     exports ir.dotin.loan.trade.core.application.service.addfacilitycollateral.workflow;
+    exports ir.dotin.loan.trade.core.application.service.addguarantor.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.addguarantor.component;
+    exports ir.dotin.loan.trade.core.application.service.addguarantor.step;
     exports ir.dotin.loan.trade.core.application.service.approvefacility.commandhandler;
     exports ir.dotin.loan.trade.core.application.service.approvefacility.compensation.commandhandler;
     exports ir.dotin.loan.trade.core.application.service.approvefacility.component;
@@ -98,6 +101,8 @@ open module ir.dotin.loan.trade.core.application.service {
     exports ir.dotin.loan.trade.core.application.service.regulardisbursement.commandhandler;
     exports ir.dotin.loan.trade.core.application.service.regulardisbursement.mapper;
     exports ir.dotin.loan.trade.core.application.service.rejectfacility.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.removeguarantor.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.removeguarantor.step;
     exports ir.dotin.loan.trade.core.application.service.loanfacilityrestructuring.commandhandler;
     exports ir.dotin.loan.trade.core.application.service.loanfacilityrestructuring.mapper;
     exports ir.dotin.loan.trade.core.application.service.shared.account;

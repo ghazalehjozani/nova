@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.core.application.service.changeguarantor.commandhandler;
+package ir.dotin.loan.trade.core.application.service.addguarantor.commandhandler;
 
 import java.util.List;
 import java.util.UUID;
@@ -10,9 +10,9 @@ import ir.dotin.platform.pangaea.workflow.api.command.WorkflowCommandHandler;
 import ir.dotin.platform.pangaea.workflow.api.definition.Workflow;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.GuarantorParty;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.ChangeGuarantorCommand;
-import ir.dotin.loan.trade.core.application.service.changeguarantor.component.GuarantorResolver;
-import ir.dotin.loan.trade.core.application.service.changeguarantor.step.ChangeGuarantorStep;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.AddGuarantorsCommand;
+import ir.dotin.loan.trade.core.application.service.addguarantor.component.GuarantorResolver;
+import ir.dotin.loan.trade.core.application.service.addguarantor.step.AddGuarantorStep;
 import ir.dotin.loan.trade.core.application.service.shared.authz.BranchAccessValidator;
 
 import lombok.RequiredArgsConstructor;
@@ -21,18 +21,18 @@ import static ir.dotin.platform.pangaea.workflow.api.definition.Steps.writePubli
 
 @Service
 @RequiredArgsConstructor
-public final class ChangeGuarantorCommandHandler
-        implements WorkflowCommandHandler<ChangeGuarantorCommand, ChangeGuarantorCommandHandler.Data> {
+public final class AddGuarantorsCommandHandler
+        implements WorkflowCommandHandler<AddGuarantorsCommand, AddGuarantorsCommandHandler.Data> {
 
     @Override
     public Workflow<Data> definition() {
         // @formatter:off
-        return Workflow.singleWrite("change-guarantor", writePublishing(changeGuarantorStep));
+        return Workflow.singleWrite("add-guarantor", writePublishing(addGuarantorStep));
         // @formatter:on
     }
 
     @Override
-    public Result<Data> seed(ChangeGuarantorCommand command) {
+    public Result<Data> seed(AddGuarantorsCommand command) {
         return branchAccessValidator
                 .verifyCallerCoversFacility(command.branchCode(), LoanFacilityId.of(command.loanFacilityId()))
                 .flatMap(ignored -> guarantorResolver.resolve(command.guarantors()))
@@ -43,5 +43,5 @@ public final class ChangeGuarantorCommandHandler
 
     private final BranchAccessValidator branchAccessValidator;
     private final GuarantorResolver guarantorResolver;
-    private final ChangeGuarantorStep changeGuarantorStep;
+    private final AddGuarantorStep addGuarantorStep;
 }
