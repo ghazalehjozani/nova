@@ -36,6 +36,14 @@ public class TradeLoanTypeRepositoryAdapter implements TradeLoanTypeRepository {
     }
 
     @Override
+    @Transactional
+    public TradeLoanType save(TradeLoanType loanType, long expectedVersion) {
+        var entity = requireNonNull(mapper.map(loanType));
+        var saved = jpaRepository.saveWithOptimisticLock(entity, expectedVersion);
+        return mapper.map(saved);
+    }
+
+    @Override
     public Optional<TradeLoanType> findById(LoanTypeId id) {
         return jpaRepository.findById(id.value()).map(mapper::map);
     }

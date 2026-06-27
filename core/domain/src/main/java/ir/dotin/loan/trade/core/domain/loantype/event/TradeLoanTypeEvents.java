@@ -7,7 +7,9 @@ public sealed interface TradeLoanTypeEvents<T extends Record & TradeLoanTypeEven
         permits TradeLoanTypeActivated,
                 TradeLoanTypeCreated,
                 TradeLoanTypeDeactivated,
-                NewTradeLoanTypeVersionPrepared {
+                NewTradeLoanTypeVersionPrepared,
+                TradeLoanTypeGroupAssigned,
+                TradeLoanTypeGroupRemoved {
 
     @Override
     default Class<TradeLoanType> aggregateType() {

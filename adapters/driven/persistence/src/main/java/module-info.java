@@ -76,6 +76,11 @@ open module ir.dotin.loan.trade.adapters.driven.persistence {
     exports ir.dotin.loan.trade.adapters.driven.persistence.loantype.query;
     exports ir.dotin.loan.trade.adapters.driven.persistence.loantype.query.mapper;
     exports ir.dotin.loan.trade.adapters.driven.persistence.loantype.repository;
+    exports ir.dotin.loan.trade.adapters.driven.persistence.loantypegroup;
+    exports ir.dotin.loan.trade.adapters.driven.persistence.loantypegroup.entity;
+    exports ir.dotin.loan.trade.adapters.driven.persistence.loantypegroup.mapper;
+    exports ir.dotin.loan.trade.adapters.driven.persistence.loantypegroup.query;
+    exports ir.dotin.loan.trade.adapters.driven.persistence.loantypegroup.repository;
     exports ir.dotin.loan.trade.adapters.driven.persistence.mapper;
     exports ir.dotin.loan.trade.adapters.driven.persistence.shared.query;
 }

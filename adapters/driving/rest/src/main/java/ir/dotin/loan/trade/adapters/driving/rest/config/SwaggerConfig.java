@@ -71,6 +71,8 @@ public class SwaggerConfig extends BaseSwaggerConfig {
     // the aggregate via the x-tagGroups extension (ReDoc) and ordered Commands-before-Queries (stock Swagger UI).
     public static final String TAG_LOAN_TYPES_COMMANDS = "Loan Types · Commands";
     public static final String TAG_LOAN_TYPES_QUERIES = "Loan Types · Queries";
+    public static final String TAG_LOAN_TYPE_GROUP_COMMANDS = "Loan Type Groups · Commands";
+    public static final String TAG_LOAN_TYPE_GROUP_QUERIES = "Loan Type Groups · Queries";
     public static final String TAG_LOAN_ARRANGEMENTS_COMMANDS = "Loan Arrangements · Commands";
     public static final String TAG_LOAN_ARRANGEMENTS_QUERIES = "Loan Arrangements · Queries";
     public static final String TAG_LOAN_FACILITIES_COMMANDS = "Loan Facilities · Commands";
@@ -81,6 +83,7 @@ public class SwaggerConfig extends BaseSwaggerConfig {
     public static final String TAG_RECONCILIATION_OPS = "Reconciliation · Ops";
 
     private static final String GROUP_LOAN_TYPES = "Loan Types";
+    private static final String GROUP_LOAN_TYPE_GROUPS = "Loan Type Groups";
     private static final String GROUP_LOAN_ARRANGEMENTS = "Loan Arrangements";
     private static final String GROUP_LOAN_FACILITIES = "Loan Facilities";
     private static final String GROUP_INSTALLMENT_SCHEDULES = "Installment Schedules";
@@ -180,6 +183,8 @@ public class SwaggerConfig extends BaseSwaggerConfig {
             openApi.setTags(List.of(
                     tag(TAG_LOAN_TYPES_COMMANDS, "Write operations (commands) for loan types."),
                     tag(TAG_LOAN_TYPES_QUERIES, "Read operations (queries) for loan types."),
+                    tag(TAG_LOAN_TYPE_GROUP_COMMANDS, "Write operations (commands) for loan type groups."),
+                    tag(TAG_LOAN_TYPE_GROUP_QUERIES, "Read operations (queries) for loan type groups."),
                     tag(TAG_LOAN_ARRANGEMENTS_COMMANDS, "Write operations (commands) for loan arrangements."),
                     tag(TAG_LOAN_ARRANGEMENTS_QUERIES, "Read operations (queries) for loan arrangements."),
                     tag(TAG_LOAN_FACILITIES_COMMANDS, "Write operations (commands) for loan facilities."),
@@ -193,6 +198,9 @@ public class SwaggerConfig extends BaseSwaggerConfig {
                     "x-tagGroups",
                     List.of(
                             tagGroup(GROUP_LOAN_TYPES, List.of(TAG_LOAN_TYPES_COMMANDS, TAG_LOAN_TYPES_QUERIES)),
+                            tagGroup(
+                                    GROUP_LOAN_TYPE_GROUPS,
+                                    List.of(TAG_LOAN_TYPE_GROUP_COMMANDS, TAG_LOAN_TYPE_GROUP_QUERIES)),
                             tagGroup(
                                     GROUP_LOAN_ARRANGEMENTS,
                                     List.of(TAG_LOAN_ARRANGEMENTS_COMMANDS, TAG_LOAN_ARRANGEMENTS_QUERIES)),
@@ -268,20 +276,23 @@ public class SwaggerConfig extends BaseSwaggerConfig {
     }
 
     private int aggregateRank(String path) {
+        if (path.contains("/loan-type-groups")) {
+            return 1;
+        }
         if (path.contains("/loan-types")) {
             return 0;
         }
         if (path.contains("/loan-arrangements")) {
-            return 1;
-        }
-        if (path.contains("/loan-facilities")) {
             return 2;
         }
-        if (path.contains("/installment-schedules")) {
+        if (path.contains("/loan-facilities")) {
             return 3;
         }
-        if (path.contains("/formulas")) {
+        if (path.contains("/installment-schedules")) {
             return 4;
+        }
+        if (path.contains("/formulas")) {
+            return 5;
         }
         return 9;
     }

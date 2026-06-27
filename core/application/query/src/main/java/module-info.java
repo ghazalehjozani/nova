@@ -54,6 +54,10 @@ open module ir.dotin.loan.trade.core.application.query {
     exports ir.dotin.loan.trade.core.application.query.loantype.i18n;
     exports ir.dotin.loan.trade.core.application.query.loantype.repository;
     exports ir.dotin.loan.trade.core.application.query.loantype.request;
+    exports ir.dotin.loan.trade.core.application.query.loantypegroup.dto;
+    exports ir.dotin.loan.trade.core.application.query.loantypegroup.handler;
+    exports ir.dotin.loan.trade.core.application.query.loantypegroup.repository;
+    exports ir.dotin.loan.trade.core.application.query.loantypegroup.request;
     exports ir.dotin.loan.trade.core.application.query.shared.exception;
     exports ir.dotin.loan.trade.core.application.query.shared.pagination;
 }

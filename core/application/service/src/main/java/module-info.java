@@ -71,6 +71,12 @@ open module ir.dotin.loan.trade.core.application.service {
     exports ir.dotin.loan.trade.core.application.service.formula.handler;
     exports ir.dotin.loan.trade.core.application.service.formula.step;
     exports ir.dotin.loan.trade.core.application.service.formula.workflow;
+    exports ir.dotin.loan.trade.core.application.service.loantypegroup.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.loantypegroup.step;
+    exports ir.dotin.loan.trade.core.application.service.loantypegroup.data;
+    exports ir.dotin.loan.trade.core.application.service.assignloantypegroup.commandhandler;
+    exports ir.dotin.loan.trade.core.application.service.assignloantypegroup.step;
+    exports ir.dotin.loan.trade.core.application.service.assignloantypegroup.data;
     exports ir.dotin.loan.trade.core.application.service.interaction;
     exports ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.commandhandler;
     exports ir.dotin.loan.trade.core.application.service.irregularprogressivedisbursement.step;

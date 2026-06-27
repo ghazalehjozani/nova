@@ -13,12 +13,15 @@ import ir.dotin.loan.baseloan.core.domain.loantype.entity.AbstractLoanType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Active;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Disable;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTopic;
+import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeGroupId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeId;
 import ir.dotin.loan.trade.core.domain.loantype.enums.TradeRelationType;
 import ir.dotin.loan.trade.core.domain.loantype.event.NewTradeLoanTypeVersionPrepared;
 import ir.dotin.loan.trade.core.domain.loantype.event.TradeLoanTypeActivated;
 import ir.dotin.loan.trade.core.domain.loantype.event.TradeLoanTypeCreated;
 import ir.dotin.loan.trade.core.domain.loantype.event.TradeLoanTypeDeactivated;
+import ir.dotin.loan.trade.core.domain.loantype.event.TradeLoanTypeGroupAssigned;
+import ir.dotin.loan.trade.core.domain.loantype.event.TradeLoanTypeGroupRemoved;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
@@ -72,6 +75,16 @@ public final class TradeLoanType extends AbstractLoanType {
     @Override
     protected DomainEvent<?> getLoanTypeDeactivatedEvent(LoanTypeId aggregateId, Clock clock) {
         return TradeLoanTypeDeactivated.of(aggregateId, clock);
+    }
+
+    @Override
+    protected DomainEvent<?> getGroupAssignedEvent(LoanTypeId aggregateId, LoanTypeGroupId groupId, Clock clock) {
+        return TradeLoanTypeGroupAssigned.of(aggregateId, groupId, clock);
+    }
+
+    @Override
+    protected DomainEvent<?> getGroupRemovedEvent(LoanTypeId aggregateId, Clock clock) {
+        return TradeLoanTypeGroupRemoved.of(aggregateId, clock);
     }
 
     @Override

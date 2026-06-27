@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatorVersion": "2026.6.9-SNAPSHOT",
+  "generatorVersion": "2026.6.10-SNAPSHOT",
   "baseLocale": "en",
   "locales": [
     "en",
     "fa"
   ],
-  "keyCount": 1051,
+  "keyCount": 1056,
   "entries": {
     "documentCommentMessageCodes.account.creditor": {
       "family": "message",
@@ -859,6 +859,28 @@
     "error.loan.105": {
       "family": "error",
       "args": []
+    },
+    "error.loan.1051": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.1052": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.1053": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.1054": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
     },
     "error.loan.106": {
       "family": "error",
@@ -5146,6 +5168,13 @@
       "family": "error",
       "args": [
         "0"
+      ]
+    },
+    "error.loan.8051": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
       ]
     },
     "error.loan.8056": {

@@ -10,6 +10,8 @@ public interface TradeLoanTypeRepository {
 
     TradeLoanType save(TradeLoanType loanType);
 
+    TradeLoanType save(TradeLoanType loanType, long expectedVersion);
+
     Optional<TradeLoanType> findById(LoanTypeId id);
 
     Optional<TradeLoanType> findByCode(LoanTypeCode code);
