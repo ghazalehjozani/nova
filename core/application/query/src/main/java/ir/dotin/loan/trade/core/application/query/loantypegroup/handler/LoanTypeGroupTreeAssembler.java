@@ -41,11 +41,11 @@ final class LoanTypeGroupTreeAssembler {
             Set<UUID> visited) {
         List<LoanTypeRefDto> members = membersByGroup.getOrDefault(node.id(), List.of());
         if (!visited.add(node.id())) {
-            return new LoanTypeGroupTreeDto(node.id(), node.title(), List.of(), members);
+            return new LoanTypeGroupTreeDto(node.id(), node.code(), node.title(), List.of(), members);
         }
         List<LoanTypeGroupTreeDto> children = childrenByParent.getOrDefault(node.id(), List.of()).stream()
                 .map(child -> build(child, childrenByParent, membersByGroup, visited))
                 .toList();
-        return new LoanTypeGroupTreeDto(node.id(), node.title(), children, members);
+        return new LoanTypeGroupTreeDto(node.id(), node.code(), node.title(), children, members);
     }
 }

@@ -46,6 +46,7 @@ public class LoanTypeGroupQueryRepositoryAdapter implements LoanTypeGroupQueryRe
     private static LoanTypeGroupNodeDto toNode(LoanTypeGroupEntity entity) {
         return new LoanTypeGroupNodeDto(
                 requireNonNull(entity.getId(), "loanTypeGroup id"),
+                requireNonNull(entity.getCode(), "loanTypeGroup code"),
                 requireNonNull(entity.getTitle(), "loanTypeGroup title"),
                 entity.getParentGroupId());
     }

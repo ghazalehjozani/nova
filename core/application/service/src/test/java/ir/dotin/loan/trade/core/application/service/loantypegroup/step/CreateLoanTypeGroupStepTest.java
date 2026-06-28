@@ -50,9 +50,11 @@ class CreateLoanTypeGroupStepTest {
     void createsRootGroupAndEmitsCreatedEvent() {
         CreateLoanTypeGroupCommand command = CreateLoanTypeGroupCommand.builder()
                 .uid(UUID.randomUUID())
+                .code("ROOT-001")
                 .title("تسهیلات")
                 .build();
         when(ctx.data()).thenReturn(new CreateLoanTypeGroupData(command));
+        when(repository.existsByCode(any())).thenReturn(false);
 
         StepResult<List<DomainEvent<?>>> result = step.execute(ctx);
 
@@ -64,9 +66,27 @@ class CreateLoanTypeGroupStepTest {
     }
 
     @Test
+    void failsWhenCodeAlreadyExists() {
+        CreateLoanTypeGroupCommand command = CreateLoanTypeGroupCommand.builder()
+                .uid(UUID.randomUUID())
+                .code("DUP-001")
+                .title("تسهیلات")
+                .build();
+        when(ctx.data()).thenReturn(new CreateLoanTypeGroupData(command));
+        when(repository.existsByCode(any())).thenReturn(true);
+
+        StepResult<List<DomainEvent<?>>> result = step.execute(ctx);
+
+        assertThat(result.isFailure()).isTrue();
+        assertThat(result.hasBusinessErrorCode("CODE_ALREADY_EXISTS")).isTrue();
+        verify(repository, never()).save(any());
+    }
+
+    @Test
     void failsWhenParentDoesNotExist() {
         CreateLoanTypeGroupCommand command = CreateLoanTypeGroupCommand.builder()
                 .uid(UUID.randomUUID())
+                .code("CHILD-001")
                 .title("زیرگروه")
                 .parentGroupId(UUID.randomUUID())
                 .build();

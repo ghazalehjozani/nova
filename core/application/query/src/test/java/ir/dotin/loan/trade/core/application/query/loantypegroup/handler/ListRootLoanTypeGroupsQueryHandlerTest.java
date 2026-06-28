@@ -40,9 +40,9 @@ class ListRootLoanTypeGroupsQueryHandlerTest {
 
         when(repository.findAllGroups())
                 .thenReturn(List.of(
-                        new LoanTypeGroupNodeDto(rootOneId, "ریشه ۱", null),
-                        new LoanTypeGroupNodeDto(childOfRootOneId, "فرزند", rootOneId),
-                        new LoanTypeGroupNodeDto(rootTwoId, "ریشه ۲", null)));
+                        new LoanTypeGroupNodeDto(rootOneId, "R1", "ریشه ۱", null),
+                        new LoanTypeGroupNodeDto(childOfRootOneId, "C1", "فرزند", rootOneId),
+                        new LoanTypeGroupNodeDto(rootTwoId, "R2", "ریشه ۲", null)));
         when(repository.findAllMemberships()).thenReturn(List.of());
 
         LoanTypeGroupTreeListResult result = handler.handle(new ListRootLoanTypeGroupsQuery());

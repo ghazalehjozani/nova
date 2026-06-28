@@ -41,6 +41,7 @@ class DefineLoanTypeGroupController extends BaseController {
         var command = CreateLoanTypeGroupCommand.builder()
                 .uid(getIdempotencyKey())
                 .version(null)
+                .code(request.code())
                 .title(request.title())
                 .parentGroupId(request.parentGroupId())
                 .build();

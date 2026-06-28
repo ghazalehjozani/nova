@@ -126,6 +126,13 @@ public class SwaggerConfig extends BaseSwaggerConfig {
         return createOpenAPI().info(apiInfo());
     }
 
+    // springdoc 3.x (Boot 4 native API versioning) leaves {version} literal on the ungrouped /v3/api-docs that the
+    // Swagger UI loads; the v1 group rewrites it but the UI does not target the group. Apply the rewrite globally too.
+    @Bean
+    public OpenApiCustomizer defaultDocVersionPathCustomizer() {
+        return pathProcessingCustomizer("1");
+    }
+
     private Info apiInfo() {
         RestAdapterProperties.Swagger swagger = restAdapterProperties.getSwagger();
         Info info = new Info()

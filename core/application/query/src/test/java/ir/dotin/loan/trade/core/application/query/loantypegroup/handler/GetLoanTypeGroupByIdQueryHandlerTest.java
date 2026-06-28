@@ -41,11 +41,12 @@ class GetLoanTypeGroupByIdQueryHandlerTest {
         UUID childAId = UUID.randomUUID();
         UUID loanTypeInA = UUID.randomUUID();
 
-        when(repository.findById(childAId)).thenReturn(Optional.of(new LoanTypeGroupNodeDto(childAId, "الف", rootId)));
+        when(repository.findById(childAId))
+                .thenReturn(Optional.of(new LoanTypeGroupNodeDto(childAId, "A", "الف", rootId)));
         when(repository.findAllGroups())
                 .thenReturn(List.of(
-                        new LoanTypeGroupNodeDto(rootId, "ریشه", null),
-                        new LoanTypeGroupNodeDto(childAId, "الف", rootId)));
+                        new LoanTypeGroupNodeDto(rootId, "RT", "ریشه", null),
+                        new LoanTypeGroupNodeDto(childAId, "A", "الف", rootId)));
         when(repository.findAllMemberships())
                 .thenReturn(List.of(new LoanTypeRefDto(loanTypeInA, "LT-A", "نوع الف", childAId)));
 

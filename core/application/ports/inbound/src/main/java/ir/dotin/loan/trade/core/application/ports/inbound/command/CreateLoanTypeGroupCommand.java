@@ -13,5 +13,7 @@ import lombok.Builder;
 public record CreateLoanTypeGroupCommand(
         @NotNull UUID uid,
         @Nullable Long version,
+        @NotBlank String code,
         @NotBlank String title,
-        @Nullable UUID parentGroupId) implements Command {}
+        @Nullable UUID parentGroupId)
+        implements Command {}

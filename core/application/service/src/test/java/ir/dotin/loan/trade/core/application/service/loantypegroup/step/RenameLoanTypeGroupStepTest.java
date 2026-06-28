@@ -18,6 +18,7 @@ import ir.dotin.platform.pangaea.commons.domain.event.DomainEvent;
 import ir.dotin.platform.pangaea.workflow.api.context.WorkflowContext;
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.loantypegroup.aggregate.LoanTypeGroup;
+import ir.dotin.loan.baseloan.core.domain.loantypegroup.vo.LoanTypeGroupCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeGroupId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.RenameLoanTypeGroupCommand;
@@ -60,7 +61,11 @@ class RenameLoanTypeGroupStepTest {
 
     private LoanTypeGroup persisted(UUID groupId) {
         return LoanTypeGroup.reconstitute(
-                new LoanTypeGroupId(groupId), Title.of("نام قبلی").unwrap(), null, 0L);
+                new LoanTypeGroupId(groupId),
+                LoanTypeGroupCode.of("G-RENAME").unwrap(),
+                Title.of("نام قبلی").unwrap(),
+                null,
+                0L);
     }
 
     @Test

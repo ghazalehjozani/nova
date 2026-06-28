@@ -42,9 +42,9 @@ class GetLoanTypeGroupTreeQueryHandlerTest {
 
         when(repository.findAllGroups())
                 .thenReturn(List.of(
-                        new LoanTypeGroupNodeDto(rootId, "ریشه", null),
-                        new LoanTypeGroupNodeDto(childAId, "الف", rootId),
-                        new LoanTypeGroupNodeDto(childBId, "ب", rootId)));
+                        new LoanTypeGroupNodeDto(rootId, "RT", "ریشه", null),
+                        new LoanTypeGroupNodeDto(childAId, "A", "الف", rootId),
+                        new LoanTypeGroupNodeDto(childBId, "B", "ب", rootId)));
         when(repository.findAllMemberships())
                 .thenReturn(List.of(
                         new LoanTypeRefDto(loanTypeInA, "LT-A", "نوع الف", childAId),
@@ -57,6 +57,7 @@ class GetLoanTypeGroupTreeQueryHandlerTest {
 
         LoanTypeGroupTreeDto root = forest.children().get(0);
         assertThat(root.id()).isEqualTo(rootId);
+        assertThat(root.code()).isEqualTo("RT");
         assertThat(root.children()).hasSize(2);
 
         LoanTypeGroupTreeDto childA = root.children().stream()

@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import org.hibernate.proxy.HibernateProxy;
 import org.jspecify.annotations.Nullable;
@@ -17,11 +18,18 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "loan_type_groups", indexes = @Index(name = "ix_loan_type_groups_parent", columnList = "parent_group_id"))
+@Table(
+        name = "loan_type_groups",
+        indexes = @Index(name = "ix_loan_type_groups_parent", columnList = "parent_group_id"),
+        uniqueConstraints = @UniqueConstraint(name = "uq_loan_type_groups_code", columnNames = "code"))
 @Getter
 @Setter
 @NoArgsConstructor
 public class LoanTypeGroupEntity extends PersistentEntity {
+
+    @Nullable
+    @Column(name = "code", nullable = false, updatable = false)
+    private String code;
 
     @Nullable
     @Column(name = "title", nullable = false)

@@ -12,4 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(name = "CreateLoanTypeGroupRequest", description = "ایجاد گروه نوع تسهیلات")
 public record CreateLoanTypeGroupRequest(
-        @NotBlank String title, @Nullable UUID parentGroupId, Map<String, String> metadata) implements BaseRequest {}
+        @NotBlank String code,
+        @NotBlank String title,
+        @Nullable UUID parentGroupId,
+        Map<String, String> metadata) implements BaseRequest {}

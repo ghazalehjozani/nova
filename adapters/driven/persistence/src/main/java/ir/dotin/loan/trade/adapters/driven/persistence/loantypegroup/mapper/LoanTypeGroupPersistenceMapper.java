@@ -7,6 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import ir.dotin.loan.baseloan.core.domain.loantypegroup.aggregate.LoanTypeGroup;
+import ir.dotin.loan.baseloan.core.domain.loantypegroup.vo.LoanTypeGroupCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeGroupId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
 import ir.dotin.loan.trade.adapters.driven.persistence.loantypegroup.entity.LoanTypeGroupEntity;
@@ -26,6 +27,7 @@ public interface LoanTypeGroupPersistenceMapper {
     default LoanTypeGroup map(LoanTypeGroupEntity entity) {
         return LoanTypeGroup.reconstitute(
                 new LoanTypeGroupId(requireNonNull(entity.getId(), "loanTypeGroup id")),
+                new LoanTypeGroupCode(requireNonNull(entity.getCode(), "loanTypeGroup code")),
                 new Title(requireNonNull(entity.getTitle(), "loanTypeGroup title")),
                 toGroupId(entity.getParentGroupId()),
                 toVersion(entity.getVersion()));
@@ -37,6 +39,10 @@ public interface LoanTypeGroupPersistenceMapper {
 
     default String map(Title title) {
         return title.value();
+    }
+
+    default String map(LoanTypeGroupCode code) {
+        return code.value();
     }
 
     private @Nullable LoanTypeGroupId toGroupId(@Nullable UUID value) {

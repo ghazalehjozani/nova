@@ -6,7 +6,7 @@
     "en",
     "fa"
   ],
-  "keyCount": 1056,
+  "keyCount": 1058,
   "entries": {
     "documentCommentMessageCodes.account.creditor": {
       "family": "message",
@@ -881,6 +881,10 @@
       "args": [
         "0"
       ]
+    },
+    "error.loan.1055": {
+      "family": "error",
+      "args": []
     },
     "error.loan.106": {
       "family": "error",
@@ -5175,6 +5179,12 @@
       "args": [
         "0",
         "1"
+      ]
+    },
+    "error.loan.8052": {
+      "family": "error",
+      "args": [
+        "0"
       ]
     },
     "error.loan.8056": {

@@ -10,7 +10,7 @@ import ir.dotin.platform.pangaea.servicelayer.api.query.QueryResult;
         views =
                 @ProjectableResource.View(
                         name = "SUMMARY",
-                        fields = {"id", "title"}))
+                        fields = {"id", "code", "title"}))
 public record LoanTypeGroupTreeDto(
-        UUID id, String title, List<LoanTypeGroupTreeDto> children, List<LoanTypeRefDto> loanTypes)
+        UUID id, String code, String title, List<LoanTypeGroupTreeDto> children, List<LoanTypeRefDto> loanTypes)
         implements QueryResult {}

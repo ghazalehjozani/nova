@@ -13,6 +13,7 @@ import ir.dotin.platform.pangaea.workflow.api.definition.PublishingWriteActivity
 import ir.dotin.platform.pangaea.workflow.api.model.StepResult;
 import ir.dotin.loan.baseloan.core.domain.loantypegroup.aggregate.LoanTypeGroup;
 import ir.dotin.loan.baseloan.core.domain.loantypegroup.error.LoanTypeGroupErrors;
+import ir.dotin.loan.baseloan.core.domain.loantypegroup.vo.LoanTypeGroupCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeGroupId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.Title;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CreateLoanTypeGroupCommand;
@@ -40,8 +41,14 @@ public class CreateLoanTypeGroupStep implements PublishingWriteActivity<CreateLo
         if (parentId != null && !repository.existsById(parentId)) {
             return Result.failure(LoanTypeGroupErrors.PARENT_NOT_FOUND, parentId);
         }
-        return Title.of(command.title())
-                .flatMap(title -> LoanTypeGroup.create(title, parentId, clock))
+        return LoanTypeGroupCode.of(command.code())
+                .flatMap(code -> {
+                    if (repository.existsByCode(code)) {
+                        return Result.<LoanTypeGroup>failure(LoanTypeGroupErrors.CODE_ALREADY_EXISTS, code.value());
+                    }
+                    return Title.of(command.title())
+                            .flatMap(title -> LoanTypeGroup.create(code, title, parentId, clock));
+                })
                 .onSuccess(repository::save)
                 .map(LoanTypeGroup::domainEvents);
     }

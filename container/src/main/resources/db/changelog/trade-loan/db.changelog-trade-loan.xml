@@ -49,5 +49,6 @@
     <!-- Loan-type grouping: flat category nodes + their outbox -->
     <include file="changes/20260301T000110_create_loan_type_groups.sql" relativeToChangelogFile="true"/>
     <include file="changes/20260301T000120_create_loan_type_group_outbox.sql" relativeToChangelogFile="true"/>
+    <include file="changes/20260628T000100_add_loan_type_group_code.sql" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

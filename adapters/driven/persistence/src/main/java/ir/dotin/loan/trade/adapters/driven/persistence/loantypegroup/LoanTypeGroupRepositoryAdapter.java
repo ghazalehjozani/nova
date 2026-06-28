@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import ir.dotin.loan.baseloan.core.domain.loantypegroup.aggregate.LoanTypeGroup;
+import ir.dotin.loan.baseloan.core.domain.loantypegroup.vo.LoanTypeGroupCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanTypeGroupId;
 import ir.dotin.loan.trade.adapters.driven.persistence.loantypegroup.entity.LoanTypeGroupEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.loantypegroup.mapper.LoanTypeGroupPersistenceMapper;
@@ -52,6 +53,11 @@ public class LoanTypeGroupRepositoryAdapter implements LoanTypeGroupRepository {
     @Override
     public Boolean existsById(LoanTypeGroupId id) {
         return jpaRepository.existsById(requireNonNull(id.value()));
+    }
+
+    @Override
+    public Boolean existsByCode(LoanTypeGroupCode code) {
+        return jpaRepository.existsByCode(code.value());
     }
 
     @Override
