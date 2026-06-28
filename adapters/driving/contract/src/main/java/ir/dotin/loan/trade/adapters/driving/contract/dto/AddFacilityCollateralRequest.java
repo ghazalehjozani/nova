@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import ir.dotin.platform.pangaea.protocol.api.request.BaseRequest;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -37,8 +38,8 @@ public record AddFacilityCollateralRequest(
                     description = "Collateral type code",
                     example = "ESTATE",
                     requiredMode = Schema.RequiredMode.REQUIRED)
-            @NotBlank
-            String collateralTypeCode,
+            @NotNull
+            CollateralType collateralTypeCode,
 
             @Schema(
                     description = "Collateral description",

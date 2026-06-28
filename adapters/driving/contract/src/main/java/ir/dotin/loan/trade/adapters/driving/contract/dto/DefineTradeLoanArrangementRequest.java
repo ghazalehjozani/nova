@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import ir.dotin.platform.pangaea.protocol.api.request.BaseRequest;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.DisbursementType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.CollateralCalculationType;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.InstallmentPaymentType;
@@ -138,7 +139,7 @@ public record DefineTradeLoanArrangementRequest(
     @Schema(name = "CollateralPolicyDto", description = "سیاست وثایق")
     public record CollateralPolicyDto(
             @Schema(description = "درصد وثیقه مورد نیاز") Integer totalPercent,
-            @Schema(description = "انواع وثیقه") Set<String> collateralTypes,
+            @Schema(description = "انواع وثیقه") Set<CollateralType> collateralTypes,
             @Schema(description = "نحوه محاسبه درصد وثیقه") CollateralCalculationType collateralCalculationType) {}
 
     @Schema(name = "AmountRangeDto", description = "بازه مبلغی")
