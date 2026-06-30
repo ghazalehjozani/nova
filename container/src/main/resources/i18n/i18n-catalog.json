@@ -6,7 +6,7 @@
     "en",
     "fa"
   ],
-  "keyCount": 1051,
+  "keyCount": 1057,
   "entries": {
     "documentCommentMessageCodes.account.creditor": {
       "family": "message",
@@ -3213,6 +3213,38 @@
       "family": "error",
       "args": []
     },
+    "error.loan.36037": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.36038": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.36039": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.36040": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.36041": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
     "error.loan.37001": {
       "family": "error",
       "args": [
@@ -5194,6 +5226,13 @@
       "family": "error",
       "args": [
         "0"
+      ]
+    },
+    "error.loan.8064": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
       ]
     },
     "error.loan.8901": {

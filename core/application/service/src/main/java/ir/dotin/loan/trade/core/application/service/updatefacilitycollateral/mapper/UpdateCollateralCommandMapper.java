@@ -1,4 +1,4 @@
-package ir.dotin.loan.trade.core.application.service.addfacilitycollateral.mapper;
+package ir.dotin.loan.trade.core.application.service.updatefacilitycollateral.mapper;
 
 import java.util.List;
 import java.util.Locale;
@@ -13,24 +13,31 @@ import ir.dotin.platform.pangaea.commons.domain.vo.Money;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.enums.CollateralType;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Collateral;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.CollateralSerial;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.AddFacilityCollateralCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.UpdateCollateralCommand;
 import ir.dotin.loan.trade.core.application.service.BaseMapperConfig;
 
 @Mapper(config = BaseMapperConfig.class)
-public interface AddFacilityCollateralCommandMapper {
+public interface UpdateCollateralCommandMapper {
 
-    List<Collateral> toCollaterals(List<AddFacilityCollateralCommand.CollateralDto> dtos);
+    List<Collateral> toCollaterals(List<UpdateCollateralCommand.CollateralDto> dtos);
 
-    default @Nullable Collateral toCollateral(AddFacilityCollateralCommand.CollateralDto dto) {
+    default @Nullable Collateral toCollateral(UpdateCollateralCommand.CollateralDto dto) {
+        if (dto == null) {
+            return null;
+        }
+
         CollateralSerial serial = CollateralSerial.of(dto.collateralSerial()).unwrap();
-        CollateralType type = CollateralType.valueOf(dto.collateralTypeCode().name());
+        CollateralType type = dto.collateralTypeCode();
         Money usedAmount = Objects.requireNonNull(toMoney(dto.usedAmount()), "usedAmount is required");
 
         return Collateral.valueOf(type, dto.description(), serial, usedAmount)
                 .unwrapOrThrow(c -> new IllegalArgumentException("Invalid collateral data"));
     }
 
-    default @Nullable Money toMoney(AddFacilityCollateralCommand.MoneyDto dto) {
+    default @Nullable Money toMoney(UpdateCollateralCommand.MoneyDto dto) {
+        if (dto == null) {
+            return null;
+        }
         CurrencyType currency = mapCurrency(dto.currency());
         Result<Money> moneyResult = Money.valueOf(dto.value(), currency);
         return moneyResult.unwrapOrThrow(c -> new IllegalArgumentException(
@@ -38,7 +45,7 @@ public interface AddFacilityCollateralCommandMapper {
     }
 
     default CurrencyType mapCurrency(String currencyCode) {
-        if (currencyCode.isBlank()) {
+        if (currencyCode == null || currencyCode.isBlank()) {
             throw new IllegalArgumentException("Currency code is required in MoneyDto");
         }
         try {

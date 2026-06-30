@@ -9,6 +9,8 @@ public sealed interface TradeLoanFacilityEvents<T extends Record & TradeLoanFaci
                 TradeLoanFacilityCancelled,
                 TradeLoanFacilityClosedDefaulted,
                 TradeLoanFacilityCollateralAdded,
+                TradeLoanFacilityCollateralDeleted,
+                TradeLoanFacilityCollateralUpdated,
                 TradeLoanFacilityContractIssuanceReverted,
                 TradeLoanFacilityContractIssued,
                 TradeLoanFacilityCreated,

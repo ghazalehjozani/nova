@@ -1,10 +1,12 @@
 package ir.dotin.loan.trade.core.application.service.addfacilitycollateral.component;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -63,6 +65,18 @@ public class AddFacilityCollateralDependencyLoader {
             return Result.failure(facilityResult.err().orElseThrow());
         }
         TradeLoanFacility facility = facilityResult.unwrap();
+
+        Set<CollateralSerial> seenSerials = new HashSet<>();
+        for (Collateral requested : collaterals) {
+            boolean alreadyAttached = facility.getCollaterals().stream()
+                    .anyMatch(existing -> existing.collateralSerial().equals(requested.collateralSerial()));
+            if (alreadyAttached || !seenSerials.add(requested.collateralSerial())) {
+                return Result.failure(
+                        TradeLoanApplicationServiceErrors.COLLATERAL_ALREADY_EXISTS_ON_FACILITY,
+                        requested.collateralSerial().value(),
+                        loanFacilityId.value());
+            }
+        }
 
         // Heterogeneous singles (arrangement, schedule) run as wrapped branches; the homogeneous per-collateral loads
         // fan out via ParallelFanout (run on its own branch to stay concurrent with the singles).
