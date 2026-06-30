@@ -45,6 +45,22 @@ public enum TradeLoanApplicationServiceErrors implements ProductErrorCode<TradeL
     COLLATERAL_DETAILS_NOT_FOUND(LoanErrorCategory.COLLATERAL, 35, "Collateral details with serial {0} not found"),
     ADD_COLLATERAL_PROCESS_COULD_NOT_COMPLETE(
             LoanErrorCategory.COLLATERAL, 36, "Add collateral process could not complete for facility"),
+    COLLATERAL_NOT_FOUND_IN_FACILITY(
+            LoanErrorCategory.COLLATERAL, 37, "Collateral with serial {0} is not attached to facility {1}"),
+    COLLATERAL_SERIAL_NOT_IN_FACILITY(
+            LoanErrorCategory.COLLATERAL,
+            38,
+            "Serial {0} is not attached to facility; use the add-collateral endpoint to add new collaterals"),
+    COLLATERAL_SERIAL_MISSING_FROM_REQUEST(
+            LoanErrorCategory.COLLATERAL,
+            39,
+            "Serial {0} is currently attached to facility but was not included in the update request; use the delete-collateral endpoint to remove collaterals"),
+    COLLATERAL_AMOUNT_MUST_BE_POSITIVE(
+            LoanErrorCategory.COLLATERAL, 40, "Collateral amount must be greater than zero for serial {0}"),
+    COLLATERAL_ALREADY_EXISTS_ON_FACILITY(
+            LoanErrorCategory.COLLATERAL,
+            41,
+            "Collateral with serial {0} is already attached to facility {1}; use the update-collateral endpoint to change its amount"),
 
     // ── SANCTION (37) — approve-facility ─────────────────────────────────────────
 
@@ -85,6 +101,8 @@ public enum TradeLoanApplicationServiceErrors implements ProductErrorCode<TradeL
             PlatformErrorCategory.STATE_CONFLICT,
             63,
             "Approved disbursement plan no longer matches schedule state for facility {0}"),
+    FACILITY_INVALID_STATE_FOR_COLLATERAL_UPDATE(
+            PlatformErrorCategory.STATE_CONFLICT, 64, "Facility {0} is in invalid state {1} for collateral update"),
 
     // ── DATA_ACCESS (06) ────────────────────────────────────────────────────────
 

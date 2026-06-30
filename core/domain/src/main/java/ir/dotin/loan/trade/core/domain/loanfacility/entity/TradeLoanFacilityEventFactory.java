@@ -120,6 +120,24 @@ final class TradeLoanFacilityEventFactory implements LoanFacilityEventFactory<Tr
     }
 
     @Override
+    public TradeLoanFacilityCollateralUpdated createCollateralUpdatedEvent(
+            LoanFacilityId facilityId,
+            SanctionedLoanId sanctionId,
+            List<CollateralSerial> collateralSerials,
+            Clock clock) {
+        return TradeLoanFacilityCollateralUpdated.of(facilityId, sanctionId, collateralSerials, clock);
+    }
+
+    @Override
+    public TradeLoanFacilityCollateralDeleted createCollateralDeletedEvent(
+            LoanFacilityId facilityId,
+            SanctionedLoanId sanctionId,
+            List<CollateralSerial> deletedSerials,
+            Clock clock) {
+        return TradeLoanFacilityCollateralDeleted.of(facilityId, sanctionId, deletedSerials, clock);
+    }
+
+    @Override
     public TradeLoanFacilityCreated createCreatedEvent(
             LoanFacilityId facilityId, ApplicationNumber applicationNumber, Clock clock) {
         return TradeLoanFacilityCreated.of(facilityId, applicationNumber, clock);
