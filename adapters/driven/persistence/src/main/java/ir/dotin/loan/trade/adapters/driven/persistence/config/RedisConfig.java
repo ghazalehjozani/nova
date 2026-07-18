@@ -7,10 +7,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.google.common.base.Splitter;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.data.redis.autoconfigure.DataRedisProperties;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.interceptor.CacheErrorHandler;
@@ -18,10 +16,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisNode;
 import org.springframework.data.redis.connection.RedisPassword;
-import org.springframework.data.redis.connection.RedisSentinelConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
 import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
@@ -36,6 +34,8 @@ import io.lettuce.core.SocketOptions;
 import io.lettuce.core.SslOptions;
 import io.lettuce.core.TimeoutOptions;
 import io.lettuce.core.api.StatefulConnection;
+import io.lettuce.core.cluster.ClusterClientOptions;
+import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
 import io.lettuce.core.protocol.ProtocolVersion;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
@@ -50,6 +50,8 @@ import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
+
+import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @Configuration
@@ -70,73 +72,128 @@ public class RedisConfig implements CachingConfigurer {
     }
 
     @Bean
-    @ConditionalOnProperty(name = "spring.data.redis.sentinel.enabled", havingValue = "true", matchIfMissing = true)
     public LettuceConnectionFactory redisConnectionFactory(
-            DataRedisProperties redisProperties,
-            ClientResources clientResources,
-            @Value("${spring.data.redis.sentinel.master}") String masterName,
-            @Value("${spring.data.redis.sentinel.nodes}") String sentinelNodesCsv,
-            @Value("${spring.data.redis.ssl.enabled:false}") boolean tlsEnabled) {
+            DataRedisProperties redisProperties, ClientResources clientResources) {
 
-        RedisSentinelConfiguration sentinelConfig = new RedisSentinelConfiguration();
-        sentinelConfig.setMaster(masterName);
-        sentinelConfig.setDatabase(redisProperties.getDatabase());
-        if (redisProperties.getPassword() != null) {
-            RedisPassword pw = RedisPassword.of(redisProperties.getPassword());
-            sentinelConfig.setPassword(pw);
-            sentinelConfig.setSentinelPassword(pw);
-        }
-        for (String node : Splitter.on(',').trimResults().omitEmptyStrings().split(sentinelNodesCsv)) {
-            List<String> hp = Splitter.on(':').splitToList(node);
-            sentinelConfig.addSentinel(new RedisNode(hp.get(0), Integer.parseInt(hp.get(1))));
-        }
+        DataRedisProperties.Cluster clusterProperties = requiredClusterProperties(redisProperties);
+        RedisClusterConfiguration clusterConfig = redisClusterConfiguration(redisProperties, clusterProperties);
 
         Duration commandTimeout =
                 redisProperties.getTimeout() != null ? redisProperties.getTimeout() : Duration.ofSeconds(3);
+        Duration connectTimeout = redisProperties.getConnectTimeout() != null
+                ? redisProperties.getConnectTimeout()
+                : Duration.ofSeconds(2);
 
         SocketOptions socketOptions = SocketOptions.builder()
-                .connectTimeout(Duration.ofSeconds(2))
+                .connectTimeout(connectTimeout)
                 .keepAlive(true)
                 .tcpNoDelay(true)
                 .build();
 
-        ClientOptions.Builder clientOptionsBuilder = ClientOptions.builder()
+        ClusterClientOptions.Builder clientOptionsBuilder = ClusterClientOptions.builder()
                 .protocolVersion(ProtocolVersion.RESP3)
                 .disconnectedBehavior(ClientOptions.DisconnectedBehavior.REJECT_COMMANDS)
                 .autoReconnect(true)
                 .socketOptions(socketOptions)
+                .topologyRefreshOptions(clusterTopologyRefreshOptions(redisProperties))
                 .timeoutOptions(TimeoutOptions.enabled(commandTimeout));
 
+        Integer maxRedirects = clusterProperties.getMaxRedirects();
+        if (maxRedirects != null) {
+            clientOptionsBuilder.maxRedirects(maxRedirects);
+        }
+
+        boolean tlsEnabled = redisProperties.getSsl().isEnabled();
         if (tlsEnabled) {
             clientOptionsBuilder.sslOptions(
                     SslOptions.builder().jdkSslProvider().build());
         }
 
-        GenericObjectPoolConfig<StatefulConnection<?, ?>> poolConfig = new GenericObjectPoolConfig<>();
-        poolConfig.setMaxTotal(32);
-        poolConfig.setMaxIdle(16);
-        poolConfig.setMinIdle(4);
-        poolConfig.setMaxWait(Duration.ofSeconds(2));
-        poolConfig.setTestOnBorrow(true);
-        poolConfig.setTestWhileIdle(true);
+        LettuceClientConfiguration.LettuceClientConfigurationBuilder clientCfg = lettuceClientConfigurationBuilder(
+                        redisProperties)
+                .clientResources(clientResources)
+                .commandTimeout(commandTimeout)
+                .shutdownTimeout(redisProperties.getLettuce().getShutdownTimeout())
+                .readFrom(ReadFrom.REPLICA_PREFERRED)
+                .clientOptions(clientOptionsBuilder.build());
 
-        LettucePoolingClientConfiguration.LettucePoolingClientConfigurationBuilder clientCfg =
-                LettucePoolingClientConfiguration.builder()
-                        .clientResources(clientResources)
-                        .commandTimeout(commandTimeout)
-                        .shutdownTimeout(Duration.ofMillis(200))
-                        .readFrom(ReadFrom.REPLICA_PREFERRED)
-                        .clientOptions(clientOptionsBuilder.build())
-                        .poolConfig(poolConfig);
+        String clientName = redisProperties.getClientName();
+        if (clientName != null && !clientName.isBlank()) {
+            clientCfg.clientName(clientName);
+        }
 
         if (tlsEnabled) {
             clientCfg.useSsl();
         }
 
-        LettuceConnectionFactory factory = new LettuceConnectionFactory(sentinelConfig, clientCfg.build());
+        LettuceConnectionFactory factory = new LettuceConnectionFactory(clusterConfig, clientCfg.build());
         factory.setShareNativeConnection(true);
         factory.setValidateConnection(false);
         return factory;
+    }
+
+    private RedisClusterConfiguration redisClusterConfiguration(
+            DataRedisProperties redisProperties, DataRedisProperties.Cluster clusterProperties) {
+        List<String> clusterNodes =
+                requireNonNull(clusterProperties.getNodes(), "spring.data.redis.cluster.nodes must be configured");
+        if (clusterNodes.isEmpty() || clusterNodes.stream().anyMatch(String::isBlank)) {
+            throw new IllegalStateException("spring.data.redis.cluster.nodes must contain valid host:port entries");
+        }
+
+        RedisClusterConfiguration clusterConfig = new RedisClusterConfiguration(clusterNodes);
+
+        if (clusterProperties.getMaxRedirects() != null) {
+            clusterConfig.setMaxRedirects(clusterProperties.getMaxRedirects());
+        }
+        String username = redisProperties.getUsername();
+        if (username != null && !username.isBlank()) {
+            clusterConfig.setUsername(username);
+        }
+        String password = redisProperties.getPassword();
+        if (password != null && !password.isBlank()) {
+            clusterConfig.setPassword(RedisPassword.of(password));
+        }
+        return clusterConfig;
+    }
+
+    private ClusterTopologyRefreshOptions clusterTopologyRefreshOptions(DataRedisProperties redisProperties) {
+        DataRedisProperties.Lettuce.Cluster.Refresh refreshProperties =
+                redisProperties.getLettuce().getCluster().getRefresh();
+        ClusterTopologyRefreshOptions.Builder refreshOptions = ClusterTopologyRefreshOptions.builder()
+                .dynamicRefreshSources(refreshProperties.isDynamicRefreshSources());
+
+        if (refreshProperties.getPeriod() != null) {
+            refreshOptions.enablePeriodicRefresh(refreshProperties.getPeriod());
+        }
+        return refreshOptions.build();
+    }
+
+    private LettuceClientConfiguration.LettuceClientConfigurationBuilder lettuceClientConfigurationBuilder(
+            DataRedisProperties redisProperties) {
+        DataRedisProperties.Pool poolProperties = redisProperties.getLettuce().getPool();
+        if (!Boolean.FALSE.equals(poolProperties.getEnabled())) {
+            return LettucePoolingClientConfiguration.builder().poolConfig(redisPoolConfiguration(poolProperties));
+        }
+        return LettuceClientConfiguration.builder();
+    }
+
+    private GenericObjectPoolConfig<StatefulConnection<?, ?>> redisPoolConfiguration(
+            DataRedisProperties.Pool poolProperties) {
+        GenericObjectPoolConfig<StatefulConnection<?, ?>> poolConfig = new GenericObjectPoolConfig<>();
+        poolConfig.setMaxTotal(poolProperties.getMaxActive());
+        poolConfig.setMaxIdle(poolProperties.getMaxIdle());
+        poolConfig.setMinIdle(poolProperties.getMinIdle());
+        poolConfig.setMaxWait(poolProperties.getMaxWait());
+        if (poolProperties.getTimeBetweenEvictionRuns() != null) {
+            poolConfig.setTimeBetweenEvictionRuns(poolProperties.getTimeBetweenEvictionRuns());
+        }
+        poolConfig.setTestOnBorrow(true);
+        poolConfig.setTestWhileIdle(true);
+        return poolConfig;
+    }
+
+    private DataRedisProperties.Cluster requiredClusterProperties(DataRedisProperties redisProperties) {
+        return requireNonNull(redisProperties.getCluster(), "spring.data.redis.cluster.nodes must be configured");
     }
 
     @Bean
