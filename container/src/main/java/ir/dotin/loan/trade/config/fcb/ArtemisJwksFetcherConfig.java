@@ -62,7 +62,11 @@ public class ArtemisJwksFetcherConfig {
                 2000L,
                 "fcb-legacy-jwks",
                 "activemq",
-                "fcb.artemis.jwks.latency");
+                "fcb.artemis.jwks.latency",
+                properties.getLivenessCheckInterval(),
+                properties.getLivenessProbeTimeout(),
+                properties.getLivenessFailureThreshold()
+        );
         return factory.create(connectionFactory, config);
     }
 

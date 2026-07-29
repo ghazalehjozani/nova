@@ -21,13 +21,19 @@ import tools.jackson.databind.ObjectMapper;
  *
  * <p>HA/failover/reconnect parameters live ONLY in the Consul-managed broker URL — no
  * programmatic setters for them here, because setters override URL parameters and silently
- * defeat operational changes. Required URL shape:
+ * defeat operational changes. Required URL shape (see Consul fcb.yml):
  * <pre>
  * (tcp://host1:61616,tcp://host2:61616,tcp://host3:61616)
  * ?ha=true&failoverOnInitialConnection=true
  * &initialConnectAttempts=3&reconnectAttempts=-1&failoverAttempts=-1
  * &retryInterval=1000&retryIntervalMultiplier=1.0&maxRetryInterval=2000
  * </pre>
+ *
+ * <p>Timeout contract (must hold across BOTH ends):
+ * {@code replyTimeout} (how long Nova waits for a reply) &lt; FCB reply TTL
+ * ({@code ARTEMIS_REPLY_TIMEOUT_MS} on the FCB side). If the broker expires replies earlier
+ * than Nova stops waiting, a slow-but-valid reply vanishes into ExpiryQueue and Nova reports a
+ * timeout that never should have happened.
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(ArtemisFcbProperties.class)
@@ -37,7 +43,7 @@ public class ArtemisFcbConfig {
     public static final String ARTEMIS_FCB_CLIENT = "artemisFcbRequestReplyClient";
     public static final String ARTEMIS_FCB_CONNECTION_FACTORY = "artemisFcbConnectionFactory";
 
-    @Bean(ARTEMIS_FCB_CONNECTION_FACTORY)
+    @Bean(name = ARTEMIS_FCB_CONNECTION_FACTORY, destroyMethod = "close")
     public ConnectionFactory artemisFcbConnectionFactory(ArtemisFcbProperties properties) {
         ActiveMQConnectionFactory factory =
                 new ActiveMQConnectionFactory(properties.getBrokerUrl());
@@ -55,16 +61,16 @@ public class ArtemisFcbConfig {
 
         // ── windows ─────────────────────────────────────────────────────────
         factory.setConfirmationWindowSize(1024 * 1024);
-        factory.setConsumerWindowSize(1024 * 1024); // reply temp-queue consumer prefetch
+        factory.setConsumerWindowSize(1024 * 1024); // prefetch for the long-lived named reply-queue consumer
 
         // ── failure detection (not expressible in URL) ──────────────────────
         // Must tolerate a full live→backup failover without the broker reaping the connection.
         factory.setClientFailureCheckPeriod(10_000L);
-        factory.setConnectionTTL(60_000L);          // was 30s: too tight during failover under load
+        factory.setConnectionTTL(60_000L);
 
         // ── blocking-call bounds ────────────────────────────────────────────
         // Must exceed the worst-case blocking send; below the reply timeout is fine.
-        factory.setCallTimeout(30_000L);            // was 10s: a slow persisted send could throw spuriously
+        factory.setCallTimeout(30_000L);
         factory.setCallFailoverTimeout(30_000L);
 
         // ── topology / pooling ──────────────────────────────────────────────
@@ -81,6 +87,9 @@ public class ArtemisFcbConfig {
             ArtemisFcbProperties properties,
             ObjectMapper objectMapper,
             MeterRegistry meterRegistry) {
+        // maxAttempts = 1: no transparent transport retry of financial operations. The caller
+        // decides whether re-issuing an operation is safe; the idempotency key is stamped per
+        // sendAndReceive call, so a transport-level replay could double-execute otherwise.
         RequestReplyConfig config = new RequestReplyConfig(
                 properties.getReplyQueuePrefix(),
                 properties.getInstanceId(),
@@ -90,7 +99,10 @@ public class ArtemisFcbConfig {
                 1000L,
                 "fcb-legacy",
                 "activemq",
-                "fcb.artemis.transport.request_reply.latency");
+                "fcb.artemis.transport.request_reply.latency",
+                properties.getLivenessCheckInterval(),
+                properties.getLivenessProbeTimeout(),
+                properties.getLivenessFailureThreshold());
 
         return new ArtemisFcbRequestReplyClient(
                 factory.create(connectionFactory, config),
