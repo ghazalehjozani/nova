@@ -63,7 +63,7 @@ public class FcbValidationAdapter
                 FetchSanctionDetailsPort,
                 ValidateSamatPort {
 
-    private final FcbRequestReplyClient kafkaClient;
+    private final FcbRequestReplyClient requestReplyClient;
 
     /**
      * Per-call request/reply timeout, bound from Consul KV {@code nova.fcb.kafka.default-timeout} (defaults to 10s).
@@ -189,7 +189,7 @@ public class FcbValidationAdapter
                 .customerNumber(party.customerNumber())
                 .build();
 
-        Result<FcbBaseResponse> result = kafkaClient.sendAndReceive(request, defaultTimeout);
+        Result<FcbBaseResponse> result = requestReplyClient.sendAndReceive(request, defaultTimeout);
 
         if (result.isFailure()) {
             return Result.failure(result.err().orElseThrow());
@@ -232,7 +232,7 @@ public class FcbValidationAdapter
                 .includeGrayList(options.includeGrayList())
                 .build();
 
-        Result<FcbBaseResponse> result = kafkaClient.sendAndReceive(request, defaultTimeout);
+        Result<FcbBaseResponse> result = requestReplyClient.sendAndReceive(request, defaultTimeout);
 
         if (result.isFailure()) {
             return Result.failure(result.err().orElseThrow());
@@ -430,7 +430,7 @@ public class FcbValidationAdapter
                 .rollBackId(rollBackId.toString())
                 .build();
 
-        Result<FcbBaseResponse> result = kafkaClient.sendAndReceive(request, defaultTimeout);
+        Result<FcbBaseResponse> result = requestReplyClient.sendAndReceive(request, defaultTimeout);
         if (result.isFailure()) {
             return Result.failure(result.err().orElseThrow());
         }
@@ -473,7 +473,7 @@ public class FcbValidationAdapter
     private <R extends FcbBaseResponse, T> Result<T> sendAndMap(
             FcbBaseRequest request, Class<R> responseType, Function<R, Result<T>> responseMapper) {
 
-        Result<FcbBaseResponse> result = kafkaClient.sendAndReceive(request, defaultTimeout);
+        Result<FcbBaseResponse> result = requestReplyClient.sendAndReceive(request, defaultTimeout);
         if (result.isFailure()) {
             return Result.failure(result.err().orElseThrow());
         }

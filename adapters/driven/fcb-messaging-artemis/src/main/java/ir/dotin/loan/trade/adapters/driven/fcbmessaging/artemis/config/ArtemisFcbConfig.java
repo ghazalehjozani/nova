@@ -19,15 +19,15 @@ import tools.jackson.databind.ObjectMapper;
 /**
  * Wires the ActiveMQ Artemis FCB request/reply transport.
  *
- * <p>Gated by {@code @ConditionalOnProperty(nova.fcb.artemis.enabled, matchIfMissing = false)}: OFF by default, so with
- * the flag absent nothing here instantiates and the {@code artemis-jakarta-client} jar is inert on the classpath
- * (regression-safe). The {@code ConnectionFactory} is constructed eagerly but connects <strong>lazily</strong> —
- * Artemis only opens a socket on the first {@code createConnection()} — so a down/absent broker never blocks Nova boot,
- * even when {@code artemis.enabled=true} but {@code transport-mode=kafka}.
- *
- * <p>The client bean is named {@code artemisFcbRequestReplyClient} so the composition-root router can
- * {@code @Qualifier} it. It is intentionally <strong>not</strong> {@code @Primary}; the router is the only
- * {@code @Primary} {@code FcbRequestReplyClient}.
+ * <p>HA/failover/reconnect parameters live ONLY in the Consul-managed broker URL — no
+ * programmatic setters for them here, because setters override URL parameters and silently
+ * defeat operational changes. Required URL shape:
+ * <pre>
+ * (tcp://host1:61616,tcp://host2:61616,tcp://host3:61616)
+ * ?ha=true&failoverOnInitialConnection=true
+ * &initialConnectAttempts=3&reconnectAttempts=-1&failoverAttempts=-1
+ * &retryInterval=1000&retryIntervalMultiplier=1.0&maxRetryInterval=2000
+ * </pre>
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(ArtemisFcbProperties.class)
@@ -37,34 +37,40 @@ public class ArtemisFcbConfig {
     public static final String ARTEMIS_FCB_CLIENT = "artemisFcbRequestReplyClient";
     public static final String ARTEMIS_FCB_CONNECTION_FACTORY = "artemisFcbConnectionFactory";
 
-    /**
-     * Artemis JMS {@link ConnectionFactory}. Constructed eagerly from the broker URL + creds, but does <em>not</em>
-     * open a connection here — {@code ActiveMQConnectionFactory} connects only when {@code createConnection()} is first
-     * invoked (on the first {@code sendAndReceive}), so a missing broker cannot block context startup.
-     */
     @Bean(ARTEMIS_FCB_CONNECTION_FACTORY)
     public ConnectionFactory artemisFcbConnectionFactory(ArtemisFcbProperties properties) {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(properties.getBrokerUrl());
-        // Credentials default onto the factory so the no-arg createConnection() authenticates — Spring Boot's
-        // JmsHealthIndicator probes the CF with createConnection() (no user/pass), which on an authenticated Artemis
-        // broker fails with AMQ229031 (null username) if the factory carries no creds. The request/reply client still
-        // calls createConnection(user, pass) explicitly; setting them here covers the no-arg path identically.
+        ActiveMQConnectionFactory factory =
+                new ActiveMQConnectionFactory(properties.getBrokerUrl());
+
         String user = properties.getUser();
         if (user != null && !user.isBlank()) {
             factory.setUser(user);
             factory.setPassword(properties.getPassword());
         }
-        // High-throughput tuning for the request/reply client: non-blocking sends so a request publish does not
-        // wait on a broker round-trip (the call still blocks on the reply receive), cached destination lookups,
-        // a 1MB reply-consumer prefetch, and infinite reconnect so the corridor self-heals after a broker blip.
-        factory.setBlockOnDurableSend(false);
-        factory.setBlockOnNonDurableSend(false);
+
+        // ── send behavior (not expressible in URL) ──────────────────────────
+        factory.setBlockOnDurableSend(true);        // banking: acknowledge persisted sends
+        factory.setBlockOnNonDurableSend(true);     // request/reply is sync anyway; backpressure beats silent loss
         factory.setCacheDestinations(true);
-        factory.setConsumerWindowSize(1024 * 1024);
+
+        // ── windows ─────────────────────────────────────────────────────────
         factory.setConfirmationWindowSize(1024 * 1024);
-        factory.setReconnectAttempts(-1);
-        factory.setRetryInterval(2000L);
+        factory.setConsumerWindowSize(1024 * 1024); // reply temp-queue consumer prefetch
+
+        // ── failure detection (not expressible in URL) ──────────────────────
+        // Must tolerate a full live→backup failover without the broker reaping the connection.
+        factory.setClientFailureCheckPeriod(10_000L);
+        factory.setConnectionTTL(60_000L);          // was 30s: too tight during failover under load
+
+        // ── blocking-call bounds ────────────────────────────────────────────
+        // Must exceed the worst-case blocking send; below the reply timeout is fine.
+        factory.setCallTimeout(30_000L);            // was 10s: a slow persisted send could throw spuriously
+        factory.setCallFailoverTimeout(30_000L);
+
+        // ── topology / pooling ──────────────────────────────────────────────
+        factory.setUseTopologyForLoadBalancing(true);
         factory.setUseGlobalPools(true);
+
         return factory;
     }
 
@@ -79,13 +85,17 @@ public class ArtemisFcbConfig {
                 properties.getReplyQueuePrefix(),
                 properties.getInstanceId(),
                 properties.getReplyTimeout(),
-                3,
+                1,
                 250L,
-                2000L,
+                1000L,
                 "fcb-legacy",
                 "activemq",
-                "fcb.artemis.request_reply.latency");
+                "fcb.artemis.transport.request_reply.latency");
+
         return new ArtemisFcbRequestReplyClient(
-                factory.create(connectionFactory, config), objectMapper, properties, meterRegistry);
+                factory.create(connectionFactory, config),
+                objectMapper,
+                properties,
+                meterRegistry);
     }
 }

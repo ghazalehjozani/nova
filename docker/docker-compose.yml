@@ -1,0 +1,315 @@
+name: nova-dev
+
+x-artemis-live: &artemis-live
+  image: ${ARTEMIS_IMAGE:-apache/activemq-artemis:latest-alpine}
+  user: root   # init script fixes volume ownership, then drops to artemis via su
+  environment: &artemis-env
+    ARTEMIS_USER: ${ARTEMIS_USER:-artemis}
+    ARTEMIS_PASSWORD: ${ARTEMIS_PASSWORD:-artemis}
+    ARTEMIS_ROLE: live
+    ARTEMIS_CLUSTER_NODES: ${ARTEMIS_CLUSTER_NODES:-tcp://artemis-live1:61616,tcp://artemis-live2:61616,tcp://artemis-live3:61616}
+    SERVER_IP: ${SERVER_IP}
+  entrypoint: ["/bin/sh", "/init/artemis-init.sh"]
+  volumes:
+    - ./artemis-init.sh:/init/artemis-init.sh:ro
+  healthcheck:
+    test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8161/console >/dev/null 2>&1"]
+    interval: 15s
+    timeout: 5s
+    retries: 10
+    start_period: 30s
+  restart: unless-stopped
+
+x-artemis-backup: &artemis-backup
+  <<: *artemis-live
+  environment:
+    <<: *artemis-env
+    ARTEMIS_ROLE: backup
+
+x-redis: &redis
+  image: ${REDIS_IMAGE:-redis:7-alpine}
+  entrypoint:
+    - sh
+    - -c
+    - |
+      exec redis-server \
+        --port 6379 \
+        --cluster-enabled yes \
+        --cluster-config-file nodes.conf \
+        --cluster-node-timeout 5000 \
+        --appendonly no \
+        --bind 0.0.0.0 \
+        --requirepass "$$REDIS_PASSWORD" \
+        --masterauth "$$REDIS_PASSWORD" \
+        --cluster-announce-ip "$$SERVER_IP" \
+        --cluster-announce-port "$$REDIS_ANNOUNCE_PORT" \
+        --cluster-announce-bus-port "$$REDIS_ANNOUNCE_BUS_PORT"
+  environment:
+    REDIS_PASSWORD: ${REDIS_PASSWORD}
+    SERVER_IP: ${SERVER_IP}
+  restart: unless-stopped
+
+x-pg-tuning: &pg-tuning
+  - "postgres"
+  - "-c"
+  - "shared_preload_libraries=pg_stat_statements,auto_explain"
+  - "-c"
+  - "pg_stat_statements.track=all"
+  - "-c"
+  - "pg_stat_statements.max=10000"
+  - "-c"
+  - "pg_stat_statements.track_utility=off"
+  - "-c"
+  - "compute_query_id=on"
+  - "-c"
+  - "auto_explain.log_min_duration=500ms"
+  - "-c"
+  - "auto_explain.log_analyze=on"
+  - "-c"
+  - "auto_explain.log_buffers=on"
+  - "-c"
+  - "auto_explain.log_nested_statements=on"
+
+services:
+  # ---------------- Consul (single server, ACLs on) ----------------
+  consul:
+    image: ${CONSUL_IMAGE:-hashicorp/consul:latest}
+    container_name: consul
+    restart: unless-stopped
+    command: agent -server -config-file=/consul/config/server.hcl -encrypt "${CONSUL_GOSSIP_KEY}" -advertise "${SERVER_IP}" -client 0.0.0.0
+    ports:
+      - "8500:8500"   # HTTP API + UI
+      - "8600:8600/tcp"
+      - "8600:8600/udp"
+    volumes:
+      - consul-data:/consul/data
+      - ./consul/server.hcl:/consul/config/server.hcl:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8500/v1/status/leader | grep -q '\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ---------------- PostgreSQL: primary + streaming replica ----------------
+  pg-primary:
+    image: ${POSTGRES_IMAGE:-postgres:18.0-alpine}
+    container_name: postgres-nova
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      REPLICATION_USER: ${REPLICATION_USER}
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
+      TZ: UTC
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-primary-data:/var/lib/postgresql/data
+      - ./pg-init:/docker-entrypoint-initdb.d:ro
+    command: *pg-tuning
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pg-replica:
+    image: ${POSTGRES_IMAGE:-postgres:18.0-alpine}
+    container_name: postgres-nova-replica
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      REPLICATION_USER: ${REPLICATION_USER}
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
+      PGDATA: /var/lib/postgresql/data
+      TZ: UTC
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-replica-data:/var/lib/postgresql/data
+      - ./pg-replica-entrypoint.sh:/usr/local/bin/pg-replica-entrypoint.sh:ro
+    entrypoint: ["bash", "/usr/local/bin/pg-replica-entrypoint.sh"]
+    depends_on:
+      pg-primary:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---------------- Artemis: 3 live + 3 backup (replication pairs) ----------------
+  artemis-live1:
+    <<: *artemis-live
+    container_name: artemis-live1
+    hostname: artemis-live1
+    environment:
+      <<: *artemis-env
+      ARTEMIS_NODE_NAME: live1
+      ARTEMIS_ADVERTISE_PORT: "61616"
+    ports: ["61616:61616", "8161:8161"]
+    volumes:
+      - ./artemis-init.sh:/init/artemis-init.sh:ro
+      - artemis-live1-data:/var/lib/artemis-instance
+
+  artemis-live2:
+    <<: *artemis-live
+    container_name: artemis-live2
+    hostname: artemis-live2
+    environment:
+      <<: *artemis-env
+      ARTEMIS_NODE_NAME: live2
+      ARTEMIS_ADVERTISE_PORT: "61626"
+    ports: ["61626:61616", "8162:8161"]
+    volumes:
+      - ./artemis-init.sh:/init/artemis-init.sh:ro
+      - artemis-live2-data:/var/lib/artemis-instance
+
+  artemis-live3:
+    <<: *artemis-live
+    container_name: artemis-live3
+    hostname: artemis-live3
+    environment:
+      <<: *artemis-env
+      ARTEMIS_NODE_NAME: live3
+      ARTEMIS_ADVERTISE_PORT: "61636"
+    ports: ["61636:61616", "8163:8161"]
+    volumes:
+      - ./artemis-init.sh:/init/artemis-init.sh:ro
+      - artemis-live3-data:/var/lib/artemis-instance
+
+  artemis-backup1:
+    <<: *artemis-backup
+    container_name: artemis-backup1
+    hostname: artemis-backup1
+    environment:
+      <<: *artemis-env
+      ARTEMIS_ROLE: backup
+      ARTEMIS_NODE_NAME: backup1
+    ports: ["61646:61616", "8164:8161"]
+    volumes:
+      - ./artemis-init.sh:/init/artemis-init.sh:ro
+      - artemis-backup1-data:/var/lib/artemis-instance
+    depends_on: [artemis-live1]
+
+  artemis-backup2:
+    <<: *artemis-backup
+    container_name: artemis-backup2
+    hostname: artemis-backup2
+    environment:
+      <<: *artemis-env
+      ARTEMIS_ROLE: backup
+      ARTEMIS_NODE_NAME: backup2
+    ports: ["61656:61616", "8165:8161"]
+    volumes:
+      - ./artemis-init.sh:/init/artemis-init.sh:ro
+      - artemis-backup2-data:/var/lib/artemis-instance
+    depends_on: [artemis-live2]
+
+  artemis-backup3:
+    <<: *artemis-backup
+    container_name: artemis-backup3
+    hostname: artemis-backup3
+    environment:
+      <<: *artemis-env
+      ARTEMIS_ROLE: backup
+      ARTEMIS_NODE_NAME: backup3
+    ports: ["61666:61616", "8166:8161"]
+    volumes:
+      - ./artemis-init.sh:/init/artemis-init.sh:ro
+      - artemis-backup3-data:/var/lib/artemis-instance
+    depends_on: [artemis-live3]
+
+  # ---------------- Redis cluster: 3 masters + 3 replicas ----------------
+  redis-1:
+    <<: *redis
+    container_name: redis-1
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      SERVER_IP: ${SERVER_IP}
+      REDIS_ANNOUNCE_PORT: ${REDIS_PORT_1:-7001}
+      REDIS_ANNOUNCE_BUS_PORT: 17001
+    ports: ["${REDIS_PORT_1:-7001}:6379", "17001:16379"]
+
+  redis-2:
+    <<: *redis
+    container_name: redis-2
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      SERVER_IP: ${SERVER_IP}
+      REDIS_ANNOUNCE_PORT: ${REDIS_PORT_2:-7002}
+      REDIS_ANNOUNCE_BUS_PORT: 17002
+    ports: ["${REDIS_PORT_2:-7002}:6379", "17002:16379"]
+
+  redis-3:
+    <<: *redis
+    container_name: redis-3
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      SERVER_IP: ${SERVER_IP}
+      REDIS_ANNOUNCE_PORT: ${REDIS_PORT_3:-7003}
+      REDIS_ANNOUNCE_BUS_PORT: 17003
+    ports: ["${REDIS_PORT_3:-7003}:6379", "17003:16379"]
+
+  redis-4:
+    <<: *redis
+    container_name: redis-4
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      SERVER_IP: ${SERVER_IP}
+      REDIS_ANNOUNCE_PORT: ${REDIS_PORT_4:-7004}
+      REDIS_ANNOUNCE_BUS_PORT: 17004
+    ports: ["${REDIS_PORT_4:-7004}:6379", "17004:16379"]
+
+  redis-5:
+    <<: *redis
+    container_name: redis-5
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      SERVER_IP: ${SERVER_IP}
+      REDIS_ANNOUNCE_PORT: ${REDIS_PORT_5:-7005}
+      REDIS_ANNOUNCE_BUS_PORT: 17005
+    ports: ["${REDIS_PORT_5:-7005}:6379", "17005:16379"]
+
+  redis-6:
+    <<: *redis
+    container_name: redis-6
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      SERVER_IP: ${SERVER_IP}
+      REDIS_ANNOUNCE_PORT: ${REDIS_PORT_6:-7006}
+      REDIS_ANNOUNCE_BUS_PORT: 17006
+    ports: ["${REDIS_PORT_6:-7006}:6379", "17006:16379"]
+
+  redis-cluster-init:
+    image: ${REDIS_IMAGE:-redis:7-alpine}
+    container_name: redis-cluster-init
+    depends_on: [redis-1, redis-2, redis-3, redis-4, redis-5, redis-6]
+    entrypoint: >
+      sh -c "
+      sleep 3 &&
+      echo yes | redis-cli --no-auth-warning -a $${REDIS_PASSWORD} --cluster create
+      $${SERVER_IP}:${REDIS_PORT_1:-7001} $${SERVER_IP}:${REDIS_PORT_2:-7002} $${SERVER_IP}:${REDIS_PORT_3:-7003}
+      $${SERVER_IP}:${REDIS_PORT_4:-7004} $${SERVER_IP}:${REDIS_PORT_5:-7005} $${SERVER_IP}:${REDIS_PORT_6:-7006}
+      --cluster-replicas 1 &&
+      redis-cli --no-auth-warning -a $${REDIS_PASSWORD} -c -h $${SERVER_IP} -p ${REDIS_PORT_1:-7001} cluster info"
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      SERVER_IP: ${SERVER_IP}
+    restart: "no"
+
+volumes:
+  consul-data:
+  postgres-primary-data:
+  postgres-replica-data:
+  artemis-live1-data:
+  artemis-live2-data:
+  artemis-live3-data:
+  artemis-backup1-data:
+  artemis-backup2-data:
+  artemis-backup3-data:

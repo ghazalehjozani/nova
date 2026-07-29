@@ -1,0 +1,138 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+set dotenv-load := true
+
+_default:
+    @just --list
+
+# Fix permissions/ownership of all stack files (safe to run anytime)
+fix-perms:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    chmod 700 .
+    find . -type f -name '*.sh'   -exec chmod 755 {} +
+    chmod 644 docker-compose.yml .env.example consul/server.hcl pg-init/*.sh justfile 2>/dev/null || true
+    chmod 755 artemis-init.sh pg-replica-entrypoint.sh
+    chmod 775 -R pg-init
+    [ -f .env ] && chmod 600 .env || true
+    chown -R "$(id -u):$(id -g)" . 2>/dev/null || true
+    echo "permissions fixed (dirs/files owned by $(id -un), .env=600, scripts=755)"
+
+# Create .env from .env.example with secure random passwords (idempotent: keeps existing .env)
+setup:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ ! -f .env ]; then
+      cp .env.example .env
+      rand() { openssl rand -base64 24 | tr -dc 'A-Za-z0-9' | head -c 24; }
+      sed -i "s|^ARTEMIS_PASSWORD=.*|ARTEMIS_PASSWORD=$(rand)|" .env
+      sed -i "s|^REDIS_PASSWORD=.*|REDIS_PASSWORD=$(rand)|" .env
+      sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=$(rand)|" .env
+      sed -i "s|^REPLICATION_PASSWORD=.*|REPLICATION_PASSWORD=$(rand)|" .env
+      # gossip key: base64 32-byte key (consul keygen format)
+      sed -i "s|^CONSUL_GOSSIP_KEY=.*|CONSUL_GOSSIP_KEY=$(openssl rand -base64 32)|" .env
+      echo ".env created with random passwords"
+    else
+      echo ".env already exists — keeping it (delete it and re-run to regenerate)"
+    fi
+    # advertise IP: fill SERVER_IP with this host's primary interface IP if empty
+    if ! grep -qE '^SERVER_IP=.{7,}' .env; then
+      IP=$(ip -4 route get 1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="src") print $(i+1)}' | head -1)
+      [ -z "$IP" ] && IP=$(hostname -I 2>/dev/null | awk '{print $1}')
+      [ -z "$IP" ] && { echo "ERROR: could not detect server IP — set SERVER_IP in .env manually"; exit 1; }
+      sed -i "s|^SERVER_IP=.*|SERVER_IP=${IP}|" .env
+      echo "SERVER_IP auto-detected: ${IP}"
+    fi
+
+# Start the whole stack
+up: setup fix-perms
+    docker compose up -d
+    @echo "Artemis consoles: http://10.100.7.20:8161..8166 | Consul: http://10.100.7.20:8500"
+
+down:
+    docker compose down
+
+# Stop and wipe ALL data volumes (fresh start)
+clean:
+    docker compose down -v
+
+# Full rebuild: wipe volumes, fix perms, start fresh (use after changing init scripts)
+reset: clean fix-perms
+    docker compose up -d --force-recreate
+
+ps:
+    docker compose ps
+
+logs service="":
+    docker compose logs -f --tail=100 {{ service }}
+
+# Bootstrap Consul ACLs, set the agent token, write the management token into .env
+consul-setup: setup
+    #!/usr/bin/env bash
+    set -euo pipefail
+    source .env
+    until docker exec consul wget -qO- http://127.0.0.1:8500/v1/status/leader 2>/dev/null | grep -q '"'; do
+      echo "waiting for consul leader..."; sleep 2
+    done
+    if ! grep -qE '^CONSUL_HTTP_TOKEN=.{10,}' .env; then
+      TOKEN=$(docker exec consul consul acl bootstrap -format=json | grep -o '"SecretID": *"[^"]*"' | cut -d'"' -f4)
+      sed -i "s|^CONSUL_HTTP_TOKEN=.*|CONSUL_HTTP_TOKEN=${TOKEN}|" .env
+      echo "Consul global-management token written to .env (CONSUL_HTTP_TOKEN)"
+    else
+      TOKEN="$CONSUL_HTTP_TOKEN"
+      echo "CONSUL_HTTP_TOKEN already set — skipping bootstrap"
+    fi
+    # let the agent itself authenticate (stops "blocked by ACLs: anonymous token" warnings)
+    docker exec -e CONSUL_HTTP_TOKEN="$TOKEN" consul consul acl set-agent-token agent "$TOKEN"
+    echo "Consul agent token configured"
+    echo "UI: http://10.100.7.20:8500 (log in with that token)"
+
+# Sanity checks across the stack
+doctor:
+    #!/usr/bin/env bash
+    set -uo pipefail
+    source .env
+    ok()  { printf "  \033[32mOK\033[0m   %s\n" "$1"; }
+    bad() { printf "  \033[31mFAIL\033[0m %s\n" "$1"; }
+
+    echo "== containers =="
+    docker compose ps --format 'table {{{{.Name}}\t{{{{.Status}}'
+
+    echo "== redis cluster =="
+    STATE=$(docker exec redis-1 redis-cli --no-auth-warning -a "$REDIS_PASSWORD" cluster info 2>/dev/null | grep cluster_state | tr -d '\r')
+    [ "$STATE" = "cluster_state:ok" ] && ok "redis: $STATE" || bad "redis: $STATE"
+
+    echo "== postgres replication =="
+    REPL=$(docker exec postgres-nova psql -U "$DB_USERNAME" -d "$DB_NAME" -tAc "select count(*) from pg_stat_replication;" 2>/dev/null)
+    [ "$REPL" = "1" ] && ok "postgres: 1 replica connected" || bad "postgres: replicas=$REPL"
+
+    echo "== artemis =="
+    for n in 1 2 3; do
+      if docker logs "artemis-live$n" 2>&1 | grep -q "Failed to bind acceptor"; then
+        bad "artemis live$n: acceptor bind failed (see docker logs artemis-live$n)"
+      elif [ "$(docker inspect -f '{{{{.State.Health.Status}}' "artemis-live$n" 2>/dev/null)" = "healthy" ]; then
+        ok "artemis live$n is live"
+      else
+        bad "artemis live$n not live yet (still starting?)"
+      fi
+      if docker logs "artemis-backup$n" 2>&1 | grep -qiE "AMQ221031|announced as backup|Backup.*starting"; then
+        ok "artemis backup$n paired"
+      else
+        bad "artemis backup$n not paired"
+      fi
+    done
+
+    echo "== consul =="
+    if docker exec consul wget -qO- http://127.0.0.1:8500/v1/status/leader 2>/dev/null | grep -q '"'; then
+      ok "consul leader elected"
+      if [ -n "${CONSUL_HTTP_TOKEN:-}" ]; then
+        if docker exec -e CONSUL_HTTP_TOKEN="$CONSUL_HTTP_TOKEN" consul consul operator raft list-peers >/dev/null 2>&1; then
+          ok "consul raft healthy (token valid)"
+        else
+          bad "consul token in .env is invalid — re-run: just consul-setup"
+        fi
+      else
+        echo "  HINT  no CONSUL_HTTP_TOKEN yet — run: just consul-setup"
+      fi
+    else
+      bad "consul has no leader"
+    fi
