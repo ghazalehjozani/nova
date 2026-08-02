@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Creates an Artemis broker instance (primary or backup) with replication HA,
 # static cluster connectors, redistribution, and enterprise address-settings.
 set -e

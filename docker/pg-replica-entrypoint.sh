@@ -9,7 +9,7 @@ done
 
 if [ ! -s "$PGDATA/PG_VERSION" ]; then
   echo "bootstrapping replica from pg-primary..."
-  rm -rf "$PGDATA"/* "$PGDATA"/.[!.]* 2>/dev/null || true
+  rm -rf "${PGDATA:?}"/* "${PGDATA:?}"/.[!.]* 2>/dev/null || true
   gosu postgres env PGPASSWORD="$REPLICATION_PASSWORD" pg_basebackup \
     -h pg-primary -p 5432 -U "$REPLICATION_USER" \
     -D "$PGDATA" -Fp -Xs -P -R \
