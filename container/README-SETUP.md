@@ -5,16 +5,24 @@
 - Maven 3.9.11+
 - Docker & Docker Compose
 
-## Local infrastructure (postgres / redis HA / broker)
+## Local infrastructure (PostgreSQL / broker / Redis Cluster)
 
-Lives in the sibling repo [`../../nova-dev-stack`](../../nova-dev-stack), not here. Stand it up first:
+PostgreSQL and Artemis live in the sibling repo [`../../nova-dev-stack`](../../nova-dev-stack). Start only
+those compatible services:
 
 ```bash
 cd ../../nova-dev-stack
-cp .env.example .env && nano .env       # DB_*, REDIS_PASSWORD, ARTEMIS_* (must match this app's .env)
-./redis/render-sentinel-conf.sh
-docker compose up -d                    # postgres + redis HA + Artemis (primary broker)
+cp .env.example .env && nano .env       # DB_* and ARTEMIS_* must match this app's .env
+docker compose up -d postgres artemis
 ```
+
+Nova is Cluster-only. The Sentinel services in `nova-dev-stack` are intentionally incompatible and must
+not be configured as Nova seed nodes. Supply a reachable Redis Cluster separately and set
+`REDIS_CLUSTER_NODES`, `REDIS_USERNAME`, `REDIS_PASSWORD`, and `REDIS_TLS_ENABLED` in `container/.env`.
+Every address returned by `CLUSTER SHARDS` must be reachable from the Nova process.
+
+The automated E2E profile provisions its own single-primary Redis Cluster fixture; run it through
+`make e2e` instead of reusing the Sentinel stack.
 
 ## First Time Setup
 

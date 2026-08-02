@@ -49,8 +49,8 @@ spring:
         register: true
         deregister: true
         prefer-ip-address: true
-        instance-id: ${spring.application.name}-${spring.cloud.client.ip-address}-${server.port}
-        service-name: ${spring.application.name}
+        instance-id: centralized-banking-expenditures-loan-${spring.application.name}-${spring.cloud.client.ip-address}-${server.port}-${random.uuid}
+        service-name: centralized-banking-expenditures-loan-${spring.application.name}
         health-check-path: /actuator/health
         health-check-interval: 15s
         health-check-timeout: 5s
@@ -58,7 +58,8 @@ spring:
         tags:
           - profile=${SPRING_PROFILES_ACTIVE}
           - version=@project.version@
-          - zone=expenditures
+          - zone=centralized-banking-expenditures
+          - role=backend-service
         metadata:
           version: '@project.version@'
           management-context-path: /actuator
@@ -87,8 +88,7 @@ spring:
         enabled: true
         format: KEY_VALUE
         prefixes:
-          - core/loan/nova
-          - core/loan
+          - Centralized-Banking/expenditures/loan/nova
         default-context: application
         profile-separator: ','
         fail-fast: true

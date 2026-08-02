@@ -29,23 +29,22 @@ public class ArtemisFcbProperties {
     private String jwksReplyQueuePrefix = "nova.fcb.jwks.reply.";
 
     /**
-     * Explicit per-instance id appended to the reply queue prefix. Blank → resolver falls back to
-     * KUBERNETES_POD_NAME → HOSTNAME. MUST be unique per running instance: two instances sharing a
-     * reply queue steal each other's replies. When running more than one JVM on the same host,
-     * set this explicitly per instance.
+     * Explicit per-instance id appended to the reply queue prefix. Blank → resolver falls back to KUBERNETES_POD_NAME →
+     * HOSTNAME. MUST be unique per running instance: two instances sharing a reply queue steal each other's replies.
+     * When running more than one JVM on the same host, set this explicitly per instance.
      */
     private String instanceId = "";
 
     /**
-     * Max wait for a correlated reply. MUST stay strictly below FCB's reply TTL
-     * (ARTEMIS_REPLY_TIMEOUT_MS, default 40s) — see the timeout contract on ArtemisFcbConfig.
+     * Max wait for a correlated reply. MUST stay strictly below FCB's reply TTL (ARTEMIS_REPLY_TIMEOUT_MS, default 40s)
+     * — see the timeout contract on ArtemisFcbConfig.
      */
     private Duration replyTimeout = Duration.ofSeconds(30);
 
     /**
-     * Period between reply-consumer liveness probes. Push consumers receive no signal when
-     * broker-side delivery silently stops (e.g. zombie consumer after a total broker state
-     * wipe), so liveness is verified actively by the Pangaea client.
+     * Period between reply-consumer liveness probes. Push consumers receive no signal when broker-side delivery
+     * silently stops (e.g. zombie consumer after a total broker state wipe), so liveness is verified actively by the
+     * Pangaea client.
      */
     private Duration livenessCheckInterval = Duration.ofSeconds(5);
 

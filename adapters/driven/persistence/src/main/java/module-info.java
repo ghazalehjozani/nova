@@ -35,11 +35,8 @@ open module ir.dotin.loan.trade.adapters.driven.persistence {
     requires com.fasterxml.jackson.annotation;
     requires tools.jackson.databind;
     requires tools.jackson.core;
-    requires lettuce.core;
-    requires micrometer.observation;
-    requires spring.boot.data.redis;
+    requires spring.boot.cache;
     requires com.google.common;
-    requires org.apache.commons.pool2;
     requires com.github.benmanes.caffeine;
     requires org.slf4j;
     requires org.mapstruct;

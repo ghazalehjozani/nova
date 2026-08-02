@@ -94,7 +94,7 @@ public class FcbKafkaProperties {
 
         /** KV prefix for the per-partition lock keys; lock key is {@code <kvPrefix>/<partitionIndex>}. */
         @NotBlank
-        private String kvPrefix = "locks/core/loan/nova/reply-partition";
+        private String kvPrefix = "locks/Centralized-Banking/expenditures/loan/nova/reply-partition";
 
         /** Consul session TTL. The lock auto-releases this long after a crash. Consul requires &gt;= 10s. */
         private Duration sessionTtl = Duration.ofSeconds(15);

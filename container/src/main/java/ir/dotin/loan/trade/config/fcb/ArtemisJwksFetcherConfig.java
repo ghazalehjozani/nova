@@ -65,8 +65,7 @@ public class ArtemisJwksFetcherConfig {
                 "fcb.artemis.jwks.latency",
                 properties.getLivenessCheckInterval(),
                 properties.getLivenessProbeTimeout(),
-                properties.getLivenessFailureThreshold()
-        );
+                properties.getLivenessFailureThreshold());
         return factory.create(connectionFactory, config);
     }
 

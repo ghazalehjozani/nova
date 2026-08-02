@@ -4,7 +4,12 @@
 
 راهنمای کوتاه و کاربردی برای استقرار سرویس Nova و وابستگی‌هایش. برای جزئیات عملیاتی هر مؤلفه به runbookهای
 `documents/runbooks/` مراجعه کنید (Consul: RB-0003، Liquibase: RB-0004، کلید/JWKS: RB-0005، TLS: RB-0006،
-Redis: RB-0007، Artemis: RB-0008، Postgres: RB-0009).
+Redis Cluster: [راهنمای فعال](redis-cluster-migration.md)، Artemis: RB-0008، Postgres: RB-0009).
+
+> **اصلاح Redis:** بخش‌های Sentinel این سند سابقهٔ استقرار قبلی‌اند. Nova اکنون فقط Redis Cluster را با
+> `REDIS_CLUSTER_NODES`، `REDIS_USERNAME`، `REDIS_PASSWORD` و `REDIS_TLS_ENABLED` می‌پذیرد. مرجع فعال،
+> [راهنمای مهاجرت Redis Cluster](redis-cluster-migration.md) است؛ stack لوکال Sentinel تا زمان مهاجرت جداگانه
+> با کلاینت فعلی سازگار نیست.
 
 ## مخازن (origin)
 
@@ -39,7 +44,7 @@ Redis: RB-0007، Artemis: RB-0008، Postgres: RB-0009).
 1. dependencyها را install/از Nexus بگیر: pangaea, base-loan, expression-kit
 2. nova را build کن: jar + Docker image
 3. Consul را آماده کن (ACL + KV) و nova-config را sync کن            → RB-0003
-4. infra را بالا بیاور: Postgres (RB-0009), Redis Sentinel (RB-0007), Artemis (RB-0008)
+4. infra را بالا بیاور: Postgres (RB-0009), Redis Cluster, Artemis (RB-0008)
 5. secretها را ست کن (env یا k8s secret)
 6. migration دیتابیس را اجرا کن (Liquibase به‌صورت Job)               → RB-0004
 7. nova را deploy کن (k8s یا docker)
@@ -81,7 +86,7 @@ kubectl apply -f container/k8s/base/
 | Profile             | `SPRING_PROFILES_ACTIVE`                                                                                                            | `dev` لوکال؛ در prod معمولاً unset یا مقدار محیط. `e2e` مخصوص تست است، در deploy واقعی نزن.                        |
 | Consul              | `CONSUL_HOST` `CONSUL_PORT` `CONSUL_SCHEME` `CONSUL_ACL_TOKEN`🔑                                                                    | آدرس Consul + توکن ACL با policy `nova-service-config-read` (RB-0003). TLS با `CONSUL_TLS_*` (RB-0006).            |
 | Datasource          | `DB_HOST` `DB_PORT` `DB_NAME` `DB_USERNAME`⚲🔑 `DB_PASSWORD`⚲🔑                                                                     | اتصال Postgres. در prod پشت HAProxy/Patroni، `DB_HOST`/`DB_PORT` را روی پورت write (leader) بگذار (RB-0009).       |
-| Redis               | `REDIS_MASTER_NAME`⚲ `REDIS_PASSWORD`⚲🔑 `REDIS_SENTINEL_NODES` `REDIS_TLS_ENABLED`                                                 | discovery از طریق Sentinel. `REDIS_SENTINEL_NODES` لیست `host:port` سه sentinel است (RB-0007).                     |
+| Redis               | `REDIS_CLUSTER_NODES` `REDIS_USERNAME` `REDIS_PASSWORD`🔑 `REDIS_TLS_ENABLED`                                                        | seedهای Cluster به‌شکل CSV؛ همهٔ endpointهای اعلام‌شده با `CLUSTER SHARDS` باید از Nova قابل دسترس باشند.          |
 | Kafka               | `KAFKA_BOOTSTRAP_SERVERS` `KAFKA_USER`🔑 `KAFKA_PASSWORD`🔑 `KAFKA_SECURITY_PROTOCOL` `KAFKA_SASL_MECHANISM` `KAFKA_CONSUMER_GROUP` | brokerها (`SASL_PLAINTEXT`/`SCRAM-SHA-256`). hardening به `SASL_SSL` در RB-0006.                                   |
 | Artemis             | `ACTIVEMQ_HOST` `ACTIVEMQ_PORT` `ARTEMIS_USER`⚲🔑 `ARTEMIS_PASSWORD`⚲🔑                                                             | اتصال broker (فقط client). انتخاب transport (`transport-mode`) در Consul است نه اینجا (RB-0008/RB-0013).           |
 | FCB (legacy runner) | `FCB_BASE_URL` `FCB_USERNAME`🔑 `FCB_PASSWORD`🔑                                                                                    | فقط برای usecase-runner منسوخ. مسیر اصلی Nova↔FCB از Kafka/Artemis است.                                            |
@@ -91,8 +96,8 @@ kubectl apply -f container/k8s/base/
 | OpenTelemetry       | `OTEL_EXPORTER_OTLP_ENDPOINT` `OTEL_EXPORTER_OTLP_HEADERS`🔑 `OTEL_SERVICE_NAME` `OTEL_TRACES_SAMPLER_ARG` …                        | export به collector. `OTEL_SERVICE_NAME=nova-service`.                                                             |
 | Platform            | `PLATFORM_ENV` `HIBERNATE_DDL_AUTO` `SHOW_SQL` `SERVER_PORT`                                                                        | `HIBERNATE_DDL_AUTO=validate` (هیچ‌وقت `update`/`create` در prod).                                                 |
 
-> نکته: کلیدهای ⚲ (یعنی `DB_NAME` `DB_USERNAME` `DB_PASSWORD` `REDIS_PASSWORD` `REDIS_MASTER_NAME`
-> `ARTEMIS_USER` `ARTEMIS_PASSWORD`) دو نسخه دارند — اینجا سمت client و در `nova-dev-stack/.env` سمت server.
+> نکته: کلیدهای ⚲ (یعنی `DB_NAME` `DB_USERNAME` `DB_PASSWORD` `ARTEMIS_USER` `ARTEMIS_PASSWORD`) دو نسخه
+> دارند — اینجا سمت client و در `nova-dev-stack/.env` سمت server.
 > مقدارشان باید **دقیقاً یکی** باشد.
 
 ## infra لوکال (`nova-dev-stack/.env.example`)
@@ -103,18 +108,16 @@ kubectl apply -f container/k8s/base/
 
 ```bash
 cd nova-dev-stack
-cp .env.example .env && nano .env          # DB_*, REDIS_PASSWORD, ARTEMIS_* — هم‌مقدار با nova/container/.env
-./redis/render-sentinel-conf.sh            # sentinel-{1,2,3}.conf را می‌سازد (قبل از up حتماً)
-docker compose up -d                       # postgres + redis HA + artemis (broker اصلی)
+cp .env.example .env && nano .env          # DB_* و ARTEMIS_* — هم‌مقدار با nova/container/.env
+docker compose up -d postgres artemis      # Redis این stack عمداً اجرا نمی‌شود
 ```
 
 </div>
 
-کلیدهای مهم این فایل: bootstrap پستگرس (`DB_*`)، auth سمت server ردیس (`REDIS_PASSWORD` `REDIS_MASTER_NAME`)،
-port mapping و **announce host** ردیس (`REDIS_*_ANNOUNCE_HOST/PORT` — اگر اپ روی host است
-`host.docker.internal`؛ اگر هم‌شبکه است نام container)، و creds آرتمیس. هر بار announce host عوض شد دوباره
-`render-sentinel-conf.sh` بزن. Artemis و ActiveMQ Classic هر دو پورت `61616`/`8161` را می‌گیرند و mutually
-exclusive‌اند؛ ActiveMQ Classic منسوخ است.
+این مخزن فعلاً Redis Sentinel قدیمی را نیز نگه می‌دارد، اما آن سرویس‌ها با Nova Cluster-only سازگار نیستند و
+نباید endpoint برنامه باشند. برای Nova یک Redis Cluster مستقل با credentialهای `container/.env` فراهم کنید.
+کلیدهای مهم stack سازگار: bootstrap پستگرس (`DB_*`) و creds آرتمیس. Artemis و ActiveMQ Classic هر دو پورت
+`61616`/`8161` را می‌گیرند و mutually exclusive‌اند؛ ActiveMQ Classic منسوخ است.
 
 ## broker آرتمیس — کانفیگ لازم برای req/reply
 

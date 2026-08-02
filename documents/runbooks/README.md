@@ -21,7 +21,7 @@ Runbookها مکمل ADRها هستند: ADR «چرا» یک تصمیم معما
 | [RB-0004](RB-0004.liquibase-prod-migrations.md)        | مهاجرت‌های Liquibase در تولید               | پایگاه‌داده / استقرار | 2026-06-04 | فعال     |
 | [RB-0005](RB-0005.envelope-signing-keys-jwks.md)       | کلیدها و JWKS امضای پاکت (Nova و FCB)       | امنیت / مدیریت کلید | 2026-06-04 | فعال     |
 | [RB-0006](RB-0006.nova-tls-ssl-hardening.md)           | TLS/SSL: لایهٔ اجباری و سخت‌سازی انتقال     | امنیت / شبکه        | 2026-06-04 | پیش‌نویس |
-| [RB-0007](RB-0007.redis-sentinel-ha.md)                | Redis Sentinel HA (اجباری)                 | کش / HA             | 2026-06-04 | فعال     |
+| [RB-0007](RB-0007.redis-sentinel-ha.md)                | Redis Sentinel HA (سابقهٔ منسوخ)           | کش / HA             | 2026-06-04 | منسوخ    |
 | [RB-0008](RB-0008.artemis-broker.md)                   | کارگزار Artemis                            | پیام‌رسانی / HA     | 2026-06-04 | فعال     |
 | [RB-0009](RB-0009.postgres-prod-patroni-haproxy.md)    | Postgres در تولید: Patroni + HAProxy        | پایگاه‌داده / HA    | 2026-06-04 | فعال     |
 | [RB-0010](RB-0010.outbox-inbox-drain-replay.md)        | تخلیه و بازپخش Outbox/Inbox                 | پیام‌رسانی / عملیات | 2026-06-04 | فعال     |
