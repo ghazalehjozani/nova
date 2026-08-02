@@ -4,12 +4,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.WriteOperation;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,23 +27,18 @@ import lombok.extern.slf4j.Slf4j;
 @Endpoint(id = "loanCacheRefresh")
 public class LoanStaticCacheRefreshEndpoint {
 
-    private final CacheManager caffeineManager;
+    private final LoanStaticCacheConfig cacheConfig;
     private final CacheManager redisManager;
 
-    public LoanStaticCacheRefreshEndpoint(
-            CaffeineCacheManager caffeineLoanCacheManager,
-            @Qualifier("redisLoanCacheManager") CacheManager redisLoanCacheManager) {
-        this.caffeineManager = caffeineLoanCacheManager;
-        this.redisManager = redisLoanCacheManager;
+    public LoanStaticCacheRefreshEndpoint(LoanStaticCacheConfig cacheConfig, CacheManager cacheManager) {
+        this.cacheConfig = cacheConfig;
+        this.redisManager = cacheManager;
     }
 
     @WriteOperation
     public Map<String, List<String>> refresh() {
         for (String name : LoanStaticCacheConfig.STATIC_CACHE_NAMES) {
-            Cache caffeine = caffeineManager.getCache(name);
-            if (caffeine != null) {
-                caffeine.clear();
-            }
+            cacheConfig.clearLocal(name);
             Cache redis = redisManager.getCache(name);
             if (redis != null) {
                 redis.clear();

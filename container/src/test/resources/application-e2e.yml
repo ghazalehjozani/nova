@@ -20,11 +20,17 @@ spring:
   data:
     redis:
       password: ${REDIS_PASSWORD:e2e_redis_pass}
-      timeout: 3000ms
+      client-name: nova-service-e2e-redis
+      timeout: 3s
+      connect-timeout: 2s
       database: 0
       client-type: lettuce
-      sentinel:
-        enabled: false
+      cluster:
+        nodes: ${REDIS_CLUSTER_NODES:localhost:6379}
+        max-redirects: 5
+      lettuce:
+        read-from: upstream
+        shutdown-timeout: 2s
   threads:
     virtual:
       enabled: true

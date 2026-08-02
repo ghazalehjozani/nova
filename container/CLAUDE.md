@@ -55,10 +55,11 @@ container/
 └── pom.xml
 ```
 
-> **Local dev infra moved out.** PostgreSQL, the Redis Sentinel HA cluster, the broker, and the
+> **Local dev infra moved out.** PostgreSQL, the legacy Redis Sentinel HA stack, the broker, and the
 > `redis/` configs now live in the sibling repo [`../../nova-dev-stack`](../../nova-dev-stack)
-> (`docker-compose.yml` + `.env`). A few connection secrets (`DB_*`, `REDIS_PASSWORD`,
-> `REDIS_MASTER_NAME`, `ARTEMIS_*`) are duplicated between `.env` here and there — keep in sync.
+> (`docker-compose.yml` + `.env`). Nova itself is Cluster-only; that preserved Sentinel stack is not a compatible
+> Redis endpoint until it is migrated separately. Shared secrets (`DB_*`, `REDIS_PASSWORD`, `ARTEMIS_*`) remain
+> duplicated between `.env` here and there.
 > Only the E2E Testcontainers compose stays in this module.
 
 `NovaApplication` does a **filtered ComponentScan** over `ir.dotin.loan.baseloan.core.domain` that picks up only `@DomainComponent`, `@DomainService`, `@DomainFactory`. Do not broaden the scan — base-loan domain types must remain pure POJOs to the application context.

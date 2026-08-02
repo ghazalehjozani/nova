@@ -33,10 +33,10 @@ public record ArchitectureConfig(
     public record RelationshipStyleConfig(String color, int thickness, String style) {}
 
     /**
-     * A curated description of a durable workflow (saga) orchestration. The orchestrator handler itself is
-     * discovered automatically (a {@code *CommandHandler}); this config adds its ordered steps + compensation
-     * + durability, which auto-discovery cannot represent because step classes collide on simple name across
-     * use cases (e.g. three different {@code ValidateFacilityStep}).
+     * A curated description of a durable workflow (saga) orchestration. The orchestrator handler itself is discovered
+     * automatically (a {@code *CommandHandler}); this config adds its ordered steps + compensation + durability, which
+     * auto-discovery cannot represent because step classes collide on simple name across use cases (e.g. three
+     * different {@code ValidateFacilityStep}).
      */
     public record WorkflowConfig(
             String name,

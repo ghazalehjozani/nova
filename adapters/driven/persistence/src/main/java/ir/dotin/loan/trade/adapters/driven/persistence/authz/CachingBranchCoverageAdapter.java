@@ -58,9 +58,17 @@ public class CachingBranchCoverageAdapter implements BranchCoveragePort {
             if (value == null) {
                 return null;
             }
-            return decode(value);
+            List<BranchCode> decoded = decode(value);
+            if (decoded == null) {
+                try {
+                    redisTemplate.delete(key);
+                } catch (RuntimeException deleteFailure) {
+                    log.debug("Could not delete corrupt branch-coverage entry", deleteFailure);
+                }
+            }
+            return decoded;
         } catch (Exception e) {
-            log.warn("Branch-coverage cache read failed, falling back to source [key={}]: {}", key, e.getMessage());
+            log.warn("Branch-coverage cache read failed, falling back to source: {}", e.getMessage());
             return null;
         }
     }
@@ -69,7 +77,7 @@ public class CachingBranchCoverageAdapter implements BranchCoveragePort {
         try {
             redisTemplate.opsForValue().set(key, encode(covered), properties.getTtl());
         } catch (Exception e) {
-            log.warn("Branch-coverage cache write failed [key={}]: {}", key, e.getMessage());
+            log.warn("Branch-coverage cache write failed: {}", e.getMessage());
         }
     }
 
@@ -82,7 +90,11 @@ public class CachingBranchCoverageAdapter implements BranchCoveragePort {
             return List.of();
         }
         try {
-            return Arrays.stream(value.split(SEPARATOR))
+            String[] codes = value.split(SEPARATOR, -1);
+            if (Arrays.stream(codes).anyMatch(String::isBlank)) {
+                return null;
+            }
+            return Arrays.stream(codes)
                     .map(code -> BranchCode.of(code).unwrap())
                     .toList();
         } catch (Exception e) {

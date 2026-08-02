@@ -19,9 +19,10 @@ import tools.jackson.databind.ObjectMapper;
 /**
  * Wires the ActiveMQ Artemis FCB request/reply transport.
  *
- * <p>HA/failover/reconnect parameters live ONLY in the Consul-managed broker URL — no
- * programmatic setters for them here, because setters override URL parameters and silently
- * defeat operational changes. Required URL shape (see Consul fcb.yml):
+ * <p>HA/failover/reconnect parameters live ONLY in the Consul-managed broker URL — no programmatic setters for them
+ * here, because setters override URL parameters and silently defeat operational changes. Required URL shape (see Consul
+ * fcb.yml):
+ *
  * <pre>
  * (tcp://host1:61616,tcp://host2:61616,tcp://host3:61616)
  * ?ha=true&failoverOnInitialConnection=true
@@ -29,11 +30,9 @@ import tools.jackson.databind.ObjectMapper;
  * &retryInterval=1000&retryIntervalMultiplier=1.0&maxRetryInterval=2000
  * </pre>
  *
- * <p>Timeout contract (must hold across BOTH ends):
- * {@code replyTimeout} (how long Nova waits for a reply) &lt; FCB reply TTL
- * ({@code ARTEMIS_REPLY_TIMEOUT_MS} on the FCB side). If the broker expires replies earlier
- * than Nova stops waiting, a slow-but-valid reply vanishes into ExpiryQueue and Nova reports a
- * timeout that never should have happened.
+ * <p>Timeout contract (must hold across BOTH ends): {@code replyTimeout} (how long Nova waits for a reply) &lt; FCB
+ * reply TTL ({@code ARTEMIS_REPLY_TIMEOUT_MS} on the FCB side). If the broker expires replies earlier than Nova stops
+ * waiting, a slow-but-valid reply vanishes into ExpiryQueue and Nova reports a timeout that never should have happened.
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(ArtemisFcbProperties.class)
@@ -45,8 +44,7 @@ public class ArtemisFcbConfig {
 
     @Bean(name = ARTEMIS_FCB_CONNECTION_FACTORY, destroyMethod = "close")
     public ConnectionFactory artemisFcbConnectionFactory(ArtemisFcbProperties properties) {
-        ActiveMQConnectionFactory factory =
-                new ActiveMQConnectionFactory(properties.getBrokerUrl());
+        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(properties.getBrokerUrl());
 
         String user = properties.getUser();
         if (user != null && !user.isBlank()) {
@@ -55,8 +53,8 @@ public class ArtemisFcbConfig {
         }
 
         // ── send behavior (not expressible in URL) ──────────────────────────
-        factory.setBlockOnDurableSend(true);        // banking: acknowledge persisted sends
-        factory.setBlockOnNonDurableSend(true);     // request/reply is sync anyway; backpressure beats silent loss
+        factory.setBlockOnDurableSend(true); // banking: acknowledge persisted sends
+        factory.setBlockOnNonDurableSend(true); // request/reply is sync anyway; backpressure beats silent loss
         factory.setCacheDestinations(true);
 
         // ── windows ─────────────────────────────────────────────────────────
@@ -105,9 +103,6 @@ public class ArtemisFcbConfig {
                 properties.getLivenessFailureThreshold());
 
         return new ArtemisFcbRequestReplyClient(
-                factory.create(connectionFactory, config),
-                objectMapper,
-                properties,
-                meterRegistry);
+                factory.create(connectionFactory, config), objectMapper, properties, meterRegistry);
     }
 }

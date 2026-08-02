@@ -134,4 +134,23 @@ class CachingBranchCoverageAdapterTest {
         assertThat(result.isFailure()).isTrue();
         verify(valueOperations, never()).set(anyString(), anyString(), any(Duration.class));
     }
+
+    @Test
+    void corruptValueIsDeletedOnceButTransientReadFailureIsNot() {
+        when(valueOperations.get(KEY)).thenReturn("123,,456");
+        when(loanServicePort.loadCoveredBranches(branch)).thenReturn(Result.success(List.of()));
+
+        adapter.coveredBranches(branch);
+
+        verify(redisTemplate).delete(KEY);
+
+        org.mockito.Mockito.reset(redisTemplate, valueOperations);
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.get(KEY)).thenThrow(new IllegalStateException("redis unavailable"));
+        when(loanServicePort.loadCoveredBranches(branch)).thenReturn(Result.success(List.of()));
+
+        adapter.coveredBranches(branch);
+
+        verify(redisTemplate, never()).delete(KEY);
+    }
 }

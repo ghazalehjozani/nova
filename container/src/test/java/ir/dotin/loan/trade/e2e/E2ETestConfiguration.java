@@ -2,12 +2,13 @@ package ir.dotin.loan.trade.e2e;
 
 import java.io.File;
 import java.time.Duration;
+import java.util.List;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisPassword;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.test.context.DynamicPropertyRegistrar;
@@ -57,7 +58,7 @@ public class E2ETestConfiguration {
         // Host networking (broken dev-host DNAT): services run with `network_mode: host` and bind their fixed ports
         // directly on the host, so the Testcontainers ambassador lookup (getServiceHost/getServicePort, which assume
         // published/DNAT ports) does not apply — connect to the fixed localhost:<port> instead.
-        RedisStandaloneConfiguration cfg = new RedisStandaloneConfiguration("localhost", REDIS_PORT);
+        RedisClusterConfiguration cfg = new RedisClusterConfiguration(List.of("localhost:" + REDIS_PORT));
         cfg.setPassword(RedisPassword.of(REDIS_PASSWORD));
         LettuceClientConfiguration clientCfg = LettuceClientConfiguration.builder()
                 .commandTimeout(Duration.ofSeconds(3))
@@ -87,11 +88,13 @@ public class E2ETestConfiguration {
             registry.add("platform.messaging.kafka.bootstrap-servers", () -> kafkaBootstrap);
             registry.add("KAFKA_BOOTSTRAP_SERVERS", () -> kafkaBootstrap);
 
-            registry.add("spring.data.redis.sentinel.enabled", () -> "false");
+            registry.add("spring.data.redis.cluster.nodes", () -> "localhost:" + REDIS_PORT);
+            registry.add("spring.data.redis.cluster.max-redirects", () -> "5");
+            registry.add("spring.data.redis.lettuce.cluster.refresh.period", () -> "5s");
+            registry.add("spring.data.redis.lettuce.cluster.refresh.dynamic-refresh-sources", () -> "true");
             registry.add("spring.data.redis.password", () -> REDIS_PASSWORD);
             registry.add("REDIS_PASSWORD", () -> REDIS_PASSWORD);
-            registry.add("REDIS_MASTER_NAME", () -> "nova-master");
-            registry.add("REDIS_SENTINEL_NODES", () -> "127.0.0.1:26379");
+            registry.add("REDIS_CLUSTER_NODES", () -> "localhost:" + REDIS_PORT);
             registry.add("REDIS_TLS_ENABLED", () -> "false");
         };
     }
