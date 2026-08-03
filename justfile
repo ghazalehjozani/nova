@@ -12,7 +12,7 @@ jvm_args          := "-XX:+UseZGC -XX:+ZGenerational -XX:+AlwaysPreTouch -Xmx4g 
 
 # Liquibase ops (profile-gated; see container/pom.xml -Pliquibase-ops).
 # DB creds come from env_file.
-revision   := "2026.8.0-SNAPSHOT"
+revision   := `sed -n 's/.*-Drevision=\([^ ]*\).*/\1/p' .mvn/maven.config`
 lb_cmd     := mvn + " -pl container -Pliquibase-ops -Drevision=" + revision
 db_sql_out := "container/target/liquibase-updateSQL.sql"
 
