@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(xargs:*)",
-      "Bash(chmod:*)",
-      "Skill(smart-git-commit:commit)"
-    ]
-  }
-}
