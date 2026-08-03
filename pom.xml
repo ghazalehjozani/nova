@@ -18,9 +18,9 @@
     <version>${revision}</version>
 
     <scm>
-        <connection>scm:git:https://hub.dotin.ir/gitlab/expenditures/customer-based/nova.git</connection>
-        <developerConnection>scm:git:https://hub.dotin.ir/gitlab/expenditures/customer-based/nova.git</developerConnection>
-        <url>https://hub.dotin.ir/gitlab/expenditures/customer-based/nova</url>
+        <connection>scm:git:https://gitlab.dotin.ir/expenditures/customer-based/nova.git</connection>
+        <developerConnection>scm:git:https://gitlab.dotin.ir/expenditures/customer-based/nova.git</developerConnection>
+        <url>https://gitlab.dotin.ir/expenditures/customer-based/nova</url>
     </scm>
 
     <modules>

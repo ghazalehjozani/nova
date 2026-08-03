@@ -15,10 +15,10 @@ Redis Cluster: [راهنمای فعال](redis-cluster-migration.md)، Artemis: 
 
 | مخزن                          | نقش                                       | origin                                                                            |
 |-------------------------------|-------------------------------------------|-----------------------------------------------------------------------------------|
-| `nova`                        | سرویس trade-loan (همین مخزن)              | `https://hub.dotin.ir/gitlab/expenditures/customer-based/nova.git`                |
-| `nova-config`                 | کانفیگ runtime روی Consul KV              | `https://hub.dotin.ir/gitlab/expenditures/customer-based/nova-config.git`         |
-| `nova-fcb-zk-config`          | کانفیگ سمت FCB روی ZooKeeper              | `https://hub.dotin.ir/gitlab/expenditures/customer-based/nova-fcb-zk-config.git`  |
-| `platform-consul`             | image سرور Consul + حلقهٔ git2consul-sync | `https://hub.dotin.ir/gitlab/platform/platform-consul.git`                        |
+| `nova`                        | سرویس trade-loan (همین مخزن)              | `https://gitlab.dotin.ir/expenditures/customer-based/nova.git`                |
+| `nova-config`                 | کانفیگ runtime روی Consul KV              | `https://gitlab.dotin.ir/expenditures/customer-based/nova-config.git`         |
+| `nova-fcb-zk-config`          | کانفیگ سمت FCB روی ZooKeeper              | `https://gitlab.dotin.ir/expenditures/customer-based/nova-fcb-zk-config.git`  |
+| `platform-consul`             | image سرور Consul + حلقهٔ git2consul-sync | `https://gitlab.dotin.ir/platform/platform-consul.git`                        |
 
 ## پیش‌نیازها
 
