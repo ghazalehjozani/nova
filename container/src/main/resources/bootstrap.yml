@@ -1,59 +1,24 @@
 ---
-# =============================================================================
-# bootstrap.yml — the ONLY local configuration file in this service.
-# -----------------------------------------------------------------------------
-# Everything else (datasource, kafka, security, fcb, dispatcher, etc.) lives
-# in Consul KV, owned by the `nova-config` repository, synchronised via
-# GitLab CI (production) or git2consul-sync sidecar (dev/test).
-#
-# Secrets are NEVER stored in Consul. They are injected as environment
-# variables (${ENV_VAR}) at runtime — Spring resolves placeholders AFTER
-# pulling KV. Local dev secrets live in .env (git-ignored).
-# =============================================================================
-
 spring:
   application:
     name: nova-service
-    # Filtered at build time by maven-resources-plugin (delimiter @, see pangaea-parent).
-    # Feeds OpenAPI info.version and OTEL service.version. Falls back to a literal only if
-    # filtering is disabled (e.g. running straight from source without a Maven build).
     version: '@project.version@'
 
   profiles:
     active: ${SPRING_PROFILES_ACTIVE}
 
   cloud:
-    client:
-      ip-address: ${HOST_IP}
-    inetutils:
-      ignored-interfaces:
-        - "docker0"
-        - "veth.*"
-      preferred-networks:
-        - '^10\.100\..*'
-        - '^10\.20\..*'
     consul:
       enabled: true
       host: ${CONSUL_HOST}
       port: ${CONSUL_PORT}
-      scheme: ${CONSUL_SCHEME}
-
-#      tls:
-#        enabled: ${CONSUL_TLS_ENABLED:false}
-#        certificate-path: ${CONSUL_TLS_CERT_PATH:}
-#        key-store-instance-type: ${CONSUL_TLS_TRUSTSTORE_TYPE:JKS}
-#        key-store-password: ${CONSUL_TLS_TRUSTSTORE_PASSWORD:}
-
+      scheme: http
       discovery:
         enabled: true
-        register: true
-        deregister: true
         prefer-ip-address: true
-        instance-id: centralized-banking-expenditures-loan-${spring.application.name}-${spring.cloud.client.ip-address}-${server.port}-${random.uuid}
+        ip-address: ${DEFAULT_IP_ADDRESS}
+        instance-id: centralized-banking-expenditures-loan-${spring.application.name}-${random.uuid}
         service-name: centralized-banking-expenditures-loan-${spring.application.name}
-        health-check-path: /actuator/health
-        health-check-interval: 15s
-        health-check-timeout: 5s
         health-check-critical-timeout: 180s
         tags:
           - profile=${SPRING_PROFILES_ACTIVE}
@@ -63,52 +28,11 @@ spring:
         metadata:
           version: '@project.version@'
           management-context-path: /actuator
-        acl-token: ${CONSUL_ACL_TOKEN}
-        scheme: http
-
-      # Hierarchical key/value mode — NO YAML blobs. Each property is a
-      # discrete Consul key, so changes have surgical, auditable diffs.
-      #
-      # Multi-prefix layout (Spring Cloud Consul 'prefixes' list — Spring Boot 4
-      # / Spring Cloud 2026.x). Precedence: FIRST prefix wins on key collision.
-      #
-      #   core/loan/nova    ← nova-service-only config (overrides)
-      #   core/loan         ← loan-platform shared defaults (fallback)
-      #
-      # Resulting load order (highest first):
-      #   1. core/loan/nova/nova-service/<profile>
-      #   2. core/loan/nova/nova-service/
-      #   3. core/loan/nova/application/<profile>
-      #   4. core/loan/nova/application/
-      #   5. core/loan/application/<profile>
-      #   6. core/loan/application/
-      #
-      # Feature flags follow the same hierarchy under features/core/loan/...
       config:
         enabled: true
         format: KEY_VALUE
         prefixes:
           - Centralized-Banking/expenditures/loan/nova
-        default-context: application
-        profile-separator: ','
-        fail-fast: true
-        watch:
-          enabled: true
-          delay: 1000
-          wait-time: 55
-        acl-token: ${CONSUL_ACL_TOKEN}
-
-
-      retry:
-        enabled: true
-        max-attempts: 6
-        initial-interval: 1000
-        multiplier: 1.5
-        max-interval: 10000
-
-# Actuator must be reachable for Consul's health-check before Consul-sourced
-# config is applied. Keep ONLY this minimum here; full management config lives
-# in Consul under config/application/management/...
 management:
   endpoints:
     web:

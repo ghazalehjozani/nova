@@ -40,7 +40,7 @@ public class FcbReplyPartitionLeaseConfig {
     @Primary
     public FcbReplyPartitionAssigner consulLeaseReplyPartitionAssigner(
             ConsulProperties consulProperties,
-            @Value("${spring.cloud.consul.discovery.acl-token:${spring.cloud.consul.token:${CONSUL_ACL_TOKEN:}}}")
+            @Value("${consul.token:${CONSUL_TOKEN:${spring.cloud.consul.token:${SPRING_CLOUD_CONSUL_TOKEN:}}}}")
                     String aclToken,
             @Value("${platform.messaging.kafka.instance-id:${HOSTNAME:nova-service}}") String instanceId,
             FcbKafkaProperties properties,
