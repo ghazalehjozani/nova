@@ -17,13 +17,13 @@ spring:
         enabled: true
         prefer-ip-address: true
         ip-address: ${DEFAULT_IP_ADDRESS}
-        instance-id: centralized-banking-expenditures-loan-${spring.application.name}-${random.uuid}
-        service-name: centralized-banking-expenditures-loan-${spring.application.name}
+        instance-id: expenditures-loan-${spring.application.name}-${random.uuid}
+        service-name: expenditures-loan-${spring.application.name}
         health-check-critical-timeout: 180s
         tags:
           - profile=${SPRING_PROFILES_ACTIVE}
           - version=@project.version@
-          - zone=centralized-banking-expenditures
+          - zone=expenditures
           - role=backend-service
         metadata:
           version: '@project.version@'
@@ -32,7 +32,7 @@ spring:
         enabled: true
         format: KEY_VALUE
         prefixes:
-          - Centralized-Banking/expenditures/loan/nova
+          - expenditures/loan/nova
 management:
   endpoints:
     web:
