@@ -47,11 +47,11 @@
     </profiles>
 
     <properties>
-        <loan.base-loan.version>2026.6.11-SNAPSHOT</loan.base-loan.version>
+        <loan.base-loan.version>2026.8.0-SNAPSHOT</loan.base-loan.version>
         <loan.trade-loan.version>${project.version}</loan.trade-loan.version>
         <sonar.projectVersion>${project.version}</sonar.projectVersion>
-        <platform.accounting.document.version>2026.6.12-SNAPSHOT</platform.accounting.document.version>
-        <platform.formula.version>2026.6.12-SNAPSHOT</platform.formula.version>
+        <platform.accounting.document.version>2026.8.0-SNAPSHOT</platform.accounting.document.version>
+        <platform.formula.version>2026.8.0-SNAPSHOT</platform.formula.version>
     </properties>
 
     <dependencyManagement>

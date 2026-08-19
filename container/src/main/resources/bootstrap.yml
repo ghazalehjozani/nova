@@ -8,18 +8,33 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE}
 
   cloud:
+    client:
+      ip-address: ${HOST_IP}
+    inetutils:
+      ignored-interfaces:
+        - "docker0"
+        - "veth.*"
+        - "lo"
+        - "br-.*"
+      preferred-networks:
+        - '^10\.100\..*'
+        - '^10\.20\..*'
     consul:
       enabled: true
       host: ${CONSUL_HOST}
       port: ${CONSUL_PORT}
-      scheme: http
+      scheme: ${CONSUL_SCHEME:http}
       discovery:
         enabled: true
+        register: true
+        deregister: true
         prefer-ip-address: true
-        ip-address: ${DEFAULT_IP_ADDRESS}
-        instance-id: expenditures-loan-${spring.application.name}-${random.uuid}
+        instance-id: expenditures-loan-${spring.application.name}-${KUBERNETES_POD_NAME}
         service-name: expenditures-loan-${spring.application.name}
-        health-check-critical-timeout: 180s
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+        health-check-timeout: 10s
+        health-check-critical-timeout: 30m
         tags:
           - profile=${SPRING_PROFILES_ACTIVE}
           - version=@project.version@
@@ -28,11 +43,27 @@ spring:
         metadata:
           version: '@project.version@'
           management-context-path: /actuator
+        acl-token: ${CONSUL_TOKEN}
+        scheme: http
       config:
         enabled: true
         format: KEY_VALUE
         prefixes:
           - expenditures/loan/nova
+        default-context: application
+        profile-separator: ','
+        fail-fast: true
+        watch:
+          enabled: true
+          delay: 1000
+          wait-time: 55
+        acl-token: ${CONSUL_TOKEN}
+      retry:
+        enabled: true
+        max-attempts: 6
+        initial-interval: 1000
+        multiplier: 1.5
+        max-interval: 10000
 management:
   endpoints:
     web:
