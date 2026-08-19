@@ -53,6 +53,13 @@ publish-release:
   rules:
     - when: never
 
+# Manual deploy tooling replaces the auto-deploy-on-push-to-develop step —
+# see workspace-root deploy/ (justfile `deploy-nova` / `deploy-nova-host`).
+# containerize-publish still runs, so images keep landing in Nexus.
+deploy:
+  rules:
+    - when: never
+
 # =============================================================================
 # ArchUnit structural gate + Testcontainers integration tests.
 # The shared `service.gitlab-ci.yml` builds + unit-tests only; these jobs add
