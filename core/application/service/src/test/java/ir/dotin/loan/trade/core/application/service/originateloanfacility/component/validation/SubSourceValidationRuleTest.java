@@ -11,7 +11,7 @@ import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
 
@@ -29,7 +29,7 @@ class SubSourceValidationRuleTest {
     private LoanServicePort loanServicePort;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private OriginateLoanFacilityCommand command;
+    private OriginateFacilityCommand command;
 
     @InjectMocks
     private SubSourceValidationRule rule;
@@ -46,8 +46,7 @@ class SubSourceValidationRuleTest {
 
     @Test
     void validateSubSourceSucceedsWhenLoaded() {
-        when(command.loanApplication().subSource())
-                .thenReturn(new OriginateLoanFacilityCommand.SubSourceDto(SUB_SOURCE));
+        when(command.loanApplication().subSource()).thenReturn(new OriginateFacilityCommand.SubSourceDto(SUB_SOURCE));
         when(loanServicePort.loadResourceByCode(SUB_SOURCE)).thenReturn(Result.success(new SubSource(SUB_SOURCE)));
 
         Result<Unit> result = rule.validateSubSource(command);
@@ -57,8 +56,7 @@ class SubSourceValidationRuleTest {
 
     @Test
     void validateSubSourceFailsWhenPortFails() {
-        when(command.loanApplication().subSource())
-                .thenReturn(new OriginateLoanFacilityCommand.SubSourceDto(SUB_SOURCE));
+        when(command.loanApplication().subSource()).thenReturn(new OriginateFacilityCommand.SubSourceDto(SUB_SOURCE));
         when(loanServicePort.loadResourceByCode(SUB_SOURCE))
                 .thenReturn(Result.failure(
                         Notification.ofError(OriginateLoanFacilityErrorCodes.INVALID_ACCOUNT_NUMBER, SUB_SOURCE)));

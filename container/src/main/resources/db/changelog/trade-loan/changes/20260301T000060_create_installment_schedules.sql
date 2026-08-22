@@ -15,6 +15,11 @@ CREATE TABLE loan_installment_schedules (
     created_by                    varchar(255),
     modified_by                   varchar(255),
     loan_facility_id              uuid           NOT NULL,
+    -- @Enumerated(EnumType.STRING) InstallmentScheduleType. Permitted values:
+    -- SINGLE_INSTALLMENT | EQUAL_INSTALLMENTS | GRADUAL_INSTALLMENTS.
+    -- SINGLE_INSTALLMENT was added by CBS-282143:LN-59253:LN-59261:LN-59661 (base-loan ADR-0006). No migration is
+    -- needed: the name, not the ordinal, is persisted, so existing rows read unchanged and the baseline records the
+    -- new permitted value here rather than in a no-op changeset (nova ADR-0006, greenfield-baseline convention).
     schedule_type                 varchar(255)   NOT NULL,
     status                        varchar(255)   NOT NULL,
     initiated_at                  timestamptz    NOT NULL,

@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 import ir.dotin.platform.accounting.document.api.model.BranchCode;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
+import ir.dotin.loan.baseloan.core.domain.installmentschedule.enums.InstallmentScheduleType;
+import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.ProductProfile;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.ApplicationNumber;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Branch;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.InstallmentCount;
@@ -21,7 +23,8 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateUnequalInstallmentFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.SamatDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfoResponse;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
@@ -41,18 +44,21 @@ import static java.util.Objects.requireNonNull;
 @RequiredArgsConstructor
 public class FacilityBuilder {
 
+    private static final int SINGLE_INSTALLMENT_COUNT = 1;
+
     private final OriginateLoanFacilityApplicationMapper applicationMapper;
     private final ApplicationNumberStrategySelector applicationNumberStrategySelector;
     private final Clock clock;
 
     public Result<TradeLoanFacility> buildFacility(
-            OriginateLoanFacilityCommand command,
+            OriginateFacilityCommand command,
             FacilityOriginationContext context,
+            ProductProfile profile,
             @Nullable InstallmentScheduleId scheduleId,
             @NonNull LoanFacilityId facilityId,
             ApplicationNumber applicationNumber) {
 
-        return buildApplication(command, context, applicationNumber).map(application -> {
+        return buildApplication(command, context, profile, applicationNumber).map(application -> {
             TradeLoanFacility facility = TradeLoanFacility.create(
                     facilityId,
                     application,
@@ -66,7 +72,10 @@ public class FacilityBuilder {
     }
 
     public Result<TradeLoanApplication> buildApplication(
-            OriginateLoanFacilityCommand command, FacilityOriginationContext context, ApplicationNumber appNumber) {
+            OriginateFacilityCommand command,
+            FacilityOriginationContext context,
+            ProductProfile profile,
+            ApplicationNumber appNumber) {
 
         String rawBranchCode = command.loanApplication().branch().code();
         if (rawBranchCode == null) {
@@ -92,7 +101,7 @@ public class FacilityBuilder {
                 .parties(enrichedParties)
                 .applicationNumber(appNumber)
                 .branch(branch);
-        fillInstallmentCount(builder, command);
+        fillInstallmentCount(builder, command, profile);
 
         SamatDto samatDto = command.loanApplication().samat();
         if (samatDto != null) {
@@ -120,7 +129,7 @@ public class FacilityBuilder {
     }
 
     public Result<ApplicationNumber> resolveApplicationNumber(
-            OriginateLoanFacilityCommand command, List<PartyInfoResponse> partyInfos) {
+            OriginateFacilityCommand command, List<PartyInfoResponse> partyInfos) {
 
         String rawBranchCode = command.loanApplication().branch().code();
         if (rawBranchCode == null) {
@@ -148,8 +157,7 @@ public class FacilityBuilder {
                 .generateApplicationNumber(branchResult.unwrap(), loanTypeCodeResult.unwrap(), primaryApplicant);
     }
 
-    private Result<Unit> validateApplicationNumberMatch(
-            OriginateLoanFacilityCommand command, ApplicationNumber appNumber) {
+    private Result<Unit> validateApplicationNumberMatch(OriginateFacilityCommand command, ApplicationNumber appNumber) {
         String commandAppNumber = command.loanApplication().applicationNumber();
 
         if (commandAppNumber != null) {
@@ -165,17 +173,28 @@ public class FacilityBuilder {
         return Result.success();
     }
 
-    private void fillInstallmentCount(TradeLoanApplication.Builder builder, OriginateLoanFacilityCommand command) {
-        if (command.installmentSchedulePlan() != null) {
+    // why: TradeLoanApplication requires a non-null positive count, so a single-instalment product — whose caller
+    // legitimately sends none — is resolved to 1 here rather than by weakening the shared-kernel invariant.
+    private void fillInstallmentCount(
+            TradeLoanApplication.Builder builder, OriginateFacilityCommand command, ProductProfile profile) {
+
+        if (command instanceof OriginateUnequalInstallmentFacilityCommand unequal) {
             builder.installmentCount(InstallmentCount.of(
-                            command.installmentSchedulePlan().installments().size())
+                            unequal.installmentSchedulePlan().installments().size())
                     .unwrap());
-        } else {
-            Integer value = null;
-            if (command.loanApplication().installmentCount() != null) {
-                value = command.loanApplication().installmentCount().value();
-            }
-            builder.installmentCount(new InstallmentCount(requireNonNull(value)));
+            return;
         }
+
+        if (profile.installmentScheduleType() == InstallmentScheduleType.SINGLE_INSTALLMENT) {
+            builder.installmentCount(
+                    InstallmentCount.of(SINGLE_INSTALLMENT_COUNT).unwrap());
+            return;
+        }
+
+        Integer value = null;
+        if (command.loanApplication().installmentCount() != null) {
+            value = command.loanApplication().installmentCount().value();
+        }
+        builder.installmentCount(new InstallmentCount(requireNonNull(value)));
     }
 }

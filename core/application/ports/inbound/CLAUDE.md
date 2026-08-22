@@ -36,7 +36,7 @@ src/main/java/ir/dotin/loan/trade/core/application/ports/inbound/
 
 1. **Commands are Java records** that `implements ir.dotin.platform.dispatcher.api.command.Command`. The dispatcher routes them to handlers in the service module by type.
 
-2. **Every command carries `UUID uid` and `Long version`** as the first two components — `uid` is the dispatcher idempotency/correlation key, `version` is the optimistic-lock expectation against the target aggregate (`@Nullable` for creation commands like `OriginateLoanFacilityCommand`, required for state-changing ones).
+2. **Every command carries `UUID uid` and `Long version`** as the first two components — `uid` is the dispatcher idempotency/correlation key, `version` is the optimistic-lock expectation against the target aggregate (`@Nullable` for creation commands like `OriginateFacilityCommand`, required for state-changing ones).
 
 3. **Lombok `@Builder(toBuilder = true)`** on every command and nested DTO. Callers always go through the builder; do not add positional factory methods.
 
@@ -46,7 +46,7 @@ src/main/java/ir/dotin/loan/trade/core/application/ports/inbound/
 
 6. **Anti-corruption boundary.** This module speaks **domain terminology only** (`applicationNumber`, `loanFacilityId`, `loanArrangementCode`). Legacy / external terms (e.g. `fileNumber`) must be translated in the driving adapter's mapper and never leak into a command field.
 
-7. **Compensation pairs.** Each Saga step has a `*Command` and a matching `Compensate*Command` (e.g. `OriginateLoanFacilityCommand` ↔ `CompensateOriginationCommand`). Add them together; compensation commands carry `loanFacilityId`, `version`, and a `String reason`. Keep the Javadoc on compensation commands noting the valid source state (e.g. `/** Valid from: APPLICATION_SUBMITTED */`).
+7. **Compensation pairs.** Each Saga step has a `*Command` and a matching `Compensate*Command` (e.g. `OriginateFacilityCommand` ↔ `CompensateOriginationCommand`). Add them together; compensation commands carry `loanFacilityId`, `version`, and a `String reason`. Keep the Javadoc on compensation commands noting the valid source state (e.g. `/** Valid from: APPLICATION_SUBMITTED */`).
 
 8. **No business logic, no defaults, no behavior.** Records are pure data carriers. Lookups, ID resolution, and orchestration belong in `core/application/service`. If you feel pulled to put a method on a command other than the generated record accessors / builder, the logic belongs in a handler.
 
@@ -56,7 +56,7 @@ src/main/java/ir/dotin/loan/trade/core/application/ports/inbound/
 
 The records here form the trade-loan lifecycle saga; reading the filenames in `command/` gives the full state-machine surface. Key clusters:
 
-- **Origination:** `OriginateLoanFacilityCommand`, `SubmitFacilityForApprovalCommand`, `ApproveFacilityCommand`, `RejectFacilityCommand`, `CancelFacilityCommand`
+- **Origination:** `OriginateFacilityCommand`, `SubmitFacilityForApprovalCommand`, `ApproveFacilityCommand`, `RejectFacilityCommand`, `CancelFacilityCommand`
 - **Setup:** `DefineLoanTypeCommand`, `DefineTradeLoanArrangementCommand`, `AddFacilityCollateralCommand`, `UpdateCollateralCommand`, `PlanEqualInstallmentScheduleCommand`, `IssueFacilityContractCommand`
 - **Disbursement:** `LumpSumDisbursementCommand`, `RegularDisbursementCommand`, `IrregularProgressiveDisbursementCommand`
 - **Collection / closure:** `CollectInstallmentCommand`, `CloseFacilityPaidOffCommand`, `CloseFacilityDefaultedCommand`, `LoanFacilityRestructuringCommand`

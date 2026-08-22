@@ -11,7 +11,7 @@ import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Samat;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.SamatDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.samat.ValidateSamatPort;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
@@ -30,7 +30,7 @@ class SamatValidationRuleTest {
     private ValidateSamatPort validateSamatPort;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private OriginateLoanFacilityCommand command;
+    private OriginateFacilityCommand command;
 
     @InjectMocks
     private SamatValidationRule rule;

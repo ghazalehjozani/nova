@@ -10,7 +10,7 @@ import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorResponse;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
@@ -24,13 +24,13 @@ public class EconomicSectorValidationRules {
 
     private final LoanServicePort loanServicePort;
 
-    public Result<Unit> validateEconomicalSector(OriginateLoanFacilityCommand command) {
+    public Result<Unit> validateEconomicalSector(OriginateFacilityCommand command) {
         String code = command.loanApplication().economicSector().code();
 
         return loadEconomicalSectorByCode(code).flatMap(this::validateNotParent);
     }
 
-    public Result<Unit> validateEconomicalSectionForLoanType(OriginateLoanFacilityCommand command) {
+    public Result<Unit> validateEconomicalSectionForLoanType(OriginateFacilityCommand command) {
         String sectorCode = command.loanApplication().economicSector().code();
         String typeCodeRaw = command.loanTypeCode();
         LoanTypeCode loanTypeCode = LoanTypeCode.of(typeCodeRaw).unwrap();

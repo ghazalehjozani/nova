@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.ReasonType;
 
@@ -16,7 +16,7 @@ public class RequestReasonValidationRule {
 
     private final LoanServicePort loanServicePort;
 
-    public Result<Unit> validateRequestReason(OriginateLoanFacilityCommand command) {
+    public Result<Unit> validateRequestReason(OriginateFacilityCommand command) {
         String code = command.loanApplication().requestReason().code();
         Result<ReasonType> result = loadRequestReasonByCode(code);
 

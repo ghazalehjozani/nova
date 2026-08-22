@@ -20,12 +20,12 @@ import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.entity.TradeLoanArrangementEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.loantype.entity.TradeLoanTypeEntity;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.DisburseDestinationRequestDto;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest.InstallmentSchedulePlanDto;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest.InstallmentSpecDto;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest.LoanApplicationDto;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest.SamatDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentSchedulePlanRequestDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentSpecRequestDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.LoanApplicationRequestDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateUnequalInstallmentFacilityRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.PartyRequestDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.SamatRequestDto;
 import ir.dotin.loan.trade.e2e.AbstractRestE2E;
 import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator.MinimalChain;
 
@@ -59,20 +59,20 @@ class OpenFacilityCaseRestE2ETest extends AbstractRestE2E {
 
     @Test
     void shouldOpenFacilityCaseSuccessfully() {
-        OriginateLoanFacilityRequest request =
+        OriginateUnequalInstallmentFacilityRequest request =
                 buildOpenCaseRequest(loanTypeCode, arrangementCode, new BigDecimal("50000000"));
 
-        ResponseEntity<String> response = postJson("/facilities/open-case", request);
+        ResponseEntity<String> response = postJson("/loan-facilities/unequal-installments", request);
 
         assertSuccess(response, objectMapper);
     }
 
     @Test
     void shouldRejectFacilityWithInvalidLoanType() {
-        OriginateLoanFacilityRequest request =
+        OriginateUnequalInstallmentFacilityRequest request =
                 buildOpenCaseRequest("NON_EXISTENT_TYPE", arrangementCode, new BigDecimal("50000000"));
 
-        ResponseEntity<String> response = postJson("/facilities/open-case", request);
+        ResponseEntity<String> response = postJson("/loan-facilities/unequal-installments", request);
 
         assertThat(response.getStatusCode().is4xxClientError()
                         || response.getStatusCode().is5xxServerError())
@@ -83,10 +83,10 @@ class OpenFacilityCaseRestE2ETest extends AbstractRestE2E {
     @Test
     void shouldRejectFacilityExceedingAmountRange() {
         // The arrangement has max 100,000,000 IRR
-        OriginateLoanFacilityRequest request =
+        OriginateUnequalInstallmentFacilityRequest request =
                 buildOpenCaseRequest(loanTypeCode, arrangementCode, new BigDecimal("999999999999"));
 
-        ResponseEntity<String> response = postJson("/facilities/open-case", request);
+        ResponseEntity<String> response = postJson("/loan-facilities/unequal-installments", request);
 
         assertThat(response.getStatusCode().is4xxClientError()
                         || response.getStatusCode().is5xxServerError())
@@ -96,13 +96,13 @@ class OpenFacilityCaseRestE2ETest extends AbstractRestE2E {
                 .isTrue();
     }
 
-    private OriginateLoanFacilityRequest buildOpenCaseRequest(
+    private OriginateUnequalInstallmentFacilityRequest buildOpenCaseRequest(
             String loanTypeCode, String arrangementCode, BigDecimal amount) {
 
-        return new OriginateLoanFacilityRequest(
+        return new OriginateUnequalInstallmentFacilityRequest(
                 loanTypeCode,
                 arrangementCode,
-                new LoanApplicationDto(
+                new LoanApplicationRequestDto(
                         Instant.now(),
                         Set.of(new PartyRequestDto.ApplicantDto("12345678", PartyRole.PRIMARY_APPLICANT)),
                         amount,
@@ -120,23 +120,23 @@ class OpenFacilityCaseRestE2ETest extends AbstractRestE2E {
                         "E2E test facility via REST",
                         null,
                         "A",
-                        new SamatDto("1234567899876543", null, null, null, null, null)),
-                new InstallmentSchedulePlanDto(List.of(
-                        new InstallmentSpecDto(
+                        new SamatRequestDto("1234567899876543", null, null, null, null, null)),
+                new InstallmentSchedulePlanRequestDto(List.of(
+                        new InstallmentSpecRequestDto(
                                 1,
                                 LocalDate.now(ZoneOffset.UTC).plusMonths(1),
                                 new BigDecimal("16666667"),
                                 new BigDecimal("750000"),
                                 null,
                                 null),
-                        new InstallmentSpecDto(
+                        new InstallmentSpecRequestDto(
                                 2,
                                 LocalDate.now(ZoneOffset.UTC).plusMonths(2),
                                 new BigDecimal("16666667"),
                                 new BigDecimal("625000"),
                                 null,
                                 null),
-                        new InstallmentSpecDto(
+                        new InstallmentSpecRequestDto(
                                 3,
                                 LocalDate.now(ZoneOffset.UTC).plusMonths(3),
                                 new BigDecimal("16666666"),

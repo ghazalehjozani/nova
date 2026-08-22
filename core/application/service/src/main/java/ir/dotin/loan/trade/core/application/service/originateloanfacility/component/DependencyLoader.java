@@ -14,7 +14,7 @@ import ir.dotin.platform.pangaea.commons.core.concurrent.ParallelFanout;
 import ir.dotin.platform.pangaea.commons.core.error.FailureCause;
 import ir.dotin.loan.baseloan.core.domain.loanarrangement.vo.LoanArrangementCode;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfoResponse;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanArrangementRepository;
 import ir.dotin.loan.trade.core.application.ports.outbound.command.repository.TradeLoanTypeRepository;
@@ -37,7 +37,7 @@ public class DependencyLoader {
 
     @WithSpan("facility.dependencies.fanout")
     public Result<FacilityOriginationContext> loadDependencies(
-            OriginateLoanFacilityCommand command, List<PartyInfoResponse> partyInfos) {
+            OriginateFacilityCommand command, List<PartyInfoResponse> partyInfos) {
         log.debug("Loading DB dependencies for facility origination");
 
         AtomicReference<TradeLoanArrangement> arrangementRef = new AtomicReference<>();

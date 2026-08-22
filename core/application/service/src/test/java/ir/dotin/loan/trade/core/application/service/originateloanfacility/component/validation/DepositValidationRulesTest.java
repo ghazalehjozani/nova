@@ -16,8 +16,8 @@ import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.DepositInfo;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand.LoanApplicationDto;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand.LoanApplicationDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.AmountDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.CurrencyTypeDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.DisburseDestinationDto;
@@ -46,7 +46,7 @@ class DepositValidationRulesTest {
     private DepositServicePort depositServicePort;
 
     @Mock
-    private OriginateLoanFacilityCommand command;
+    private OriginateFacilityCommand command;
 
     @Mock
     private LoanApplicationDto loanApplication;

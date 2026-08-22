@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.Samat;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.EconomicSectorDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.SamatDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.samat.ValidateSamatPort;
@@ -21,7 +21,7 @@ public class SamatValidationRule {
 
     private final ValidateSamatPort validateSamatPort;
 
-    public Result<Unit> validateSamat(OriginateLoanFacilityCommand command) {
+    public Result<Unit> validateSamat(OriginateFacilityCommand command) {
         SamatDto samatDto = command.loanApplication().samat();
         EconomicSectorDto economicSectorDto = command.loanApplication().economicSector();
         Samat samat = samatDtoToSamat(samatDto);

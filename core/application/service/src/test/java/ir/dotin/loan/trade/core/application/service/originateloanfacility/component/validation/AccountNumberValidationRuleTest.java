@@ -11,8 +11,8 @@ import ir.dotin.platform.accounting.document.api.model.AccountNumber;
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand.LoanApplicationDto;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand.LoanApplicationDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.DisburseDestinationDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.accountservice.AccountValidationPort;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
@@ -32,7 +32,7 @@ class AccountNumberValidationRuleTest {
     private AccountValidationPort accountValidationPort;
 
     @Mock
-    private OriginateLoanFacilityCommand command;
+    private OriginateFacilityCommand command;
 
     @Mock
     private LoanApplicationDto loanApplication;

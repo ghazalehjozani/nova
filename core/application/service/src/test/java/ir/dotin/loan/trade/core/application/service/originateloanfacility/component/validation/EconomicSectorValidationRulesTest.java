@@ -12,7 +12,7 @@ import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.LoanTypeCode;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorResponse;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
@@ -33,7 +33,7 @@ class EconomicSectorValidationRulesTest {
     private LoanServicePort loanServicePort;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private OriginateLoanFacilityCommand command;
+    private OriginateFacilityCommand command;
 
     @InjectMocks
     private EconomicSectorValidationRules rules;

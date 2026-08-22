@@ -1,11 +1,8 @@
 package ir.dotin.loan.trade.core.application.ports.inbound.command;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.Period;
-import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -20,18 +17,23 @@ import ir.dotin.loan.trade.core.application.ports.inbound.dto.*;
 
 import lombok.Builder;
 
-@Builder(toBuilder = true)
-public record OriginateLoanFacilityCommand(
-        @NotNull UUID uid,
-        @Nullable Long version,
-        @NotNull String loanTypeCode,
-        @NotNull String loanArrangementCode,
-        @NotNull @Valid LoanApplicationDto loanApplication,
-        @Nullable @Valid InstallmentSchedulePlanDto installmentSchedulePlan)
-        implements Command {
+/**
+ * What every origination shares. The two implementations differ only in whether they carry a caller-supplied instalment
+ * table, which is what makes the table-forbidden and table-required rules unrepresentable rather than runtime checks.
+ */
+// why: deliberately not sealed. The guarantee that matters — a payload either carries an instalment table or has
+// nowhere to put one — comes from the two record types, not from sealing, and nothing switches exhaustively over
+// this hierarchy. Sealing would only block Mockito, which the existing validation-rule tests rely on.
+public interface OriginateFacilityCommand extends Command {
+
+    String loanTypeCode();
+
+    String loanArrangementCode();
+
+    LoanApplicationDto loanApplication();
 
     @Builder(toBuilder = true)
-    public record LoanApplicationDto(
+    record LoanApplicationDto(
             @NotNull Instant requestDate,
             @NotNull @NotEmpty Set<@Valid PartyDto> parties,
             @Valid @NotNull AmountDto requestedAmount,
@@ -55,36 +57,26 @@ public record OriginateLoanFacilityCommand(
             @Valid @Nullable CredibilityRankDto credibilityRank) {}
 
     @Builder(toBuilder = true)
-    public record InstallmentSchedulePlanDto(@NotEmpty List<@Valid InstallmentSpecDto> installments) {}
+    record BranchDto(@Nullable String code) {}
 
     @Builder(toBuilder = true)
-    public record InstallmentSpecDto(
-            @NotNull Integer sequenceNumber,
-            @NotNull LocalDate dueDate,
-            @Valid @NotNull AmountDto principalAmount,
-            @Valid @NotNull AmountDto interestAmount) {}
+    record CredibilityRankDto(@NotBlank String value) {}
 
     @Builder(toBuilder = true)
-    public record BranchDto(@Nullable String code) {}
+    record DescriptionDto(@NotBlank String value) {}
 
     @Builder(toBuilder = true)
-    public record CredibilityRankDto(@NotBlank String value) {}
+    record RequestReasonDto(@NotBlank String code) {}
 
     @Builder(toBuilder = true)
-    public record DescriptionDto(@NotBlank String value) {}
+    record SubSourceDto(@NotBlank String code) {}
 
     @Builder(toBuilder = true)
-    public record RequestReasonDto(@NotBlank String code) {}
+    record LoanDurationDto(@NotNull Period value) {}
 
     @Builder(toBuilder = true)
-    public record SubSourceDto(@NotBlank String code) {}
+    record GracePeriodDto(@NotNull Period value) {}
 
     @Builder(toBuilder = true)
-    public record LoanDurationDto(@NotNull Period value) {}
-
-    @Builder(toBuilder = true)
-    public record GracePeriodDto(@NotNull Period value) {}
-
-    @Builder(toBuilder = true)
-    public record InstallmentCountDto(@Nullable Integer value) {}
+    record InstallmentCountDto(@Nullable Integer value) {}
 }

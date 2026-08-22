@@ -22,14 +22,14 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.enums.DisbursementMethod;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.ApproveFacilityRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.DisburseDestinationRequestDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentSchedulePlanRequestDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.InstallmentSpecRequestDto;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.IssueFacilityContractRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.LoanApplicationRequestDto;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.LumpSumDisbursementRequest;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest.InstallmentSchedulePlanDto;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest.InstallmentSpecDto;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest.LoanApplicationDto;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest.SamatDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateUnequalInstallmentFacilityRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.PartyRequestDto;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.SamatRequestDto;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.SubmitFacilityForApprovalRequest;
 import ir.dotin.loan.trade.e2e.AbstractRestE2E;
 import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator.MinimalChain;
@@ -59,7 +59,7 @@ class CompleteFacilityLifecycleRestE2ETest extends AbstractRestE2E {
     @Test
     void shouldCompleteFacilityLifecycleViaRest() throws Exception {
         // Step 1: Open facility case
-        OriginateLoanFacilityRequest openRequest = buildOpenCaseRequest();
+        OriginateUnequalInstallmentFacilityRequest openRequest = buildOpenCaseRequest();
         ResponseEntity<String> openResponse = postJson("/facilities/open-case", openRequest);
         assertSuccess(openResponse, objectMapper);
 
@@ -176,11 +176,11 @@ class CompleteFacilityLifecycleRestE2ETest extends AbstractRestE2E {
         return null;
     }
 
-    private OriginateLoanFacilityRequest buildOpenCaseRequest() {
-        return new OriginateLoanFacilityRequest(
+    private OriginateUnequalInstallmentFacilityRequest buildOpenCaseRequest() {
+        return new OriginateUnequalInstallmentFacilityRequest(
                 loanTypeCode,
                 arrangementCode,
-                new LoanApplicationDto(
+                new LoanApplicationRequestDto(
                         Instant.now(),
                         Set.of(new PartyRequestDto.ApplicantDto("12345678", PartyRole.PRIMARY_APPLICANT)),
                         new BigDecimal("50000000"),
@@ -198,23 +198,23 @@ class CompleteFacilityLifecycleRestE2ETest extends AbstractRestE2E {
                         "E2E full lifecycle test",
                         null,
                         "A",
-                        new SamatDto("1234567899876543", null, null, null, null, null)),
-                new InstallmentSchedulePlanDto(List.of(
-                        new InstallmentSpecDto(
+                        new SamatRequestDto("1234567899876543", null, null, null, null, null)),
+                new InstallmentSchedulePlanRequestDto(List.of(
+                        new InstallmentSpecRequestDto(
                                 1,
                                 LocalDate.now(ZoneOffset.UTC).plusMonths(1),
                                 new BigDecimal("16666667"),
                                 new BigDecimal("750000"),
                                 null,
                                 null),
-                        new InstallmentSpecDto(
+                        new InstallmentSpecRequestDto(
                                 2,
                                 LocalDate.now(ZoneOffset.UTC).plusMonths(2),
                                 new BigDecimal("16666667"),
                                 new BigDecimal("625000"),
                                 null,
                                 null),
-                        new InstallmentSpecDto(
+                        new InstallmentSpecRequestDto(
                                 3,
                                 LocalDate.now(ZoneOffset.UTC).plusMonths(3),
                                 new BigDecimal("16666666"),

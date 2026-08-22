@@ -34,7 +34,8 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.ApplicantParty;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.CustomerName;
 import ir.dotin.loan.trade.adapters.driven.persistence.loanarrangement.entity.TradeLoanArrangementEntity;
 import ir.dotin.loan.trade.adapters.driven.persistence.loantype.entity.TradeLoanTypeEntity;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateEqualInstallmentFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.AmountDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.CurrencyTypeDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.DisburseDestinationDto;
@@ -198,33 +199,32 @@ class ConnectionPoolPinningE2ETest extends AbstractPerformanceE2E {
         });
     }
 
-    private OriginateLoanFacilityCommand buildCommand(UUID uid) {
-        return OriginateLoanFacilityCommand.builder()
+    private OriginateEqualInstallmentFacilityCommand buildCommand(UUID uid) {
+        return OriginateEqualInstallmentFacilityCommand.builder()
                 .uid(uid)
                 .version(null)
                 .loanTypeCode(loanTypeCode)
                 .loanArrangementCode(arrangementCode)
-                .loanApplication(OriginateLoanFacilityCommand.LoanApplicationDto.builder()
+                .loanApplication(OriginateFacilityCommand.LoanApplicationDto.builder()
                         .requestDate(Instant.now())
                         .parties(Set.of(new PartyDto.ApplicantDto("12345678")))
                         .requestedAmount(new AmountDto(new BigDecimal("50000000")))
                         .currency(new CurrencyTypeDto("IRR"))
-                        .requestedLoanDuration(new OriginateLoanFacilityCommand.LoanDurationDto(Period.ofMonths(12)))
+                        .requestedLoanDuration(new OriginateFacilityCommand.LoanDurationDto(Period.ofMonths(12)))
                         .applicantChannel(ApplicantChannel.DIGITAL_BANK)
-                        .gracePeriod(new OriginateLoanFacilityCommand.GracePeriodDto(Period.ofDays(10)))
-                        .installmentCount(new OriginateLoanFacilityCommand.InstallmentCountDto(3))
+                        .gracePeriod(new OriginateFacilityCommand.GracePeriodDto(Period.ofDays(10)))
+                        .installmentCount(new OriginateFacilityCommand.InstallmentCountDto(3))
                         .disburseDestination(new DisburseDestinationDto.DepositDestinationDto("1.10.1357.60"))
                         .economicSector(new EconomicSectorDto("2-1"))
-                        .branch(new OriginateLoanFacilityCommand.BranchDto("1"))
-                        .requestReason(new OriginateLoanFacilityCommand.RequestReasonDto("0"))
-                        .subSource(new OriginateLoanFacilityCommand.SubSourceDto("03"))
-                        .description(new OriginateLoanFacilityCommand.DescriptionDto("connection-pool-pinning E2E"))
+                        .branch(new OriginateFacilityCommand.BranchDto("1"))
+                        .requestReason(new OriginateFacilityCommand.RequestReasonDto("0"))
+                        .subSource(new OriginateFacilityCommand.SubSourceDto("03"))
+                        .description(new OriginateFacilityCommand.DescriptionDto("connection-pool-pinning E2E"))
                         .disbursementMethod(DisbursementMethod.IRREGULAR_PROGRESSIVE)
                         .samat(new SamatDto("1234567899876543", null, null, null, null, null))
                         .applicationNumber(null)
                         .credibilityRank(null)
                         .build())
-                .installmentSchedulePlan(null)
                 .build();
     }
 

@@ -23,7 +23,7 @@ import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.RequestReason;
 import ir.dotin.loan.baseloan.core.domain.loanfacility.vo.SubSource;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.EconomicSector;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.RespiteSerial;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.CurrencyTypeDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.DisburseDestinationDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.EconomicSectorDto;
@@ -40,7 +40,7 @@ public interface OriginateLoanFacilityApplicationMapper {
     @Mapping(target = "parties", ignore = true)
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "installmentCount", ignore = true)
-    TradeLoanApplication.Builder map(OriginateLoanFacilityCommand.LoanApplicationDto loanApplication);
+    TradeLoanApplication.Builder map(OriginateFacilityCommand.LoanApplicationDto loanApplication);
 
     default DisburseDestination toDisburseDestination(DisburseDestinationDto dto) {
         return switch (dto) {
@@ -54,19 +54,19 @@ public interface OriginateLoanFacilityApplicationMapper {
         };
     }
 
-    CredibilityRank map(OriginateLoanFacilityCommand.CredibilityRankDto dto);
+    CredibilityRank map(OriginateFacilityCommand.CredibilityRankDto dto);
 
-    Description map(OriginateLoanFacilityCommand.DescriptionDto dto);
+    Description map(OriginateFacilityCommand.DescriptionDto dto);
 
-    RequestReason map(OriginateLoanFacilityCommand.RequestReasonDto dto);
+    RequestReason map(OriginateFacilityCommand.RequestReasonDto dto);
 
-    SubSource map(OriginateLoanFacilityCommand.SubSourceDto dto);
+    SubSource map(OriginateFacilityCommand.SubSourceDto dto);
 
     EconomicSector map(EconomicSectorDto dto);
 
-    LoanDuration map(OriginateLoanFacilityCommand.LoanDurationDto dto);
+    LoanDuration map(OriginateFacilityCommand.LoanDurationDto dto);
 
-    GracePeriod map(OriginateLoanFacilityCommand.GracePeriodDto dto);
+    GracePeriod map(OriginateFacilityCommand.GracePeriodDto dto);
 
     default Optional<DepositNumber> mapDepositNumber(@Nullable String depositNumber) {
         return depositNumber != null ? Optional.of(new DepositNumber(depositNumber)) : Optional.empty();
@@ -81,7 +81,7 @@ public interface OriginateLoanFacilityApplicationMapper {
     @AfterMapping
     default void fillCurrency(
             @MappingTarget TradeLoanApplication.Builder builder,
-            OriginateLoanFacilityCommand.LoanApplicationDto loanApplication) {
+            OriginateFacilityCommand.LoanApplicationDto loanApplication) {
         CurrencyType currency = map(loanApplication.currency());
         builder.requestedAmount(new Money(loanApplication.requestedAmount().value(), currency));
     }

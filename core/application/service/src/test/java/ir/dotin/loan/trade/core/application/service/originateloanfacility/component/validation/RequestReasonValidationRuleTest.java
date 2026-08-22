@@ -10,7 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.ReasonType;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.i18n.OriginateLoanFacilityErrorCodes;
@@ -28,7 +28,7 @@ class RequestReasonValidationRuleTest {
     private LoanServicePort loanServicePort;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private OriginateLoanFacilityCommand command;
+    private OriginateFacilityCommand command;
 
     @InjectMocks
     private RequestReasonValidationRule rule;

@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ir.dotin.platform.pangaea.commons.core.Notification;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.validation.AccountNumberValidationRule;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.validation.DepositValidationRules;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.validation.EconomicSectorValidationRules;
@@ -48,7 +48,7 @@ class FacilityValidatorTest {
     @InjectMocks
     private FacilityValidator validator;
 
-    private final OriginateLoanFacilityCommand command = mock(OriginateLoanFacilityCommand.class);
+    private final OriginateFacilityCommand command = mock(OriginateFacilityCommand.class);
 
     private void allRulesPass() {
         lenient().when(depositValidationRules.validateDeposit(command)).thenReturn(Result.success());

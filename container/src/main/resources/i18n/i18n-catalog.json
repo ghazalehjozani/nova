@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatorVersion": "2026.8.3-SNAPSHOT",
+  "generatorVersion": "2026.8.4-SNAPSHOT",
   "baseLocale": "en",
   "locales": [
     "en",
     "fa"
   ],
-  "keyCount": 1065,
+  "keyCount": 1081,
   "entries": {
     "documentCommentMessageCodes.account.creditor": {
       "family": "message",
@@ -352,6 +352,10 @@
       "family": "enum",
       "args": []
     },
+    "enum.InstallmentScheduleType.SINGLE_INSTALLMENT": {
+      "family": "enum",
+      "args": []
+    },
     "enum.InstallmentStatus.CANCELLED": {
       "family": "enum",
       "args": []
@@ -605,6 +609,14 @@
       "args": []
     },
     "enum.SanctionType.SPECIAL": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.ScheduleSource.SYSTEM": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.ScheduleSource.USER_ON_ORIGINATION": {
       "family": "enum",
       "args": []
     },
@@ -2959,6 +2971,23 @@
         "1"
       ]
     },
+    "error.loan.32036": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.32037": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.32038": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
     "error.loan.33001": {
       "family": "error",
       "args": [
@@ -3009,6 +3038,14 @@
         "1",
         "2",
         "3"
+      ]
+    },
+    "error.loan.33009": {
+      "family": "error",
+      "args": [
+        "0",
+        "1",
+        "2"
       ]
     },
     "error.loan.34001": {
@@ -3454,6 +3491,56 @@
     "error.loan.38012": {
       "family": "error",
       "args": []
+    },
+    "error.loan.38013": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.38014": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.38015": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.38016": {
+      "family": "error",
+      "args": []
+    },
+    "error.loan.38017": {
+      "family": "error",
+      "args": [
+        "0",
+        "1",
+        "2"
+      ]
+    },
+    "error.loan.38018": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
+    },
+    "error.loan.38019": {
+      "family": "error",
+      "args": [
+        "0"
+      ]
+    },
+    "error.loan.38020": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
+      ]
     },
     "error.loan.39001": {
       "family": "error",
@@ -4880,6 +4967,13 @@
       "family": "error",
       "args": [
         "0"
+      ]
+    },
+    "error.loan.54024": {
+      "family": "error",
+      "args": [
+        "0",
+        "1"
       ]
     },
     "error.loan.54026": {

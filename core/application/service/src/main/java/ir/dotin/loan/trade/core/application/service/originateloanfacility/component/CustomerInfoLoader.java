@@ -15,7 +15,7 @@ import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.core.concurrent.ParallelFanout;
 import ir.dotin.loan.baseloan.core.domain.shared.enums.PartyRole;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.PartyDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.customerservice.CustomerServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.request.CustomerInfoLoadOptions;
@@ -39,7 +39,7 @@ public class CustomerInfoLoader {
     private final CustomerServicePort customerServicePort;
 
     @WithSpan("facility.customerinfo.fanout")
-    public Result<List<PartyInfoResponse>> loadPartyInfos(OriginateLoanFacilityCommand command) {
+    public Result<List<PartyInfoResponse>> loadPartyInfos(OriginateFacilityCommand command) {
         log.debug("Loading customer-info for facility origination parties");
 
         Set<PartyDto> partySet = command.loanApplication().parties();

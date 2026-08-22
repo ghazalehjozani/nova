@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.core.concurrent.ParallelFanout;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.validation.AccountNumberValidationRule;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.validation.DepositValidationRules;
 import ir.dotin.loan.trade.core.application.service.originateloanfacility.component.validation.EconomicSectorValidationRules;
@@ -33,7 +33,7 @@ public class FacilityValidator {
     private final SubSourceValidationRule subSourceValidationRule;
 
     @WithSpan("facility.validate.fanout")
-    public Result<Unit> callAndValidateServices(OriginateLoanFacilityCommand command) {
+    public Result<Unit> callAndValidateServices(OriginateFacilityCommand command) {
         log.debug("Call and validate services for facility origination");
 
         List<Supplier<Result<Unit>>> tasks = List.of(

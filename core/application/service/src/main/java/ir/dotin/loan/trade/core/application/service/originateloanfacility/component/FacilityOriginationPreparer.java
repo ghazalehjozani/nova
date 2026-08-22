@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfoResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class FacilityOriginationPreparer {
     private final PartyEligibilityValidator partyEligibilityValidator;
     private final FacilityBuilder facilityBuilder;
 
-    public Result<OriginationPreparation> prepare(OriginateLoanFacilityCommand command) {
+    public Result<OriginationPreparation> prepare(OriginateFacilityCommand command) {
         log.info("Starting facility origination for LoanType: {}", command.loanTypeCode());
 
         Result<Unit> validationResult = facilityValidator.callAndValidateServices(command);

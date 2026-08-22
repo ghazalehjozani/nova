@@ -13,8 +13,8 @@ import ir.dotin.loan.trade.core.domain.shared.error.TradeLoanErrorCategory;
  *   Reserved:                             033–999
  *
  * Originate constants are assigned explicit sequences 1..N in declaration order
- * (numericCode = 54*1000 + sequence). This file currently declares 23 constants
- * in 001–023; 024–025 remain reserved within the Originate sub-range. Party
+ * (numericCode = 54*1000 + sequence). This file currently declares 24 constants
+ * in 001–024; 025 remains reserved within the Originate sub-range. Party
  * eligibility-screening codes (added for applicant/guarantor blacklist, incapacity,
  * graylist and active-customer gating) take the contiguous 029–032 band, jumping past
  * the Submit band 026–028 to avoid renumbering Submit.
@@ -58,6 +58,11 @@ public enum OriginateLoanFacilityErrorCodes implements ProductErrorCode<Originat
             22,
             "The selected economic sector {0} is a parent sector. Please select a child sector."),
     INVALID_ACCOUNT_NUMBER(TradeLoanErrorCategory.TRADE_SERVICE, 23, "Invalid account number: {0}"),
+    PRODUCT_NOT_SERVED_BY_THIS_USE_CASE(
+            TradeLoanErrorCategory.TRADE_SERVICE,
+            24,
+            "Product {0} is not originated through this endpoint, which serves products whose schedule source "
+                    + "is {1}. Submit it to the endpoint matching the product."),
     APPLICANT_BLACKLISTED(
             TradeLoanErrorCategory.TRADE_SERVICE,
             29,

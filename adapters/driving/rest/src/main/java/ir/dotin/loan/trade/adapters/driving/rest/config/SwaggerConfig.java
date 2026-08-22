@@ -112,14 +112,18 @@ public class SwaggerConfig extends BaseSwaggerConfig {
     public static final String TAG_FACILITY_QUERIES = TAG_LOAN_FACILITIES_QUERIES;
     public static final String TAG_INSTALLMENT_SCHEDULE_QUERIES = TAG_INSTALLMENT_SCHEDULES_QUERIES;
 
-    /** Origination request-body examples sourced from nova-loadlab journeys (display name -> classpath JSON). */
-    private static final Map<String, String> ORIGINATE_EXAMPLES = Map.of(
+    /** Origination examples carrying a caller-supplied instalment table (display name -> classpath JSON). */
+    private static final Map<String, String> UNEQUAL_INSTALLMENT_ORIGINATE_EXAMPLES = Map.of(
             "Primary applicant only", "swagger/originate-01-primary-only.json",
             "With guarantor", "swagger/originate-02-with-guarantor.json",
             "Multiple collaterals", "swagger/originate-03-multi-collateral.json",
             "Short tenor (3 months)", "swagger/originate-04-short-tenor.json",
             "Long tenor (24 months)", "swagger/originate-05-long-tenor.json",
             "Multi-tranche disbursement", "swagger/originate-06-multi-tranche.json");
+
+    /** Origination examples whose schedule the system generates — no instalment table on the wire. */
+    private static final Map<String, String> EQUAL_INSTALLMENT_ORIGINATE_EXAMPLES =
+            Map.of("Equal installments", "swagger/originate-07-equal-installments.json");
 
     @Bean
     public OpenAPI customOpenAPI() {
@@ -354,6 +358,16 @@ public class SwaggerConfig extends BaseSwaggerConfig {
     }
 
     /** Multiple named request-body examples (from nova-loadlab) on the facility-origination operation. */
+    private static Map<String, String> examplesFor(String path) {
+        if (path.endsWith("/loan-facilities/equal-installments")) {
+            return EQUAL_INSTALLMENT_ORIGINATE_EXAMPLES;
+        }
+        if (path.endsWith("/loan-facilities/unequal-installments")) {
+            return UNEQUAL_INSTALLMENT_ORIGINATE_EXAMPLES;
+        }
+        return Map.of();
+    }
+
     private OpenApiCustomizer originateExamplesCustomizer() {
         return openApi -> {
             Paths paths = openApi.getPaths();
@@ -361,7 +375,8 @@ public class SwaggerConfig extends BaseSwaggerConfig {
                 return;
             }
             paths.forEach((path, pathItem) -> {
-                if (pathItem.getPost() == null || !path.endsWith("/loan-facilities")) {
+                Map<String, String> examples = examplesFor(path);
+                if (pathItem.getPost() == null || examples.isEmpty()) {
                     return;
                 }
                 var requestBody = pathItem.getPost().getRequestBody();
@@ -372,7 +387,7 @@ public class SwaggerConfig extends BaseSwaggerConfig {
                 if (mediaType == null) {
                     return;
                 }
-                ORIGINATE_EXAMPLES.forEach((name, file) ->
+                examples.forEach((name, file) ->
                         mediaType.addExamples(name, new Example().summary(name).value(loadJson(file))));
             });
         };

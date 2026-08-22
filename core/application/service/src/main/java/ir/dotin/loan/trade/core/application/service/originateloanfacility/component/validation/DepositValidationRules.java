@@ -14,7 +14,7 @@ import ir.dotin.platform.pangaea.commons.core.Result;
 import ir.dotin.platform.pangaea.commons.core.Unit;
 import ir.dotin.platform.pangaea.commons.domain.vo.CurrencyType;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.DepositInfo;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.DisburseDestinationDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.depositservice.DepositServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.CreditorDepositValidation;
@@ -31,7 +31,7 @@ public class DepositValidationRules {
 
     private final DepositServicePort depositServicePort;
 
-    public Result<Unit> validateDeposit(OriginateLoanFacilityCommand command) {
+    public Result<Unit> validateDeposit(OriginateFacilityCommand command) {
         DisburseDestinationDto disburseDestination = command.loanApplication().disburseDestination();
         return switch (disburseDestination) {
             case DisburseDestinationDto.AccountDestinationDto(var accountNumber) -> Result.success();
@@ -45,7 +45,7 @@ public class DepositValidationRules {
         };
     }
 
-    public Result<Unit> isDepositClosed(OriginateLoanFacilityCommand command) {
+    public Result<Unit> isDepositClosed(OriginateFacilityCommand command) {
         DisburseDestinationDto destination = command.loanApplication().disburseDestination();
 
         return switch (destination) {
@@ -63,7 +63,7 @@ public class DepositValidationRules {
         };
     }
 
-    public Result<Unit> validateDebtorDeposit(OriginateLoanFacilityCommand command) {
+    public Result<Unit> validateDebtorDeposit(OriginateFacilityCommand command) {
         DisburseDestinationDto destination = command.loanApplication().disburseDestination();
 
         return switch (destination) {
@@ -81,7 +81,7 @@ public class DepositValidationRules {
         };
     }
 
-    public Result<Unit> validateCreditorDeposit(OriginateLoanFacilityCommand command) {
+    public Result<Unit> validateCreditorDeposit(OriginateFacilityCommand command) {
         DisburseDestinationDto destination = command.loanApplication().disburseDestination();
 
         return switch (destination) {
@@ -100,7 +100,7 @@ public class DepositValidationRules {
         };
     }
 
-    public Result<Unit> validateDepositCurrency(OriginateLoanFacilityCommand command) {
+    public Result<Unit> validateDepositCurrency(OriginateFacilityCommand command) {
         DisburseDestinationDto destination = command.loanApplication().disburseDestination();
 
         return switch (destination) {

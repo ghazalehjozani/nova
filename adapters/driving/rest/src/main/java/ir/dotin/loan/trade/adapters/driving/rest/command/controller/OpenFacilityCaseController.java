@@ -15,11 +15,15 @@ import ir.dotin.platform.pangaea.protocol.rest.controller.CommandResponseFactory
 import ir.dotin.platform.pangaea.security.api.AuthenticationContextHolder;
 import ir.dotin.platform.pangaea.servicelayer.api.dispatcher.CommandDispatcher;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.CompensationRequest;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest;
-import ir.dotin.loan.trade.adapters.driving.contract.mapper.OriginateLoanFacilityRequestMapper;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateEqualInstallmentFacilityRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateUnequalInstallmentFacilityRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.mapper.OriginateEqualInstallmentFacilityRequestMapper;
+import ir.dotin.loan.trade.adapters.driving.contract.mapper.OriginateUnequalInstallmentFacilityRequestMapper;
 import ir.dotin.loan.trade.adapters.driving.rest.config.SwaggerConfig;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.CompensateOriginationCommand;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateEqualInstallmentFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateUnequalInstallmentFacilityCommand;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,27 +38,38 @@ import lombok.RequiredArgsConstructor;
 class OpenFacilityCaseController extends BaseController {
 
     private final CommandDispatcher dispatcher;
-    private final OriginateLoanFacilityRequestMapper mapper;
+    private final OriginateEqualInstallmentFacilityRequestMapper equalInstallmentMapper;
+    private final OriginateUnequalInstallmentFacilityRequestMapper unequalInstallmentMapper;
     private final AuthenticationContextHolder authenticationContextHolder;
     private final CommandResponseFactory responseFactory;
 
-    @PostMapping(version = "1+")
-    @Operation(summary = "ایجاد پرونده تسهیلات")
-    public ResponseEntity<Void> openFacilityCase(
-            @Parameter(required = true) @Valid @RequestBody OriginateLoanFacilityRequest request) {
+    @PostMapping(value = "/equal-installments", version = "1+")
+    @Operation(summary = "ایجاد پرونده تسهیلات با اقساط مساوی یا یکجا")
+    public ResponseEntity<Void> openEqualInstallmentFacilityCase(
+            @Parameter(required = true) @Valid @RequestBody OriginateEqualInstallmentFacilityRequest request) {
 
-        String branchCode = authenticationContextHolder.branchCode().orElse(null);
+        OriginateEqualInstallmentFacilityCommand command = equalInstallmentMapper.toCommand(request);
 
-        OriginateLoanFacilityCommand command = mapper.toCommand(request);
-
-        OriginateLoanFacilityCommand enrichedCommand = command.toBuilder()
+        var result = dispatcher.dispatch(command.toBuilder()
                 .uid(getIdempotencyKey())
-                .loanApplication(command.loanApplication().toBuilder()
-                        .branch(new OriginateLoanFacilityCommand.BranchDto(branchCode))
-                        .build())
-                .build();
+                .loanApplication(withBranch(command))
+                .build());
 
-        var result = dispatcher.dispatch(enrichedCommand);
+        return responseFactory.created(result, "loan-facilities");
+    }
+
+    @PostMapping(value = "/unequal-installments", version = "1+")
+    @Operation(summary = "ایجاد پرونده تسهیلات با اقساط نامساوی")
+    public ResponseEntity<Void> openUnequalInstallmentFacilityCase(
+            @Parameter(required = true) @Valid @RequestBody OriginateUnequalInstallmentFacilityRequest request) {
+
+        OriginateUnequalInstallmentFacilityCommand command = unequalInstallmentMapper.toCommand(request);
+
+        var result = dispatcher.dispatch(command.toBuilder()
+                .uid(getIdempotencyKey())
+                .loanApplication(withBranch(command))
+                .build());
+
         return responseFactory.created(result, "loan-facilities");
     }
 
@@ -74,5 +89,12 @@ class OpenFacilityCaseController extends BaseController {
 
         var result = dispatcher.dispatch(command);
         return responseFactory.mutated(result);
+    }
+
+    private OriginateFacilityCommand.LoanApplicationDto withBranch(OriginateFacilityCommand command) {
+        String branchCode = authenticationContextHolder.branchCode().orElse(null);
+        return command.loanApplication().toBuilder()
+                .branch(new OriginateFacilityCommand.BranchDto(branchCode))
+                .build();
     }
 }

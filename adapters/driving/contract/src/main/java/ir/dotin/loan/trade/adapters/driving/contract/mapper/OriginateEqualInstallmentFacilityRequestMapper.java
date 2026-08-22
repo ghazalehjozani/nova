@@ -11,9 +11,10 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
 import ir.dotin.loan.trade.adapters.driving.contract.dto.DisburseDestinationRequestDto;
-import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateLoanFacilityRequest;
+import ir.dotin.loan.trade.adapters.driving.contract.dto.OriginateEqualInstallmentFacilityRequest;
 import ir.dotin.loan.trade.adapters.driving.contract.dto.PartyRequestDto;
-import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateLoanFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateEqualInstallmentFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.AmountDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.CurrencyTypeDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.DisburseDestinationDto;
@@ -25,7 +26,7 @@ import ir.dotin.loan.trade.core.application.ports.inbound.dto.PartyDto;
         unmappedSourcePolicy = ReportingPolicy.WARN,
         unmappedTargetPolicy = ReportingPolicy.ERROR,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-public interface OriginateLoanFacilityRequestMapper {
+public interface OriginateEqualInstallmentFacilityRequestMapper {
 
     @Mapping(target = "uid", ignore = true)
     @Mapping(target = "version", ignore = true)
@@ -37,7 +38,7 @@ public interface OriginateLoanFacilityRequestMapper {
     @Mapping(target = "loanApplication.requestReason.code", source = "loanApplication.requestReasonCode")
     @Mapping(target = "loanApplication.subSource", source = "loanApplication.subSourceCode")
     @Mapping(target = "loanApplication.samat", source = "loanApplication.samat")
-    OriginateLoanFacilityCommand toCommand(OriginateLoanFacilityRequest request);
+    OriginateEqualInstallmentFacilityCommand toCommand(OriginateEqualInstallmentFacilityRequest request);
 
     default DisburseDestinationDto toDisburseDestinationDto(DisburseDestinationRequestDto request) {
         return switch (request) {
@@ -65,35 +66,35 @@ public interface OriginateLoanFacilityRequestMapper {
         return new CurrencyTypeDto(value);
     }
 
-    default OriginateLoanFacilityCommand.LoanDurationDto mapDuration(Integer months) {
-        return new OriginateLoanFacilityCommand.LoanDurationDto(Period.ofMonths(months));
+    default OriginateFacilityCommand.LoanDurationDto mapDuration(Integer months) {
+        return new OriginateFacilityCommand.LoanDurationDto(Period.ofMonths(months));
     }
 
-    default OriginateLoanFacilityCommand.GracePeriodDto mapGracePeriod(Integer days) {
-        return new OriginateLoanFacilityCommand.GracePeriodDto(days != null ? Period.ofDays(days) : Period.ZERO);
+    default OriginateFacilityCommand.GracePeriodDto mapGracePeriod(Integer days) {
+        return new OriginateFacilityCommand.GracePeriodDto(days != null ? Period.ofDays(days) : Period.ZERO);
     }
 
-    default OriginateLoanFacilityCommand.InstallmentCountDto mapInstallmentCount(Integer value) {
-        return new OriginateLoanFacilityCommand.InstallmentCountDto(value);
+    default OriginateFacilityCommand.InstallmentCountDto mapInstallmentCount(Integer value) {
+        return new OriginateFacilityCommand.InstallmentCountDto(value);
     }
 
     default EconomicSectorDto mapEconomicSector(String code) {
         return new EconomicSectorDto(code);
     }
 
-    default OriginateLoanFacilityCommand.RequestReasonDto mapRequestReason(String code) {
-        return new OriginateLoanFacilityCommand.RequestReasonDto(code);
+    default OriginateFacilityCommand.RequestReasonDto mapRequestReason(String code) {
+        return new OriginateFacilityCommand.RequestReasonDto(code);
     }
 
-    default OriginateLoanFacilityCommand.@Nullable SubSourceDto mapSubSource(@Nullable String code) {
-        return code != null ? new OriginateLoanFacilityCommand.SubSourceDto(code) : null;
+    default OriginateFacilityCommand.@Nullable SubSourceDto mapSubSource(@Nullable String code) {
+        return code != null ? new OriginateFacilityCommand.SubSourceDto(code) : null;
     }
 
-    default OriginateLoanFacilityCommand.@Nullable DescriptionDto mapDescription(@Nullable String value) {
-        return value != null ? new OriginateLoanFacilityCommand.DescriptionDto(value) : null;
+    default OriginateFacilityCommand.@Nullable DescriptionDto mapDescription(@Nullable String value) {
+        return value != null ? new OriginateFacilityCommand.DescriptionDto(value) : null;
     }
 
-    default OriginateLoanFacilityCommand.@Nullable CredibilityRankDto mapCredibilityRank(@Nullable String value) {
-        return value != null ? new OriginateLoanFacilityCommand.CredibilityRankDto(value) : null;
+    default OriginateFacilityCommand.@Nullable CredibilityRankDto mapCredibilityRank(@Nullable String value) {
+        return value != null ? new OriginateFacilityCommand.CredibilityRankDto(value) : null;
     }
 }
