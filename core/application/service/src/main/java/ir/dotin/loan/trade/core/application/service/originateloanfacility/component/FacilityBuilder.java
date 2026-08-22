@@ -24,6 +24,7 @@ import ir.dotin.loan.baseloan.core.domain.shared.vo.InstallmentScheduleId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.LoanFacilityId;
 import ir.dotin.loan.baseloan.core.domain.shared.vo.customer.Party;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand;
+import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateFacilityCommand.InstallmentCountDto;
 import ir.dotin.loan.trade.core.application.ports.inbound.command.OriginateUnequalInstallmentFacilityCommand;
 import ir.dotin.loan.trade.core.application.ports.inbound.dto.SamatDto;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfoResponse;
@@ -36,8 +37,6 @@ import ir.dotin.loan.trade.core.domain.loanfacility.entity.TradeLoanFacility;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @Component
@@ -101,7 +100,10 @@ public class FacilityBuilder {
                 .parties(enrichedParties)
                 .applicationNumber(appNumber)
                 .branch(branch);
-        fillInstallmentCount(builder, command, profile);
+        Result<Unit> countResult = fillInstallmentCount(builder, command, profile);
+        if (countResult.isFailure()) {
+            return Result.failure(countResult.err().orElseThrow());
+        }
 
         SamatDto samatDto = command.loanApplication().samat();
         if (samatDto != null) {
@@ -174,27 +176,34 @@ public class FacilityBuilder {
     }
 
     // why: TradeLoanApplication requires a non-null positive count, so a single-instalment product — whose caller
-    // legitimately sends none — is resolved to 1 here rather than by weakening the shared-kernel invariant.
-    private void fillInstallmentCount(
+    // legitimately sends none — is resolved to 1 here rather than by weakening the shared-kernel invariant. A
+    // SCHEDULED product with no count must surface as a business error, not an NPE: the guard that used to catch it
+    // lived in the deleted StandardScheduleStrategy, and base-loan's specification runs only at validateForCreation,
+    // which is after this method.
+    private Result<Unit> fillInstallmentCount(
             TradeLoanApplication.Builder builder, OriginateFacilityCommand command, ProductProfile profile) {
 
         if (command instanceof OriginateUnequalInstallmentFacilityCommand unequal) {
             builder.installmentCount(InstallmentCount.of(
                             unequal.installmentSchedulePlan().installments().size())
                     .unwrap());
-            return;
+            return Result.success();
         }
 
         if (profile.installmentScheduleType() == InstallmentScheduleType.SINGLE_INSTALLMENT) {
             builder.installmentCount(
                     InstallmentCount.of(SINGLE_INSTALLMENT_COUNT).unwrap());
-            return;
+            return Result.success();
         }
 
-        Integer value = null;
-        if (command.loanApplication().installmentCount() != null) {
-            value = command.loanApplication().installmentCount().value();
+        InstallmentCountDto countDto = command.loanApplication().installmentCount();
+        if (countDto == null || countDto.value() == null) {
+            return Result.failure(OriginateLoanFacilityErrorCodes.INSTALLMENT_COUNT_CANNOT_BE_EMPTY);
         }
-        builder.installmentCount(new InstallmentCount(requireNonNull(value)));
+
+        return InstallmentCount.of(countDto.value()).map(count -> {
+            builder.installmentCount(count);
+            return Unit.INSTANCE;
+        });
     }
 }
