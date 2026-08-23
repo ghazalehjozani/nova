@@ -52,6 +52,8 @@ public abstract class AbstractRestE2E extends AbstractE2E {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Idempotency-Key", UUID.randomUUID().toString());
+        // Required by DispatchContextFilter; without it every command answers 400 LOAN-203.
+        headers.set("X-Correlation-ID", UUID.randomUUID().toString());
         headers.set("X-Request-DateTime", java.time.Instant.now().toString());
         headers.set("Accept-Language", "fa");
         if (authToken != null && !authToken.isBlank()) {
