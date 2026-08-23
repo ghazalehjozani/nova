@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
@@ -33,7 +32,6 @@ import static ir.dotin.loan.trade.e2e.assertion.BaseResponseAssertions.assertSuc
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Disabled
 class OpenFacilityCaseRestE2ETest extends AbstractRestE2E {
 
     private TradeLoanArrangementEntity arrangement;

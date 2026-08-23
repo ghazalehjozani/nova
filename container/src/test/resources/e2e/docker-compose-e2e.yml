@@ -87,9 +87,15 @@ services:
       redis:
         condition: service_started
     entrypoint: ["/bin/sh", "-ec"]
-    command: >-
-      until redis-cli --no-auth-warning -h 127.0.0.1 -a e2e_redis_pass ping >/dev/null 2>&1; do sleep 1; done;
-      if ! redis-cli --no-auth-warning -h 127.0.0.1 -a e2e_redis_pass cluster info | grep -q 'cluster_slots_assigned:16384'; then
-        seq 0 16383 | xargs -n 1000 redis-cli --no-auth-warning -h 127.0.0.1 -a e2e_redis_pass cluster addslots >/dev/null;
-      fi;
-      until redis-cli --no-auth-warning -h 127.0.0.1 -a e2e_redis_pass cluster info | grep -q 'cluster_state:ok'; do sleep 1; done
+    # The script MUST stay a single list item with a literal block scalar. As a plain `command: >-` string
+    # Compose shell-splits it into separate argv entries, so `sh -ec` receives only the first word as its
+    # script and the rest become positional args — the container then dies with
+    # "syntax error: unexpected end of file (expecting \"do\")", no slots are ever assigned, and redis never
+    # reaches cluster_state:ok.
+    command:
+      - |
+        until redis-cli --no-auth-warning -h 127.0.0.1 -a e2e_redis_pass ping >/dev/null 2>&1; do sleep 1; done
+        if ! redis-cli --no-auth-warning -h 127.0.0.1 -a e2e_redis_pass cluster info | grep -q 'cluster_slots_assigned:16384'; then
+          seq 0 16383 | xargs -n 1000 redis-cli --no-auth-warning -h 127.0.0.1 -a e2e_redis_pass cluster addslots >/dev/null
+        fi
+        until redis-cli --no-auth-warning -h 127.0.0.1 -a e2e_redis_pass cluster info | grep -q 'cluster_state:ok'; do sleep 1; done

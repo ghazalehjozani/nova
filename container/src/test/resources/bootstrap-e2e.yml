@@ -1,0 +1,16 @@
+---
+# The e2e compose stack is Postgres + Kafka + Redis only — there is no Consul, and the main bootstrap.yml
+# demands CONSUL_HOST/CONSUL_PORT/CONSUL_TOKEN from the environment. This has to be turned off *inside* the
+# bootstrap context: spring.cloud.bootstrap.enabled is only honoured as a system property, so setting it in
+# @SpringBootTest(properties = …) is a silent no-op and bootstrap.yml gets read anyway.
+spring:
+  cloud:
+    client:
+      ip-address: 127.0.0.1
+    consul:
+      enabled: false
+      config:
+        enabled: false
+      discovery:
+        enabled: false
+        register: false

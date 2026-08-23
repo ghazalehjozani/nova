@@ -332,6 +332,20 @@
                 </configuration>
             </plugin>
             <plugin>
+                <!-- The E2E suite boots the whole app, so JaCoCo's load-time agent meets every runtime
+                     dependency. jsqlparser's generated parser has methods past the JVM 64KB limit and the
+                     agent dies instrumenting them (MethodTooLargeException), taking the Spring context with
+                     it. It is a third-party library and contributes nothing to this project's coverage
+                     numbers, so exclude it from instrumentation rather than skipping JaCoCo for E2E. -->
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>net/sf/jsqlparser/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
                 <!-- version resolved from pangaea-parent pluginManagement (${revision}); tracks the pangaea
                      platform version pinned by this repo's parent, not a hardcoded standalone version. -->
                 <groupId>ir.dotin.platform.pangaea</groupId>

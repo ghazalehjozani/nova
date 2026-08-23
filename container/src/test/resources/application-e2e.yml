@@ -1,6 +1,24 @@
 ---
 
 spring:
+  # Every compose service uses `network_mode: host` and binds a fixed port, so these are static — declared
+  # here rather than left to E2ETestConfiguration's DynamicPropertyRegistrar, which does not get applied
+  # before DataSourceAutoConfiguration builds the Hikari pool ("Failed to determine a suitable driver
+  # class"). Values mirror docker-compose-e2e.yml.
+  datasource:
+    url: jdbc:postgresql://localhost:5432/trade_loan_e2e
+    username: e2e_user
+    password: e2e_password
+    driver-class-name: org.postgresql.Driver
+  kafka:
+    bootstrap-servers: localhost:9094
+  # WORKAROUND, not a fix. Booting NovaApplication under @SpringBootTest registers 'jpaAuditingHandler'
+  # twice — both definitions are the identical AuditingHandler.from(...) root bean, and only pangaea's
+  # PersistenceConfiguration carries @EnableJpaAuditing on the application path, so the second source is
+  # still unexplained. Production boots fine without this. Tracked for CBS-274722:LN-58922:LN-59021; if you
+  # find the real source, delete this block rather than leaving it to mask a future genuine clash.
+  main:
+    allow-bean-definition-overriding: true
   jpa:
     open-in-view: false
   sql:
@@ -38,9 +56,9 @@ spring:
     kubernetes:
       discovery:
         enabled: false
-    # The e2e compose stack is Postgres + Kafka + Redis only — there is no Consul, and every runtime value
-    # comes from this file instead of KV. AbstractE2E also turns the Spring Cloud bootstrap context off, so
-    # the main bootstrap.yml (which demands CONSUL_HOST/CONSUL_PORT/CONSUL_TOKEN/HOST_IP) is never read.
+    # No Consul in the e2e stack; every runtime value comes from this file instead of KV. The load-bearing
+    # half of this lives in bootstrap-e2e.yml — by the time the main context reads this file, the bootstrap
+    # context has already tried to bind ${CONSUL_PORT}. Kept here so both contexts agree.
     consul:
       enabled: false
       config:
@@ -116,6 +134,10 @@ platform:
       caching-enabled: true
       cache-strategy: REDIS
       cache-ttl: 1m
+      # Required at boot — a missing cache-version fails startup with no silent fallback. In a deployed ring
+      # these come from Consul KV (nova-config application/cache.yml); the e2e profile has no Consul, so the
+      # whole per-cache version block is mirrored here and below.
+      cache-version: v1
     metrics:
       enabled: false
       log-execution: false
@@ -237,8 +259,16 @@ platform:
       enabled: true
       default-lock-at-most-for: 10m
       default-lock-at-least-for: 1m
+  # Mirrors nova-config application/cache.yml. See the note on platform.dispatcher.query.cache-version.
+  envelope:
+    trusted:
+      cache:
+        version: v1
   security:
     enabled: false
+    jwks:
+      cache:
+        version: v1
     resource-server:
       issuer-uri: https://sso.tps.ir
       jwk-set-uri: https://sso.tps.ir/.well-known/openid-configuration/jwks
@@ -254,6 +284,8 @@ platform:
         - 1ebad0ab-39d1-4718-9690-ec1873c6914f
     oauth2-client:
       enabled: true
+      cache:
+        version: v1
       client-id: ${OAUTH2_CLIENT_ID}
       client-secret: ${OAUTH2_CLIENT_SECRET}
       token-uri: https://sso.tps.ir/oauth/token
@@ -379,6 +411,29 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
+
+# Mirrors nova-config application/cache.yml. See the note on platform.dispatcher.query.cache-version.
+nova:
+  # FcbKafkaProperties validates request-topic/reply-topic as @NotBlank, so the context cannot start without
+  # them. Topic names mirror nova-config nova-service/fcb.yml; the e2e stack talks to its own Kafka and every
+  # FCB port is a Mockito mock, so nothing is actually exchanged over these topics.
+  fcb:
+    transport-mode: kafka
+    kafka:
+      enabled: true
+      request-topic: corridor.core.loan.nova.fcb-integration.request.queue.v1
+      reply-topic: corridor.core.loan.nova.fcb-integration.response.queue.v1
+      default-timeout: 30s
+      transaction-timeout: 45s
+      lease:
+        # Reply-partition leasing is backed by Consul sessions and injects ConsulProperties, which does not
+        # exist here — the e2e stack has no Consul. A single test instance needs no partition leasing anyway.
+        enabled: false
+  cache:
+    version: v1
+  branch-coverage:
+    cache:
+      version: v1
 
 e2e:
   auth:

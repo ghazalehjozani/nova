@@ -22,6 +22,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.depositservice
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.CollateralReadPort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.CollateralServicePort;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.loanservice.LoanServicePort;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.samat.ValidateSamatPort;
 import ir.dotin.loan.trade.e2e.fixture.FormulaTestFixture;
 import ir.dotin.loan.trade.e2e.fixture.LoanArrangementTestFixture;
 import ir.dotin.loan.trade.e2e.fixture.LoanFacilityTestFixture;
@@ -31,10 +32,7 @@ import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator;
 
 @SpringBootTest(
         classes = {NovaApplication.class, E2ETestConfiguration.class},
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        // No Consul in the e2e stack, so the bootstrap context has nothing to fetch — and leaving it on made it
-        // register the persistence starter's jpaAuditingHandler a second time, failing the context outright.
-        properties = "spring.cloud.bootstrap.enabled=false")
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("e2e")
 @Import({
     FormulaTestFixture.class,
@@ -47,7 +45,19 @@ import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class AbstractE2E {
 
-    @MockitoBean
+    // FcbValidationAdapter is ONE bean implementing seven ports. A separate @MockitoBean per port would
+    // replace that same bean definition seven times over, and only the last replacement survives — the mock
+    // then implements one interface and every other injection point fails with BeanNotOfRequiredType. So a
+    // single mock carries all seven, and the sibling fields below just autowire the same instance.
+    @MockitoBean(
+            extraInterfaces = {
+                CustomerServicePort.class,
+                DepositServicePort.class,
+                CollateralServicePort.class,
+                CollateralReadPort.class,
+                FetchSanctionDetailsPort.class,
+                ValidateSamatPort.class
+            })
     protected LoanServicePort loanServicePort;
 
     @MockitoBean
@@ -59,16 +69,16 @@ public abstract class AbstractE2E {
     @MockitoBean
     protected TransactionPostingPort transactionPostingPort;
 
-    @MockitoBean
+    @Autowired
     protected CollateralServicePort collateralServicePort;
 
-    @MockitoBean
+    @Autowired
     protected CollateralReadPort collateralReadPort;
 
-    @MockitoBean
+    @Autowired
     protected DepositServicePort depositServicePort;
 
-    @MockitoBean
+    @Autowired
     protected CustomerServicePort customerServicePort;
 
     @MockitoBean
@@ -77,7 +87,7 @@ public abstract class AbstractE2E {
     @MockitoBean
     protected FindAccountByIdPort findAccountByIdPort;
 
-    @MockitoBean
+    @Autowired
     protected FetchSanctionDetailsPort fetchSanctionDetailsPort;
 
     @Autowired
