@@ -3,7 +3,6 @@ package ir.dotin.loan.trade.e2e;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
@@ -24,9 +23,7 @@ import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator;
 // partition leasing disabled, one FCB port mock covering all seven interfaces FcbValidationAdapter
 // implements, JwtDecoder/Jwt-converter/ServiceTokenProvider stubs for the disabled security starter, and a
 // JaCoCo exclusion for jsqlparser. The application context now starts end to end.
-// Left @Disabled only because no concrete class has been observed GREEN yet — the context boots, but the
-// assertions were never seen to pass. Remove this once a run is confirmed green; everything below it works.
-@Disabled
+
 @AutoConfigureTestRestTemplate
 public abstract class AbstractRestE2E extends AbstractE2E {
 
@@ -93,6 +90,9 @@ public abstract class AbstractRestE2E extends AbstractE2E {
 
     protected ResponseEntity<String> getJson(String path) {
         HttpHeaders headers = defaultHeaders();
+        // Idempotency-Key and X-Correlation-ID are command-only (HeaderPolicy); queries neither send nor echo them.
+        headers.remove("Idempotency-Key");
+        headers.remove("X-Correlation-ID");
         HttpEntity<Void> entity = new HttpEntity<>(headers);
         return restTemplate.exchange(apiUrl(path), HttpMethod.GET, entity, String.class);
     }

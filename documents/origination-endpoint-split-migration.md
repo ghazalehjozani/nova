@@ -13,8 +13,8 @@
 
 | نقطهٔ پایانی جدید | محصولات | جدول اقساط در بدنهٔ درخواست |
 |---|---|---|
-| `POST /v1/loan-facilities/equal-installments` | یکجا یکجا، یکجا قسط مساوی، تدریجی قسط مساوی | **ندارد** — سامانه تولید می‌کند |
-| `POST /v1/loan-facilities/unequal-installments` | یکجا قسط نامساوی، تدریجی قسط نامساوی | **الزامی** |
+| `POST /v1/loan-facilities/origination/equal-installment` | یکجا یکجا، یکجا قسط مساوی، تدریجی قسط مساوی | **ندارد** — سامانه تولید می‌کند |
+| `POST /v1/loan-facilities/origination/unequal-installment` | یکجا قسط نامساوی، تدریجی قسط نامساوی | **الزامی** |
 
 ## چرا
 
@@ -25,10 +25,10 @@
 ## مسیر مهاجرت برای فراخوان‌ها
 
 ۱. اگر محصول شما `GRADUAL_INSTALLMENTS` است (نوع بازپرداخت `GRADUAL`) و جدول اقساط را خودتان ارسال
-   می‌کردید، تنها مسیر را به `/v1/loan-facilities/unequal-installments` تغییر دهید؛ **شکل بدنه تغییری
+   می‌کردید، تنها مسیر را به `/v1/loan-facilities/origination/unequal-installment` تغییر دهید؛ **شکل بدنه تغییری
    نکرده** جز اینکه `installmentSchedulePlan` اکنون الزامی است.
 
-۲. اگر محصول شما اقساط مساوی یا یکجا است، مسیر را به `/v1/loan-facilities/equal-installments` تغییر
+۲. اگر محصول شما اقساط مساوی یا یکجا است، مسیر را به `/v1/loan-facilities/origination/equal-installment` تغییر
    دهید و فیلد `installmentSchedulePlan` را **از بدنه حذف کنید**؛ این فیلد در این payload وجود ندارد.
    برای محصول تک‌قسطی ارسال `installmentCount` لازم نیست (و اگر ارسال شود باید برابر ۱ باشد، در غیر
    این صورت درخواست رد می‌شود).

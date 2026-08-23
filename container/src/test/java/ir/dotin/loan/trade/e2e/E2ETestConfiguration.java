@@ -8,11 +8,11 @@ import java.util.List;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -102,7 +102,12 @@ public class E2ETestConfiguration {
     @Primary
     ServiceTokenProvider e2eServiceTokenProvider() {
         OAuth2TokenResponse token = new OAuth2TokenResponse(
-                "e2e-service-token", "Bearer", 3600L, "core", null, Instant.now().getEpochSecond());
+                "e2e-service-token",
+                "Bearer",
+                3600L,
+                "core",
+                null,
+                Instant.now().getEpochSecond());
         return new ServiceTokenProvider() {
 
             @Override

@@ -60,7 +60,7 @@ class OpenFacilityCaseRestE2ETest extends AbstractRestE2E {
         OriginateUnequalInstallmentFacilityRequest request =
                 buildOpenCaseRequest(loanTypeCode, arrangementCode, new BigDecimal("50000000"));
 
-        ResponseEntity<String> response = postJson("/loan-facilities/unequal-installments", request);
+        ResponseEntity<String> response = postJson("/loan-facilities/origination/unequal-installment", request);
 
         assertSuccess(response, objectMapper);
     }
@@ -70,7 +70,7 @@ class OpenFacilityCaseRestE2ETest extends AbstractRestE2E {
         OriginateUnequalInstallmentFacilityRequest request =
                 buildOpenCaseRequest("NON_EXISTENT_TYPE", arrangementCode, new BigDecimal("50000000"));
 
-        ResponseEntity<String> response = postJson("/loan-facilities/unequal-installments", request);
+        ResponseEntity<String> response = postJson("/loan-facilities/origination/unequal-installment", request);
 
         assertThat(response.getStatusCode().is4xxClientError()
                         || response.getStatusCode().is5xxServerError())
@@ -84,7 +84,7 @@ class OpenFacilityCaseRestE2ETest extends AbstractRestE2E {
         OriginateUnequalInstallmentFacilityRequest request =
                 buildOpenCaseRequest(loanTypeCode, arrangementCode, new BigDecimal("999999999999"));
 
-        ResponseEntity<String> response = postJson("/loan-facilities/unequal-installments", request);
+        ResponseEntity<String> response = postJson("/loan-facilities/origination/unequal-installment", request);
 
         assertThat(response.getStatusCode().is4xxClientError()
                         || response.getStatusCode().is5xxServerError())

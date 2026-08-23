@@ -43,7 +43,7 @@ class OpenFacilityCaseController extends BaseController {
     private final AuthenticationContextHolder authenticationContextHolder;
     private final CommandResponseFactory responseFactory;
 
-    @PostMapping(value = "/equal-installments", version = "1+")
+    @PostMapping(value = "/origination/equal-installment", version = "1+")
     @Operation(summary = "ایجاد پرونده تسهیلات با اقساط مساوی یا یکجا")
     public ResponseEntity<Void> openEqualInstallmentFacilityCase(
             @Parameter(required = true) @Valid @RequestBody OriginateEqualInstallmentFacilityRequest request) {
@@ -58,7 +58,7 @@ class OpenFacilityCaseController extends BaseController {
         return responseFactory.created(result, "loan-facilities");
     }
 
-    @PostMapping(value = "/unequal-installments", version = "1+")
+    @PostMapping(value = "/origination/unequal-installment", version = "1+")
     @Operation(summary = "ایجاد پرونده تسهیلات با اقساط نامساوی")
     public ResponseEntity<Void> openUnequalInstallmentFacilityCase(
             @Parameter(required = true) @Valid @RequestBody OriginateUnequalInstallmentFacilityRequest request) {

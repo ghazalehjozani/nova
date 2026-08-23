@@ -359,10 +359,10 @@ public class SwaggerConfig extends BaseSwaggerConfig {
 
     /** Multiple named request-body examples (from nova-loadlab) on the facility-origination operation. */
     private static Map<String, String> examplesFor(String path) {
-        if (path.endsWith("/loan-facilities/equal-installments")) {
+        if (path.endsWith("/origination/equal-installment")) {
             return EQUAL_INSTALLMENT_ORIGINATE_EXAMPLES;
         }
-        if (path.endsWith("/loan-facilities/unequal-installments")) {
+        if (path.endsWith("/origination/unequal-installment")) {
             return UNEQUAL_INSTALLMENT_ORIGINATE_EXAMPLES;
         }
         return Map.of();
