@@ -1,6 +1,7 @@
 package ir.dotin.loan.trade.e2e.orchestrator;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.boot.test.context.TestComponent;
 
@@ -58,6 +59,8 @@ import static org.mockito.Mockito.when;
 @RequiredArgsConstructor
 public class MockPortConfigurator {
 
+    private static final AtomicLong APPLICATION_SERIAL = new AtomicLong(1);
+
     private final LoanServicePort loanServicePort;
     private final AccountServicePort accountServicePort;
     private final AccountValidationPort accountValidationPort;
@@ -112,13 +115,16 @@ public class MockPortConfigurator {
         doReturn(Result.success(List.of(new BranchCode("1"))))
                 .when(loanServicePort)
                 .loadCoveredBranches(any());
+        // A fresh serial per call, not a constant: the application number is unique-constrained, and every E2E
+        // class shares one Postgres, so a fixed value makes the second facility ever originated fail with
+        // LOAN-54016 "application number already exists".
         when(loanServicePort.getApplicationNumber(any(), any(), any()))
-                .thenReturn(ApplicationNumber.of(
+                .thenAnswer(invocation -> ApplicationNumber.of(
                         new Branch(new BranchCode("1")),
                         new LoanTypeCode("LC001"),
                         ApplicantParty.of("CUST123", PartyType.REAL, new CustomerName("Mahdi", "Abdollahi", "Test"))
                                 .unwrap(),
-                        "1"));
+                        String.valueOf(APPLICATION_SERIAL.getAndIncrement())));
         when(loanServicePort.loadBranch(any()))
                 .thenReturn(Result.success(new BranchDetails(
                         "1", "Main Branch", "Main", 1L, "Manager", "1", "SWIFT", "001", "001", "001")));
