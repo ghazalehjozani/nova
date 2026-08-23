@@ -15,6 +15,9 @@ import org.springframework.test.context.DynamicPropertyRegistrar;
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
+import ir.dotin.platform.pangaea.security.api.AuthenticationContextHolder;
+import ir.dotin.loan.trade.e2e.security.E2EAuthenticationContextHolder;
+
 @TestConfiguration
 public class E2ETestConfiguration {
 
@@ -49,6 +52,12 @@ public class E2ETestConfiguration {
     @Bean
     ComposeContainer composeContainer() {
         return SHARED_CONTAINER;
+    }
+
+    @Bean
+    @Primary
+    AuthenticationContextHolder e2eAuthenticationContextHolder() {
+        return new E2EAuthenticationContextHolder();
     }
 
     @Bean

@@ -38,6 +38,16 @@ spring:
     kubernetes:
       discovery:
         enabled: false
+    # The e2e compose stack is Postgres + Kafka + Redis only — there is no Consul, and every runtime value
+    # comes from this file instead of KV. AbstractE2E also turns the Spring Cloud bootstrap context off, so
+    # the main bootstrap.yml (which demands CONSUL_HOST/CONSUL_PORT/CONSUL_TOKEN/HOST_IP) is never read.
+    consul:
+      enabled: false
+      config:
+        enabled: false
+      discovery:
+        enabled: false
+        register: false
 
 server:
   port: 0

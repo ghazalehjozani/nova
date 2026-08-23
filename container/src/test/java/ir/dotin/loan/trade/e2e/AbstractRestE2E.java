@@ -16,7 +16,17 @@ import org.springframework.http.ResponseEntity;
 import ir.dotin.loan.trade.e2e.orchestrator.MockPortConfigurator;
 import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator;
 
-// TODO: mock get token instead of real call, and also mock AuthenticationContextHolder
+// TODO(CBS-274722:LN-58922:LN-59021): still disabled, but two of the three original blockers are gone.
+// FIXED here: (1) the auth TODO — the e2e profile already runs with pangaea.security.enabled=false, and
+// E2ETestConfiguration now supplies a fixed AuthenticationContextHolder, so no SSO token is needed;
+// (2) Consul — application-e2e.yml disables it and AbstractE2E turns the bootstrap context off, so the
+// ${CONSUL_PORT} placeholder in the main bootstrap.yml is never bound.
+// REMAINING: the context fails with BeanDefinitionOverrideException on 'jpaAuditingHandler' — the
+// persistence starter's @EnableJpaAuditing is registered twice. Disabling the bootstrap context does NOT
+// fix it, so it is not a bootstrap/main double-registration. Production boots fine, so this is specific to
+// the @SpringBootTest(classes = {NovaApplication, E2ETestConfiguration}) context assembly. Diagnosing it is
+// its own piece of work and belongs to the ticket that disabled this harness, not to
+// CBS-282143:LN-59253:LN-59261:LN-59661.
 @Disabled
 @AutoConfigureTestRestTemplate
 public abstract class AbstractRestE2E extends AbstractE2E {

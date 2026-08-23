@@ -31,7 +31,10 @@ import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator;
 
 @SpringBootTest(
         classes = {NovaApplication.class, E2ETestConfiguration.class},
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        // No Consul in the e2e stack, so the bootstrap context has nothing to fetch — and leaving it on made it
+        // register the persistence starter's jpaAuditingHandler a second time, failing the context outright.
+        properties = "spring.cloud.bootstrap.enabled=false")
 @ActiveProfiles("e2e")
 @Import({
     FormulaTestFixture.class,
