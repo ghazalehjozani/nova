@@ -44,6 +44,7 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.response.Econo
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.EconomicalSectorValidation;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.PartyInfoResponse;
 import ir.dotin.loan.trade.core.application.ports.outbound.client.response.ReasonType;
+import ir.dotin.loan.trade.core.application.ports.outbound.client.samat.ValidateSamatPort;
 
 import lombok.RequiredArgsConstructor;
 
@@ -68,6 +69,7 @@ public class MockPortConfigurator {
     private final FindOrCreateAccountPort findOrCreateAccountPort;
     private final FindAccountByIdPort findAccountByIdPort;
     private final FetchSanctionDetailsPort fetchSanctionDetailsPort;
+    private final ValidateSamatPort validateSamatPort;
 
     public void configureAllDefaults() {
         configureLoanServiceDefaults();
@@ -78,6 +80,7 @@ public class MockPortConfigurator {
         configureCustomerServiceDefaults();
         configureFindOrCreateAccountDefaults();
         configureFetchSanctionDefaults();
+        configureValidateSamatDefaults();
     }
 
     public void resetAll() {
@@ -92,7 +95,8 @@ public class MockPortConfigurator {
                 customerServicePort,
                 findOrCreateAccountPort,
                 findAccountByIdPort,
-                fetchSanctionDetailsPort);
+                fetchSanctionDetailsPort,
+                validateSamatPort);
     }
 
     private void configureLoanServiceDefaults() {
@@ -242,5 +246,11 @@ public class MockPortConfigurator {
                                 null,
                                 null,
                                 new ir.dotin.loan.baseloan.core.domain.shared.vo.ConfirmType("1"))));
+    }
+
+    // Without this the SAMAT rule inside FacilityValidator's parallel fan-out calls an unstubbed mock, gets
+    // back null, and ParallelFanout fails the whole command with "Transformer must not return null Result".
+    private void configureValidateSamatDefaults() {
+        when(validateSamatPort.validateSamat(any(), any(), any())).thenReturn(Result.success());
     }
 }

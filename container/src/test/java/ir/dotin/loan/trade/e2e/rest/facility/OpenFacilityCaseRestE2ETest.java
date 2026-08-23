@@ -28,7 +28,7 @@ import ir.dotin.loan.trade.adapters.driving.contract.dto.SamatRequestDto;
 import ir.dotin.loan.trade.e2e.AbstractRestE2E;
 import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator.MinimalChain;
 
-import static ir.dotin.loan.trade.e2e.assertion.BaseResponseAssertions.assertSuccess;
+import static ir.dotin.loan.trade.e2e.assertion.BaseResponseAssertions.assertCreated;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -62,7 +62,7 @@ class OpenFacilityCaseRestE2ETest extends AbstractRestE2E {
 
         ResponseEntity<String> response = postJson("/loan-facilities/origination/unequal-installment", request);
 
-        assertSuccess(response, objectMapper);
+        assertCreated(response);
     }
 
     @Test

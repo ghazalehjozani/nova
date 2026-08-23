@@ -21,6 +21,19 @@ public final class BaseResponseAssertions {
                 .isTrue();
     }
 
+    /**
+     * CREATE commands answer 201 + Location with an EMPTY body (SWA-101, CommandResponseFactory.created) — there is no
+     * BaseResponse envelope to parse, so assertSuccess does not apply to them.
+     */
+    public static void assertCreated(ResponseEntity<String> response) {
+        assertThat(response.getStatusCode())
+                .as("Expected 201 Created but got %s: %s", response.getStatusCode(), response.getBody())
+                .isEqualTo(HttpStatusCode.valueOf(201));
+        assertThat(response.getHeaders().getFirst("Location"))
+                .as("201 Created must carry a Location header")
+                .isNotBlank();
+    }
+
     public static void assertSuccessWithStatus(ResponseEntity<String> response, int expectedStatus, ObjectMapper om) {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(expectedStatus));
         JsonNode body = parseBody(response, om);

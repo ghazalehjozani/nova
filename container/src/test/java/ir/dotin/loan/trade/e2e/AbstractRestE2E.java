@@ -2,6 +2,10 @@ package ir.dotin.loan.trade.e2e;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
@@ -26,6 +30,17 @@ import ir.dotin.loan.trade.e2e.orchestrator.PrerequisiteOrchestrator;
 
 @AutoConfigureTestRestTemplate
 public abstract class AbstractRestE2E extends AbstractE2E {
+
+    // Request bodies are NOT serialized with the autowired application mapper. That one carries pangaea's
+    // WireSerializationModule, which renders every LocalizedEnum as a {code,label} object — correct for a
+    // response, wrong for a request. PartyRequestDto is polymorphic on `role` as an EXISTING_PROPERTY type
+    // id, so the object form makes the server answer 400 LOAN-201 ("missing type id property 'role'"). Real
+    // clients send the bare enum name (see nova-testkit's Bruno payloads); this mapper does the same. Money
+    // goes out as a JSON number, which the wire MoneyStringDeserializer accepts alongside strings.
+    private static final ObjectMapper REQUEST_MAPPER = JsonMapper.builder()
+            .addModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .build();
 
     @Autowired
     protected TestRestTemplate restTemplate;
@@ -69,7 +84,7 @@ public abstract class AbstractRestE2E extends AbstractE2E {
         HttpHeaders headers = defaultHeaders();
         String json;
         try {
-            json = objectMapper.writeValueAsString(body);
+            json = REQUEST_MAPPER.writeValueAsString(body);
         } catch (Exception e) {
             throw new RuntimeException("Failed to serialize request body", e);
         }
@@ -80,7 +95,7 @@ public abstract class AbstractRestE2E extends AbstractE2E {
     protected ResponseEntity<String> postJsonWithHeaders(String path, Object body, HttpHeaders headers) {
         String json;
         try {
-            json = objectMapper.writeValueAsString(body);
+            json = REQUEST_MAPPER.writeValueAsString(body);
         } catch (Exception e) {
             throw new RuntimeException("Failed to serialize request body", e);
         }
