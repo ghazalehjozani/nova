@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.loanfacility;
 
+import java.time.Clock;
+
 import org.springframework.stereotype.Component;
 
 import ir.dotin.platform.pangaea.commons.domain.entity.AbstractAggregateRoot;
@@ -18,10 +20,16 @@ public class TradeLoanFacilityOutboxHandler
 
     private final LoanFacilityOutboxRepository repository;
     private final LoanApplicationOutboxEventMapper mapper;
+    private final Clock clock;
 
     @Override
     public Class<? extends AbstractAggregateRoot<?>> aggregateType() {
         return TradeLoanFacility.class;
+    }
+
+    @Override
+    public Clock clock() {
+        return clock;
     }
 
     @Override

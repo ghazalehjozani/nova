@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.reconciliation;
 
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -99,6 +100,7 @@ public class FacilityConvergenceAction implements ConvergenceAction {
 
     private static final String GUARANTOR_REMOVED_EVENT_TYPE = "TRADE_LOAN_FACILITY_GUARANTOR_REMOVED";
 
+    private final Clock clock;
     private final OutboxAdminPort outboxAdminPort;
     private final InboxAdminPort inboxAdminPort;
     private final WorkflowAdminPort workflowAdminPort;
@@ -497,7 +499,7 @@ public class FacilityConvergenceAction implements ConvergenceAction {
     private @Nullable ConvergeOutcome deferIfRecentlyModified(String facilityId) {
         Optional<FacilityReconRow> row = readPort.findById(facilityId);
         if (row.isPresent()) {
-            long ageMs = System.currentTimeMillis() - row.get().modifiedAtEpochMs();
+            long ageMs = clock.millis() - row.get().modifiedAtEpochMs();
             if (row.get().modifiedAtEpochMs() > 0 && ageMs < 30 * 60 * 1000L) {
                 return ConvergeOutcome.retryLater("recently-modified");
             }

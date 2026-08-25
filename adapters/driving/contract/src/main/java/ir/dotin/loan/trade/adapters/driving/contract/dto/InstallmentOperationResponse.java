@@ -21,14 +21,15 @@ public record InstallmentOperationResponse(
         FAILED
     }
 
-    public static InstallmentOperationResponse success(String eventUid, String operationType, String fileNumber) {
+    public static InstallmentOperationResponse success(
+            String eventUid, String operationType, String fileNumber, Instant processedAt) {
         return new InstallmentOperationResponse(
-                eventUid, operationType, fileNumber, ResponseStatus.SUCCESS, null, Instant.now(), null);
+                eventUid, operationType, fileNumber, ResponseStatus.SUCCESS, null, processedAt, null);
     }
 
     public static InstallmentOperationResponse failed(
-            String eventUid, String operationType, String fileNumber, String errorMessage) {
+            String eventUid, String operationType, String fileNumber, String errorMessage, Instant processedAt) {
         return new InstallmentOperationResponse(
-                eventUid, operationType, fileNumber, ResponseStatus.FAILED, errorMessage, Instant.now(), null);
+                eventUid, operationType, fileNumber, ResponseStatus.FAILED, errorMessage, processedAt, null);
     }
 }

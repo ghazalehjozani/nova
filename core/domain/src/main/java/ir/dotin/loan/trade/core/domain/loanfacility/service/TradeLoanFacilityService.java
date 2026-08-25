@@ -25,8 +25,12 @@ import ir.dotin.loan.trade.core.domain.loanfacility.error.TradeLoanFacilityError
 public class TradeLoanFacilityService
         extends AbstractLoanFacilityService<TradeLoanApplication, TradeSanctionedLoan, TradeLoanFacility> {
 
+    /** Kept locally because the superclass holds its own copy privately. */
+    private final Clock clock;
+
     public TradeLoanFacilityService(Clock clock) {
         super(clock);
+        this.clock = clock;
     }
 
     @Override
@@ -86,7 +90,7 @@ public class TradeLoanFacilityService
 
         // Create a TradeSanctionedLoan.Builder from the loan application data
         var builder = TradeSanctionedLoan.builder()
-                .sanctionSerial(SanctionSerial.of("AUTO_GENERATED-" + System.currentTimeMillis(), SanctionType.GENERAL)
+                .sanctionSerial(SanctionSerial.of("AUTO_GENERATED-" + clock.millis(), SanctionType.GENERAL)
                         .unwrap())
                 .approvedAmount(loanApplication.getRequestedAmount())
                 .gracePeriod(loanApplication.getGracePeriod())

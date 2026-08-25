@@ -1,5 +1,6 @@
 package ir.dotin.loan.trade.adapters.driven.reconciliation;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -81,6 +82,7 @@ class FacilityConvergenceActionDossierTest {
     void setUp() {
         properties = new ReconciliationSourceProperties();
         action = new FacilityConvergenceAction(
+                Clock.systemUTC(),
                 outboxAdminPort,
                 inboxAdminPort,
                 workflowAdminPort,

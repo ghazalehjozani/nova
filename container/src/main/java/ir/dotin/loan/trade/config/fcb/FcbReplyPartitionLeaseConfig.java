@@ -1,6 +1,11 @@
 package ir.dotin.loan.trade.config.fcb;
 
+import javax.net.ssl.SSLContext;
+
 import com.ecwid.consul.v1.ConsulClient;
+import com.ecwid.consul.v1.ConsulRawClient;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -56,24 +61,30 @@ public class FcbReplyPartitionLeaseConfig {
                 openTelemetry.getIfAvailable(OpenTelemetry::noop).getTracer("ir.dotin.loan.fcb.reply-lease"));
     }
 
-    /**
-     * Builds an ecwid {@link ConsulClient} pointed at the same agent the rest of the app uses (reusing
-     * {@link ConsulProperties} host/port). Uses the plain host:port constructor — current deployments talk to Consul
-     * over HTTP (TLS is disabled in bootstrap.yml). If the scheme is https a warning is logged: Consul mTLS for the
-     * lease client is out of scope and would need a {@code TLSConfig}.
-     */
     private static ConsulClient buildLeaseConsulClient(ConsulProperties consulProperties) {
         String host = consulProperties.getHost().replaceFirst("^https?://", "");
         int port = consulProperties.getPort();
         String scheme = consulProperties.getScheme() == null ? "http" : consulProperties.getScheme();
+
         if ("https".equalsIgnoreCase(scheme)) {
-            LOG.warn(
-                    "FCB-REPLY-LEASE: Consul scheme=https but the lease client uses plain HTTP (mTLS not wired); "
-                            + "ensure the agent at {}:{} is reachable over HTTP or extend the client with a TLSConfig.",
-                    host,
-                    port);
+            try {
+                SSLContext sslContext = SSLContext.getDefault();
+                SSLConnectionSocketFactory sslFactory = new SSLConnectionSocketFactory(
+                        sslContext, SSLConnectionSocketFactory.getDefaultHostnameVerifier());
+                var httpClient =
+                        HttpClients.custom().setSSLSocketFactory(sslFactory).build();
+                ConsulRawClient rawClient = new ConsulRawClient("https://" + host, port, httpClient);
+                LOG.info("FCB-REPLY-LEASE: building lease Consul client (HTTPS/TLS) for agent {}:{}", host, port);
+                return new ConsulClient(rawClient);
+            } catch (Exception e) {
+                throw new IllegalStateException(
+                        "FCB-REPLY-LEASE: Failed to build HTTPS Consul client. "
+                                + "Verify javax.net.ssl.trustStore JVM arg points to a valid JKS.",
+                        e);
+            }
         }
-        LOG.info("FCB-REPLY-LEASE: building lease Consul client for agent {}:{}", host, port);
+
+        LOG.info("FCB-REPLY-LEASE: building lease Consul client (HTTP) for agent {}:{}", host, port);
         return new ConsulClient(host, port);
     }
 }

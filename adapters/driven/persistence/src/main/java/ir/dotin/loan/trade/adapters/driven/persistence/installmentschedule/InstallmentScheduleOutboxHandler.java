@@ -1,5 +1,7 @@
 package ir.dotin.loan.trade.adapters.driven.persistence.installmentschedule;
 
+import java.time.Clock;
+
 import org.springframework.stereotype.Service;
 
 import ir.dotin.platform.pangaea.commons.domain.entity.AbstractAggregateRoot;
@@ -19,10 +21,16 @@ public class InstallmentScheduleOutboxHandler
 
     private final InstallmentScheduleOutboxRepository repository;
     private final InstallmentScheduleOutboxEventMapper mapper;
+    private final Clock clock;
 
     @Override
     public Class<? extends AbstractAggregateRoot<?>> aggregateType() {
         return InstallmentSchedule.class;
+    }
+
+    @Override
+    public Clock clock() {
+        return clock;
     }
 
     @Override

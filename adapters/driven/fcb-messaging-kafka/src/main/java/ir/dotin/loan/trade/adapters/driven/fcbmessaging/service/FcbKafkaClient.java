@@ -2,6 +2,7 @@ package ir.dotin.loan.trade.adapters.driven.fcbmessaging.service;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
@@ -79,6 +80,7 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
      */
     private static final Duration MIN_ATTEMPT_TIMEOUT = Duration.ofMillis(100);
 
+    private final Clock clock;
     private final ReplyingKafkaTemplate<String, byte[], byte[]> replyingKafkaTemplate;
     private final ObjectMapper objectMapper;
     private final FcbKafkaProperties properties;
@@ -114,7 +116,9 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
             @Qualifier(FcbResilienceConfig.FCB_KAFKA_RETRY_TEMPLATE) RetryTemplate retryTemplate,
             FcbRequestReplyMetrics requestReplyMetrics,
             @Qualifier(FcbKafkaConfig.FCB_INTEGRATION_REPLY_PARTITION) int replyPartition,
-            @Nullable Tracer tracer) {
+            @Nullable Tracer tracer,
+            Clock clock) {
+        this.clock = clock;
         this.replyingKafkaTemplate = replyingKafkaTemplate;
         this.objectMapper = objectMapper;
         this.properties = properties;
@@ -338,7 +342,7 @@ public class FcbKafkaClient implements FcbRequestReplyClient {
             byte[] requestBytes)
             throws Exception {
 
-        long timestampMs = System.currentTimeMillis();
+        long timestampMs = clock.millis();
 
         ProducerRecord<String, byte[]> record =
                 new ProducerRecord<>(properties.getRequestTopic(), idempotencyKey, requestBytes);
