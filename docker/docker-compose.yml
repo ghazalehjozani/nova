@@ -317,13 +317,45 @@ services:
       SERVER_IP: ${SERVER_IP}
     restart: "no"
 
+# Artemis journal + paging must not share a filesystem with the Docker image store and every other
+# container: when that shared 50G disk crossed max-disk-usage=90 the brokers blocked every producer
+# with AMQ212054, and that was the outage. ARTEMIS_DATA_ROOT points the six data volumes at a
+# dedicated mount; each ${ARTEMIS_DATA_ROOT}/<node> directory must exist before the stack starts.
+# MIGRATION — read before recreating an existing deployment: these bind mounts replace the previous
+# named volumes, so the brokers would bind to empty directories and create fresh empty journals.
+# With every broker stopped, copy /var/lib/docker/volumes/nova-dev_artemis-<node>-data/_data into
+# ${ARTEMIS_DATA_ROOT}/<node> first. Procedure in RB-0008.
 volumes:
   consul-data:
   postgres-primary-data:
   postgres-replica-data:
   artemis-live1-data:
+    driver_opts:
+      type: none
+      o: bind
+      device: ${ARTEMIS_DATA_ROOT:-/disk-c/artemis}/live1
   artemis-live2-data:
+    driver_opts:
+      type: none
+      o: bind
+      device: ${ARTEMIS_DATA_ROOT:-/disk-c/artemis}/live2
   artemis-live3-data:
+    driver_opts:
+      type: none
+      o: bind
+      device: ${ARTEMIS_DATA_ROOT:-/disk-c/artemis}/live3
   artemis-backup1-data:
+    driver_opts:
+      type: none
+      o: bind
+      device: ${ARTEMIS_DATA_ROOT:-/disk-c/artemis}/backup1
   artemis-backup2-data:
+    driver_opts:
+      type: none
+      o: bind
+      device: ${ARTEMIS_DATA_ROOT:-/disk-c/artemis}/backup2
   artemis-backup3-data:
+    driver_opts:
+      type: none
+      o: bind
+      device: ${ARTEMIS_DATA_ROOT:-/disk-c/artemis}/backup3
