@@ -5,6 +5,7 @@ import java.util.List;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
+import ir.dotin.platform.pangaea.commons.core.i18n.LocalizedEnum;
 import ir.dotin.platform.pangaea.reconciliation.api.model.KeyPage;
 import ir.dotin.platform.pangaea.reconciliation.api.model.OpaqueKey;
 import ir.dotin.platform.pangaea.reconciliation.api.model.ReconciliationType;
@@ -28,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FacilityReconciliationSource implements ReconciliationSource {
 
-    static final ReconciliationType TYPE = ReconciliationType.of("facility-state");
+    static final ReconciliationType TYPE = ReconciliationType.of(NovaReconciliationType.FACILITY_STATE.code());
 
     private final FacilityReconReadPort readPort;
     private final ReconciliationSourceProperties properties;
@@ -36,6 +37,15 @@ public class FacilityReconciliationSource implements ReconciliationSource {
     @Override
     public ReconciliationType type() {
         return TYPE;
+    }
+
+    /**
+     * Hands the platform Nova's own localized constant so the ops surface can label the type. The platform reads no
+     * meaning from it; the wire code stays {@link #type()}'s name.
+     */
+    @Override
+    public LocalizedEnum<?> typeLabel() {
+        return NovaReconciliationType.FACILITY_STATE;
     }
 
     @Override

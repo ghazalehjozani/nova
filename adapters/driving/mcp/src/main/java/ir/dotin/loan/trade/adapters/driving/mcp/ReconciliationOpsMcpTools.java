@@ -20,6 +20,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReconciliationOpsMcpTools {
 
+    // The wire code, duplicated deliberately: it is owned by NovaReconciliationType.FACILITY_STATE in
+    // adapters/driven/reconciliation, and a driving adapter must not depend on a driven one
+    // (TradeLoanAdapterArchitectureTest). Change both together.
     private static final String FACILITY_STATE = "facility-state";
 
     private final QueryDispatcher dispatcher;

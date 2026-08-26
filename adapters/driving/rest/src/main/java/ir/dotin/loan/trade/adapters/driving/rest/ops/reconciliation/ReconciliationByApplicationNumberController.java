@@ -27,6 +27,9 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = SwaggerConfig.TAG_RECONCILIATION_OPS, description = "عملیات مغایرت‌گیری Nova↔FCB")
 class ReconciliationByApplicationNumberController extends BaseController {
 
+    // The wire code, duplicated deliberately: it is owned by NovaReconciliationType.FACILITY_STATE in
+    // adapters/driven/reconciliation, and a driving adapter must not depend on a driven one
+    // (TradeLoanAdapterArchitectureTest). Change both together.
     private static final String FACILITY_STATE = "facility-state";
 
     private final QueryDispatcher queryDispatcher;

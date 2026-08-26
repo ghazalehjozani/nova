@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatorVersion": "2026.8.6-SNAPSHOT",
+  "generatorVersion": "2026.8.7-SNAPSHOT",
   "baseLocale": "en",
   "locales": [
     "en",
     "fa"
   ],
-  "keyCount": 1081,
+  "keyCount": 1082,
   "entries": {
     "documentCommentMessageCodes.account.creditor": {
       "family": "message",
@@ -517,6 +517,10 @@
       "args": []
     },
     "enum.LoanTransactionCause.SET_LIFE_INSURANCE": {
+      "family": "enum",
+      "args": []
+    },
+    "enum.NovaReconciliationType.FACILITY_STATE": {
       "family": "enum",
       "args": []
     },
