@@ -46,7 +46,7 @@ if [ ! -d "$INSTANCE/bin" ]; then
 
   # ---- address-settings for the nova.fcb namespace ----
   # Address settings merge hierarchically: the reply-namespace settings below inherit
-  # everything from nova.fcb.# and only override the auto-delete attributes.
+  # everything from nova.fcb.# and only override auto-delete and redistribution.
   read -r -d '' ADDR <<'XML' || true
 
          <address-setting match="nova.fcb.#">
@@ -72,13 +72,17 @@ if [ ! -d "$INSTANCE/bin" ]; then
               consumer detaches (covers failover gaps; prevents stale reply queues piling up as
               instances churn). Requests queues are deliberately NOT auto-deleted — an auto-deleted
               queue takes its unconsumed (TTL-less) request messages with it: silent loss. -->
+         <!-- redistribution-delay -1: a per-instance reply queue has one consumer on one node.
+              Inheriting nova.fcb.#'s 1000 ships its messages to dead copies on the other nodes. -->
          <address-setting match="nova.fcb.integration.reply.#">
             <auto-delete-queues>true</auto-delete-queues>
             <auto-delete-queues-delay>60000</auto-delete-queues-delay>
+            <redistribution-delay>-1</redistribution-delay>
          </address-setting>
          <address-setting match="nova.fcb.jwks.reply.#">
             <auto-delete-queues>true</auto-delete-queues>
             <auto-delete-queues-delay>60000</auto-delete-queues-delay>
+            <redistribution-delay>-1</redistribution-delay>
          </address-setting>
 XML
   # insert before the closing </address-settings>

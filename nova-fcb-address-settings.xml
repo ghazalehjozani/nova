@@ -1,0 +1,49 @@
+<!-- ============ inside <core> ============ -->
+<persist-delivery-count-before-delivery>true</persist-delivery-count-before-delivery>
+
+<!-- ============ inside <address-settings> ============ -->
+
+<address-setting match="nova.fcb.#">
+   <dead-letter-address>DLQ</dead-letter-address>
+   <expiry-address>ExpiryQueue</expiry-address>
+   <max-delivery-attempts>3</max-delivery-attempts>
+   <redelivery-delay>1000</redelivery-delay>
+   <redelivery-delay-multiplier>2.0</redelivery-delay-multiplier>
+   <max-redelivery-delay>10000</max-redelivery-delay>
+   <redistribution-delay>1000</redistribution-delay>
+   <address-full-policy>PAGE</address-full-policy>
+   <max-size-bytes>104857600</max-size-bytes>
+   <page-size-bytes>10485760</page-size-bytes>
+   <default-queue-routing-type>ANYCAST</default-queue-routing-type>
+   <default-address-routing-type>ANYCAST</default-address-routing-type>
+   <auto-create-queues>true</auto-create-queues>
+   <auto-delete-queues>false</auto-delete-queues>
+   <auto-create-addresses>true</auto-create-addresses>
+   <auto-delete-addresses>false</auto-delete-addresses>
+</address-setting>
+
+<address-setting match="nova.fcb.integration.reply.#">
+   <auto-delete-queues>true</auto-delete-queues>
+   <auto-delete-queues-delay>60000</auto-delete-queues-delay>
+   <redistribution-delay>-1</redistribution-delay>
+</address-setting>
+
+<address-setting match="nova.fcb.jwks.reply.#">
+   <auto-delete-queues>true</auto-delete-queues>
+   <auto-delete-queues-delay>60000</auto-delete-queues-delay>
+   <redistribution-delay>-1</redistribution-delay>
+</address-setting>
+
+<!-- ============ inside <addresses> ============ -->
+
+<address name="DLQ">
+   <anycast>
+      <queue name="DLQ" />
+   </anycast>
+</address>
+
+<address name="ExpiryQueue">
+   <anycast>
+      <queue name="ExpiryQueue" />
+   </anycast>
+</address>

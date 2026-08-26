@@ -191,6 +191,9 @@ services:
       <<: *artemis-env
       ARTEMIS_ROLE: backup
       ARTEMIS_NODE_NAME: backup1
+      # Without this the backup advertises tcp://artemis-backup1:61616 into the cluster topology —
+      # a Docker-internal name external clients either cannot resolve or resolve to the wrong broker.
+      ARTEMIS_ADVERTISE_PORT: "61646"
     ports: ["61646:61616", "8164:8161"]
     volumes:
       - ./artemis-init.sh:/init/artemis-init.sh:ro
@@ -205,6 +208,7 @@ services:
       <<: *artemis-env
       ARTEMIS_ROLE: backup
       ARTEMIS_NODE_NAME: backup2
+      ARTEMIS_ADVERTISE_PORT: "61656"
     ports: ["61656:61616", "8165:8161"]
     volumes:
       - ./artemis-init.sh:/init/artemis-init.sh:ro
@@ -219,6 +223,7 @@ services:
       <<: *artemis-env
       ARTEMIS_ROLE: backup
       ARTEMIS_NODE_NAME: backup3
+      ARTEMIS_ADVERTISE_PORT: "61666"
     ports: ["61666:61616", "8166:8161"]
     volumes:
       - ./artemis-init.sh:/init/artemis-init.sh:ro
