@@ -264,7 +264,7 @@ paths:
                           gatewayType:
                             type: object
                             description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-                            properties: &ref_94
+                            properties: &ref_93
                               code:
                                 type: string
                                 description: Stable UPPERCASE machine value; clients branch on this only.
@@ -318,7 +318,7 @@ paths:
                                 tradeRelationType:
                                   type: object
                                   description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-                                  properties: &ref_97
+                                  properties: &ref_96
                                     code:
                                       type: string
                                       description: Stable UPPERCASE machine value; clients branch on this only.
@@ -391,7 +391,7 @@ paths:
                               type: array
                               items:
                                 type: object
-                                properties: &ref_146
+                                properties: &ref_145
                                   path:
                                     type: string
                                   additionalInfo:
@@ -579,7 +579,7 @@ paths:
             schema:
               type: object
               description: تعریف نوع تسهیلات
-              properties: &ref_90
+              properties: &ref_89
                 code:
                   type: string
                   description: کد
@@ -609,7 +609,7 @@ paths:
                   items:
                     type: object
                     description: بخش اقتصادی و نوع ارز مرتبط
-                    properties: &ref_92
+                    properties: &ref_91
                       economicSectorCode:
                         type: string
                         description: کد بخش اقتصادی
@@ -621,7 +621,7 @@ paths:
                           type: string
                         minItems: 1
                         uniqueItems: true
-                    required: &ref_93
+                    required: &ref_92
                       - currencyTypes
                       - economicSectorCode
                   minItems: 1
@@ -638,7 +638,7 @@ paths:
                   items:
                     type: object
                     description: رابطه نوع تسهیلات با موضوع
-                    properties: &ref_95
+                    properties: &ref_94
                       relationType:
                         type: string
                         description: نوع رابطه
@@ -682,7 +682,7 @@ paths:
                           type: string
                         minItems: 1
                         uniqueItems: true
-                    required: &ref_96
+                    required: &ref_95
                       - economicSectorCodes
                       - relationType
                       - topicCode
@@ -692,7 +692,7 @@ paths:
                   type: object
                   additionalProperties:
                     type: string
-              required: &ref_91
+              required: &ref_90
                 - code
                 - economicSectorCurrencies
                 - gatewayType
@@ -1118,7 +1118,7 @@ paths:
             schema:
               type: object
               description: تخصیص نوع تسهیلات به گروه
-              properties: &ref_76
+              properties: &ref_75
                 version:
                   type: integer
                   format: int64
@@ -1129,7 +1129,7 @@ paths:
                   type: object
                   additionalProperties:
                     type: string
-              required: &ref_77
+              required: &ref_76
                 - groupId
                 - version
         required: true
@@ -1515,7 +1515,7 @@ paths:
             schema:
               type: object
               description: ایجاد گروه نوع تسهیلات
-              properties: &ref_98
+              properties: &ref_97
                 code:
                   type: string
                   description: کد یکتای انگلیسی گروه (حروف/ارقام/خط تیره)
@@ -1532,7 +1532,7 @@ paths:
                   type: object
                   additionalProperties:
                     type: string
-              required: &ref_99
+              required: &ref_98
                 - code
                 - title
         required: true
@@ -1895,7 +1895,7 @@ paths:
             schema:
               type: object
               description: تغییر نام گروه نوع تسهیلات
-              properties: &ref_147
+              properties: &ref_146
                 version:
                   type: integer
                   format: int64
@@ -1906,7 +1906,7 @@ paths:
                   type: object
                   additionalProperties:
                     type: string
-              required: &ref_148
+              required: &ref_147
                 - title
                 - version
         required: true
@@ -2034,7 +2034,7 @@ paths:
             schema:
               type: object
               description: جابجایی گروه در درخت
-              properties: &ref_149
+              properties: &ref_148
                 version:
                   type: integer
                   format: int64
@@ -2045,7 +2045,7 @@ paths:
                   type: object
                   additionalProperties:
                     type: string
-              required: &ref_150
+              required: &ref_149
                 - version
         required: true
       responses:
@@ -2316,7 +2316,7 @@ paths:
                           lifeInsurancePaymentType:
                             type: object
                             description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-                            properties: &ref_136
+                            properties: &ref_135
                               code:
                                 type: string
                                 description: Stable UPPERCASE machine value; clients branch on this only.
@@ -2330,7 +2330,7 @@ paths:
                           loanSecondaryType:
                             type: object
                             description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-                            properties: &ref_138
+                            properties: &ref_137
                               code:
                                 type: string
                                 description: Stable UPPERCASE machine value; clients branch on this only.
@@ -2345,7 +2345,7 @@ paths:
                           sectionType:
                             type: object
                             description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-                            properties: &ref_142
+                            properties: &ref_141
                               code:
                                 type: string
                                 description: Stable UPPERCASE machine value; clients branch on this only.
@@ -2591,7 +2591,7 @@ paths:
             schema:
               type: object
               description: ایجاد شرایط تسهیلات
-              properties: &ref_131
+              properties: &ref_130
                 code:
                   type: string
                   description: کد
@@ -2607,7 +2607,7 @@ paths:
                 amountRange:
                   description: بازه مبلغی
                   type: object
-                  properties: &ref_129
+                  properties: &ref_128
                     min:
                       type: string
                       description: حداقل مبلغ
@@ -2619,7 +2619,7 @@ paths:
                 durationRange:
                   description: بازه مدت زمان تسهیلات
                   type: object
-                  properties: &ref_137
+                  properties: &ref_136
                     minMonths:
                       type: integer
                       format: int32
@@ -2678,7 +2678,7 @@ paths:
                 interestPolicy:
                   description: سیاست نرخ سود
                   type: object
-                  properties: &ref_135
+                  properties: &ref_134
                     rate:
                       type: string
                       description: نرخ تسهیلات
@@ -2703,7 +2703,7 @@ paths:
                 penaltyPolicy:
                   description: سیاست جریمه
                   type: object
-                  properties: &ref_139
+                  properties: &ref_138
                     penaltyRate:
                       type: string
                       description: نرخ جریمه
@@ -2724,7 +2724,7 @@ paths:
                 installmentPolicy:
                   description: سیاست اقساط
                   type: object
-                  properties: &ref_134
+                  properties: &ref_133
                     installmentPeriodMonths:
                       type: integer
                       format: int32
@@ -2745,7 +2745,7 @@ paths:
                 gracePeriodPolicy:
                   description: سیاست دوره مهلت
                   type: object
-                  properties: &ref_133
+                  properties: &ref_132
                     minGracePeriodDays:
                       type: integer
                       format: int32
@@ -2760,7 +2760,7 @@ paths:
                 repaymentPriorityPolicy:
                   description: اولویت کسر مبالغ
                   type: object
-                  properties: &ref_141
+                  properties: &ref_140
                     principalPriority:
                       type: integer
                       format: int32
@@ -2791,7 +2791,7 @@ paths:
                 regulatoryCompliancePolicy:
                   description: انتقال به مطالبات
                   type: object
-                  properties: &ref_140
+                  properties: &ref_139
                     overDuePeriodMonths:
                       type: integer
                       format: int32
@@ -2807,7 +2807,7 @@ paths:
                 collateralPolicy:
                   description: سیاست وثایق
                   type: object
-                  properties: &ref_130
+                  properties: &ref_129
                     totalPercent:
                       type: integer
                       format: int32
@@ -2844,7 +2844,7 @@ paths:
                   type: object
                   additionalProperties:
                     type: string
-              required: &ref_132
+              required: &ref_131
                 - amountRange
                 - code
                 - collateralPolicy
@@ -3426,7 +3426,7 @@ paths:
                               applicantChannel:
                                 type: object
                                 description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-                                properties: &ref_118
+                                properties: &ref_117
                                   code:
                                     type: string
                                     description: Stable UPPERCASE machine value; clients branch on this only.
@@ -3829,7 +3829,7 @@ paths:
             schema:
               type: object
               description: جزئیات ثبت درخواست تصویب مصوبه
-              properties: &ref_100
+              properties: &ref_99
                 uid:
                   type: string
                   format: uuid
@@ -3844,7 +3844,7 @@ paths:
                   type: object
                   additionalProperties:
                     type: string
-              required: &ref_101
+              required: &ref_100
                 - uid
                 - version
         required: true
@@ -4523,7 +4523,7 @@ paths:
             schema:
               type: object
               description: جزئیات ویرایش وثایق تسهیلات
-              properties: &ref_80
+              properties: &ref_79
                 version:
                   type: integer
                   format: int32
@@ -4551,7 +4551,7 @@ paths:
                       usedAmount:
                         description: Used amount from collateral
                         type: object
-                        properties: &ref_78
+                        properties: &ref_77
                           value:
                             type: string
                             description: Amount
@@ -4561,7 +4561,7 @@ paths:
                             type: string
                             description: Currency code
                             example: IRR
-                        required: &ref_79
+                        required: &ref_78
                           - currency
                           - value
                     required: &ref_37
@@ -4573,7 +4573,7 @@ paths:
                   type: object
                   additionalProperties:
                     type: string
-              required: &ref_81
+              required: &ref_80
                 - collaterals
                 - version
         required: true
@@ -4702,7 +4702,7 @@ paths:
             schema:
               type: object
               description: جزئیات افزودن وثیقه به تسهیلات
-              properties: &ref_112
+              properties: &ref_111
                 uid:
                   type: string
                   format: uuid
@@ -4726,7 +4726,7 @@ paths:
                   type: object
                   additionalProperties:
                     type: string
-              required: &ref_113
+              required: &ref_112
                 - collaterals
                 - uid
                 - version
@@ -5000,7 +5000,7 @@ paths:
             schema:
               type: object
               description: جزئیات وثایق برای جبران‌سازی
-              properties: &ref_114
+              properties: &ref_113
                 version:
                   type: integer
                   format: int32
@@ -5012,7 +5012,7 @@ paths:
                   type: object
                   additionalProperties:
                     type: string
-              required: &ref_115
+              required: &ref_114
                 - version
         required: true
       responses:
@@ -5141,7 +5141,7 @@ paths:
             schema:
               type: object
               description: جزئیات صدور قرارداد تسهیلات
-              properties: &ref_102
+              properties: &ref_101
                 uid:
                   type: string
                   format: uuid
@@ -5164,7 +5164,7 @@ paths:
                     toolSource: BANK
                     productCode: LOAN
                     networkType: BankBook
-              required: &ref_103
+              required: &ref_102
                 - uid
                 - version
         required: true
@@ -5421,7 +5421,7 @@ paths:
             schema:
               type: object
               description: جزئیات درخواست پرداخت یکجا
-              properties: &ref_110
+              properties: &ref_109
                 version:
                   type: integer
                   format: int64
@@ -5443,7 +5443,7 @@ paths:
                     toolSource: BANK
                     productCode: LOAN
                     networkType: BankBook
-              required: &ref_111
+              required: &ref_110
                 - version
         required: true
       responses:
@@ -5571,7 +5571,7 @@ paths:
             schema:
               type: object
               description: جزئیات درخواست پرداخت نامنظم
-              properties: &ref_108
+              properties: &ref_107
                 trancheAmount:
                   type: string
                   description: مبلغ پرداخت
@@ -5586,7 +5586,7 @@ paths:
                       items:
                         type: object
                         description: مشخصات قسط
-                        properties: &ref_106
+                        properties: &ref_105
                           sequenceNumber:
                             type: integer
                             format: int32
@@ -5603,7 +5603,7 @@ paths:
                             type: string
                             description: مبلغ سود قسط
                             pattern: ^-?\d+(\.\d{1,4})?$
-                        required: &ref_107
+                        required: &ref_106
                           - dueDate
                           - interestAmount
                           - principalAmount
@@ -5634,7 +5634,7 @@ paths:
                     toolSource: BANK
                     productCode: LOAN
                     networkType: BankBook
-              required: &ref_109
+              required: &ref_108
                 - installmentSchedulePlan
                 - trancheAmount
                 - uid
@@ -5758,7 +5758,7 @@ paths:
             schema:
               type: object
               description: درخواست ایجاد تسهیلات با اقساط مساوی یا یکجا — جدول اقساط توسط سامانه تولید می‌شود
-              properties: &ref_127
+              properties: &ref_126
                 loanTypeCode:
                   type: string
                   description: کد نوع تسهیلات
@@ -5780,7 +5780,7 @@ paths:
                       description: ذینفعان شامل مشتری اصلی، فرعی و ضامنین
                       items:
                         oneOf:
-                          - allOf: &ref_119
+                          - allOf: &ref_118
                               - discriminator: &ref_39
                                   propertyName: role
                                 properties: &ref_40
@@ -5797,10 +5797,10 @@ paths:
                                     type: object
                                     description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
                                     properties: *ref_38
-                            required: &ref_120
+                            required: &ref_119
                               - customerNumber
                               - role
-                          - allOf: &ref_121
+                          - allOf: &ref_120
                               - discriminator: *ref_39
                                 properties: *ref_40
                                 required: *ref_41
@@ -5813,7 +5813,7 @@ paths:
                                     type: object
                                     description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
                                     properties: *ref_38
-                            required: &ref_122
+                            required: &ref_121
                               - customerNumber
                               - role
                           - allOf: &ref_53
@@ -5877,7 +5877,7 @@ paths:
                     disburseDestination:
                       description: مقصد پرداخت
                       oneOf:
-                        - allOf: &ref_116
+                        - allOf: &ref_115
                             - discriminator: &ref_43
                                 propertyName: type
                               properties: &ref_44
@@ -5894,10 +5894,10 @@ paths:
                                   type: object
                                   description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
                                   properties: *ref_42
-                          required: &ref_117
+                          required: &ref_116
                             - accountNumber
                             - type
-                        - allOf: &ref_123
+                        - allOf: &ref_122
                             - discriminator: *ref_43
                               properties: *ref_44
                               required: *ref_45
@@ -5910,7 +5910,7 @@ paths:
                                   type: object
                                   description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
                                   properties: *ref_42
-                          required: &ref_124
+                          required: &ref_123
                             - depositNumber
                             - type
                     economicSectorCode:
@@ -5953,7 +5953,7 @@ paths:
                   type: object
                   additionalProperties:
                     type: string
-              required: &ref_128
+              required: &ref_127
                 - loanApplication
                 - loanArrangementCode
                 - loanTypeCode
@@ -6076,7 +6076,7 @@ paths:
             schema:
               type: object
               description: درخواست ایجاد تسهیلات با اقساط نامساوی — جدول اقساط توسط کاربر ارسال می‌شود
-              properties: &ref_125
+              properties: &ref_124
                 loanTypeCode:
                   type: string
                   description: کد نوع تسهیلات
@@ -6099,7 +6099,7 @@ paths:
                   type: object
                   additionalProperties:
                     type: string
-              required: &ref_126
+              required: &ref_125
                 - installmentSchedulePlan
                 - loanApplication
                 - loanArrangementCode
@@ -6522,7 +6522,7 @@ paths:
             schema:
               type: object
               description: فهرست ضامنین برای افزودن
-              properties: &ref_104
+              properties: &ref_103
                 version:
                   type: integer
                   format: int64
@@ -6539,7 +6539,7 @@ paths:
                   type: object
                   additionalProperties:
                     type: string
-              required: &ref_105
+              required: &ref_104
                 - guarantors
                 - version
         required: true
@@ -7210,7 +7210,7 @@ paths:
             schema:
               type: object
               description: ایجاد فرمول
-              properties: &ref_143
+              properties: &ref_142
                 code:
                   type: string
                   description: کد فرمول
@@ -7259,7 +7259,7 @@ paths:
                   additionalProperties:
                     type: string
                   description: اطلاعات پردازشی
-              required: &ref_144
+              required: &ref_143
                 - code
                 - expression
         required: true
@@ -8540,7 +8540,7 @@ paths:
             schema:
               type: object
               description: ویرایش فرمول
-              properties: &ref_82
+              properties: &ref_81
                 expression:
                   type: string
                   description: عبارت فرمول
@@ -8562,7 +8562,7 @@ paths:
                   additionalProperties:
                     type: string
                   description: اطلاعات پردازشی
-              required: &ref_83
+              required: &ref_82
                 - expression
         required: true
       responses:
@@ -9018,7 +9018,7 @@ paths:
             schema:
               type: object
               description: ارزیابی فرمول
-              properties: &ref_145
+              properties: &ref_144
                 providerRefs:
                   type: object
                   additionalProperties:
@@ -11705,7 +11705,7 @@ paths:
           application/json:
             schema:
               type: object
-              properties: &ref_89
+              properties: &ref_88
                 eventIds:
                   type: array
                   items:
@@ -13139,7 +13139,7 @@ paths:
           application/json:
             schema:
               type: object
-              properties: &ref_87
+              properties: &ref_86
                 action:
                   type: string
                   enum:
@@ -13153,7 +13153,7 @@ paths:
                 operatorReason:
                   type: string
                   minLength: 1
-              required: &ref_88
+              required: &ref_87
                 - action
                 - dossierHash
                 - operatorReason
@@ -13290,7 +13290,7 @@ paths:
           application/json:
             schema:
               type: object
-              properties: &ref_86
+              properties: &ref_85
                 note:
                   type: string
       responses:
@@ -13405,7 +13405,7 @@ paths:
             application/json:
               schema:
                 type: object
-                properties: &ref_85
+                properties: &ref_84
                   state:
                     type: string
                   healthy:
@@ -13414,7 +13414,7 @@ paths:
                     type: array
                     items:
                       type: object
-                      properties: &ref_84
+                      properties: &ref_83
                         name:
                           type: string
                         phase:
@@ -13747,7 +13747,7 @@ paths:
                       type: array
                       items:
                         type: object
-                        properties: &ref_75
+                        properties: &ref_151
                           code:
                             type: string
                           label:
@@ -13957,7 +13957,7 @@ paths:
                       type: string
                     category:
                       type: object
-                      properties: &ref_151
+                      properties: &ref_150
                         code:
                           type: integer
                           format: int32
@@ -14084,107 +14084,13 @@ paths:
         '500':
           description: 500 — Unexpected server error.
           content: *ref_8
-  /v1/reference/reconciliation-types:
-    get:
-      tags:
-        - Reference Data
-      summary: Every registered reconciliation type, with localized labels
-      description: |
-        Returns the reconciliation types this service registers, as {code, label}. `code` is the value every reconciliation endpoint takes as input and returns in a discrepancy's `reconciliationType.code`; `label` is Accept-Language-localized display text and falls back to `code`. The set is open and grows as types are registered. Send the returned ETag back as If-None-Match to revalidate cheaply.**Request Headers:**
-        - `traceparent`
-        - `tracestate`
-        - `X-Request-DateTime`: Client request timestamp (UTC, ISO 8601)
-        - `Accept-Language`: Preferred language (fa | en | ar | ru; default: fa)
-
-        **Response Headers:**
-        - `X-Response-DateTime`: Server response timestamp (UTC)
-        - `X-Cache`: `HIT` if cached response, `MISS` otherwise
-      operationId: all_2
-      parameters:
-        - name: If-None-Match
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: traceparent
-          in: header
-          description: 'W3C trace context: {version}-{traceid}-{parentid}-{traceflags}'
-          required: false
-          schema:
-            type: string
-            format: traceparent
-          example: 00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01
-        - name: tracestate
-          in: header
-          description: W3C trace state (optional vendor-specific trace data)
-          required: false
-          schema:
-            type: string
-          example: vendor=opaque
-        - name: X-Request-DateTime
-          in: header
-          description: 'Client request timestamp: ISO-8601 instant in UTC with a trailing `Z` (e.g. `2025-08-22T14:30:00.123Z`). A value without `Z`/offset (e.g. `2025-08-22T14:30:00`) is rejected as invalid (the validator parses it as a `java.time.Instant`).'
-          required: true
-          schema:
-            type: string
-            format: date-time
-          example: '2025-08-22T14:30:00.123Z'
-        - name: Accept-Language
-          in: header
-          description: Language preference for response messages
-          required: false
-          schema:
-            type: string
-            default: fa
-            enum:
-              - fa
-              - en
-          example: fa
-      responses:
-        '200':
-          description: The registered types.
-          headers:
-            X-Response-DateTime:
-              description: 'Server response timestamp: ISO-8601 instant in UTC with a trailing `Z`'
-              required: false
-              schema: *ref_3
-              example: '2025-08-22T14:30:00.123Z'
-            X-Cache:
-              description: '`HIT` if served from cache, `MISS` otherwise'
-              required: false
-              schema: *ref_9
-              example: HIT
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties: *ref_75
-        '304':
-          description: Not Modified — the supplied ETag still matches.
-        '400':
-          description: '400 — Malformed request: invalid body, parameter, or header.'
-          content: *ref_4
-        '401':
-          description: 401 — Missing or invalid authentication token.
-          content: *ref_5
-        '403':
-          description: 403 — Authenticated, but not permitted to perform this operation.
-          content: *ref_6
-        '404':
-          description: 404 — The requested resource does not exist.
-          content: *ref_7
-        '500':
-          description: 500 — Unexpected server error.
-          content: *ref_8
 components:
   schemas:
     AssignLoanTypeToGroupRequest:
       type: object
       description: تخصیص نوع تسهیلات به گروه
-      properties: *ref_76
-      required: *ref_77
+      properties: *ref_75
+      required: *ref_76
     CollateralDto:
       type: object
       description: Collateral details
@@ -14192,13 +14098,13 @@ components:
       required: *ref_37
     MoneyDto:
       type: object
-      properties: *ref_78
-      required: *ref_79
+      properties: *ref_77
+      required: *ref_78
     UpdateFacilityCollateralRequest:
       type: object
       description: جزئیات ویرایش وثایق تسهیلات
-      properties: *ref_80
-      required: *ref_81
+      properties: *ref_79
+      required: *ref_80
     BindingRequest:
       type: object
       description: تعریف اتصال متغیر فرمول
@@ -14207,61 +14113,61 @@ components:
     UpdateFormulaRequest:
       type: object
       description: ویرایش فرمول
-      properties: *ref_82
-      required: *ref_83
+      properties: *ref_81
+      required: *ref_82
     ComponentStatusResponse:
       type: object
-      properties: *ref_84
+      properties: *ref_83
     RuntimeStatusResponse:
       type: object
-      properties: *ref_85
+      properties: *ref_84
     ResolveRequest:
       type: object
-      properties: *ref_86
+      properties: *ref_85
     RemediateRequest:
       type: object
-      properties: *ref_87
-      required: *ref_88
+      properties: *ref_86
+      required: *ref_87
     RemediationKind:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
       properties: *ref_69
     RepublishRequest:
       type: object
-      properties: *ref_89
+      properties: *ref_88
     DefineLoanTypeRequest:
       type: object
       description: تعریف نوع تسهیلات
-      properties: *ref_90
-      required: *ref_91
+      properties: *ref_89
+      required: *ref_90
     EconomicSectorCurrencyDto:
       type: object
       description: بخش اقتصادی و نوع ارز مرتبط
-      properties: *ref_92
-      required: *ref_93
+      properties: *ref_91
+      required: *ref_92
     GatewayType:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_94
+      properties: *ref_93
     RelationTypeLoanTopicDto:
       type: object
       description: رابطه نوع تسهیلات با موضوع
-      properties: *ref_95
-      required: *ref_96
+      properties: *ref_94
+      required: *ref_95
     TradeRelationType:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_97
+      properties: *ref_96
     CreateLoanTypeGroupRequest:
       type: object
       description: ایجاد گروه نوع تسهیلات
-      properties: *ref_98
-      required: *ref_99
+      properties: *ref_97
+      required: *ref_98
     SubmitFacilityForApprovalRequest:
       type: object
       description: جزئیات ثبت درخواست تصویب مصوبه
-      properties: *ref_100
-      required: *ref_101
+      properties: *ref_99
+      required: *ref_100
     CompensationRequest:
       type: object
       properties: *ref_32
@@ -14269,13 +14175,13 @@ components:
     IssueFacilityContractRequest:
       type: object
       description: جزئیات صدور قرارداد تسهیلات
-      properties: *ref_102
-      required: *ref_103
+      properties: *ref_101
+      required: *ref_102
     AddGuarantorsRequest:
       type: object
       description: فهرست ضامنین برای افزودن
-      properties: *ref_104
-      required: *ref_105
+      properties: *ref_103
+      required: *ref_104
     GuarantorDto:
       allOf: *ref_53
       required: *ref_54
@@ -14287,23 +14193,23 @@ components:
     InstallmentSpecDto:
       type: object
       description: مشخصات قسط
-      properties: *ref_106
-      required: *ref_107
+      properties: *ref_105
+      required: *ref_106
     IrregularProgressiveDisbursementRequest:
       type: object
       description: جزئیات درخواست پرداخت نامنظم
-      properties: *ref_108
-      required: *ref_109
+      properties: *ref_107
+      required: *ref_108
     LumpSumDisbursementRequest:
       type: object
       description: جزئیات درخواست پرداخت یکجا
-      properties: *ref_110
-      required: *ref_111
+      properties: *ref_109
+      required: *ref_110
     AddFacilityCollateralRequest:
       type: object
       description: جزئیات افزودن وثیقه به تسهیلات
-      properties: *ref_112
-      required: *ref_113
+      properties: *ref_111
+      required: *ref_112
     CollateralType:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
@@ -14328,29 +14234,29 @@ components:
     CompensateCollateralRequest:
       type: object
       description: جزئیات وثایق برای جبران‌سازی
-      properties: *ref_114
-      required: *ref_115
+      properties: *ref_113
+      required: *ref_114
     ApproveFacilityRequest:
       type: object
       description: جزئیات تصویب مصوبه
       properties: *ref_34
       required: *ref_35
     AccountDestinationDto:
-      allOf: *ref_116
-      required: *ref_117
+      allOf: *ref_115
+      required: *ref_116
     ApplicantChannel:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_118
+      properties: *ref_117
     ApplicantDto:
-      allOf: *ref_119
-      required: *ref_120
+      allOf: *ref_118
+      required: *ref_119
     CoApplicantDto:
-      allOf: *ref_121
-      required: *ref_122
+      allOf: *ref_120
+      required: *ref_121
     DepositDestinationDto:
-      allOf: *ref_123
-      required: *ref_124
+      allOf: *ref_122
+      required: *ref_123
     DisburseDestinationRequestDto:
       discriminator: *ref_43
       properties: *ref_44
@@ -14371,8 +14277,8 @@ components:
     OriginateUnequalInstallmentFacilityRequest:
       type: object
       description: درخواست ایجاد تسهیلات با اقساط نامساوی — جدول اقساط توسط کاربر ارسال می‌شود
-      properties: *ref_125
-      required: *ref_126
+      properties: *ref_124
+      required: *ref_125
     PartyRequestDto:
       discriminator: *ref_39
       properties: *ref_40
@@ -14388,12 +14294,12 @@ components:
     OriginateEqualInstallmentFacilityRequest:
       type: object
       description: درخواست ایجاد تسهیلات با اقساط مساوی یا یکجا — جدول اقساط توسط سامانه تولید می‌شود
-      properties: *ref_127
-      required: *ref_128
+      properties: *ref_126
+      required: *ref_127
     AmountRangeDto:
       type: object
       description: بازه مبلغی
-      properties: *ref_129
+      properties: *ref_128
     CollateralCalculationType:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
@@ -14410,12 +14316,12 @@ components:
     CollateralPolicyDto:
       type: object
       description: سیاست وثایق
-      properties: *ref_130
+      properties: *ref_129
     DefineTradeLoanArrangementRequest:
       type: object
       description: ایجاد شرایط تسهیلات
-      properties: *ref_131
-      required: *ref_132
+      properties: *ref_130
+      required: *ref_131
     DisbursementType:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
@@ -14432,7 +14338,7 @@ components:
     GracePeriodPolicyDto:
       type: object
       description: سیاست دوره مهلت
-      properties: *ref_133
+      properties: *ref_132
     InstallmentPaymentType:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
@@ -14450,23 +14356,23 @@ components:
     InstallmentPolicyDto:
       type: object
       description: سیاست اقساط
-      properties: *ref_134
+      properties: *ref_133
     InterestPolicyDto:
       type: object
       description: سیاست نرخ سود
-      properties: *ref_135
+      properties: *ref_134
     LifeInsurancePaymentType:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_136
+      properties: *ref_135
     LoanDurationRangeDto:
       type: object
       description: بازه مدت زمان تسهیلات
-      properties: *ref_137
+      properties: *ref_136
     LoanSecondaryType:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_138
+      properties: *ref_137
     PartyType:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
@@ -14487,56 +14393,56 @@ components:
     PenaltyPolicyDto:
       type: object
       description: سیاست جریمه
-      properties: *ref_139
+      properties: *ref_138
     RegulatoryCompliancePolicyDto:
       type: object
       description: انتقال به مطالبات
-      properties: *ref_140
+      properties: *ref_139
     RepaymentPriorityPolicyDto:
       type: object
       description: سیاست اولویت بازپرداخت
-      properties: *ref_141
+      properties: *ref_140
     SectionType:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_142
+      properties: *ref_141
     CreateFormulaRequest:
       type: object
       description: ایجاد فرمول
-      properties: *ref_143
-      required: *ref_144
+      properties: *ref_142
+      required: *ref_143
     EvaluateFormulaRequest:
       type: object
       description: ارزیابی فرمول
-      properties: *ref_145
+      properties: *ref_144
     ErrorDetail:
       type: object
-      properties: *ref_146
+      properties: *ref_145
     ErrorItem:
       type: object
       properties: *ref_1
     RenameLoanTypeGroupRequest:
       type: object
       description: تغییر نام گروه نوع تسهیلات
-      properties: *ref_147
-      required: *ref_148
+      properties: *ref_146
+      required: *ref_147
     MoveLoanTypeGroupRequest:
       type: object
       description: جابجایی گروه در درخت
-      properties: *ref_149
-      required: *ref_150
-    EnumView:
-      type: object
-      properties: *ref_75
+      properties: *ref_148
+      required: *ref_149
     ErrorCategoryView:
       type: object
-      properties: *ref_151
+      properties: *ref_150
     ErrorCodeCatalogEntry:
       type: object
       properties: *ref_74
     EnumCatalog:
       type: object
       properties: *ref_73
+    EnumView:
+      type: object
+      properties: *ref_151
     DiscrepancyStatus:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
