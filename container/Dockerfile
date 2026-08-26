@@ -1,8 +1,8 @@
 ARG NEXUS_PROXY_REGISTRY=nexus3.dotin.ir:8100
-FROM ${NEXUS_PROXY_REGISTRY}/eclipse-temurin:25-jre-noble
+FROM ${NEXUS_PROXY_REGISTRY}/eclipse-temurin:25-jre-resolute
 
 ARG NEXUS_APT_REPO_URL=https://nexus3.dotin.ir/repository/Ubuntu
-ARG APT_SUITES="noble noble-updates noble-security"
+ARG APT_SUITES="resolute resolute-updates resolute-security"
 
 USER root
 
@@ -16,7 +16,7 @@ RUN rm -f /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources /etc/
     > /etc/apt/sources.list.d/ubuntu.sources \
  && echo 'Acquire::https::Verify-Peer "false";' > /etc/apt/apt.conf.d/99insecure-cert \
  && apt-get update \
- && apt-get install -y --no-install-recommends ca-certificates openssl curl \
+ && apt-get install -y ca-certificates openssl curl wget \
  && rm -rf /var/lib/apt/lists/*
 
 COPY ca-certificates/*.crt /usr/local/share/ca-certificates/
@@ -35,7 +35,7 @@ RUN update-ca-certificates && \
     fi \
  && rm -f /etc/apt/apt.conf.d/99insecure-cert
 
-# 3. Create Application User (Noble uses standard useradd/groupadd)
+# 3. Create Application User (Resolute uses standard useradd/groupadd)
 RUN groupadd -g 1001 appgroup && \
     useradd -u 1001 -g appgroup -m -s /bin/bash appuser
 

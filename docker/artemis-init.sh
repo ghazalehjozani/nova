@@ -26,10 +26,19 @@ if [ ! -d "$INSTANCE/bin" ]; then
   BROKER_XML="$INSTANCE/etc/broker.xml"
 
   # ---- HA policy (current element names) ----
+  # <group-name> pins a backup to one primary: a backup only pairs with a primary announcing the same
+  # group. Without it pairing is first-come-first-served across all three pairs, so a restart can leave
+  # one primary unbacked and another double-backed (observed: backup1 re-synced to a different primary).
+  # Valid inside both <primary> and <backup> (replicationPrimaryPolicyType/replicationBackupPolicyType,
+  # both xsd:all, so position within the element does not matter). Empty ARTEMIS_HA_GROUP = old behaviour.
+  GROUP_XML=""
+  if [ -n "${ARTEMIS_HA_GROUP:-}" ]; then
+    GROUP_XML="<group-name>${ARTEMIS_HA_GROUP}</group-name>"
+  fi
   if [ "$ROLE" = "live" ]; then
-    HA='<ha-policy><replication><primary><check-for-active-server>true</check-for-active-server></primary></replication></ha-policy>'
+    HA="<ha-policy><replication><primary>${GROUP_XML}<check-for-active-server>true</check-for-active-server></primary></replication></ha-policy>"
   else
-    HA='<ha-policy><replication><backup><allow-failback>true</allow-failback></backup></replication></ha-policy>'
+    HA="<ha-policy><replication><backup>${GROUP_XML}<allow-failback>true</allow-failback></backup></replication></ha-policy>"
   fi
   sed -i "s|</cluster-connections>|</cluster-connections>\n      $HA|" "$BROKER_XML"
 

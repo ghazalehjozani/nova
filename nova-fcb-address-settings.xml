@@ -1,6 +1,28 @@
 <!-- ============ inside <core> ============ -->
 <persist-delivery-count-before-delivery>true</persist-delivery-count-before-delivery>
 
+<!-- هر backup فقط با primaryای جفت می‌شود که همین group-name را اعلام کند.
+     بدون آن، پس از restart ممکن است یک primary بدون backup و دیگری با دو backup بماند. -->
+<!-- primary (live1 / live2 / live3 → nova-ha-1 / nova-ha-2 / nova-ha-3) -->
+<ha-policy>
+   <replication>
+      <primary>
+         <group-name>nova-ha-1</group-name>
+         <check-for-active-server>true</check-for-active-server>
+      </primary>
+   </replication>
+</ha-policy>
+
+<!-- backup (backup1 / backup2 / backup3 → همان group-name جفت خود) -->
+<ha-policy>
+   <replication>
+      <backup>
+         <group-name>nova-ha-1</group-name>
+         <allow-failback>true</allow-failback>
+      </backup>
+   </replication>
+</ha-policy>
+
 <!-- ============ inside <address-settings> ============ -->
 
 <address-setting match="nova.fcb.#">

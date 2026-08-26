@@ -73,16 +73,11 @@ container/
 - **`@ConfigurationProperties` classes MUST be regular classes, not Java `record`s.** `@RefreshScope` proxies via CGLIB and cannot subclass a `final` record → hot reload silently breaks and a stale snapshot is served for the JVM's lifetime. Use a mutable POJO (or `@ConstructorBinding` class) with setters.
 - **Any add/rename/remove on a `@ConfigurationProperties` field requires a matching edit in [`nova-config`](../../nova-config/CLAUDE.md)** under the service's KV context. The service has no local `application.yml`, so an out-of-sync key binds to its default (or fails `spring.config.import` if `fail-fast` is on). Ship both PRs together.
 
-- **Local clock offset — `application-dev.yml` only, never `bootstrap.yml`.** Every server this service talks to (the Nova hosts, Artemis, FCB, and the OTel/ELK backends) reports timezone UTC while running exactly **+3:30 ahead of true UTC**. The skew is uniform, so deployed rings agree with each other; a developer workstation with a correct clock is the odd one out, and its envelopes are rejected by FCB as 3.5 hours stale. To match the fleet locally, put
-
   ```yaml
   platform:
     clock:
       offset: PT3H30M
   ```
-
-  in `container/src/main/resources/application-dev.yml`, which `.gitignore:188` excludes and which loads automatically because `SPRING_PROFILES_ACTIVE` defaults to `dev`. It must **not** go in `bootstrap.yml`: that file is tracked and ships inside the jar to every ring, where a non-zero offset would shift persisted timestamps, lock expiries, retry deadlines and cache TTLs. Consul carries an explicit `PT0S` for every ring. A non-zero offset also logs a WARN at startup and is published as the `platform.clock.offset.seconds` gauge.
-
 When something doesn't take effect, check Consul KV first; only fall back to looking inside this module if the key is genuinely absent from `nova-config`.
 
 ## i18n message bundles (`src/main/resources/i18n/`)

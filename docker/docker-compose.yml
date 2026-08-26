@@ -151,6 +151,10 @@ services:
     environment:
       <<: *artemis-env
       ARTEMIS_NODE_NAME: live1
+      # Replication pairing is by group, not by depends_on: a backup only pairs with the
+      # primary announcing the same ARTEMIS_HA_GROUP. Without it a restart can leave one
+      # primary unbacked and another double-backed.
+      ARTEMIS_HA_GROUP: nova-ha-1
       ARTEMIS_ADVERTISE_PORT: "61616"
     ports: ["61616:61616", "8161:8161"]
     volumes:
@@ -164,6 +168,7 @@ services:
     environment:
       <<: *artemis-env
       ARTEMIS_NODE_NAME: live2
+      ARTEMIS_HA_GROUP: nova-ha-2
       ARTEMIS_ADVERTISE_PORT: "61626"
     ports: ["61626:61616", "8162:8161"]
     volumes:
@@ -177,6 +182,7 @@ services:
     environment:
       <<: *artemis-env
       ARTEMIS_NODE_NAME: live3
+      ARTEMIS_HA_GROUP: nova-ha-3
       ARTEMIS_ADVERTISE_PORT: "61636"
     ports: ["61636:61616", "8163:8161"]
     volumes:
@@ -191,6 +197,7 @@ services:
       <<: *artemis-env
       ARTEMIS_ROLE: backup
       ARTEMIS_NODE_NAME: backup1
+      ARTEMIS_HA_GROUP: nova-ha-1
       # Without this the backup advertises tcp://artemis-backup1:61616 into the cluster topology —
       # a Docker-internal name external clients either cannot resolve or resolve to the wrong broker.
       ARTEMIS_ADVERTISE_PORT: "61646"
@@ -208,6 +215,7 @@ services:
       <<: *artemis-env
       ARTEMIS_ROLE: backup
       ARTEMIS_NODE_NAME: backup2
+      ARTEMIS_HA_GROUP: nova-ha-2
       ARTEMIS_ADVERTISE_PORT: "61656"
     ports: ["61656:61616", "8165:8161"]
     volumes:
@@ -223,6 +231,7 @@ services:
       <<: *artemis-env
       ARTEMIS_ROLE: backup
       ARTEMIS_NODE_NAME: backup3
+      ARTEMIS_HA_GROUP: nova-ha-3
       ARTEMIS_ADVERTISE_PORT: "61666"
     ports: ["61666:61616", "8166:8161"]
     volumes:
