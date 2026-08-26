@@ -23,7 +23,7 @@ spring:
       enabled: true
       host: ${CONSUL_HOST}
       port: ${CONSUL_PORT}
-      scheme: ${CONSUL_SCHEME:http}
+      scheme: ${CONSUL_SCHEME:https}
       discovery:
         enabled: true
         register: true

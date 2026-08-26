@@ -5,15 +5,31 @@
     <springProperty scope="context" name="APP_VERSION" source="spring.application.version" defaultValue="unknown"/>
     <springProperty scope="context" name="ENV" source="platform.environment" defaultValue="dev"/>
 
+    <!-- Flush the async appenders on JVM shutdown. -->
+    <shutdownHook class="ch.qos.logback.core.hook.DefaultShutdownHook"/>
+
     <property name="LOG_PATH" value="${LOG_PATH:-./logs}"/>
     <property name="HOSTNAME" value="${HOSTNAME:-localhost}"/>
+    <!-- 2-year retention. Size caps are per-ring: they trim oldest-first and will cut retention short on a small disk. -->
+    <property name="LOG_MAX_HISTORY" value="${LOG_MAX_HISTORY:-730}"/>
+    <property name="LOG_TOTAL_SIZE_CAP" value="${LOG_TOTAL_SIZE_CAP:-500GB}"/>
+    <property name="LOG_ERROR_TOTAL_SIZE_CAP" value="${LOG_ERROR_TOTAL_SIZE_CAP:-100GB}"/>
 
     <conversionRule conversionWord="clr" class="org.springframework.boot.logging.logback.ColorConverter"/>
     <conversionRule conversionWord="wex" class="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
     <conversionRule conversionWord="wEx" class="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
 
+    <!-- Timestamps on the platform clock (UTC), so log lines and spans agree. Pattern encoders only;
+         LogstashEncoder stamps from the event and stays on the host clock (harmless at the rings' PT0S). -->
+    <conversionRule conversionWord="platformTime"
+                    class="ir.dotin.platform.pangaea.observability.starter.config.PlatformClockTimestampConverter"/>
+
     <property name="CONSOLE_PATTERN"
-              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%-5p){bold,highlight} %clr([trace=%X{traceId:-},span=%X{spanId:-}]){cyan} %clr([corr=%X{correlationId:-},user=%X{userId:-},tenant=%X{tenantId:-}]){magenta} %clr(%-40.40logger{39}){blue} : %m%n%clr(%wEx){red}"/>
+              value="%clr(%platformTime){faint} %clr(%-5p){bold,highlight} %clr([trace=%X{traceId:-},span=%X{spanId:-}]){cyan} %clr([corr=%X{correlationId:-},user=%X{userId:-},tenant=%X{tenantId:-}]){magenta} %clr(%-40.40logger{39}){blue} : %m%n%clr(%wEx){red}"/>
+
+    <!-- Console layout without the ANSI colour wrappers. -->
+    <property name="FILE_PATTERN"
+              value="%platformTime %-5p [trace=%X{traceId:-},span=%X{spanId:-}] [corr=%X{correlationId:-},user=%X{userId:-},tenant=%X{tenantId:-}] %-40.40logger{39} : %m%n%wEx"/>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -32,6 +48,23 @@
         <numLogsCapturedBeforeOtelInstall>20000</numLogsCapturedBeforeOtelInstall>
     </appender>
 
+    <!-- Full chronological log. ERROR lines are duplicated into ERROR_FILE so errors stay readable in context.
+         Plain text, not JSON: this file is read locally; ELK is fed by the OTel appender and STDOUT_JSON. -->
+    <appender name="APP_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}.log</file>
+        <encoder>
+            <pattern>${FILE_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/archive/${APP_NAME}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>200MB</maxFileSize>
+            <maxHistory>${LOG_MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${LOG_TOTAL_SIZE_CAP}</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+    </appender>
+
     <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/${APP_NAME}-error.log</file>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
@@ -41,8 +74,8 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOG_PATH}/archive/${APP_NAME}-error-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <maxFileSize>100MB</maxFileSize>
-            <maxHistory>30</maxHistory>
-            <totalSizeCap>10GB</totalSizeCap>
+            <maxHistory>${LOG_MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${LOG_ERROR_TOTAL_SIZE_CAP}</totalSizeCap>
         </rollingPolicy>
     </appender>
 
@@ -52,6 +85,15 @@
         <discardingThreshold>0</discardingThreshold>
         <neverBlock>true</neverBlock>
         <maxFlushTime>5000</maxFlushTime>
+    </appender>
+
+    <!-- neverBlock=false: the durable record must not drop lines under back-pressure. -->
+    <appender name="ASYNC_APP" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="APP_FILE"/>
+        <queueSize>8192</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>false</neverBlock>
+        <maxFlushTime>10000</maxFlushTime>
     </appender>
 
     <appender name="ASYNC_ERROR" class="ch.qos.logback.classic.AsyncAppender">
@@ -84,6 +126,7 @@
     <springProfile name="dev">
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_APP"/>
             <appender-ref ref="ASYNC_OTEL"/>
             <appender-ref ref="ASYNC_ERROR"/>
         </root>
@@ -118,6 +161,7 @@
         </appender>
         <root level="INFO">
             <appender-ref ref="ASYNC_STDOUT_JSON"/>
+            <appender-ref ref="ASYNC_APP"/>
             <appender-ref ref="ASYNC_OTEL"/>
             <appender-ref ref="ASYNC_ERROR"/>
         </root>
@@ -126,6 +170,7 @@
     <springProfile name="!dev &amp; !stage &amp; !prod">
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_APP"/>
             <appender-ref ref="ASYNC_OTEL"/>
         </root>
     </springProfile>

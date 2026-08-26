@@ -7,7 +7,7 @@
     <parent>
         <groupId>ir.dotin.platform.pangaea</groupId>
         <artifactId>parent</artifactId>
-        <version>2026.8.5-SNAPSHOT</version>
+        <version>2026.8.6-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -47,11 +47,11 @@
     </profiles>
 
     <properties>
-        <loan.base-loan.version>2026.8.5-SNAPSHOT</loan.base-loan.version>
+        <loan.base-loan.version>2026.8.6-SNAPSHOT</loan.base-loan.version>
         <loan.trade-loan.version>${project.version}</loan.trade-loan.version>
         <sonar.projectVersion>${project.version}</sonar.projectVersion>
-        <platform.accounting.document.version>2026.8.5-SNAPSHOT</platform.accounting.document.version>
-        <platform.formula.version>2026.8.5-SNAPSHOT</platform.formula.version>
+        <platform.accounting.document.version>2026.8.6-SNAPSHOT</platform.accounting.document.version>
+        <platform.formula.version>2026.8.6-SNAPSHOT</platform.formula.version>
     </properties>
 
     <dependencyManagement>
