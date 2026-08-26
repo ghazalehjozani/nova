@@ -1,9 +1,6 @@
 <!-- ============ inside <core> ============ -->
 <persist-delivery-count-before-delivery>true</persist-delivery-count-before-delivery>
 
-<!-- هر backup فقط با primaryای جفت می‌شود که همین group-name را اعلام کند.
-     بدون آن، پس از restart ممکن است یک primary بدون backup و دیگری با دو backup بماند. -->
-<!-- primary (live1 / live2 / live3 → nova-ha-1 / nova-ha-2 / nova-ha-3) -->
 <ha-policy>
    <replication>
       <primary>
@@ -13,7 +10,6 @@
    </replication>
 </ha-policy>
 
-<!-- backup (backup1 / backup2 / backup3 → همان group-name جفت خود) -->
 <ha-policy>
    <replication>
       <backup>
@@ -38,22 +34,36 @@
    <page-size-bytes>10485760</page-size-bytes>
    <default-queue-routing-type>ANYCAST</default-queue-routing-type>
    <default-address-routing-type>ANYCAST</default-address-routing-type>
-   <auto-create-queues>true</auto-create-queues>
+   <auto-create-queues>false</auto-create-queues>
    <auto-delete-queues>false</auto-delete-queues>
-   <auto-create-addresses>true</auto-create-addresses>
+   <auto-create-addresses>false</auto-create-addresses>
    <auto-delete-addresses>false</auto-delete-addresses>
 </address-setting>
 
 <address-setting match="nova.fcb.integration.reply.#">
+   <auto-create-queues>true</auto-create-queues>
+   <auto-create-addresses>true</auto-create-addresses>
    <auto-delete-queues>true</auto-delete-queues>
    <auto-delete-queues-delay>60000</auto-delete-queues-delay>
    <redistribution-delay>-1</redistribution-delay>
 </address-setting>
 
 <address-setting match="nova.fcb.jwks.reply.#">
+   <auto-create-queues>true</auto-create-queues>
+   <auto-create-addresses>true</auto-create-addresses>
    <auto-delete-queues>true</auto-delete-queues>
    <auto-delete-queues-delay>60000</auto-delete-queues-delay>
    <redistribution-delay>-1</redistribution-delay>
+</address-setting>
+
+<address-setting match="DLQ">
+   <address-full-policy>DROP</address-full-policy>
+   <max-size-bytes>52428800</max-size-bytes>
+</address-setting>
+
+<address-setting match="ExpiryQueue">
+   <address-full-policy>DROP</address-full-policy>
+   <max-size-bytes>52428800</max-size-bytes>
 </address-setting>
 
 <!-- ============ inside <addresses> ============ -->
@@ -67,5 +77,17 @@
 <address name="ExpiryQueue">
    <anycast>
       <queue name="ExpiryQueue" />
+   </anycast>
+</address>
+
+<address name="nova.fcb.integration.request.v1">
+   <anycast>
+      <queue name="nova.fcb.integration.request.v1" />
+   </anycast>
+</address>
+
+<address name="nova.fcb.jwks.request.v1">
+   <anycast>
+      <queue name="nova.fcb.jwks.request.v1" />
    </anycast>
 </address>

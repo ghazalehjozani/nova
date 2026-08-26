@@ -48,6 +48,12 @@ if [ ! -d "$INSTANCE/bin" ]; then
   # configurationType is xsd:all, so any position inside <core> is valid.
   sed -i "s|</core>|      <persist-delivery-count-before-delivery>true</persist-delivery-count-before-delivery>\n   </core>|" "$BROKER_XML"
 
+  # ---- global-max-size: deliberate, not inherited ----
+  # The template leaves it commented out, so it defaults to half of -Xmx — a number nobody chose and
+  # that moves whenever the heap does. Six brokers share one host; an explicit cap makes each one start
+  # paging at a known point instead of racing the others for memory and then for disk.
+  sed -i "s|</core>|      <global-max-size>${ARTEMIS_GLOBAL_MAX_SIZE:-512Mb}</global-max-size>\n   </core>|" "$BROKER_XML"
+
   # NOTE: <redistribution-delay> is an ADDRESS-SETTING element. It must NOT be placed inside
   # <cluster-connection> (it is not valid there) — redistribution is enabled per matching
   # address in the address-settings below. Message load balancing stays ON_DEMAND in the
@@ -71,9 +77,13 @@ if [ ! -d "$INSTANCE/bin" ]; then
             <page-size-bytes>10485760</page-size-bytes>
             <default-queue-routing-type>ANYCAST</default-queue-routing-type>
             <default-address-routing-type>ANYCAST</default-address-routing-type>
-            <auto-create-queues>true</auto-create-queues>
+            <!-- Auto-create is off for the namespace as a whole: a typo'd destination would otherwise
+                 silently create a live address that nothing ever reads. The per-instance reply
+                 namespaces re-enable it below (their names are not knowable up front); the two fixed
+                 request addresses are pre-declared in <addresses>. -->
+            <auto-create-queues>false</auto-create-queues>
             <auto-delete-queues>false</auto-delete-queues>
-            <auto-create-addresses>true</auto-create-addresses>
+            <auto-create-addresses>false</auto-create-addresses>
             <auto-delete-addresses>false</auto-delete-addresses>
          </address-setting>
 
@@ -84,14 +94,31 @@ if [ ! -d "$INSTANCE/bin" ]; then
          <!-- redistribution-delay -1: a per-instance reply queue has one consumer on one node.
               Inheriting nova.fcb.#'s 1000 ships its messages to dead copies on the other nodes. -->
          <address-setting match="nova.fcb.integration.reply.#">
+            <auto-create-queues>true</auto-create-queues>
+            <auto-create-addresses>true</auto-create-addresses>
             <auto-delete-queues>true</auto-delete-queues>
             <auto-delete-queues-delay>60000</auto-delete-queues-delay>
             <redistribution-delay>-1</redistribution-delay>
          </address-setting>
          <address-setting match="nova.fcb.jwks.reply.#">
+            <auto-create-queues>true</auto-create-queues>
+            <auto-create-addresses>true</auto-create-addresses>
             <auto-delete-queues>true</auto-delete-queues>
             <auto-delete-queues-delay>60000</auto-delete-queues-delay>
             <redistribution-delay>-1</redistribution-delay>
+         </address-setting>
+
+         <!-- DLQ and ExpiryQueue have no consumers. Uncapped they grow until the disk fills, which is
+              exactly what happened: ~54k messages accumulated silently and took max-disk-usage with
+              them, blocking every producer. DROP is the only sane full-policy for a graveyard — PAGE
+              is what filled the disk, and BLOCK would stall the address that feeds them. -->
+         <address-setting match="DLQ">
+            <address-full-policy>DROP</address-full-policy>
+            <max-size-bytes>52428800</max-size-bytes>
+         </address-setting>
+         <address-setting match="ExpiryQueue">
+            <address-full-policy>DROP</address-full-policy>
+            <max-size-bytes>52428800</max-size-bytes>
          </address-setting>
 XML
   # insert before the closing </address-settings>
@@ -119,6 +146,26 @@ XML
          </address>
 XML
     awk -v block="$ADDRS" '{ print; if ($0 ~ /<addresses>/ && !done) { print block; done=1 } }' \
+        "$BROKER_XML" > "$BROKER_XML.new" && mv "$BROKER_XML.new" "$BROKER_XML"
+  fi
+
+  # ---- pre-declare the two fixed request addresses (auto-create is off for nova.fcb.#) ----
+  # Names and routing type mirror exactly what auto-create used to produce: queue name == address name,
+  # ANYCAST. FCB consumes from these; Nova only produces.
+  if ! grep -q 'name="nova.fcb.integration.request.v1"' "$BROKER_XML"; then
+    read -r -d '' REQ_ADDRS <<'XML' || true
+         <address name="nova.fcb.integration.request.v1">
+            <anycast>
+               <queue name="nova.fcb.integration.request.v1" />
+            </anycast>
+         </address>
+         <address name="nova.fcb.jwks.request.v1">
+            <anycast>
+               <queue name="nova.fcb.jwks.request.v1" />
+            </anycast>
+         </address>
+XML
+    awk -v block="$REQ_ADDRS" '{ print; if ($0 ~ /<addresses>/ && !done) { print block; done=1 } }' \
         "$BROKER_XML" > "$BROKER_XML.new" && mv "$BROKER_XML.new" "$BROKER_XML"
   fi
 
