@@ -30,4 +30,10 @@ public enum NovaReconciliationType implements LocalizedEnum<NovaReconciliationTy
     public String code() {
         return code;
     }
+
+
+    @Override
+    public String catalogName() {
+        return "nova-reconciliation-type";
+    }
 }

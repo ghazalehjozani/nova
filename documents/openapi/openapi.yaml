@@ -264,7 +264,7 @@ paths:
                           gatewayType:
                             type: object
                             description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-                            properties: &ref_93
+                            properties: &ref_95
                               code:
                                 type: string
                                 description: Stable UPPERCASE machine value; clients branch on this only.
@@ -638,7 +638,7 @@ paths:
                   items:
                     type: object
                     description: رابطه نوع تسهیلات با موضوع
-                    properties: &ref_94
+                    properties: &ref_93
                       relationType:
                         type: string
                         description: نوع رابطه
@@ -682,7 +682,7 @@ paths:
                           type: string
                         minItems: 1
                         uniqueItems: true
-                    required: &ref_95
+                    required: &ref_94
                       - economicSectorCodes
                       - relationType
                       - topicCode
@@ -2316,7 +2316,7 @@ paths:
                           lifeInsurancePaymentType:
                             type: object
                             description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-                            properties: &ref_135
+                            properties: &ref_139
                               code:
                                 type: string
                                 description: Stable UPPERCASE machine value; clients branch on this only.
@@ -2330,7 +2330,7 @@ paths:
                           loanSecondaryType:
                             type: object
                             description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-                            properties: &ref_137
+                            properties: &ref_140
                               code:
                                 type: string
                                 description: Stable UPPERCASE machine value; clients branch on this only.
@@ -2619,7 +2619,7 @@ paths:
                 durationRange:
                   description: بازه مدت زمان تسهیلات
                   type: object
-                  properties: &ref_136
+                  properties: &ref_135
                     minMonths:
                       type: integer
                       format: int32
@@ -2703,7 +2703,7 @@ paths:
                 penaltyPolicy:
                   description: سیاست جریمه
                   type: object
-                  properties: &ref_138
+                  properties: &ref_136
                     penaltyRate:
                       type: string
                       description: نرخ جریمه
@@ -2760,7 +2760,7 @@ paths:
                 repaymentPriorityPolicy:
                   description: اولویت کسر مبالغ
                   type: object
-                  properties: &ref_140
+                  properties: &ref_138
                     principalPriority:
                       type: integer
                       format: int32
@@ -2791,7 +2791,7 @@ paths:
                 regulatoryCompliancePolicy:
                   description: انتقال به مطالبات
                   type: object
-                  properties: &ref_139
+                  properties: &ref_137
                     overDuePeriodMonths:
                       type: integer
                       format: int32
@@ -3364,7 +3364,7 @@ paths:
                             format: int64
                           loanApplication:
                             type: object
-                            properties: &ref_185
+                            properties: &ref_183
                               id:
                                 type: string
                                 format: uuid
@@ -3380,7 +3380,7 @@ paths:
                                 type: array
                                 items:
                                   type: object
-                                  properties: &ref_182
+                                  properties: &ref_181
                                     customerNumber:
                                       type: string
                                     partyType:
@@ -3426,7 +3426,7 @@ paths:
                               applicantChannel:
                                 type: object
                                 description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-                                properties: &ref_117
+                                properties: &ref_125
                                   code:
                                     type: string
                                     description: Stable UPPERCASE machine value; clients branch on this only.
@@ -3511,7 +3511,7 @@ paths:
                                     description: شهر محل مصرف
                           sanctionedLoan:
                             type: object
-                            properties: &ref_186
+                            properties: &ref_184
                               id:
                                 type: string
                                 format: uuid
@@ -3523,7 +3523,7 @@ paths:
                               sanctionSerialType:
                                 type: object
                                 description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-                                properties: &ref_183
+                                properties: &ref_187
                                   code:
                                     type: string
                                     description: Stable UPPERCASE machine value; clients branch on this only.
@@ -3554,7 +3554,7 @@ paths:
                                 type: array
                                 items:
                                   type: object
-                                  properties: &ref_184
+                                  properties: &ref_182
                                     scheduledDate:
                                       type: string
                                       format: date
@@ -3582,7 +3582,7 @@ paths:
                           currentState:
                             type: object
                             description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-                            properties: &ref_181
+                            properties: &ref_186
                               code:
                                 type: string
                                 description: Stable UPPERCASE machine value; clients branch on this only.
@@ -3618,7 +3618,7 @@ paths:
                                 status:
                                   type: object
                                   description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-                                  properties: &ref_187
+                                  properties: &ref_185
                                     code:
                                       type: string
                                       description: Stable UPPERCASE machine value; clients branch on this only.
@@ -5780,7 +5780,7 @@ paths:
                       description: ذینفعان شامل مشتری اصلی، فرعی و ضامنین
                       items:
                         oneOf:
-                          - allOf: &ref_118
+                          - allOf: &ref_117
                               - discriminator: &ref_39
                                   propertyName: role
                                 properties: &ref_40
@@ -5797,10 +5797,10 @@ paths:
                                     type: object
                                     description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
                                     properties: *ref_38
-                            required: &ref_119
+                            required: &ref_118
                               - customerNumber
                               - role
-                          - allOf: &ref_120
+                          - allOf: &ref_119
                               - discriminator: *ref_39
                                 properties: *ref_40
                                 required: *ref_41
@@ -5813,7 +5813,7 @@ paths:
                                     type: object
                                     description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
                                     properties: *ref_38
-                            required: &ref_121
+                            required: &ref_120
                               - customerNumber
                               - role
                           - allOf: &ref_53
@@ -5897,7 +5897,7 @@ paths:
                           required: &ref_116
                             - accountNumber
                             - type
-                        - allOf: &ref_122
+                        - allOf: &ref_121
                             - discriminator: *ref_43
                               properties: *ref_44
                               required: *ref_45
@@ -5910,7 +5910,7 @@ paths:
                                   type: object
                                   description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
                                   properties: *ref_42
-                          required: &ref_123
+                          required: &ref_122
                             - depositNumber
                             - type
                     economicSectorCode:
@@ -6076,7 +6076,7 @@ paths:
             schema:
               type: object
               description: درخواست ایجاد تسهیلات با اقساط نامساوی — جدول اقساط توسط کاربر ارسال می‌شود
-              properties: &ref_124
+              properties: &ref_123
                 loanTypeCode:
                   type: string
                   description: کد نوع تسهیلات
@@ -6099,7 +6099,7 @@ paths:
                   type: object
                   additionalProperties:
                     type: string
-              required: &ref_125
+              required: &ref_124
                 - installmentSchedulePlan
                 - loanApplication
                 - loanArrangementCode
@@ -6815,7 +6815,7 @@ paths:
                     additionalProperties: {}
                   resultData:
                     type: object
-                    properties: &ref_208
+                    properties: &ref_205
                       id:
                         type: string
                         format: uuid
@@ -6856,7 +6856,7 @@ paths:
                             status:
                               type: object
                               description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-                              properties: &ref_205
+                              properties: &ref_208
                                 code:
                                   type: string
                                   description: Stable UPPERCASE machine value; clients branch on this only.
@@ -6916,7 +6916,7 @@ paths:
                                     type: string
                       scheduleHistory:
                         type: object
-                        properties: &ref_207
+                        properties: &ref_204
                           previousScheduleIds:
                             type: array
                             items:
@@ -6934,7 +6934,7 @@ paths:
                       scheduleType:
                         type: object
                         description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-                        properties: &ref_204
+                        properties: &ref_207
                           code:
                             type: string
                             description: Stable UPPERCASE machine value; clients branch on this only.
@@ -6948,7 +6948,7 @@ paths:
                       status:
                         type: object
                         description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-                        properties: &ref_203
+                        properties: &ref_206
                           code:
                             type: string
                             description: Stable UPPERCASE machine value; clients branch on this only.
@@ -6974,7 +6974,7 @@ paths:
                         pattern: ^-?\d+(\.\d{1,4})?$
                       restructuringRecord:
                         type: object
-                        properties: &ref_206
+                        properties: &ref_203
                           reason:
                             type: string
                           restructuringAmount:
@@ -12375,7 +12375,7 @@ paths:
             application/json:
               schema:
                 type: object
-                properties: &ref_156
+                properties: &ref_154
                   items:
                     type: array
                     items:
@@ -12411,7 +12411,7 @@ paths:
                         direction:
                           type: object
                           description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-                          properties: &ref_155
+                          properties: &ref_161
                             code:
                               type: string
                               description: Stable UPPERCASE machine value; clients branch on this only.
@@ -12505,7 +12505,7 @@ paths:
                               description: Accept-Language-localized display text.
                         dossier:
                           type: object
-                          properties: &ref_159
+                          properties: &ref_157
                             rootCause:
                               type: object
                               description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
@@ -12513,7 +12513,7 @@ paths:
                             confidence:
                               type: object
                               description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-                              properties: &ref_154
+                              properties: &ref_160
                                 code:
                                   type: string
                                   description: Stable UPPERCASE machine value; clients branch on this only.
@@ -12526,7 +12526,7 @@ paths:
                                   description: Accept-Language-localized display text.
                             novaSnapshot:
                               type: object
-                              properties: &ref_158
+                              properties: &ref_156
                                 status:
                                   type: string
                                 lastForwardEvents:
@@ -12537,7 +12537,7 @@ paths:
                                   type: array
                                   items:
                                     type: object
-                                    properties: &ref_160
+                                    properties: &ref_158
                                       eventId:
                                         type: string
                                       eventType:
@@ -12555,7 +12555,7 @@ paths:
                                   type: string
                             fcbSnapshot:
                               type: object
-                              properties: &ref_157
+                              properties: &ref_155
                                 reachable:
                                   type: boolean
                                 exists:
@@ -12605,7 +12605,7 @@ paths:
                                   type: array
                                   items:
                                     type: object
-                                    properties: &ref_161
+                                    properties: &ref_159
                                       name:
                                         type: string
                                       satisfied:
@@ -14128,7 +14128,7 @@ components:
       type: object
       properties: *ref_86
       required: *ref_87
-    RemediationKind:
+    remediation-kind:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
       properties: *ref_69
@@ -14145,16 +14145,16 @@ components:
       description: بخش اقتصادی و نوع ارز مرتبط
       properties: *ref_91
       required: *ref_92
-    GatewayType:
-      type: object
-      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_93
     RelationTypeLoanTopicDto:
       type: object
       description: رابطه نوع تسهیلات با موضوع
-      properties: *ref_94
-      required: *ref_95
-    TradeRelationType:
+      properties: *ref_93
+      required: *ref_94
+    gateway-type:
+      type: object
+      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
+      properties: *ref_95
+    trade-relation-type:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
       properties: *ref_96
@@ -14210,7 +14210,7 @@ components:
       description: جزئیات افزودن وثیقه به تسهیلات
       properties: *ref_111
       required: *ref_112
-    CollateralType:
+    collateral-type:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
       properties:
@@ -14244,31 +14244,19 @@ components:
     AccountDestinationDto:
       allOf: *ref_115
       required: *ref_116
-    ApplicantChannel:
-      type: object
-      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_117
     ApplicantDto:
-      allOf: *ref_118
-      required: *ref_119
+      allOf: *ref_117
+      required: *ref_118
     CoApplicantDto:
-      allOf: *ref_120
-      required: *ref_121
+      allOf: *ref_119
+      required: *ref_120
     DepositDestinationDto:
-      allOf: *ref_122
-      required: *ref_123
+      allOf: *ref_121
+      required: *ref_122
     DisburseDestinationRequestDto:
       discriminator: *ref_43
       properties: *ref_44
       required: *ref_45
-    DisburseDestinationType:
-      type: object
-      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_42
-    DisbursementMethod:
-      type: object
-      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_29
     LoanApplicationDto:
       type: object
       description: اطلاعات درخواست تسهیلات
@@ -14277,20 +14265,32 @@ components:
     OriginateUnequalInstallmentFacilityRequest:
       type: object
       description: درخواست ایجاد تسهیلات با اقساط نامساوی — جدول اقساط توسط کاربر ارسال می‌شود
-      properties: *ref_124
-      required: *ref_125
+      properties: *ref_123
+      required: *ref_124
     PartyRequestDto:
       discriminator: *ref_39
       properties: *ref_40
       required: *ref_41
-    PartyRole:
-      type: object
-      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_38
     SamatDto:
       type: object
       description: اطلاعات مربوط به سمات
       properties: *ref_46
+    applicant-channel:
+      type: object
+      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
+      properties: *ref_125
+    disburse-destination-type:
+      type: object
+      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
+      properties: *ref_42
+    disbursement-method:
+      type: object
+      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
+      properties: *ref_29
+    party-role:
+      type: object
+      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
+      properties: *ref_38
     OriginateEqualInstallmentFacilityRequest:
       type: object
       description: درخواست ایجاد تسهیلات با اقساط مساوی یا یکجا — جدول اقساط توسط سامانه تولید می‌شود
@@ -14300,7 +14300,44 @@ components:
       type: object
       description: بازه مبلغی
       properties: *ref_128
-    CollateralCalculationType:
+    CollateralPolicyDto:
+      type: object
+      description: سیاست وثایق
+      properties: *ref_129
+    DefineTradeLoanArrangementRequest:
+      type: object
+      description: ایجاد شرایط تسهیلات
+      properties: *ref_130
+      required: *ref_131
+    GracePeriodPolicyDto:
+      type: object
+      description: سیاست دوره مهلت
+      properties: *ref_132
+    InstallmentPolicyDto:
+      type: object
+      description: سیاست اقساط
+      properties: *ref_133
+    InterestPolicyDto:
+      type: object
+      description: سیاست نرخ سود
+      properties: *ref_134
+    LoanDurationRangeDto:
+      type: object
+      description: بازه مدت زمان تسهیلات
+      properties: *ref_135
+    PenaltyPolicyDto:
+      type: object
+      description: سیاست جریمه
+      properties: *ref_136
+    RegulatoryCompliancePolicyDto:
+      type: object
+      description: انتقال به مطالبات
+      properties: *ref_137
+    RepaymentPriorityPolicyDto:
+      type: object
+      description: سیاست اولویت بازپرداخت
+      properties: *ref_138
+    collateral-calculation-type:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
       properties:
@@ -14313,16 +14350,7 @@ components:
         label:
           type: string
           description: Accept-Language-localized display text.
-    CollateralPolicyDto:
-      type: object
-      description: سیاست وثایق
-      properties: *ref_129
-    DefineTradeLoanArrangementRequest:
-      type: object
-      description: ایجاد شرایط تسهیلات
-      properties: *ref_130
-      required: *ref_131
-    DisbursementType:
+    disbursement-type:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
       properties:
@@ -14335,11 +14363,7 @@ components:
         label:
           type: string
           description: Accept-Language-localized display text.
-    GracePeriodPolicyDto:
-      type: object
-      description: سیاست دوره مهلت
-      properties: *ref_132
-    InstallmentPaymentType:
+    installment-payment-type:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
       properties:
@@ -14353,31 +14377,19 @@ components:
         label:
           type: string
           description: Accept-Language-localized display text.
-    InstallmentPolicyDto:
-      type: object
-      description: سیاست اقساط
-      properties: *ref_133
-    InterestPolicyDto:
-      type: object
-      description: سیاست نرخ سود
-      properties: *ref_134
-    LifeInsurancePaymentType:
+    life-insurance-payment-type:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_135
-    LoanDurationRangeDto:
-      type: object
-      description: بازه مدت زمان تسهیلات
-      properties: *ref_136
-    LoanSecondaryType:
+      properties: *ref_139
+    loan-secondary-type:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_137
-    PartyType:
+      properties: *ref_140
+    party-type:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
       properties: *ref_28
-    PenaltyPaymentType:
+    penalty-payment-type:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
       properties:
@@ -14390,19 +14402,7 @@ components:
         label:
           type: string
           description: Accept-Language-localized display text.
-    PenaltyPolicyDto:
-      type: object
-      description: سیاست جریمه
-      properties: *ref_138
-    RegulatoryCompliancePolicyDto:
-      type: object
-      description: انتقال به مطالبات
-      properties: *ref_139
-    RepaymentPriorityPolicyDto:
-      type: object
-      description: سیاست اولویت بازپرداخت
-      properties: *ref_140
-    SectionType:
+    section-type:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
       properties: *ref_141
@@ -14443,55 +14443,55 @@ components:
     EnumView:
       type: object
       properties: *ref_151
-    DiscrepancyStatus:
+    discrepancy-status:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
       properties: *ref_72
-    Verdict:
+    verdict:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
       properties: *ref_152
-    AutonomyTier:
+    autonomy-tier:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
       properties: *ref_153
-    Confidence:
-      type: object
-      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_154
-    Direction:
-      type: object
-      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_155
     DiscrepancyPage:
       type: object
-      properties: *ref_156
+      properties: *ref_154
     DiscrepancyView:
       type: object
       properties: *ref_71
     FcbSnapshot:
       type: object
-      properties: *ref_157
+      properties: *ref_155
     NovaSnapshot:
       type: object
-      properties: *ref_158
+      properties: *ref_156
     OperatorDossier:
       type: object
-      properties: *ref_159
+      properties: *ref_157
     OutboxRowSummary:
       type: object
-      properties: *ref_160
+      properties: *ref_158
     Precondition:
       type: object
-      properties: *ref_161
+      properties: *ref_159
     ProposedRemediation:
       type: object
       properties: *ref_70
-    RootCause:
+    confidence:
+      type: object
+      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
+      properties: *ref_160
+    direction:
+      type: object
+      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
+      properties: *ref_161
+    root-cause:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
       properties: *ref_68
-    SafetyTier:
+    safety-tier:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
       properties: *ref_162
@@ -14594,33 +14594,33 @@ components:
     DisbursementRecordEmbDto:
       type: object
       properties: *ref_180
-    FacilityStatus:
-      type: object
-      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_181
     PartyEmbDto:
       type: object
-      properties: *ref_182
-    SanctionType:
-      type: object
-      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_183
+      properties: *ref_181
     ScheduledTrancheEmbDto:
       type: object
-      properties: *ref_184
+      properties: *ref_182
     TradeFacilityQueryDto:
       type: object
       properties: *ref_31
     TradeLoanApplicationDto:
       type: object
-      properties: *ref_185
+      properties: *ref_183
     TradeSanctionedLoanEntityDto:
       type: object
-      properties: *ref_186
+      properties: *ref_184
     TransactionNumberEmbDto:
       type: object
       properties: *ref_30
-    TransactionStatus:
+    accounting-transaction-status:
+      type: object
+      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
+      properties: *ref_185
+    facility-status:
+      type: object
+      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
+      properties: *ref_186
+    sanction-type:
       type: object
       description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
       properties: *ref_187
@@ -14687,26 +14687,26 @@ components:
     InstallmentPaymentDto:
       type: object
       properties: *ref_202
-    InstallmentScheduleStatus:
-      type: object
-      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_203
-    InstallmentScheduleType:
-      type: object
-      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_204
-    InstallmentStatus:
-      type: object
-      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
-      properties: *ref_205
     RestructuringRecordDto:
       type: object
-      properties: *ref_206
+      properties: *ref_203
     ScheduleHistoryEmbDto:
       type: object
-      properties: *ref_207
+      properties: *ref_204
     TradeInstallmentScheduleQueryDto:
       type: object
+      properties: *ref_205
+    installment-schedule-status:
+      type: object
+      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
+      properties: *ref_206
+    installment-schedule-type:
+      type: object
+      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
+      properties: *ref_207
+    installment-status:
+      type: object
+      description: Localized enum rendered as {code,label} (SAW.101 §3.1.2.6); `code` is constrained to the enum's constant names. To opt a particular enum out (bare string), annotate it with @JsonValue or @JsonFormat(shape = STRING).
       properties: *ref_208
     BaseResponseListFormulaDto:
       type: object
