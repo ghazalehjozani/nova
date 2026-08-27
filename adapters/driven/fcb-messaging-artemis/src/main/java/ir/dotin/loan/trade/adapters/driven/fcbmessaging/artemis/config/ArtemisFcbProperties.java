@@ -48,8 +48,12 @@ public class ArtemisFcbProperties {
      */
     private Duration livenessCheckInterval = Duration.ofSeconds(5);
 
-    /** Max wait for a single probe echo (also the probe message TTL). */
-    private Duration livenessProbeTimeout = Duration.ofSeconds(3);
+    /**
+     * Max wait for a single probe echo. Not the probe's message TTL: pangaea stamps that as this value plus
+     * {@code livenessProbeTtlSkewGuard} (default 5m), so the probe always outlives the wait and a timeout can only mean
+     * the consumer did not echo (ADR-0036).
+     */
+    private Duration livenessProbeTimeout = Duration.ofSeconds(5);
 
     /** Consecutive probe failures that trigger a reply session+consumer rebuild. */
     private int livenessFailureThreshold = 2;
