@@ -59,7 +59,6 @@ public enum TradeRelationType implements RelationType<TradeRelationType>, Locali
         return this == DISBURSEMENT_TRANSACTION_CONTEXT;
     }
 
-
     @Override
     public String catalogName() {
         return "trade-relation-type";

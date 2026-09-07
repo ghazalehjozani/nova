@@ -36,6 +36,9 @@ class FacilityRootCauseClassifierTruthTableTest {
 
     private final FacilityRootCauseClassifier classifier = new FacilityRootCauseClassifier();
 
+    // Regression guard (ADR-0008): rows through "absent+forwardNotProcessed=lag" predate the classifier's terminal-
+    // category allowlist and must keep their exact RootCause/Confidence/SafetyTier/RemediationKind — the allowlist
+    // only widens which DLT categories are re-drivable, it must never change an already-decided row.
     static Stream<Arguments> truthTable() {
         return Stream.of(
                 Arguments.of(
@@ -150,6 +153,122 @@ class FacilityRootCauseClassifierTruthTableTest {
                         Confidence.HIGH,
                         SafetyTier.AUTO_SAFE,
                         RemediationKind.REPLAY_FORWARD),
+                // ADR-0008 truth table: one case per NovaDltCategory value, plus null and an unrecognised string.
+                // TRANSIENT_INTERNAL is covered by "absent+dltTransientExhausted=applyLost" above, BUSINESS by
+                // "absent+dltBusiness=terminalReject" above; TRANSIENT_EXTERNAL/PERMANENT_HTTP/PERMANENT_CONFIG/
+                // POISON/UNKNOWN/null/unrecognised follow here.
+                Arguments.of(
+                        "absent+dltTransientExternal=applyLost",
+                        input(
+                                false,
+                                null,
+                                FacilityStatus.APPROVED,
+                                List.of(forward(UID, "TRADE_LOAN_FACILITY_APPROVED", MessageStatus.PROCESSED)),
+                                signals(sig(UID, IdempotencyState.ABSENT, true, "TRANSIENT_EXTERNAL")),
+                                true,
+                                null),
+                        RootCause.FCB_APPLY_LOST,
+                        Confidence.HIGH,
+                        SafetyTier.AUTO_SAFE,
+                        RemediationKind.REPLAY_FORWARD),
+                Arguments.of(
+                        "absent+dltUnknown=applyLost",
+                        input(
+                                false,
+                                null,
+                                FacilityStatus.APPROVED,
+                                List.of(forward(UID, "TRADE_LOAN_FACILITY_APPROVED", MessageStatus.PROCESSED)),
+                                signals(sig(UID, IdempotencyState.ABSENT, true, "UNKNOWN")),
+                                true,
+                                null),
+                        RootCause.FCB_APPLY_LOST,
+                        Confidence.HIGH,
+                        SafetyTier.AUTO_SAFE,
+                        RemediationKind.REPLAY_FORWARD),
+                Arguments.of(
+                        "absent+dltNullCategory=applyLost",
+                        input(
+                                false,
+                                null,
+                                FacilityStatus.APPROVED,
+                                List.of(forward(UID, "TRADE_LOAN_FACILITY_APPROVED", MessageStatus.PROCESSED)),
+                                signals(sig(UID, IdempotencyState.ABSENT, true, null)),
+                                true,
+                                null),
+                        RootCause.FCB_APPLY_LOST,
+                        Confidence.HIGH,
+                        SafetyTier.AUTO_SAFE,
+                        RemediationKind.REPLAY_FORWARD),
+                Arguments.of(
+                        "absent+dltUnrecognizedCategory=applyLost",
+                        input(
+                                false,
+                                null,
+                                FacilityStatus.APPROVED,
+                                List.of(forward(UID, "TRADE_LOAN_FACILITY_APPROVED", MessageStatus.PROCESSED)),
+                                signals(sig(UID, IdempotencyState.ABSENT, true, "SOME_NEW_CATEGORY")),
+                                true,
+                                null),
+                        RootCause.FCB_APPLY_LOST,
+                        Confidence.HIGH,
+                        SafetyTier.AUTO_SAFE,
+                        RemediationKind.REPLAY_FORWARD),
+                Arguments.of(
+                        "absent+dltUnknown+money=applyLostMoneyGated",
+                        input(
+                                false,
+                                null,
+                                FacilityStatus.FULLY_DISBURSED,
+                                List.of(forward(UID, "TRADE_LOAN_FACILITY_FULLY_DISBURSED", MessageStatus.PROCESSED)),
+                                signals(sig(UID, IdempotencyState.ABSENT, true, "UNKNOWN")),
+                                true,
+                                null),
+                        RootCause.FCB_APPLY_LOST,
+                        Confidence.HIGH,
+                        SafetyTier.MONEY_GATED,
+                        RemediationKind.REPLAY_FORWARD),
+                Arguments.of(
+                        "absent+dltPermanentHttp=terminalReject",
+                        input(
+                                false,
+                                null,
+                                FacilityStatus.APPROVED,
+                                List.of(forward(UID, "TRADE_LOAN_FACILITY_APPROVED", MessageStatus.PROCESSED)),
+                                signals(sig(UID, IdempotencyState.ABSENT, true, "PERMANENT_HTTP")),
+                                true,
+                                null),
+                        RootCause.FCB_BUSINESS_REJECT,
+                        Confidence.HIGH,
+                        SafetyTier.MANUAL_ONLY,
+                        RemediationKind.MANUAL_DATA_FIX),
+                Arguments.of(
+                        "absent+dltPermanentConfig=terminalReject",
+                        input(
+                                false,
+                                null,
+                                FacilityStatus.APPROVED,
+                                List.of(forward(UID, "TRADE_LOAN_FACILITY_APPROVED", MessageStatus.PROCESSED)),
+                                signals(sig(UID, IdempotencyState.ABSENT, true, "PERMANENT_CONFIG")),
+                                true,
+                                null),
+                        RootCause.FCB_BUSINESS_REJECT,
+                        Confidence.HIGH,
+                        SafetyTier.MANUAL_ONLY,
+                        RemediationKind.MANUAL_DATA_FIX),
+                Arguments.of(
+                        "absent+dltPoison=terminalReject",
+                        input(
+                                false,
+                                null,
+                                FacilityStatus.APPROVED,
+                                List.of(forward(UID, "TRADE_LOAN_FACILITY_APPROVED", MessageStatus.PROCESSED)),
+                                signals(sig(UID, IdempotencyState.ABSENT, true, "POISON")),
+                                true,
+                                null),
+                        RootCause.FCB_BUSINESS_REJECT,
+                        Confidence.HIGH,
+                        SafetyTier.MANUAL_ONLY,
+                        RemediationKind.MANUAL_DATA_FIX),
                 Arguments.of(
                         "absent+noForwardOutbox",
                         input(false, null, FacilityStatus.APPROVED, List.of(), Map.of(), false, null),

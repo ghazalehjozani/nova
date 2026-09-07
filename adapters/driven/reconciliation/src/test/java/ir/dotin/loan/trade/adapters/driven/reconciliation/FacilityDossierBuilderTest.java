@@ -86,6 +86,38 @@ class FacilityDossierBuilderTest {
     }
 
     @Test
+    void surfacesDltStatusAndCategoryPerEventUidInEvidence() {
+        UUID id = UUID.randomUUID();
+        List<OutboxRecordView> rows = List.of(forward(id, "TRADE_LOAN_FACILITY_APPROVED", MessageStatus.PROCESSED, 1L));
+        FacilityClassification classification = new FacilityClassification(
+                RootCause.FCB_APPLY_LOST,
+                Confidence.HIGH,
+                SafetyTier.AUTO_SAFE,
+                RemediationKind.REPLAY_FORWARD,
+                List.of("fcb.exists=false"));
+
+        ReconLoanFileState fcb = fcbAbsentWithSignals(deadLettered(id, "UNKNOWN"));
+        OperatorDossier dossier = builder.build(FacilityStatus.APPROVED, fcb, rows, null, classification, null);
+
+        assertThat(dossier.evidence()).contains("dlt." + id + ".dltStatus=DEAD", "dlt." + id + ".dltCategory=UNKNOWN");
+    }
+
+    @Test
+    void surfacesDltOrphanWhenFacilityHasUnmatchedDeadLetter() {
+        UUID id = UUID.randomUUID();
+        List<OutboxRecordView> rows = List.of(forward(id, "TRADE_LOAN_FACILITY_APPROVED", MessageStatus.PROCESSED, 1L));
+        FacilityClassification classification = new FacilityClassification(
+                RootCause.FCB_LAG, Confidence.HIGH, SafetyTier.AUTO_SAFE, RemediationKind.NONE, List.of());
+
+        // dltPresentForFacility=true but no per-event peer signal at all (e.g. keyed by an uid the probe never asked
+        // about) — an unmatched dead-letter the dossier must surface, not silently drop.
+        ReconLoanFileState fcb = fcbAbsentWithDltPresent();
+        OperatorDossier dossier = builder.build(FacilityStatus.APPROVED, fcb, rows, null, classification, null);
+
+        assertThat(dossier.evidence()).contains("dlt.orphan=true");
+    }
+
+    @Test
     void buildsReverseNovaDossierForPhantom() {
         FacilityClassification classification = new FacilityClassification(
                 RootCause.NOVA_PHANTOM,
@@ -269,8 +301,16 @@ class FacilityDossierBuilderTest {
         return new ReconLoanFileState(false, null, "manual", 1L, true, null, List.of(signals), false);
     }
 
+    private static ReconLoanFileState fcbAbsentWithDltPresent() {
+        return new ReconLoanFileState(false, null, "manual", 1L, true, null, List.of(), true);
+    }
+
     private static EventPeerSignal completed(UUID eventId) {
         return new EventPeerSignal(eventId.toString(), IdempotencyState.COMPLETED, false, null);
+    }
+
+    private static EventPeerSignal deadLettered(UUID eventId, String dltCategory) {
+        return new EventPeerSignal(eventId.toString(), IdempotencyState.ABSENT, true, dltCategory);
     }
 
     private static OutboxRecordView forward(UUID eventId, String eventType, MessageStatus status, long sequence) {

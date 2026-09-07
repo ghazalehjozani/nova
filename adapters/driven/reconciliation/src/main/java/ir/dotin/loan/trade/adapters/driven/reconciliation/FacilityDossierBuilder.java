@@ -57,15 +57,45 @@ final class FacilityDossierBuilder {
 
         String hash = computeHash(classification.rootCause(), fcb, novaStatus, rows, recommended.kind());
 
+        List<String> evidence = new ArrayList<>(classification.evidence());
+        evidence.addAll(dltEvidence(fcb, rows));
+
         return new OperatorDossier(
                 classification.rootCause(),
                 classification.confidence(),
                 novaSnapshot,
                 fcbSnapshot,
-                classification.evidence(),
+                evidence,
                 recommended,
                 alternatives,
                 hash);
+    }
+
+    /**
+     * Per-event FCB dead-letter status/category for every forward row whose peer signal is itself dead-lettered, plus a
+     * {@code dlt.orphan} flag when FCB holds a dead-letter for this facility ({@code dltPresentForFacility}) but none
+     * of the facility's own forward rows carry a matching dead-lettered signal — so an operator sees a
+     * {@code dltCategory=UNKNOWN} row (or an unmatched dead-letter) from the dossier instead of an Oracle session.
+     */
+    private List<String> dltEvidence(ReconLoanFileState fcb, List<OutboxRecordView> rows) {
+        Map<String, EventPeerSignal> byUid = signalsByUid(fcb);
+        List<String> evidence = new ArrayList<>();
+        boolean anyMatchedDead = false;
+        for (OutboxRecordView row : rows) {
+            String eventId = eventIdOf(row);
+            EventPeerSignal signal = byUid.get(eventId);
+            if (signal == null || !signal.dltDead()) {
+                continue;
+            }
+            anyMatchedDead = true;
+            evidence.add("dlt." + eventId + ".dltStatus=DEAD");
+            evidence.add("dlt." + eventId + ".dltCategory="
+                    + (signal.dltCategory() == null ? "UNSET" : signal.dltCategory()));
+        }
+        if (fcb.dltPresentForFacility() && !anyMatchedDead) {
+            evidence.add("dlt.orphan=true");
+        }
+        return evidence;
     }
 
     /**

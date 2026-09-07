@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 
@@ -26,6 +27,10 @@ import ir.dotin.loan.trade.core.application.ports.outbound.client.reconservice.E
  * is NOT re-drivable and surfaces as {@code FCB_BUSINESS_REJECT}.
  */
 final class FacilityRootCauseClassifier {
+
+    // ADR-0008: allowlist of FCB's genuinely terminal NovaDltCategory values — see isTerminalDltCategory.
+    private static final Set<String> TERMINAL_DLT_CATEGORIES =
+            Set.of("BUSINESS", "POISON", "PERMANENT_CONFIG", "PERMANENT_HTTP");
 
     record ClassifierInput(
             boolean fcbExists,
@@ -181,13 +186,16 @@ final class FacilityRootCauseClassifier {
         return new SignalVerdict(terminalReject, applyLost, inProgress);
     }
 
+    /**
+     * ADR-0008: classification is an explicit ALLOWLIST of FCB's genuinely terminal categories, not a blocklist of safe
+     * ones. Only {@code BUSINESS}/{@code POISON}/{@code PERMANENT_CONFIG}/{@code PERMANENT_HTTP} are terminal — these
+     * are the categories FCB's own {@code NovaFacilityEventListener.isTerminal} treats as non-retryable. {@code null},
+     * {@code UNKNOWN} (FCB could not classify the failure — not a verdict on the loan, and FCB's own
+     * {@code NovaFailureClassifier.isRetryable} agrees), and any category outside FCB's documented vocabulary fail open
+     * to re-drivable: an unrecognised category must not silently become a permanent dead end.
+     */
     private static boolean isTerminalDltCategory(@Nullable String category) {
-        // A DEAD dead-letter is re-drivable ONLY when it exhausted transient retries; every other category
-        // (BUSINESS / POISON / PERMANENT_* / unknown) is a terminal rejection a replay cannot fix.
-        if (category == null) {
-            return true;
-        }
-        return !category.startsWith("TRANSIENT");
+        return category != null && TERMINAL_DLT_CATEGORIES.contains(category);
     }
 
     private static @Nullable String eventUidOf(OutboxRecordView row) {
