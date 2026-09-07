@@ -6,7 +6,6 @@ public enum ApplicationNumberGenerationType implements LocalizedEnum<Application
     FCB_VALIDATION,
     INTERNAL_GENERATION;
 
-
     @Override
     public String catalogName() {
         return "application-number-generation-type";
