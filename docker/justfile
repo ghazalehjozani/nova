@@ -1,10 +1,17 @@
+# Nova local dev stack (Artemis + Redis + Postgres + Consul) — up/down/doctor.
+
 set shell := ["bash", "-euo", "pipefail", "-c"]
 set dotenv-load := true
 
-_default:
+[private]
+default: help
+
+# Show available recipes.
+help:
     @just --list
 
 # Fix permissions/ownership of all stack files (safe to run anytime)
+[group('setup')]
 fix-perms:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -18,6 +25,7 @@ fix-perms:
     echo "permissions fixed (dirs/files owned by $(id -un), .env=600, scripts=755)"
 
 # Create .env from .env.example with secure random passwords (idempotent: keeps existing .env)
+[group('setup')]
 setup:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -44,28 +52,40 @@ setup:
     fi
 
 # Start the whole stack
+[group('stack')]
 up: setup fix-perms
     docker compose up -d
     @echo "Artemis consoles: http://10.100.7.20:8161..8166 | Consul: http://10.100.7.20:8500"
 
+# Stop the stack (keeps data volumes)
+[group('stack')]
 down:
     docker compose down
 
-# Stop and wipe ALL data volumes (fresh start)
-clean:
+# Stop the stack and permanently delete every data volume (fresh start)
+[group('stack')]
+[confirm('This destroys every data volume in the local stack. Continue?')]
+wipe:
     docker compose down -v
 
 # Full rebuild: wipe volumes, fix perms, start fresh (use after changing init scripts)
-reset: clean fix-perms
+# `wipe` is a prerequisite and carries its own confirm gate — reset needs none of its own.
+[group('stack')]
+reset: wipe fix-perms
     docker compose up -d --force-recreate
 
+# Show container status for the stack
+[group('stack')]
 ps:
     docker compose ps
 
+# Tail compose logs, optionally for one service
+[group('stack')]
 logs service="":
     docker compose logs -f --tail=100 {{ service }}
 
 # Bootstrap Consul ACLs, set the agent token, write the management token into .env
+[group('setup')]
 consul-setup: setup
     #!/usr/bin/env bash
     set -euo pipefail
@@ -87,6 +107,7 @@ consul-setup: setup
     echo "UI: http://10.100.7.20:8500 (log in with that token)"
 
 # Sanity checks across the stack
+[group('ops')]
 doctor:
     #!/usr/bin/env bash
     set -uo pipefail

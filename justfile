@@ -4,6 +4,8 @@
 set shell := ["/usr/bin/env", "bash", "-c"]
 set dotenv-load := false
 
+mod? docker 'docker'
+
 mvn := env_var_or_default("MVN", "mvn")
 profiles := "local"
 env_file := "container/.env"
@@ -18,11 +20,15 @@ revision := `sed -n 's/.*-Drevision=\([^ ]*\).*/\1/p' .mvn/maven.config`
 lb_cmd := mvn + " -pl container -Pliquibase-ops -Drevision=" + revision
 db_sql_out := "container/target/liquibase-updateSQL.sql"
 
+[private]
+default: help
+
 # Show available recipes.
 help:
     @just --list
 
 # Verify the local publication toolchain and required secret/file inputs.
+[group('build')]
 doctor:
     #!/usr/bin/env bash
     set -Eeuo pipefail
@@ -47,22 +53,27 @@ doctor:
     echo "publication prerequisites are available"
 
 # Full build with unit tests; integration tests remain profile-gated.
+[group('build')]
 build:
     {{ mvn }} clean verify -P'!dev' -DskipITs=true
 
 # Run unit tests across the reactor.
+[group('build')]
 test:
     {{ mvn }} test
 
 # Run ArchUnit rules only.
+[group('build')]
 arch:
     {{ mvn }} test -Dtest='**/*ArchitectureTest*' -Dsurefire.failIfNoSpecifiedTests=false
 
 # Install all modules in the local Maven repository without tests.
+[group('build')]
 install:
     {{ mvn }} install -DskipTests
 
 # Start Nova with the local profile and container/.env.
+[group('run')]
 run:
     #!/usr/bin/env bash
     set -Eeuo pipefail
@@ -73,6 +84,7 @@ run:
         -Dspring-boot.run.jvmArguments='{{ jvm_args }}'
 
 # Generate and install Nova's attached JSON schema artifact.
+[group('publish')]
 schema:
     #!/usr/bin/env bash
     set -Eeuo pipefail
@@ -82,6 +94,7 @@ schema:
     echo "schema installed: ir.dotin.loan:trade-loan-container:{{ revision }}:json:schema"
 
 # Generate the schema and validate every nova-config YAML before GitOps use.
+[group('publish')]
 schema-check: schema
     #!/usr/bin/env bash
     set -Eeuo pipefail
@@ -90,27 +103,33 @@ schema-check: schema
         make -C "{{ nova_config_dir }}" check
 
 # Extract i18n message bundles.
+[group('build')]
 messages:
     {{ mvn }} -pl :trade-loan-container i18n-extractor:extract
 
 # Run the full Testcontainers E2E suite.
+[group('test')]
 e2e:
     {{ mvn }} verify -Pe2e -P'!dev'
 
 # Run one E2E test, for example: just e2e-one ConnectionPoolPinningE2ETest
+[group('test')]
 e2e-one IT:
     {{ mvn }} -pl :trade-loan-container -am verify -Pe2e -P'!dev' \
         -Dit.test={{ IT }} -Dfailsafe.failIfNoSpecifiedTests=false -Dsurefire.skip=true
 
 # Run the connection-pool pinning regression guard.
+[group('test')]
 pool-test:
     just e2e-one ConnectionPoolPinningE2ETest
 
 # Build the executable Spring Boot JAR without tests.
+[group('publish')]
 package:
     {{ mvn }} clean package -P'!dev,nexus' -pl :trade-loan-container -am -DskipTests
 
 # Publish Maven artifacts, including the attached schema JSON, using the release profile.
+[group('publish')]
 maven-publish VERSION=revision:
     #!/usr/bin/env bash
     set -Eeuo pipefail
@@ -132,6 +151,7 @@ maven-publish VERSION=revision:
     echo "published Maven reactor and schema classifier for {{ VERSION }}"
 
 # Repair/publish the schema classifier when the application artifact already exists.
+[group('publish')]
 schema-publish VERSION=revision:
     #!/usr/bin/env bash
     set -Eeuo pipefail
@@ -170,6 +190,7 @@ schema-publish VERSION=revision:
     echo "published schema classifier for {{ VERSION }}"
 
 # Build a local OCI image from a temporary, minimal context.
+[group('image')]
 image-build TAG=revision:
     #!/usr/bin/env bash
     set -Eeuo pipefail
@@ -211,6 +232,7 @@ image-build TAG=revision:
     just image-smoke "{{ TAG }}"
 
 # Inspect mandatory runtime metadata on a locally built image.
+[group('image')]
 image-smoke TAG=revision:
     #!/usr/bin/env bash
     set -Eeuo pipefail
@@ -222,6 +244,7 @@ image-smoke TAG=revision:
     echo "image metadata check passed: {{ image_name }}:{{ TAG }}"
 
 # Pull through the authenticated Nexus group on port 7110 and retag locally.
+[group('image')]
 image-pull TAG=revision:
     #!/usr/bin/env bash
     set -Eeuo pipefail
@@ -240,6 +263,7 @@ image-pull TAG=revision:
     docker logout "$registry" >/dev/null || true
 
 # Push an existing local image to the authenticated hosted registry on port 7111.
+[group('image')]
 image-push TAG=revision:
     #!/usr/bin/env bash
     set -Eeuo pipefail
@@ -260,28 +284,34 @@ image-push TAG=revision:
     echo "published $registry/{{ image_name }}:{{ TAG }}"
 
 # Publish Maven artifacts/schema first, then build and push the matching image.
+[group('publish')]
 image-publish VERSION=revision:
     just maven-publish "{{ VERSION }}"
     just image-build "{{ VERSION }}"
     just image-push "{{ VERSION }}"
 
 # Regenerate the C4 model.
+[group('docs')]
 c4:
     {{ mvn }} -Pc4-docs -pl documents/c4/java -am -DskipTests process-classes
 
 # Serve the generated C4 workspace at http://localhost:8090.
+[group('docs')]
 c4-view:
     cd documents/c4 && ./run-structurizr.sh
 
 # Clean Maven outputs.
+[group('build')]
 clean:
     {{ mvn }} clean
 
+[private]
 _validate-tag TAG:
     #!/usr/bin/env bash
     set -Eeuo pipefail
     [[ "{{ TAG }}" =~ ^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$ ]] || { echo "FATAL: invalid OCI tag: {{ TAG }}" >&2; exit 1; }
 
+[private]
 _publish-guard VERSION:
     #!/usr/bin/env bash
     set -Eeuo pipefail
@@ -291,6 +321,7 @@ _publish-guard VERSION:
         exit 1
     fi
 
+[private]
 _publish-tag-guard VERSION:
     #!/usr/bin/env bash
     set -Eeuo pipefail
@@ -306,6 +337,7 @@ _publish-tag-guard VERSION:
     fi
 
 # Liquibase operations use DB_* values from container/.env.
+[private]
 _lb goal:
     #!/usr/bin/env bash
     set -Eeuo pipefail
@@ -317,38 +349,47 @@ _lb goal:
     {{ lb_cmd }} {{ goal }}
 
 # List unapplied Liquibase changesets.
+[group('db')]
 db-status:
     just _lb liquibase:status
 
 # Validate the Liquibase changelog without DB writes.
+[group('db')]
 db-validate:
     just _lb liquibase:validate
 
 # Apply pending Liquibase changesets.
+[group('db')]
 db-update:
     just _lb liquibase:update
 
 # Write pending SQL for review without applying it.
+[group('db')]
 db-sql:
     just _lb "liquibase:updateSQL -Dliquibase.migrationSqlOutputFile={{ db_sql_out }}"
     @echo "wrote dry-run SQL to {{ db_sql_out }}"
 
 # Tag the current DB state.
+[group('db')]
 db-tag TAG:
     just _lb "liquibase:tag -Dliquibase.tag={{ TAG }}"
 
 # Roll back to a Liquibase tag.
+[group('db')]
 db-rollback TAG:
     just _lb "liquibase:rollback -Dliquibase.rollbackTag={{ TAG }}"
 
 # Roll back the last N Liquibase changesets.
+[group('db')]
 db-rollback-count N:
     just _lb "liquibase:rollback -Dliquibase.rollbackCount={{ N }}"
 
 # Show Liquibase deployment history.
+[group('db')]
 db-history:
     just _lb liquibase:history
 
 # Release a stuck Liquibase changelog lock.
+[group('db')]
 db-release-locks:
     just _lb liquibase:releaseLocks
