@@ -54,6 +54,24 @@ if [ ! -d "$INSTANCE/bin" ]; then
   # paging at a known point instead of racing the others for memory and then for disk.
   sed -i "s|</core>|      <global-max-size>${ARTEMIS_GLOBAL_MAX_SIZE:-512Mb}</global-max-size>\n   </core>|" "$BROKER_XML"
 
+  # ---- Artemis Studio prerequisites: notifications, slow-consumer visibility, unbounded management reads ----
+  # Studio needs a live feed of CONSUMER_CREATED/MESSAGE_DELIVERED/etc (activemq.notifications), needs
+  # slow-consumer-* to be present on the catch-all to report native slow-consumer detection instead of
+  # falling back to its own ackRatePerConsumer rule, and needs message bodies/properties unmuted in
+  # management responses (default truncates them). SEND_SESSION_NOTIFICATIONS does not exist on this
+  # plugin (verified against the shipped 2.44 class — only Connection/Address/Delivered/Expired do);
+  # session lifecycle rides SEND_CONNECTION_NOTIFICATIONS instead.
+  sed -i 's|<address-setting match="#">|<address-setting match="#">\n            <slow-consumer-threshold>1</slow-consumer-threshold>\n            <slow-consumer-threshold-measurement-unit>MESSAGES_PER_SECOND</slow-consumer-threshold-measurement-unit>\n            <slow-consumer-check-period>5</slow-consumer-check-period>\n            <slow-consumer-policy>NOTIFY</slow-consumer-policy>\n            <management-message-attribute-size-limit>-1</management-message-attribute-size-limit>|' "$BROKER_XML"
+  sed -i "s|</core>|      <broker-plugins>\n         <broker-plugin class-name=\"org.apache.activemq.artemis.core.server.plugin.impl.NotificationActiveMQServerPlugin\">\n            <property key=\"SEND_CONNECTION_NOTIFICATIONS\" value=\"true\"/>\n            <property key=\"SEND_ADDRESS_NOTIFICATIONS\"    value=\"true\"/>\n            <property key=\"SEND_DELIVERED_NOTIFICATIONS\"  value=\"true\"/>\n            <property key=\"SEND_EXPIRED_NOTIFICATIONS\"    value=\"true\"/>\n         </broker-plugin>\n      </broker-plugins>\n   </core>|" "$BROKER_XML"
+
+  # ---- Studio management write access on the two management-adjacent namespaces ----
+  # security-settings is most-specific-match-wins, not merged: the catch-all match="#" already grants
+  # role amq every permission listed here (send/consume/browse/manage/create+deleteNonDurableQueue on
+  # activemq.management.# and activemq.notifications), so these two blocks are functionally redundant
+  # today. They exist to mirror docs/standards/artemis-studio-broker-settings.md exactly, so that doc's
+  # corrected (browse-inclusive, role-correct) form is proven here before the prod team applies it.
+  sed -i 's|</security-settings>|         <security-setting match="activemq.management.#">\n            <permission type="createNonDurableQueue" roles="amq"/>\n            <permission type="deleteNonDurableQueue" roles="amq"/>\n            <permission type="createAddress"         roles="amq"/>\n            <permission type="deleteAddress"         roles="amq"/>\n            <permission type="send"                  roles="amq"/>\n            <permission type="consume"               roles="amq"/>\n            <permission type="browse"                roles="amq"/>\n            <permission type="manage"                roles="amq"/>\n         </security-setting>\n         <security-setting match="activemq.notifications">\n            <permission type="createNonDurableQueue" roles="amq"/>\n            <permission type="deleteNonDurableQueue" roles="amq"/>\n            <permission type="consume"               roles="amq"/>\n            <permission type="browse"                roles="amq"/>\n         </security-setting>\n      </security-settings>|' "$BROKER_XML"
+
   # NOTE: <redistribution-delay> is an ADDRESS-SETTING element. It must NOT be placed inside
   # <cluster-connection> (it is not valid there) — redistribution is enabled per matching
   # address in the address-settings below. Message load balancing stays ON_DEMAND in the
@@ -62,7 +80,9 @@ if [ ! -d "$INSTANCE/bin" ]; then
   # ---- address-settings for the nova.fcb namespace ----
   # Address settings merge hierarchically: the reply-namespace settings below inherit
   # everything from nova.fcb.# and only override auto-delete and redistribution.
-  read -r -d '' ADDR <<'XML' || true
+  # NOTE: unquoted heredoc delimiter (not <<'XML') — deliberate, so
+  # ${ARTEMIS_NOVA_FCB_PAGE_LIMIT_BYTES:-...} below expands. No other $ or ` appears in this block.
+  read -r -d '' ADDR <<XML || true
 
          <address-setting match="nova.fcb.#">
             <dead-letter-address>DLQ</dead-letter-address>
@@ -85,6 +105,16 @@ if [ ! -d "$INSTANCE/bin" ]; then
             <auto-delete-queues>false</auto-delete-queues>
             <auto-create-addresses>false</auto-create-addresses>
             <auto-delete-addresses>false</auto-delete-addresses>
+            <!-- PAGE with no page-limit spills to disk without bound; the only backstop is
+                 max-disk-usage, which blocks every producer on every address once hit — the
+                 ~54k-message DLQ/ExpiryQueue incident below was the graveyard half of this same
+                 failure mode. FAIL (not DROP) here: a lost FCB request/reply is a lost business
+                 operation and the caller must see the exception, not silence. Size this against
+                 real disk headroom for the environment it runs in — it is NOT the same number on
+                 every host (dev's /var has ~7.5G free across all six brokers; do not copy this
+                 figure onto a host with different capacity without recomputing it). -->
+            <page-limit-bytes>${ARTEMIS_NOVA_FCB_PAGE_LIMIT_BYTES:-536870912}</page-limit-bytes>
+            <page-full-policy>FAIL</page-full-policy>
          </address-setting>
 
          <!-- Per-instance reply queues are ephemeral by nature: self-clean 60s after the last
@@ -93,11 +123,19 @@ if [ ! -d "$INSTANCE/bin" ]; then
               queue takes its unconsumed (TTL-less) request messages with it: silent loss. -->
          <!-- redistribution-delay -1: a per-instance reply queue has one consumer on one node.
               Inheriting nova.fcb.#'s 1000 ships its messages to dead copies on the other nodes. -->
+         <!-- auto-delete-addresses: the reply ADDRESS name is <prefix><instanceId> and instanceId is
+              KUBERNETES_POD_NAME (config/nova-config fcb.yml), a new value on every pod restart/deploy.
+              auto-delete-queues alone reaps the queue 60s after its one consumer detaches, but
+              auto-delete-addresses is inherited from nova.fcb.# above, where it is deliberately false —
+              so without this override the ADDRESS survives forever and every rollout leaks two more of
+              them into the bindings journal on all six brokers. -->
          <address-setting match="nova.fcb.integration.reply.#">
             <auto-create-queues>true</auto-create-queues>
             <auto-create-addresses>true</auto-create-addresses>
             <auto-delete-queues>true</auto-delete-queues>
             <auto-delete-queues-delay>60000</auto-delete-queues-delay>
+            <auto-delete-addresses>true</auto-delete-addresses>
+            <auto-delete-addresses-delay>60000</auto-delete-addresses-delay>
             <redistribution-delay>-1</redistribution-delay>
          </address-setting>
          <address-setting match="nova.fcb.jwks.reply.#">
@@ -105,6 +143,8 @@ if [ ! -d "$INSTANCE/bin" ]; then
             <auto-create-addresses>true</auto-create-addresses>
             <auto-delete-queues>true</auto-delete-queues>
             <auto-delete-queues-delay>60000</auto-delete-queues-delay>
+            <auto-delete-addresses>true</auto-delete-addresses>
+            <auto-delete-addresses-delay>60000</auto-delete-addresses-delay>
             <redistribution-delay>-1</redistribution-delay>
          </address-setting>
 
@@ -172,6 +212,18 @@ XML
   # ---- advertise host IP:port to external clients ----
   if [ -n "$ARTEMIS_ADVERTISE_PORT" ] && [ -n "$SERVER_IP" ]; then
     sed -i "s|<connector name=\"artemis\">tcp://[^<]*</connector>|<connector name=\"artemis\">tcp://${SERVER_IP}:${ARTEMIS_ADVERTISE_PORT}</connector>|" "$BROKER_XML"
+  fi
+
+  # ---- allow the console's real access origin through Jolokia's CORS check ----
+  # `artemis create --http-host 0.0.0.0` auto-generates jolokia-access.xml with
+  # <allow-origin>*://0.0.0.0*</allow-origin> — literally the bind host, not where
+  # anyone actually browses the console from. Since the console is reached at
+  # http://${SERVER_IP}:81xx, the browser's real Origin header fails Jolokia's
+  # strict-checking CORS rule and the console falls back to its generic "No Artemis
+  # broker at this agent" message (a CORS rejection, not a missing broker).
+  JOLOKIA_ACCESS="$INSTANCE/etc/jolokia-access.xml"
+  if [ -n "$SERVER_IP" ] && [ -f "$JOLOKIA_ACCESS" ]; then
+    sed -i "s|<allow-origin>\*://0.0.0.0\*</allow-origin>|<allow-origin>*://0.0.0.0*</allow-origin>\n        <allow-origin>*://${SERVER_IP}*</allow-origin>|" "$JOLOKIA_ACCESS"
   fi
 fi
 

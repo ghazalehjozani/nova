@@ -9,7 +9,11 @@ x-artemis-live: &artemis-live
     ARTEMIS_ROLE: live
     ARTEMIS_CLUSTER_NODES: ${ARTEMIS_CLUSTER_NODES:-tcp://artemis-live1:61616,tcp://artemis-live2:61616,tcp://artemis-live3:61616}
     SERVER_IP: ${SERVER_IP}
-  entrypoint: ["/bin/sh", "/init/artemis-init.sh"]
+  # artemis-init.sh uses `read -r -d ''` heredocs, a bash-only construct; the alpine base image
+  # ships /bin/bash (confirmed present on server 20), so entrypoint must invoke it explicitly —
+  # /bin/sh here silently ran the script under busybox/dash instead, where those heredocs fail
+  # (masked by `|| true`), producing an instance whose broker.xml never got the nova.fcb hardening.
+  entrypoint: ["/bin/bash", "/init/artemis-init.sh"]
   volumes:
     - ./artemis-init.sh:/init/artemis-init.sh:ro
   healthcheck:
