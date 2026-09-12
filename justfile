@@ -343,7 +343,6 @@ _lb goal:
     set -Eeuo pipefail
     if [[ -f "{{ env_file }}" ]]; then set -a; source "{{ env_file }}"; set +a; fi
     : "${DB_URL:?DB_URL unset; populate {{ env_file }} or export DB_URL}"
-    : "${DB_NAME:?DB_NAME unset; populate {{ env_file }} or export DB_NAME}"
     : "${DB_USERNAME:?DB_USERNAME unset; populate {{ env_file }} or export DB_USERNAME}"
     : "${DB_PASSWORD:?DB_PASSWORD unset; populate {{ env_file }} or export DB_PASSWORD}"
     {{ lb_cmd }} {{ goal }}

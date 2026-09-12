@@ -417,7 +417,7 @@
         <!--
             Operational Liquibase tooling — INACTIVE in normal builds and CI.
             Activate only for command-line DB operations: `mvn -Pliquibase-ops liquibase:<goal>`,
-            or via the repo-root Makefile (`make db-status`, `make db-update`, ...).
+            or via the repo-root justfile (`just db-status`, `just db-update`, ...).
 
             Plugin↔runtime lockstep: liquibase-core is pinned to EXACTLY the version the app
             uses at startup (5.0.3, managed by Spring Boot 4.1 / pangaea dependencies). A drift
@@ -435,10 +435,11 @@
         <profile>
             <id>liquibase-ops</id>
             <properties>
-                <!-- DB connection: -Dliquibase.url=... wins; otherwise derived from DB_* env vars. -->
-                <liquibase.url>jdbc:postgresql://${env.DB_HOST}:${env.DB_PORT}/${env.DB_NAME}</liquibase.url>
+                <!-- DB connection: -Dliquibase.url=... wins; otherwise use the same DB_URL as the app. -->
+                <liquibase.url>${env.DB_URL}</liquibase.url>
                 <liquibase.username>${env.DB_USERNAME}</liquibase.username>
                 <liquibase.password>${env.DB_PASSWORD}</liquibase.password>
+                <liquibase.defaultSchemaName>nova</liquibase.defaultSchemaName>
             </properties>
             <build>
                 <plugins>
@@ -469,6 +470,7 @@
                             <url>${liquibase.url}</url>
                             <username>${liquibase.username}</username>
                             <password>${liquibase.password}</password>
+                            <defaultSchemaName>${liquibase.defaultSchemaName}</defaultSchemaName>
                             <!-- -D system properties override the values above (e.g. -Dliquibase.url=...). -->
                             <propertyFileWillOverride>false</propertyFileWillOverride>
                             <!-- No Liquibase Hub (decommissioned). -->
